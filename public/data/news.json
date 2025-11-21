@@ -1,5 +1,16 @@
 [
   {
+    "id": "7b0539d7676513685a37a30e7179599f",
+    "title": "Saudi Arabia releases US retiree jailed over critical tweets",
+    "snippet": "<p>Saad Almadi\u2019s family thanks Trump and state department as announcement comes after meeting with crown prince</p><p>Saudi Arabia has agreed to allow US citizen Saad Almadi to return home to Florida, five months ahead of the scheduled lifting of tra...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/19/saudi-arabia-saad-almadi-release",
+    "published": "Wed, 19 Nov 2025 21:21:29 GMT",
+    "source": "The Guardian World",
+    "category": "Cyber",
+    "severity": 3,
+    "region": "Global"
+  },
+  {
     "id": "4cea84f8ef3b1d25e7190904a07753d5",
     "title": "Russia Adds Khodorkovsky, Gudkov to \u2018Terrorist and Extremist\u2019 List",
     "snippet": "The move comes one month after the FSB announced criminal charges against 23 members of the Russian Anti-War Committee....",
@@ -22,24 +33,13 @@
     "region": "EMEA"
   },
   {
-    "id": "06510b34375d4bd7fa1ac79a42d185cc",
-    "title": "Russian Attack Leaves 25 Dead in Western Ukraine\u2019s Ternopil",
-    "snippet": "Ukrainian President Volodymyr Zelensky said dozens of others were injured in the overnight strikes and that more may be trapped under rubble....",
-    "link": "https://www.themoscowtimes.com/2025/11/19/russian-attack-leaves-25-dead-in-western-ukraines-ternopil-a91169",
-    "published": "Wed, 19 Nov 2025 12:24:00 +0300",
-    "source": "The Moscow Times",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
     "id": "41d731eb99b9d43dcdc876a9eacef149",
     "title": "#StopRansomware: Ghost (Cring) Ransomware",
     "snippet": "<h2><strong>Summary</strong></h2>\n<p><em><strong>Note:</strong> This joint Cybersecurity Advisory is part of an ongoing #StopRansomware effort to publish advisories for network defenders that detail various ransomware variants and ransomware threat a...",
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-050a",
     "published": "Wed, 19 Feb 2025 11:38:21 EST",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "APJC"
   },
@@ -61,7 +61,7 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-212a",
     "published": "Tue, 29 Jul 2025 13:53:52 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "AMER"
   },
@@ -72,7 +72,7 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-141b",
     "published": "Tue, 20 May 2025 15:20:23 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "EMEA"
   },
@@ -83,7 +83,7 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-093a",
     "published": "Tue, 01 Apr 2025 15:00:21 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "APJC"
   },
@@ -94,7 +94,7 @@
     "link": "https://reliefweb.int/report/ukraine/officer-charge-europe-central-asia-and-americas-briefs-security-council-situation-ukraine-20-november-2025",
     "published": "Thu, 20 Nov 2025 23:33:06 +0000",
     "source": "UN ReliefWeb",
-    "category": "Physical Security",
+    "category": "Logistics",
     "severity": 3,
     "region": "APJC"
   },
@@ -154,46 +154,13 @@
     "region": "APJC"
   },
   {
-    "id": "7005454e124ccd50c68f7e87ec95bbd5",
-    "title": "Israeli airstrikes kill 33 people in Gaza in escalation of post-ceasefire attacks",
-    "snippet": "<p>Medical officials say 17 people killed in Khan Younis area and 16 in strikes on Gaza City</p><p>Israeli attacks in Gaza have killed 33 people and injured many more, according to medical officials, in one of the most serious escalations of violence...",
-    "link": "https://www.theguardian.com/world/2025/nov/20/israeli-airstrikes-gaza-ceasefire-khan-younis",
-    "published": "Thu, 20 Nov 2025 13:25:17 GMT",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
-    "id": "a6c507f2cba67a52e0b87f1e7c70c8a9",
-    "title": "Deadly bear attacks set Japan on edge, prompt military action",
-    "snippet": "A record 13 people have been killed by bears so far this year. Canada, the U.S. and several other nations have issued warnings for citizens traveling in Japan....",
-    "link": "https://www.washingtonpost.com/world/2025/11/20/bears-japan-akita-asiatic/",
-    "published": "Thu, 20 Nov 2025 07:28:05 +0000",
-    "source": "The Washington Post World",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
-    "id": "9ba98ce655374f10bfe475e32b68537d",
-    "title": "How Japan Is Tackling Its Bear Problem",
-    "snippet": "Bear attacks are at record levels in Japan, with more than a dozen people killed this year. Javier C. Hern\u00e1ndez, our Tokyo bureau chief, looks at the causes and how Japan is responding....",
-    "link": "https://www.nytimes.com/video/world/100000010519260/japan-bear-attacks.html",
-    "published": "Thu, 20 Nov 2025 06:48:31 +0000",
-    "source": "New York Times World",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
     "id": "5a9258d9708e2054f88c931cb4f4e14b",
     "title": "Ransomware Actors Exploit Unpatched SimpleHelp Remote Monitoring and Management to Compromise Utility Billing Software Provider",
     "snippet": "<h2><strong>Summary</strong></h2>\n<p>The Cybersecurity and Infrastructure Security Agency (CISA) is releasing this advisory in response to ransomware actors leveraging unpatched instances of a vulnerability in SimpleHelp Remote Monitoring and Managem...",
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-163a",
     "published": "Thu, 12 Jun 2025 10:29:54 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "EMEA"
   },
@@ -215,7 +182,7 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-239a",
     "published": "Mon, 25 Aug 2025 09:36:40 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "APJC"
   },
@@ -226,7 +193,7 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-266a",
     "published": "Mon, 22 Sep 2025 11:12:49 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "APJC"
   },
@@ -237,7 +204,7 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-203a",
     "published": "Mon, 21 Jul 2025 10:11:24 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 3,
     "region": "EMEA"
   },
@@ -273,17 +240,6 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
-  },
-  {
-    "id": "9abefac2872e1f96c45e8f4974dd22b3",
-    "title": "Japan cook fends off bear while preparing food, keeps working while covered in blood",
-    "snippet": "A ramen eatery cook in Japan was attacked by a bear, suffered injuries, but still calmly made food preparations with his blood-covered face, shocking many online.\nJapan witnessed a surge in bear attacks this year. At least 13 people have been killed ...",
-    "link": "https://www.scmp.com/news/people-culture/article/3333219/japanese-cook-fends-bear-while-preparing-food-keeps-working-face-covered-blood?utm_source=rss_feed",
-    "published": "Fri, 21 Nov 2025 06:00:10 +0000",
-    "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "APJC"
   },
   {
     "id": "fb53241f62f1eb40f880ae5c2b2da3bf",
@@ -352,17 +308,6 @@
     "region": "Global"
   },
   {
-    "id": "e31a7771f21a8a4a70783d5a0b4f182f",
-    "title": "Al Qaeda-linked militants kill at least 10 soldiers in Niger, sources say",
-    "snippet": "<p>Militants from the al Qaeda-linked Jama'at Nusrat al-Islam wal-Muslimin (JNIM) killed at least 10 soldiers in an attack in western Niger, security sources said on Thursday.</p>...",
-    "link": "https://www.straitstimes.com/world/al-qaeda-linked-militants-kill-at-least-10-soldiers-in-niger-sources-say",
-    "published": "Fri, 21 Nov 2025 01:09:06 +0800",
-    "source": "The Straits Times (Singapore)",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "Global"
-  },
-  {
     "id": "7b99c6fa6f2b2433da0675a44723ffd0",
     "title": "Cuba: Hurricane Melissa - DREF Operation (MDRCU013)",
     "snippet": "<div class=\"tag country\">Country: Cuba</div>\n                                      <div class=\"tag source\">Source: International Federation of Red Cross and Red Crescent Societies</div>\n                                                                ...",
@@ -383,28 +328,6 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "APJC"
-  },
-  {
-    "id": "d27cb82e7a5cea9ce00cebcc6622b8f9",
-    "title": "Russian Missile Kills at Least 25 in Ukrainian Apartment Building",
-    "snippet": "The attack was part of a wave of strikes across the country as President Volodymyr Zelensky seeks to revive stalled peace talks....",
-    "link": "https://www.nytimes.com/2025/11/19/world/europe/ukraine-russia-strikes-peace-talks.html",
-    "published": "Wed, 19 Nov 2025 19:41:35 +0000",
-    "source": "New York Times World",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "EMEA"
-  },
-  {
-    "id": "f4c913cd6462ad9361388fff238456a2",
-    "title": "Ukrainian Strikes Leave Majority of Occupied Donetsk Without Power for Second Night, Proxy Leader Says",
-    "snippet": "Kremlin-installed officials said around 65% of energy customers in the occupied territory had lost power due to overnight air attacks on power plants....",
-    "link": "https://www.themoscowtimes.com/2025/11/18/ukrainian-strikes-leave-majority-of-occupied-donetsk-without-power-for-second-night-proxy-leader-says-a91154",
-    "published": "Tue, 18 Nov 2025 14:15:03 +0300",
-    "source": "The Moscow Times",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "EMEA"
   },
   {
     "id": "804846be34876602bb0815a5065ee01b",
@@ -451,17 +374,6 @@
     "region": "Global"
   },
   {
-    "id": "cff8d17101d0b192bba323154fcf86e4",
-    "title": "Israeli Strikes Kill at Least 25 in Gaza Amid Cease-Fire, Officials Say",
-    "snippet": "Israel\u2019s military said it had launched attacks across Gaza after Palestinian militants shot at its troops. The six-week-old cease-fire has been pierced periodically by bursts of violence....",
-    "link": "https://www.nytimes.com/2025/11/19/world/middleeast/israeli-strikes-gaza-deaths.html",
-    "published": "Thu, 20 Nov 2025 14:18:22 +0000",
-    "source": "New York Times World",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "EMEA"
-  },
-  {
     "id": "7577ffe83d5f78e6e3a74334dab78446",
     "title": "Moscow Police Arrest Mother of Boy Whose Severed Head Was Found in Backpack",
     "snippet": "Investigators in the Russian capital said the mother confessed to killing her son but was unable to explain her motives....",
@@ -479,9 +391,20 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-141a",
     "published": "Mon, 12 May 2025 12:49:12 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
+    "category": "Cyber",
     "severity": 2,
     "region": "APJC"
+  },
+  {
+    "id": "84be3eaab8e382758b5e15f6208e77e1",
+    "title": "US considering sanctions, Pentagon engagement in plan to protect Christians in Nigeria",
+    "snippet": "<p>WASHINGTON/LAGOS - The United States is considering actions such as sanctions and Pentagon engagement on counterterrorism as part of a plan to compel the Nigerian government to better protect Christian communities and religious freedom, a senior U...",
+    "link": "https://www.straitstimes.com/world/us-considering-sanctions-pentagon-engagement-in-plan-to-protect-christians-in-nigeria",
+    "published": "Fri, 21 Nov 2025 15:29:03 +0800",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "cd9eef01667ee7855746e5c278772f40",
@@ -489,17 +412,6 @@
     "snippet": "<p>WASHINGTON - Two Florida academics who were put on leave following comments tied to the September 10 assassination of right-wing activist Charlie Kirk say they have their jobs back.</p>...",
     "link": "https://www.straitstimes.com/world/two-florida-academics-say-they-have-their-jobs-back-after-charlie-kirk-related-comments",
     "published": "Fri, 21 Nov 2025 08:08:58 +0800",
-    "source": "The Straits Times (Singapore)",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "84be3eaab8e382758b5e15f6208e77e1",
-    "title": "US considering sanctions, Pentagon engagement in plan to protect Christians in Nigeria",
-    "snippet": "<p>WASHINGTON/LAGOS - The United States is considering actions such as sanctions and Pentagon engagement on counterterrorism as part of a plan to compel the Nigerian government to better protect Christian communities and religious freedom, a senior U...",
-    "link": "https://www.straitstimes.com/world/us-considering-sanctions-pentagon-engagement-in-plan-to-protect-christians-in-nigeria",
-    "published": "Fri, 21 Nov 2025 07:38:57 +0800",
     "source": "The Straits Times (Singapore)",
     "category": "Physical Security",
     "severity": 2,
@@ -605,6 +517,17 @@
     "region": "Global"
   },
   {
+    "id": "b9602cdf8a14a6c95021029673c60d36",
+    "title": "Drought is on going in Afghanistan, Armenia, Azerbaijan, Israel, Iraq, Islamic Republic of Iran, Kyrgyzstan, Kazakhstan, Lebanon, Syria, Tajikistan, Turkmenistan, T\u00fcrkiye, Uzbekistan",
+    "snippet": "The  Drought notification level is Orange....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1017535",
+    "published": "Tue, 28 Jan 2025 13:59:42 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
     "id": "99528c73646007459d5b494ec5d09237",
     "title": "Poland Says 2 Ukrainians Working for Russia Suspected in Railway Sabotage",
     "snippet": "The pair \u201chave been operating and cooperating with Russian services for a long time,\u201d Polish Prime Minister Donald Tusk said Tuesday....",
@@ -666,7 +589,7 @@
     "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001235",
     "published": "Tue, 18 Nov 2025 08:06:51 GMT",
     "source": "UN GDACS (Disaster Alert)",
-    "category": "Cyber",
+    "category": "Weather/Event",
     "severity": 1,
     "region": "APJC"
   },
@@ -680,6 +603,17 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "EMEA"
+  },
+  {
+    "id": "ff4589ffbd82882cd5a8cf5f9f5bcd49",
+    "title": "Green forest fire notification in Sudan",
+    "snippet": "On 17/11/2025, a forest fire started in Sudan,  until 18/11/2025....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1025277",
+    "published": "Thu, 20 Nov 2025 23:00:21 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "704da2d661a184d4ed6fe04a8c711761",
@@ -715,17 +649,6 @@
     "region": "Global"
   },
   {
-    "id": "8f8eec4880bf67c9cd4d1255b2d23c7a",
-    "title": "Jamaica: Hurricane Melissa - PAHO Situation Report #18 - 17-18 November 2025",
-    "snippet": "<div class=\"tag country\">Country: Jamaica</div>\n                                      <div class=\"tag source\">Source: Pan American Health Organization</div>\n                                                                                             ...",
-    "link": "https://reliefweb.int/report/jamaica/jamaica-hurricane-melissa-paho-situation-report-18-17-18-november-2025",
-    "published": "Thu, 20 Nov 2025 21:03:06 +0000",
-    "source": "UN ReliefWeb",
-    "category": "Logistics",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
     "id": "4d75c907c88e1562e9e42c1b2b1e1607",
     "title": "Sony, Warner and Universal sign AI music licensing deals with startup Klay",
     "snippet": "AI-generated music has been flooding streaming services and there is a wave of AI singers and bands that don&#039;t exist....",
@@ -748,17 +671,6 @@
     "region": "Global"
   },
   {
-    "id": "fcb29b19ad36819691afe0f559935bed",
-    "title": "With release of Epstein files looming, is Trump 'in a hurry to push through a Ukraine peace deal'?",
-    "snippet": "There's growing alarm across Ukraine, and the European continent, as reports emerge of a secret US-Russia draft peace plan aimed at ending the war. Trump's 28-point plan appears to grant numerous demands the Kremlin has made repeatedly since the full...",
-    "link": "https://www.france24.com/en/video/20251120-with-release-of-epstein-files-looming-is-trump-in-a-hurry-to-push-through-a-ukraine-peace-deal",
-    "published": "Thu, 20 Nov 2025 18:32:42 GMT",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "f6f8c186e7b02596e7ba94213c809e6e",
     "title": "Nigerian separatist leader sentenced to life for terrorism",
     "snippet": "Nnamdi Kanu is found guilty of inciting violence as part of his campaign for a separate state in south-east Nigeria....",
@@ -768,17 +680,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
-  },
-  {
-    "id": "b8a11ef3a13859948b548028db485bb1",
-    "title": "French ministers hold crisis talks in Marseille over drug trafficking",
-    "snippet": "French Interior Minister Laurent Nu\u00f1ez and Justice Minister G\u00e9rald Darmanin are in Marseille following the killing of 20-year-old Mehdi Kessaci, a murder authorities link to the city\u2019s powerful drug-trafficking networks. The government has called the...",
-    "link": "https://www.france24.com/en/video/20251120-french-ministers-hold-crisis-talks-in-marseille-over-drug-trafficking",
-    "published": "Thu, 20 Nov 2025 16:24:34 GMT",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
   },
   {
     "id": "b333eba0e8b5e6f9cd7399a3ca2b42b2",
@@ -880,6 +781,28 @@
     "region": "EMEA"
   },
   {
+    "id": "371388e5e0a292c1af0d5a2428f53404",
+    "title": "Drought is on going in Costa Rica, Cuba, Mexico",
+    "snippet": "The  Drought notification level is Green....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1017904",
+    "published": "Thu, 17 Jul 2025 12:09:31 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
+    "id": "be12446e6d57f941e95df46df82db8dc",
+    "title": "Drought is on going in Canada, United States",
+    "snippet": "The  Drought notification level is Green....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1018093",
+    "published": "Thu, 02 Oct 2025 10:20:21 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
     "id": "8eb23bfac8626aae5520e70ac092a806",
     "title": "Russia Tightens Legal Penalties for Terror and Sabotage Acts Among Minors",
     "snippet": "One of the new measures lowers the age at which minors can be charged with sabotage or terrorism to 14 from 16....",
@@ -902,33 +825,33 @@
     "region": "EMEA"
   },
   {
-    "id": "1eb007746a177d263dfed5e36477f00b",
-    "title": "Novorossiysk Oil Terminal Resumes Operations After Ukrainian Attack",
-    "snippet": "Oil prices dipped slightly amid the news, while investors were said to be assessing the long-term impacts of the Ukrainian attacks on crude exports....",
-    "link": "https://www.themoscowtimes.com/2025/11/17/novorossiysk-oil-terminal-resumes-operations-after-ukrainian-attack-a91140",
-    "published": "Mon, 17 Nov 2025 16:30:00 +0300",
-    "source": "The Moscow Times",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
-    "id": "ab3ac3567a8006ae6b91fc4d63eb0417",
-    "title": "Europe Unprepared for Potential Russian Drone Attacks, Defense Chief Warns",
-    "snippet": "The 27-nation bloc is scrambling to shore up its air defense capabilities after NATO jets shot down several Russian drones over Poland in September....",
-    "link": "https://www.themoscowtimes.com/2025/11/17/europe-unprepared-for-potential-russian-drone-attacks-defense-chief-warns-a91139",
-    "published": "Mon, 17 Nov 2025 13:56:23 +0300",
-    "source": "The Moscow Times",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
     "id": "98db59e9116dc1c21099023bcc77d050",
     "title": "Green flood alert in Islamic Republic of Iran",
     "snippet": "On 16/11/2025, a flood started in Islamic Republic of Iran, lasting until 19/11/2025 (last update). The flood caused 0 deaths and 0 displaced ....",
     "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103608",
     "published": "Mon, 17 Nov 2025 12:09:09 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "c2a555e112898d62d66f7d53fe8747d0",
+    "title": "Drought is on going in Democratic Republic of Congo, Central African Republic, Sudan, South Sudan",
+    "snippet": "The  Drought notification level is Green....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1017944",
+    "published": "Mon, 04 Aug 2025 07:09:21 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "0241bb14011a6f3451e67b6ebb3af4c7",
+    "title": "Drought is on going in Bosnia & Herzegovina, Croatia, Hungary, Romania, Serbia",
+    "snippet": "The  Drought notification level is Green....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1017051",
+    "published": "Mon, 03 Jun 2024 09:39:59 GMT",
     "source": "UN GDACS (Disaster Alert)",
     "category": "Weather/Event",
     "severity": 1,
@@ -944,17 +867,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
-  },
-  {
-    "id": "c4192e6d90e7a0c235609976ac77f931",
-    "title": "A relative\u2019s search and fading hope after Russian attack in western Ukraine",
-    "snippet": "While Ihor Cherepanskyi has little hope of seeing his great-grandmother alive again, he hopes her body can be recovered so she can be buried beside his great-grandfather....",
-    "link": "https://www.japantimes.co.jp/news/2025/11/21/world/ukraine-search-relative/",
-    "published": "Fri, 21 Nov 2025 09:50:00 +0900",
-    "source": "The Japan Times",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
   },
   {
     "id": "e0ada799915861f260724ae7e0cdf1a4",
@@ -1133,22 +1045,33 @@
     "region": "EMEA"
   },
   {
+    "id": "59aae7f7e70fd9640d7e006424c135be",
+    "title": "Drought is on going in Belgium, France, Netherlands",
+    "snippet": "The  Drought notification level is Green....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1016401",
+    "published": "Fri, 14 Jul 2023 14:37:45 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "72d459bbe4c42a8f1d2cc9992427ef68",
+    "title": "Drought is on going in Burkina Faso, Benin, Cote d'Ivoire, Cameroon, Ghana, Nigeria, Togo",
+    "snippet": "The  Drought notification level is Green....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1016995",
+    "published": "Fri, 03 May 2024 10:02:07 GMT",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "f392660183dc05e7a3011aca2c551593",
     "title": "'You\u2019re Heroes': Donald Trump welcomes freed Israeli hostages to White House; calls it an \u2018honour\u2019 to meet them",
     "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125478095.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />President Trump welcomed 26 freed Israeli hostages at the White House, calling them \"heroes\" and pres...",
     "link": "https://timesofindia.indiatimes.com/world/us/youre-heroes-donald-trump-welcomes-freed-israeli-hostages-to-white-house-calls-it-an-honour-to-meet-them/articleshow/125478095.cms",
     "published": "2025-11-21T11:05:35+05:30",
-    "source": "Times of India World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
-    "id": "937cf1c150f8bd01c3ff945836a2e5c1",
-    "title": "\u2018Seditious behaviour, punishable by death!\u2019: Trump attacks Democrats telling US troops to refuse illegal orders",
-    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125471744.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />...",
-    "link": "https://timesofindia.indiatimes.com/world/us/seditious-behaviour-punishable-by-death-trump-attacks-democrats-telling-us-troops-to-refuse-illegal-orders/articleshow/125471744.cms",
-    "published": "2025-11-21T01:52:57+05:30",
     "source": "Times of India World",
     "category": "Physical Security",
     "severity": 1,
