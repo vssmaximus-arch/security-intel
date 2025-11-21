@@ -338,7 +338,7 @@
   {
     "id": "9d2b92aeb41ae96ed9ce52187aaddaee",
     "title": "Nigeria reels after second mass school abduction in a week",
-    "snippet": "<p>Students taken from Catholic school in Niger state amid threats from Donald Trump to intervene to end what he calls a \u2018Christian genocide\u2019</p><p>Unknown gunmen have abducted an unidentified number of students from a Catholic school in central Nige...",
+    "snippet": "<p>Students taken from Catholic school in Niger state amid threats from Trump to intervene over \u2018Christian genocide\u2019</p><p>Unknown gunmen have abducted an unidentified number of students from a Catholic school in central Nigeria, the second mass abdu...",
     "link": "https://www.theguardian.com/world/2025/nov/21/nigeria-reels-after-second-mass-school-abduction-in-a-week",
     "published": "2025-11-21T17:13:42",
     "date_str": "2025-11-21",
@@ -1092,6 +1092,42 @@
     "region": "Global"
   },
   {
+    "id": "a49c5387323f23a60f98e538e55d0c19",
+    "title": "Four men convicted of cyberbullying French DJ Olympics performer",
+    "snippet": "<p>The Paris criminal court acquitted a fifth man in the case.</p>...",
+    "link": "https://www.straitstimes.com/world/europe/four-men-convicted-of-cyberbullying-french-dj-olympics-performer",
+    "published": "2025-11-21T17:39:50",
+    "date_str": "2025-11-21",
+    "source": "The Straits Times (Singapore)",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "3ce44d76c0c60476a9a561b143797ac0",
+    "title": "A new Miss Universe is crowned, weeks after she left a pageant event in protest",
+    "snippet": "This year's Miss Universe competition, held in Bangkok, was marred by a series of dramatic incidents, from a contestant's livestreamed walkout to a now former judge's allegations of rigging....",
+    "link": "https://www.npr.org/2025/11/21/nx-s1-5616219/miss-universe-mexico-scandals",
+    "published": "2025-11-21T17:34:54",
+    "date_str": "2025-11-21",
+    "source": "NPR World (USA)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "1404d6377539135efdfa01469ed8cd16",
+    "title": "Bangladesh | 5.5 M earthquake on 21 November - DG ECHO Daily Map | 21/11/2025",
+    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations</div>\n                   ...",
+    "link": "https://reliefweb.int/map/bangladesh/bangladesh-55-m-earthquake-21-november-dg-echo-daily-map-21112025",
+    "published": "2025-11-21T17:17:14",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
     "id": "2451650b2029afa3ea296fe559db39bd",
     "title": "Farage\u2019s views on Russia likely to be further tested after jailing of Nathan Gill",
     "snippet": "<p>It would be expedient for Reform to take Labour\u2019s advice and disavow \u2018Putin talking points\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/politics/2025/nov/21/nathan-gill-former-reform-uk-wales-leader-jailed-bribes-pro-russia-statements-mep\">...",
@@ -1176,38 +1212,14 @@
     "region": "Global"
   },
   {
-    "id": "a49c5387323f23a60f98e538e55d0c19",
-    "title": "Four men convicted of cyberbullying French DJ Olympics performer",
-    "snippet": "<p>The Paris criminal court acquitted a fifth man in the case.</p>...",
-    "link": "https://www.straitstimes.com/world/europe/four-men-convicted-of-cyberbullying-french-dj-olympics-performer",
-    "published": "2025-11-21T17:39:50",
+    "id": "fd0a23a5f557070da36d1383ce37b3bb",
+    "title": "Poland\u2019s PM Tusk calls rail sabotage \u2018state terrorism\u2019 by Russia",
+    "snippet": "<p>A railway line used to deliver aid to Ukraine was sabotaged with explosives on Nov 17.</p>...",
+    "link": "https://www.straitstimes.com/world/europe/polish-pm-says-russia-backed-sabotage-has-crossed-a-critical-line",
+    "published": "2025-11-21T10:09:05",
     "date_str": "2025-11-21",
     "source": "The Straits Times (Singapore)",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "3ce44d76c0c60476a9a561b143797ac0",
-    "title": "A new Miss Universe is crowned, weeks after she left a pageant event in protest",
-    "snippet": "This year's Miss Universe competition, held in Bangkok, was marred by a series of dramatic incidents, from a contestant's livestreamed walkout to a now former judge's allegations of rigging....",
-    "link": "https://www.npr.org/2025/11/21/nx-s1-5616219/miss-universe-mexico-scandals",
-    "published": "2025-11-21T17:34:54",
-    "date_str": "2025-11-21",
-    "source": "NPR World (USA)",
     "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "1404d6377539135efdfa01469ed8cd16",
-    "title": "Bangladesh | 5.5 M earthquake on 21 November - DG ECHO Daily Map | 21/11/2025",
-    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations</div>\n                   ...",
-    "link": "https://reliefweb.int/map/bangladesh/bangladesh-55-m-earthquake-21-november-dg-echo-daily-map-21112025",
-    "published": "2025-11-21T17:17:14",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Weather/Event",
     "severity": 1,
     "region": "EMEA"
   },
