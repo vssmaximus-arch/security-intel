@@ -204,6 +204,18 @@
     "region": "EMEA"
   },
   {
+    "id": "1bf41cb89f587d2654ac4aaf0b274066",
+    "title": "Jamaica reports deadly leptospirosis outbreak after Hurricane Melissa",
+    "snippet": "<p>KINGSTON -Jamaica has declared an outbreak of the bacterial disease leptospirosis, suspected of causing six deaths, following the devastation from Hurricane Melissa in late October.</p>...",
+    "link": "https://www.straitstimes.com/world/jamaica-reports-deadly-leptospirosis-outbreak-after-hurricane-melissa",
+    "published": "2025-11-21T22:09:40",
+    "date_str": "2025-11-21",
+    "source": "The Straits Times (Singapore)",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "Global"
+  },
+  {
     "id": "4020dec6693b50d743a1e791c9ba9344",
     "title": "Trump\u2019s threats amount to calls for \u2018execution of elected officials\u2019, says Chuck Schumer \u2013 US politics live",
     "snippet": "<p>Democrat Senate minority leader says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p><strong>Robert Garcia</strong>, the ranking member on the House oversight committee, ...",
@@ -334,6 +346,18 @@
     "category": "Weather/Event",
     "severity": 2,
     "region": "APJC"
+  },
+  {
+    "id": "540ec4c1438c6ee72663b30ae9389d70",
+    "title": "Senator whose wife was shot fears for safety after Trump sedition accusation",
+    "snippet": "<p>President called behavior of Mark Kelly, whose wife Gabby Giffords survived assassination bid, \u2018punishable by death\u2019</p><p>Senator Mark Kelly \u2013 whose wife, Gabrielle Giffords, narrowly survived an attempted assassination while she was in Congress ...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/21/mark-kelly-gabby-giffords-threats-safety-trump",
+    "published": "2025-11-21T21:56:58",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "c1c58d5de73732bd9a746ae873f7c556",
@@ -1176,23 +1200,11 @@
     "region": "Global"
   },
   {
-    "id": "2451650b2029afa3ea296fe559db39bd",
-    "title": "Farage\u2019s views on Russia likely to be further tested after jailing of Nathan Gill",
-    "snippet": "<p>It would be expedient for Reform to take Labour\u2019s advice and disavow \u2018Putin talking points\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/politics/2025/nov/21/nathan-gill-former-reform-uk-wales-leader-jailed-bribes-pro-russia-statements-mep\">...",
-    "link": "https://www.theguardian.com/politics/2025/nov/21/farage-views-on-russia-tested-jailing-nathan-gill-reform",
-    "published": "2025-11-21T17:02:52",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
     "id": "39a16b9dd4d65556ea45fe334e235a71",
     "title": "Trump says he \u2018absolutely\u2019 would live in Mamdani\u2019s New York during unexpectedly cordial first meeting \u2013 US politics live",
-    "snippet": "<p>President and mayor-elect refused to be drawn into talking about their differences despite repeated attempts to draw them into conflict</p><ul><li><p><a href=\"https://www.theguardian.com/us-news/2025/nov/21/donald-trump-zohran-mamdani-meeting\">Tru...",
+    "snippet": "<p>President and mayor-elect refused to be drawn into talking about their differences despite repeated attempts to nudge them into conflict</p><ul><li><p><a href=\"https://www.theguardian.com/us-news/2025/nov/21/donald-trump-zohran-mamdani-meeting\">Tr...",
     "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
-    "published": "2025-11-21T21:44:33",
+    "published": "2025-11-21T22:28:52",
     "date_str": "2025-11-21",
     "source": "The Guardian World",
     "category": "Physical Security",
@@ -1212,18 +1224,6 @@
     "region": "Global"
   },
   {
-    "id": "ffab4a1bda5bd9a4bdc0ef32bc71a3cf",
-    "title": "Ex-Harvard prez Larry Summers and wife flew to Epstein\u2019s \u2018island\u2019 on 2005 honeymoon for a \u2018brief visit\u2019, report claims",
-    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125491275.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Larry Summers, the former president of Harvard University, is under fire as newly released flight log...",
-    "link": "https://timesofindia.indiatimes.com/world/us/ex-harvard-prez-larry-summers-and-wife-flew-to-epsteins-island-on-2005-honeymoon-for-a-brief-visit-report-claims/articleshow/125491275.cms",
-    "published": "2025-11-21T17:15:50",
-    "date_str": "2025-11-21",
-    "source": "Times of India World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "bd275f3da0175095b29dc1112773c37c",
     "title": "US policeman found not guilty of murdering pregnant black woman Ta\u2019Kiya Young",
     "snippet": "An Ohio jury found a white police officer not guilty of murder on Friday in the 2023 fatal shooting of a pregnant black woman suspected of shoplifting from a supermarket, lawyers in the case and court records said.\nConnor Grubb, an officer with the B...",
@@ -1234,6 +1234,30 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "2451650b2029afa3ea296fe559db39bd",
+    "title": "Farage\u2019s views on Russia likely to be further tested after jailing of Nathan Gill",
+    "snippet": "<p>It would be expedient for Reform to take Labour\u2019s advice and disavow \u2018Putin talking points\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/politics/2025/nov/21/nathan-gill-former-reform-uk-wales-leader-jailed-bribes-pro-russia-statements-mep\">...",
+    "link": "https://www.theguardian.com/politics/2025/nov/21/farage-views-on-russia-tested-jailing-nathan-gill-reform",
+    "published": "2025-11-21T17:02:52",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "ffab4a1bda5bd9a4bdc0ef32bc71a3cf",
+    "title": "Ex-Harvard prez Larry Summers and wife flew to Epstein\u2019s \u2018island\u2019 on 2005 honeymoon for a \u2018brief visit\u2019, report claims",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125491275.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Larry Summers, the former president of Harvard University, is under fire as newly released flight log...",
+    "link": "https://timesofindia.indiatimes.com/world/us/ex-harvard-prez-larry-summers-and-wife-flew-to-epsteins-island-on-2005-honeymoon-for-a-brief-visit-report-claims/articleshow/125491275.cms",
+    "published": "2025-11-21T17:15:50",
+    "date_str": "2025-11-21",
+    "source": "Times of India World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "b6d9fe2609e25df7b5d4ee929e0da893",
