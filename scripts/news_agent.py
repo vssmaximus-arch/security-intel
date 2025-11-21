@@ -29,7 +29,6 @@ TRUSTED_SOURCES = {
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times (Singapore)",
     "https://www.japantimes.co.jp/feed": "The Japan Times",
     "https://kyivindependent.com/feed": "The Kyiv Independent",
-    "https://www.middleeasteye.net/rss": "Middle East Eye",
     "https://www.themoscowtimes.com/rss/news": "The Moscow Times",
     "https://feeds.npr.org/1004/rss.xml": "NPR World (USA)",
     "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
@@ -37,9 +36,10 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
+# KEYWORDS (Added "violence", "hate crime" to Physical Security)
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack"],
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack", "violence", "hate crime", "stabbing"],
     "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
     "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
 }
@@ -101,7 +101,7 @@ def analyze_article(title, summary, source_name, locations):
 def fetch_news():
     locations = load_locations()
     
-    # --- DATABASE LOAD WITH AUTO-REPAIR ---
+    # 1. LOAD HISTORY
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
@@ -110,17 +110,29 @@ def fetch_news():
             existing_data = []
     else:
         existing_data = []
-        
-    # FIX: Repair old data that missing the 'date_str' key
-    for item in existing_data:
-        if 'date_str' not in item:
-            # Use the first 10 chars of 'published' or default to today
-            item['date_str'] = item.get('published', str(datetime.now()))[:10]
 
-    # Convert to DB dict
-    db = {item['id']: item for item in existing_data}
-    print(f"Loaded and repaired {len(db)} history items.")
-    
+    # 2. RE-ANALYZE HISTORY (Fixes Bad Labels from old runs)
+    print(f"Re-analyzing {len(existing_data)} historical items...")
+    db = {}
+    for item in existing_data:
+        # Fix missing dates
+        if 'date_str' not in item:
+            item['date_str'] = item.get('published', str(datetime.now()))[:10]
+        
+        # RE-RUN ANALYSIS on old items to fix bad categories
+        new_analysis = analyze_article(item['title'], item['snippet'], item['source'], locations)
+        
+        if new_analysis:
+            item['category'] = new_analysis['category']
+            item['severity'] = new_analysis['severity']
+            item['region'] = new_analysis['region']
+            db[item['id']] = item # Save the fixed item
+        else:
+            # If item is now "Uncategorized" (irrelevant), we drop it from history
+            pass 
+
+    # 3. FETCH NEW ITEMS
+    print("Scanning for fresh news...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
@@ -154,7 +166,6 @@ def fetch_news():
             print(f"Skipping {source_name}: {e}")
 
     final_list = list(db.values())
-    # Safe Sort
     final_list.sort(key=lambda x: (x.get('date_str', '2025-01-01'), x['severity']), reverse=True)
     
     if len(final_list) > 1000:
@@ -164,7 +175,7 @@ def fetch_news():
     with open(DB_PATH, "w") as f:
         json.dump(final_list, f, indent=2)
     
-    print(f"Database updated. Total history: {len(final_list)}")
+    print(f"Database updated. History re-verified. Total items: {len(final_list)}")
 
 if __name__ == "__main__":
     fetch_news()
