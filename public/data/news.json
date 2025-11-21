@@ -77,17 +77,6 @@
     "region": "EMEA"
   },
   {
-    "id": "930e92536f962dd6c6548737a2608346",
-    "title": "#StopRansomware: Medusa Ransomware",
-    "snippet": "<h2><strong>Summary</strong></h2>\n<p><strong>Note:</strong> This joint Cybersecurity Advisory is part of an ongoing #StopRansomware effort to publish advisories for network defenders detailing various ransomware variants and ransomware threat actors....",
-    "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-071a",
-    "published": "Tue, 11 Mar 2025 10:52:42 EDT",
-    "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "409c9354b07b341e18761779f770cf53",
     "title": "Fast Flux: A National Security Threat",
     "snippet": "<h2><strong>Executive summary</strong></h2>\n<p>Many networks have a gap in their defenses for detecting and blocking a malicious technique known as \u201cfast flux.\u201d This technique poses a significant threat to national security, enabling malicious cyber ...",
@@ -270,17 +259,6 @@
     "link": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-203a",
     "published": "Mon, 21 Jul 2025 10:11:24 EDT",
     "source": "US CISA (Cyber Govt)",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
-    "id": "6d445345ab833fd3d7470f3416a204ae",
-    "title": "Russia Adds Former PM Kasyanov to 'Terrorists and Extremists' List",
-    "snippet": "Economist Sergei Guriev and Novaya Gazeta Europe editor-in-chief Kirill Martynov were also added to the list....",
-    "link": "https://www.themoscowtimes.com/2025/11/17/russia-adds-former-pm-kasyanov-to-terrorists-and-extremists-list-a91146",
-    "published": "Mon, 17 Nov 2025 19:53:00 +0300",
-    "source": "The Moscow Times",
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
@@ -605,26 +583,15 @@
     "region": "Global"
   },
   {
-    "id": "61288f357062eda6381ebf2bd5b5c278",
-    "title": "Green flood alert in Slovenia",
-    "snippet": "On 16/11/2025, a flood started in Slovenia, lasting until 18/11/2025 (last update). The flood caused 0 deaths and 0 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103617",
-    "published": "Wed, 19 Nov 2025 10:35:03 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
+    "id": "99528c73646007459d5b494ec5d09237",
+    "title": "Poland Says 2 Ukrainians Working for Russia Suspected in Railway Sabotage",
+    "snippet": "The pair \u201chave been operating and cooperating with Russian services for a long time,\u201d Polish Prime Minister Donald Tusk said Tuesday....",
+    "link": "https://www.themoscowtimes.com/2025/11/18/poland-says-2-ukrainians-working-for-russia-suspected-in-railway-sabotage-a91163",
+    "published": "Tue, 18 Nov 2025 19:12:21 +0300",
+    "source": "The Moscow Times",
+    "category": "Logistics",
     "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "01e1afa55df0f7cd4fd213f937c18a57",
-    "title": "Green flood alert in Albania",
-    "snippet": "On 18/11/2025, a flood started in Albania, lasting until 20/11/2025 (last update). The flood caused 0 deaths and 9 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103616",
-    "published": "Wed, 19 Nov 2025 09:56:52 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
+    "region": "EMEA"
   },
   {
     "id": "e5bd7d202a159717b1f097f8f8764ac3",
@@ -649,50 +616,6 @@
     "region": "EMEA"
   },
   {
-    "id": "bbcf1cdcd506526a7671d0dd71ddc553",
-    "title": "Green flood alert in Philippines",
-    "snippet": "On 15/11/2025, a flood started in Philippines, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 280 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103615",
-    "published": "Tue, 18 Nov 2025 15:26:42 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "2aee551f861c3fc4fa5fe1a57714a844",
-    "title": "Green flood alert in United States",
-    "snippet": "On 14/11/2025, a flood started in United States, lasting until 20/11/2025 (last update). The flood caused 2 deaths and 0 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103614",
-    "published": "Tue, 18 Nov 2025 12:50:52 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "f1a508453cf0e732d721e5cebc88f6ad",
-    "title": "Green flood alert in Brazil",
-    "snippet": "On 15/11/2025, a flood started in Brazil, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 6 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103613",
-    "published": "Tue, 18 Nov 2025 12:49:22 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "0b8e9aa6d1f10335fa54f14dec1bc884",
-    "title": "Green flood alert in Portugal, United Kingdom",
-    "snippet": "On 17/11/2025, a flood started in Portugal, United Kingdom, lasting until 17/11/2025 (last update). The flood caused 3 deaths and 85 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103612",
-    "published": "Tue, 18 Nov 2025 12:47:50 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
     "id": "fcaa8d0c5aab031eb1c28a1f80dfd4d2",
     "title": "Gas Pipeline Blast Near Omsk Forces Industrial Shutdowns",
     "snippet": "Omsk region Governor Vitaly Khotsenko said investigators were examining a possible gas leak as the cause of the powerful explosion....",
@@ -713,17 +636,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "APJC"
-  },
-  {
-    "id": "cde11e56eb1d05d18d19f9b824777f97",
-    "title": "Green flood alert in Costa Rica",
-    "snippet": "On 15/11/2025, a flood started in Costa Rica, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 20 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103611",
-    "published": "Tue, 18 Nov 2025 09:16:07 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "52ffffd60a08681954a5fc17de96d1fd",
@@ -776,17 +688,6 @@
     "link": "https://www.scmp.com/news/world/united-states-canada/article/3333606/us-unveils-plan-oil-and-gas-auctions-california-and-alaska?utm_source=rss_feed",
     "published": "Thu, 20 Nov 2025 21:46:22 +0000",
     "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "bbd62d95689dd88485ecc387301eeeaa",
-    "title": "Nigerian court convicts separatist leader Kanu for terrorism",
-    "snippet": "In tonight's edition,\u00a0Biafran separatist leader Nnamdi Kanu has been convicted in Nigeria on terrorism charges.\n \nAlso, as US President Donald Trump says the US will do more to end Sudan's war, millions of children marked by the conflict struggle to ...",
-    "link": "https://www.france24.com/en/tv-shows/eye-on-africa/20251120-nigerian-court-convicts-separatist-leader-kanu-for-terrorism",
-    "published": "Thu, 20 Nov 2025 21:19:51 GMT",
-    "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
@@ -880,17 +781,6 @@
     "region": "EMEA"
   },
   {
-    "id": "4dd1f94aa63bebfb48e0e687e9ab2c75",
-    "title": "Biafran separatist leader sentenced to life on terrorism charges by Nigerian court",
-    "snippet": "<p>Judge says Nnamdi Kanu used his Indigenous People of Biafra group to incite attacks on security officials and civilians</p><p>The Biafran separatist leader Nnamdi Kanu has been sentenced to life in prison on terrorism-related charges by a court in...",
-    "link": "https://www.theguardian.com/world/2025/nov/20/nigerian-court-convicts-biafran-separatist-leader-on-terrorism-charges-nnamdi-kanu",
-    "published": "Thu, 20 Nov 2025 16:24:29 GMT",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
     "id": "b333eba0e8b5e6f9cd7399a3ca2b42b2",
     "title": "More than 250 arrested in Charlotte as US immigration crackdown escalates",
     "snippet": "Charlotte's Democratic leaders say border agents are \"stoking fear\" in the city....",
@@ -935,15 +825,15 @@
     "region": "Global"
   },
   {
-    "id": "df99f77f222197281badb00596a3e903",
-    "title": "Green flood alert in Montenegro",
-    "snippet": "On 18/11/2025, a flood started in Montenegro, lasting until 20/11/2025 (last update). The flood caused 0 deaths and 0 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103619",
-    "published": "Thu, 20 Nov 2025 09:52:42 GMT",
-    "source": "UN GDACS (Disaster Alert)",
+    "id": "3cd65102146fb8f6167cd99a2f81bd2e",
+    "title": "Secret translation of Nauruan president\u2019s interview on NZYQ deal with Australia to stay suppressed for decade",
+    "snippet": "<p>Penny Wong says translation notes were \u2018taken hastily\u2019 by official who was not accredited translator and were \u2018for internal purposes only\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/20/australia-news-live-volca...",
+    "link": "https://www.theguardian.com/world/2025/nov/20/secret-translation-nauru-president-interview-nzyq-deal-australia-suppressed",
+    "published": "Thu, 20 Nov 2025 08:02:18 GMT",
+    "source": "The Guardian World",
     "category": "Weather/Event",
     "severity": 1,
-    "region": "Global"
+    "region": "APJC"
   },
   {
     "id": "21a11b6a4dceb103d925d0d24947885c",
@@ -957,17 +847,6 @@
     "region": "APJC"
   },
   {
-    "id": "2b4d48ff05f02625af14c54c8123f8f2",
-    "title": "Green earthquake (Magnitude 5.8M, Depth:128.344km) in Indonesia 20/11/2025 06:59 UTC, 560 thousand in MMI IV.",
-    "snippet": "On 11/20/2025 6:59:44 AM, an earthquake occurred in Indonesia potentially affecting 560 thousand in MMI IV. The earthquake had Magnitude 5.8M, Depth:128.344km....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1511130",
-    "published": "Thu, 20 Nov 2025 07:14:32 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
     "id": "70c450dea42484bb88dd5c96bb2e701c",
     "title": "Who are Afrikaners, the group at the center of Trump's dispute with South Africa?",
     "snippet": "Trump has repeated debunked claims that Afrikaners are facing a \"white genocide\" in South Africa. Critics say the false statements are causing conflict in a country still recovering from apartheid....",
@@ -975,6 +854,17 @@
     "published": "Thu, 20 Nov 2025 05:00:00 -0500",
     "source": "NPR World (USA)",
     "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "9710ecde06c123b37f2f6ddedfa93a40",
+    "title": "Watch: Indonesia's Semeru volcano spews giant ash clouds as it erupts",
+    "snippet": "Java Island\u2019s tallest mountain, a volcano called Mount Semeru, has spewed tall plumes of ash clouds that engulfed bridges and the surrounding countryside....",
+    "link": "https://www.bbc.com/news/videos/clyzy88l87no?at_medium=RSS&at_campaign=rss",
+    "published": "Thu, 20 Nov 2025 02:24:49 GMT",
+    "source": "BBC World News",
+    "category": "Weather/Event",
     "severity": 1,
     "region": "Global"
   },
@@ -988,28 +878,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "EMEA"
-  },
-  {
-    "id": "5c64680bd14720b648d507318bd5dd42",
-    "title": "Green flood alert in Italy",
-    "snippet": "On 15/10/2025, a flood started in Italy, lasting until 20/11/2025 (last update). The flood caused 2 deaths and 307 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103563",
-    "published": "Thu, 16 Oct 2025 06:57:28 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "a62a4e199f786ca52b5cce6d902ff4a7",
-    "title": "Green flood alert in Vietnam",
-    "snippet": "On 13/11/2025, a flood started in Vietnam, lasting until 18/11/2025 (last update). The flood caused 6 deaths and 4452 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103603",
-    "published": "Sat, 15 Nov 2025 07:35:19 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "8eb23bfac8626aae5520e70ac092a806",
@@ -1056,55 +924,11 @@
     "region": "EMEA"
   },
   {
-    "id": "8d79dbd6de6920c688361258df167afa",
-    "title": "Green flood alert in Australia",
-    "snippet": "On 15/11/2025, a flood started in Australia, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 0 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103610",
-    "published": "Mon, 17 Nov 2025 12:12:03 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
-    "id": "135896964a7431cfaabd6b1a6f4e6014",
-    "title": "Green flood alert in Iraq",
-    "snippet": "On 15/11/2025, a flood started in Iraq, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 0 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103609",
-    "published": "Mon, 17 Nov 2025 12:10:36 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
     "id": "98db59e9116dc1c21099023bcc77d050",
     "title": "Green flood alert in Islamic Republic of Iran",
     "snippet": "On 16/11/2025, a flood started in Islamic Republic of Iran, lasting until 19/11/2025 (last update). The flood caused 0 deaths and 0 displaced ....",
     "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103608",
     "published": "Mon, 17 Nov 2025 12:09:09 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "434234c302cd145c2867bbe16cba32f4",
-    "title": "Green flood alert in France",
-    "snippet": "On 14/11/2025, a flood started in France, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 27 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103607",
-    "published": "Mon, 17 Nov 2025 06:54:03 GMT",
-    "source": "UN GDACS (Disaster Alert)",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
-    "id": "8cb9998396be5b4abf8e9db25ac26fe2",
-    "title": "Orange flood alert in Indonesia",
-    "snippet": "On 09/09/2025, a flood started in Indonesia, lasting until 19/11/2025 (last update). The flood caused 104 deaths and 5645 displaced ....",
-    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103494",
-    "published": "Mon, 13 Oct 2025 08:23:17 GMT",
     "source": "UN GDACS (Disaster Alert)",
     "category": "Weather/Event",
     "severity": 1,
@@ -1188,26 +1012,15 @@
     "region": "Global"
   },
   {
-    "id": "3139a42c0024ba19dab30d72b01e4891",
-    "title": "Orange earthquake (Magnitude 5.5M, Depth:10km) in Bangladesh 21/11/2025 04:38 UTC, 220 thousand (in MMI>=VII).",
-    "snippet": "On 11/21/2025 4:38:26 AM, an earthquake occurred in Bangladesh potentially affecting 220 thousand (in MMI>=VII). The earthquake had Magnitude 5.5M, Depth:10km....",
+    "id": "254290ebe5967a8c9d0937c6f1e2bffe",
+    "title": "Orange earthquake (Magnitude 5.5M, Depth:10km) in Bangladesh 21/11/2025 04:38 UTC, 360 thousand (in MMI>=VII).",
+    "snippet": "On 11/21/2025 4:38:26 AM, an earthquake occurred in Bangladesh potentially affecting 360 thousand (in MMI>=VII). The earthquake had Magnitude 5.5M, Depth:10km....",
     "link": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1511252",
     "published": "Fri, 21 Nov 2025 04:55:54 GMT",
     "source": "UN GDACS (Disaster Alert)",
     "category": "Weather/Event",
     "severity": 1,
     "region": "AMER"
-  },
-  {
-    "id": "0c0ea32f789ea69e1f084e9c725cff04",
-    "title": "Nigerian court jails separatist leader Kanu for life over terrorism",
-    "snippet": "<p>ABUJA - A Nigerian court on Thursday sentenced separatist leader Nnamdi Kanu to life in prison after convicting him on all seven terrorism-related charges at the end of a decade-long trial that has inflamed tensions in the country's southeast.</p>...",
-    "link": "https://www.straitstimes.com/world/europe/nigerian-court-jails-separatist-leader-kanu-for-life-over-terrorism",
-    "published": "Fri, 21 Nov 2025 03:29:19 +0800",
-    "source": "The Straits Times (Singapore)",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "b65fe7cd7dbef3b527c0ca66c0304cc5",
