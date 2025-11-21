@@ -4,6 +4,7 @@ import os
 import hashlib
 from datetime import datetime
 from difflib import SequenceMatcher
+from time import mktime
 
 # --- CONFIGURATION: GLOBAL TRUSTED SOURCES ---
 TRUSTED_SOURCES = {
@@ -35,13 +36,15 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# Risk Keywords - REORDERED: Cyber checks FIRST to avoid "attack" confusion
+# KEYWORDS - Priority Ordered (Cyber Checked First)
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack"],
     "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
     "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
 }
+
+DB_PATH = "public/data/news.json"
 
 def load_locations():
     try:
@@ -50,67 +53,72 @@ def load_locations():
     except:
         return []
 
-def is_similar(a, b):
-    return SequenceMatcher(None, a, b).ratio() > 0.65
+def parse_date(entry):
+    """Converts RSS date formats into a clean YYYY-MM-DD string for the calendar"""
+    try:
+        if 'published_parsed' in entry:
+            dt = datetime.fromtimestamp(mktime(entry.published_parsed))
+            return dt.strftime("%Y-%m-%d"), dt.isoformat()
+        else:
+            now = datetime.now()
+            return now.strftime("%Y-%m-%d"), now.isoformat()
+    except:
+        now = datetime.now()
+        return now.strftime("%Y-%m-%d"), now.isoformat()
 
 def analyze_article(title, summary, source_name, locations):
     text = (title + " " + summary).lower()
     
-    # 1. Source-Based Override (The "Golden Rule")
-    # If it comes from CISA, it is Cyber. Period.
-    if "CISA" in source_name or "Cyber" in source_name:
-        category = "Cyber"
-    elif "GDACS" in source_name or "Earthquake" in source_name:
-        category = "Weather/Event"
+    # 1. Strict Source Override
+    if "CISA" in source_name or "Cyber" in source_name: category = "Cyber"
+    elif "GDACS" in source_name or "Earthquake" in source_name: category = "Weather/Event"
     else:
         # 2. Keyword Detection
         category = "Uncategorized"
         for cat, keys in KEYWORDS.items():
             if any(k in text for k in keys):
                 category = cat
-                break # Stops at first match, which is why Cyber must be first!
+                break 
     
-    if category == "Uncategorized":
-        return None 
+    if category == "Uncategorized": return None 
 
-    # 3. Detect Region & Proximity
+    # 3. Region & Proximity
     region = "Global"
     proximity_alert = False
-    
     for loc in locations:
         if loc['city'].lower() in text:
             region = loc['region']
             proximity_alert = True
             break
-    
     if not proximity_alert:
         if any(x in text for x in ["asia", "china", "india", "japan", "australia", "singapore", "korea"]): region = "APJC"
         elif any(x in text for x in ["europe", "uk", "germany", "france", "ukraine", "russia", "middle east", "israel"]): region = "EMEA"
         elif any(x in text for x in ["usa", "america", "brazil", "mexico", "canada", "latin"]): region = "AMER"
 
-    # 4. Calculate Severity
+    # 4. Severity
     severity = 1
-    critical_terms = ["dead", "killed", "critical", "state of emergency", "catastrophic", "terrorist", "war declared"]
-    warning_terms = ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack", "ransomware"]
+    if any(x in text for x in ["dead", "killed", "critical", "state of emergency", "catastrophic", "terrorist", "war declared"]): severity = 3
+    elif any(x in text for x in ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack", "ransomware"]): severity = 2
+    if proximity_alert and severity < 3: severity += 1 
 
-    if any(x in text for x in critical_terms): severity = 3
-    elif any(x in text for x in warning_terms): severity = 2
-    
-    if proximity_alert and severity < 3:
-        severity += 1 
-
-    return {
-        "category": category,
-        "severity": severity,
-        "region": region,
-        "proximity_alert": proximity_alert
-    }
+    return {"category": category, "severity": severity, "region": region, "proximity_alert": proximity_alert}
 
 def fetch_news():
     locations = load_locations()
-    raw_articles = []
     
-    print("Scanning sources with Logic V2 (Source-Priority)...")
+    # --- DATABASE MODE: LOAD HISTORY ---
+    if os.path.exists(DB_PATH):
+        try:
+            with open(DB_PATH, 'r') as f:
+                existing_data = json.load(f)
+        except:
+            existing_data = []
+    else:
+        existing_data = []
+        
+    # Convert list to Dictionary to prevent duplicates by ID
+    db = {item['id']: item for item in existing_data}
+    print(f"Loaded {len(db)} existing items from history.")
     
     for url, source_name in TRUSTED_SOURCES.items():
         try:
@@ -119,52 +127,45 @@ def fetch_news():
 
             for entry in feed.entries:
                 title = entry.title
-                summary = entry.summary if 'summary' in entry else ""
-                link = entry.link
-                pub_date = entry.published if 'published' in entry else str(datetime.now())
-                
                 if len(title) < 15: continue
-
-                # We now pass 'source_name' into the analysis
+                
+                summary = entry.summary if 'summary' in entry else ""
+                clean_date, full_date = parse_date(entry) 
+                
                 analysis = analyze_article(title, summary, source_name, locations)
                 
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
                     
-                    raw_articles.append({
+                    # Upsert: This adds new items OR updates existing ones
+                    db[article_hash] = {
                         "id": article_hash,
                         "title": title,
                         "snippet": summary[:250] + "...",
-                        "link": link,
-                        "published": pub_date,
+                        "link": entry.link,
+                        "published": full_date,
+                        "date_str": clean_date, # Vital for Calendar
                         "source": source_name,
                         "category": analysis['category'],
                         "severity": analysis['severity'],
                         "region": analysis['region']
-                    })
+                    }
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    # Deduplication
-    raw_articles.sort(key=lambda x: x['severity'], reverse=True)
-    final_articles = []
+    # Convert back to list and Sort by Date (Newest First)
+    final_list = list(db.values())
+    final_list.sort(key=lambda x: (x['date_str'], x['severity']), reverse=True)
     
-    for new_item in raw_articles:
-        is_duplicate = False
-        for existing_item in final_articles:
-            if is_similar(new_item['title'].lower(), existing_item['title'].lower()):
-                is_duplicate = True
-                break
-        if not is_duplicate:
-            final_articles.append(new_item)
+    # PERFORMANCE GUARDRAIL: Keep only last 1000 items
+    if len(final_list) > 1000:
+        final_list = final_list[:1000]
 
-    final_articles = sorted(final_articles, key=lambda x: (x['severity'], x['published']), reverse=True)
-    
     os.makedirs("public/data", exist_ok=True)
-    with open("public/data/news.json", "w") as f:
-        json.dump(list(final_articles), f, indent=2)
+    with open(DB_PATH, "w") as f:
+        json.dump(final_list, f, indent=2)
     
-    print(f"Published {len(final_articles)} corrected items.")
+    print(f"Database updated. Total history size: {len(final_list)} items.")
 
 if __name__ == "__main__":
     fetch_news()
