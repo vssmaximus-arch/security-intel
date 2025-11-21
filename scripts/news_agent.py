@@ -29,6 +29,7 @@ TRUSTED_SOURCES = {
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times (Singapore)",
     "https://www.japantimes.co.jp/feed": "The Japan Times",
     "https://kyivindependent.com/feed": "The Kyiv Independent",
+    "https://www.middleeasteye.net/rss": "Middle East Eye",
     "https://www.themoscowtimes.com/rss/news": "The Moscow Times",
     "https://feeds.npr.org/1004/rss.xml": "NPR World (USA)",
     "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
@@ -36,7 +37,6 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# KEYWORDS - Priority Ordered (Cyber Checked First)
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack"],
@@ -54,7 +54,6 @@ def load_locations():
         return []
 
 def parse_date(entry):
-    """Converts RSS date formats into a clean YYYY-MM-DD string for the calendar"""
     try:
         if 'published_parsed' in entry:
             dt = datetime.fromtimestamp(mktime(entry.published_parsed))
@@ -69,11 +68,9 @@ def parse_date(entry):
 def analyze_article(title, summary, source_name, locations):
     text = (title + " " + summary).lower()
     
-    # 1. Strict Source Override
     if "CISA" in source_name or "Cyber" in source_name: category = "Cyber"
     elif "GDACS" in source_name or "Earthquake" in source_name: category = "Weather/Event"
     else:
-        # 2. Keyword Detection
         category = "Uncategorized"
         for cat, keys in KEYWORDS.items():
             if any(k in text for k in keys):
@@ -82,7 +79,6 @@ def analyze_article(title, summary, source_name, locations):
     
     if category == "Uncategorized": return None 
 
-    # 3. Region & Proximity
     region = "Global"
     proximity_alert = False
     for loc in locations:
@@ -95,7 +91,6 @@ def analyze_article(title, summary, source_name, locations):
         elif any(x in text for x in ["europe", "uk", "germany", "france", "ukraine", "russia", "middle east", "israel"]): region = "EMEA"
         elif any(x in text for x in ["usa", "america", "brazil", "mexico", "canada", "latin"]): region = "AMER"
 
-    # 4. Severity
     severity = 1
     if any(x in text for x in ["dead", "killed", "critical", "state of emergency", "catastrophic", "terrorist", "war declared"]): severity = 3
     elif any(x in text for x in ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack", "ransomware"]): severity = 2
@@ -106,7 +101,7 @@ def analyze_article(title, summary, source_name, locations):
 def fetch_news():
     locations = load_locations()
     
-    # --- DATABASE MODE: LOAD HISTORY ---
+    # --- DATABASE LOAD WITH AUTO-REPAIR ---
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
@@ -116,9 +111,15 @@ def fetch_news():
     else:
         existing_data = []
         
-    # Convert list to Dictionary to prevent duplicates by ID
+    # FIX: Repair old data that missing the 'date_str' key
+    for item in existing_data:
+        if 'date_str' not in item:
+            # Use the first 10 chars of 'published' or default to today
+            item['date_str'] = item.get('published', str(datetime.now()))[:10]
+
+    # Convert to DB dict
     db = {item['id']: item for item in existing_data}
-    print(f"Loaded {len(db)} existing items from history.")
+    print(f"Loaded and repaired {len(db)} history items.")
     
     for url, source_name in TRUSTED_SOURCES.items():
         try:
@@ -137,14 +138,13 @@ def fetch_news():
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
                     
-                    # Upsert: This adds new items OR updates existing ones
                     db[article_hash] = {
                         "id": article_hash,
                         "title": title,
                         "snippet": summary[:250] + "...",
                         "link": entry.link,
                         "published": full_date,
-                        "date_str": clean_date, # Vital for Calendar
+                        "date_str": clean_date,
                         "source": source_name,
                         "category": analysis['category'],
                         "severity": analysis['severity'],
@@ -153,11 +153,10 @@ def fetch_news():
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    # Convert back to list and Sort by Date (Newest First)
     final_list = list(db.values())
-    final_list.sort(key=lambda x: (x['date_str'], x['severity']), reverse=True)
+    # Safe Sort
+    final_list.sort(key=lambda x: (x.get('date_str', '2025-01-01'), x['severity']), reverse=True)
     
-    # PERFORMANCE GUARDRAIL: Keep only last 1000 items
     if len(final_list) > 1000:
         final_list = final_list[:1000]
 
@@ -165,7 +164,7 @@ def fetch_news():
     with open(DB_PATH, "w") as f:
         json.dump(final_list, f, indent=2)
     
-    print(f"Database updated. Total history size: {len(final_list)} items.")
+    print(f"Database updated. Total history: {len(final_list)}")
 
 if __name__ == "__main__":
     fetch_news()
