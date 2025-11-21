@@ -96,6 +96,42 @@
     "region": "Global"
   },
   {
+    "id": "639da86ba9a4ad78dff33acef749b07d",
+    "title": "Delhi car blast reveals limits of Modi\u2019s new war doctrine, analysts say",
+    "snippet": "In May, India\u2019s government said it would treat any terrorist attack as an \u201cact of war.\u201d But a recent car bombing in Delhi has tested that new line....",
+    "link": "https://www.washingtonpost.com/world/2025/11/21/india-red-fort-attack-terrorism/",
+    "published": "2025-11-21T10:00:41",
+    "date_str": "2025-11-21",
+    "source": "The Washington Post World",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "APJC"
+  },
+  {
+    "id": "a441d521887d016febffa8a5085d9b8d",
+    "title": "Israeli forces kill two Palestinian teens in escalating West Bank violence",
+    "snippet": "<p>JERUSALEM - Israeli forces killed two Palestinian teenagers during an overnight raid on a town near Ramallah in the Israeli-occupied West Bank, residents said, as violence surges in the territory with a growing number of dead.</p>...",
+    "link": "https://www.straitstimes.com/world/middle-east/israeli-forces-kill-two-palestinian-teens-in-escalating-west-bank-violence",
+    "published": "2025-11-21T10:34:07",
+    "date_str": "2025-11-21",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
+    "id": "b31f4da990d55517ce5b5ea986c8954b",
+    "title": "Polish PM says Russia-backed sabotage has crossed a critical line",
+    "snippet": "<p>WARSAW - Polish Prime Minister Donald Tusk said on Friday that sabotage acts inspired and organised by Russia are aimed at destabilising and weakening Poland and bear the hallmarks of \\\"state terrorism\\\".</p>...",
+    "link": "https://www.straitstimes.com/world/europe/polish-pm-says-russia-backed-sabotage-has-crossed-a-critical-line",
+    "published": "2025-11-21T10:09:05",
+    "date_str": "2025-11-21",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
     "id": "84be3eaab8e382758b5e15f6208e77e1",
     "title": "US considering sanctions, Pentagon engagement in plan to protect Christians in Nigeria",
     "snippet": "<p>WASHINGTON/LAGOS - The United States is considering actions such as sanctions and Pentagon engagement on counterterrorism as part of a plan to compel the Nigerian government to better protect Christian communities and religious freedom, a senior U...",
@@ -144,6 +180,18 @@
     "region": "Global"
   },
   {
+    "id": "9b1c1438015308cf22ad1af0c8b62ee4",
+    "title": "Weather tracker: US storms linked to \u2018atmospheric river\u2019 phenomenon",
+    "snippet": "<p>California faced evacuation warnings over flood risk, while Japan experiences heavy early season snowfall</p><p>Evacuation warnings were issued last week in California as <a href=\"https://www.theguardian.com/us-news/2025/nov/14/southern-california...",
+    "link": "https://www.theguardian.com/environment/2025/nov/21/weather-tracker-us-storms-linked-to-atmospheric-river-phenomenon",
+    "published": "2025-11-21T10:28:45",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Weather/Event",
+    "severity": 2,
+    "region": "APJC"
+  },
+  {
     "id": "00c37ce922c4aec08901dee32be10859",
     "title": "Two men charged over threatening messages to Lidia Thorpe and about Allegra Spender",
     "snippet": "<p>Third man charged for allegedly harassing \u2018Australian high-office holder\u2019 as police target people \u2018causing high levels of harm to Australia\u2019s social cohesion\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/21/austr...",
@@ -152,6 +200,30 @@
     "date_str": "2025-11-21",
     "source": "The Guardian World",
     "category": "Weather/Event",
+    "severity": 2,
+    "region": "APJC"
+  },
+  {
+    "id": "6e89da39d20d32953c8f43e56111ca95",
+    "title": "Gunmen kidnap students from Nigerian Catholic school, second attack in a week",
+    "snippet": "Armed gangs have abducted an unknown number of pupils from a Catholic school in central Nigeria, police and a government official said on Friday, in the second such incident in less than a week.\nThe school kidnappings and an attack on a church earlie...",
+    "link": "https://www.scmp.com/news/world/africa/article/3333717/nigerian-catholic-school-pupils-abducted-gunmen-second-attack-week?utm_source=rss_feed",
+    "published": "2025-11-21T10:33:01",
+    "date_str": "2025-11-21",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "Global"
+  },
+  {
+    "id": "42cbee004e2844f5594e7066a6269dcf",
+    "title": "Is Beijing\u2019s spat with Japan sending a message to other countries over Taiwan?",
+    "snippet": "Beijing\u2019s recent fury directed towards Japan is hammering home a point on Taiwan to the wider world, especially the United States and its allies, analysts in mainland China have suggested.\nEarlier this month, Japanese Prime Minister Sanae Takaichi sa...",
+    "link": "https://www.scmp.com/news/china/diplomacy/article/3333653/beijings-spat-japan-sending-message-us-and-allies-over-taiwan?utm_source=rss_feed",
+    "published": "2025-11-21T10:00:16",
+    "date_str": "2025-11-21",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
     "severity": 2,
     "region": "APJC"
   },
@@ -280,7 +352,7 @@
     "title": "South African women call purple protest over gender violence",
     "snippet": "Nearly 1,000 women were raped and 137 murdered in the first three months of this year....",
     "link": "https://www.bbc.com/news/articles/cn979g302l9o?at_medium=RSS&at_campaign=rss",
-    "published": "2025-11-21T09:07:05",
+    "published": "2025-11-21T10:14:58",
     "date_str": "2025-11-21",
     "source": "BBC World News",
     "category": "Physical Security",
@@ -396,30 +468,6 @@
     "region": "EMEA"
   },
   {
-    "id": "b65fe7cd7dbef3b527c0ca66c0304cc5",
-    "title": "Who is Kellie Sloane, the new NSW Liberal leader \u2013 and can this first-term former journalist save the party?",
-    "snippet": "<p>Former television reporter and presenter, now the member for Vaucluse, praised for her \u2018enormous potential\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/2025/nov/21/kellie-sloane-nsw-liberal-leader-vaucluse-mp\">Kellie Sloane e...",
-    "link": "https://www.theguardian.com/australia-news/2025/nov/21/who-is-kellie-sloane-new-nsw-liberal-leader-profile",
-    "published": "2025-11-21T03:19:12",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
-    "id": "761579e9134466c09eaa6b1d911d63d7",
-    "title": "National security comes first, minister says amid reports Chinese embassy in London nearing approval \u2013 UK politics live",
-    "snippet": "<p>Liz Kendall says \u2018we are clear-eyed about our relationship with China and national security will always come first\u2019</p><p><strong>Treasury</strong> chief secretary <strong>James Murray</strong> said next week\u2019s budget would set out how <strong>Rac...",
-    "link": "https://www.theguardian.com/politics/live/2025/nov/21/uk-politics-latest-news-labour-conservatives-keir-starmer-g20",
-    "published": "2025-11-21T09:38:38",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Logistics",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "3d3fda9f8491f72d09474b36f214117f",
     "title": "Philippines\u2019 Marcos orders arrest of Zaldy Co, 17 others in flood control scandal",
     "snippet": "Philippine President Ferdinand Marcos Jnr has confirmed that an arrest warrant has been issued for former lawmaker Zaldy Co and 17 others accused of involvement in anomalous infrastructure projects.\nThe move marks the first major enforcement action s...",
@@ -442,6 +490,54 @@
     "category": "Logistics",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "871cbe9e17439be316bbd8e86ef45edb",
+    "title": "Scientists reveal what triggered Santorini 'earthquake swarm'",
+    "snippet": "Thousands of earthquakes were caused by magma \"pumping through\" Earth's crust for three months, they say....",
+    "link": "https://www.bbc.com/news/articles/cz7p783g2j5o?at_medium=RSS&at_campaign=rss",
+    "published": "2025-11-21T01:52:15",
+    "date_str": "2025-11-21",
+    "source": "BBC World News",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
+    "id": "b65fe7cd7dbef3b527c0ca66c0304cc5",
+    "title": "Who is Kellie Sloane, the new NSW Liberal leader \u2013 and can this first-term former journalist save the party?",
+    "snippet": "<p>Former television reporter and presenter, now the member for Vaucluse, praised for her \u2018enormous potential\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/2025/nov/21/kellie-sloane-nsw-liberal-leader-vaucluse-mp\">Kellie Sloane e...",
+    "link": "https://www.theguardian.com/australia-news/2025/nov/21/who-is-kellie-sloane-new-nsw-liberal-leader-profile",
+    "published": "2025-11-21T03:19:12",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "d4cd904e53b0f0f02ccccd4d3e9a454c",
+    "title": "French government takes action on drug crime",
+    "snippet": "French authorities are ramping up efforts against organised drug crime in Marseille after the killing of 20-year-old Mehdi Kessaci, which officials link to the city\u2019s powerful drug-trafficking networks. Interior Minister Laurent Nu\u00f1ez and Justice Min...",
+    "link": "https://www.france24.com/en/video/20251121-french-government-takes-action-on-drug-crime",
+    "published": "2025-11-21T10:21:16",
+    "date_str": "2025-11-21",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "3e829daecc7f0c51da6ea820ca22cd61",
+    "title": "Hong Kong seizes fake Gucci, other goods worth HK$65 million during major sale",
+    "snippet": "Hong Kong customs has seized 120,000 suspected counterfeit items in a month-long operation that targeted cross-border transshipments during a major online shopping festival in mainland China, confiscating goods including fake Gucci handbags, Hermes s...",
+    "link": "https://www.scmp.com/news/hong-kong/law-and-crime/article/3333719/hong-kong-seizes-fake-gucci-hermes-other-goods-worth-hk65-million-during-major-sale?utm_source=rss_feed",
+    "published": "2025-11-21T10:45:34",
+    "date_str": "2025-11-21",
+    "source": "South China Morning Post (HK)",
+    "category": "Logistics",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "4d7d4653a3e6acdc3ffbf7918ba753b0",
@@ -936,26 +1032,14 @@
     "region": "APJC"
   },
   {
-    "id": "b8a11ef3a13859948b548028db485bb1",
-    "title": "French ministers hold crisis talks in Marseille over drug trafficking",
-    "snippet": "French Interior Minister Laurent Nu\u00f1ez and Justice Minister G\u00e9rald Darmanin are in Marseille following the killing of 20-year-old Mehdi Kessaci, a murder authorities link to the city\u2019s powerful drug-trafficking networks. The government has called the...",
-    "link": "https://www.france24.com/en/video/20251120-french-ministers-hold-crisis-talks-in-marseille-over-drug-trafficking",
-    "published": "2025-11-20T16:24:34",
+    "id": "3931a8a9cae40f177b6dc6c4291dfbeb",
+    "title": "US transportation safety board finds evidence of fatigue cracks in fatal UPS cargo jet crash",
+    "snippet": "<p>Fourteen people died when the UPS MD-11 cargo jet crashed shortly after take-off on Nov 4.</p>...",
+    "link": "https://www.straitstimes.com/world/united-states/us-ntsb-finds-evidence-of-fatigue-cracks-in-fatal-ups-cargo-jet-crash",
+    "published": "2025-11-20T17:14:39",
     "date_str": "2025-11-20",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
-    "id": "b1b372c5108b5f834f7efd89473a67bd",
-    "title": "Trump inflames California over oil drilling plan for Pacific coast",
-    "snippet": "US President Donald Trump\u2019s administration on Thursday unveiled a plan for a dramatic expansion of oil and gas drilling rights auctions in US waters, including in California, where state officials strongly oppose energy development along its world-fa...",
-    "link": "https://www.scmp.com/news/world/united-states-canada/article/3333606/us-unveils-plan-oil-and-gas-auctions-california-and-alaska?utm_source=rss_feed",
-    "published": "2025-11-20T21:46:22",
-    "date_str": "2025-11-20",
-    "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
+    "source": "The Straits Times (Singapore)",
+    "category": "Logistics",
     "severity": 1,
     "region": "Global"
   },
