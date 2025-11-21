@@ -3,6 +3,7 @@ import json
 import os
 import hashlib
 from datetime import datetime
+from difflib import SequenceMatcher
 
 # --- CONFIGURATION: GLOBAL TRUSTED SOURCES ---
 TRUSTED_SOURCES = {
@@ -37,10 +38,10 @@ TRUSTED_SOURCES = {
 
 # Risk Keywords
 KEYWORDS = {
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "attack", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict"],
-    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade"],
-    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyberattack", "zero-day", "hacker", "phishing"],
-    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption"]
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "attack", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage"],
+    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
+    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyberattack", "zero-day", "hacker", "phishing", "spyware"],
+    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
 }
 
 def load_locations():
@@ -49,6 +50,11 @@ def load_locations():
             return json.load(f)
     except:
         return []
+
+# --- UTILITY: FUZZY MATCHING ---
+def is_similar(a, b):
+    """Returns True if strings a and b are > 65% similar"""
+    return SequenceMatcher(None, a, b).ratio() > 0.65
 
 def analyze_article(title, summary, locations):
     text = (title + " " + summary).lower()
@@ -67,7 +73,7 @@ def analyze_article(title, summary, locations):
     region = "Global"
     proximity_alert = False
     
-    # Strict City Match from locations.json
+    # Strict City Match
     for loc in locations:
         if loc['city'].lower() in text:
             region = loc['region']
@@ -100,15 +106,14 @@ def analyze_article(title, summary, locations):
 
 def fetch_news():
     locations = load_locations()
-    all_articles = []
+    raw_articles = []
     
-    print("Scanning Expanded Global Feeds...")
+    print("Scanning sources with Deduplication Engine active...")
     
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
-            if not feed.entries:
-                continue
+            if not feed.entries: continue
 
             for entry in feed.entries:
                 title = entry.title
@@ -123,7 +128,7 @@ def fetch_news():
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
                     
-                    all_articles.append({
+                    raw_articles.append({
                         "id": article_hash,
                         "title": title,
                         "snippet": summary[:250] + "...",
@@ -137,14 +142,31 @@ def fetch_news():
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    unique = {v['id']:v for v in all_articles}.values()
-    sorted_news = sorted(unique, key=lambda x: (x['severity'], x['published']), reverse=True)
+    # --- INTELLIGENT DEDUPLICATION ---
+    # 1. Sort by Severity (High first) so we prioritize Critical alerts over duplicates
+    raw_articles.sort(key=lambda x: x['severity'], reverse=True)
+    
+    final_articles = []
+    
+    for new_item in raw_articles:
+        is_duplicate = False
+        for existing_item in final_articles:
+            # Check similarity ratio
+            if is_similar(new_item['title'].lower(), existing_item['title'].lower()):
+                is_duplicate = True
+                break
+        
+        if not is_duplicate:
+            final_articles.append(new_item)
+
+    # Sort finally by Severity then Date for display
+    final_articles = sorted(final_articles, key=lambda x: (x['severity'], x['published']), reverse=True)
     
     os.makedirs("public/data", exist_ok=True)
     with open("public/data/news.json", "w") as f:
-        json.dump(list(sorted_news), f, indent=2)
+        json.dump(list(final_articles), f, indent=2)
     
-    print(f"Successfully published {len(sorted_news)} verified intelligence items.")
+    print(f"Harvested {len(raw_articles)} raw items -> Reduced to {len(final_articles)} unique stories.")
 
 if __name__ == "__main__":
     fetch_news()
