@@ -168,18 +168,6 @@
     "region": "APJC"
   },
   {
-    "id": "039a1d15b68bfcefea17c82da7765ef1",
-    "title": "White House walks back Trump\u2019s suggestion of executing Democrats, stands by \u2018piggy\u2019 insult to reporter\u2013 as it happened",
-    "snippet": "<p>This live blog is now closed.</p><ul><li><p><a href=\"https://www.theguardian.com/us-news/2025/nov/20/trump-news-at-a-glance-democrats\">Trump news at a glance: president says Democrats should be arrested for \u2018seditious behavior\u2019, drawing outrage</a...",
-    "link": "https://www.theguardian.com/us-news/live/2025/nov/20/donald-trump-jeffrey-epstein-justice-department-zohran-mamdani-news-updates-us-politics-live",
-    "published": "2025-11-21T02:54:53",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "Global"
-  },
-  {
     "id": "9b1c1438015308cf22ad1af0c8b62ee4",
     "title": "Weather tracker: US storms linked to \u2018atmospheric river\u2019 phenomenon",
     "snippet": "<p>California faced evacuation warnings over flood risk, while Japan experienced heavy early season snowfall</p><p>Evacuation warnings were issued last week in California as <a href=\"https://www.theguardian.com/us-news/2025/nov/14/southern-california...",
@@ -216,6 +204,18 @@
     "region": "EMEA"
   },
   {
+    "id": "17cb1f582b7e366e168c34ac58cfdcb8",
+    "title": "US veteran considers civil lawsuit after he was arrested and injured at anti-ICE protest",
+    "snippet": "<p>Dana Briggs, 70, had charges dropped after being accused of assaulting an agent during a protest at an Illinois ICE facility</p><p>A 70-year-old air force veteran who had been charged with felony assault on a federal officer as he protested an ICE...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/21/veteran-arrested-ice-lawsuit-dana-briggs",
+    "published": "2025-11-21T11:00:09",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "Global"
+  },
+  {
     "id": "00c37ce922c4aec08901dee32be10859",
     "title": "Two men charged over threatening messages to Lidia Thorpe and about Allegra Spender",
     "snippet": "<p>Third man charged for allegedly harassing \u2018Australian high-office holder\u2019 as police target people \u2018causing high levels of harm to Australia\u2019s social cohesion\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/21/austr...",
@@ -228,16 +228,28 @@
     "region": "APJC"
   },
   {
-    "id": "17cb1f582b7e366e168c34ac58cfdcb8",
-    "title": "US veteran considers civil lawsuit after he was arrested and injured at anti-ICE protest",
-    "snippet": "<p>Dana Briggs, 70, had charges dropped after being accused of assaulting an agent during a protest at an Illinois ICE facility</p><p>A 70-year-old air force veteran who had been charged with felony assault on a federal officer as he protested an ICE...",
-    "link": "https://www.theguardian.com/us-news/2025/nov/21/veteran-arrested-ice-lawsuit-dana-briggs",
-    "published": "2025-11-21T11:00:09",
+    "id": "6a2d5e5ba4a1244337fdac925fe2c6f4",
+    "title": "Trump accused of calling for execution of Democrats \u2013 US politics live",
+    "snippet": "<p>Chuck Schumer says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p>Good morning and welcome to the US politics live blog. I\u2019m Tom Ambrose and I\u2019ll be bringing you all the...",
+    "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
+    "published": "2025-11-21T11:30:07",
     "date_str": "2025-11-21",
     "source": "The Guardian World",
     "category": "Physical Security",
     "severity": 2,
-    "region": "Global"
+    "region": "EMEA"
+  },
+  {
+    "id": "dc96a5131316005d3444fea15a3c3de6",
+    "title": "Will Trump and Mamdani play nice?",
+    "snippet": "PRESS REVIEW \u2013 Friday, November 21, 2025: First, a\u00a0high-stakes meeting is looming in Washington as Donald Trump prepares to host New York City\u2019s newly elected mayor Zohran Mamdani, after months of trading insults. In Britain, a damning Covid-19 repor...",
+    "link": "https://www.france24.com/en/tv-shows/press-review/20251121-will-trump-and-mamdani-play-nice",
+    "published": "2025-11-21T11:16:07",
+    "date_str": "2025-11-21",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "b1f2b371bac3719bb8920f61b35b8a38",
@@ -274,6 +286,18 @@
     "category": "Physical Security",
     "severity": 2,
     "region": "APJC"
+  },
+  {
+    "id": "039a1d15b68bfcefea17c82da7765ef1",
+    "title": "White House walks back Trump\u2019s suggestion of executing Democrats, stands by \u2018piggy\u2019 insult to reporter\u2013 as it happened",
+    "snippet": "<p>This live blog is now closed.</p><ul><li><p><a href=\"https://www.theguardian.com/us-news/2025/nov/20/trump-news-at-a-glance-democrats\">Trump news at a glance: president says Democrats should be arrested for \u2018seditious behavior\u2019, drawing outrage</a...",
+    "link": "https://www.theguardian.com/us-news/live/2025/nov/20/donald-trump-jeffrey-epstein-justice-department-zohran-mamdani-news-updates-us-politics-live",
+    "published": "2025-11-21T02:54:53",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "d73be3b4b1fe06ce86fd2c73996eed7e",
@@ -610,6 +634,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "AMER"
+  },
+  {
+    "id": "144c12cdaa1eba2f13f9dea81c8c68b6",
+    "title": "Nigera court jails Nnamdi Kanu for life",
+    "snippet": "A Nigerian court has convicted separatist leader Nnamdi Kanu on terrorism and related charges after a decade-long legal saga. He was handed four life sentences, to be served concurrently. While prosecutors had sought the death penalty, Judge James Om...",
+    "link": "https://www.france24.com/en/video/20251121-nigera-court-jails-nnamdi-kanu-for-life",
+    "published": "2025-11-21T11:30:28",
+    "date_str": "2025-11-21",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "d4cd904e53b0f0f02ccccd4d3e9a454c",
@@ -1128,18 +1164,6 @@
     "region": "Global"
   },
   {
-    "id": "3cd65102146fb8f6167cd99a2f81bd2e",
-    "title": "Secret translation of Nauruan president\u2019s interview on NZYQ deal with Australia to stay suppressed for decade",
-    "snippet": "<p>Penny Wong says translation notes were \u2018taken hastily\u2019 by official who was not accredited translator and were \u2018for internal purposes only\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/20/australia-news-live-volca...",
-    "link": "https://www.theguardian.com/world/2025/nov/20/secret-translation-nauru-president-interview-nzyq-deal-australia-suppressed",
-    "published": "2025-11-20T08:02:18",
-    "date_str": "2025-11-20",
-    "source": "The Guardian World",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "e41de07eef68a9bbbcfb0668ee387e78",
     "title": "Nigerian court convicts separatist leader Kanu on terrorism charges",
     "snippet": "In tonight's edition:\u00a0Biafran separatist leader Nnamdi Kanu has been convicted in Nigeria on terrorism charges. Also, as US President Donald Trump says the United States will do more to help end Sudan's civil war, millions of children scarred by the ...",
@@ -1150,6 +1174,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "3cd65102146fb8f6167cd99a2f81bd2e",
+    "title": "Secret translation of Nauruan president\u2019s interview on NZYQ deal with Australia to stay suppressed for decade",
+    "snippet": "<p>Penny Wong says translation notes were \u2018taken hastily\u2019 by official who was not accredited translator and were \u2018for internal purposes only\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/20/australia-news-live-volca...",
+    "link": "https://www.theguardian.com/world/2025/nov/20/secret-translation-nauru-president-interview-nzyq-deal-australia-suppressed",
+    "published": "2025-11-20T08:02:18",
+    "date_str": "2025-11-20",
+    "source": "The Guardian World",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "4cea84f8ef3b1d25e7190904a07753d5",
@@ -1649,6 +1685,18 @@
     "snippet": "The  Drought notification level is Green....",
     "link": "https://www.gdacs.org/report.aspx?eventtype=DR&eventid=1018094",
     "published": "2025-11-12T09:49:27",
+    "date_str": "2025-11-12",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "9185465c213745e68ea9c9f3b27a2556",
+    "title": "Green flood alert in Angola",
+    "snippet": "On 06/11/2025, a flood started in Angola, lasting until 20/11/2025 (last update). The flood caused 4 deaths and 910 displaced ....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103600",
+    "published": "2025-11-12T12:04:16",
     "date_str": "2025-11-12",
     "source": "UN GDACS (Disaster Alert)",
     "category": "Weather/Event",
