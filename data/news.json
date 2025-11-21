@@ -132,54 +132,6 @@
     "region": "EMEA"
   },
   {
-    "id": "32094ab95d1a74448612e650c44fc78e",
-    "title": "oPt: MSF denounces more bloodshed in Gaza",
-    "snippet": "<div class=\"tag country\">Country: occupied Palestinian territory</div>\n                                      <div class=\"tag source\">Source: M\u00e9decins Sans Fronti\u00e8res</div>\n                                                                              ...",
-    "link": "https://reliefweb.int/report/occupied-palestinian-territory/msf-denounces-more-bloodshed-gaza",
-    "published": "2025-11-21T10:30:48",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
-    "id": "bee8980b86c0abaa98a7ca931ca25080",
-    "title": "Ukraine: Record attacks on energy infrastructure close some schools and disrupt remote learning for children",
-    "snippet": "<div class=\"tag country\">Country: Ukraine</div>\n                                      <div class=\"tag source\">Source: Save the Children</div>\n                                                                                              <p><strong>Rec...",
-    "link": "https://reliefweb.int/report/ukraine/ukraine-record-attacks-energy-infrastructure-close-some-schools-and-disrupt-remote-learning-children-0",
-    "published": "2025-11-21T09:33:05",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
-    "id": "03cd9abc46dbb2c0b37a51c70da23316",
-    "title": "Germany: UN Women opens new global office in Bonn, strengthening global efforts for gender equality",
-    "snippet": "<div class=\"tag country\">Countries: Germany, World</div>\n                                      <div class=\"tag source\">Source: UN Women</div>\n                                                                                              <p>Coinciding ...",
-    "link": "https://reliefweb.int/report/germany/un-women-opens-new-global-office-bonn-strengthening-global-efforts-gender-equality",
-    "published": "2025-11-21T09:03:11",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
-    "id": "ac3007874be254868edd2a2149a9be3a",
-    "title": "Iraq: ISHM: November 13 \u2013 20, 2025",
-    "snippet": "<div class=\"tag country\">Country: Iraq</div>\n                                      <div class=\"tag source\">Source: Enabling Peace in Iraq Center</div>\n                                                                              <p><img alt=\"alt\" src...",
-    "link": "https://reliefweb.int/report/iraq/ishm-november-13-20-2025",
-    "published": "2025-11-21T09:03:00",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "84be3eaab8e382758b5e15f6208e77e1",
     "title": "US considering sanctions, Pentagon engagement in plan to protect Christians in Nigeria",
     "snippet": "<p>WASHINGTON/LAGOS - The United States is considering actions such as sanctions and Pentagon engagement on counterterrorism as part of a plan to compel the Nigerian government to better protect Christian communities and religious freedom, a senior U...",
@@ -232,7 +184,7 @@
     "title": "Weather tracker: US storms linked to \u2018atmospheric river\u2019 phenomenon",
     "snippet": "<p>California faced evacuation warnings over flood risk, while Japan experienced heavy early season snowfall</p><p>Evacuation warnings were issued last week in California as <a href=\"https://www.theguardian.com/us-news/2025/nov/14/southern-california...",
     "link": "https://www.theguardian.com/environment/2025/nov/21/weather-tracker-us-storms-linked-to-atmospheric-river-phenomenon",
-    "published": "2025-11-21T10:39:21",
+    "published": "2025-11-21T10:47:18",
     "date_str": "2025-11-21",
     "source": "The Guardian World",
     "category": "Weather/Event",
@@ -252,6 +204,18 @@
     "region": "Global"
   },
   {
+    "id": "ed2c290effd66b47f8d33ea1770f5881",
+    "title": "Russian hacking suspect wanted by the FBI arrested on Thai resort island",
+    "snippet": "Thai Police have arrested a suspected Russian hacker who is wanted by the FBI for alleged cyberattacks on U.S. and European government agencies....",
+    "link": "https://www.npr.org/2025/11/21/g-s1-98704/russian-hacking-fbi-arrested-in-thailand",
+    "published": "2025-11-21T10:48:32",
+    "date_str": "2025-11-21",
+    "source": "NPR World (USA)",
+    "category": "Cyber",
+    "severity": 2,
+    "region": "EMEA"
+  },
+  {
     "id": "00c37ce922c4aec08901dee32be10859",
     "title": "Two men charged over threatening messages to Lidia Thorpe and about Allegra Spender",
     "snippet": "<p>Third man charged for allegedly harassing \u2018Australian high-office holder\u2019 as police target people \u2018causing high levels of harm to Australia\u2019s social cohesion\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/21/austr...",
@@ -260,6 +224,30 @@
     "date_str": "2025-11-21",
     "source": "The Guardian World",
     "category": "Weather/Event",
+    "severity": 2,
+    "region": "APJC"
+  },
+  {
+    "id": "17cb1f582b7e366e168c34ac58cfdcb8",
+    "title": "US veteran considers civil lawsuit after he was arrested and injured at anti-ICE protest",
+    "snippet": "<p>Dana Briggs, 70, had charges dropped after being accused of assaulting an agent during a protest at an Illinois ICE facility</p><p>A 70-year-old air force veteran who had been charged with felony assault on a federal officer as he protested an ICE...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/21/veteran-arrested-ice-lawsuit-dana-briggs",
+    "published": "2025-11-21T11:00:09",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "Global"
+  },
+  {
+    "id": "b1f2b371bac3719bb8920f61b35b8a38",
+    "title": "Japan PM says she wants better Beijing ties but doesn\u2019t retract Taiwan comments",
+    "snippet": "Japanese Prime Minister Sanae Takaichi said on Friday the country had been \u201cconsistent\u201d over Taiwan but insisted she wanted better relations with Beijing.\nBeijing has insisted she must retract her recent comments that Japanese troops might intervene ...",
+    "link": "https://www.scmp.com/news/china/diplomacy/article/3333718/japanese-leader-says-she-wants-better-ties-china-doesnt-withdraw-taiwan-comments?utm_source=rss_feed",
+    "published": "2025-11-21T11:00:16",
+    "date_str": "2025-11-21",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
     "severity": 2,
     "region": "APJC"
   },
@@ -288,18 +276,6 @@
     "region": "APJC"
   },
   {
-    "id": "ed2c290effd66b47f8d33ea1770f5881",
-    "title": "Russian hacking suspect wanted by the FBI arrested on Thai resort island",
-    "snippet": "Thai Police have arrested a suspected Russian hacker who is wanted by the FBI for alleged cyberattacks on U.S. and European government agencies....",
-    "link": "https://www.npr.org/2025/11/21/g-s1-98704/russian-hacking-fbi-arrested-in-thailand",
-    "published": "2025-11-21T10:48:32",
-    "date_str": "2025-11-21",
-    "source": "NPR World (USA)",
-    "category": "Cyber",
-    "severity": 2,
-    "region": "EMEA"
-  },
-  {
     "id": "d73be3b4b1fe06ce86fd2c73996eed7e",
     "title": "Gender Alert \u2014 Impact of telecommunication shutdown on women-led organizations in Afghanistan",
     "snippet": "<div class=\"tag country\">Country: Afghanistan</div>\n                                      <div class=\"tag source\">Sources: Asia Pacific Gender in Humanitarian Action Working Group, Gender Based Violence Area of Responsibility, UN Women</div>\n        ...",
@@ -308,7 +284,7 @@
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
     "category": "Physical Security",
-    "severity": 2,
+    "severity": 1,
     "region": "APJC"
   },
   {
@@ -320,8 +296,8 @@
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
     "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "73c8e625bd3b424ebb144d318503117b",
@@ -624,6 +600,18 @@
     "region": "APJC"
   },
   {
+    "id": "bac8fd3c17a031768d29a48d916df3ff",
+    "title": "The FBI spied on a Signal group chat of immigration activists, records reveal",
+    "snippet": "<p>Exclusive: Agency accessed private conversations of New York \u2018courtwatch\u2019 group that was observing public hearings</p><p>The FBI spied on a private Signal group chat of immigrants\u2019 rights activists who were organizing \u201ccourtwatch\u201d efforts in New Y...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/21/fbi-signal-group-chat-immigration",
+    "published": "2025-11-21T11:00:10",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
     "id": "d4cd904e53b0f0f02ccccd4d3e9a454c",
     "title": "French government takes action on drug crime",
     "snippet": "French authorities are ramping up efforts against organised drug crime in Marseille after the killing of 20-year-old Mehdi Kessaci, which officials link to the city\u2019s powerful drug-trafficking networks. Interior Minister Laurent Nu\u00f1ez and Justice Min...",
@@ -636,13 +624,13 @@
     "region": "Global"
   },
   {
-    "id": "269daef331151dc526b42c0e4f4af395",
-    "title": "Bangladesh: Tailoring a new future: Finding a path back to security and dignity through hard work, sewing and brightly coloured clothing",
-    "snippet": "<div class=\"tag country\">Countries: Bangladesh, Myanmar</div>\n                                      <div class=\"tag source\">Source: International Federation of Red Cross and Red Crescent Societies</div>\n                                               ...",
-    "link": "https://reliefweb.int/report/bangladesh/tailoring-new-future-finding-path-back-security-and-dignity-through-hard-work-sewing-and-brightly-coloured-clothing",
-    "published": "2025-11-21T10:33:07",
+    "id": "32523c3e76776337582436d331a610cc",
+    "title": "Boiler blast completely flattens Pakistan glue factory, killing 18",
+    "snippet": "A boiler at a glue-making factory in eastern Pakistan exploded on Friday, killing at least 18 people and injuring 21 others. The force of the blast destroyed the factory building and damaged several nearby homes, igniting a huge fire and spreading pa...",
+    "link": "https://www.scmp.com/news/asia/south-asia/article/3333727/18-dead-pakistan-glue-factory-explosion-amid-safety-concerns-earthquake?utm_source=rss_feed",
+    "published": "2025-11-21T11:14:43",
     "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
+    "source": "South China Morning Post (HK)",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
@@ -1150,6 +1138,18 @@
     "category": "Weather/Event",
     "severity": 1,
     "region": "APJC"
+  },
+  {
+    "id": "e41de07eef68a9bbbcfb0668ee387e78",
+    "title": "Nigerian court convicts separatist leader Kanu on terrorism charges",
+    "snippet": "In tonight's edition:\u00a0Biafran separatist leader Nnamdi Kanu has been convicted in Nigeria on terrorism charges. Also, as US President Donald Trump says the United States will do more to help end Sudan's civil war, millions of children scarred by the ...",
+    "link": "https://www.france24.com/en/tv-shows/eye-on-africa/20251120-nigerian-court-convicts-separatist-leader-kanu-for-terrorism",
+    "published": "2025-11-20T21:19:51",
+    "date_str": "2025-11-20",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "4cea84f8ef3b1d25e7190904a07753d5",
