@@ -35,11 +35,11 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# Risk Keywords
+# Risk Keywords - REORDERED: Cyber checks FIRST to avoid "attack" confusion
 KEYWORDS = {
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "attack", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage"],
+    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack"],
     "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
-    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyberattack", "zero-day", "hacker", "phishing", "spyware"],
     "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
 }
 
@@ -50,45 +50,48 @@ def load_locations():
     except:
         return []
 
-# --- UTILITY: FUZZY MATCHING ---
 def is_similar(a, b):
-    """Returns True if strings a and b are > 65% similar"""
     return SequenceMatcher(None, a, b).ratio() > 0.65
 
-def analyze_article(title, summary, locations):
+def analyze_article(title, summary, source_name, locations):
     text = (title + " " + summary).lower()
     
-    # 1. Detect Category
-    category = "Uncategorized"
-    for cat, keys in KEYWORDS.items():
-        if any(k in text for k in keys):
-            category = cat
-            break
+    # 1. Source-Based Override (The "Golden Rule")
+    # If it comes from CISA, it is Cyber. Period.
+    if "CISA" in source_name or "Cyber" in source_name:
+        category = "Cyber"
+    elif "GDACS" in source_name or "Earthquake" in source_name:
+        category = "Weather/Event"
+    else:
+        # 2. Keyword Detection
+        category = "Uncategorized"
+        for cat, keys in KEYWORDS.items():
+            if any(k in text for k in keys):
+                category = cat
+                break # Stops at first match, which is why Cyber must be first!
     
     if category == "Uncategorized":
         return None 
 
-    # 2. Detect Region & Proximity
+    # 3. Detect Region & Proximity
     region = "Global"
     proximity_alert = False
     
-    # Strict City Match
     for loc in locations:
         if loc['city'].lower() in text:
             region = loc['region']
             proximity_alert = True
             break
     
-    # Broad Region Match
     if not proximity_alert:
         if any(x in text for x in ["asia", "china", "india", "japan", "australia", "singapore", "korea"]): region = "APJC"
         elif any(x in text for x in ["europe", "uk", "germany", "france", "ukraine", "russia", "middle east", "israel"]): region = "EMEA"
         elif any(x in text for x in ["usa", "america", "brazil", "mexico", "canada", "latin"]): region = "AMER"
 
-    # 3. Calculate Severity
+    # 4. Calculate Severity
     severity = 1
     critical_terms = ["dead", "killed", "critical", "state of emergency", "catastrophic", "terrorist", "war declared"]
-    warning_terms = ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack"]
+    warning_terms = ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack", "ransomware"]
 
     if any(x in text for x in critical_terms): severity = 3
     elif any(x in text for x in warning_terms): severity = 2
@@ -107,7 +110,7 @@ def fetch_news():
     locations = load_locations()
     raw_articles = []
     
-    print("Scanning sources with Deduplication Engine active...")
+    print("Scanning sources with Logic V2 (Source-Priority)...")
     
     for url, source_name in TRUSTED_SOURCES.items():
         try:
@@ -122,7 +125,8 @@ def fetch_news():
                 
                 if len(title) < 15: continue
 
-                analysis = analyze_article(title, summary, locations)
+                # We now pass 'source_name' into the analysis
+                analysis = analyze_article(title, summary, source_name, locations)
                 
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
@@ -141,31 +145,26 @@ def fetch_news():
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    # --- INTELLIGENT DEDUPLICATION ---
-    # 1. Sort by Severity (High first) so we prioritize Critical alerts over duplicates
+    # Deduplication
     raw_articles.sort(key=lambda x: x['severity'], reverse=True)
-    
     final_articles = []
     
     for new_item in raw_articles:
         is_duplicate = False
         for existing_item in final_articles:
-            # Check similarity ratio
             if is_similar(new_item['title'].lower(), existing_item['title'].lower()):
                 is_duplicate = True
                 break
-        
         if not is_duplicate:
             final_articles.append(new_item)
 
-    # Sort finally by Severity then Date for display
     final_articles = sorted(final_articles, key=lambda x: (x['severity'], x['published']), reverse=True)
     
     os.makedirs("public/data", exist_ok=True)
     with open("public/data/news.json", "w") as f:
         json.dump(list(final_articles), f, indent=2)
     
-    print(f"Harvested {len(raw_articles)} raw items -> Reduced to {len(final_articles)} unique stories.")
+    print(f"Published {len(final_articles)} corrected items.")
 
 if __name__ == "__main__":
     fetch_news()
