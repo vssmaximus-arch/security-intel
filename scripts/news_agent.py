@@ -28,7 +28,6 @@ TRUSTED_SOURCES = {
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times (Singapore)",
     "https://www.japantimes.co.jp/feed": "The Japan Times",
     "https://kyivindependent.com/feed": "The Kyiv Independent",
-    "https://www.middleeasteye.net/rss": "Middle East Eye",
     "https://www.themoscowtimes.com/rss/news": "The Moscow Times",
     "https://feeds.npr.org/1004/rss.xml": "NPR World (USA)",
     "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
