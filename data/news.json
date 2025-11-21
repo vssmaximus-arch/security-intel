@@ -132,6 +132,42 @@
     "region": "EMEA"
   },
   {
+    "id": "32094ab95d1a74448612e650c44fc78e",
+    "title": "oPt: MSF denounces more bloodshed in Gaza",
+    "snippet": "<div class=\"tag country\">Country: occupied Palestinian territory</div>\n                                      <div class=\"tag source\">Source: M\u00e9decins Sans Fronti\u00e8res</div>\n                                                                              ...",
+    "link": "https://reliefweb.int/report/occupied-palestinian-territory/msf-denounces-more-bloodshed-gaza",
+    "published": "2025-11-21T10:30:48",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
+    "id": "bee8980b86c0abaa98a7ca931ca25080",
+    "title": "Ukraine: Record attacks on energy infrastructure close some schools and disrupt remote learning for children",
+    "snippet": "<div class=\"tag country\">Country: Ukraine</div>\n                                      <div class=\"tag source\">Source: Save the Children</div>\n                                                                                              <p><strong>Rec...",
+    "link": "https://reliefweb.int/report/ukraine/ukraine-record-attacks-energy-infrastructure-close-some-schools-and-disrupt-remote-learning-children-0",
+    "published": "2025-11-21T09:33:05",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
+    "id": "03cd9abc46dbb2c0b37a51c70da23316",
+    "title": "Germany: UN Women opens new global office in Bonn, strengthening global efforts for gender equality",
+    "snippet": "<div class=\"tag country\">Countries: Germany, World</div>\n                                      <div class=\"tag source\">Source: UN Women</div>\n                                                                                              <p>Coinciding ...",
+    "link": "https://reliefweb.int/report/germany/un-women-opens-new-global-office-bonn-strengthening-global-efforts-gender-equality",
+    "published": "2025-11-21T09:03:11",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
     "id": "84be3eaab8e382758b5e15f6208e77e1",
     "title": "US considering sanctions, Pentagon engagement in plan to protect Christians in Nigeria",
     "snippet": "<p>WASHINGTON/LAGOS - The United States is considering actions such as sanctions and Pentagon engagement on counterterrorism as part of a plan to compel the Nigerian government to better protect Christian communities and religious freedom, a senior U...",
@@ -216,6 +252,42 @@
     "region": "Global"
   },
   {
+    "id": "6a2d5e5ba4a1244337fdac925fe2c6f4",
+    "title": "Trump accused of calling for execution of Democrats \u2013 US politics live",
+    "snippet": "<p>Chuck Schumer says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p><strong>President Donald Trump will meet with incoming New York mayor Zohran Mamdani on Friday, the fir...",
+    "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
+    "published": "2025-11-21T11:39:56",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
+  },
+  {
+    "id": "d73be3b4b1fe06ce86fd2c73996eed7e",
+    "title": "Gender Alert \u2014 Impact of telecommunication shutdown on women-led organizations in Afghanistan",
+    "snippet": "<div class=\"tag country\">Country: Afghanistan</div>\n                                      <div class=\"tag source\">Sources: Asia Pacific Gender in Humanitarian Action Working Group, Gender Based Violence Area of Responsibility, UN Women</div>\n        ...",
+    "link": "https://reliefweb.int/report/afghanistan/gender-alert-impact-telecommunication-shutdown-women-led-organizations-afghanistan",
+    "published": "2025-11-21T09:45:05",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "APJC"
+  },
+  {
+    "id": "932fc4f40f9e54e50a398821bb3983e2",
+    "title": "Colombia: Ongoing conflict stalls progress towards peace | NRC",
+    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Source: Norwegian Refugee Council</div>\n                                                                                              <p>De...",
+    "link": "https://reliefweb.int/report/colombia/colombia-ongoing-conflict-stalls-progress-towards-peace-nrc",
+    "published": "2025-11-21T09:03:13",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
+  },
+  {
     "id": "00c37ce922c4aec08901dee32be10859",
     "title": "Two men charged over threatening messages to Lidia Thorpe and about Allegra Spender",
     "snippet": "<p>Third man charged for allegedly harassing \u2018Australian high-office holder\u2019 as police target people \u2018causing high levels of harm to Australia\u2019s social cohesion\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/21/austr...",
@@ -226,18 +298,6 @@
     "category": "Weather/Event",
     "severity": 2,
     "region": "APJC"
-  },
-  {
-    "id": "6a2d5e5ba4a1244337fdac925fe2c6f4",
-    "title": "Trump accused of calling for execution of Democrats \u2013 US politics live",
-    "snippet": "<p>Chuck Schumer says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p>Good morning and welcome to the US politics live blog. I\u2019m Tom Ambrose and I\u2019ll be bringing you all the...",
-    "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
-    "published": "2025-11-21T11:30:07",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "EMEA"
   },
   {
     "id": "dc96a5131316005d3444fea15a3c3de6",
@@ -288,6 +348,30 @@
     "region": "APJC"
   },
   {
+    "id": "010e82eb70602870b1ea6b3b45b84c5a",
+    "title": "Portugal supports WFP to improve child nutrition in Lesotho | World Food Programme",
+    "snippet": "<div class=\"tag country\">Countries: Lesotho, Portugal</div>\n                                      <div class=\"tag source\">Source: World Food Programme</div>\n                                                                                             ...",
+    "link": "https://reliefweb.int/report/lesotho/portugal-supports-wfp-improve-child-nutrition-lesotho-world-food-programme",
+    "published": "2025-11-21T11:33:17",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "Global"
+  },
+  {
+    "id": "20f2295a19a89fd49deae7f90523080f",
+    "title": "World: No Escape II: The Way Forward \u2013 Bringing Climate Solutions to the Frontlines of Conflict and Displacement",
+    "snippet": "<div class=\"tag country\">Countries: World, C\u00f4te d'Ivoire, Jordan, Malawi, Uganda</div>\n                                      <div class=\"tag source\">Source: UN High Commissioner for Refugees</div>\n                                                     ...",
+    "link": "https://reliefweb.int/report/world/no-escape-ii-way-forward-bringing-climate-solutions-frontlines-conflict-and-displacement",
+    "published": "2025-11-21T10:03:15",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Cyber",
+    "severity": 2,
+    "region": "AMER"
+  },
+  {
     "id": "039a1d15b68bfcefea17c82da7765ef1",
     "title": "White House walks back Trump\u2019s suggestion of executing Democrats, stands by \u2018piggy\u2019 insult to reporter\u2013 as it happened",
     "snippet": "<p>This live blog is now closed.</p><ul><li><p><a href=\"https://www.theguardian.com/us-news/2025/nov/20/trump-news-at-a-glance-democrats\">Trump news at a glance: president says Democrats should be arrested for \u2018seditious behavior\u2019, drawing outrage</a...",
@@ -295,30 +379,6 @@
     "published": "2025-11-21T02:54:53",
     "date_str": "2025-11-21",
     "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "d73be3b4b1fe06ce86fd2c73996eed7e",
-    "title": "Gender Alert \u2014 Impact of telecommunication shutdown on women-led organizations in Afghanistan",
-    "snippet": "<div class=\"tag country\">Country: Afghanistan</div>\n                                      <div class=\"tag source\">Sources: Asia Pacific Gender in Humanitarian Action Working Group, Gender Based Violence Area of Responsibility, UN Women</div>\n        ...",
-    "link": "https://reliefweb.int/report/afghanistan/gender-alert-impact-telecommunication-shutdown-women-led-organizations-afghanistan",
-    "published": "2025-11-21T09:45:05",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
-    "id": "932fc4f40f9e54e50a398821bb3983e2",
-    "title": "Colombia: Ongoing conflict stalls progress towards peace | NRC",
-    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Source: Norwegian Refugee Council</div>\n                                                                                              <p>De...",
-    "link": "https://reliefweb.int/report/colombia/colombia-ongoing-conflict-stalls-progress-towards-peace-nrc",
-    "published": "2025-11-21T09:03:13",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
@@ -612,6 +672,18 @@
     "region": "Global"
   },
   {
+    "id": "144c12cdaa1eba2f13f9dea81c8c68b6",
+    "title": "Nigera court jails Nnamdi Kanu for life",
+    "snippet": "A Nigerian court has convicted separatist leader Nnamdi Kanu on terrorism and related charges after a decade-long legal saga. He was handed four life sentences, to be served concurrently. While prosecutors had sought the death penalty, Judge James Om...",
+    "link": "https://www.france24.com/en/video/20251121-nigera-court-jails-nnamdi-kanu-for-life",
+    "published": "2025-11-21T11:30:28",
+    "date_str": "2025-11-21",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "b65fe7cd7dbef3b527c0ca66c0304cc5",
     "title": "Who is Kellie Sloane, the new NSW Liberal leader \u2013 and can this first-term former journalist save the party?",
     "snippet": "<p>Former television reporter and presenter, now the member for Vaucluse, praised for her \u2018enormous potential\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/2025/nov/21/kellie-sloane-nsw-liberal-leader-vaucluse-mp\">Kellie Sloane e...",
@@ -636,18 +708,6 @@
     "region": "AMER"
   },
   {
-    "id": "144c12cdaa1eba2f13f9dea81c8c68b6",
-    "title": "Nigera court jails Nnamdi Kanu for life",
-    "snippet": "A Nigerian court has convicted separatist leader Nnamdi Kanu on terrorism and related charges after a decade-long legal saga. He was handed four life sentences, to be served concurrently. While prosecutors had sought the death penalty, Judge James Om...",
-    "link": "https://www.france24.com/en/video/20251121-nigera-court-jails-nnamdi-kanu-for-life",
-    "published": "2025-11-21T11:30:28",
-    "date_str": "2025-11-21",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
     "id": "d4cd904e53b0f0f02ccccd4d3e9a454c",
     "title": "French government takes action on drug crime",
     "snippet": "French authorities are ramping up efforts against organised drug crime in Marseille after the killing of 20-year-old Mehdi Kessaci, which officials link to the city\u2019s powerful drug-trafficking networks. Interior Minister Laurent Nu\u00f1ez and Justice Min...",
@@ -667,6 +727,18 @@
     "published": "2025-11-21T11:14:43",
     "date_str": "2025-11-21",
     "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "269daef331151dc526b42c0e4f4af395",
+    "title": "Bangladesh: Tailoring a new future: Finding a path back to security and dignity through hard work, sewing and brightly coloured clothing",
+    "snippet": "<div class=\"tag country\">Countries: Bangladesh, Myanmar</div>\n                                      <div class=\"tag source\">Source: International Federation of Red Cross and Red Crescent Societies</div>\n                                               ...",
+    "link": "https://reliefweb.int/report/bangladesh/tailoring-new-future-finding-path-back-security-and-dignity-through-hard-work-sewing-and-brightly-coloured-clothing",
+    "published": "2025-11-21T10:33:07",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
