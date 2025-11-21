@@ -5,7 +5,6 @@ import hashlib
 from datetime import datetime
 
 # --- CONFIGURATION: GLOBAL TRUSTED SOURCES ---
-# Maps RSS URL -> Professional Display Name
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
@@ -41,4 +40,111 @@ KEYWORDS = {
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "attack", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict"],
     "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade"],
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyberattack", "zero-day", "hacker", "phishing"],
-    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone",
+    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption"]
+}
+
+def load_locations():
+    try:
+        with open('config/locations.json', 'r') as f:
+            return json.load(f)
+    except:
+        return []
+
+def analyze_article(title, summary, locations):
+    text = (title + " " + summary).lower()
+    
+    # 1. Detect Category
+    category = "Uncategorized"
+    for cat, keys in KEYWORDS.items():
+        if any(k in text for k in keys):
+            category = cat
+            break
+    
+    if category == "Uncategorized":
+        return None 
+
+    # 2. Detect Region & Proximity
+    region = "Global"
+    proximity_alert = False
+    
+    # Strict City Match from locations.json
+    for loc in locations:
+        if loc['city'].lower() in text:
+            region = loc['region']
+            proximity_alert = True
+            break
+    
+    # Broad Region Match
+    if not proximity_alert:
+        if any(x in text for x in ["asia", "china", "india", "japan", "australia", "singapore", "korea"]): region = "APJC"
+        elif any(x in text for x in ["europe", "uk", "germany", "france", "ukraine", "russia", "middle east", "israel"]): region = "EMEA"
+        elif any(x in text for x in ["usa", "america", "brazil", "mexico", "canada", "latin"]): region = "AMER"
+
+    # 3. Calculate Severity
+    severity = 1
+    critical_terms = ["dead", "killed", "critical", "state of emergency", "catastrophic", "terrorist", "war declared"]
+    warning_terms = ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack"]
+
+    if any(x in text for x in critical_terms): severity = 3
+    elif any(x in text for x in warning_terms): severity = 2
+    
+    if proximity_alert and severity < 3:
+        severity += 1 
+
+    return {
+        "category": category,
+        "severity": severity,
+        "region": region,
+        "proximity_alert": proximity_alert
+    }
+
+def fetch_news():
+    locations = load_locations()
+    all_articles = []
+    
+    print("Scanning Expanded Global Feeds...")
+    
+    for url, source_name in TRUSTED_SOURCES.items():
+        try:
+            feed = feedparser.parse(url)
+            if not feed.entries:
+                continue
+
+            for entry in feed.entries:
+                title = entry.title
+                summary = entry.summary if 'summary' in entry else ""
+                link = entry.link
+                pub_date = entry.published if 'published' in entry else str(datetime.now())
+                
+                if len(title) < 15: continue
+
+                analysis = analyze_article(title, summary, locations)
+                
+                if analysis:
+                    article_hash = hashlib.md5(title.encode()).hexdigest()
+                    
+                    all_articles.append({
+                        "id": article_hash,
+                        "title": title,
+                        "snippet": summary[:250] + "...",
+                        "link": link,
+                        "published": pub_date,
+                        "source": source_name,
+                        "category": analysis['category'],
+                        "severity": analysis['severity'],
+                        "region": analysis['region']
+                    })
+        except Exception as e:
+            print(f"Skipping {source_name}: {e}")
+
+    unique = {v['id']:v for v in all_articles}.values()
+    sorted_news = sorted(unique, key=lambda x: (x['severity'], x['published']), reverse=True)
+    
+    os.makedirs("public/data", exist_ok=True)
+    with open("public/data/news.json", "w") as f:
+        json.dump(list(sorted_news), f, indent=2)
+    
+    print(f"Successfully published {len(sorted_news)} verified intelligence items.")
+
+if __name__ == "__main__":
+    fetch_news()
