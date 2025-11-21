@@ -10,7 +10,6 @@ from time import mktime
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
-    "https://www.aljazeera.com/xml/rss/all.xml": "Al Jazeera",
     "https://www.dw.com/xml/rss/rss-n-all": "Deutsche Welle",
     "http://rss.cnn.com/rss/edition_world.rss": "CNN World",
     "https://www.nytimes.com/services/xml/rss/nyt/World.xml": "New York Times World",
