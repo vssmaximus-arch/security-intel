@@ -324,6 +324,18 @@
     "region": "AMER"
   },
   {
+    "id": "540ec4c1438c6ee72663b30ae9389d70",
+    "title": "Senator whose wife was shot fears for safety after Trump sedition accusation",
+    "snippet": "<p>President called behavior of Mark Kelly, whose wife Gabby Giffords survived assassination bid, \u2018punishable by death\u2019</p><p>Senator Mark Kelly \u2013 whose wife, Gabrielle Giffords, narrowly survived an attempted assassination while she was in Congress ...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/21/mark-kelly-gabby-giffords-threats-safety-trump",
+    "published": "2025-11-21T22:36:52",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
+  },
+  {
     "id": "9d2b92aeb41ae96ed9ce52187aaddaee",
     "title": "Nigeria reels after second mass school abduction in a week",
     "snippet": "<p>Students taken from Catholic school in Niger state amid threats from Trump to intervene over \u2018Christian genocide\u2019</p><p>Unknown gunmen have abducted an unidentified number of students from a Catholic school in central Nigeria, the second mass abdu...",
@@ -346,18 +358,6 @@
     "category": "Weather/Event",
     "severity": 2,
     "region": "APJC"
-  },
-  {
-    "id": "540ec4c1438c6ee72663b30ae9389d70",
-    "title": "Senator whose wife was shot fears for safety after Trump sedition accusation",
-    "snippet": "<p>President called behavior of Mark Kelly, whose wife Gabby Giffords survived assassination bid, \u2018punishable by death\u2019</p><p>Senator Mark Kelly \u2013 whose wife, Gabrielle Giffords, narrowly survived an attempted assassination while she was in Congress ...",
-    "link": "https://www.theguardian.com/us-news/2025/nov/21/mark-kelly-gabby-giffords-threats-safety-trump",
-    "published": "2025-11-21T21:56:58",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
   },
   {
     "id": "c1c58d5de73732bd9a746ae873f7c556",
@@ -1113,7 +1113,7 @@
     "source": "The Guardian World",
     "category": "Physical Security",
     "severity": 1,
-    "region": "EMEA"
+    "region": "Global"
   },
   {
     "id": "6f72193db6adff8a559f72192c41b9a2",
@@ -1204,7 +1204,7 @@
     "title": "Trump says he \u2018absolutely\u2019 would live in Mamdani\u2019s New York during unexpectedly cordial first meeting \u2013 US politics live",
     "snippet": "<p>President and mayor-elect refused to be drawn into talking about their differences despite repeated attempts to nudge them into conflict</p><ul><li><p><a href=\"https://www.theguardian.com/us-news/2025/nov/21/donald-trump-zohran-mamdani-meeting\">Tr...",
     "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
-    "published": "2025-11-21T22:28:52",
+    "published": "2025-11-21T22:41:03",
     "date_str": "2025-11-21",
     "source": "The Guardian World",
     "category": "Physical Security",
@@ -1234,6 +1234,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "8f921de9907460b59af91c3d2bd136c6",
+    "title": "\u2018Dangerous and undermines our systems\u2019: Tanya Plibersek condemns serious police failures in Queensland DV deaths",
+    "snippet": "<p>Plibersek said those victims \u2013 Hannah Clarke and her children, Kardell Lomas and her unborn child, and Gail Karran \u2013 \u2018should have been kept safe\u2019</p><ul><li><p>Get our <a href=\"https://www.theguardian.com/email-newsletters?CMP=cvau_sfl\">breaking n...",
+    "link": "https://www.theguardian.com/australia-news/2025/nov/22/dangerous-and-undermines-legal-system-tanya-plibersek-condemns-serious-police-failures-in-queensland-dv-deaths",
+    "published": "2025-11-21T22:37:32",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "2451650b2029afa3ea296fe559db39bd",
