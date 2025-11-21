@@ -132,23 +132,11 @@
     "region": "Global"
   },
   {
-    "id": "4020dec6693b50d743a1e791c9ba9344",
-    "title": "Trump\u2019s threats amount to calls for \u2018execution of elected officials\u2019, says Chuck Schumer \u2013 US politics live",
-    "snippet": "<p>Democrat Senate minority leader says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p>Donald Trump has assembled the least diverse US government of the 21st century, filli...",
-    "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
-    "published": "2025-11-21T14:40:11",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "6d1bcac8696efc91d478b8818bd84c6d",
     "title": "Explainer-What's behind Nigeria's latest school abductions, church attack?",
     "snippet": "<p>LAGOS - Nigeria has grabbed global headlines again following a spate of attacks by gunmen involving the kidnapping of dozens of students from two schools and a deadly assault on a church service.</p>...",
     "link": "https://www.straitstimes.com/world/explainer-whats-behind-nigerias-latest-school-abductions-church-attack",
-    "published": "2025-11-21T12:29:10",
+    "published": "2025-11-21T15:19:35",
     "date_str": "2025-11-21",
     "source": "The Straits Times (Singapore)",
     "category": "Physical Security",
@@ -168,6 +156,18 @@
     "region": "APJC"
   },
   {
+    "id": "80caf406d8940293f8ac341284ac3704",
+    "title": "South Africa calls gender violence a national disaster after protests",
+    "snippet": "Fifteen women are killed every day in a country with one of the highest rates of gender violence in the world....",
+    "link": "https://www.bbc.com/news/articles/cn979g302l9o?at_medium=RSS&at_campaign=rss",
+    "published": "2025-11-21T15:20:30",
+    "date_str": "2025-11-21",
+    "source": "BBC World News",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "Global"
+  },
+  {
     "id": "654a85e5c3446c9b46c71e4d99ee35b9",
     "title": "US-Saudi citizen Saad Al-Madi returns to Florida after Saudi travel ban lifted",
     "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125484819.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Saad Al-Madi, a 75-year-old US-Saudi citizen and retired engineer, has returned to Florida after Saud...",
@@ -178,6 +178,30 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "APJC"
+  },
+  {
+    "id": "a0e8064cac63c4912083e5490bd88bfd",
+    "title": "Cyprus jails Azeri man for conspiracy, drops terrorism-related charge",
+    "snippet": "<p>NICOSIA - A court in Cyprus on Friday sentenced an Azeri man to 6-1/2 years in jail on charges of conspiracy, his lawyer said, after prosecutors earlier dropped charges he planned terrorist attacks against Israelis living on the island.</p>...",
+    "link": "https://www.straitstimes.com/world/europe/cyprus-jails-azeri-man-for-conspiracy-drops-terrorism-related-charge",
+    "published": "2025-11-21T14:59:03",
+    "date_str": "2025-11-21",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
+    "id": "4020dec6693b50d743a1e791c9ba9344",
+    "title": "Trump\u2019s threats amount to calls for \u2018execution of elected officials\u2019, says Chuck Schumer \u2013 US politics live",
+    "snippet": "<p>Democrat Senate minority leader says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p><strong>Robert Garcia</strong>, the ranking member on the House oversight committee, ...",
+    "link": "https://www.theguardian.com/us-news/live/2025/nov/21/donald-trump-democrats-republicans-zohran-mamdani-us-politics-latest-news-updates",
+    "published": "2025-11-21T15:10:42",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "84be3eaab8e382758b5e15f6208e77e1",
@@ -760,7 +784,7 @@
     "title": "Bulgaria arrests 35 in large-scale trafficking of cultural goods",
     "snippet": "<p>Bulgaria has arrested 35 people linked to a criminal network involved in large-scale trafficking of cultural goods across Europe, BTA news agency reported on Thursday, quoting the head of the country's anti-organised crime unit.</p>...",
     "link": "https://www.straitstimes.com/world/europe/bulgaria-arrests-35-in-large-scale-trafficking-of-cultural-goods",
-    "published": "2025-11-21T12:54:01",
+    "published": "2025-11-21T15:09:39",
     "date_str": "2025-11-21",
     "source": "The Straits Times (Singapore)",
     "category": "Physical Security",
@@ -861,14 +885,14 @@
     "source": "The Guardian World",
     "category": "Physical Security",
     "severity": 1,
-    "region": "EMEA"
+    "region": "Global"
   },
   {
     "id": "cf1e4bfced60fc2fed2ee7eb0a356b8d",
     "title": "Pope given copy of US Senate bill on Minnesota shooting by co-sponsor Klobuchar",
     "snippet": "<p>VATICAN CITY - Pope Leo was presented on Friday with a copy of a U.S. Senate resolution commemorating the victims of a shooting in August at a Minnesota Catholic Church and school, given to him by Senator Amy Klobuchar, one of the bill's co-sponso...",
     "link": "https://www.straitstimes.com/world/europe/pope-given-copy-of-us-senate-bill-on-minnesota-shooting-by-co-sponsor-klobuchar",
-    "published": "2025-11-21T14:19:09",
+    "published": "2025-11-21T15:19:10",
     "date_str": "2025-11-21",
     "source": "The Straits Times (Singapore)",
     "category": "Physical Security",
@@ -898,6 +922,66 @@
     "category": "Weather/Event",
     "severity": 1,
     "region": "AMER"
+  },
+  {
+    "id": "e576daa7f99a90b989c2729434e0d545",
+    "title": "TNT Europe needs to defend itself ends up being used on Gaza, Polish MP claims",
+    "snippet": "<p>Maciej Konieczny claims sole European supplier sends much of its production to the US which then exports it for use by Israel </p><p>Europe cannot supply enough TNT to defend either itself or Ukraine largely because its monopoly supplier of the ex...",
+    "link": "https://www.theguardian.com/world/2025/nov/21/europe-tnt-supply-us-export-israel-gaza-polish-mp-claims",
+    "published": "2025-11-21T14:50:44",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "3f0a7c872397a3a84aa3a3fdc2da1634",
+    "title": "Germany to classify date rape drugs as weapons in attempt to ensure justice for survivors",
+    "snippet": "<p>Classification will create basis for \u2018significantly stricter\u2019 prosecutions, minister says</p><p>Germany plans to treat the use of date rape drugs like the use of a weapon in prosecutions as part of measures to ensure justice for survivors of domes...",
+    "link": "https://www.theguardian.com/society/2025/nov/21/germany-to-classify-date-drugs-as-weapons-in-attempt-to-ensure-justice-for-survivors",
+    "published": "2025-11-21T14:50:03",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "d1b8a0fce21e4bd1e252009225231246",
+    "title": "Man pleads guilty to rape of girl, 12, in case that sparked anti-asylum protests",
+    "snippet": "<p>Ahmad Mulakhil changes his plea at Warwick crown court, admitting single charge of rape of a child under 13</p><p>A man has pleaded guilty to the rape of a 12-year-old girl in Warwickshire, in a case that prompted anti-asylum protests in Nuneaton....",
+    "link": "https://www.theguardian.com/uk-news/2025/nov/21/man-pleads-guilty-rape-12-year-old-girl-nuneaton-anti-asylum-protests",
+    "published": "2025-11-21T13:51:19",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "51dd684b4665c9ebf7050dae3f624b62",
+    "title": "France to reduce diplomatic staff in Mali amid jihadist fuel blockade",
+    "snippet": "France is pulling back diplomatic staff from Mali as the security situation in the country deteriorates under a jihadist-imposed fuel blockade. The move comes amid deepening concerns over the junta-led country's shift toward Russian military support,...",
+    "link": "https://www.france24.com/en/africa/20251121-france-to-reduce-diplomatic-staff-in-mali-amid-jihadist-fuel-blockade",
+    "published": "2025-11-21T15:02:19",
+    "date_str": "2025-11-21",
+    "source": "France 24",
+    "category": "Logistics",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "143a69c92e292ffc7c1413e6809f5376",
+    "title": "The woman who invented the rape kit; so why did a man get credit for it?",
+    "snippet": "Annette Young talks to Pagan Kennedy, the journalist who uncovered that a woman originally invented the rape kit, even though a man had long been credited with the idea. Also, as we mark the International Day for the Elimination of Violence against W...",
+    "link": "https://www.france24.com/en/tv-shows/the-51/20251121-the-woman-who-invented-the-rape-kit-so-why-did-a-man-get-credit-for-it",
+    "published": "2025-11-21T14:54:22",
+    "date_str": "2025-11-21",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "d4cd904e53b0f0f02ccccd4d3e9a454c",
@@ -943,6 +1027,18 @@
     "published": "2025-11-21T11:14:43",
     "date_str": "2025-11-21",
     "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "af992860f7c5ea29ffbd9df932dfd6e3",
+    "title": "Balalaika Instructor Arrested in Yekaterinburg for Allegedly Trying to Suffocate Children",
+    "snippet": "Artyom Vaganov reportedly invited children aged 10 to 15 to his apartment and offered them money to let him place plastic bags over their heads....",
+    "link": "https://www.themoscowtimes.com/2025/11/21/balalaika-instructor-arrested-in-yekaterinburg-for-allegedly-trying-to-suffocate-children-a91205",
+    "published": "2025-11-21T15:04:45",
+    "date_str": "2025-11-21",
+    "source": "The Moscow Times",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
