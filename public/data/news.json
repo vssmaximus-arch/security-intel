@@ -192,6 +192,18 @@
     "region": "Global"
   },
   {
+    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
+    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
+    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
+    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
+    "published": "2025-11-21T13:58:09",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "APJC"
+  },
+  {
     "id": "654a85e5c3446c9b46c71e4d99ee35b9",
     "title": "US-Saudi citizen Saad Al-Madi returns to Florida after Saudi travel ban lifted",
     "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125484819.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Saad Al-Madi, a 75-year-old US-Saudi citizen and retired engineer, has returned to Florida after Saud...",
@@ -202,6 +214,18 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "APJC"
+  },
+  {
+    "id": "e88616f1706cd2bdbca2149c8679d4c6",
+    "title": "World: Africa CDC Unveils a New Vision for Health Security and Sovereignty Across the Continent",
+    "snippet": "<div class=\"tag country\">Country: World</div>\n                                      <div class=\"tag source\">Source: Africa Centres for Disease Control and Prevention</div>\n                                                                              ...",
+    "link": "https://reliefweb.int/report/world/africa-cdc-unveils-new-vision-health-security-and-sovereignty-across-continent",
+    "published": "2025-11-21T13:33:20",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Cyber",
+    "severity": 3,
+    "region": "AMER"
   },
   {
     "id": "4020dec6693b50d743a1e791c9ba9344",
@@ -396,16 +420,40 @@
     "region": "APJC"
   },
   {
-    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
-    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
-    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
-    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
-    "published": "2025-11-21T13:58:09",
+    "id": "4dd202844336ea7433688970437b056e",
+    "title": "Crisis Analysis - DR Congo: Monthly Displacement Report, October 2025",
+    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                              <p><img alt...",
+    "link": "https://reliefweb.int/report/democratic-republic-congo/crisis-analysis-dr-congo-monthly-displacement-report-october-2025",
+    "published": "2025-11-21T13:44:43",
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
-    "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global"
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
+  },
+  {
+    "id": "fea9ff8d8532d6ca9b511bb8e058b555",
+    "title": "Somalia: Radio Ergo Weekly Feedback Report, Issued: 21 Nov 2025",
+    "snippet": "<div class=\"tag country\">Country: Somalia</div>\n                                      <div class=\"tag source\">Source: Radio Ergo</div>\n                                                                                                <p><img alt=\"alt\" s...",
+    "link": "https://reliefweb.int/report/somalia/radio-ergo-weekly-feedback-report-issued-21-nov-2025",
+    "published": "2025-11-21T13:39:07",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
+  },
+  {
+    "id": "8cf30bafa5e33cb189a89f1ed5ef5b43",
+    "title": "World: La Ni\u00f1a Overview: Anticipated humanitarian impact between November 2025-March 2026",
+    "snippet": "<div class=\"tag country\">Country: World</div>\n                                      <div class=\"tag source\">Source: ACAPS</div>\n                                                                                                <p><img alt=\"alt\" src=\"htt...",
+    "link": "https://reliefweb.int/report/world/la-nina-overview-anticipated-humanitarian-impact-between-november-2025-march-2026",
+    "published": "2025-11-21T13:03:09",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "APJC"
   },
   {
     "id": "94dbd6860d0385f18331d1b8539f19c7",
@@ -1092,18 +1140,6 @@
     "region": "EMEA"
   },
   {
-    "id": "2451650b2029afa3ea296fe559db39bd",
-    "title": "Farage\u2019s views on Russia likely to be further tested after jailing of Nathan Gill",
-    "snippet": "<p>It would be expedient for Reform to take Labour\u2019s advice and disavow \u2018Putin talking points\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/politics/2025/nov/21/nathan-gill-former-reform-uk-wales-leader-jailed-bribes-pro-russia-statements-mep\">...",
-    "link": "https://www.theguardian.com/politics/2025/nov/21/farage-views-on-russia-tested-jailing-nathan-gill-reform",
-    "published": "2025-11-21T17:02:52",
-    "date_str": "2025-11-21",
-    "source": "The Guardian World",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
     "id": "cda5b345ed3002aa971e892b48f1fb62",
     "title": "Man jailed for life for murdering ex-wife at their son\u2019s grave in Hampshire",
     "snippet": "<p>Judge sentences Martin Suter to minimum of 27 years for stabbing Ann Blackwood to death in 2023</p><p>A man has been jailed for life with a minimum of 27 years for murdering his ex-wife at their son\u2019s grave on their late child\u2019s birthday.</p><p>Ma...",
@@ -1128,16 +1164,40 @@
     "region": "AMER"
   },
   {
-    "id": "bac8fd3c17a031768d29a48d916df3ff",
-    "title": "The FBI spied on a Signal group chat of immigration activists, records reveal",
-    "snippet": "<p>Exclusive: Agency accessed private conversations of New York \u2018courtwatch\u2019 group that was observing public hearings</p><p>The FBI spied on a private Signal group chat of immigrants\u2019 rights activists who were organizing \u201ccourtwatch\u201d efforts in New Y...",
-    "link": "https://www.theguardian.com/us-news/2025/nov/21/fbi-signal-group-chat-immigration",
-    "published": "2025-11-21T16:35:14",
+    "id": "01e36581b73a722b3fef3abe7e9330fa",
+    "title": "Peru orders arrest of ex-prime minister under Mexico asylum in Lima",
+    "snippet": "<p>LIMA - A Peruvian Supreme Court judge on Friday ordered the arrest and five-month preventive detention of former Peruvian Prime Minister Betssy Chavez, who is currently under asylum at the Mexican embassy in Peru's capital Lima.</p>...",
+    "link": "https://www.straitstimes.com/world/peru-orders-arrest-of-ex-prime-minister-under-mexico-asylum-in-lima",
+    "published": "2025-11-21T18:59:14",
     "date_str": "2025-11-21",
-    "source": "The Guardian World",
+    "source": "The Straits Times (Singapore)",
     "category": "Physical Security",
     "severity": 1,
     "region": "AMER"
+  },
+  {
+    "id": "dd47e62e08d562d70a0a52fb2a2fff58",
+    "title": "Bolsonaro lawyers seek house arrest for coup plot sentence",
+    "snippet": "<p>SAO PAULO - Lawyers for former Brazilian President Jair Bolsonaro asked Supreme Court Justice Alexandre de Moraes to allow him to serve his 27-year sentence under house arrest, citing health concerns, a document seen by Reuters on Friday showed.</...",
+    "link": "https://www.straitstimes.com/world/bolsonaro-lawyers-seek-house-arrest-for-coup-plot-sentence",
+    "published": "2025-11-21T19:29:12",
+    "date_str": "2025-11-21",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
+    "id": "2451650b2029afa3ea296fe559db39bd",
+    "title": "Farage\u2019s views on Russia likely to be further tested after jailing of Nathan Gill",
+    "snippet": "<p>It would be expedient for Reform to take Labour\u2019s advice and disavow \u2018Putin talking points\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/politics/2025/nov/21/nathan-gill-former-reform-uk-wales-leader-jailed-bribes-pro-russia-statements-mep\">...",
+    "link": "https://www.theguardian.com/politics/2025/nov/21/farage-views-on-russia-tested-jailing-nathan-gill-reform",
+    "published": "2025-11-21T17:02:52",
+    "date_str": "2025-11-21",
+    "source": "The Guardian World",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "EMEA"
   },
   {
     "id": "ffab4a1bda5bd9a4bdc0ef32bc71a3cf",
@@ -1188,28 +1248,40 @@
     "region": "Global"
   },
   {
-    "id": "01e36581b73a722b3fef3abe7e9330fa",
-    "title": "Peru orders arrest of ex-prime minister under Mexico asylum in Lima",
-    "snippet": "<p>LIMA - A Peruvian Supreme Court judge on Friday ordered the arrest and five-month preventive detention of former Peruvian Prime Minister Betssy Chavez, who is currently under asylum at the Mexican embassy in Peru's capital Lima.</p>...",
-    "link": "https://www.straitstimes.com/world/peru-orders-arrest-of-ex-prime-minister-under-mexico-asylum-in-lima",
-    "published": "2025-11-21T18:49:13",
+    "id": "fab67379d526873b0c7b155a816681bd",
+    "title": "Putin says US peace plan can be the basis for peace in Ukraine",
+    "snippet": "<p>MOSCOW - Russian President Vladimir Putin said on Friday that U.S. proposals for peace in Ukraine could be the basis of a resolution of the conflict but that if Kyiv turned down the plan then Russian forces would advance further.</p>...",
+    "link": "https://www.straitstimes.com/world/europe/putin-says-u-s-peace-plan-can-be-the-basis-for-peace-in-ukraine",
+    "published": "2025-11-21T18:49:27",
     "date_str": "2025-11-21",
     "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "274ecd0df7540b47ba5f88517441cb3b",
+    "title": "Colombia - PRPC 2025: Plan de Respuesta a Prioridades Comunitarias 2024 - 2025, Sistema 5W - Presencia y Financiamiento (21/11/2025)",
+    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Sources: El Equipo Humanitario Pa\u00eds Colombia, Grupo Interagencial sobre Flujos Migratorios Mixtos, UN Office for the Coordination of Humani...",
+    "link": "https://reliefweb.int/report/colombia/colombia-prpc-2025-plan-de-respuesta-prioridades-comunitarias-2024-2025-sistema-5w-presencia-y-financiamiento-21112025",
+    "published": "2025-11-21T16:18:40",
+    "date_str": "2025-11-21",
+    "source": "UN ReliefWeb",
     "category": "Physical Security",
     "severity": 1,
     "region": "AMER"
   },
   {
-    "id": "dd47e62e08d562d70a0a52fb2a2fff58",
-    "title": "Bolsonaro lawyers seek house arrest for coup plot sentence",
-    "snippet": "<p>SAO PAULO - Lawyers for former Brazilian President Jair Bolsonaro asked Supreme Court Justice Alexandre de Moraes to allow him to serve his coup plot sentence under house arrest, according to a document seen by Reuters on Friday.</p>...",
-    "link": "https://www.straitstimes.com/world/bolsonaro-lawyers-seek-house-arrest-for-coup-plot-sentence",
-    "published": "2025-11-21T18:24:15",
+    "id": "d83f50e68d2f6ae5f22df23bb9381d52",
+    "title": "DR Congo: Rapport mensuel de d\u00e9placement, Octobre 2025",
+    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                                         ...",
+    "link": "https://reliefweb.int/report/democratic-republic-congo/rapport-mensuel-de-deplacement-octobre-2025",
+    "published": "2025-11-21T13:52:10",
     "date_str": "2025-11-21",
-    "source": "The Straits Times (Singapore)",
+    "source": "UN ReliefWeb",
     "category": "Physical Security",
     "severity": 1,
-    "region": "AMER"
+    "region": "Global"
   },
   {
     "id": "4d7d4653a3e6acdc3ffbf7918ba753b0",
