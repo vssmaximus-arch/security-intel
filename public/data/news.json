@@ -96,18 +96,6 @@
     "region": "Global"
   },
   {
-    "id": "1f67d44577022db6f6ee185fc01328a9",
-    "title": "New Caledonia activist says France is impeding travel home after prison release",
-    "snippet": "<p>Exclusive: Kanak leader Christian Tein, who was freed from prison in June, says France is \u2018deliberately dragging out\u2019 re-issue of his passport</p><p>A pro-independence leader from the French overseas territory of New Caledonia has accused the Fren...",
-    "link": "https://www.theguardian.com/world/2025/nov/22/new-caledonia-activist-christian-tein-france-passport",
-    "published": "2025-11-22T09:00:35",
-    "date_str": "2025-11-22",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "EMEA"
-  },
-  {
     "id": "e3f48d35e96fcb033f22fe38f7fab5dc",
     "title": "Thousands rally in Marseille to denounce drug violence after killing of activist's brother",
     "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
@@ -118,6 +106,18 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "AMER"
+  },
+  {
+    "id": "1f67d44577022db6f6ee185fc01328a9",
+    "title": "New Caledonia activist says France is impeding travel home after prison release",
+    "snippet": "<p>Exclusive: Kanak leader Christian Tein, who was freed from prison in June, says France is \u2018deliberately dragging out\u2019 re-issue of his passport</p><p>A pro-independence leader from the French overseas territory of New Caledonia has accused the Fren...",
+    "link": "https://www.theguardian.com/world/2025/nov/22/new-caledonia-activist-christian-tein-france-passport",
+    "published": "2025-11-22T09:00:35",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
   },
   {
     "id": "7ed2b122f6f5b329395aee7503d0ce5f",
@@ -696,6 +696,30 @@
     "region": "AMER"
   },
   {
+    "id": "0be385e2f21f9fa1db3ca5ce7a841493",
+    "title": "Mehdi Kessaci: France honors victim of shooting in Marseille",
+    "snippet": "\ud83c\uddeb\ud83c\uddf7The high-security tribute to Mehdi #Kessaci began in #Marseille on Saturday, drawing several hundred people along with numerous political figures from all sides, all determined to \u201cstand together\u201d against drug-related crime....",
+    "link": "https://www.france24.com/en/video/20251122-mehdi-kessaci-france-honors-victim-of-shooting-in-marseille",
+    "published": "2025-11-22T16:59:27",
+    "date_str": "2025-11-22",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "055e6b72574df4b342512f7b73feac79",
+    "title": "Brazilian court orders preemptive arrest of former president Jair Bolsonaro",
+    "snippet": "Jair Bolsonaro has been taken into custody after being deemed a \u201cconcrete flight risk\u201d while under house arrest. The former Brazilian president was convicted in September of plotting a military coup and sentenced to more than 27 years in prison, thou...",
+    "link": "https://www.france24.com/en/video/20251122-brazilian-court-orders-preemptive-arrest-of-former-president-jair-bolsonaro",
+    "published": "2025-11-22T16:56:03",
+    "date_str": "2025-11-22",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
     "id": "2d713f0a92f876b9fed9a92e7a970fdb",
     "title": "\u2018They decided to kill us with cold\u2019: Ukrainians struggle against Russian assault on power network",
     "snippet": "<p>Chernihiv residents say they are without power for 14 hours a day as they gather in \u2018invincibility points\u2019 to charge up and warm up</p><p>Valentyna Ivanivna showed off her new head torch. It was a present from her grandson, she said. Most evenings...",
@@ -730,30 +754,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
-  },
-  {
-    "id": "0be385e2f21f9fa1db3ca5ce7a841493",
-    "title": "Mehdi Kessaci: France honors victim of shooting in Marseille",
-    "snippet": "\ud83c\uddeb\ud83c\uddf7The high-security tribute to Mehdi #Kessaci began in #Marseille on Saturday, drawing several hundred people along with numerous political figures from all sides, all determined to \u201cstand together\u201d against drug-related crime....",
-    "link": "https://www.france24.com/en/video/20251122-mehdi-kessaci-france-honors-victim-of-shooting-in-marseille",
-    "published": "2025-11-22T16:59:27",
-    "date_str": "2025-11-22",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
-  },
-  {
-    "id": "055e6b72574df4b342512f7b73feac79",
-    "title": "Brazilian court orders preemptive arrest of former president Jair Bolsonaro",
-    "snippet": "Jair Bolsonaro has been taken into custody after being deemed a \u201cconcrete flight risk\u201d while under house arrest. The former Brazilian president was convicted in September of plotting a military coup and sentenced to more than 27 years in prison, thou...",
-    "link": "https://www.france24.com/en/video/20251122-brazilian-court-orders-preemptive-arrest-of-former-president-jair-bolsonaro",
-    "published": "2025-11-22T16:56:03",
-    "date_str": "2025-11-22",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
   },
   {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
