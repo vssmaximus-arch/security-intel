@@ -36,6 +36,42 @@
     "date_str": "Fri, 21 No"
   },
   {
+    "id": "b258cf4985fc2148f3ba6d9dcc8f1c0f",
+    "title": "South Africans Seize on G20 Summit to Air Their Nation\u2019s Ills",
+    "snippet": "Johannesburg this weekend will host the first G20 meeting on African soil. Protesters are using the moment to draw attention to domestic problems....",
+    "link": "https://www.nytimes.com/2025/11/21/world/africa/south-africa-g20-protests.html",
+    "published": "2025-11-22T00:21:13",
+    "date_str": "2025-11-22",
+    "source": "New York Times World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "b30a56bd65e793218ad3a5146438849f",
+    "title": "Chicago rejects DOJ grants tied to Trump's immigration policies",
+    "snippet": "<p>Chicago will not apply for federal community violence intervention grants after the Trump administration reshaped the program to focus on law enforcement and immigration, the city said this week, calling the new stipulations an effort to politiciz...",
+    "link": "https://www.straitstimes.com/world/chicago-rejects-doj-grants-tied-to-trumps-immigration-policies",
+    "published": "2025-11-22T00:34:27",
+    "date_str": "2025-11-22",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "753978209cb35e9d70e9a908acf89362",
+    "title": "What to Know: Trump Labels Nigeria\u2019s Christian Violence a \u2018Genocide\u2019",
+    "snippet": "There are widespread attacks across the country affecting many religious and ethnic groups. Many of them defy a simple explanation....",
+    "link": "https://www.nytimes.com/2025/11/21/world/africa/nigeria-trump-genocide-claims.html",
+    "published": "2025-11-22T00:49:03",
+    "date_str": "2025-11-22",
+    "source": "New York Times World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
     "title": "French minister says drug crime threat 'equivalent to terrorism' after Marseille murder",
     "snippet": "French ministers vowed Thursday to use methods \"similar\" to counter-terrorism to stamp out drug crime on a visit to Marseille, where the brother of a prominent anti-drug activist was shot dead last week. Justice Minister G\u00e9rald Darmanin pledged more ...",
@@ -214,30 +250,6 @@
     "category": "Weather/Event",
     "severity": 3,
     "region": "Global"
-  },
-  {
-    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
-    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
-    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
-    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
-    "published": "2025-11-21T13:58:09",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Weather/Event",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
-    "id": "e88616f1706cd2bdbca2149c8679d4c6",
-    "title": "World: Africa CDC Unveils a New Vision for Health Security and Sovereignty Across the Continent",
-    "snippet": "<div class=\"tag country\">Country: World</div>\n                                      <div class=\"tag source\">Source: Africa Centres for Disease Control and Prevention</div>\n                                                                              ...",
-    "link": "https://reliefweb.int/report/world/africa-cdc-unveils-new-vision-health-security-and-sovereignty-across-continent",
-    "published": "2025-11-21T13:33:20",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Cyber",
-    "severity": 3,
-    "region": "AMER"
   },
   {
     "id": "4020dec6693b50d743a1e791c9ba9344",
@@ -420,52 +432,16 @@
     "region": "APJC"
   },
   {
-    "id": "42cbee004e2844f5594e7066a6269dcf",
-    "title": "Is Beijing\u2019s spat with Japan sending a message to other countries over Taiwan?",
-    "snippet": "Beijing\u2019s recent fury directed towards Japan is hammering home a point on Taiwan to the wider world, especially the United States and its allies, analysts in mainland China have suggested.\nEarlier this month, Japanese Prime Minister Sanae Takaichi sa...",
-    "link": "https://www.scmp.com/news/china/diplomacy/article/3333653/beijings-spat-japan-sending-message-us-and-allies-over-taiwan?utm_source=rss_feed",
-    "published": "2025-11-21T10:00:16",
-    "date_str": "2025-11-21",
-    "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "APJC"
-  },
-  {
-    "id": "b346d0e248629f75b4c9c802358c0510",
-    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 21 November 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-21-november-2025",
-    "published": "2025-11-21T22:00:20",
+    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
+    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
+    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
+    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
+    "published": "2025-11-21T13:58:09",
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "4dd202844336ea7433688970437b056e",
-    "title": "Crisis Analysis - DR Congo: Monthly Displacement Report, October 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                              <p><img alt...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/crisis-analysis-dr-congo-monthly-displacement-report-october-2025",
-    "published": "2025-11-21T13:44:43",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "fea9ff8d8532d6ca9b511bb8e058b555",
-    "title": "Somalia: Radio Ergo Weekly Feedback Report, Issued: 21 Nov 2025",
-    "snippet": "<div class=\"tag country\">Country: Somalia</div>\n                                      <div class=\"tag source\">Source: Radio Ergo</div>\n                                                                                                <p><img alt=\"alt\" s...",
-    "link": "https://reliefweb.int/report/somalia/radio-ergo-weekly-feedback-report-issued-21-nov-2025",
-    "published": "2025-11-21T13:39:07",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "540ec4c1438c6ee72663b30ae9389d70",
@@ -948,18 +924,6 @@
     "region": "APJC"
   },
   {
-    "id": "b258cf4985fc2148f3ba6d9dcc8f1c0f",
-    "title": "South Africans Seize on G20 Summit to Air Their Nation\u2019s Ills",
-    "snippet": "Johannesburg this weekend will host the first G20 meeting on African soil. Protesters are using the moment to draw attention to domestic problems....",
-    "link": "https://www.nytimes.com/2025/11/21/world/africa/south-africa-g20-protests.html",
-    "published": "2025-11-21T15:58:20",
-    "date_str": "2025-11-21",
-    "source": "New York Times World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
     "id": "d1f963fa3055ebafec33e0740c3794d5",
     "title": "Man pleads guilty to rape of 12-year-old girl that sparked anti-asylum protests",
     "snippet": "<p>Ahmad Mulakhil changed his plea at Warwick crown court, admitting to the single charge of rape of a child under 13</p><p>A man has pleaded guilty to the rape of a 12-year-old girl in Warwickshire, in a case that prompted anti-asylum protests in Nu...",
@@ -1380,18 +1344,6 @@
     "region": "Global"
   },
   {
-    "id": "b30a56bd65e793218ad3a5146438849f",
-    "title": "Chicago rejects DOJ grants tied to Trump's immigration policies",
-    "snippet": "<p>Chicago will not apply for federal community violence intervention grants after the Trump administration reshaped the program to focus on law enforcement and immigration, the city said this week, calling the new stipulations an effort to politiciz...",
-    "link": "https://www.straitstimes.com/world/chicago-rejects-doj-grants-tied-to-trumps-immigration-policies",
-    "published": "2025-11-21T23:29:17",
-    "date_str": "2025-11-21",
-    "source": "The Straits Times (Singapore)",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
     "id": "8250564f98257deb01512da30a21f0ef",
     "title": "Green earthquake (Magnitude 5.7M, Depth:10km) in Russia 21/11/2025 22:38 UTC, 2 thousand in MMI III.",
     "snippet": "On 11/21/2025 10:38:09 PM, an earthquake occurred in Russia potentially affecting 2 thousand in MMI III. The earthquake had Magnitude 5.7M, Depth:10km....",
@@ -1471,42 +1423,6 @@
     "published": "2025-11-21T11:14:43",
     "date_str": "2025-11-21",
     "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
-  },
-  {
-    "id": "fffb3d895d9197997329572dd7c6f703",
-    "title": "Jamaica: Latinoam\u00e9rica y El Caribe Resumen de Situaci\u00f3n Semanal al 21 de noviembre 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latinoamerica-y-el-caribe-resumen-de-situacion-semanal-al-21-de-noviembre-2025",
-    "published": "2025-11-21T23:23:25",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "274ecd0df7540b47ba5f88517441cb3b",
-    "title": "Colombia - PRPC 2025: Plan de Respuesta a Prioridades Comunitarias 2024 - 2025, Sistema 5W - Presencia y Financiamiento (21/11/2025)",
-    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Sources: El Equipo Humanitario Pa\u00eds Colombia, Grupo Interagencial sobre Flujos Migratorios Mixtos, UN Office for the Coordination of Humani...",
-    "link": "https://reliefweb.int/report/colombia/colombia-prpc-2025-plan-de-respuesta-prioridades-comunitarias-2024-2025-sistema-5w-presencia-y-financiamiento-21112025",
-    "published": "2025-11-21T16:18:40",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "d83f50e68d2f6ae5f22df23bb9381d52",
-    "title": "DR Congo: Rapport mensuel de d\u00e9placement, Octobre 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                                         ...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/rapport-mensuel-de-deplacement-octobre-2025",
-    "published": "2025-11-21T13:52:10",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
@@ -2235,6 +2151,18 @@
     "id": "f3a47831a520becb7c448499310f6b10",
     "title": "Green notification for tropical cyclone FINA-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 93766 .",
     "snippet": "From 18/11/2025 to 21/11/2025, a Hurricane/Typhoon > 74 mph (maximum wind speed of 157 km/h) FINA-25 was active in NTerritory. The cyclone affects these countries: Australia (vulnerability Low). Estimated population affected by category 1 (120 km/h) ...",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001235",
+    "published": "2025-11-18T08:06:51",
+    "date_str": "2025-11-18",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "c8eb90bcf000de86e108335ed3efaf1c",
+    "title": "Green notification for tropical cyclone FINA-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 11738 .",
+    "snippet": "From 18/11/2025 to 22/11/2025, a Hurricane/Typhoon > 74 mph (maximum wind speed of 176 km/h) FINA-25 was active in NTerritory. The cyclone affects these countries: Australia (vulnerability Low). Estimated population affected by category 1 (120 km/h) ...",
     "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001235",
     "published": "2025-11-18T08:06:51",
     "date_str": "2025-11-18",
