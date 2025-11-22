@@ -139,9 +139,9 @@
     "published": "2025-11-22T13:29:19",
     "date_str": "2025-11-22",
     "source": "UN ReliefWeb",
-    "category": "Logistics",
-    "severity": 2,
-    "region": "AMER"
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "b258cf4985fc2148f3ba6d9dcc8f1c0f",
@@ -172,7 +172,7 @@
     "title": "What to Know: Trump Labels Nigeria\u2019s Christian Violence a \u2018Genocide\u2019",
     "snippet": "There are widespread attacks across the country affecting many religious and ethnic groups. Many of them defy a simple explanation....",
     "link": "https://www.nytimes.com/2025/11/21/world/africa/nigeria-trump-genocide-claims.html",
-    "published": "2025-11-22T00:49:03",
+    "published": "2025-11-22T00:49:04",
     "date_str": "2025-11-22",
     "source": "New York Times World",
     "category": "Physical Security",
@@ -612,6 +612,18 @@
     "region": "Global"
   },
   {
+    "id": "c21082b50c56dce49b6c400e3342eb20",
+    "title": "Girl, 13, arrested on suspicion of murder after woman in her 50s dies in Swindon",
+    "snippet": "<p>Police detained teenager after responding to reports of disorder in Baydon Close, Moredon, Friday evening</p><p>A 13-year-old schoolgirl has been arrested on suspicion of murder after a woman died inside a house in Swindon.</p><p>Police detained t...",
+    "link": "https://www.theguardian.com/uk-news/2025/nov/22/swindon-woman-dies-girl-arrested",
+    "published": "2025-11-22T15:37:13",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "2d713f0a92f876b9fed9a92e7a970fdb",
     "title": "\u2018They decided to kill us with cold\u2019: Ukrainians struggle against Russian assault on power network",
     "snippet": "<p>Chernihiv residents say they are without power for 14 hours a day as they gather in \u2018invincibility points\u2019 to charge up and warm up</p><p>Valentyna Ivanivna showed off her new head torch. It was a present from her grandson, she said. Most evenings...",
@@ -636,11 +648,23 @@
     "region": "EMEA"
   },
   {
-    "id": "c21082b50c56dce49b6c400e3342eb20",
-    "title": "Girl, 13, arrested on suspicion of murder after woman in her 50s dies in Swindon",
-    "snippet": "<p>Police detained teenager after responding to reports of disorder in Baydon Close, Moredon, Friday evening</p><p>A 13-year-old schoolgirl has been arrested on suspicion of murder after a woman died inside a house in Swindon.</p><p>Police detained t...",
+    "id": "2deee2de451a2c2c4582290a9922b25c",
+    "title": "Scotland\u2019s World Cup qualifying win reactions equivalent to small earthquake",
+    "snippet": "<p>Celebrations to McLean\u2019s jaw-dropping goal picked up by seismic activity monitors at Glasgow Geothermal Observatory </p><p>When Scotland qualified for the men\u2019s football World Cup for the first time in 28 years, supporters were propelled into wild...",
+    "link": "https://www.theguardian.com/football/2025/nov/22/scotlands-world-cup-qualifying-win-celebrations-equivalent-to-small-earthquake",
+    "published": "2025-11-22T16:15:47",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "898eebbdb183636ccd49974ddc770129",
+    "title": "Girl, 13, arrested on suspicion of murder after woman dies in Swindon",
+    "snippet": "<p>Police detain teenager after responding to reports of disorder in Moredon on Friday evening</p><p>A 13-year-old schoolgirl has been arrested on suspicion of murder after a woman died inside a house in Swindon.</p><p>Police detained the teenager af...",
     "link": "https://www.theguardian.com/uk-news/2025/nov/22/swindon-woman-dies-girl-arrested",
-    "published": "2025-11-22T15:37:13",
+    "published": "2025-11-22T15:54:46",
     "date_str": "2025-11-22",
     "source": "The Guardian World",
     "category": "Physical Security",
@@ -658,6 +682,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "b978ee7ae39bc60d6c91b28c4a660065",
+    "title": "Tunisians escalate protests against Saied, demanding return of democracy",
+    "snippet": "<p>TUNIS - Thousands of Tunisians marched in the capital on Saturday in a protest against \u201cinjustice and repression\u201d, accusing President Kais Saied of cementing one-man rule by using the judiciary and police.</p>...",
+    "link": "https://www.straitstimes.com/world/europe/tunisians-escalate-protests-against-saied-demanding-return-of-democracy",
+    "published": "2025-11-22T16:09:26",
+    "date_str": "2025-11-22",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "AMER"
   },
   {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
@@ -840,30 +876,6 @@
     "region": "Global"
   },
   {
-    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
-    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
-    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
-    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
-    "published": "2025-11-21T13:58:09",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Weather/Event",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
-    "id": "e88616f1706cd2bdbca2149c8679d4c6",
-    "title": "World: Africa CDC Unveils a New Vision for Health Security and Sovereignty Across the Continent",
-    "snippet": "<div class=\"tag country\">Country: World</div>\n                                      <div class=\"tag source\">Source: Africa Centres for Disease Control and Prevention</div>\n                                                                              ...",
-    "link": "https://reliefweb.int/report/world/africa-cdc-unveils-new-vision-health-security-and-sovereignty-across-continent",
-    "published": "2025-11-21T13:33:20",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Cyber",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "4020dec6693b50d743a1e791c9ba9344",
     "title": "Trump\u2019s threats amount to calls for \u2018execution of elected officials\u2019, says Chuck Schumer \u2013 US politics live",
     "snippet": "<p>Democrat Senate minority leader says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p><strong>Robert Garcia</strong>, the ranking member on the House oversight committee, ...",
@@ -996,52 +1008,16 @@
     "region": "APJC"
   },
   {
-    "id": "c1c58d5de73732bd9a746ae873f7c556",
-    "title": "\u2018Every Swede has a role to play in our total defence concept\u2019: Swedish Civil Defence Minister Bohlin",
-    "snippet": "\u201cEveryone has a role to play\u201d, those are the words of today\u2019s guest Carl-Oskar Bohlin, Sweden\u2019s first minister for civil defence since 1947. Bohlin has become a key figure in Sweden\u2019s evolving security landscape, as threats against Europe are rapidly...",
-    "link": "https://www.france24.com/en/tv-shows/talking-europe/20251121-every-swede-has-a-role-to-play-in-our-total-defence-concept-swedish-civil-defence-minister-bohlin",
-    "published": "2025-11-21T17:20:02",
-    "date_str": "2025-11-21",
-    "source": "France 24",
-    "category": "Cyber",
-    "severity": 2,
-    "region": "EMEA"
-  },
-  {
-    "id": "b346d0e248629f75b4c9c802358c0510",
-    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 21 November 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-21-november-2025",
-    "published": "2025-11-21T22:00:20",
+    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
+    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
+    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
+    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
+    "published": "2025-11-21T13:58:09",
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "4dd202844336ea7433688970437b056e",
-    "title": "Crisis Analysis - DR Congo: Monthly Displacement Report, October 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                              <p><img alt...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/crisis-analysis-dr-congo-monthly-displacement-report-october-2025",
-    "published": "2025-11-21T13:44:43",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "fea9ff8d8532d6ca9b511bb8e058b555",
-    "title": "Somalia: Radio Ergo Weekly Feedback Report, Issued: 21 Nov 2025",
-    "snippet": "<div class=\"tag country\">Country: Somalia</div>\n                                      <div class=\"tag source\">Source: Radio Ergo</div>\n                                                                                                <p><img alt=\"alt\" s...",
-    "link": "https://reliefweb.int/report/somalia/radio-ergo-weekly-feedback-report-issued-21-nov-2025",
-    "published": "2025-11-21T13:39:07",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "6e89da39d20d32953c8f43e56111ca95",
@@ -2014,42 +1990,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "APJC"
-  },
-  {
-    "id": "fffb3d895d9197997329572dd7c6f703",
-    "title": "Jamaica: Latinoam\u00e9rica y El Caribe Resumen de Situaci\u00f3n Semanal al 21 de noviembre 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latinoamerica-y-el-caribe-resumen-de-situacion-semanal-al-21-de-noviembre-2025",
-    "published": "2025-11-21T23:23:25",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "274ecd0df7540b47ba5f88517441cb3b",
-    "title": "Colombia - PRPC 2025: Plan de Respuesta a Prioridades Comunitarias 2024 - 2025, Sistema 5W - Presencia y Financiamiento (21/11/2025)",
-    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Sources: El Equipo Humanitario Pa\u00eds Colombia, Grupo Interagencial sobre Flujos Migratorios Mixtos, UN Office for the Coordination of Humani...",
-    "link": "https://reliefweb.int/report/colombia/colombia-prpc-2025-plan-de-respuesta-prioridades-comunitarias-2024-2025-sistema-5w-presencia-y-financiamiento-21112025",
-    "published": "2025-11-21T16:18:40",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "d83f50e68d2f6ae5f22df23bb9381d52",
-    "title": "DR Congo: Rapport mensuel de d\u00e9placement, Octobre 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                                         ...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/rapport-mensuel-de-deplacement-octobre-2025",
-    "published": "2025-11-21T13:52:10",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "4d7d4653a3e6acdc3ffbf7918ba753b0",
