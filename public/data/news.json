@@ -168,6 +168,18 @@
     "region": "EMEA"
   },
   {
+    "id": "e317d4fd75c9a1564c49b478c5939f26",
+    "title": "Green flood alert in Bolivia",
+    "snippet": "On 17/11/2025, a flood started in Bolivia, lasting until 19/11/2025 (last update). The flood caused 0 deaths and 560 displaced ....",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103620",
+    "published": "2025-11-22T07:46:54",
+    "date_str": "2025-11-22",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
     "title": "French minister says drug crime threat 'equivalent to terrorism' after Marseille murder",
     "snippet": "French ministers vowed Thursday to use methods \"similar\" to counter-terrorism to stamp out drug crime on a visit to Marseille, where the brother of a prominent anti-drug activist was shot dead last week. Justice Minister G\u00e9rald Darmanin pledged more ...",
@@ -2162,7 +2174,7 @@
   {
     "id": "f1a508453cf0e732d721e5cebc88f6ad",
     "title": "Green flood alert in Brazil",
-    "snippet": "On 15/11/2025, a flood started in Brazil, lasting until 17/11/2025 (last update). The flood caused 0 deaths and 6 displaced ....",
+    "snippet": "On 15/11/2025, a flood started in Brazil, lasting until 21/11/2025 (last update). The flood caused 0 deaths and 6 displaced ....",
     "link": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103613",
     "published": "2025-11-18T12:49:22",
     "date_str": "2025-11-18",
@@ -2235,6 +2247,18 @@
     "id": "c8eb90bcf000de86e108335ed3efaf1c",
     "title": "Green notification for tropical cyclone FINA-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 11738 .",
     "snippet": "From 18/11/2025 to 22/11/2025, a Hurricane/Typhoon > 74 mph (maximum wind speed of 176 km/h) FINA-25 was active in NTerritory. The cyclone affects these countries: Australia (vulnerability Low). Estimated population affected by category 1 (120 km/h) ...",
+    "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001235",
+    "published": "2025-11-18T08:06:51",
+    "date_str": "2025-11-18",
+    "source": "UN GDACS (Disaster Alert)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "b53e175ef3da86ef30ce97a5e952a571",
+    "title": "Green notification for tropical cyclone FINA-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 188 .",
+    "snippet": "From 18/11/2025 to 22/11/2025, a Hurricane/Typhoon > 74 mph (maximum wind speed of 185 km/h) FINA-25 was active in NTerritory. The cyclone affects these countries: Australia (vulnerability Low). Estimated population affected by category 1 (120 km/h) ...",
     "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001235",
     "published": "2025-11-18T08:06:51",
     "date_str": "2025-11-18",
