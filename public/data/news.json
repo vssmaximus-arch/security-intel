@@ -48,6 +48,18 @@
     "region": "AMER"
   },
   {
+    "id": "1f67d44577022db6f6ee185fc01328a9",
+    "title": "New Caledonia activist says France is impeding travel home after prison release",
+    "snippet": "<p>Exclusive: Kanak leader Christian Tein, who was freed from prison in June, says France is \u2018deliberately dragging out\u2019 re-issue of his passport</p><p>A pro-independence leader from the French overseas territory of New Caledonia has accused the Fren...",
+    "link": "https://www.theguardian.com/world/2025/nov/22/new-caledonia-activist-christian-tein-france-passport",
+    "published": "2025-11-22T09:00:35",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
+  },
+  {
     "id": "b258cf4985fc2148f3ba6d9dcc8f1c0f",
     "title": "South Africans Seize on G20 Summit to Air Their Nation\u2019s Ills",
     "snippet": "Johannesburg this weekend will host the first G20 meeting on African soil. Protesters are using the moment to draw attention to domestic problems....",
@@ -122,7 +134,7 @@
   {
     "id": "d5822937517fc50f8322e011c532fa70",
     "title": "GSDF officer arrested over stabbing woman in Tokyo\u2019s Akasaka area",
-    "snippet": "The suspect has denied the allegations against him. \"I know the woman, but I have had no problems with her,\" Yoichiro Otsu told police....",
+    "snippet": "The suspect, Lt. Col. Yoichiro Otsu, who belongs to the GSDF's Camp Asaka in Tokyo's Nerima Ward, has denied the allegations against him....",
     "link": "https://www.japantimes.co.jp/news/2025/11/22/japan/crime-legal/gsdf-akasaka-woman-stabbing-suspect/",
     "published": "2025-11-22T05:12:00",
     "date_str": "2025-11-22",
@@ -202,6 +214,30 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "EMEA"
+  },
+  {
+    "id": "77e6e3fbe1b1ff47a3cdc31264a7bf1b",
+    "title": "Tense calm in far north as Israel prepares to \u2018finish the job\u2019 against Hezbollah",
+    "snippet": "<p>On the border with Lebanon, communities have started to return and rebuild \u2013 even though some are in no hurry to return</p><p>Noam Erlich looks out over what was his beer garden. Beyond the disordered chairs and tables and the sign instructing nei...",
+    "link": "https://www.theguardian.com/world/2025/nov/22/tense-calm-in-far-north-as-israel-prepares-to-finish-the-job-against-hezbollah",
+    "published": "2025-11-22T09:00:36",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "d31f6d65b886cdab787e8d58cbaaaffb",
+    "title": "Beware buy now, pay later temptation on Black Friday, debt charities warn",
+    "snippet": "<p>Billions will be spent on credit over the discount weekend but experts say the  payment option is \u2018not risk-free\u2019</p><p><a href=\"https://www.theguardian.com/business/black-friday\">Black Friday</a> bargain-hunters should be wary of the flood of \u201cbu...",
+    "link": "https://www.theguardian.com/money/2025/nov/22/beware-buy-now-pay-later-temptation-black-friday-debt-charities-warn",
+    "published": "2025-11-22T09:00:35",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "201de9e788e7159707bf5bfaabfcca5a",
@@ -1546,18 +1582,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
-  },
-  {
-    "id": "85b2db3b4894d3900ad9a324fd57d45e",
-    "title": "A timeline of the Sino-Dutch row over the control of chipmaker Nexperia",
-    "snippet": "When Dutch authorities seized control of chipmaker Nexperia almost two months ago, it resulted in a clash between the head office in Nijmegen and the company\u2019s mainland China unit, which vowed to operate and meet orders as an independent enterprise.\n...",
-    "link": "https://www.scmp.com/tech/big-tech/article/3333737/timeline-sino-dutch-row-over-control-chipmaker-nexperia?utm_source=rss_feed",
-    "published": "2025-11-21T13:00:10",
-    "date_str": "2025-11-21",
-    "source": "South China Morning Post (HK)",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "APJC"
   },
   {
     "id": "4d7d4653a3e6acdc3ffbf7918ba753b0",
