@@ -360,6 +360,30 @@
     "region": "EMEA"
   },
   {
+    "id": "a943229e93798b5229d67315cb386094",
+    "title": "Brazil\u2019s former president Jair Bolsonaro arrested, lawyer says",
+    "snippet": "Federal police on Saturday arrested Brazil\u2019s ex-president Jair Bolsonaro, who was sentenced to jail earlier this year over a botched coup attempt, his lawyer confirmed. The arrest comes a week after a court rejected Bolsonaro's appeal of his 27-year ...",
+    "link": "https://www.france24.com/en/video/20251122-brazil-s-former-president-jair-bolsonaro-arrested-lawyer-says",
+    "published": "2025-11-22T11:17:16",
+    "date_str": "2025-11-22",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "1d405663825b1652c058f2094d57473a",
+    "title": "Fire erupts at Los Angeles port triggering hazardous material alerts",
+    "snippet": "All crew members have been evacuated from the container ship One Henry Hudson after a fire and explosion disrupted the vessel\u2019s power and crane operations at San Pedro port on Friday, the Los Angeles Fire Department (LAFD) said.\nHazardous materials h...",
+    "link": "https://www.scmp.com/news/world/united-states-canada/article/3333799/container-ship-fire-los-angeles-port-triggers-hazardous-material-alerts?utm_source=rss_feed",
+    "published": "2025-11-22T11:51:32",
+    "date_str": "2025-11-22",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
     "title": "French minister says drug crime threat 'equivalent to terrorism' after Marseille murder",
     "snippet": "French ministers vowed Thursday to use methods \"similar\" to counter-terrorism to stamp out drug crime on a visit to Marseille, where the brother of a prominent anti-drug activist was shot dead last week. Justice Minister G\u00e9rald Darmanin pledged more ...",
@@ -477,7 +501,7 @@
     "source": "South China Morning Post (HK)",
     "category": "Weather/Event",
     "severity": 3,
-    "region": "APJC"
+    "region": "Global"
   },
   {
     "id": "80caf406d8940293f8ac341284ac3704",
@@ -538,30 +562,6 @@
     "category": "Weather/Event",
     "severity": 3,
     "region": "Global"
-  },
-  {
-    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
-    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
-    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
-    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
-    "published": "2025-11-21T13:58:09",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Weather/Event",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
-    "id": "e88616f1706cd2bdbca2149c8679d4c6",
-    "title": "World: Africa CDC Unveils a New Vision for Health Security and Sovereignty Across the Continent",
-    "snippet": "<div class=\"tag country\">Country: World</div>\n                                      <div class=\"tag source\">Source: Africa Centres for Disease Control and Prevention</div>\n                                                                              ...",
-    "link": "https://reliefweb.int/report/world/africa-cdc-unveils-new-vision-health-security-and-sovereignty-across-continent",
-    "published": "2025-11-21T13:33:20",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Cyber",
-    "severity": 3,
-    "region": "AMER"
   },
   {
     "id": "4020dec6693b50d743a1e791c9ba9344",
@@ -708,40 +708,16 @@
     "region": "EMEA"
   },
   {
-    "id": "b346d0e248629f75b4c9c802358c0510",
-    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 21 November 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-21-november-2025",
-    "published": "2025-11-21T22:00:20",
+    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
+    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
+    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
+    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
+    "published": "2025-11-21T13:58:09",
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "4dd202844336ea7433688970437b056e",
-    "title": "Crisis Analysis - DR Congo: Monthly Displacement Report, October 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                              <p><img alt...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/crisis-analysis-dr-congo-monthly-displacement-report-october-2025",
-    "published": "2025-11-21T13:44:43",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "fea9ff8d8532d6ca9b511bb8e058b555",
-    "title": "Somalia: Radio Ergo Weekly Feedback Report, Issued: 21 Nov 2025",
-    "snippet": "<div class=\"tag country\">Country: Somalia</div>\n                                      <div class=\"tag source\">Source: Radio Ergo</div>\n                                                                                                <p><img alt=\"alt\" s...",
-    "link": "https://reliefweb.int/report/somalia/radio-ergo-weekly-feedback-report-issued-21-nov-2025",
-    "published": "2025-11-21T13:39:07",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "6e89da39d20d32953c8f43e56111ca95",
@@ -1690,42 +1666,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "APJC"
-  },
-  {
-    "id": "fffb3d895d9197997329572dd7c6f703",
-    "title": "Jamaica: Latinoam\u00e9rica y El Caribe Resumen de Situaci\u00f3n Semanal al 21 de noviembre 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latinoamerica-y-el-caribe-resumen-de-situacion-semanal-al-21-de-noviembre-2025",
-    "published": "2025-11-21T23:23:25",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "274ecd0df7540b47ba5f88517441cb3b",
-    "title": "Colombia - PRPC 2025: Plan de Respuesta a Prioridades Comunitarias 2024 - 2025, Sistema 5W - Presencia y Financiamiento (21/11/2025)",
-    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Sources: El Equipo Humanitario Pa\u00eds Colombia, Grupo Interagencial sobre Flujos Migratorios Mixtos, UN Office for the Coordination of Humani...",
-    "link": "https://reliefweb.int/report/colombia/colombia-prpc-2025-plan-de-respuesta-prioridades-comunitarias-2024-2025-sistema-5w-presencia-y-financiamiento-21112025",
-    "published": "2025-11-21T16:18:40",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "d83f50e68d2f6ae5f22df23bb9381d52",
-    "title": "DR Congo: Rapport mensuel de d\u00e9placement, Octobre 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                                         ...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/rapport-mensuel-de-deplacement-octobre-2025",
-    "published": "2025-11-21T13:52:10",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "4d7d4653a3e6acdc3ffbf7918ba753b0",
