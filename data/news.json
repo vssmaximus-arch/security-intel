@@ -152,8 +152,20 @@
     "date_str": "2025-11-23",
     "source": "France 24",
     "category": "Physical Security",
-    "severity": 2,
+    "severity": 3,
     "region": "AMER"
+  },
+  {
+    "id": "e3ea5e9b10ec95086a79f87a1d1fdab4",
+    "title": "Hezbollah chief of staff killed in Israeli strike on Beirut, Israeli media says",
+    "snippet": "Israel\u2019s military says it has killed senior Hezbollah militant Haytham Tabtabai in its strike in Beirut on Sunday.\nThe military in a statement described Tabtabai as the Iran-backed militant group\u2019s chief of staff. Hezbollah did not immediately commen...",
+    "link": "https://www.scmp.com/news/world/middle-east/article/3333865/israel-steps-strikes-lebanon-targeting-hezbollah-official?utm_source=rss_feed",
+    "published": "2025-11-23T14:42:44",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "EMEA"
   },
   {
     "id": "d934e819d797f996ddf327c6cbf95d53",
@@ -636,6 +648,18 @@
     "region": "APJC"
   },
   {
+    "id": "fbaf98f99aa25696ae6f96e9ec926501",
+    "title": "Swindon woman whose death sparked murder inquiry named as Sarah Forrester",
+    "snippet": "<p>Girl, 13, has been bailed after being arrested on suspicion of murder in relation to death of mental health counsellor</p><p>A woman whose death has sparked a murder investigation has been named by police.</p><p>Sarah Forrester, 55, a mental healt...",
+    "link": "https://www.theguardian.com/uk-news/2025/nov/23/swindon-woman-whose-death-sparked-inquiry-named-as-sarah-forrester",
+    "published": "2025-11-23T17:27:10",
+    "date_str": "2025-11-23",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
     "id": "a84137869961eb8831cede543ded9d19",
     "title": "\u2018I used to call him on Father\u2019s Day\u2019: Oakland shattered by football coach\u2019s killing",
     "snippet": "<p>In a city where football is more than a sport, the gun death of John Beam has provoked an outpouring of emotion</p><p>Football in Oakland, California, is more than a sport. It\u2019s a community. In many schools, coaches are like parental figures who g...",
@@ -646,6 +670,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "ff3b9ab19a93b1ef85f6c02147da8ab5",
+    "title": "At least 98 Palestinians have died in custody since October 2023, Israeli data shows",
+    "snippet": "Israeli data indicate that at least 98 Palestinians have died in custody since October 2023, though the actual number is likely much higher, as hundreds of detainees in Gaza remain unaccounted for, according to Israel-based human rights group Physici...",
+    "link": "https://www.france24.com/en/video/20251123-at-least-98-palestinians-have-died-in-custody-since-october-2023-israeli-data-shows",
+    "published": "2025-11-23T14:33:37",
+    "date_str": "2025-11-23",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
   },
   {
     "id": "15d271fc027c4b7bc1a285ff3e465d80",
