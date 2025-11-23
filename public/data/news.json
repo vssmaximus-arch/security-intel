@@ -132,6 +132,18 @@
     "region": "Global"
   },
   {
+    "id": "e102b4345838292af5bcb6ec648aa383",
+    "title": "Video shows man rescued by drone as deadly floods hit Vietnam",
+    "snippet": "Torrential rain, flooding and landslides has left more than 100 people dead or missing in Vietnam....",
+    "link": "https://news.sky.com/story/55-dead-in-vietnam-after-torrential-rain-triggers-flooding-and-landslides-13474371",
+    "published": "2025-11-23T07:22:00",
+    "date_str": "2025-11-23",
+    "source": "Sky News (UK) World",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "Global"
+  },
+  {
     "id": "8727552021e9b542e61d0dbef7d48f63",
     "title": "Power shift in Venezuela? US prepares new phase of operations; speculation grows over Nicol\u00e1s Maduro\u2019s removal",
     "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125515061.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />The United States is preparing for a new phase of operations targeting Venezuela, potentially escalat...",
@@ -142,6 +154,18 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "APJC"
+  },
+  {
+    "id": "c256368ca4b44b465ecae481587501ec",
+    "title": "Vietnam floods, landslides kill at least 90, US$343 million in damage",
+    "snippet": "Heavy rain, severe flooding and landslides in Vietnam have killed at least 90 people in the last week, authorities said on Sunday, leaving others stranded on rooftops and mountain roadways blocked.\nRelentless rain has lashed south-central Vietnam sin...",
+    "link": "https://www.scmp.com/news/asia/southeast-asia/article/3333858/vietnam-floods-landslides-kill-least-90-us2-billion-damage?utm_source=rss_feed",
+    "published": "2025-11-23T11:58:07",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "Global"
   },
   {
     "id": "d934e819d797f996ddf327c6cbf95d53",
@@ -504,18 +528,6 @@
     "region": "APJC"
   },
   {
-    "id": "deeae60c6a9c6298c6b20fef17b64e49",
-    "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
-    "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
-    "link": "https://www.scmp.com/business/china-business/article/3333723/homes-fail-sell-mainland-chinas-depressed-market-sellers-turn-superstition?utm_source=rss_feed",
-    "published": "2025-11-23T03:00:08",
-    "date_str": "2025-11-23",
-    "source": "South China Morning Post (HK)",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "dcdd89db3e260689c8d28d22115f9744",
     "title": "Pope Leo appeals for release of 315 kidnapped from Nigeria school",
     "snippet": "<p>VATICAN CITY - Pope Leo asked on Sunday for the immediate release of children and staff abducted this week from a Catholic school in Nigeria, one of the worst mass kidnappings ever recorded there.</p>...",
@@ -526,6 +538,66 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "15d271fc027c4b7bc1a285ff3e465d80",
+    "title": "No entry ever: Indian man visits Canada to see newborn grandchild, harasses teens; faces deportation",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125519902.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />An Indian national, Jagjit Singh, visiting Canada on a temporary visa, has been convicted of criminal...",
+    "link": "https://timesofindia.indiatimes.com/world/rest-of-world/no-entry-ever-indian-man-visits-canada-to-see-newborn-grandchild-harasses-teens-faces-deportation/articleshow/125519902.cms",
+    "published": "2025-11-23T12:34:12",
+    "date_str": "2025-11-23",
+    "source": "Times of India World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "cee84fd1a66603bfaecb173eabb4d73b",
+    "title": "Indian-origin Nicholas Singh, one of Canada's 25 most wanted criminals, arrested in Toronto",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125519517.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Canadian authorities apprehended Indian-origin Nicholas Singh, a high-risk fugitive, in Toronto. Sing...",
+    "link": "https://timesofindia.indiatimes.com/world/rest-of-world/indian-origin-nicholas-singh-one-of-canadas-25-most-wanted-criminals-arrested-in-toronto/articleshow/125519517.cms",
+    "published": "2025-11-23T12:03:32",
+    "date_str": "2025-11-23",
+    "source": "Times of India World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "3ffb4756d3c6f627c237c44e97796472",
+    "title": "Why Japan\u2019s drift to the right means a \u2018long-term struggle\u2019 for China",
+    "snippet": "The diplomatic crisis between Tokyo and Beijing is the result of a years-long fundamental shift to the right in Japan \u2013 and part of a \u201clong-term struggle\u201d that China must prepare for, according to analysts.\nThe assessment comes as relations between t...",
+    "link": "https://www.scmp.com/news/china/diplomacy/article/3333837/why-japans-drift-right-means-long-term-struggle-china?utm_source=rss_feed",
+    "published": "2025-11-23T13:00:10",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "28fe86bb6f2912e5f093ed9c969badd3",
+    "title": "Hong Kong steps up voter turnout efforts with video targeting minority residents",
+    "snippet": "Hong Kong authorities have ramped up efforts to drive voter turnout for the coming Legislative Council election, releasing a video featuring a bomb disposal chief urging ethnic minority residents to cast their ballots.\nRaymond Suryanto Chin-chiu, hea...",
+    "link": "https://www.scmp.com/news/hong-kong/politics/article/3333839/bomb-disposal-chief-urges-indonesian-residents-vote-hong-kong-legco-poll?utm_source=rss_feed",
+    "published": "2025-11-23T08:01:35",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "deeae60c6a9c6298c6b20fef17b64e49",
+    "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
+    "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
+    "link": "https://www.scmp.com/business/china-business/article/3333723/homes-fail-sell-mainland-chinas-depressed-market-sellers-turn-superstition?utm_source=rss_feed",
+    "published": "2025-11-23T03:00:08",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "7fa6c0baf8ff6ad2527a62b23eee1808",
@@ -667,21 +739,9 @@
     "published": "2025-11-22T13:29:19",
     "date_str": "2025-11-22",
     "source": "UN ReliefWeb",
-    "category": "Logistics",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "7ed2b122f6f5b329395aee7503d0ce5f",
-    "title": "Real possibility of US tariff refunds is sure to stir up a giant \u2018mess\u2019",
-    "snippet": "Marilyn-Joy Cerny has challenged the US government thousands of times during her 35-year career as a trade lawyer, enjoying an enviable record of recovering tariff money for importers whom Washington wrongfully charged.\nBut the sheer scale of potenti...",
-    "link": "https://www.scmp.com/news/us/diplomacy/article/3333783/why-us-tariff-refunds-are-now-very-real-possibility-and-giant-mess?utm_source=rss_feed",
-    "published": "2025-11-22T15:00:10",
-    "date_str": "2025-11-22",
-    "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "94a504762dc452a4a054e23f6260bfa5",
@@ -1548,30 +1608,6 @@
     "region": "Global"
   },
   {
-    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
-    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
-    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
-    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
-    "published": "2025-11-21T13:58:09",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Weather/Event",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
-    "id": "e88616f1706cd2bdbca2149c8679d4c6",
-    "title": "World: Africa CDC Unveils a New Vision for Health Security and Sovereignty Across the Continent",
-    "snippet": "<div class=\"tag country\">Country: World</div>\n                                      <div class=\"tag source\">Source: Africa Centres for Disease Control and Prevention</div>\n                                                                              ...",
-    "link": "https://reliefweb.int/report/world/africa-cdc-unveils-new-vision-health-security-and-sovereignty-across-continent",
-    "published": "2025-11-21T13:33:20",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Cyber",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "4020dec6693b50d743a1e791c9ba9344",
     "title": "Trump\u2019s threats amount to calls for \u2018execution of elected officials\u2019, says Chuck Schumer \u2013 US politics live",
     "snippet": "<p>Democrat Senate minority leader says president\u2019s remarks are \u2018outright threat\u2019 as other leading Democrats warn \u2018political violence has no place in America\u2019</p><p><strong>Robert Garcia</strong>, the ranking member on the House oversight committee, ...",
@@ -1692,40 +1728,16 @@
     "region": "Global"
   },
   {
-    "id": "b346d0e248629f75b4c9c802358c0510",
-    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 21 November 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-21-november-2025",
-    "published": "2025-11-21T22:00:20",
+    "id": "a59f7363ed229e57c6ac37c73dcd1bdd",
+    "title": "Needs Assessment Working Group Bangladesh | Earthquake in Dhaka 5.7 Magnitude (21 November 2025 BST 19:30 Version 01)",
+    "snippet": "<div class=\"tag country\">Country: Bangladesh</div>\n                                      <div class=\"tag source\">Source: CARE</div>\n                                                                                                <p><img alt=\"alt\" src=...",
+    "link": "https://reliefweb.int/report/bangladesh/needs-assessment-working-group-bangladesh-earthquake-dhaka-57-magnitude-21-november-2025-bst-1930-version-01",
+    "published": "2025-11-21T13:58:09",
     "date_str": "2025-11-21",
     "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "4dd202844336ea7433688970437b056e",
-    "title": "Crisis Analysis - DR Congo: Monthly Displacement Report, October 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                              <p><img alt...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/crisis-analysis-dr-congo-monthly-displacement-report-october-2025",
-    "published": "2025-11-21T13:44:43",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
-    "id": "fea9ff8d8532d6ca9b511bb8e058b555",
-    "title": "Somalia: Radio Ergo Weekly Feedback Report, Issued: 21 Nov 2025",
-    "snippet": "<div class=\"tag country\">Country: Somalia</div>\n                                      <div class=\"tag source\">Source: Radio Ergo</div>\n                                                                                                <p><img alt=\"alt\" s...",
-    "link": "https://reliefweb.int/report/somalia/radio-ergo-weekly-feedback-report-issued-21-nov-2025",
-    "published": "2025-11-21T13:39:07",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "6e89da39d20d32953c8f43e56111ca95",
@@ -2686,42 +2698,6 @@
     "category": "Weather/Event",
     "severity": 1,
     "region": "AMER"
-  },
-  {
-    "id": "fffb3d895d9197997329572dd7c6f703",
-    "title": "Jamaica: Latinoam\u00e9rica y El Caribe Resumen de Situaci\u00f3n Semanal al 21 de noviembre 2025",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Colombia, Cuba, Haiti, Mexico</div>\n                                      <div class=\"tag source\">Source: UN Office for the Coordination of Humanitarian Affairs</div>\n                                      ...",
-    "link": "https://reliefweb.int/report/jamaica/latinoamerica-y-el-caribe-resumen-de-situacion-semanal-al-21-de-noviembre-2025",
-    "published": "2025-11-21T23:23:25",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "274ecd0df7540b47ba5f88517441cb3b",
-    "title": "Colombia - PRPC 2025: Plan de Respuesta a Prioridades Comunitarias 2024 - 2025, Sistema 5W - Presencia y Financiamiento (21/11/2025)",
-    "snippet": "<div class=\"tag country\">Country: Colombia</div>\n                                      <div class=\"tag source\">Sources: El Equipo Humanitario Pa\u00eds Colombia, Grupo Interagencial sobre Flujos Migratorios Mixtos, UN Office for the Coordination of Humani...",
-    "link": "https://reliefweb.int/report/colombia/colombia-prpc-2025-plan-de-respuesta-prioridades-comunitarias-2024-2025-sistema-5w-presencia-y-financiamiento-21112025",
-    "published": "2025-11-21T16:18:40",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
-    "id": "d83f50e68d2f6ae5f22df23bb9381d52",
-    "title": "DR Congo: Rapport mensuel de d\u00e9placement, Octobre 2025",
-    "snippet": "<div class=\"tag country\">Country: Democratic Republic of the Congo</div>\n                                      <div class=\"tag source\">Source: Mercy Corps</div>\n                                                                                         ...",
-    "link": "https://reliefweb.int/report/democratic-republic-congo/rapport-mensuel-de-deplacement-octobre-2025",
-    "published": "2025-11-21T13:52:10",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "4d7d4653a3e6acdc3ffbf7918ba753b0",
