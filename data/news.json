@@ -204,6 +204,18 @@
     "region": "APJC"
   },
   {
+    "id": "6e2dfc0b5fb2ae14f6301db790e685bd",
+    "title": "Trump signals room for negotiation on Ukraine plan amid 'wish list' criticism",
+    "snippet": "Trump has given Ukraine until Nov. 27 to approve the plan to end the nearly 4-year conflict, but concerns have risen that the proposal heavily favors Russia....",
+    "link": "https://www.japantimes.co.jp/news/2025/11/23/world/politics/ukraine-russia-trump-peace-plan/",
+    "published": "2025-11-23T05:01:00",
+    "date_str": "2025-11-23",
+    "source": "The Japan Times",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
     "id": "7fa6c0baf8ff6ad2527a62b23eee1808",
     "title": "Another school kidnapping rocks Nigeria as Trump threatens military force",
     "snippet": "Gunmen kidnapped dozens of students from a Catholic school in northwest Nigeria as Washington ramps up pressure on Abuja to protect Christian communities....",
@@ -276,18 +288,6 @@
     "region": "APJC"
   },
   {
-    "id": "186295011984c0572d3a26c7740265f5",
-    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
-    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
-    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
-    "published": "2025-11-22T16:47:15",
-    "date_str": "2025-11-22",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "931d35b3e44b9e07b3f39e369d01df6b",
     "title": "Israeli strikes across Gaza kill 22 Palestinians, medical and civil defence officials say",
     "snippet": "Israel says it struck targets in Gaza after an \"armed terrorist\" crossed the so-called yellow line and fired at soldiers....",
@@ -310,6 +310,18 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
+  },
+  {
+    "id": "186295011984c0572d3a26c7740265f5",
+    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
+    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
+    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
+    "published": "2025-11-22T16:47:15",
+    "date_str": "2025-11-22",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "119237c23317c5172dbb119039089be8",
@@ -693,7 +705,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "EMEA"
+    "region": "AMER"
   },
   {
     "id": "1d405663825b1652c058f2094d57473a",
@@ -741,7 +753,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "AMER"
+    "region": "Global"
   },
   {
     "id": "693fc020addadbe7865924e8a74a076e",
@@ -969,7 +981,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "EMEA"
+    "region": "AMER"
   },
   {
     "id": "a9493ba1637f75478a08bf54ad5197dd",
