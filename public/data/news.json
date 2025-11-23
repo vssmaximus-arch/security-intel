@@ -192,18 +192,6 @@
     "region": "Global"
   },
   {
-    "id": "deeae60c6a9c6298c6b20fef17b64e49",
-    "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
-    "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
-    "link": "https://www.scmp.com/business/china-business/article/3333723/homes-fail-sell-mainland-chinas-depressed-market-sellers-turn-superstition?utm_source=rss_feed",
-    "published": "2025-11-23T03:00:08",
-    "date_str": "2025-11-23",
-    "source": "South China Morning Post (HK)",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "6e2dfc0b5fb2ae14f6301db790e685bd",
     "title": "Trump signals room for negotiation on Ukraine plan amid 'wish list' criticism",
     "snippet": "Trump has given Ukraine until Nov. 27 to approve the plan to end the nearly 4-year conflict, but concerns have risen that the proposal heavily favors Russia....",
@@ -214,6 +202,42 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "EMEA"
+  },
+  {
+    "id": "8b81c51cc0878c16c0dde0f7014aa2da",
+    "title": "Palestine Action ban could lead to people being wrongly criminalised, Home Office official says",
+    "snippet": "<p>Exclusive: Member of homeland security group says anti-terrorism Prevent scheme risks being overwhelmed by Palestine advocates</p><p>The anti-terrorism <a href=\"https://www.theguardian.com/uk-news/prevent-strategy\">Prevent</a> programme risks bein...",
+    "link": "https://www.theguardian.com/uk-news/2025/nov/23/palestine-action-ban-home-office-prevent-scheme",
+    "published": "2025-11-23T06:00:02",
+    "date_str": "2025-11-23",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
+  },
+  {
+    "id": "a3cec8498e1b18b6f37ae8643d22e4f3",
+    "title": "\u2018Please stop\u2019: Philippines nickel mining boom brings floods and failed crops",
+    "snippet": "When the rains fall over Madrid, a quiet rural town in the southern Philippines, muddy brown torrents sweep through rice fields and homes.\nFor Beth Samblado, the floodwater is a recurring reminder of a struggle she and her neighbours in Surigao del S...",
+    "link": "https://www.scmp.com/week-asia/health-environment/article/3333726/please-stop-philippines-nickel-mining-boom-brings-floods-failed-crops?utm_source=rss_feed",
+    "published": "2025-11-23T06:00:17",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "deeae60c6a9c6298c6b20fef17b64e49",
+    "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
+    "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
+    "link": "https://www.scmp.com/business/china-business/article/3333723/homes-fail-sell-mainland-chinas-depressed-market-sellers-turn-superstition?utm_source=rss_feed",
+    "published": "2025-11-23T03:00:08",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "7fa6c0baf8ff6ad2527a62b23eee1808",
@@ -300,6 +324,18 @@
     "region": "EMEA"
   },
   {
+    "id": "186295011984c0572d3a26c7740265f5",
+    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
+    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
+    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
+    "published": "2025-11-22T16:47:15",
+    "date_str": "2025-11-22",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "AMER"
+  },
+  {
     "id": "1f67d44577022db6f6ee185fc01328a9",
     "title": "New Caledonia activist says France is impeding travel home after prison release",
     "snippet": "<p>Exclusive: Kanak leader Christian Tein, who was freed from prison in June, says France is \u2018deliberately dragging out\u2019 re-issue of his passport</p><p>A pro-independence leader from the French overseas territory of New Caledonia has accused the Fren...",
@@ -310,18 +346,6 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
-  },
-  {
-    "id": "186295011984c0572d3a26c7740265f5",
-    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
-    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
-    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
-    "published": "2025-11-22T16:47:15",
-    "date_str": "2025-11-22",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
   },
   {
     "id": "119237c23317c5172dbb119039089be8",
@@ -705,7 +729,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "AMER"
+    "region": "EMEA"
   },
   {
     "id": "1d405663825b1652c058f2094d57473a",
@@ -753,7 +777,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "Global"
+    "region": "AMER"
   },
   {
     "id": "693fc020addadbe7865924e8a74a076e",
@@ -981,7 +1005,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "AMER"
+    "region": "EMEA"
   },
   {
     "id": "a9493ba1637f75478a08bf54ad5197dd",
