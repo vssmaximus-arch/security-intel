@@ -96,6 +96,18 @@
     "region": "Global"
   },
   {
+    "id": "31d4c0d523a9b344d866f085628ae70a",
+    "title": "Torrential rain triggers deadly flooding and landslides in Vietnam",
+    "snippet": "Torrential rain, flooding and landslides has left more than 100 people dead or missing in Vietnam....",
+    "link": "https://news.sky.com/story/55-dead-in-vietnam-after-torrential-rain-triggers-flooding-and-landslides-13474371",
+    "published": "2025-11-23T07:22:00",
+    "date_str": "2025-11-23",
+    "source": "Sky News (UK) World",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "Global"
+  },
+  {
     "id": "8727552021e9b542e61d0dbef7d48f63",
     "title": "Power shift in Venezuela? US prepares new phase of operations; speculation grows over Nicol\u00e1s Maduro\u2019s removal",
     "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125515061.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />The United States is preparing for a new phase of operations targeting Venezuela, potentially escalat...",
@@ -166,6 +178,18 @@
     "category": "Weather/Event",
     "severity": 2,
     "region": "APJC"
+  },
+  {
+    "id": "f4e22008d85b423bed0deb46936c26fb",
+    "title": "Zelenskyy says \u2018we must do everything\u2019 against \u2018wicked Russian attacks\u2019 as Ukraine and US meet for emergency talks \u2013 live",
+    "snippet": "<p>Officials will discuss 28-point draft plan widely seen as favourable to Moscow, despite Russian invasion of Ukraine in February 2022</p><p>There have been lots of conflicting reports about who wrote the 28-point plan to end the war in Ukraine, whi...",
+    "link": "https://www.theguardian.com/world/live/2025/nov/23/ukrainian-us-emergency-talks-plan-war-russia-live",
+    "published": "2025-11-23T11:13:48",
+    "date_str": "2025-11-23",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "87401b9ff47c28e664cc120c487e06ce",
@@ -528,18 +552,6 @@
     "region": "EMEA"
   },
   {
-    "id": "186295011984c0572d3a26c7740265f5",
-    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
-    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
-    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
-    "published": "2025-11-22T16:47:15",
-    "date_str": "2025-11-22",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "AMER"
-  },
-  {
     "id": "1f67d44577022db6f6ee185fc01328a9",
     "title": "New Caledonia activist says France is impeding travel home after prison release",
     "snippet": "<p>Exclusive: Kanak leader Christian Tein, who was freed from prison in June, says France is \u2018deliberately dragging out\u2019 re-issue of his passport</p><p>A pro-independence leader from the French overseas territory of New Caledonia has accused the Fren...",
@@ -550,6 +562,18 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
+  },
+  {
+    "id": "186295011984c0572d3a26c7740265f5",
+    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
+    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
+    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
+    "published": "2025-11-22T16:47:15",
+    "date_str": "2025-11-22",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 2,
+    "region": "AMER"
   },
   {
     "id": "119237c23317c5172dbb119039089be8",
@@ -1173,7 +1197,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "EMEA"
+    "region": "AMER"
   },
   {
     "id": "a9493ba1637f75478a08bf54ad5197dd",
@@ -1282,18 +1306,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "EMEA"
-  },
-  {
-    "id": "a8d9449f55b24f9da7fa190a3d0c8997",
-    "title": "\u2018Ban phones in Jewish schools\u2019: Obama\u2019s former speechwriter says, alleges \u2018Gaza images make defending Israel impossible\u2019",
-    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125511649.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Former Obama speechwriter Sarah Hurwitz advocates for banning smartphones in Jewish schools until sen...",
-    "link": "https://timesofindia.indiatimes.com/world/us/ban-phones-in-jewish-schools-obamas-former-speechwriter-says-alleges-gaza-images-make-defending-israel-impossible/articleshow/125511649.cms",
-    "published": "2025-11-22T20:40:03",
-    "date_str": "2025-11-22",
-    "source": "Times of India World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "APJC"
   },
   {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
@@ -2962,18 +2974,6 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
-  },
-  {
-    "id": "7b0539d7676513685a37a30e7179599f",
-    "title": "Saudi Arabia releases US retiree jailed over critical tweets",
-    "snippet": "<p>Saad Almadi\u2019s family thanks Trump and state department as announcement comes after meeting with crown prince</p><p>Saudi Arabia has agreed to allow US citizen Saad Almadi to return home to Florida, five months ahead of the scheduled lifting of tra...",
-    "link": "https://www.theguardian.com/us-news/2025/nov/19/saudi-arabia-saad-almadi-release",
-    "published": "2025-11-19T21:21:29",
-    "date_str": "2025-11-19",
-    "source": "The Guardian World",
-    "category": "Cyber",
-    "severity": 3,
-    "region": "Global"
   },
   {
     "id": "193cb45806bfc4e5c27817238eddf8e8",
