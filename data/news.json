@@ -108,6 +108,30 @@
     "region": "Global"
   },
   {
+    "id": "186295011984c0572d3a26c7740265f5",
+    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
+    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
+    "link": "https://www.france24.com/en/video/20251123-thousands-rally-in-marseille-to-condemn-drug-violence-after-killing-of-activist-s-brother",
+    "published": "2025-11-23T10:15:19",
+    "date_str": "2025-11-23",
+    "source": "France 24",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "AMER"
+  },
+  {
+    "id": "d18bc75ef61c5711a6d106d6ac455c65",
+    "title": "Vietnam floods and landslides kill at least 90 in a week",
+    "snippet": "Severe flooding and landslides caused by heavy rains killed at least 90 people in Vietnam, authorities said on Sunday.\u00a0Natural disasters between January and October have left at least 279 people dead or missing in the country and caused more than $2 ...",
+    "link": "https://www.france24.com/en/live-news/20251123-vietnam-flood-death-toll-rises-to-90",
+    "published": "2025-11-23T04:53:12",
+    "date_str": "2025-11-23",
+    "source": "France 24",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "Global"
+  },
+  {
     "id": "8727552021e9b542e61d0dbef7d48f63",
     "title": "Power shift in Venezuela? US prepares new phase of operations; speculation grows over Nicol\u00e1s Maduro\u2019s removal",
     "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125515061.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />The United States is preparing for a new phase of operations targeting Venezuela, potentially escalat...",
@@ -180,11 +204,11 @@
     "region": "APJC"
   },
   {
-    "id": "f4e22008d85b423bed0deb46936c26fb",
-    "title": "Zelenskyy says \u2018we must do everything\u2019 against \u2018wicked Russian attacks\u2019 as Ukraine and US meet for emergency talks \u2013 live",
-    "snippet": "<p>Officials will discuss 28-point draft plan widely seen as favourable to Moscow, despite Russian invasion of Ukraine in February 2022</p><p>There have been lots of conflicting reports about who wrote the 28-point plan to end the war in Ukraine, whi...",
+    "id": "fdeed8d221af8a142f4197bf6f3af0dd",
+    "title": "Polish PM says it would be \u2018good to know\u2019 who wrote plan to end war in Ukraine, amid concerns over Moscow involvement \u2013 live",
+    "snippet": "<p>Zelenskyy says \u2018we must do everything\u2019 against \u2018wicked Russian attacks\u2019 as Ukraine and US meet for emergency talks</p><p>There have been lots of conflicting reports about who wrote the 28-point plan to end the war in Ukraine, which is widely seen ...",
     "link": "https://www.theguardian.com/world/live/2025/nov/23/ukrainian-us-emergency-talks-plan-war-russia-live",
-    "published": "2025-11-23T11:13:48",
+    "published": "2025-11-23T11:16:39",
     "date_str": "2025-11-23",
     "source": "The Guardian World",
     "category": "Physical Security",
@@ -202,6 +226,18 @@
     "category": "Physical Security",
     "severity": 2,
     "region": "APJC"
+  },
+  {
+    "id": "f4e22008d85b423bed0deb46936c26fb",
+    "title": "Zelenskyy says \u2018we must do everything\u2019 against \u2018wicked Russian attacks\u2019 as Ukraine and US meet for emergency talks \u2013 live",
+    "snippet": "<p>Officials will discuss 28-point draft plan widely seen as favourable to Moscow, despite Russian invasion of Ukraine in February 2022</p><p>There have been lots of conflicting reports about who wrote the 28-point plan to end the war in Ukraine, whi...",
+    "link": "https://www.theguardian.com/world/live/2025/nov/23/ukrainian-us-emergency-talks-plan-war-russia-live",
+    "published": "2025-11-23T11:13:48",
+    "date_str": "2025-11-23",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "EMEA"
   },
   {
     "id": "b978ee7ae39bc60d6c91b28c4a660065",
@@ -456,6 +492,18 @@
     "region": "Global"
   },
   {
+    "id": "bab62eaaaca5a772317ff30bf7cc23d6",
+    "title": "Seven arrested in India after police crack $800,000 bank heist",
+    "snippet": "Armed men posing as bank officials robbed a van transporting cash between bank branches in Bengaluru city....",
+    "link": "https://www.bbc.com/news/articles/cy8j4m45yx2o?at_medium=RSS&at_campaign=rss",
+    "published": "2025-11-23T11:33:59",
+    "date_str": "2025-11-23",
+    "source": "BBC World News",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
     "id": "deeae60c6a9c6298c6b20fef17b64e49",
     "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
     "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
@@ -562,18 +610,6 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
-  },
-  {
-    "id": "186295011984c0572d3a26c7740265f5",
-    "title": "Thousands rally in Marseille to condemn drug violence after killing of activist's brother",
-    "snippet": "Thousands marched in Marseille on Saturday to denounce drug trafficking after the killing of 20-year-old Mehdi Kessaci, a murder officials suspect was a \"warning crime\" linked to the anti-drug activism of his older brother Amine Kessaci. The activist...",
-    "link": "https://www.france24.com/en/live-news/20251122-this-must-stop-thousands-rally-in-france-after-murder-linked-to-anti-drug-activism",
-    "published": "2025-11-22T16:47:15",
-    "date_str": "2025-11-22",
-    "source": "France 24",
-    "category": "Physical Security",
-    "severity": 2,
-    "region": "AMER"
   },
   {
     "id": "119237c23317c5172dbb119039089be8",
@@ -1197,7 +1233,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "AMER"
+    "region": "EMEA"
   },
   {
     "id": "a9493ba1637f75478a08bf54ad5197dd",
@@ -1306,6 +1342,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "EMEA"
+  },
+  {
+    "id": "741538856dac67e850ebddd84bd88c0a",
+    "title": "More than 300 children, staff taken from Nigeria school, in one of worst mass abductions",
+    "snippet": "<p>The kidnapping comes amid a surge of attacks by armed groups and Islamist insurgents in the country.</p>...",
+    "link": "https://www.straitstimes.com/world/more-than-300-taken-from-nigeria-school-in-one-of-worst-mass-abductions",
+    "published": "2025-11-22T18:09:39",
+    "date_str": "2025-11-22",
+    "source": "The Straits Times (Singapore)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
