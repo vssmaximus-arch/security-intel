@@ -228,6 +228,42 @@
     "region": "APJC"
   },
   {
+    "id": "7a58ae6f20100627426c8ccaa77f3c0d",
+    "title": "Jair Bolsonaro arrested after being deemed a flight risk",
+    "snippet": "The former Brazilian president is suspected of damaging an ankle bracelet as part of an alleged escape plan....",
+    "link": "https://www.bbc.com/news/articles/ce8qdm5zg10o?at_medium=RSS&at_campaign=rss",
+    "published": "2025-11-23T07:31:13",
+    "date_str": "2025-11-23",
+    "source": "BBC World News",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
+    "id": "655688f275e5413ebe685bc3e26a6494",
+    "title": "RTA announces extended metro hours and road closures for Dubai Run 2025 today",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125516313.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Dubai is set for Dubai Run 2025, with thousands expected to participate. To ensure smooth travel, the...",
+    "link": "https://timesofindia.indiatimes.com/world/middle-east/rta-announces-extended-metro-hours-and-road-closures-for-dubai-run-2025-today/articleshow/125516313.cms",
+    "published": "2025-11-23T06:41:09",
+    "date_str": "2025-11-23",
+    "source": "Times of India World",
+    "category": "Logistics",
+    "severity": 1,
+    "region": "APJC"
+  },
+  {
+    "id": "b92f2f8a6552f9efcb6bfbd3d35395e1",
+    "title": "Brazil\u2019s Bolsonaro damages ankle tag with soldering iron \u2018out of curiosity\u2019",
+    "snippet": "Brazil\u2019s former president Jair Bolsonaro damaged his electronic ankle bracelet with a soldering iron hours before his arrest, according to video released by the Supreme Court.\nThe footage shows Bolsonaro telling an officer he had applied \u201chot iron\u201d t...",
+    "link": "https://www.scmp.com/news/world/americas/article/3333835/brazils-bolsonaro-damages-ankle-monitor-soldering-iron-out-curiosity?utm_source=rss_feed",
+    "published": "2025-11-23T07:09:39",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "AMER"
+  },
+  {
     "id": "deeae60c6a9c6298c6b20fef17b64e49",
     "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
     "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
@@ -852,18 +888,6 @@
     "region": "AMER"
   },
   {
-    "id": "7a58ae6f20100627426c8ccaa77f3c0d",
-    "title": "Jair Bolsonaro arrested after being deemed a flight risk",
-    "snippet": "The former Brazilian president is suspected of damaging an ankle bracelet as part of an alleged escape plan....",
-    "link": "https://www.bbc.com/news/articles/ce8qdm5zg10o?at_medium=RSS&at_campaign=rss",
-    "published": "2025-11-22T22:25:44",
-    "date_str": "2025-11-22",
-    "source": "BBC World News",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "AMER"
-  },
-  {
     "id": "857d055286008968918727f01624cff5",
     "title": "Jair Bolsonaro Arrested in Brazil Amid Fears He Might Flee to Avoid Prison",
     "snippet": "The arrest came days before the former president was expected to be ordered to begin a 27-year prison sentence for staging a failed coup....",
@@ -1114,6 +1138,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "APJC"
+  },
+  {
+    "id": "d4f25b87e5777ae22b355d7766b30276",
+    "title": "GSDF officer arrested over stabbing of woman in Tokyo\u2019s Akasaka area",
+    "snippet": "The suspect, Lt. Col. Yoichiro Otsu, who belongs to the GSDF's Camp Asaka in Tokyo's Nerima Ward, has denied the allegations against him....",
+    "link": "https://www.japantimes.co.jp/news/2025/11/22/japan/crime-legal/gsdf-akasaka-woman-stabbing-suspect/",
+    "published": "2025-11-22T05:12:00",
+    "date_str": "2025-11-22",
+    "source": "The Japan Times",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
