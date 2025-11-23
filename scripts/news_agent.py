@@ -10,6 +10,7 @@ from time import mktime
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
+    "https://www.aljazeera.com/xml/rss/all.xml": "Al Jazeera",
     "https://www.dw.com/xml/rss/rss-n-all": "Deutsche Welle",
     "http://rss.cnn.com/rss/edition_world.rss": "CNN World",
     "https://www.nytimes.com/services/xml/rss/nyt/World.xml": "New York Times World",
@@ -28,6 +29,7 @@ TRUSTED_SOURCES = {
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times (Singapore)",
     "https://www.japantimes.co.jp/feed": "The Japan Times",
     "https://kyivindependent.com/feed": "The Kyiv Independent",
+    "https://www.middleeasteye.net/rss": "Middle East Eye",
     "https://www.themoscowtimes.com/rss/news": "The Moscow Times",
     "https://feeds.npr.org/1004/rss.xml": "NPR World (USA)",
     "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
@@ -35,7 +37,6 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# KEYWORDS (Added "violence", "hate crime" to Physical Security)
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack", "violence", "hate crime", "stabbing"],
@@ -63,6 +64,10 @@ def parse_date(entry):
     except:
         now = datetime.now()
         return now.strftime("%Y-%m-%d"), now.isoformat()
+
+def is_similar(a, b):
+    # Returns True if titles are > 60% similar
+    return SequenceMatcher(None, a, b).ratio() > 0.60
 
 def analyze_article(title, summary, source_name, locations):
     text = (title + " " + summary).lower()
@@ -100,38 +105,20 @@ def analyze_article(title, summary, source_name, locations):
 def fetch_news():
     locations = load_locations()
     
-    # 1. LOAD HISTORY
+    # 1. LOAD ALL CANDIDATES (Old + New)
+    all_candidates = []
+    
+    # Load History
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
-                existing_data = json.load(f)
+                history = json.load(f)
+                all_candidates.extend(history)
         except:
-            existing_data = []
-    else:
-        existing_data = []
+            pass
 
-    # 2. RE-ANALYZE HISTORY (Fixes Bad Labels from old runs)
-    print(f"Re-analyzing {len(existing_data)} historical items...")
-    db = {}
-    for item in existing_data:
-        # Fix missing dates
-        if 'date_str' not in item:
-            item['date_str'] = item.get('published', str(datetime.now()))[:10]
-        
-        # RE-RUN ANALYSIS on old items to fix bad categories
-        new_analysis = analyze_article(item['title'], item['snippet'], item['source'], locations)
-        
-        if new_analysis:
-            item['category'] = new_analysis['category']
-            item['severity'] = new_analysis['severity']
-            item['region'] = new_analysis['region']
-            db[item['id']] = item # Save the fixed item
-        else:
-            # If item is now "Uncategorized" (irrelevant), we drop it from history
-            pass 
-
-    # 3. FETCH NEW ITEMS
-    print("Scanning for fresh news...")
+    # Fetch New
+    print("Scanning feeds...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
@@ -148,8 +135,7 @@ def fetch_news():
                 
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
-                    
-                    db[article_hash] = {
+                    all_candidates.append({
                         "id": article_hash,
                         "title": title,
                         "snippet": summary[:250] + "...",
@@ -160,21 +146,48 @@ def fetch_news():
                         "category": analysis['category'],
                         "severity": analysis['severity'],
                         "region": analysis['region']
-                    }
+                    })
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    final_list = list(db.values())
-    final_list.sort(key=lambda x: (x.get('date_str', '2025-01-01'), x['severity']), reverse=True)
+    # 2. AGGRESSIVE DEDUPLICATION
+    # Sort ALL candidates by Severity (High First) then Date (Newest First)
+    # This ensures if we have duplicates, we keep the most critical/recent one.
+    all_candidates.sort(key=lambda x: (x.get('severity', 1), x.get('published', '')), reverse=True)
     
-    if len(final_list) > 1000:
-        final_list = final_list[:1000]
+    clean_list = []
+    seen_titles = []
+
+    print(f"Filtering {len(all_candidates)} items for duplicates...")
+
+    for item in all_candidates:
+        # Check against already kept items
+        is_duplicate = False
+        current_title = item['title'].lower()
+        
+        for seen in seen_titles:
+            # If 60% similar, it's a duplicate
+            if is_similar(current_title, seen):
+                is_duplicate = True
+                break
+        
+        if not is_duplicate:
+            clean_list.append(item)
+            seen_titles.append(current_title)
+
+    # 3. SAVE
+    # Safety: ensure we have date_str on everything
+    for item in clean_list:
+        if 'date_str' not in item: item['date_str'] = item.get('published', '')[:10]
+
+    if len(clean_list) > 1000:
+        clean_list = clean_list[:1000]
 
     os.makedirs("public/data", exist_ok=True)
     with open(DB_PATH, "w") as f:
-        json.dump(final_list, f, indent=2)
+        json.dump(clean_list, f, indent=2)
     
-    print(f"Database updated. History re-verified. Total items: {len(final_list)}")
+    print(f"Database clean. Reduced to {len(clean_list)} unique stories.")
 
 if __name__ == "__main__":
     fetch_news()
