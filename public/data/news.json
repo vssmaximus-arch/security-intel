@@ -588,6 +588,18 @@
     "region": "Global"
   },
   {
+    "id": "dd900ac1db2b7155e5973f53359576d2",
+    "title": "More companies are shifting workers to passwordless authentication",
+    "snippet": "Both workers and business leaders are tired of device passwords. More companies are doing away with them and, in the process, improving cybersecurity....",
+    "link": "https://www.cnbc.com/2025/11/23/passwords-corporate-cybersecurity-employee-authentication.html",
+    "published": "2025-11-23T15:05:24",
+    "date_str": "2025-11-23",
+    "source": "CNBC World News",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
     "id": "d4ae5da038ac0d8fdc5ebbe6287c9ef6",
     "title": "Labor pledges action as survey reveals how many young NSW men admit to sexually harassing women",
     "snippet": "<p><strong>Exclusive:</strong> \u2018Man box\u2019 stereotype of appearing tough and believing in rigid gender roles linked to likelihood of committing acts of abuse, new report finds</p><ul><li><p>Get our <a href=\"https://www.theguardian.com/email-newsletters...",
@@ -600,14 +612,26 @@
     "region": "APJC"
   },
   {
-    "id": "dd900ac1db2b7155e5973f53359576d2",
-    "title": "More companies are shifting workers to passwordless authentication",
-    "snippet": "Both workers and business leaders are tired of device passwords. More companies are doing away with them and, in the process, improving cybersecurity....",
-    "link": "https://www.cnbc.com/2025/11/23/passwords-corporate-cybersecurity-employee-authentication.html",
-    "published": "2025-11-23T15:05:24",
+    "id": "b223dab3f661f1adf497bb6b308dcd73",
+    "title": "Dozens of kidnapped schoolchildren escape as Pope Leo appeals for release of remaining abductees",
+    "snippet": "At least 50 of the 303 children abducted this week from a Catholic school in Nigeria have escaped and been reunited with their families, a church group has said, as Pope Leo pleaded for their immediate release....",
+    "link": "https://news.sky.com/story/dozens-of-kidnapped-schoolchildren-in-nigeria-escape-as-pope-leo-appeals-for-release-of-remaining-abductees-13474471",
+    "published": "2025-11-23T13:09:00",
     "date_str": "2025-11-23",
-    "source": "CNBC World News",
-    "category": "Cyber",
+    "source": "Sky News (UK) World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "773cf15d702bc29dcf4f9fc6e603697f",
+    "title": "50 of Nigeria\u2019s kidnapped schoolchildren escape their captors",
+    "snippet": "Fifty of the more than 300 children kidnapped by gunmen from a Catholic school in Niger state managed to escape their captors and have reunited with their families, a Christian group affiliated with the school said on Sunday. Armed attackers on Frida...",
+    "link": "https://www.france24.com/en/africa/20251123-50-nigeria-kidnapped-catholic-schoolchildren-escape-captors",
+    "published": "2025-11-23T15:47:34",
+    "date_str": "2025-11-23",
+    "source": "France 24",
+    "category": "Physical Security",
     "severity": 1,
     "region": "Global"
   },
