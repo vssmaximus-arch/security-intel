@@ -144,18 +144,6 @@
     "region": "Global"
   },
   {
-    "id": "8727552021e9b542e61d0dbef7d48f63",
-    "title": "Power shift in Venezuela? US prepares new phase of operations; speculation grows over Nicol\u00e1s Maduro\u2019s removal",
-    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125515061.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />The United States is preparing for a new phase of operations targeting Venezuela, potentially escalat...",
-    "link": "https://timesofindia.indiatimes.com/world/us/power-shift-in-venezuela-us-prepares-new-phase-of-operations-speculation-grows-over-nicols-maduros-removal/articleshow/125515061.cms",
-    "published": "2025-11-23T04:00:32",
-    "date_str": "2025-11-23",
-    "source": "Times of India World",
-    "category": "Physical Security",
-    "severity": 3,
-    "region": "APJC"
-  },
-  {
     "id": "c256368ca4b44b465ecae481587501ec",
     "title": "Vietnam floods, landslides kill at least 90, US$343 million in damage",
     "snippet": "Heavy rain, severe flooding and landslides in Vietnam have killed at least 90 people in the last week, authorities said on Sunday, leaving others stranded on rooftops and mountain roadways blocked.\nRelentless rain has lashed south-central Vietnam sin...",
@@ -166,6 +154,18 @@
     "category": "Weather/Event",
     "severity": 3,
     "region": "Global"
+  },
+  {
+    "id": "8727552021e9b542e61d0dbef7d48f63",
+    "title": "Power shift in Venezuela? US prepares new phase of operations; speculation grows over Nicol\u00e1s Maduro\u2019s removal",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125515061.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />The United States is preparing for a new phase of operations targeting Venezuela, potentially escalat...",
+    "link": "https://timesofindia.indiatimes.com/world/us/power-shift-in-venezuela-us-prepares-new-phase-of-operations-speculation-grows-over-nicols-maduros-removal/articleshow/125515061.cms",
+    "published": "2025-11-23T04:00:32",
+    "date_str": "2025-11-23",
+    "source": "Times of India World",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "APJC"
   },
   {
     "id": "d934e819d797f996ddf327c6cbf95d53",
@@ -540,11 +540,11 @@
     "region": "Global"
   },
   {
-    "id": "15d271fc027c4b7bc1a285ff3e465d80",
-    "title": "No entry ever: Indian man visits Canada to see newborn grandchild, harasses teens; faces deportation",
-    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125519902.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />An Indian national, Jagjit Singh, visiting Canada on a temporary visa, has been convicted of criminal...",
-    "link": "https://timesofindia.indiatimes.com/world/rest-of-world/no-entry-ever-indian-man-visits-canada-to-see-newborn-grandchild-harasses-teens-faces-deportation/articleshow/125519902.cms",
-    "published": "2025-11-23T12:34:12",
+    "id": "cee84fd1a66603bfaecb173eabb4d73b",
+    "title": "Indian-origin Nicholas Singh, one of Canada's 25 most wanted criminals, arrested in Toronto",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125519517.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Canadian authorities apprehended Indian-origin Nicholas Singh, a high-risk fugitive, in Toronto. Sing...",
+    "link": "https://timesofindia.indiatimes.com/world/rest-of-world/indian-origin-nicholas-singh-one-of-canadas-25-most-wanted-criminals-arrested-in-toronto/articleshow/125519517.cms",
+    "published": "2025-11-23T12:03:32",
     "date_str": "2025-11-23",
     "source": "Times of India World",
     "category": "Physical Security",
@@ -552,11 +552,23 @@
     "region": "APJC"
   },
   {
-    "id": "cee84fd1a66603bfaecb173eabb4d73b",
-    "title": "Indian-origin Nicholas Singh, one of Canada's 25 most wanted criminals, arrested in Toronto",
-    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125519517.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />Canadian authorities apprehended Indian-origin Nicholas Singh, a high-risk fugitive, in Toronto. Sing...",
-    "link": "https://timesofindia.indiatimes.com/world/rest-of-world/indian-origin-nicholas-singh-one-of-canadas-25-most-wanted-criminals-arrested-in-toronto/articleshow/125519517.cms",
-    "published": "2025-11-23T12:03:32",
+    "id": "28fe86bb6f2912e5f093ed9c969badd3",
+    "title": "Hong Kong steps up voter turnout efforts with video targeting minority residents",
+    "snippet": "Hong Kong authorities have ramped up efforts to drive voter turnout for the coming Legislative Council election, releasing a video featuring a bomb disposal chief urging ethnic minority residents to cast their ballots.\nRaymond Suryanto Chin-chiu, hea...",
+    "link": "https://www.scmp.com/news/hong-kong/politics/article/3333839/bomb-disposal-chief-urges-indonesian-residents-vote-hong-kong-legco-poll?utm_source=rss_feed",
+    "published": "2025-11-23T08:01:35",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "15d271fc027c4b7bc1a285ff3e465d80",
+    "title": "No entry ever: Indian man visits Canada to see newborn grandchild, harasses teens; faces deportation",
+    "snippet": "<img align=\"left\" border=\"0\" hspace=\"10\" src=\"https://timesofindia.indiatimes.com/photo/125519902.cms\" style=\"margin-top: 3px; margin-right: 5px;\" />An Indian national, Jagjit Singh, visiting Canada on a temporary visa, has been convicted of criminal...",
+    "link": "https://timesofindia.indiatimes.com/world/rest-of-world/no-entry-ever-indian-man-visits-canada-to-see-newborn-grandchild-harasses-teens-faces-deportation/articleshow/125519902.cms",
+    "published": "2025-11-23T12:34:12",
     "date_str": "2025-11-23",
     "source": "Times of India World",
     "category": "Physical Security",
@@ -574,18 +586,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "APJC"
-  },
-  {
-    "id": "28fe86bb6f2912e5f093ed9c969badd3",
-    "title": "Hong Kong steps up voter turnout efforts with video targeting minority residents",
-    "snippet": "Hong Kong authorities have ramped up efforts to drive voter turnout for the coming Legislative Council election, releasing a video featuring a bomb disposal chief urging ethnic minority residents to cast their ballots.\nRaymond Suryanto Chin-chiu, hea...",
-    "link": "https://www.scmp.com/news/hong-kong/politics/article/3333839/bomb-disposal-chief-urges-indonesian-residents-vote-hong-kong-legco-poll?utm_source=rss_feed",
-    "published": "2025-11-23T08:01:35",
-    "date_str": "2025-11-23",
-    "source": "South China Morning Post (HK)",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "Global"
   },
   {
     "id": "deeae60c6a9c6298c6b20fef17b64e49",
@@ -1305,7 +1305,7 @@
     "source": "France 24",
     "category": "Physical Security",
     "severity": 1,
-    "region": "EMEA"
+    "region": "AMER"
   },
   {
     "id": "a9493ba1637f75478a08bf54ad5197dd",
