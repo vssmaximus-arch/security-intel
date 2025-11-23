@@ -256,7 +256,7 @@
     "title": "Jair Bolsonaro arrested after being deemed a flight risk",
     "snippet": "The former Brazilian president is suspected of damaging an ankle bracelet as part of an alleged escape plan....",
     "link": "https://www.bbc.com/news/articles/ce8qdm5zg10o?at_medium=RSS&at_campaign=rss",
-    "published": "2025-11-23T07:31:13",
+    "published": "2025-11-23T09:20:00",
     "date_str": "2025-11-23",
     "source": "BBC World News",
     "category": "Physical Security",
@@ -336,18 +336,6 @@
     "region": "EMEA"
   },
   {
-    "id": "deeae60c6a9c6298c6b20fef17b64e49",
-    "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
-    "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
-    "link": "https://www.scmp.com/business/china-business/article/3333723/homes-fail-sell-mainland-chinas-depressed-market-sellers-turn-superstition?utm_source=rss_feed",
-    "published": "2025-11-23T03:00:08",
-    "date_str": "2025-11-23",
-    "source": "South China Morning Post (HK)",
-    "category": "Cyber",
-    "severity": 1,
-    "region": "APJC"
-  },
-  {
     "id": "72bceb06960c227a62fe028441a3443d",
     "title": "Green earthquake (Magnitude 5.5M, Depth:54.82km) in United States 23/11/2025 08:21 UTC, Few people affected in MMI&>=II.",
     "snippet": "On 11/23/2025 8:21:46 AM, an earthquake occurred in United States potentially affecting Few people affected in MMI&>=II. The earthquake had Magnitude 5.5M, Depth:54.82km....",
@@ -358,6 +346,30 @@
     "category": "Weather/Event",
     "severity": 1,
     "region": "Global"
+  },
+  {
+    "id": "2fe21c117833e120efcf87fc202bb0ba",
+    "title": "JFK's granddaughter reveals terminal cancer diagnosis - as she hits out at relative RFK Jr",
+    "snippet": "John F Kennedy's granddaughter has revealed she has terminal cancer, making the announcement on the anniversary of the ex-US president's assassination....",
+    "link": "https://news.sky.com/story/jfks-granddaughter-reveals-terminal-cancer-diagnosis-as-she-hits-out-at-relative-rfk-jr-13474365",
+    "published": "2025-11-23T06:38:00",
+    "date_str": "2025-11-23",
+    "source": "Sky News (UK) World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global"
+  },
+  {
+    "id": "deeae60c6a9c6298c6b20fef17b64e49",
+    "title": "Sellers hope superstition can sell homes in China\u2019s depressed market",
+    "snippet": "For homeowners in mainland China, selling a property has become so difficult that some are turning to xuanxue, a neo-Taoist philosophy that has morphed into internet slang for any superstitious ritual meant to enhance luck, from feng shui tweaks to c...",
+    "link": "https://www.scmp.com/business/china-business/article/3333723/homes-fail-sell-mainland-chinas-depressed-market-sellers-turn-superstition?utm_source=rss_feed",
+    "published": "2025-11-23T03:00:08",
+    "date_str": "2025-11-23",
+    "source": "South China Morning Post (HK)",
+    "category": "Cyber",
+    "severity": 1,
+    "region": "APJC"
   },
   {
     "id": "7fa6c0baf8ff6ad2527a62b23eee1808",
