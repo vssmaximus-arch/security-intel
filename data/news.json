@@ -698,7 +698,7 @@
   {
     "id": "d4ae5da038ac0d8fdc5ebbe6287c9ef6",
     "title": "Labor pledges action as survey reveals how many young NSW men admit to sexually harassing women",
-    "snippet": "<p><strong>Exclusive:</strong> \u2018Man box\u2019 stereotype of appearing tough and believing in rigid gender roles linked to likelihood of committing acts of abuse, new report finds</p><ul><li><p>Get our <a href=\"https://www.theguardian.com/email-newsletters...",
+    "snippet": "<p><strong>Exclusive:</strong> \u2018Man box\u2019 stereotype of appearing tough and believing in rigid gender roles linked to likelihood of committing acts of abuse, new report finds</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/...",
     "link": "https://www.theguardian.com/australia-news/2025/nov/24/minns-labor-pledges-action-man-box-survey-reveals-how-many-young-nsw-men-admit-sexually-harassing-women",
     "published": "2025-11-23T14:00:15",
     "date_str": "2025-11-23",
@@ -706,6 +706,18 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "APJC"
+  },
+  {
+    "id": "742c8c8e2f31a39c5947848832581805",
+    "title": "ICE detained teenaged US citizen during school lunch break, family says",
+    "snippet": "<p>Christian Jimenez, Oregon high school senior, faces possible obstruction charges after traffic stop by immigration agents</p><p>Immigration officers detained a student at a high school in <a href=\"https://www.theguardian.com/us-news/oregon\">Oregon...",
+    "link": "https://www.theguardian.com/us-news/2025/nov/23/ice-oregon-student-citizen-detained-immigration",
+    "published": "2025-11-23T20:00:30",
+    "date_str": "2025-11-23",
+    "source": "The Guardian World",
+    "category": "Logistics",
+    "severity": 1,
+    "region": "Global"
   },
   {
     "id": "a84137869961eb8831cede543ded9d19",
@@ -840,6 +852,18 @@
     "region": "EMEA"
   },
   {
+    "id": "119237c23317c5172dbb119039089be8",
+    "title": "Human rights fears over Australia\u2019s role in F-35 parts after Trump\u2019s decision to sell fighter jets to Saudi Arabia",
+    "snippet": "<p>Experts warn US deal on \u2018lethal\u2019 aircraft presents issues for Australia that \u2018we\u2019ve tried desperately to ignore with the Israelis\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/23/severe-tropical-cyclone-fina-darw...",
+    "link": "https://www.theguardian.com/science/2025/nov/22/human-rights-fears-over-australias-role-in-f-35-parts-after-trumps-decision-to-sell-fighter-jets-to-saudi-arabia",
+    "published": "2025-11-22T19:00:47",
+    "date_str": "2025-11-22",
+    "source": "The Guardian World",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "APJC"
+  },
+  {
     "id": "1f67d44577022db6f6ee185fc01328a9",
     "title": "New Caledonia activist says France is impeding travel home after prison release",
     "snippet": "<p>Exclusive: Kanak leader Christian Tein, who was freed from prison in June, says France is \u2018deliberately dragging out\u2019 re-issue of his passport</p><p>A pro-independence leader from the French overseas territory of New Caledonia has accused the Fren...",
@@ -850,18 +874,6 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "EMEA"
-  },
-  {
-    "id": "119237c23317c5172dbb119039089be8",
-    "title": "Human rights fears over Australia\u2019s role in F-35 parts after Trump\u2019s decision to sell fighter jets to Saudi Arabia",
-    "snippet": "<p>Experts warn US deal on \u2018lethal\u2019 aircraft presents issues for Australia that \u2018we\u2019ve tried desperately to ignore with the Israelis\u2019</p><ul><li><p><a href=\"https://www.theguardian.com/australia-news/live/2025/nov/23/severe-tropical-cyclone-fina-darw...",
-    "link": "https://www.theguardian.com/science/2025/nov/22/human-rights-fears-over-australias-role-in-f-35-parts-after-trumps-decision-to-sell-fighter-jets-to-saudi-arabia",
-    "published": "2025-11-22T19:00:47",
-    "date_str": "2025-11-22",
-    "source": "The Guardian World",
-    "category": "Weather/Event",
-    "severity": 2,
-    "region": "APJC"
   },
   {
     "id": "e3f48d35e96fcb033f22fe38f7fab5dc",
@@ -1582,18 +1594,6 @@
     "category": "Physical Security",
     "severity": 1,
     "region": "Global"
-  },
-  {
-    "id": "77e6e3fbe1b1ff47a3cdc31264a7bf1b",
-    "title": "Tense calm in far north as Israel prepares to \u2018finish the job\u2019 against Hezbollah",
-    "snippet": "<p>On the border with Lebanon, communities have started to return and rebuild \u2013 even though some are in no hurry to return</p><p>Noam Erlich looks out over what was his beer garden. Beyond the disordered chairs and tables and the sign instructing nei...",
-    "link": "https://www.theguardian.com/world/2025/nov/22/tense-calm-in-far-north-as-israel-prepares-to-finish-the-job-against-hezbollah",
-    "published": "2025-11-22T09:00:36",
-    "date_str": "2025-11-22",
-    "source": "The Guardian World",
-    "category": "Physical Security",
-    "severity": 1,
-    "region": "EMEA"
   },
   {
     "id": "ca27d0bba4556787180b8aaada1e2bc8",
