@@ -35,22 +35,10 @@
     <div class="container">
         <div class="filter-container">
             <div class="row g-3">
-                <div class="col-md-2">
-                    <label class="form-label small text-muted fw-bold">DATE</label>
-                    <input type="date" id="dateFilter" class="form-control" onchange="renderNews()">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small text-muted fw-bold">REGION</label>
-                    <select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small text-muted fw-bold">RISK TYPE</label>
-                    <select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Natural Hazard</option></select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small text-muted fw-bold">SEARCH</label>
-                    <input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()">
-                </div>
+                <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
+                <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
+                <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Natural Hazard</option></select></div>
+                <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
             </div>
         </div>
         <div id="news-feed"></div>
@@ -62,12 +50,15 @@
         
         async function fetchNews() {
             try {
-                const r = await fetch('data/news.json'); 
+                // CACHE BUSTER: We add ?t=TIMESTAMP to the URL.
+                // This tricks the browser into thinking it's a new file every time.
+                const timestamp = new Date().getTime();
+                const r = await fetch('data/news.json?t=' + timestamp); 
+                
                 if(!r.ok) throw new Error("Not found");
                 newsData = await r.json();
                 
-                // Set database status
-                document.getElementById('last-updated').innerText = "Live Database (" + newsData.length + " Items)"; 
+                document.getElementById('last-updated').innerText = "Database Size: " + newsData.length + " Items"; 
                 renderNews();
             } catch (e) { 
                 document.getElementById('news-feed').innerHTML = '<div class="text-center mt-5"><h5>System Initializing... Check back in 10 mins.</h5></div>'; 
@@ -82,13 +73,8 @@
             const con = document.getElementById('news-feed'); con.innerHTML = '';
             
             const filtered = newsData.filter(i => {
-                // Date Logic: If calendar picked, match string. If empty, ignore.
                 const dateMatch = dateF ? i.date_str === dateF : true;
-                
-                return dateMatch && 
-                       (reg==='All'||i.region===reg) && 
-                       (typ==='All'||i.category===typ) && 
-                       (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
+                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
             });
             
             if(filtered.length===0) { con.innerHTML='<div class="text-center text-muted mt-5">No intelligence found for this selection.</div>'; return; }
@@ -96,9 +82,7 @@
             filtered.forEach(i => {
                 let bCls='badge-info', bTxt='INFO';
                 if(i.severity===3){bCls='badge-critical';bTxt='CRITICAL';} else if(i.severity===2){bCls='badge-warning';bTxt='WARNING';}
-                
                 const niceDate = new Date(i.published).toLocaleString();
-
                 con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
             });
         }
