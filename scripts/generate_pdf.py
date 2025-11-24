@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import html
 from datetime import datetime
 from fpdf import FPDF
 
@@ -61,26 +62,34 @@ REPORT_PROFILES = [
     }
 ]
 
-# --- CLEANING ENGINE ---
+# --- CLEANING ENGINE (UPGRADED) ---
 def clean_text(text):
     if not text: return ""
     
-    # 1. Strip HTML Tags
-    text = re.sub(r'<.*?>', '', text)
+    # 1. Decode HTML Entities (Fixes &lt; to <)
+    text = html.unescape(text)
     
-    # 2. Fix Smart Quotes & Common Unicode Issues
+    # 2. Strip HTML Tags (Aggressive)
+    text = re.sub(r'<[^>]+>', '', text)
+    
+    # 3. Remove URLs inside text (Optional, keeps text clean)
+    text = re.sub(r'http\S+', '', text)
+    
+    # 4. Fix Smart Quotes & Typography
     replacements = {
-        '\u2018': "'", '\u2019': "'", # Smart Single Quotes
-        '\u201c': '"', '\u201d': '"', # Smart Double Quotes
-        '\u2013': '-', '\u2014': '-', # En/Em Dashes
-        '\u2026': '...',              # Ellipsis
-        '\u00a0': ' ',                # Non-breaking space
-        '?': "'"                      # Aggressive fix for already-broken quotes
+        '\u2018': "'", '\u2019': "'", 
+        '\u201c': '"', '\u201d': '"', 
+        '\u2013': '-', '\u2014': '-', 
+        '\u2026': '...',              
+        '\u00a0': ' ',                
+        'â€™': "'", # Common encoding error
+        'â€œ': '"',
+        'â€': '"'
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
         
-    # 3. Force Encode to Latin-1 (removes any remaining weird characters)
+    # 5. Force Encode to Latin-1 (strips unprintable emojis/symbols)
     return text.encode('latin-1', 'ignore').decode('latin-1')
 
 class PDF(FPDF):
@@ -110,7 +119,7 @@ class PDF(FPDF):
         self.ln(4)
 
     def chapter_body(self, item):
-        # Use cleaning engine here
+        # Use Upgraded Cleaning Engine
         title = clean_text(item['title'])
         snippet = clean_text(item['snippet'])
         source = clean_text(item['source'])
