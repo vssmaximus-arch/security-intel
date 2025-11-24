@@ -39,7 +39,7 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# --- NOISE FILTER (Updated to remove Blogs & Legal Reviews) ---
+# --- NOISE FILTER ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -51,7 +51,6 @@ BLOCKED_KEYWORDS = [
     "market", "shares", "stocks", "investors", "investment", "profit", "revenue",
     "quarterly", "earnings", "brands", "cosmetics", "luxury", "retail", "sales",
     "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday",
-    # NEW: Legal/Historical Blocks
     "coroner", "inquest", "inquiry", "historic", "memorial", "anniversary",
     "blog is now closed", "live coverage", "follow our", "live blog"
 ]
@@ -60,7 +59,7 @@ KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
     "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway", "border crossing"],
-    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "eruption", "volcano"]
+    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "flash flood", "eruption", "volcano"]
 }
 
 DB_PATH = "public/data/news.json"
@@ -74,10 +73,8 @@ else:
     model = None
 
 def clean_html(raw_html):
-    # Remove HTML tags
     cleanr = re.compile('<.*?>')
     text = re.sub(cleanr, '', raw_html)
-    # Remove URL garbage commonly found in RSS
     text = re.sub(r'http\S+', '', text)
     text = text.replace("Read full story", "").replace("&nbsp;", " ")
     return text.strip()
@@ -120,7 +117,7 @@ def ask_gemini_analyst(title, snippet):
     1. DISCARD (Mark Irrelevant) if:
        - It's a "Live Blog" update (e.g. "blog closed", "follow here").
        - Historical/Legal reviews (Inquests, Coroners, trials about old events).
-       - Business/Politics/Social issues/General Crime.
+       - Business/Politics/Social issues/General Crime/Sports/Celebrity.
     
     2. REWRITE (If Relevant):
        - Title: Professional, concise, no jargon. (Max 10 words).
@@ -193,82 +190,3 @@ def generate_interactive_map(articles):
             if item['severity'] == 3: color = "red"
             elif item['severity'] == 2: color = "orange"
             popup_html = f"<b>{item['title']}</b><br><span style='color:gray'>{item['category']}</span>"
-            folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=300), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
-    m.save(MAP_PATH)
-
-def fetch_news():
-    locations = load_locations()
-    allowed_names = list(TRUSTED_SOURCES.values())
-    all_candidates = []
-    
-    if os.path.exists(DB_PATH):
-        try:
-            with open(DB_PATH, 'r') as f:
-                history = json.load(f)
-                for item in history:
-                    if item['source'] in allowed_names:
-                        combined = (item['title'] + " " + item['snippet']).lower()
-                        if not any(b in combined for b in BLOCKED_KEYWORDS):
-                            all_candidates.append(item)
-        except: pass
-
-    print("Scanning feeds with STRICT AI...")
-    for url, source_name in TRUSTED_SOURCES.items():
-        try:
-            feed = feedparser.parse(url)
-            if not feed.entries: continue
-
-            for entry in feed.entries[:5]: 
-                title = entry.title
-                if len(title) < 15: continue
-                
-                raw_summary = entry.summary if 'summary' in entry else ""
-                clean_summary = clean_html(raw_summary)
-                clean_date, full_date, timestamp = parse_date(entry) 
-                
-                analysis = analyze_article_hybrid(title, clean_summary, source_name, locations)
-                
-                if analysis:
-                    final_title = analysis.get('clean_title') if analysis.get('clean_title') else title
-                    final_snippet = analysis.get('ai_summary') if analysis.get('ai_summary') else clean_summary[:250] + "..."
-                    article_hash = hashlib.md5(title.encode()).hexdigest()
-                    
-                    all_candidates.append({
-                        "id": article_hash,
-                        "title": final_title,
-                        "snippet": final_snippet,
-                        "link": entry.link,
-                        "published": full_date,
-                        "date_str": clean_date,
-                        "timestamp": timestamp,
-                        "source": source_name,
-                        "category": analysis['category'],
-                        "severity": analysis['severity'],
-                        "region": analysis['region'],
-                        "lat": analysis.get('lat'),
-                        "lon": analysis.get('lon')
-                    })
-        except Exception as e:
-            print(f"Skipping {source_name}: {e}")
-
-    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
-    
-    clean_list = []
-    seen_titles = []
-    for item in all_candidates:
-        t_low = item['title'].lower()
-        if is_duplicate_title(t_low, seen_titles): continue
-        clean_list.append(item)
-        seen_titles.append(t_low)
-
-    if len(clean_list) > 1000: clean_list = clean_list[:1000]
-
-    os.makedirs("public/data", exist_ok=True)
-    with open(DB_PATH, "w") as f:
-        json.dump(clean_list, f, indent=2)
-    
-    generate_interactive_map(clean_list)
-    print(f"Database refined. {len(clean_list)} items active.")
-
-if __name__ == "__main__":
-    fetch_news()
