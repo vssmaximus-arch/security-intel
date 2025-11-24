@@ -39,7 +39,7 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# --- NOISE FILTER (Expanded Blocklist) ---
+# --- NOISE FILTER (Added Business/Financial Terms) ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -47,15 +47,21 @@ BLOCKED_KEYWORDS = [
     "princess", "gossip", "dating", "fashion", "lifestyle", "sexual assault", 
     "rape", "domestic", "murder trial", "hate speech", "convicted", "podcast",
     "claims", "alleges", "survey", "poll", "pledges", "vows", "commentary",
-    "opinion", "review", "social media", "viral", "trend"
+    "opinion", "review", "social media", "viral", "trend",
+    # NEW BUSINESS BLOCKLIST
+    "market", "shares", "stocks", "investors", "investment", "profit", "revenue",
+    "quarterly", "earnings", "brands", "cosmetics", "luxury", "retail", "sales",
+    "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday"
 ]
 
-# --- KEYWORDS ---
+# --- STRICT KEYWORDS (Fixed the "Flood" bug) ---
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
-    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
-    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
+    # Logistics must imply DISRUPTION, not just trade
+    "Logistics": ["port strike", "cargo halted", "shipping suspended", "customs delay", "road closure", "airport closed", "grounded", "embargo", "blockade", "railway strike", "border crossing closed"],
+    # Weather must contain WARNING words
+    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "flash flood", "eruption", "volcano"]
 }
 
 DB_PATH = "public/data/news.json"
@@ -101,34 +107,30 @@ def is_duplicate_title(new_title, existing_titles):
 def ask_gemini_analyst(title, snippet):
     if not model: return None
     
-    # STRICT PROMPT FOR CORPORATE SECURITY
     prompt = f"""
-    You are a Corporate Security Watchdog for a Fortune 500 company.
-    Filter this news item.
-    
+    You are a Corporate Security Watchdog. Filter this news.
     Headline: "{title}"
     Snippet: "{snippet}"
     
     INSTRUCTIONS:
-    1. DISCARD (Mark as Irrelevant) if it is:
-       - Political statements, speeches, or opinions (e.g., "claims", "pledges").
-       - Social issues, surveys, or polls.
-       - Individual crimes (murder, assault) UNLESS it is a mass-casualty event or terrorism.
-       - Entertainment, sports, or celebrity gossip.
+    1. DISCARD (Mark Irrelevant) if:
+       - Business/Economic news (brands, investments, markets, products).
+       - Political speeches/opinions/polls.
+       - Social issues/Lifestyle/Celebrity.
+       - General crime (unless Mass Casualty).
     
-    2. KEEP only if it matches:
-       - Civil Unrest / Riots.
-       - Natural Disasters impacting infrastructure.
+    2. KEEP ONLY if:
+       - Physical Threat to assets/staff (Riots, War, Terrorism).
+       - Infrastructure/Logistics Failure (Port closures, Strikes).
        - Verified Cyber Attacks.
-       - Supply Chain / Logistics Disruptions.
-       - Active Terrorism / War.
+       - Major Natural Disasters.
 
     Output JSON: {{ "category": "...", "severity": int (1-3), "summary": "...", "lat": float, "lon": float }}
     Use Category "Irrelevant" to discard.
     """
     
     try:
-        time.sleep(1.5) # Slower pace to avoid rate limits
+        time.sleep(1.5)
         response = model.generate_content(prompt)
         text = response.text.replace("```json", "").replace("```", "")
         return json.loads(text)
@@ -142,7 +144,7 @@ def analyze_article_hybrid(title, summary, source_name, locations):
     # 1. NOISE BLOCK
     if any(block in text for block in BLOCKED_KEYWORDS): return None
 
-    # 2. KEYWORD PRE-CHECK (If it doesn't even have a trigger word, skip AI to save quota)
+    # 2. STRICT KEYWORD PRE-CHECK
     pre_category = "Uncategorized"
     if "CISA" in source_name or "Cyber" in source_name: pre_category = "Cyber"
     elif "GDACS" in source_name or "Earthquake" in source_name: pre_category = "Weather/Event"
@@ -168,8 +170,8 @@ def analyze_article_hybrid(title, summary, source_name, locations):
             "lon": ai_result.get('lon', 0.0)
         }
     else:
-        # 4. FALLBACK (Downgraded Severity to prevent false alarms)
-        # If AI fails, we assume LOW severity unless it's obviously catastrophic
+        # 4. FALLBACK DOWNGRADE (Safety Net)
+        # If AI fails, we assume LOW severity unless explicitly catastrophic words exist
         return fallback_analysis(pre_category, text, locations)
 
 def determine_region(text, locations):
@@ -181,15 +183,12 @@ def determine_region(text, locations):
     return "Global"
 
 def fallback_analysis(category, text, locations):
-    severity = 1 # Default to Low
-    # Only escalate if explicit WAR keywords are present
+    severity = 1
     if any(x in text for x in ["war declared", "terrorist attack", "massive earthquake"]): severity = 3
     return {"category": category, "severity": severity, "region": determine_region(text, locations), "ai_summary": None, "lat": 0.0, "lon": 0.0}
 
-# --- MAP GENERATOR ---
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=2, tiles="cartodb positron")
-    count = 0
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
@@ -197,14 +196,8 @@ def generate_interactive_map(articles):
             color = "blue"
             if item['severity'] == 3: color = "red"
             elif item['severity'] == 2: color = "orange"
-            
-            popup_html = f"""
-            <b>{item['title']}</b><br>
-            <span style='color:gray'>{item['category']}</span><br>
-            <a href='{item['link']}' target='_blank'>Source</a>
-            """
+            popup_html = f"<b>{item['title']}</b><br><span style='color:gray'>{item['category']}</span>"
             folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=300), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
-            count += 1
     m.save(MAP_PATH)
 
 def fetch_news():
@@ -212,20 +205,19 @@ def fetch_news():
     allowed_names = list(TRUSTED_SOURCES.values())
     all_candidates = []
     
-    # Load History
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
                 for item in history:
                     if item['source'] in allowed_names:
-                        # Re-run Blocklist on History
                         combined = (item['title'] + " " + item['snippet']).lower()
+                        # Re-Apply the NEW Blocklist to OLD items
                         if not any(b in combined for b in BLOCKED_KEYWORDS):
                             all_candidates.append(item)
         except: pass
 
-    print("Scanning feeds with STRICT AI Agent...")
+    print("Scanning feeds with STRICT AI...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
