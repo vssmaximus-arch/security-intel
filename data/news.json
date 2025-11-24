@@ -30,6 +30,21 @@
     "lon": 0.0
   },
   {
+    "id": "38dadbc5546cd0451a9c203339dbb09e",
+    "title": "Hurricane Melissa SitRep - GBV Subcluster Haiti (October 31 - November 15, 2025)",
+    "snippet": "Country: Haiti\n                                      Sources: Gender Based Violence Area of Responsibility, Government of Haiti, Protection Cluster, United Nations Population Fund\n                                                                      ...",
+    "link": "https://reliefweb.int/report/haiti/hurricane-melissa-sitrep-gbv-subcluster-haiti-october-31-november-15-2025",
+    "published": "2025-11-24T05:51:23",
+    "date_str": "2025-11-24",
+    "timestamp": 1763963483.0,
+    "source": "UN ReliefWeb",
+    "category": "Weather/Event",
+    "severity": 1,
+    "region": "AMER",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  {
     "id": "d8bf8b933cc7b0db7e63165f99ea3d88",
     "title": "Suicide bombers kill three security force officers in Pakistan",
     "snippet": "Suicide bombers have killed three officers in an attack on a security force headquarters in Pakistan, police and rescue officials have said....",
@@ -38,6 +53,21 @@
     "date_str": "2025-11-24",
     "timestamp": 1763961180.0,
     "source": "Sky News (UK) World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  {
+    "id": "c227fe0666a2e1d3ecafd196115eec13",
+    "title": "Myanmar: Kler Lwee Htoo District Incident Report: An SAC air strike on a school injured a villager in Hsaw Htee Township, May 2025.",
+    "snippet": "Country: Myanmar\n                                      Source: Karen Human Rights Group\n                                                                              \n                        Please refer to the attached file.\n                        ...",
+    "link": "https://reliefweb.int/report/myanmar/kler-lwee-htoo-district-incident-report-sac-air-strike-school-injured-villager-hsaw-htee-township-may-2025",
+    "published": "2025-11-24T04:03:10",
+    "date_str": "2025-11-24",
+    "timestamp": 1763956990.0,
+    "source": "UN ReliefWeb",
     "category": "Physical Security",
     "severity": 1,
     "region": "Global",
