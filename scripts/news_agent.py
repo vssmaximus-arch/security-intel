@@ -47,7 +47,6 @@ BLOCKED_KEYWORDS = [
     "rape", "domestic", "murder trial", "hate speech", "convicted"
 ]
 
-# --- KEYWORDS (Used for pre-filtering only) ---
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "conflict", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
@@ -61,11 +60,12 @@ DB_PATH = "public/data/news.json"
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 if GEMINI_KEY:
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-1.5-flash') # Flash is faster/cheaper for high volume
+    # Switched to 'gemini-pro' for maximum stability
+    model = genai.GenerativeModel('gemini-pro') 
 else:
-    print("WARNING: No Gemini Key found. Running in basic keyword mode.")
     model = None
 
+# --- HELPER FUNCTIONS ---
 def clean_html(raw_html):
     cleanr = re.compile('<.*?>')
     return re.sub(cleanr, '', raw_html).strip()
@@ -89,52 +89,44 @@ def parse_date(entry):
         now = datetime.now()
         return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
 
+def is_duplicate_title(new_title, existing_titles):
+    """Checks if a title is > 60% similar to any title in the list"""
+    for old_title in existing_titles:
+        if SequenceMatcher(None, new_title, old_title).ratio() > 0.60:
+            return True
+    return False
+
 # --- THE AI ANALYST FUNCTION ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
     
     prompt = f"""
-    Act as a Global Security Director for Dell Technologies. Analyze this news headline and snippet:
+    Act as a Global Security Director. Analyze this headline: "{title}"
+    Snippet: "{snippet}"
     
-    Headline: {title}
-    Snippet: {snippet}
+    1. Categorize into: "Physical Security", "Cyber", "Logistics", "Weather/Event", or "Irrelevant".
+    2. Assess Risk (1=Low, 2=Medium, 3=Critical).
+    3. Write a 1-sentence Corporate Impact Summary.
     
-    Task:
-    1. Categorize this into: "Physical Security", "Cyber", "Logistics", "Weather/Event", or "Irrelevant".
-    2. Assess Risk Severity (1=Low, 2=Medium/Warning, 3=Critical/Immediate Action).
-    3. Write a 1-sentence "Corporate Impact Summary" for an executive dashboard.
-    
-    Output strictly in this JSON format:
-    {{
-        "category": "CategoryName",
-        "severity": integer,
-        "summary": "Your executive summary here."
-    }}
+    Output JSON: {{ "category": "...", "severity": int, "summary": "..." }}
     """
     
     try:
-        # Rate Limit Protection: Pause slightly
-        time.sleep(1) 
+        time.sleep(1) # Safety pause for API limits
         response = model.generate_content(prompt)
         text = response.text.replace("```json", "").replace("```", "")
-        data = json.loads(text)
-        return data
+        return json.loads(text)
     except Exception as e:
-        print(f"AI Analysis Failed: {e}")
+        print(f"AI Error: {e}")
         return None
 
 def analyze_article_hybrid(title, summary, source_name, locations):
-    """
-    Hybrid Logic:
-    1. Keyword Check (Fast Filter) - if it fails this, we assume it's noise.
-    2. AI Analysis (Deep Filter) - if it passes keywords, we ask AI to confirm and summarize.
-    """
     text = (title + " " + summary).lower()
     
     # 1. NOISE BLOCK
     if any(block in text for block in BLOCKED_KEYWORDS): return None
 
-    # 2. SOURCE OVERRIDES (Force Categorization)
+    # 2. SOURCE OVERRIDES
     pre_category = "Uncategorized"
     if "CISA" in source_name or "Cyber" in source_name: pre_category = "Cyber"
     elif "GDACS" in source_name or "Earthquake" in source_name: pre_category = "Weather/Event"
@@ -144,25 +136,21 @@ def analyze_article_hybrid(title, summary, source_name, locations):
                 pre_category = cat
                 break
     
-    # If keywords didn't find anything, skip it (Save AI tokens)
     if pre_category == "Uncategorized": return None
 
     # 3. AI ENHANCEMENT
-    # We only send to AI if we think it's relevant, to save quota.
     ai_result = ask_gemini_analyst(title, summary)
     
     if ai_result:
-        # If AI says it's irrelevant, believe the AI
-        if ai_result['category'] == "Irrelevant": return None
-        
+        if ai_result.get('category') == "Irrelevant": return None
         return {
-            "category": ai_result['category'],
-            "severity": ai_result['severity'],
-            "region": determine_region(text, locations), # Keep our region logic, it's reliable
-            "ai_summary": ai_result['summary'] # This is the gold!
+            "category": ai_result.get('category', pre_category),
+            "severity": ai_result.get('severity', 1),
+            "region": determine_region(text, locations),
+            "ai_summary": ai_result.get('summary')
         }
     else:
-        # Fallback to basic logic if AI fails/times out
+        # Fallback
         return fallback_analysis(pre_category, text, locations)
 
 def determine_region(text, locations):
@@ -191,21 +179,21 @@ def fetch_news():
                 history = json.load(f)
                 for item in history:
                     if item['source'] in allowed_names:
-                        # Re-filter blocklist on history
-                        if not any(b in (item['title']+item['snippet']).lower() for b in BLOCKED_KEYWORDS):
+                        # Re-filter blocklist
+                        combined = (item['title'] + " " + item['snippet']).lower()
+                        if not any(b in combined for b in BLOCKED_KEYWORDS):
                             all_candidates.append(item)
         except: pass
 
     # 2. FETCH NEW
-    print("Scanning feeds with AI Agent active...")
-    new_items_count = 0
+    print("Scanning feeds with AI Agent...")
     
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
             if not feed.entries: continue
 
-            # Limit: Only check top 5 stories per feed to prevent AI Rate Limit Overload
+            # Limit to top 5 per feed to avoid hitting API limits
             for entry in feed.entries[:5]: 
                 title = entry.title
                 if len(title) < 15: continue
@@ -214,13 +202,11 @@ def fetch_news():
                 clean_summary = clean_html(raw_summary)
                 clean_date, full_date, timestamp = parse_date(entry) 
                 
-                # HYBRID ANALYSIS
                 analysis = analyze_article_hybrid(title, clean_summary, source_name, locations)
                 
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
                     
-                    # If AI wrote a summary, use it. Otherwise use the feed snippet.
                     final_snippet = analysis.get('ai_summary') if analysis.get('ai_summary') else clean_summary[:250] + "..."
                     
                     all_candidates.append({
@@ -234,11 +220,8 @@ def fetch_news():
                         "source": source_name,
                         "category": analysis['category'],
                         "severity": analysis['severity'],
-                        "region": analysis['region'],
-                        "is_ai_analyzed": True if analysis.get('ai_summary') else False
+                        "region": analysis['region']
                     })
-                    new_items_count += 1
-                    
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
@@ -247,15 +230,15 @@ def fetch_news():
     
     clean_list = []
     seen_titles = []
+    
     for item in all_candidates:
-        if is_similar(item['title'].lower(), seen_titles): continue
+        t_low = item['title'].lower()
+        # Use the global function now
+        if is_duplicate_title(t_low, seen_titles): 
+            continue
+        
         clean_list.append(item)
-        seen_titles.append(item['title'].lower())
-
-    def is_similar(new_t, existing_list):
-        for old_t in existing_list:
-            if SequenceMatcher(None, new_t, old_t).ratio() > 0.60: return True
-        return False
+        seen_titles.append(t_low)
 
     # 4. SAVE
     if len(clean_list) > 1000: clean_list = clean_list[:1000]
@@ -264,7 +247,7 @@ def fetch_news():
     with open(DB_PATH, "w") as f:
         json.dump(clean_list, f, indent=2)
     
-    print(f"Database refined. {len(clean_list)} items active. (New AI scans: {new_items_count})")
+    print(f"Database refined. {len(clean_list)} items active.")
 
 if __name__ == "__main__":
     fetch_news()
