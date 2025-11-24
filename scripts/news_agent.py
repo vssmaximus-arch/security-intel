@@ -39,8 +39,9 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# --- NOISE FILTER (Added Business/Financial Terms) ---
+# --- NOISE FILTER (Aggressive Anti-Crime & Anti-Business) ---
 BLOCKED_KEYWORDS = [
+    # ENTERTAINMENT / LIFESTYLE
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
     "tennis", "olympic", "strictly come dancing", "reality tv", "royal", "prince", 
@@ -48,20 +49,25 @@ BLOCKED_KEYWORDS = [
     "rape", "domestic", "murder trial", "hate speech", "convicted", "podcast",
     "claims", "alleges", "survey", "poll", "pledges", "vows", "commentary",
     "opinion", "review", "social media", "viral", "trend",
-    # NEW BUSINESS BLOCKLIST
+    
+    # BUSINESS / FINANCE
     "market", "shares", "stocks", "investors", "investment", "profit", "revenue",
     "quarterly", "earnings", "brands", "cosmetics", "luxury", "retail", "sales",
-    "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday"
+    "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday",
+    
+    # LOCAL CRIME / LAW ENFORCEMENT (The New Ban List)
+    "stabbing", "stabbed", "knife", "missing person", "missing woman", "missing man",
+    "body found", "cocaine", "drug", "trafficking", "smuggling", "arrested", 
+    "charged", "sentenced", "jail", "prison", "court", "trial", "witness",
+    "lawyer", "attorney", "robbery", "burglary", "theft", "assault", "hit and run"
 ]
 
-# --- STRICT KEYWORDS (Fixed the "Flood" bug) ---
+# --- STRICT KEYWORDS (Only Mass/Strategic Threats) ---
 KEYWORDS = {
-    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "botnet"],
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
-    # Logistics must imply DISRUPTION, not just trade
-    "Logistics": ["port strike", "cargo halted", "shipping suspended", "customs delay", "road closure", "airport closed", "grounded", "embargo", "blockade", "railway strike", "border crossing closed"],
-    # Weather must contain WARNING words
-    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "flash flood", "eruption", "volcano"]
+    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "botnet", "apt group"],
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "active shooter", "bomb", "assassination", "hostage", "armed attack", "mob violence", "insurgency", "coup", "mass shooting"],
+    "Logistics": ["port strike", "supply chain halted", "cargo suspended", "shipping blocked", "customs closure", "road blockade", "airport closed", "grounded", "embargo", "trade war", "railway strike", "border crossing closed"],
+    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "eruption", "volcano"]
 }
 
 DB_PATH = "public/data/news.json"
@@ -103,29 +109,37 @@ def is_duplicate_title(new_title, existing_titles):
             return True
     return False
 
-# --- STRICT AI ANALYST ---
+# --- STRATEGIC AI ANALYST ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
     
     prompt = f"""
-    You are a Corporate Security Watchdog. Filter this news.
+    You are a Strategic Security Intelligence Analyst for a Global Tech Corporation.
+    
     Headline: "{title}"
     Snippet: "{snippet}"
     
-    INSTRUCTIONS:
-    1. DISCARD (Mark Irrelevant) if:
-       - Business/Economic news (brands, investments, markets, products).
-       - Political speeches/opinions/polls.
-       - Social issues/Lifestyle/Celebrity.
-       - General crime (unless Mass Casualty).
+    STRICT FILTERING RULES:
+    1. MARK IRRELEVANT if:
+       - Local crime (individual murders, stabbings, robberies, arrests).
+       - Missing persons or bodies found.
+       - Court cases, trials, or sentencing.
+       - Drug busts or individual smuggling.
+       - Politics/Business/Social issues.
     
-    2. KEEP ONLY if:
-       - Physical Threat to assets/staff (Riots, War, Terrorism).
-       - Infrastructure/Logistics Failure (Port closures, Strikes).
-       - Verified Cyber Attacks.
-       - Major Natural Disasters.
+    2. MARK RELEVANT ONLY if:
+       - Terrorism / War / Insurgency.
+       - Mass Casualty Events (Mass shootings, major disasters).
+       - Infrastructure Threats (Power grid, Telecom, Ports).
+       - Cyber Attacks on Enterprise/Govt.
+       - Large-scale Civil Unrest.
 
-    Output JSON: {{ "category": "...", "severity": int (1-3), "summary": "...", "lat": float, "lon": float }}
+    TASK:
+    If Relevant:
+    - Write a professional "clean_title" (No jargon/stats).
+    - Write a 1-sentence "summary" on corporate impact.
+    
+    Output JSON: {{ "category": "...", "severity": int (1-3), "clean_title": "...", "summary": "...", "lat": float, "lon": float }}
     Use Category "Irrelevant" to discard.
     """
     
@@ -144,7 +158,7 @@ def analyze_article_hybrid(title, summary, source_name, locations):
     # 1. NOISE BLOCK
     if any(block in text for block in BLOCKED_KEYWORDS): return None
 
-    # 2. STRICT KEYWORD PRE-CHECK
+    # 2. KEYWORD PRE-CHECK
     pre_category = "Uncategorized"
     if "CISA" in source_name or "Cyber" in source_name: pre_category = "Cyber"
     elif "GDACS" in source_name or "Earthquake" in source_name: pre_category = "Weather/Event"
@@ -165,14 +179,15 @@ def analyze_article_hybrid(title, summary, source_name, locations):
             "category": ai_result.get('category', pre_category),
             "severity": ai_result.get('severity', 1),
             "region": determine_region(text, locations),
+            "clean_title": ai_result.get('clean_title'),
             "ai_summary": ai_result.get('summary'),
             "lat": ai_result.get('lat', 0.0),
             "lon": ai_result.get('lon', 0.0)
         }
     else:
-        # 4. FALLBACK DOWNGRADE (Safety Net)
-        # If AI fails, we assume LOW severity unless explicitly catastrophic words exist
-        return fallback_analysis(pre_category, text, locations)
+        # 4. STRICT FALLBACK - Only auto-approve if CRITICAL keywords match
+        # If AI fails, we drop the story unless it says "Terror" or "War"
+        return fallback_analysis_strict(pre_category, text, locations)
 
 def determine_region(text, locations):
     for loc in locations:
@@ -182,10 +197,14 @@ def determine_region(text, locations):
     elif any(x in text for x in ["usa", "america", "brazil", "mexico", "canada", "latin"]): return "AMER"
     return "Global"
 
-def fallback_analysis(category, text, locations):
-    severity = 1
-    if any(x in text for x in ["war declared", "terrorist attack", "massive earthquake"]): severity = 3
-    return {"category": category, "severity": severity, "region": determine_region(text, locations), "ai_summary": None, "lat": 0.0, "lon": 0.0}
+def fallback_analysis_strict(category, text, locations):
+    # Only pass fallback if it's a major strategic threat
+    critical_triggers = ["war declared", "terrorist attack", "massive earthquake", "state of emergency", "nuclear"]
+    if any(x in text for x in critical_triggers):
+        return {"category": category, "severity": 3, "region": determine_region(text, locations), "ai_summary": None, "clean_title": None, "lat": 0.0, "lon": 0.0}
+    
+    # Otherwise, discard it to be safe (Better to miss small news than show garbage)
+    return None 
 
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=2, tiles="cartodb positron")
@@ -212,12 +231,12 @@ def fetch_news():
                 for item in history:
                     if item['source'] in allowed_names:
                         combined = (item['title'] + " " + item['snippet']).lower()
-                        # Re-Apply the NEW Blocklist to OLD items
+                        # Re-Apply Blocklist to purge old "stabbing/cocaine" stories
                         if not any(b in combined for b in BLOCKED_KEYWORDS):
                             all_candidates.append(item)
         except: pass
 
-    print("Scanning feeds with STRICT AI...")
+    print("Scanning feeds with STRATEGIC AI...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
@@ -234,12 +253,13 @@ def fetch_news():
                 analysis = analyze_article_hybrid(title, clean_summary, source_name, locations)
                 
                 if analysis:
-                    article_hash = hashlib.md5(title.encode()).hexdigest()
+                    final_title = analysis.get('clean_title') if analysis.get('clean_title') else title
                     final_snippet = analysis.get('ai_summary') if analysis.get('ai_summary') else clean_summary[:250] + "..."
+                    article_hash = hashlib.md5(title.encode()).hexdigest()
                     
                     all_candidates.append({
                         "id": article_hash,
-                        "title": title,
+                        "title": final_title,
                         "snippet": final_snippet,
                         "link": entry.link,
                         "published": full_date,
