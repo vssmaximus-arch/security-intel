@@ -20,7 +20,15 @@
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
         .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
         .card-title a { color: #172B4D; font-weight: 700; text-decoration: none; }
+        
+        /* TAB STYLES */
+        .nav-tabs .nav-link { color: #444; font-weight: 500; }
+        .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
+        #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
+        
         #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #091E42; color: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .card-body img { display: none !important; }
+        .card-body iframe { display: none !important; }
     </style>
 </head>
 <body>
@@ -33,30 +41,54 @@
     <nav class="navbar navbar-dark"><div class="container"><span class="navbar-brand h1">Global Security Intel</span><span class="text-white" id="last-updated"></span></div></nav>
     
     <div class="container">
-        <div class="filter-container">
-            <div class="row g-3">
-                <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
-                <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
-                <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Natural Hazard</option></select></div>
-                <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
+        <ul class="nav nav-tabs mb-4" style="border-bottom: 2px solid #ddd;">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a>
+            </li>
+        </ul>
+
+        <div id="feed-view">
+            <div class="filter-container">
+                <div class="row g-3">
+                    <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
+                    <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
+                    <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Natural Hazard</option></select></div>
+                    <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
+                </div>
             </div>
+            <div id="news-feed"></div>
         </div>
-        <div id="news-feed"></div>
+
+        <iframe id="map-frame" src="map.html"></iframe>
     </div>
 
     <script>
         let newsData = [];
         function checkPass() { if(document.getElementById('passcode').value === "DellSec2025") { document.getElementById('login-screen').style.display = 'none'; fetchNews(); } else { alert("Access Denied"); } }
         
+        function switchTab(tab) {
+            if(tab === 'feed') {
+                document.getElementById('feed-view').style.display = 'block';
+                document.getElementById('map-frame').style.display = 'none';
+                document.querySelectorAll('.nav-link')[0].classList.add('active');
+                document.querySelectorAll('.nav-link')[1].classList.remove('active');
+            } else {
+                document.getElementById('feed-view').style.display = 'none';
+                document.getElementById('map-frame').style.display = 'block';
+                document.querySelectorAll('.nav-link')[0].classList.remove('active');
+                document.querySelectorAll('.nav-link')[1].classList.add('active');
+            }
+        }
+
         async function fetchNews() {
             try {
-                // Cache Buster to force fresh data load
                 const timestamp = new Date().getTime();
                 const r = await fetch('data/news.json?t=' + timestamp); 
-                
                 if(!r.ok) throw new Error("Not found");
                 newsData = await r.json();
-                
                 document.getElementById('last-updated').innerText = "Live Database: " + newsData.length + " Items"; 
                 renderNews();
             } catch (e) { 
