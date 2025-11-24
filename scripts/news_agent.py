@@ -2,6 +2,7 @@ import feedparser
 import json
 import os
 import hashlib
+import re
 from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
@@ -10,7 +11,6 @@ from time import mktime
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
-    "https://www.aljazeera.com/xml/rss/all.xml": "Al Jazeera",
     "https://www.dw.com/xml/rss/rss-n-all": "Deutsche Welle",
     "http://rss.cnn.com/rss/edition_world.rss": "CNN World",
     "https://www.nytimes.com/services/xml/rss/nyt/World.xml": "New York Times World",
@@ -29,7 +29,6 @@ TRUSTED_SOURCES = {
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times (Singapore)",
     "https://www.japantimes.co.jp/feed": "The Japan Times",
     "https://kyivindependent.com/feed": "The Kyiv Independent",
-    "https://www.middleeasteye.net/rss": "Middle East Eye",
     "https://www.themoscowtimes.com/rss/news": "The Moscow Times",
     "https://feeds.npr.org/1004/rss.xml": "NPR World (USA)",
     "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
@@ -45,6 +44,12 @@ KEYWORDS = {
 }
 
 DB_PATH = "public/data/news.json"
+
+def clean_html(raw_html):
+    """Removes images and HTML tags from summaries"""
+    cleanr = re.compile('<.*?>')
+    cleantext = re.sub(cleanr, '', raw_html)
+    return cleantext.strip()
 
 def load_locations():
     try:
@@ -66,7 +71,6 @@ def parse_date(entry):
         return now.strftime("%Y-%m-%d"), now.isoformat()
 
 def is_similar(a, b):
-    # Returns True if titles are > 60% similar
     return SequenceMatcher(None, a, b).ratio() > 0.60
 
 def analyze_article(title, summary, source_name, locations):
@@ -105,17 +109,15 @@ def analyze_article(title, summary, source_name, locations):
 def fetch_news():
     locations = load_locations()
     
-    # 1. LOAD ALL CANDIDATES (Old + New)
+    # 1. LOAD ALL CANDIDATES
     all_candidates = []
     
-    # Load History
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
                 all_candidates.extend(history)
-        except:
-            pass
+        except: pass
 
     # Fetch New
     print("Scanning feeds...")
@@ -128,17 +130,20 @@ def fetch_news():
                 title = entry.title
                 if len(title) < 15: continue
                 
-                summary = entry.summary if 'summary' in entry else ""
+                # CLEAN HTML HERE (Removes Images)
+                raw_summary = entry.summary if 'summary' in entry else ""
+                clean_summary = clean_html(raw_summary)
+                
                 clean_date, full_date = parse_date(entry) 
                 
-                analysis = analyze_article(title, summary, source_name, locations)
+                analysis = analyze_article(title, clean_summary, source_name, locations)
                 
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
                     all_candidates.append({
                         "id": article_hash,
                         "title": title,
-                        "snippet": summary[:250] + "...",
+                        "snippet": clean_summary[:250] + "...",
                         "link": entry.link,
                         "published": full_date,
                         "date_str": clean_date,
@@ -150,23 +155,20 @@ def fetch_news():
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    # 2. AGGRESSIVE DEDUPLICATION
-    # Sort ALL candidates by Severity (High First) then Date (Newest First)
-    # This ensures if we have duplicates, we keep the most critical/recent one.
-    all_candidates.sort(key=lambda x: (x.get('severity', 1), x.get('published', '')), reverse=True)
+    # 2. STRICT SORT: Date (Newest) -> Severity (Highest)
+    all_candidates.sort(key=lambda x: (x.get('published', ''), x.get('severity', 1)), reverse=True)
     
+    # 3. DEDUPLICATE
     clean_list = []
     seen_titles = []
 
-    print(f"Filtering {len(all_candidates)} items for duplicates...")
+    print(f"Processing {len(all_candidates)} items...")
 
     for item in all_candidates:
-        # Check against already kept items
         is_duplicate = False
         current_title = item['title'].lower()
         
         for seen in seen_titles:
-            # If 60% similar, it's a duplicate
             if is_similar(current_title, seen):
                 is_duplicate = True
                 break
@@ -175,19 +177,14 @@ def fetch_news():
             clean_list.append(item)
             seen_titles.append(current_title)
 
-    # 3. SAVE
-    # Safety: ensure we have date_str on everything
-    for item in clean_list:
-        if 'date_str' not in item: item['date_str'] = item.get('published', '')[:10]
-
-    if len(clean_list) > 1000:
-        clean_list = clean_list[:1000]
+    # 4. SAVE
+    if len(clean_list) > 1000: clean_list = clean_list[:1000]
 
     os.makedirs("public/data", exist_ok=True)
     with open(DB_PATH, "w") as f:
         json.dump(clean_list, f, indent=2)
     
-    print(f"Database clean. Reduced to {len(clean_list)} unique stories.")
+    print(f"Database clean. Saved {len(clean_list)} items.")
 
 if __name__ == "__main__":
     fetch_news()
