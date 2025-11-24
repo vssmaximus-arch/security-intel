@@ -1,30 +1,90 @@
-name: Update Security Intel
-on:
-  schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dell Global Security Intel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
+        .navbar { background-color: #0076CE !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 1rem 2rem; }
+        .filter-container { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
+        .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .severity-3 { border-left: 6px solid #D93F3F; }
+        .severity-2 { border-left: 6px solid #F2AF00; }
+        .severity-1 { border-left: 6px solid #6EA204; }
+        .badge-custom { font-weight: 600; padding: 0.4em 0.8em; border-radius: 4px; font-size: 0.7rem; margin-right: 8px; }
+        .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
+        .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
+        .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
+        .card-title a { color: #172B4D; font-weight: 700; text-decoration: none; }
+        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #091E42; color: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <h3 class="mb-4">Dell Global Security Intel</h3>
+        <input type="password" id="passcode" placeholder="Enter PIN" class="form-control w-auto text-center mb-3">
+        <button onclick="checkPass()" class="btn btn-primary" style="background-color: #0076CE;">Access Dashboard</button>
+    </div>
 
-permissions:
-  contents: write
+    <nav class="navbar navbar-dark"><div class="container"><span class="navbar-brand h1">Global Security Intel</span><span class="text-white" id="last-updated"></span></div></nav>
+    
+    <div class="container">
+        <div class="filter-container">
+            <div class="row g-3">
+                <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
+                <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
+                <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Natural Hazard</option></select></div>
+                <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
+            </div>
+        </div>
+        <div id="news-feed"></div>
+    </div>
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - run: pip install -r requirements.txt
-      - run: python scripts/news_agent.py
-      - run: |
-          git config --global user.name 'SecurityIntelBot'
-          git config --global user.email 'bot@noreply.github.com'
-          git pull --rebase
-          git add public/data/news.json
-          git commit -m "Update security-intel data" || exit 0
-          git push
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+    <script>
+        let newsData = [];
+        function checkPass() { if(document.getElementById('passcode').value === "DellSec2025") { document.getElementById('login-screen').style.display = 'none'; fetchNews(); } else { alert("Access Denied"); } }
+        
+        async function fetchNews() {
+            try {
+                // Cache Buster to force fresh data load
+                const timestamp = new Date().getTime();
+                const r = await fetch('data/news.json?t=' + timestamp); 
+                
+                if(!r.ok) throw new Error("Not found");
+                newsData = await r.json();
+                
+                document.getElementById('last-updated').innerText = "Live Database: " + newsData.length + " Items"; 
+                renderNews();
+            } catch (e) { 
+                document.getElementById('news-feed').innerHTML = '<div class="text-center mt-5"><h5>System Initializing... Check back in 10 mins.</h5></div>'; 
+            }
+        }
+
+        function renderNews() {
+            const dateF = document.getElementById('dateFilter').value;
+            const reg = document.getElementById('regionFilter').value;
+            const typ = document.getElementById('typeFilter').value;
+            const src = document.getElementById('searchBox').value.toLowerCase();
+            const con = document.getElementById('news-feed'); con.innerHTML = '';
+            
+            const filtered = newsData.filter(i => {
+                const dateMatch = dateF ? i.date_str === dateF : true;
+                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
+            });
+            
+            if(filtered.length===0) { con.innerHTML='<div class="text-center text-muted mt-5">No intelligence found for this selection.</div>'; return; }
+            
+            filtered.forEach(i => {
+                let bCls='badge-info', bTxt='INFO';
+                if(i.severity===3){bCls='badge-critical';bTxt='CRITICAL';} else if(i.severity===2){bCls='badge-warning';bTxt='WARNING';}
+                const niceDate = new Date(i.published).toLocaleString();
+                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
+            });
+        }
+    </script>
+</body>
+</html>
