@@ -1,5 +1,20 @@
 [
   {
+    "id": "ee5856b2cb99e3809b5bff7a62df7cd0",
+    "title": "Grisly Killings of a Married Couple Spark New Sectarian Unrest in Syria",
+    "snippet": "The government acted quickly to tamp down reprisals in the central city of Homs as it tries to manage repeated waves of bloodshed involving minority groups....",
+    "link": "https://www.nytimes.com/2025/11/24/world/europe/syria-sectarian-killings-homs.html",
+    "published": "2025-11-24T20:16:58",
+    "date_str": "2025-11-24",
+    "timestamp": 1764015418.0,
+    "source": "New York Times World",
+    "category": "Physical Security",
+    "severity": 1,
+    "region": "Global",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  {
     "id": "a5db80a2e443b97e4fef8987491afd50",
     "title": "Green notification for tropical cyclone THIRTYTHREE-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in Tropical Storm).",
     "snippet": "From 24/11/2025 to 24/11/2025, a Tropical Depression (maximum wind speed of 120 km/h) THIRTYTHREE-25 was active in NWPacific. The cyclone affects these countries: Philippines (vulnerability Medium). Estimated population affected by category 1 (120 km...",
@@ -9,21 +24,6 @@
     "timestamp": 1764013940.0,
     "source": "UN GDACS (Disaster Alert)",
     "category": "Weather/Event",
-    "severity": 1,
-    "region": "Global",
-    "lat": 0.0,
-    "lon": 0.0
-  },
-  {
-    "id": "ee5856b2cb99e3809b5bff7a62df7cd0",
-    "title": "Grisly Killings of a Married Couple Spark New Sectarian Unrest in Syria",
-    "snippet": "The government acted quickly to tamp down reprisals in the central city of Homs as it tries to manage repeated waves of bloodshed involving minority groups....",
-    "link": "https://www.nytimes.com/2025/11/24/world/europe/syria-sectarian-killings-homs.html",
-    "published": "2025-11-24T19:46:18",
-    "date_str": "2025-11-24",
-    "timestamp": 1764013578.0,
-    "source": "New York Times World",
-    "category": "Physical Security",
     "severity": 1,
     "region": "Global",
     "lat": 0.0,
