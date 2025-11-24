@@ -7,7 +7,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION: YOUR EXACT TRUSTED SOURCES ---
+# --- CONFIGURATION: TRUSTED SOURCES ---
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
@@ -36,20 +36,29 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
+# --- NOISE FILTER: The Blocklist ---
+# If ANY of these words appear, the story is deleted.
+BLOCKED_KEYWORDS = [
+    "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
+    "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
+    "tennis", "olympic", "strictly come dancing", "reality tv", "royal", "prince", 
+    "princess", "gossip", "dating", "fashion", "lifestyle", "sexual assault", 
+    "rape", "domestic", "murder trial", "hate speech", "convicted"
+]
+
+# --- RISK KEYWORDS (Tightened for Corporate Security) ---
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "arrest", "conflict", "hostage", "armed attack", "violence", "hate crime", "stabbing"],
-    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "conflict", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
+    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway", "border crossing"],
     "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
 }
 
 DB_PATH = "public/data/news.json"
 
 def clean_html(raw_html):
-    """Removes images and HTML tags from summaries"""
     cleanr = re.compile('<.*?>')
-    cleantext = re.sub(cleanr, '', raw_html)
-    return cleantext.strip()
+    return re.sub(cleanr, '', raw_html).strip()
 
 def load_locations():
     try:
@@ -59,27 +68,33 @@ def load_locations():
         return []
 
 def parse_date(entry):
+    """Returns (CleanString, ISOString, UnixTimestamp)"""
     try:
         if 'published_parsed' in entry:
             dt = datetime.fromtimestamp(mktime(entry.published_parsed))
-            return dt.strftime("%Y-%m-%d"), dt.isoformat()
+            return dt.strftime("%Y-%m-%d"), dt.isoformat(), dt.timestamp()
         else:
             now = datetime.now()
-            return now.strftime("%Y-%m-%d"), now.isoformat()
+            return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
     except:
         now = datetime.now()
-        return now.strftime("%Y-%m-%d"), now.isoformat()
+        return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
 
 def is_similar(a, b):
-    # Returns True if titles are > 60% similar
     return SequenceMatcher(None, a, b).ratio() > 0.60
 
 def analyze_article(title, summary, source_name, locations):
     text = (title + " " + summary).lower()
     
+    # 1. NOISE FILTER (Blocklist Check)
+    if any(block in text for block in BLOCKED_KEYWORDS):
+        return None # Delete immediately
+
+    # 2. Source Override
     if "CISA" in source_name or "Cyber" in source_name: category = "Cyber"
     elif "GDACS" in source_name or "Earthquake" in source_name: category = "Weather/Event"
     else:
+        # 3. Keyword Detection
         category = "Uncategorized"
         for cat, keys in KEYWORDS.items():
             if any(k in text for k in keys):
@@ -88,6 +103,7 @@ def analyze_article(title, summary, source_name, locations):
     
     if category == "Uncategorized": return None 
 
+    # 4. Region & Proximity
     region = "Global"
     proximity_alert = False
     for loc in locations:
@@ -100,6 +116,7 @@ def analyze_article(title, summary, source_name, locations):
         elif any(x in text for x in ["europe", "uk", "germany", "france", "ukraine", "russia", "middle east", "israel"]): region = "EMEA"
         elif any(x in text for x in ["usa", "america", "brazil", "mexico", "canada", "latin"]): region = "AMER"
 
+    # 5. Severity
     severity = 1
     if any(x in text for x in ["dead", "killed", "critical", "state of emergency", "catastrophic", "terrorist", "war declared"]): severity = 3
     elif any(x in text for x in ["injured", "severe", "outage", "threat", "warning", "strike", "riot", "cyberattack", "ransomware"]): severity = 2
@@ -109,30 +126,25 @@ def analyze_article(title, summary, source_name, locations):
 
 def fetch_news():
     locations = load_locations()
-    
-    # 1. LOAD ALL CANDIDATES
+    allowed_names = list(TRUSTED_SOURCES.values())
     all_candidates = []
     
-    # Load History
+    # 1. LOAD HISTORY & FILTER
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
-                
-                # --- COMPLIANCE PURGE ---
-                # Only keep items if their source is in the CURRENT Allowed List
-                allowed_names = list(TRUSTED_SOURCES.values())
-                
-                print(f"Checking {len(history)} history items for compliance...")
                 for item in history:
-                    if item['source'] in allowed_names:
-                        all_candidates.append(item)
-                    else:
-                        print(f"Purging banned source: {item['source']}")
-                # ------------------------
+                    # Filter 1: Must be in trusted sources
+                    if item['source'] not in allowed_names: continue
+                    # Filter 2: Must NOT contain blocked words (Retroactive Cleaning)
+                    combined_text = (item['title'] + " " + item['snippet']).lower()
+                    if any(block in combined_text for block in BLOCKED_KEYWORDS): continue
+                    
+                    all_candidates.append(item)
         except: pass
 
-    # Fetch New
+    # 2. FETCH NEW
     print("Scanning feeds...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
@@ -143,11 +155,9 @@ def fetch_news():
                 title = entry.title
                 if len(title) < 15: continue
                 
-                # CLEAN HTML (Removes Images)
                 raw_summary = entry.summary if 'summary' in entry else ""
                 clean_summary = clean_html(raw_summary)
-                
-                clean_date, full_date = parse_date(entry) 
+                clean_date, full_date, timestamp = parse_date(entry) 
                 
                 analysis = analyze_article(title, clean_summary, source_name, locations)
                 
@@ -160,6 +170,7 @@ def fetch_news():
                         "link": entry.link,
                         "published": full_date,
                         "date_str": clean_date,
+                        "timestamp": timestamp, # Critical for sorting
                         "source": source_name,
                         "category": analysis['category'],
                         "severity": analysis['severity'],
@@ -168,36 +179,32 @@ def fetch_news():
         except Exception as e:
             print(f"Skipping {source_name}: {e}")
 
-    # 2. STRICT SORT: Date (Newest) -> Severity (Highest)
-    all_candidates.sort(key=lambda x: (x.get('published', ''), x.get('severity', 1)), reverse=True)
+    # 3. SORT BY TIMESTAMP (Strict Chronological)
+    # Using 'timestamp' float ensures perfect sorting compared to strings
+    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
     
-    # 3. DEDUPLICATE
+    # 4. DEDUPLICATE
     clean_list = []
     seen_titles = []
-
-    print(f"Processing {len(all_candidates)} items...")
-
     for item in all_candidates:
-        is_duplicate = False
-        current_title = item['title'].lower()
+        if is_similar(item['title'].lower(), seen_titles): continue
+        clean_list.append(item)
+        seen_titles.append(item['title'].lower())
         
-        for seen in seen_titles:
-            if is_similar(current_title, seen):
-                is_duplicate = True
-                break
-        
-        if not is_duplicate:
-            clean_list.append(item)
-            seen_titles.append(current_title)
+        # Helper for list check
+    def is_similar(new_t, existing_list):
+        for old_t in existing_list:
+            if SequenceMatcher(None, new_t, old_t).ratio() > 0.60: return True
+        return False
 
-    # 4. SAVE
+    # 5. SAVE
     if len(clean_list) > 1000: clean_list = clean_list[:1000]
 
     os.makedirs("public/data", exist_ok=True)
     with open(DB_PATH, "w") as f:
         json.dump(clean_list, f, indent=2)
     
-    print(f"Database clean. Saved {len(clean_list)} items.")
+    print(f"Database refined. {len(clean_list)} items active.")
 
 if __name__ == "__main__":
     fetch_news()
