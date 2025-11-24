@@ -13,8 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # 1. PULL FIRST (Fixes the Binary Conflict)
-      - name: Sync with Remote
+      # 1. SYNC FIRST (This fixes the conflict error)
+      - name: Sync with Server
         run: git pull origin main
 
       - uses: actions/setup-python@v4
@@ -23,16 +23,17 @@ jobs:
       
       - run: pip install -r requirements.txt
       
-      # 2. Run Agents (Now that we are synced)
+      # 2. Run AI Agent (Now that we are synced)
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
+      # 3. Generate PDFs
       - name: Generate PDF Reports
         run: python scripts/generate_pdf.py
 
-      # 3. Save (Direct Push, no pulling needed)
+      # 4. Save & Push
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
