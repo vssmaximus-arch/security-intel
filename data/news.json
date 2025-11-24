@@ -1,5 +1,35 @@
 [
   {
+    "id": "de5b837c092cbc9f02378f1c6571397c",
+    "title": "Chanel cosmetics, fur coats expose North Korea\u2019s widening wealth chasm",
+    "snippet": "North Korea\u2019s wealth gap is reportedly widening, as luxury goods circulate among affluent border residents while ordinary citizens face growing extreme poverty.\nEconomic disparities in areas near the Chinese border have become more pronounced compare...",
+    "link": "https://www.scmp.com/news/asia/east-asia/article/3333888/north-koreas-rich-flaunt-fur-coats-chanel-cosmetics-poor-freeze-without-insulation?utm_source=rss_feed",
+    "published": "2025-11-24T03:50:38",
+    "date_str": "2025-11-24",
+    "timestamp": 1763956238.0,
+    "source": "South China Morning Post (HK)",
+    "category": "Logistics",
+    "severity": 1,
+    "region": "APJC",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  {
+    "id": "654a3783d4f3bd83d6d9a3bdc2b9b724",
+    "title": "UNICEF Jamaica Humanitarian Situation Report No. 4 (Hurricane Melissa) 21 November 2025",
+    "snippet": "Country: Jamaica\n                                      Source: UN Children's Fund\n                                                                                                                Highlights\nEscalating public health risks, with a declar...",
+    "link": "https://reliefweb.int/report/jamaica/unicef-jamaica-humanitarian-situation-report-no-4-hurricane-melissa-21-november-2025",
+    "published": "2025-11-24T01:52:07",
+    "date_str": "2025-11-24",
+    "timestamp": 1763949127.0,
+    "source": "UN ReliefWeb",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "AMER",
+    "lat": 0.0,
+    "lon": 0.0
+  },
+  {
     "id": "613de6c27b00409e8845819079a77e79",
     "title": "Diplomatic row: Tokyo pushes ahead with missile deployment at Yonaguni island; move comes amid China tensions",
     "snippet": "Amidst heightened regional unrest, Japan is set to bolster its defenses by positioning surface-to-air missiles on Yonaguni island, the nation's westernmost territory. Defence Minister Shinjiro Koizumi reassured that this strategic deployment is inten...",
@@ -50,6 +80,21 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "AMER"
+  },
+  {
+    "id": "0bff7120707b9b9a9ac854866f7f62f7",
+    "title": "Candace Owens claims Charlie Kirk warned a TPUSA staffer with a last text that he felt in danger before he was shot",
+    "snippet": "Candace Owens alleges Charlie Kirk sent a chilling text, \"They are going to kill me,\" the day before his fatal shooting. Speaking on a podcast, Owens expressed suspicion over the silence from Turning Point USA, suggesting a cover-up and a \"military h...",
+    "link": "https://timesofindia.indiatimes.com/world/us-streamers/candace-owens-claims-charlie-kirk-warned-a-tpusa-staffer-with-a-last-text-that-he-felt-in-danger-before-he-was-shot/articleshow/125527743.cms",
+    "published": "2025-11-23T23:01:23",
+    "date_str": "2025-11-23",
+    "timestamp": 1763938883.0,
+    "source": "Times of India World",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "AMER",
+    "lat": 0.0,
+    "lon": 0.0
   },
   {
     "id": "eeb0d35da61ba50421170e6df107fda3",
@@ -922,18 +967,6 @@
     "region": "AMER"
   },
   {
-    "id": "286a5842f60d3fbf4d3f98f7ff6a626e",
-    "title": "Jamaica: Hurricane Melissa - Situation Report No. 5 (as of 20 November)",
-    "snippet": "Country: Jamaica\n                                      Source: UN Office for the Coordination of Humanitarian Affairs\n                                                                                                \n                        Please refe...",
-    "link": "https://reliefweb.int/report/jamaica/jamaica-hurricane-melissa-situation-report-no-5-20-november",
-    "published": "2025-11-22T13:29:19",
-    "date_str": "2025-11-22",
-    "source": "UN ReliefWeb",
-    "category": "Logistics",
-    "severity": 2,
-    "region": "AMER"
-  },
-  {
     "id": "ce3fba201969233dee6052c2d9b7c064",
     "title": "Ex-Brazil president 'tried to open ankle monitor' with soldering iron in 'escape attempt'",
     "snippet": "Former Brazilian president Jair Bolsonaro has been arrested after allegedly trying to open his ankle monitor with a soldering iron in a bid to flee and avoid a jail term, according to court documents....",
@@ -1591,18 +1624,6 @@
     "source": "UN ReliefWeb",
     "category": "Cyber",
     "severity": 3,
-    "region": "AMER"
-  },
-  {
-    "id": "9e90d54da1e7072d81bcfa601b390f6c",
-    "title": "Jamaica: PAHO Regional Situation Report 4 - Hurricane Melissa",
-    "snippet": "<div class=\"tag country\">Countries: Jamaica, Cuba, Haiti</div>\n                                      <div class=\"tag source\">Source: Pan American Health Organization</div>\n                                                                              ...",
-    "link": "https://reliefweb.int/report/jamaica/paho-regional-situation-report-4-hurricane-melissa",
-    "published": "2025-11-21T13:33:18",
-    "date_str": "2025-11-21",
-    "source": "UN ReliefWeb",
-    "category": "Weather/Event",
-    "severity": 1,
     "region": "AMER"
   },
   {
