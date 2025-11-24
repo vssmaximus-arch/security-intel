@@ -39,7 +39,7 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# --- NOISE FILTER (Strict) ---
+# --- NOISE FILTER (Strict Anti-Crime/Business) ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -116,9 +116,9 @@ def ask_gemini_analyst(title, snippet):
     
     INSTRUCTIONS:
     1. DISCARD (Mark Irrelevant) if:
-       - It's a "Live Blog" update (e.g. "blog closed").
-       - Historical/Legal reviews (Inquests, Coroners, trials).
-       - Business/Politics/Social issues/General Crime/Sports.
+       - It's a "Live Blog" update (e.g. "blog closed", "follow here").
+       - Historical/Legal reviews (Inquests, Coroners, trials about old events).
+       - Business/Politics/Social issues/General Crime/Sports/Celebrity.
     
     2. REWRITE (If Relevant):
        - Title: Professional, concise, no jargon. (Max 10 words).
@@ -183,20 +183,20 @@ def fallback_analysis(category, text, locations):
 
 # --- MAP GENERATOR (FIXED NO REPEAT) ---
 def generate_interactive_map(articles):
-    # Lock zoom to 3 so the world is big enough to fill the screen
     m = folium.Map(
         location=[20, 0], 
-        zoom_start=3, 
-        min_zoom=3, 
+        zoom_start=2, 
+        min_zoom=2, 
         max_bounds=True,
-        tiles=None # Disable default to prevent auto-wrapping
+        tiles=None # Disable default
     )
     
-    # Add custom layer with no_wrap enabled
+    # Add no-wrap layer
     folium.TileLayer(
         "cartodb positron",
         no_wrap=True,
-        min_zoom=3
+        min_zoom=2,
+        bounds=[[-90, -180], [90, 180]]
     ).add_to(m)
     
     for item in articles:
