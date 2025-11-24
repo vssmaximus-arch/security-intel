@@ -7,7 +7,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION: GLOBAL TRUSTED SOURCES ---
+# --- CONFIGURATION: YOUR EXACT TRUSTED SOURCES ---
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
@@ -71,6 +71,7 @@ def parse_date(entry):
         return now.strftime("%Y-%m-%d"), now.isoformat()
 
 def is_similar(a, b):
+    # Returns True if titles are > 60% similar
     return SequenceMatcher(None, a, b).ratio() > 0.60
 
 def analyze_article(title, summary, source_name, locations):
@@ -112,11 +113,23 @@ def fetch_news():
     # 1. LOAD ALL CANDIDATES
     all_candidates = []
     
+    # Load History
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
-                all_candidates.extend(history)
+                
+                # --- COMPLIANCE PURGE ---
+                # Only keep items if their source is in the CURRENT Allowed List
+                allowed_names = list(TRUSTED_SOURCES.values())
+                
+                print(f"Checking {len(history)} history items for compliance...")
+                for item in history:
+                    if item['source'] in allowed_names:
+                        all_candidates.append(item)
+                    else:
+                        print(f"Purging banned source: {item['source']}")
+                # ------------------------
         except: pass
 
     # Fetch New
@@ -130,7 +143,7 @@ def fetch_news():
                 title = entry.title
                 if len(title) < 15: continue
                 
-                # CLEAN HTML HERE (Removes Images)
+                # CLEAN HTML (Removes Images)
                 raw_summary = entry.summary if 'summary' in entry else ""
                 clean_summary = clean_html(raw_summary)
                 
