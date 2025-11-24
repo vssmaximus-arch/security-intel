@@ -39,18 +39,22 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
+# --- NOISE FILTER (Expanded Blocklist) ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
     "tennis", "olympic", "strictly come dancing", "reality tv", "royal", "prince", 
     "princess", "gossip", "dating", "fashion", "lifestyle", "sexual assault", 
-    "rape", "domestic", "murder trial", "hate speech", "convicted"
+    "rape", "domestic", "murder trial", "hate speech", "convicted", "podcast",
+    "claims", "alleges", "survey", "poll", "pledges", "vows", "commentary",
+    "opinion", "review", "social media", "viral", "trend"
 ]
 
+# --- KEYWORDS ---
 KEYWORDS = {
-    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "phishing", "spyware", "trojan", "botnet"],
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "conflict", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
-    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway", "border crossing"],
+    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "botnet"],
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
+    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway"],
     "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "flood", "eruption", "volcano"]
 }
 
@@ -93,24 +97,38 @@ def is_duplicate_title(new_title, existing_titles):
             return True
     return False
 
-# --- AI ANALYST + GEOLOCATION ---
+# --- STRICT AI ANALYST ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
     
+    # STRICT PROMPT FOR CORPORATE SECURITY
     prompt = f"""
-    Act as a Global Security Director. Analyze this headline: "{title}"
+    You are a Corporate Security Watchdog for a Fortune 500 company.
+    Filter this news item.
+    
+    Headline: "{title}"
     Snippet: "{snippet}"
     
-    1. Categorize into: "Physical Security", "Cyber", "Logistics", "Weather/Event", or "Irrelevant".
-    2. Assess Risk (1=Low, 2=Medium, 3=Critical).
-    3. Write a 1-sentence Corporate Impact Summary.
-    4. Estimate the Latitude and Longitude of the event location. If unknown/global/cyber, use 0.0, 0.0.
+    INSTRUCTIONS:
+    1. DISCARD (Mark as Irrelevant) if it is:
+       - Political statements, speeches, or opinions (e.g., "claims", "pledges").
+       - Social issues, surveys, or polls.
+       - Individual crimes (murder, assault) UNLESS it is a mass-casualty event or terrorism.
+       - Entertainment, sports, or celebrity gossip.
     
-    Output JSON: {{ "category": "...", "severity": int, "summary": "...", "lat": float, "lon": float }}
+    2. KEEP only if it matches:
+       - Civil Unrest / Riots.
+       - Natural Disasters impacting infrastructure.
+       - Verified Cyber Attacks.
+       - Supply Chain / Logistics Disruptions.
+       - Active Terrorism / War.
+
+    Output JSON: {{ "category": "...", "severity": int (1-3), "summary": "...", "lat": float, "lon": float }}
+    Use Category "Irrelevant" to discard.
     """
     
     try:
-        time.sleep(1) 
+        time.sleep(1.5) # Slower pace to avoid rate limits
         response = model.generate_content(prompt)
         text = response.text.replace("```json", "").replace("```", "")
         return json.loads(text)
@@ -120,8 +138,11 @@ def ask_gemini_analyst(title, snippet):
 
 def analyze_article_hybrid(title, summary, source_name, locations):
     text = (title + " " + summary).lower()
+    
+    # 1. NOISE BLOCK
     if any(block in text for block in BLOCKED_KEYWORDS): return None
 
+    # 2. KEYWORD PRE-CHECK (If it doesn't even have a trigger word, skip AI to save quota)
     pre_category = "Uncategorized"
     if "CISA" in source_name or "Cyber" in source_name: pre_category = "Cyber"
     elif "GDACS" in source_name or "Earthquake" in source_name: pre_category = "Weather/Event"
@@ -133,6 +154,7 @@ def analyze_article_hybrid(title, summary, source_name, locations):
     
     if pre_category == "Uncategorized": return None
 
+    # 3. AI FILTER
     ai_result = ask_gemini_analyst(title, summary)
     
     if ai_result:
@@ -146,6 +168,8 @@ def analyze_article_hybrid(title, summary, source_name, locations):
             "lon": ai_result.get('lon', 0.0)
         }
     else:
+        # 4. FALLBACK (Downgraded Severity to prevent false alarms)
+        # If AI fails, we assume LOW severity unless it's obviously catastrophic
         return fallback_analysis(pre_category, text, locations)
 
 def determine_region(text, locations):
@@ -157,63 +181,51 @@ def determine_region(text, locations):
     return "Global"
 
 def fallback_analysis(category, text, locations):
-    severity = 1
-    if any(x in text for x in ["dead", "killed", "critical", "terrorist", "war"]): severity = 3
-    elif any(x in text for x in ["injured", "severe", "outage", "cyberattack"]): severity = 2
+    severity = 1 # Default to Low
+    # Only escalate if explicit WAR keywords are present
+    if any(x in text for x in ["war declared", "terrorist attack", "massive earthquake"]): severity = 3
     return {"category": category, "severity": severity, "region": determine_region(text, locations), "ai_summary": None, "lat": 0.0, "lon": 0.0}
 
 # --- MAP GENERATOR ---
 def generate_interactive_map(articles):
-    # Create base map centered on world
     m = folium.Map(location=[20, 0], zoom_start=2, tiles="cartodb positron")
-    
     count = 0
     for item in articles:
-        # Only plot if we have valid coordinates and it's not 0,0 (Cyber/Unknown)
         lat = item.get('lat')
         lon = item.get('lon')
-        
         if lat and lon and (lat != 0.0 or lon != 0.0):
-            # Color coding
             color = "blue"
             if item['severity'] == 3: color = "red"
             elif item['severity'] == 2: color = "orange"
             
-            # Popup content
             popup_html = f"""
             <b>{item['title']}</b><br>
             <span style='color:gray'>{item['category']}</span><br>
-            <p>{item.get('ai_summary', item['snippet'][:100])}</p>
-            <a href='{item['link']}' target='_blank'>Read Source</a>
+            <a href='{item['link']}' target='_blank'>Source</a>
             """
-            
-            folium.Marker(
-                [lat, lon],
-                popup=folium.Popup(popup_html, max_width=300),
-                icon=folium.Icon(color=color, icon="info-sign")
-            ).add_to(m)
+            folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=300), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
             count += 1
-            
     m.save(MAP_PATH)
-    print(f"Map generated with {count} markers.")
 
 def fetch_news():
     locations = load_locations()
     allowed_names = list(TRUSTED_SOURCES.values())
     all_candidates = []
     
+    # Load History
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
                 for item in history:
                     if item['source'] in allowed_names:
+                        # Re-run Blocklist on History
                         combined = (item['title'] + " " + item['snippet']).lower()
                         if not any(b in combined for b in BLOCKED_KEYWORDS):
                             all_candidates.append(item)
         except: pass
 
-    print("Scanning feeds with AI Agent...")
+    print("Scanning feeds with STRICT AI Agent...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
@@ -231,7 +243,6 @@ def fetch_news():
                 
                 if analysis:
                     article_hash = hashlib.md5(title.encode()).hexdigest()
-                    
                     final_snippet = analysis.get('ai_summary') if analysis.get('ai_summary') else clean_summary[:250] + "..."
                     
                     all_candidates.append({
@@ -268,9 +279,7 @@ def fetch_news():
     with open(DB_PATH, "w") as f:
         json.dump(clean_list, f, indent=2)
     
-    # GENERATE MAP FROM DATA
     generate_interactive_map(clean_list)
-    
     print(f"Database refined. {len(clean_list)} items active.")
 
 if __name__ == "__main__":
