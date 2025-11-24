@@ -39,7 +39,7 @@ TRUSTED_SOURCES = {
     "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
 }
 
-# --- NOISE FILTER ---
+# --- NOISE FILTER (Strict) ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -55,6 +55,7 @@ BLOCKED_KEYWORDS = [
     "blog is now closed", "live coverage", "follow our", "live blog"
 ]
 
+# --- STRICT KEYWORDS ---
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "zero-day", "hacker", "botnet"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup"],
@@ -115,9 +116,9 @@ def ask_gemini_analyst(title, snippet):
     
     INSTRUCTIONS:
     1. DISCARD (Mark Irrelevant) if:
-       - It's a "Live Blog" update (e.g. "blog closed", "follow here").
-       - Historical/Legal reviews (Inquests, Coroners, trials about old events).
-       - Business/Politics/Social issues/General Crime/Sports/Celebrity.
+       - It's a "Live Blog" update (e.g. "blog closed").
+       - Historical/Legal reviews (Inquests, Coroners, trials).
+       - Business/Politics/Social issues/General Crime/Sports.
     
     2. REWRITE (If Relevant):
        - Title: Professional, concise, no jargon. (Max 10 words).
@@ -180,8 +181,24 @@ def fallback_analysis(category, text, locations):
     if any(x in text for x in ["war declared", "terrorist attack", "massive earthquake"]): severity = 3
     return {"category": category, "severity": severity, "region": determine_region(text, locations), "ai_summary": None, "clean_title": None, "lat": 0.0, "lon": 0.0}
 
+# --- MAP GENERATOR (FIXED NO REPEAT) ---
 def generate_interactive_map(articles):
-    m = folium.Map(location=[20, 0], zoom_start=2, tiles="cartodb positron")
+    # Lock zoom to 3 so the world is big enough to fill the screen
+    m = folium.Map(
+        location=[20, 0], 
+        zoom_start=3, 
+        min_zoom=3, 
+        max_bounds=True,
+        tiles=None # Disable default to prevent auto-wrapping
+    )
+    
+    # Add custom layer with no_wrap enabled
+    folium.TileLayer(
+        "cartodb positron",
+        no_wrap=True,
+        min_zoom=3
+    ).add_to(m)
+    
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
@@ -189,4 +206,91 @@ def generate_interactive_map(articles):
             color = "blue"
             if item['severity'] == 3: color = "red"
             elif item['severity'] == 2: color = "orange"
-            popup_html = f"<b>{item['title']}</b><br><span style='color:gray'>{item['category']}</span>"
+            
+            popup_html = f"""
+            <div style="font-family:Arial; width:200px;">
+                <b>{item['title']}</b><br>
+                <span style="color:gray; font-size:12px;">{item['category']}</span><br>
+                <hr style="margin:5px 0;">
+                <a href="{item['link']}" target="_blank" style="text-decoration:none; color:#0076CE;">Read Source</a>
+            </div>
+            """
+            folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=250), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
+    m.save(MAP_PATH)
+
+def fetch_news():
+    locations = load_locations()
+    allowed_names = list(TRUSTED_SOURCES.values())
+    all_candidates = []
+    
+    if os.path.exists(DB_PATH):
+        try:
+            with open(DB_PATH, 'r') as f:
+                history = json.load(f)
+                for item in history:
+                    if item['source'] in allowed_names:
+                        combined = (item['title'] + " " + item['snippet']).lower()
+                        if not any(b in combined for b in BLOCKED_KEYWORDS):
+                            all_candidates.append(item)
+        except: pass
+
+    print("Scanning feeds with AI Editor...")
+    for url, source_name in TRUSTED_SOURCES.items():
+        try:
+            feed = feedparser.parse(url)
+            if not feed.entries: continue
+
+            for entry in feed.entries[:5]: 
+                title = entry.title
+                if len(title) < 15: continue
+                
+                raw_summary = entry.summary if 'summary' in entry else ""
+                clean_summary = clean_html(raw_summary)
+                clean_date, full_date, timestamp = parse_date(entry) 
+                
+                analysis = analyze_article_hybrid(title, clean_summary, source_name, locations)
+                
+                if analysis:
+                    final_title = analysis.get('clean_title') if analysis.get('clean_title') else title
+                    final_snippet = analysis.get('ai_summary') if analysis.get('ai_summary') else clean_summary[:250] + "..."
+                    article_hash = hashlib.md5(title.encode()).hexdigest()
+                    
+                    all_candidates.append({
+                        "id": article_hash,
+                        "title": final_title,
+                        "snippet": final_snippet,
+                        "link": entry.link,
+                        "published": full_date,
+                        "date_str": clean_date,
+                        "timestamp": timestamp,
+                        "source": source_name,
+                        "category": analysis['category'],
+                        "severity": analysis['severity'],
+                        "region": analysis['region'],
+                        "lat": analysis.get('lat'),
+                        "lon": analysis.get('lon')
+                    })
+        except Exception as e:
+            print(f"Skipping {source_name}: {e}")
+
+    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
+    
+    clean_list = []
+    seen_titles = []
+    for item in all_candidates:
+        t_low = item['title'].lower()
+        if is_duplicate_title(t_low, seen_titles): continue
+        clean_list.append(item)
+        seen_titles.append(t_low)
+
+    if len(clean_list) > 1000: clean_list = clean_list[:1000]
+
+    os.makedirs("public/data", exist_ok=True)
+    with open(DB_PATH, "w") as f:
+        json.dump(clean_list, f, indent=2)
+    
+    generate_interactive_map(clean_list)
+    print(f"Database refined. {len(clean_list)} items active.")
+
+if __name__ == "__main__":
+    fetch_news()
