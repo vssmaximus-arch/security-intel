@@ -18,18 +18,22 @@ jobs:
       
       - run: pip install -r requirements.txt
       
-      # Runs the Python Agent (Using the Secret Key)
+      # 1. Run the Collector & AI Agent
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
-      # FIXED GIT ORDER: Commit -> Pull -> Push
+      # 2. Run the PDF Generator (This was missing!)
+      - name: Generate PDF Reports
+        run: python scripts/generate_pdf.py
+
+      # 3. Save everything (Notice we add public/*.pdf now)
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
-          git add public/data/news.json
-          git commit -m "Update security-intel data" || exit 0
+          git add public/data/news.json public/*.pdf
+          git commit -m "Update intel and PDF reports" || exit 0
           git pull --rebase
           git push
       
