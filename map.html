@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_b2225fea3746208c8466239f4868933a {
+                #map_73d1643c6f6dae6f6f06a33a514aa1f4 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,14 +54,14 @@
 <body>
     
     
-            <div class="folium-map" id="map_b2225fea3746208c8466239f4868933a" ></div>
+            <div class="folium-map" id="map_73d1643c6f6dae6f6f06a33a514aa1f4" ></div>
         
 </body>
 <script>
     
     
-            var map_b2225fea3746208c8466239f4868933a = L.map(
-                "map_b2225fea3746208c8466239f4868933a",
+            var map_73d1643c6f6dae6f6f06a33a514aa1f4 = L.map(
+                "map_73d1643c6f6dae6f6f06a33a514aa1f4",
                 {
                     center: [20.0, 0.0],
                     crs: L.CRS.EPSG3857,
@@ -76,7 +76,7 @@
 180,
 ],
 ],
-  "zoom": 3,
+  "zoom": 2,
   "zoomControl": true,
   "preferCanvas": false,
 }
@@ -88,10 +88,10 @@
 
         
     
-            var tile_layer_e85debbb01016051f9a92286b67f1dc9 = L.tileLayer(
+            var tile_layer_64a8689490890110d3a4591c93bd2c2b = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
-  "minZoom": 3,
+  "minZoom": 2,
   "maxZoom": 20,
   "maxNativeZoom": 20,
   "noWrap": true,
@@ -100,12 +100,22 @@
   "detectRetina": false,
   "tms": false,
   "opacity": 1,
+  "bounds": [
+[
+-90,
+-180,
+],
+[
+90,
+180,
+],
+],
 }
 
             );
         
     
-            tile_layer_e85debbb01016051f9a92286b67f1dc9.addTo(map_b2225fea3746208c8466239f4868933a);
+            tile_layer_64a8689490890110d3a4591c93bd2c2b.addTo(map_73d1643c6f6dae6f6f06a33a514aa1f4);
         
 </script>
 </html>
