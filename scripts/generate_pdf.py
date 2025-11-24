@@ -8,38 +8,81 @@ from fpdf import FPDF
 DB_PATH = "public/data/news.json"
 OUTPUT_DIR = "public"
 
+# --- CONFIGURATION: PROFILES WITH REGION LOCKS ---
 REPORT_PROFILES = [
-    { "filename": "briefing_vp_global.pdf", "title": "Global VP Security - Daily Executive Brief", "scope": "GLOBAL", "min_severity": 2, "keywords": [] },
-    { "filename": "briefing_dir_apjc.pdf", "title": "Director APJC - Regional Overview", "scope": "REGION", "target_region": "APJC", "min_severity": 1, "keywords": [] },
-    { "filename": "briefing_rsm_saem.pdf", "title": "SAEM & SE Asia (Sivakumaran P.)", "scope": "KEYWORD", "min_severity": 1, "keywords": ["bangladesh", "bhutan", "brunei", "cambodia", "laos", "mongolia", "myanmar", "nepal", "thailand", "vietnam", "pakistan", "sri lanka", "maldives", "philippines", "indonesia", "afghanistan", "malaysia", "singapore", "cyberjaya", "penang"] },
-    { "filename": "briefing_rsm_india.pdf", "title": "India Lead (Anubhav Mishra)", "scope": "KEYWORD", "min_severity": 1, "keywords": ["india", "bangalore", "chennai", "mumbai", "pune", "hyderabad", "gurgaon", "delhi", "kolkata", "ahmedabad"] },
-    { "filename": "briefing_rsm_china.pdf", "title": "Greater China (Jason Yang)", "scope": "KEYWORD", "min_severity": 1, "keywords": ["china", "hong kong", "macau", "taiwan", "changsha", "guangzhou", "fuzhou", "hefei", "nanning", "shenzhen", "xiamen", "beijing", "dalian", "hangzhou", "jinan", "nanjing", "qingdao", "shanghai", "shenyang", "zhengzhou", "chengdu", "chongqing", "kunming", "wuhan", "xi'an"] },
-    { "filename": "briefing_rsm_japan_korea.pdf", "title": "Japan & Korea (Tomoko K. / Wonjoon M.)", "scope": "KEYWORD", "min_severity": 1, "keywords": ["japan", "tokyo", "osaka", "fukuoka", "kawasaki", "miyazaki", "nagoya", "toyota", "south korea", "seoul", "daejeon", "cheonan"] },
-    { "filename": "briefing_rsm_anz.pdf", "title": "ANZ & Oceania (Aleks Krasavcev)", "scope": "KEYWORD", "min_severity": 1, "keywords": ["australia", "new zealand", "christmas island", "fiji", "guam", "kiribati", "palau", "papua new guinea", "samoa", "solomon islands", "tonga", "tuvalu", "sydney", "melbourne", "brisbane", "canberra", "perth", "auckland"] }
+    # EXECUTIVES
+    {
+        "filename": "briefing_vp_global.pdf",
+        "title": "Global VP Security - Daily Executive Brief",
+        "scope": "GLOBAL",
+        "target_region": "ALL", # VP sees everything
+        "min_severity": 2,
+        "keywords": []
+    },
+    {
+        "filename": "briefing_dir_apjc.pdf",
+        "title": "Director APJC - Regional Overview",
+        "scope": "REGION",
+        "target_region": "APJC", # Lock to APJC
+        "min_severity": 1,
+        "keywords": []
+    },
+    
+    # REGIONAL MANAGERS (RSMs) - NOW REGION LOCKED
+    {
+        "filename": "briefing_rsm_saem.pdf",
+        "title": "SAEM & SE Asia (Sivakumaran P.)",
+        "scope": "KEYWORD",
+        "target_region": "APJC", # Only check APJC news
+        "min_severity": 1,
+        "keywords": ["bangladesh", "bhutan", "brunei", "cambodia", "laos", "mongolia", "myanmar", "nepal", "thailand", "vietnam", "pakistan", "sri lanka", "maldives", "philippines", "indonesia", "afghanistan", "malaysia", "singapore", "cyberjaya", "penang"]
+    },
+    {
+        "filename": "briefing_rsm_india.pdf",
+        "title": "India Lead (Anubhav Mishra)",
+        "scope": "KEYWORD",
+        "target_region": "APJC", # Lock to APJC
+        "min_severity": 1,
+        "keywords": ["india", "bangalore", "chennai", "mumbai", "pune", "hyderabad", "gurgaon", "delhi", "kolkata", "ahmedabad"]
+    },
+    {
+        "filename": "briefing_rsm_china.pdf",
+        "title": "Greater China (Jason Yang)",
+        "scope": "KEYWORD",
+        "target_region": "APJC",
+        "min_severity": 1,
+        "keywords": ["china", "hong kong", "macau", "taiwan", "changsha", "guangzhou", "fuzhou", "hefei", "nanning", "shenzhen", "xiamen", "beijing", "dalian", "hangzhou", "jinan", "nanjing", "qingdao", "shanghai", "shenyang", "zhengzhou", "chengdu", "chongqing", "kunming", "wuhan", "xi'an"]
+    },
+    {
+        "filename": "briefing_rsm_japan_korea.pdf",
+        "title": "Japan & Korea (Tomoko K. / Wonjoon M.)",
+        "scope": "KEYWORD",
+        "target_region": "APJC",
+        "min_severity": 1,
+        "keywords": ["japan", "tokyo", "osaka", "fukuoka", "kawasaki", "miyazaki", "nagoya", "toyota", "south korea", "seoul", "daejeon", "cheonan"]
+    },
+    {
+        "filename": "briefing_rsm_anz.pdf",
+        "title": "ANZ & Oceania (Aleks Krasavcev)",
+        "scope": "KEYWORD",
+        "target_region": "APJC",
+        "min_severity": 1,
+        "keywords": ["australia", "new zealand", "christmas island", "fiji", "guam", "kiribati", "palau", "papua new guinea", "samoa", "solomon islands", "tonga", "tuvalu", "sydney", "melbourne", "brisbane", "canberra", "perth", "auckland"]
+    }
 ]
 
-# --- NUCLEAR CLEANER ---
 def clean_text(text):
     if not text: return ""
-    
-    # 1. Decode HTML (&amp; -> &)
     text = html.unescape(text)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'http\S+', '', text)
     
-    # 2. Remove SPECIFIC garbage patterns seen in screenshots
-    text = re.sub(r'<a href=.*?>', '', text) # Kill opening links
-    text = re.sub(r'</a>', '', text)         # Kill closing links
-    text = re.sub(r'<.*?>', '', text)        # Kill any other tags
-    text = text.replace("Read full story", "").replace("Read Full Story", "")
-    
-    # 3. Fix Typography
     replacements = {
         '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"', 
         '\u2013': '-', '\u2014': '-', '\u2026': '...', 'â€™': "'"
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
-        
-    # 4. Latin-1 Safe
     return text.encode('latin-1', 'ignore').decode('latin-1').strip()
 
 class PDF(FPDF):
@@ -57,7 +100,7 @@ class PDF(FPDF):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
         self.set_text_color(128)
-        self.cell(0, 10, f'CONFIDENTIAL - Dell Security Internal | Page {self.page_no()}', 0, 0, 'C')
+        self.cell(0, 10, f'Internal Security Use Only | Page {self.page_no()}', 0, 0, 'C')
 
     def chapter_title(self, label):
         self.set_font('Arial', 'B', 12)
@@ -106,18 +149,29 @@ class PDF(FPDF):
 def filter_news(data, profile):
     filtered = []
     for item in data:
+        # 1. Severity Filter
         if item['severity'] < profile['min_severity']: continue
+        
+        # 2. Region Filter (The New Fix)
+        # If profile specifies a region, REJECT anything else (unless it's Global)
+        if profile.get('target_region') != "ALL":
+            if item['region'] != profile['target_region'] and item['region'] != "Global":
+                continue
+
+        # 3. Keyword/Scope Filter
         text = (item['title'] + " " + item['snippet']).lower()
-        if profile['scope'] == "GLOBAL": filtered.append(item)
-        elif profile['scope'] == "REGION" and item['region'] == profile['target_region']: filtered.append(item)
-        elif profile['scope'] == "KEYWORD" and any(k in text for k in profile['keywords']): filtered.append(item)
+        
+        if profile['scope'] == "GLOBAL" or profile['scope'] == "REGION":
+            filtered.append(item)
+        elif profile['scope'] == "KEYWORD":
+            if any(k in text for k in profile['keywords']):
+                filtered.append(item)
+                
     return filtered
 
 def generate_reports():
     if not os.path.exists(DB_PATH): return
     with open(DB_PATH, 'r') as f: full_data = json.load(f)
-    
-    # Sort: Critical first, then Newest
     full_data.sort(key=lambda x: (x['severity'], x['published']), reverse=True)
 
     for profile in REPORT_PROFILES:
