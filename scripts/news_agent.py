@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """
-Dell Global Security & Resiliency Intelligence – News Agent
+Dell Global Security & Resiliency Intelligence – News Agent (RELAXED FILTERS)
 
 - Ingests RSS feeds
-- Applies strict SRO keyword pre-filter
+- Uses a LIGHT SRO pre-filter:
+    * Only a blocklist (entertainment, sports, etc.)
+    * NO hard "must contain SRO keyword" gate anymore
 - Uses Gemini (google-generativeai, model: gemini-pro) for relevance & classification
-- Writes public/data/news.json
+- Writes public/data/news.json  ->  { "generated_at": "...", "events": [ ... ] }
 - Writes public/map.html
 
-Design:
-- Strict enough to handle future Google News volume
-- Hard caps per feed and overall
-- Never leaves news.json totally empty:
-  * If Gemini returns too few events, promote some pre-filtered items as low-severity warnings
-  * If absolutely nothing, write a heartbeat mock event
+Guarantees:
+- If feeds return items, Gemini + fallback always produce >= MIN_EVENTS_AFTER_AI events
+- If feeds return nothing, a HEARTBEAT mock incident is written so the dashboard is never empty
 """
 
 import os
@@ -42,7 +41,7 @@ LOCATIONS_PATH = os.path.join(BASE_DIR, "config", "locations.json")
 
 MAX_ITEMS_PER_FEED = 40       # hard cap per RSS source
 MAX_TOTAL_ITEMS = 300         # hard cap overall before AI
-MIN_EVENTS_AFTER_AI = 10      # target minimum incidents after AI filtering
+MIN_EVENTS_AFTER_AI = 15      # target minimum incidents after AI filtering
 
 FEEDS = [
     # --- Global wires ---
@@ -73,7 +72,7 @@ FEEDS = [
 ]
 
 # ---------------------------------------------------------------------------
-# FILTERING – STRICT SRO PROFILE
+# FILTERING – LIGHT BLOCKLIST ONLY
 # ---------------------------------------------------------------------------
 
 BLOCKLIST_KEYWORDS = {
@@ -82,30 +81,6 @@ BLOCKLIST_KEYWORDS = {
     "stocks", "shares", "earnings", "ipo", "cryptocurrency",
     "live blog", "live updates",
     "theft", "burglary", "shoplifting", "pickpocket", "shoplifter"
-}
-
-SRO_KEYWORDS = {
-    # Physical
-    "terrorist", "terrorism", "bombing", "car bomb", "attack", "shooting",
-    "active shooter", "war", "airstrike", "missile", "insurgents",
-    "civil unrest", "protest", "riots", "coup",
-
-    # Resiliency / infra
-    "power outage", "blackout", "grid failure", "power grid", "telecom outage",
-    "infrastructure collapse", "bridge collapse", "dam collapse", "train derailment",
-
-    # Logistics
-    "port strike", "dock strike", "port closure", "port closed",
-    "airport closure", "airport closed", "trade blockade", "shipping halted",
-    "suez canal", "panama canal", "container ship", "cargo ship",
-
-    # Cyber (strategic)
-    "critical infrastructure", "ransomware", "nation state attack",
-    "state-sponsored", "supply chain attack", "industrial control system",
-
-    # Weather + infra
-    "typhoon", "hurricane", "cyclone", "super typhoon",
-    "earthquake", "tsunami", "volcanic eruption", "flooding", "landslide"
 }
 
 CITY_COORDS = {
@@ -163,19 +138,8 @@ def is_blocked(text: str) -> bool:
     return any(word in t for word in BLOCKLIST_KEYWORDS)
 
 
-def is_potential_sro(text: str) -> bool:
-    t = text.lower()
-    return any(word in t for word in SRO_KEYWORDS)
-
-
 def load_locations():
-    """
-    Load config/locations.json.
-
-    Supports both:
-    - { "assets": [ {...}, ... ] }
-    - [ {...}, {...} ]
-    """
+    """Support either { "assets": [...] } or a plain list."""
     if not os.path.exists(LOCATIONS_PATH):
         return []
     with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
@@ -238,11 +202,17 @@ Return ONLY a single JSON object.
         return {"relevant": None}
 
 # ---------------------------------------------------------------------------
-# FEED INGESTION
+# FEED INGESTION (RELAXED)
 # ---------------------------------------------------------------------------
 
 
 def fetch_entries() -> List[Dict[str, Any]]:
+    """
+    Pull items from all FEEDS.
+
+    Only apply a BLOCKLIST (no SRO keyword gate). This ensures plenty of
+    candidates reach Gemini, which will then mark severity / category.
+    """
     items: List[Dict[str, Any]] = []
     for feed in FEEDS:
         try:
@@ -262,9 +232,8 @@ def fetch_entries() -> List[Dict[str, Any]]:
 
             if is_blocked(combined):
                 continue
-            if not is_potential_sro(combined):
-                continue
 
+            # Timestamp
             try:
                 if getattr(entry, "published_parsed", None):
                     dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
@@ -299,8 +268,33 @@ def fetch_entries() -> List[Dict[str, Any]]:
 
 
 def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Main intelligence layer:
+
+    - Ask Gemini to classify each candidate.
+    - Keep "relevant": true items as-is.
+    - If Gemini is too strict, promote some rejected items as severity-1 warnings.
+    - If NO items at all (feeds dead), emit a heartbeat event.
+    """
+    # If feeds were totally empty, return heartbeat immediately
     if not items:
-        return []
+        now = datetime.now(timezone.utc).isoformat()
+        return [{
+            "id": "heartbeat-no-feeds",
+            "title": "No qualifying incidents – monitoring active",
+            "summary": "No eligible items were returned by upstream feeds during this cycle.",
+            "link": "",
+            "source": "System",
+            "published": now,
+            "category": "Physical",
+            "severity": 1,
+            "region": "Global",
+            "country": "",
+            "city": "",
+            "lat": None,
+            "lon": None,
+            "impact_summary": "Pipeline ran successfully but no relevant items were returned by news sources."
+        }]
 
     model = get_gemini_model()
     enriched: List[Dict[str, Any]] = []
@@ -343,9 +337,10 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "impact_summary": impact_summary
             })
         else:
+            # JSON parse error / model hiccup – keep for possible promotion
             rejected.append(item)
 
-    # If Gemini is too strict, promote some rejected as severity-1 warnings
+    # If Gemini was strict, promote some rejected items as Sev-1 warnings
     if len(enriched) < MIN_EVENTS_AFTER_AI and rejected:
         needed = MIN_EVENTS_AFTER_AI - len(enriched)
         for item in rejected[:needed]:
@@ -362,13 +357,13 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "impact_summary": combined[:400]
             })
 
-    # Absolute floor – heartbeat event
+    # Absolute floor – if something went weird, still emit a heartbeat
     if not enriched:
         now = datetime.now(timezone.utc).isoformat()
         enriched.append({
-            "id": "mock-incident",
+            "id": "heartbeat-empty-after-ai",
             "title": "No qualifying incidents – system heartbeat",
-            "summary": "The SRO monitoring pipeline is running but no high-impact incidents were detected.",
+            "summary": "AI filtering removed all items; this record confirms the pipeline executed.",
             "link": "",
             "source": "System",
             "published": now,
@@ -379,7 +374,7 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "city": "",
             "lat": None,
             "lon": None,
-            "impact_summary": "This mock record confirms the Dell SRO intelligence pipeline is functioning correctly."
+            "impact_summary": "All candidate items were filtered out by AI. Review filters if this persists."
         })
 
     return enriched
@@ -464,7 +459,7 @@ def main():
     os.makedirs(os.path.dirname(MAP_PATH), exist_ok=True)
 
     raw_items = fetch_entries()
-    print(f"[news_agent] Pre-filtered items: {len(raw_items)}")
+    print(f"[news_agent] Candidates after blocklist: {len(raw_items)}")
 
     events = enrich_with_ai(raw_items)
     print(f"[news_agent] Final events written: {len(events)}")
