@@ -70,13 +70,12 @@ def main():
     if not os.path.exists(DB_PATH): return
     with open(DB_PATH, 'r') as f: data = json.load(f)
     
-    # Filter only last 24h (Optional, currently shows latest from DB)
+    # Sort
     data.sort(key=lambda x: (x['severity'], x['published']), reverse=True)
     
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     
     for profile in PROFILES:
-        # Filter Logic
         filtered = []
         for item in data:
             if item['severity'] < profile['min_severity']: continue
@@ -92,10 +91,8 @@ def main():
             
             filtered.append(item)
             
-        # Generate HTML
         html_content = generate_html(profile, filtered[:30])
         filename = f"{profile['id']}_latest.html"
-        
         with open(os.path.join(OUTPUT_DIR, filename), "w") as f:
             f.write(html_content)
             
