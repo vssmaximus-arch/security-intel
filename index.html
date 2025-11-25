@@ -12,15 +12,17 @@
         body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
         
         /* --- LOCK SCREEN --- */
-        #lock-overlay {
+        #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #091E42; z-index: 99999;
+            background: #091E42; z-index: 999999;
             display: flex; align-items: center; justify-content: center;
             flex-direction: column;
         }
-        #dashboard-container { display: none; } /* Hidden by default */
 
-        /* UI ELEMENTS */
+        /* --- APP CONTAINER (Hidden initially) --- */
+        #app-container { display: none; }
+
+        /* UI */
         .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
         .filter-container { background: white; padding: 1.5rem; border-radius: 8px; margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
         .card { border: none; border-radius: 8px; margin-bottom: 1rem; }
@@ -39,16 +41,19 @@
 </head>
 <body>
 
-    <div id="lock-overlay">
+    <div id="lock-screen">
         <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; width: 350px;">
             <h3 style="color:#091E42; margin-bottom: 15px;">Security Intel</h3>
-            <input type="password" id="pinInput" class="form-control text-center mb-3" placeholder="Enter DellSec2025" onkeyup="if(event.key==='Enter') attemptLogin()">
+            
+            <input type="password" id="passwordInput" class="form-control text-center mb-3" placeholder="Enter PIN">
+            
             <button onclick="attemptLogin()" class="btn btn-primary w-100" style="background-color: #0076CE;">Login</button>
+            
             <p id="login-error" style="color: red; margin-top: 10px; display: none;">Incorrect Password</p>
         </div>
     </div>
 
-    <div id="dashboard-container">
+    <div id="app-container">
         <nav class="navbar navbar-dark">
             <div class="container">
                 <div class="d-flex align-items-center">
@@ -112,20 +117,30 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let newsData = [];
-        let myChart = null;
-
-        // --- SIMPLE LOGIN LOGIC ---
+        // --- LOGIN LOGIC (SIMPLE & ROBUST) ---
         function attemptLogin() {
-            const pin = document.getElementById('pinInput').value.trim(); // Trim removes accidental spaces
-            if (pin === "DellSec2025") {
-                document.getElementById('lock-overlay').style.display = 'none';
-                document.getElementById('dashboard-container').style.display = 'block';
-                fetchNews(); // Only load data if password is correct
+            const input = document.getElementById('passwordInput').value.trim();
+            
+            if (input === "DellSec2025") {
+                document.getElementById('lock-screen').style.display = "none"; // Hide Lock
+                document.getElementById('app-container').style.display = "block"; // Show App
+                fetchNews(); // Load Data
             } else {
-                document.getElementById('login-error').style.display = 'block';
+                alert("Incorrect PIN"); // Using Alert to verify code is running
             }
         }
+
+        // Enable Enter Key for Login
+        document.getElementById('passwordInput').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Stop page reload
+                attemptLogin();
+            }
+        });
+
+        // --- APP LOGIC ---
+        let newsData = [];
+        let myChart = null;
 
         function switchTab(tab) {
             document.getElementById('feed-view').style.display = 'none';
@@ -173,48 +188,3 @@
             const reg = document.getElementById('regionFilter').value;
             const typ = document.getElementById('typeFilter').value;
             const src = document.getElementById('searchBox').value.toLowerCase();
-            const con = document.getElementById('news-feed'); con.innerHTML = '';
-            
-            const filtered = newsData.filter(i => {
-                const dateMatch = dateF ? i.date_str === dateF : true;
-                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
-            });
-            
-            if(filtered.length===0) { con.innerHTML='<div class="text-center text-muted mt-5">No active threats.</div>'; return; }
-            
-            filtered.forEach(i => {
-                let bCls = i.severity===3 ? 'badge-critical' : 'badge-warning';
-                let bTxt = i.severity===3 ? 'CRITICAL' : 'WARNING';
-                const niceDate = new Date(i.published).toLocaleString();
-                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
-            });
-        }
-
-        function renderChart() {
-            if(myChart) myChart.destroy();
-            const dateCounts = {};
-            newsData.forEach(item => {
-                const d = item.date_str;
-                if(!dateCounts[d]) dateCounts[d] = 0;
-                dateCounts[d]++;
-            });
-            const sortedDates = Object.keys(dateCounts).sort().slice(-7);
-            const counts = sortedDates.map(d => dateCounts[d]);
-            const ctx = document.getElementById('riskChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: sortedDates, datasets: [{ label: 'Incidents', data: counts, backgroundColor: '#0076CE' }] }
-            });
-        }
-
-        function populateCountries() {
-            const sel = document.getElementById('travelCountry');
-            const countries = ["Australia", "Brazil", "China", "France", "Germany", "India", "Indonesia", "Israel", "Japan", "Korea", "Malaysia", "Mexico", "Philippines", "Singapore", "Taiwan", "Thailand", "UK", "USA", "Vietnam"];
-            sel.innerHTML = '<option value="">Select a country...</option>';
-            countries.sort().forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-        }
-
-        function renderTravelCheck() {
-            const c = document.getElementById('travelCountry').value;
-            const con = document.getElementById('travel-feed'); con.innerHTML = '';
-            if(!c) return;
