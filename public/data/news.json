@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "demo_latam",
+    "title": "Civil unrest triggers curfew in Bogota, Colombia",
+    "snippet": "Authorities declare 24-hour curfew following escalated protests near government district. Dell employees advised to shelter in place. Airport access restricted.",
+    "link": "#",
+    "published": "2025-11-24T10:00:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1764005000.0,
+    "source": "Associated Press",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "LATAM",
+    "lat": 4.7110,
+    "lon": -74.0721
+  },
+  {
+    "id": "demo_apjc",
+    "title": "Typhoon Melissa strengthens; Landfall expected in Taiwan",
+    "snippet": "Super Typhoon approaching Hsinchu Science Park. Manufacturing operations likely to halt for 48 hours. Logistics delays confirmed.",
+    "link": "#",
+    "published": "2025-11-24T09:30:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1764003000.0,
+    "source": "UN GDACS",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "APJC",
+    "lat": 25.0330,
+    "lon": 121.5654
+  },
+  {
+    "id": "demo_amer",
+    "title": "Power grid instability reported in Texas following storm",
+    "snippet": "Winter storm causes rolling blackouts across Austin/Round Rock area. Dell HQ running on backup power. IT systems stable.",
+    "link": "#",
+    "published": "2025-11-24T09:00:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1764001000.0,
+    "source": "Reuters Wire",
+    "category": "Infrastructure",
+    "severity": 2,
+    "region": "AMER",
+    "lat": 30.5083,
+    "lon": -97.6788
+  }
+]
