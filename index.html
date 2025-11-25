@@ -1,200 +1,329 @@
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dell Global Security Intel</title>
+
+  <!-- Bootstrap + Chart.js -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { background-color: #F5F7FA; font-family: sans-serif; }
+    .navbar { background-color: #0076CE !important; padding: 1rem; }
+    #map-frame { width: 100%; height: 600px; border: none; display: none; }
+    #chart-container { display: none; background: white; padding: 20px; margin-bottom: 20px; }
+    #travel-view { display: none; background: white; padding: 20px; }
+    .forecast-box {
+      background: white;
+      border-left: 5px solid #6610f2;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .card-body img { display: none; }
+  </style>
+</head>
+<body onload="fetchNews()">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-dark">
+    <div class="container">
+      <span class="navbar-brand h1 mb-0">Global Security Intel</span>
+
+      <div class="dropdown ms-3">
+        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          📄 Reports
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
+          <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
+          <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
+          <li><a class="dropdown-item" href="reports/china_latest.html" target="_blank">China</a></li>
+        </ul>
+      </div>
+
+      <span class="text-white" id="last-updated">Loading...</span>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <!-- AI Outlook -->
+    <div id="forecast-display" class="forecast-box">
+      <strong style="color:#6610f2">AI STRATEGIC OUTLOOK:</strong>
+      <p id="fc-analysis" class="mb-0 mt-1"></p>
+    </div>
+
+    <!-- TABS -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link active" href="#" onclick="switchTab('feed'); return false;">Live Feed</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="switchTab('trends'); return false;">Trends</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="switchTab('map'); return false;">Map</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="switchTab('travel'); return false;">Travel</a>
+      </li>
+    </ul>
+
+    <!-- LIVE FEED -->
+    <div id="feed-view">
+      <div class="row g-2 mb-3">
+        <div class="col-md-3">
+          <select id="regionFilter" class="form-select" onchange="renderNews()">
+            <option value="All">Global</option>
+            <option value="AMER">AMER</option>
+            <option value="LATAM">LATAM</option>
+            <option value="EMEA">EMEA</option>
+            <option value="APJC">APJC</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <select id="typeFilter" class="form-select" onchange="renderNews()">
+            <option value="All">All Risks</option>
+            <option value="Physical Security">Physical Security</option>
+            <option value="Crisis/Disaster">Crisis &amp; Disaster</option>
+            <option value="Logistics/Supply Chain">Supply Chain</option>
+            <option value="Cyber/InfoSec">Cyber &amp; InfoSec</option>
+            <option value="Executive/Travel">Executive &amp; Travel</option>
+            <option value="Infrastructure">Infrastructure</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <input type="text" id="searchBox" class="form-control"
+                 placeholder="Search..." onkeyup="renderNews()">
+        </div>
+      </div>
+
+      <div id="news-feed"></div>
+    </div>
+
+    <!-- TRENDS -->
+    <div id="chart-container">
+      <canvas id="riskChart"></canvas>
+    </div>
+
+    <!-- TRAVEL -->
+    <div id="travel-view">
+      <select id="travelCountry" class="form-select mb-3" onchange="renderTravelCheck()">
+        <option>Select Country...</option>
+      </select>
+      <div id="travel-feed"></div>
+    </div>
+
+    <!-- MAP -->
+    <iframe id="map-frame" src="map.html"></iframe>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
     let newsData = [];
     let myChart = null;
 
     function switchTab(tab) {
-        // Hide everything
-        document.getElementById('feed-view').style.display = 'none';
-        document.getElementById('chart-container').style.display = 'none';
-        document.getElementById('map-frame').style.display = 'none';
-        document.getElementById('travel-view').style.display = 'none';
+      // Hide all views
+      document.getElementById('feed-view').style.display = 'none';
+      document.getElementById('chart-container').style.display = 'none';
+      document.getElementById('map-frame').style.display = 'none';
+      document.getElementById('travel-view').style.display = 'none';
 
-        if (tab === 'feed') {
-            document.getElementById('feed-view').style.display = 'block';
-        } else if (tab === 'trends') {
-            document.getElementById('chart-container').style.display = 'block';
-            renderChart();
-        } else if (tab === 'map') {
-            document.getElementById('map-frame').style.display = 'block';
-        } else if (tab === 'travel') {
-            document.getElementById('travel-view').style.display = 'block';
-            populateCountries();
-        }
+      if (tab === 'feed') {
+        document.getElementById('feed-view').style.display = 'block';
+      } else if (tab === 'trends') {
+        document.getElementById('chart-container').style.display = 'block';
+        renderChart();
+      } else if (tab === 'map') {
+        document.getElementById('map-frame').style.display = 'block';
+      } else if (tab === 'travel') {
+        document.getElementById('travel-view').style.display = 'block';
+        populateCountries();
+      }
     }
 
     async function fetchNews() {
-        try {
-            const ts = Date.now();
+      try {
+        const ts = Date.now();
 
-            // ---- NEWS ----
-            const r = await fetch('data/news.json?t=' + ts);
-            if (r.ok) {
-                const db = await r.json();            // <- read the object
-                newsData = db.events || [];           // <- use the events array
+        // NEWS
+        const r = await fetch('data/news.json?t=' + ts);
+        if (r.ok) {
+          const db = await r.json();        // { generated_at, events: [...] }
+          newsData = db.events || [];
 
-                document.getElementById('last-updated').innerText =
-                    "Items: " + newsData.length;
+          document.getElementById('last-updated').innerText =
+            'Items: ' + newsData.length;
 
-                renderNews();
-            } else {
-                console.error('Failed to load news.json', r.status);
-            }
-
-            // ---- FORECAST (optional) ----
-            const r2 = await fetch('data/forecast.json?t=' + ts);
-            if (r2.ok) {
-                const fc = await r2.json();
-                document.getElementById('forecast-display').style.display = 'block';
-                document.getElementById('fc-analysis').innerText =
-                    fc.analysis || "No forecast available.";
-            }
-        } catch (e) {
-            console.error('fetchNews error', e);
+          renderNews();
+        } else {
+          console.error('Failed to load news.json', r.status);
         }
+
+        // FORECAST
+        const r2 = await fetch('data/forecast.json?t=' + ts);
+        if (r2.ok) {
+          const fc = await r2.json();
+          document.getElementById('forecast-display').style.display = 'block';
+          document.getElementById('fc-analysis').innerText =
+            fc.analysis || 'No forecast available.';
+        }
+      } catch (e) {
+        console.error('fetchNews error', e);
+      }
     }
 
     function renderNews() {
-        if (!Array.isArray(newsData)) return;
+      if (!Array.isArray(newsData)) return;
 
-        const reg = document.getElementById('regionFilter').value;
-        const cat = document.getElementById('typeFilter').value;
-        const src = document.getElementById('searchBox').value.toLowerCase();
-        const con = document.getElementById('news-feed');
-        con.innerHTML = '';
+      const reg = document.getElementById('regionFilter').value;
+      const cat = document.getElementById('typeFilter').value;
+      const src = document.getElementById('searchBox').value.toLowerCase();
+      const con = document.getElementById('news-feed');
+      con.innerHTML = '';
 
-        // Map UI risk types to backend categories
-        const catMap = {
-            "Physical Security": "Physical",
-            "Crisis/Disaster": "Weather",
-            "Logistics/Supply Chain": "Logistics",
-            "Cyber/InfoSec": "Cyber",
-            "Executive/Travel": null,   // no direct mapping yet
-            "Infrastructure": null      // could map to Physical/Weather depending on taste
-        };
+      const catMap = {
+        'Physical Security': 'Physical',
+        'Crisis/Disaster': 'Weather',
+        'Logistics/Supply Chain': 'Logistics',
+        'Cyber/InfoSec': 'Cyber',
+        'Executive/Travel': null,
+        'Infrastructure': null
+      };
 
-        const filtered = newsData.filter(i => {
-            const regionOk = (reg === 'All' || i.region === reg);
+      const filtered = newsData.filter(i => {
+        const regionOk = (reg === 'All' || i.region === reg);
 
-            let categoryOk = true;
-            if (cat !== 'All') {
-                const mapped = catMap[cat];
-                if (mapped) {
-                    categoryOk = (i.category === mapped);
-                } else {
-                    // for Executive/Travel / Infrastructure, just show all for now
-                    categoryOk = true;
-                }
-            }
-
-            const title = (i.title || '').toLowerCase();
-            const impact = (i.impact_summary || '').toLowerCase();
-            const summary = (i.summary || '').toLowerCase();
-            const searchOk =
-                title.includes(src) || impact.includes(src) || summary.includes(src);
-
-            return regionOk && categoryOk && searchOk;
-        });
-
-        if (filtered.length === 0) {
-            con.innerHTML = "<p class='text-center text-muted'>No active threats.</p>";
-            return;
+        let categoryOk = true;
+        if (cat !== 'All') {
+          const mapped = catMap[cat];
+          if (mapped) {
+            categoryOk = (i.category === mapped);
+          }
         }
 
-        filtered.forEach(i => {
-            const severity = Number(i.severity || 1);
-            const color = severity === 3 ? '#dc3545' :
-                          severity === 2 ? '#ffc107' : '#6c757d';
+        const title = (i.title || '').toLowerCase();
+        const impact = (i.impact_summary || '').toLowerCase();
+        const summary = (i.summary || '').toLowerCase();
+        const searchOk =
+          title.includes(src) || impact.includes(src) || summary.includes(src);
 
-            const snippet =
-                i.impact_summary ||
-                i.summary ||
-                "No summary available.";
+        return regionOk && categoryOk && searchOk;
+      });
 
-            const when = (i.published || '').slice(0, 16).replace('T', ' ') || '';
+      if (filtered.length === 0) {
+        con.innerHTML =
+          "<p class='text-center text-muted'>No active threats.</p>";
+        return;
+      }
 
-            const region = i.region || 'Global';
-            const source = i.source || '';
-            const link = i.link || '#';
+      filtered.forEach(i => {
+        const severity = Number(i.severity || 1);
+        const color =
+          severity === 3 ? '#dc3545' :
+          severity === 2 ? '#ffc107' : '#6c757d';
 
-            con.innerHTML += `
-                <div class="card mb-2" style="border-left: 5px solid ${color}">
-                    <div class="card-body">
-                        <strong>${region}</strong>
-                        &nbsp;|&nbsp;
-                        <a href="${link}" target="_blank">${i.title || 'Untitled incident'}</a><br>
-                        <small class="text-muted">
-                            ${source} • ${when} • Severity ${severity}
-                        </small>
-                        <p class="mt-2 mb-0 small">${snippet}</p>
-                    </div>
-                </div>`;
-        });
+        const snippet =
+          i.impact_summary ||
+          i.summary ||
+          'No summary available.';
+
+        const when = (i.published || '').slice(0, 16).replace('T', ' ') || '';
+        const region = i.region || 'Global';
+        const source = i.source || '';
+        const link = i.link || '#';
+
+        con.innerHTML += `
+          <div class="card mb-2" style="border-left: 5px solid ${color}">
+            <div class="card-body">
+              <strong>${region}</strong>
+              &nbsp;|&nbsp;
+              <a href="${link}" target="_blank">
+                ${i.title || 'Untitled incident'}
+              </a><br>
+              <small class="text-muted">
+                ${source} • ${when} • Severity ${severity}
+              </small>
+              <p class="mt-2 mb-0 small">${snippet}</p>
+            </div>
+          </div>`;
+      });
     }
 
     function renderChart() {
-        if (!Array.isArray(newsData) || newsData.length === 0) return;
+      if (!Array.isArray(newsData) || newsData.length === 0) return;
 
-        if (myChart) myChart.destroy();
+      if (myChart) myChart.destroy();
 
-        const counts = {};
-        newsData.forEach(i => {
-            const dateKey = (i.published || '').slice(0, 10) || 'Unknown';
-            counts[dateKey] = (counts[dateKey] || 0) + 1;
-        });
+      const counts = {};
+      newsData.forEach(i => {
+        const dateKey = (i.published || '').slice(0, 10) || 'Unknown';
+        counts[dateKey] = (counts[dateKey] || 0) + 1;
+      });
 
-        const labels = Object.keys(counts).sort();
-        const data = labels.map(d => counts[d]);
+      const labels = Object.keys(counts).sort();
+      const data = labels.map(d => counts[d]);
 
-        const ctx = document.getElementById('riskChart').getContext('2d');
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Incidents',
-                    data,
-                    backgroundColor: '#0076CE'
-                }]
-            }
-        });
+      const ctx = document.getElementById('riskChart').getContext('2d');
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Incidents',
+            data,
+            backgroundColor: '#0076CE'
+          }]
+        }
+      });
     }
 
     function populateCountries() {
-        const sel = document.getElementById('travelCountry');
-        const list = [
-            "Australia","Brazil","China","France","Germany","India","Israel",
-            "Japan","Korea","Malaysia","Mexico","Singapore","UK","USA","Vietnam"
-        ];
-        sel.innerHTML = '<option>Select Country...</option>';
-        list.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+      const sel = document.getElementById('travelCountry');
+      const list = [
+        'Australia','Brazil','China','France','Germany','India','Israel',
+        'Japan','Korea','Malaysia','Mexico','Singapore','UK','USA','Vietnam'
+      ];
+      sel.innerHTML = '<option>Select Country...</option>';
+      list.forEach(c => {
+        sel.innerHTML += `<option value="${c}">${c}</option>`;
+      });
     }
 
     function renderTravelCheck() {
-        if (!Array.isArray(newsData)) return;
+      if (!Array.isArray(newsData)) return;
 
-        const c = document.getElementById('travelCountry').value;
-        const hits = newsData.filter(i => {
-            const country = (i.country || '');
-            const title = (i.title || '');
-            const impact = (i.impact_summary || '');
-            return country === c ||
-                   title.includes(c) ||
-                   impact.includes(c);
-        });
+      const c = document.getElementById('travelCountry').value;
+      const hits = newsData.filter(i => {
+        const country = (i.country || '');
+        const title = (i.title || '');
+        const impact = (i.impact_summary || '');
+        return country === c ||
+               title.includes(c) ||
+               impact.includes(c);
+      });
 
-        const container = document.getElementById('travel-feed');
-        if (hits.length === 0) {
-            container.innerHTML =
-                "<div class='alert alert-success'>No threats detected.</div>";
-            return;
-        }
+      const container = document.getElementById('travel-feed');
+      if (hits.length === 0) {
+        container.innerHTML =
+          "<div class='alert alert-success'>No threats detected.</div>";
+        return;
+      }
 
-        container.innerHTML = hits.map(i =>
-            `<div class="alert alert-warning">
-                <strong>${i.title}</strong><br>
-                ${i.impact_summary || ''}
-             </div>`
-        ).join('');
+      container.innerHTML = hits.map(i =>
+        `<div class="alert alert-warning">
+           <strong>${i.title}</strong><br>
+           ${i.impact_summary || ''}
+         </div>`
+      ).join('');
     }
-</script>
+  </script>
+</body>
+</html>
