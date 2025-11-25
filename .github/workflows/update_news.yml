@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # 1. SYNC FIRST (This fixes the conflict error)
+      # 1. SYNC FIRST
       - name: Sync with Server
         run: git pull origin main
 
@@ -23,22 +23,24 @@ jobs:
       
       - run: pip install -r requirements.txt
       
-      # 2. Run AI Agent (Now that we are synced)
+      # 2. Run AI Agent (The Brain)
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
-      # 3. Generate PDFs
-      - name: Generate PDF Reports
-        run: python scripts/generate_pdf.py
+      # 3. Generate HTML Reports (The New Report Generator)
+      # This line MUST say 'generate_reports.py' (not pdf)
+      - name: Generate Reports
+        run: python scripts/generate_reports.py
 
       # 4. Save & Push
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
-          git add public/data/news.json public/*.pdf
-          git commit -m "Update intel and PDF reports" || echo "No changes to commit"
+          # Force add the reports folder so git sees it
+          git add public/data/news.json public/reports/*.html
+          git commit -m "Update intel and HTML reports" || echo "No changes to commit"
           git push
       
       - uses: peaceiris/actions-gh-pages@v3
