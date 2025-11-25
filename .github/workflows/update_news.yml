@@ -1,44 +1,41 @@
-name: Update Security Intel
+name: Update Intel
+
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    # Every 15 minutes
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  build:
+  update-news:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
     steps:
-      - uses: actions/checkout@v3
-      
-      # 1. SYNC
-      - name: Sync with Server
-        run: git pull origin main --no-rebase
-
-      - uses: actions/setup-python@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          python-version: '3.9'
-      
-      - run: pip install -r requirements.txt
-      
-      # 2. BRAIN
-      - name: Run AI News Agent
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/news_agent.py
+          fetch-depth: 0
 
-      # 3. SAVE
-      - run: |
-          git config --global user.name 'SecurityIntelBot'
-          git config --global user.email 'bot@noreply.github.com'
-          git add public/data/news.json public/data/forecast.json public/map.html public/reports/*.html || true
-          git commit -m "Update intel" || echo "No changes"
-          git pull origin main --rebase
-          git push origin main
-      
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run news agent
+        run: |
+          python scripts/news_agent.py
+
+      - name: Generate HTML reports
+        run: |
+          python scripts
