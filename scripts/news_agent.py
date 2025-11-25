@@ -10,6 +10,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
+# --- CONFIGURATION ---
 TRUSTED_SOURCES = {
     "https://news.google.com/rss/search?q=cyberattack+OR+ransomware+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Cyber",
     "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
@@ -94,61 +95,3 @@ def generate_forecast(articles):
 def fetch_news():
     all_candidates = []
     if os.path.exists(DB_PATH):
-        try:
-            with open(DB_PATH, 'r') as f: all_candidates = json.load(f)
-        except: pass
-
-    for url, source_name in TRUSTED_SOURCES.items():
-        try:
-            feed = feedparser.parse(url)
-            for entry in feed.entries[:5]: 
-                title = entry.title
-                if len(title) < 15: continue
-                
-                analysis = ask_gemini_analyst(title, entry.summary if 'summary' in entry else "")
-                
-                if analysis and analysis.get('category') != "Irrelevant":
-                    lat = analysis.get('lat', 0.0)
-                    if lat == 0.0: lat, lon = get_hardcoded_coords(title)
-                    else: lon = analysis.get('lon', 0.0)
-                    
-                    # Region Logic
-                    region = analysis.get('region', 'Global')
-                    if "asia" in title.lower() or "china" in title.lower(): region = "APJC"
-                    if "brazil" in title.lower() or "mexico" in title.lower(): region = "LATAM"
-                    if "europe" in title.lower() or "uk" in title.lower(): region = "EMEA"
-                    if "usa" in title.lower() or "canada" in title.lower(): region = "AMER"
-
-                    # Ensure snippet is saved correctly
-                    clean_summ = analysis.get('summary') or clean_html(entry.summary if 'summary' in entry else "")
-
-                    all_candidates.append({
-                        "id": hashlib.md5(title.encode()).hexdigest(),
-                        "title": analysis.get('clean_title', title),
-                        "snippet": clean_summ,  # THIS FIELD MUST EXIST
-                        "link": entry.link,
-                        "published": parse_date(entry)[1],
-                        "date_str": parse_date(entry)[0],
-                        "timestamp": parse_date(entry)[2],
-                        "source": source_name,
-                        "category": analysis.get('category', "Uncategorized"),
-                        "severity": analysis.get('severity', 1),
-                        "region": region,
-                        "lat": lat, "lon": lon
-                    })
-        except Exception as e: print(f"Skipping {source_name}: {e}")
-
-    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
-    
-    # Dedup
-    unique = {v['id']:v for v in all_candidates}.values()
-    final_list = list(unique)[:500]
-
-    os.makedirs("public/data", exist_ok=True)
-    with open(DB_PATH, "w") as f: json.dump(final_list, f, indent=2)
-    
-    generate_interactive_map(final_list)
-    generate_forecast(final_list)
-
-if __name__ == "__main__":
-    fetch_news()
