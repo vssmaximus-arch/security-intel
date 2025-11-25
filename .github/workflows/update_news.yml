@@ -22,20 +22,32 @@ jobs:
       
       - run: pip install -r requirements.txt
       
+      # 1. Run AI Agent
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
+      # 2. Generate Reports
       - name: Generate Reports
         run: python scripts/generate_reports.py
 
+      # 3. Save & Push (Handles missing files gracefully)
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
-          git add public/data/news.json public/data/forecast.json public/reports/*.html public/map.html
+          
+          # Add files individually so it doesn't crash if one is missing
+          git add public/data/news.json || true
+          git add public/data/forecast.json || true
+          git add public/map.html || true
+          git add public/reports/*.html || true
+          
+          # Commit and Push
           git commit -m "Update intel and reports" || echo "No changes to commit"
-          git push
+          
+          git pull origin main --rebase
+          git push origin main
       
       - uses: peaceiris/actions-gh-pages@v3
         with:
