@@ -10,39 +10,28 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION: SRO INTEL SOURCES ---
+# --- CONFIGURATION: SRO SOURCES ---
 TRUSTED_SOURCES = {
-    # GLOBAL WIRES (The Baseline)
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
     "https://apnews.com/hub/ap-top-news.rss": "Associated Press",
     "https://www.dw.com/xml/rss/rss-n-all": "Deutsche Welle",
-    
-    # DUTY OF CARE & TRAVEL RISK
     "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
     "https://www.smartraveller.gov.au/rss": "Aus Smartraveller",
     "https://gdacs.org/xml/rss.xml": "UN GDACS (Disaster Alert)",
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom": "USGS Seismic Alert",
-    
-    # REGIONAL (APJC Focus)
     "https://www.channelnewsasia.com/api/v1/rss-feeds/asia": "Channel News Asia",
     "https://www.scmp.com/rss/91/feed": "South China Morning Post",
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times",
     "https://en.yna.co.kr/RSS/news.xml": "Yonhap News (Korea)",
     "https://english.kyodonews.net/rss/news.xml": "Kyodo News (Japan)",
-    
-    # SUPPLY CHAIN & RESILIENCY
     "https://theloadstar.com/feed/": "The Loadstar (Logistics)",
     "https://www.maritime-executive.com/rss/news": "The Maritime Executive",
     "https://splash247.com/feed/": "Splash247 (Asian Maritime)",
-    
-    # CYBER (Strategic Only)
     "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
     "https://www.bleepingcomputer.com/feed/": "BleepingComputer"
 }
 
-# --- NOISE FILTER ---
-# Block "Low Value" items that clutter executive feeds
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -58,8 +47,6 @@ BLOCKED_KEYWORDS = [
     "blog is now closed", "live coverage", "follow our", "live blog", "crypto", "bitcoin"
 ]
 
-# --- SRO CATEGORIES ---
-# Used for pre-filtering before AI takes over
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "hacker", "botnet", "apt group"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup", "civil unrest"],
@@ -123,48 +110,33 @@ def is_duplicate_title(new_title, existing_titles):
         if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
     return False
 
-# --- SRO AI ANALYST CORE ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
     
+    # RELAXED PROMPT FOR PILOT: Allows "Warning" level events
     prompt = f"""
-    Role: Senior Intelligence Analyst for Dell Security & Resiliency Organization (SRO).
-    Context: We support Crisis Management, Executive Protection, Supply Chain, and Regional Security.
+    Role: Dell SRO Intelligence Analyst.
+    Task: Assess this news for Security, Logistics, or Safety risks.
     
     Headline: "{title}"
     Snippet: "{snippet}"
     
-    STRICT EVALUATION PROTOCOL:
-    
-    1. **PHYSICAL / DUTY OF CARE (Keep High Priority)**:
-       - Terrorism, War/Conflict, Civil Unrest (Protests/Riots).
-       - Active Shooters, Kidnapping, Credible Threats to Executives/Facilities.
-       - Major Natural Disasters (Earthquake, Typhoon) impacting infrastructure.
-    
-    2. **RESILIENCY & LOGISTICS (Keep High Priority)**:
-       - Power Grid Failures, Telecom/Internet Outages.
-       - Port Strikes, Airport Closures, Trade Blockades.
-       - Supply Chain disruptions in key hubs (China, India, Malaysia, etc).
-    
-    3. **CYBER (Keep ONLY Significant Events)**:
-       - DISCARD: Generic vulnerability news, patches, minor hacks, crypto scams.
-       - KEEP: Massive Global Outages (e.g. CrowdStrike style events), Nation-State Cyber Warfare, or breaches of Critical Infrastructure/Major Tech Partners.
-    
-    4. **NOISE (DISCARD)**:
-       - Politics (Opinion/Polls), Business (Stocks/Earnings), Social Issues, General/Local Crime.
+    PROTOCOL:
+    1. KEEP (High Priority): Terror, War, Riots, Active Shooter, Port Strikes, Power Outage, Major Cyber Breach.
+    2. KEEP (Medium Priority): Travel Warnings, Weather Alerts, Transport Delays, Regional Instability.
+    3. DISCARD: Sports, Celebrity, Business/Stocks, Politics/Opinion, Minor/Individual Crime.
     
     OUTPUT JSON: 
     {{ 
       "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
       "severity": 1 (Info)|2 (Warning)|3 (Critical), 
-      "clean_title": "Professional, Executive-Ready Headline", 
-      "summary": "1 sentence operational impact assessment.", 
+      "clean_title": "Professional Headline", 
+      "summary": "1 sentence impact.", 
       "region": "AMER"|"EMEA"|"APJC"|"Global", 
       "lat": 0.0, 
       "lon": 0.0 
     }}
     """
-    
     try:
         time.sleep(1.5)
         response = model.generate_content(prompt)
@@ -196,20 +168,37 @@ def analyze_article_hybrid(title, summary, source_name):
         }
     return None
 
+# --- FIXED MAP GENERATOR (With Blue Shields) ---
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
     folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
     
+    # 1. PLOT DELL ASSETS (Blue Shields)
+    try:
+        with open('config/locations.json', 'r') as f:
+            assets = json.load(f)
+            for asset in assets:
+                # Safe check for lat/lon
+                if 'lat' in asset and 'lon' in asset:
+                    folium.Marker(
+                        [asset['lat'], asset['lon']],
+                        popup=f"<b>{asset['name']}</b><br>Type: {asset['type']}",
+                        icon=folium.Icon(color="blue", icon="shield", prefix='fa')
+                    ).add_to(m)
+    except Exception as e:
+        print(f"Warning: Could not load assets for map: {e}")
+
+    # 2. PLOT THREATS
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
         if lat and lon and (lat != 0.0 or lon != 0.0):
-            color = "blue"
+            color = "orange" # Default Warning
             if item['severity'] == 3: color = "red"
-            elif item['severity'] == 2: color = "orange"
             
             popup_html = f"<div style='font-family:Arial;width:200px'><b>{item['title']}</b><br><span style='color:gray;font-size:12px'>{item['category']}</span></div>"
             folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=250), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
+            
     m.save(MAP_PATH)
 
 def fetch_news():
