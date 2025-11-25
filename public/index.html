@@ -9,12 +9,8 @@
     <style>
         body { background-color: #F5F7FA; font-family: sans-serif; }
         .navbar { background-color: #0076CE !important; padding: 1rem; }
-        .card { border: none; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .severity-3 { border-left: 6px solid #dc3545; }
-        .severity-2 { border-left: 6px solid #ffc107; }
-        .nav-link.active { color: #0076CE !important; border-bottom: 3px solid #0076CE; font-weight: bold; }
-        #map-frame { width: 100%; height: 600px; border: none; display: none; }
-        #chart-container { height: 300px; display: none; background: white; padding: 20px; margin-bottom: 20px; }
+        #map-frame { width: 100%; height: 600px; border: none; display:none; }
+        #chart-container { display: none; background: white; padding: 20px; margin-bottom: 20px; }
         #travel-view { display: none; background: white; padding: 20px; }
         .forecast-box { background: white; border-left: 5px solid #6610f2; padding: 15px; margin-bottom: 20px; display: none; }
         .card-body img { display: none; }
@@ -25,45 +21,87 @@
     <nav class="navbar navbar-dark">
         <div class="container">
             <span class="navbar-brand h1 mb-0">Global Security Intel</span>
-            <div class="dropdown ms-3">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 HTML Reports</button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
-                    <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
-                    <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">China</a></li>
-                    <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
-                </ul>
-            </div>
             <span class="text-white" id="last-updated">Loading...</span>
         </div>
     </nav>
-
+    
     <div class="container mt-4">
-        <div id="forecast-display" class="forecast-box">
-            <strong style="color:#6610f2">AI STRATEGIC OUTLOOK:</strong>
-            <p id="fc-analysis" class="mb-0 mt-1"></p>
+        <div class="alert alert-info" id="forecast-box" style="display:none;">
+            <strong>AI Outlook:</strong> <span id="fc-text"></span>
         </div>
 
         <ul class="nav nav-tabs mb-4">
             <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Trends</a></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Map</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Trends</a></li>
         </ul>
 
+        <div id="chart-container"><canvas id="riskChart"></canvas></div>
+        
         <div id="feed-view">
-            <div class="row g-2 mb-3">
-                <div class="col-md-3"><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
-                <div class="col-md-9"><input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="renderNews()"></div>
-            </div>
             <div id="news-feed"></div>
         </div>
 
-        <div id="chart-container"><canvas id="riskChart"></canvas></div>
-        <div id="travel-view">
-            <select id="travelCountry" class="form-select mb-3" onchange="renderTravelCheck()"><option>Select Country...</option></select>
-            <div id="travel-feed"></div>
-        </div>
-        <iframe id="
+        <iframe id="map-frame" src="map.html"></iframe>
+    </div>
+
+    <script>
+        let newsData = [];
+        let myChart = null;
+
+        function switchTab(tab) {
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('map-frame').style.display = 'none';
+            document.getElementById('chart-container').style.display = 'none';
+            
+            if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
+            if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
+            if(tab === 'trends') {
+                document.getElementById('chart-container').style.display = 'block';
+                renderChart();
+            }
+        }
+
+        async function fetchNews() {
+            try {
+                const ts = new Date().getTime();
+                const r = await fetch('data/news.json?t=' + ts); 
+                if(r.ok) {
+                    newsData = await r.json();
+                    document.getElementById('last-updated').innerText = "Items: " + newsData.length;
+                    renderNews();
+                }
+                const r2 = await fetch('data/forecast.json?t=' + ts);
+                if(r2.ok) {
+                    const fc = await r2.json();
+                    document.getElementById('forecast-box').style.display = 'block';
+                    document.getElementById('fc-text').innerText = fc.analysis;
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        function renderNews() {
+            const con = document.getElementById('news-feed'); 
+            con.innerHTML = '';
+            if(newsData.length === 0) { con.innerHTML = '<p>No critical threats detected.</p>'; return; }
+            
+            newsData.forEach(i => {
+                let color = i.severity === 3 ? 'red' : 'orange';
+                let snippet = i.snippet || i.summary || "No summary";
+                con.innerHTML += `<div class="card mb-3" style="border-left: 5px solid ${color}"><div class="card-body"><h5><a href="${i.link}" target="_blank">${i.title}</a></h5><p>${snippet}</p><small>${i.source} | ${i.date_str}</small></div></div>`;
+            });
+        }
+
+        function renderChart() {
+            if(myChart) myChart.destroy();
+            const counts = {};
+            newsData.forEach(i => counts[i.date_str] = (counts[i.date_str] || 0) + 1);
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: Object.keys(counts), datasets: [{ label: 'Incidents', data: Object.values(counts) }] }
+            });
+        }
+    </script>
+</body>
+</html>
