@@ -5,100 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dell Global Security Intel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        body { background-color: #F5F7FA; font-family: sans-serif; }
-        .navbar { background-color: #0076CE !important; padding: 1rem; }
-        #map-frame { width: 100%; height: 600px; border: none; display:none; }
-        #chart-container { display: none; background: white; padding: 20px; margin-bottom: 20px; }
-        .card-body img { display: none; }
+        body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
+        
+        /* UI ELEMENTS */
+        .navbar { background-color: #0076CE !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 1rem 2rem; }
+        .filter-container { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
+        .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        
+        .severity-3 { border-left: 6px solid #D93F3F; }
+        .severity-2 { border-left: 6px solid #F2AF00; }
+        .severity-1 { border-left: 6px solid #6EA204; }
+        
+        .badge-custom { font-weight: 600; padding: 0.4em 0.8em; border-radius: 4px; font-size: 0.7rem; margin-right: 8px; }
+        .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
+        .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
+        .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
+        .card-title a { color: #172B4D; font-weight: 700; text-decoration: none; }
+        
+        .nav-tabs .nav-link { color: #444; font-weight: 500; }
+        .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
+        #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
+        #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        #travel-view { display: none; background: white; padding: 20px; border-radius: 8px; }
+        
+        .forecast-box { background: linear-gradient(to right, #ffffff, #f8f9fa); border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; border-radius: 6px; display:none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+
+        .card-body img { display: none !important; }
+        .card-body iframe { display: none !important; }
     </style>
 </head>
 <body onload="fetchNews()">
 
     <nav class="navbar navbar-dark">
         <div class="container">
-            <span class="navbar-brand h1 mb-0">Global Security Intel</span>
+            <div class="d-flex align-items-center">
+                <span class="navbar-brand h1 mb-0">Global Security Intel</span>
+                <div class="dropdown ms-3">
+                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="color: #0076CE; font-weight:600;">
+                        📄 Daily Briefings
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Executive</h6></li>
+                        <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
+                        <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Regional</h6></li>
+                        <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
+                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
+                        <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
+                        <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
+                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
+                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">South East Asia</a></li>
+                    </ul>
+                </div>
+            </div>
             <span class="text-white" id="last-updated">Loading...</span>
         </div>
     </nav>
     
     <div class="container mt-4">
-        <div class="alert alert-info" id="forecast-box" style="display:none;">
-            <strong>AI Outlook:</strong> <span id="fc-text"></span>
-        </div>
-
-        <ul class="nav nav-tabs mb-4">
-            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Map</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Trends</a></li>
-        </ul>
-
-        <div id="chart-container"><canvas id="riskChart"></canvas></div>
         
-        <div id="feed-view">
-            <div id="news-feed"></div>
+        <div id="forecast-display" class="forecast-box">
+            <div class="forecast-label">AI Strategic Intelligence Outlook (7-Day)</div>
+            <h4 id="fc-title" class="mt-2" style="color:#333;">Analyzing Trends...</h4>
+            <p id="fc-analysis" class="text-muted mt-2"></p>
+            <div class="mt-3 pt-3 border-top">
+                <strong>🛑 Supply Chain Alert:</strong> <span id="fc-supply"></span><br>
+                <strong>💡 Executive Bottom Line:</strong> <span id="fc-bottom"></span>
+            </div>
         </div>
 
-        <iframe id="map-frame" src="map.html"></iframe>
-    </div>
-
-    <script>
-        let newsData = [];
-        let myChart = null;
-
-        function switchTab(tab) {
-            document.getElementById('feed-view').style.display = 'none';
-            document.getElementById('map-frame').style.display = 'none';
-            document.getElementById('chart-container').style.display = 'none';
-            
-            if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
-            if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
-            if(tab === 'trends') {
-                document.getElementById('chart-container').style.display = 'block';
-                renderChart();
-            }
-        }
-
-        async function fetchNews() {
-            try {
-                const ts = new Date().getTime();
-                const r = await fetch('data/news.json?t=' + ts); 
-                if(r.ok) {
-                    newsData = await r.json();
-                    document.getElementById('last-updated').innerText = "Items: " + newsData.length;
-                    renderNews();
-                }
-                const r2 = await fetch('data/forecast.json?t=' + ts);
-                if(r2.ok) {
-                    const fc = await r2.json();
-                    document.getElementById('forecast-box').style.display = 'block';
-                    document.getElementById('fc-text').innerText = fc.analysis;
-                }
-            } catch (e) { console.log(e); }
-        }
-
-        function renderNews() {
-            const con = document.getElementById('news-feed'); 
-            con.innerHTML = '';
-            if(newsData.length === 0) { con.innerHTML = '<p>No critical threats detected.</p>'; return; }
-            
-            newsData.forEach(i => {
-                let color = i.severity === 3 ? 'red' : 'orange';
-                con.innerHTML += `<div class="card mb-3" style="border-left: 5px solid ${color}"><div class="card-body"><h5><a href="${i.link}" target="_blank">${i.title}</a></h5><p>${i.snippet}</p><small>${i.source} | ${i.date_str}</small></div></div>`;
-            });
-        }
-
-        function renderChart() {
-            if(myChart) myChart.destroy();
-            const counts = {};
-            newsData.forEach(i => counts[i.date_str] = (counts[i.date_str] || 0) + 1);
-            const ctx = document.getElementById('riskChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: Object.keys(counts), datasets: [{ label: 'Incidents', data: Object.values(counts) }] }
-            });
-        }
-    </script>
-</body>
-</html>
+        <ul class="nav nav-tabs mb-4" style="border-bottom: 2px solid #ddd;">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a></li>
+            <li class="nav-item"><a class
