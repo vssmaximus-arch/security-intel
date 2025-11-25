@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Sync with Server
-        run: git pull origin main
+        run: git pull origin main --no-rebase
 
       - uses: actions/setup-python@v4
         with:
@@ -22,19 +22,28 @@ jobs:
       
       - run: pip install -r requirements.txt
       
+      # 1. Run AI Agent
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
+      # 2. Generate Reports
       - name: Generate Reports
         run: python scripts/generate_reports.py
 
+      # 3. Save & Push (Fixed Logic)
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
-          git add public/data/news.json public/data/forecast.json public/map.html public/reports/*.html || true
-          git commit -m "Update intel" || echo "No changes"
+          
+          # Add all generated files
+          git add public/data/news.json public/data/forecast.json public/map.html public/reports/*.html
+          
+          # Commit
+          git commit -m "Update intel and reports" || echo "No changes to commit"
+          
+          # Pull again to ensure no conflicts, then push
           git pull origin main --rebase
           git push origin main
       
