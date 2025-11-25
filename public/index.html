@@ -1,222 +1,282 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dell Global Security Intel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+import feedparser
+import json
+import os
+import hashlib
+import re
+import time
+import folium
+import google.generativeai as genai
+from datetime import datetime
+from difflib import SequenceMatcher
+from time import mktime
+
+# --- CONFIGURATION: FIREHOSE SOURCES ---
+TRUSTED_SOURCES = {
+    # WIRES
+    "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Wire",
+    "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
+    "https://apnews.com/hub/ap-top-news.rss": "Associated Press",
     
-    <style>
-        body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
-        
-        /* UI STYLES ONLY - NO LOGIN STYLES */
-        .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
-        .filter-container { background: white; padding: 1.5rem; border-radius: 8px; margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
-        .card { border: none; border-radius: 8px; margin-bottom: 1rem; }
-        
-        /* SEVERITY BORDERS */
-        .severity-3 { border-left: 6px solid #D93F3F; } /* Critical */
-        .severity-2 { border-left: 6px solid #F2AF00; } /* Warning */
-        .severity-1 { border-left: 6px solid #6EA204; } /* Info */
-        
-        /* BADGES */
-        .badge-custom { font-weight: 600; font-size: 0.7rem; margin-right: 8px; }
-        .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
-        .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
-        .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
-        
-        /* TABS & WIDGETS */
-        .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
-        #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
-        #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        #travel-view { display: none; background: white; padding: 20px; border-radius: 8px; }
-        
-        /* FORECAST BOX */
-        .forecast-box { background: #fff; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; display:none; }
-        .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
-        
-        /* HIDE JUNK */
-        .card-body img, iframe { display: none !important; }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar navbar-dark">
-        <div class="container">
-            <div class="d-flex align-items-center">
-                <span class="navbar-brand h1 mb-0">Global Security Intel</span>
-                
-                <div class="dropdown ms-3">
-                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 Daily Briefings</button>
-                    <ul class="dropdown-menu">
-                        <li><h6 class="dropdown-header">Executive</h6></li>
-                        <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
-                        <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header">Regional</h6></li>
-                        <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
-                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">China</a></li>
-                        <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
-                        <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
-                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania</a></li>
-                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">SE Asia</a></li>
-                    </ul>
-                </div>
-            </div>
-            <span class="text-white" id="last-updated">Loading Data...</span>
-        </div>
-    </nav>
+    # GOOGLE NEWS AGGREGATORS (The Firehose)
+    "https://news.google.com/rss/search?q=cyberattack+OR+ransomware+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Cyber",
+    "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
+    "https://news.google.com/rss/search?q=terrorist+attack+OR+bombing+OR+mass+shooting+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Security",
+    "https://news.google.com/rss/search?q=earthquake+OR+typhoon+OR+tsunami+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Disaster",
     
-    <div class="container mt-4">
+    # OFFICIAL
+    "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
+    "https://gdacs.org/xml/rss.xml": "UN GDACS (Disaster Alert)",
+    
+    # REGIONAL
+    "https://www.channelnewsasia.com/api/v1/rss-feeds/asia": "Channel News Asia",
+    "https://www.scmp.com/rss/91/feed": "South China Morning Post",
+    "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times",
+    "https://english.kyodonews.net/rss/news.xml": "Kyodo News (Japan)",
+    
+    # INDUSTRY
+    "https://theloadstar.com/feed/": "The Loadstar (Logistics)",
+    "https://www.bleepingcomputer.com/feed/": "BleepingComputer (Cyber)"
+}
+
+BLOCKED_KEYWORDS = [
+    "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
+    "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
+    "tennis", "olympic", "strictly come dancing", "reality tv", "royal", "prince", 
+    "princess", "gossip", "dating", "fashion", "lifestyle", "sexual assault", 
+    "rape", "domestic", "murder trial", "hate speech", "convicted", "podcast",
+    "claims", "alleges", "survey", "poll", "pledges", "vows", "commentary",
+    "opinion", "review", "social media", "viral", "trend",
+    "market", "shares", "stocks", "investors", "investment", "profit", "revenue",
+    "quarterly", "earnings", "brands", "cosmetics", "luxury", "retail", "sales",
+    "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday",
+    "coroner", "inquest", "inquiry", "historic", "memorial", "anniversary",
+    "blog is now closed", "live coverage", "follow our", "live blog", "crypto", "bitcoin"
+]
+
+DB_PATH = "public/data/news.json"
+FORECAST_PATH = "public/data/forecast.json"
+MAP_PATH = "public/map.html"
+
+CITY_COORDINATES = {
+    "sydney": [-33.86, 151.20], "melbourne": [-37.81, 144.96], "brisbane": [-27.47, 153.02], "perth": [-31.95, 115.86], "canberra": [-35.28, 149.13],
+    "tokyo": [35.67, 139.65], "osaka": [34.69, 135.50], "fukuoka": [33.59, 130.40], "seoul": [37.56, 126.97], "busan": [35.17, 129.07],
+    "beijing": [39.90, 116.40], "shanghai": [31.23, 121.47], "hong kong": [22.31, 114.16], "taipei": [25.03, 121.56], "shenzhen": [22.54, 114.05],
+    "bangalore": [12.97, 77.59], "mumbai": [19.07, 72.87], "delhi": [28.70, 77.10], "chennai": [13.08, 80.27], "hyderabad": [17.38, 78.48],
+    "singapore": [1.35, 103.81], "bangkok": [13.75, 100.50], "hanoi": [21.02, 105.83], "jakarta": [-6.20, 106.84], "manila": [14.59, 120.98],
+    "london": [51.50, -0.12], "paris": [48.85, 2.35], "berlin": [52.52, 13.40], "dubai": [25.20, 55.27], "tel aviv": [32.08, 34.78],
+    "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62]
+}
+
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+if GEMINI_KEY:
+    genai.configure(api_key=GEMINI_KEY)
+    model = genai.GenerativeModel('gemini-pro') 
+else:
+    model = None
+
+def clean_html(raw_html):
+    cleanr = re.compile('<.*?>')
+    text = re.sub(cleanr, '', raw_html)
+    text = re.sub(r'http\S+', '', text)
+    text = text.replace("Read full story", "").replace("&nbsp;", " ")
+    return text.strip()
+
+def load_locations():
+    try:
+        with open('config/locations.json', 'r') as f: return json.load(f)
+    except: return []
+
+def parse_date(entry):
+    try:
+        if 'published_parsed' in entry:
+            dt = datetime.fromtimestamp(mktime(entry.published_parsed))
+            return dt.strftime("%Y-%m-%d"), dt.isoformat(), dt.timestamp()
+        else:
+            now = datetime.now()
+            return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
+    except:
+        now = datetime.now()
+        return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
+
+def get_hardcoded_coords(text):
+    for city, coords in CITY_COORDINATES.items():
+        if city in text.lower(): return coords[0], coords[1]
+    return 0.0, 0.0
+
+def is_duplicate_title(new_title, existing_titles):
+    for old_title in existing_titles:
+        if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
+    return False
+
+def ask_gemini_analyst(title, snippet):
+    if not model: return None
+    
+    prompt = f"""
+    Role: Senior Intelligence Analyst for Dell SRO.
+    Task: Filter and Categorize this news item.
+    
+    Headline: "{title}"
+    Snippet: "{snippet}"
+    
+    PROTOCOL:
+    1. PRIORITY: Terror, War, Riots, Active Shooter, Port Strikes, Power Outage, Major Cyber Breach.
+    2. NOISE (DISCARD): Politics, Stocks, Social Issues, Minor Crime.
+    
+    OUTPUT JSON: 
+    {{ 
+      "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
+      "severity": 1 (Info)|2 (Warning)|3 (Critical), 
+      "clean_title": "Professional Headline", 
+      "summary": "1 sentence SRO impact.", 
+      "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", 
+      "lat": 0.0, 
+      "lon": 0.0 
+    }}
+    """
+    try:
+        time.sleep(1.5)
+        response = model.generate_content(prompt)
+        text = response.text.replace("```json", "").replace("```", "")
+        return json.loads(text)
+    except: return None
+
+def analyze_article_hybrid(title, summary, source_name):
+    text = (title + " " + summary).lower()
+    if any(block in text for block in BLOCKED_KEYWORDS): return None
+
+    ai_result = ask_gemini_analyst(title, summary)
+    
+    if ai_result:
+        if ai_result.get('category') == "Irrelevant": return None
         
-        <div id="forecast-display" class="forecast-box">
-            <div class="forecast-label">AI Strategic Outlook</div>
-            <h4 id="fc-title" class="mt-2">Loading...</h4>
-            <p id="fc-analysis" class="text-muted"></p>
-            <div class="mt-2 border-top pt-2"><strong>Bottom Line:</strong> <span id="fc-bottom"></span></div>
-        </div>
+        lat = ai_result.get('lat', 0.0)
+        lon = ai_result.get('lon', 0.0)
+        if lat == 0.0: lat, lon = get_hardcoded_coords(text)
 
-        <ul class="nav nav-tabs mb-4">
-            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Map</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel</a></li>
-        </ul>
-
-        <div id="chart-container"><canvas id="riskChart"></canvas></div>
-
-        <div id="feed-view">
-            <div class="filter-container">
-                <div class="row g-3">
-                    <div class="col-md-2"><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
-                    <div class="col-md-3"><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
-                    <div class="col-md-3"><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risks</option><option value="Physical Security">Physical</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Weather</option><option value="Infrastructure">Infrastructure</option></select></div>
-                    <div class="col-md-4"><input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="renderNews()"></div>
-                </div>
-            </div>
-            <div id="news-feed"></div>
-        </div>
-
-        <div id="travel-view">
-            <div class="row mb-4"><div class="col-md-6"><select id="travelCountry" class="form-select" onchange="renderTravelCheck()"><option>Select...</option></select></div></div>
-            <div id="travel-feed"></div>
-        </div>
-
-        <iframe id="map-frame" src="map.html"></iframe>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let newsData = [];
-        let myChart = null;
-
-        // LOAD DATA IMMEDIATELY
-        window.onload = function() {
-            fetchNews();
-        };
-
-        function switchTab(tab) {
-            document.getElementById('feed-view').style.display = 'none';
-            document.getElementById('map-frame').style.display = 'none';
-            document.getElementById('chart-container').style.display = 'none';
-            document.getElementById('travel-view').style.display = 'none';
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            event.target.classList.add('active');
-
-            if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
-            if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
-            if(tab === 'trends') {
-                document.getElementById('chart-container').style.display = 'block';
-                renderChart();
-            }
-            if(tab === 'travel') {
-                document.getElementById('travel-view').style.display = 'block';
-                populateCountries();
-            }
+        return {
+            "category": ai_result.get('category', "Uncategorized"),
+            "severity": ai_result.get('severity', 1),
+            "region": ai_result.get('region', "Global"),
+            "clean_title": ai_result.get('clean_title', title),
+            "ai_summary": ai_result.get('summary', summary),
+            "lat": lat,
+            "lon": lon
         }
+    return None
 
-        async function fetchNews() {
-            try {
-                const ts = new Date().getTime();
-                // Fetch News
-                const r = await fetch('data/news.json?t=' + ts); 
-                if(r.ok) {
-                    newsData = await r.json();
-                    document.getElementById('last-updated').innerText = "Live DB: " + newsData.length + " Items"; 
-                } else {
-                    document.getElementById('last-updated').innerText = "Database Empty";
-                }
+def generate_interactive_map(articles):
+    m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
+    folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
+    
+    try:
+        with open('config/locations.json', 'r') as f:
+            assets = json.load(f)
+            for asset in assets:
+                if 'lat' in asset and 'lon' in asset:
+                    folium.Marker(
+                        [asset['lat'], asset['lon']],
+                        popup=f"<b>{asset['name']}</b><br>Type: {asset['type']}",
+                        icon=folium.Icon(color="blue", icon="shield", prefix='fa')
+                    ).add_to(m)
+    except: pass
+
+    for item in articles:
+        lat = item.get('lat')
+        lon = item.get('lon')
+        if lat and lon and (lat != 0.0 or lon != 0.0):
+            color = "orange"
+            if item['severity'] == 3: color = "red"
+            popup_html = f"<div style='font-family:Arial;width:200px'><b>{item['title']}</b><br><span style='color:gray;font-size:12px'>{item['category']}</span></div>"
+            folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=250), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
+    m.save(MAP_PATH)
+
+def generate_strategic_forecast(articles):
+    if not model: return
+    if not articles: return
+
+    top_items = [f"- {i['title']} ({i['region']})" for i in articles[:15]]
+    items_str = "\n".join(top_items)
+
+    prompt = f"""
+    Act as a Global Security Forecaster. Based on these recent events, predict the outlook for the NEXT 7 DAYS.
+    
+    Recent Events:
+    {items_str}
+    
+    Task:
+    1. Identify the top regional hotspot.
+    2. Predict one supply chain impact.
+    3. Provide a 1-sentence 'Executive Bottom Line'.
+    
+    Output JSON: {{ "outlook_title": "e.g. Escalating Tensions in APJC", "analysis": "...", "supply_chain_warning": "...", "bottom_line": "..." }}
+    """
+    try:
+        response = model.generate_content(prompt)
+        text = response.text.replace("```json", "").replace("```", "")
+        forecast_data = json.loads(text)
+        forecast_data["generated_at"] = datetime.now().strftime("%d %b %H:%M")
+        
+        with open(FORECAST_PATH, "w") as f:
+            json.dump(forecast_data, f, indent=2)
+    except Exception as e:
+        print(f"Forecast failed: {e}")
+
+def fetch_news():
+    locations = load_locations()
+    all_candidates = []
+    
+    if os.path.exists(DB_PATH):
+        try:
+            with open(DB_PATH, 'r') as f:
+                history = json.load(f)
+                for item in history:
+                    if not any(b in (item['title']+item['snippet']).lower() for b in BLOCKED_KEYWORDS):
+                        all_candidates.append(item)
+        except: pass
+
+    print("Scanning feeds with SRO AI Agent...")
+    for url, source_name in TRUSTED_SOURCES.items():
+        try:
+            feed = feedparser.parse(url)
+            for entry in feed.entries[:5]: 
+                title = entry.title
+                if len(title) < 15: continue
                 
-                // Fetch Forecast
-                const r2 = await fetch('data/forecast.json?t=' + ts);
-                if(r2.ok) {
-                    const fc = await r2.json();
-                    document.getElementById('forecast-display').style.display = 'block';
-                    document.getElementById('fc-title').innerText = fc.outlook_title;
-                    document.getElementById('fc-analysis').innerText = fc.analysis;
-                    document.getElementById('fc-supply').innerText = fc.supply_chain_warning;
-                    document.getElementById('fc-bottom').innerText = fc.bottom_line;
-                }
-                renderNews();
-            } catch (e) { console.log("No data yet"); }
-        }
+                is_dup = False
+                for old in all_candidates:
+                    if SequenceMatcher(None, title, old.get('title', '')).ratio() > 0.65:
+                        is_dup = True; break
+                if is_dup: continue
 
-        function renderNews() {
-            const dateF = document.getElementById('dateFilter').value;
-            const reg = document.getElementById('regionFilter').value;
-            const typ = document.getElementById('typeFilter').value;
-            const src = document.getElementById('searchBox').value.toLowerCase();
-            const con = document.getElementById('news-feed'); con.innerHTML = '';
-            
-            const filtered = newsData.filter(i => {
-                const dateMatch = dateF ? i.date_str === dateF : true;
-                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
-            });
-            
-            if(filtered.length===0) { con.innerHTML='<div class="text-center text-muted mt-5">No active threats matching criteria.</div>'; return; }
-            
-            filtered.forEach(i => {
-                let bCls = i.severity===3 ? 'badge-critical' : 'badge-warning';
-                let bTxt = i.severity===3 ? 'CRITICAL' : 'WARNING';
-                const niceDate = new Date(i.published).toLocaleString();
-                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
-            });
-        }
+                clean_summary = clean_html(entry.summary if 'summary' in entry else "")
+                analysis = analyze_article_hybrid(title, clean_summary, source_name)
+                
+                if analysis:
+                    all_candidates.append({
+                        "id": hashlib.md5(title.encode()).hexdigest(),
+                        "title": analysis['clean_title'],
+                        "snippet": analysis['ai_summary'],
+                        "link": entry.link,
+                        "published": parse_date(entry)[1],
+                        "date_str": parse_date(entry)[0],
+                        "timestamp": parse_date(entry)[2],
+                        "source": source_name,
+                        "category": analysis['category'],
+                        "severity": analysis['severity'],
+                        "region": analysis['region'],
+                        "lat": analysis.get('lat'),
+                        "lon": analysis.get('lon')
+                    })
+        except Exception as e: print(f"Skipping {source_name}: {e}")
 
-        function renderChart() {
-            if(myChart) myChart.destroy();
-            const dateCounts = {};
-            newsData.forEach(item => {
-                const d = item.date_str;
-                if(!dateCounts[d]) dateCounts[d] = 0;
-                dateCounts[d]++;
-            });
-            const sortedDates = Object.keys(dateCounts).sort().slice(-7);
-            const counts = sortedDates.map(d => dateCounts[d]);
-            const ctx = document.getElementById('riskChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: sortedDates, datasets: [{ label: 'Incidents', data: counts, backgroundColor: '#0076CE' }] }
-            });
-        }
+    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
+    if len(all_candidates) > 1000: all_candidates = all_candidates[:1000]
 
-        function populateCountries() {
-            const sel = document.getElementById('travelCountry');
-            const countries = ["Australia", "Brazil", "China", "France", "Germany", "India", "Indonesia", "Israel", "Japan", "Korea", "Malaysia", "Mexico", "Philippines", "Singapore", "Taiwan", "Thailand", "UK", "USA", "Vietnam"];
-            sel.innerHTML = '<option value="">Select a country...</option>';
-            countries.sort().forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-        }
+    os.makedirs("public/data", exist_ok=True)
+    with open(DB_PATH, "w") as f: json.dump(all_candidates, f, indent=2)
+    
+    generate_interactive_map(all_candidates)
+    generate_strategic_forecast(all_candidates)
 
-        function renderTravelCheck() {
-            const c = document.getElementById('travelCountry').value;
-            const con = document.getElementById('travel-feed'); con.innerHTML = '';
-            if(!c) return;
-            const hits = newsData.filter(i => (i.title + i.snippet).includes(c));
-            if(hits.length === 0) con.innerHTML = "<div class='alert alert-success'>✅ No critical threats detected.</div>";
-            else hits.forEach(i => con.innerHTML += `<div class="alert alert-warning"><b>${i.date_str}</b>: ${i.title}</div>`);
-        }
-    </script>
-</body>
-</html>
+if __name__ == "__main__":
+    fetch_news()
