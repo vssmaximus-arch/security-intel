@@ -11,7 +11,7 @@
     "category": "Weather/Event",
     "severity": 3,
     "region": "APJC",
-    "lat": 25.0330,
+    "lat": 25.033,
     "lon": 121.5654
   },
   {
@@ -41,8 +41,8 @@
     "category": "Cyber",
     "severity": 3,
     "region": "EMEA",
-    "lat": 52.5200,
-    "lon": 13.4050
+    "lat": 52.52,
+    "lon": 13.405
   },
   {
     "id": "demo4",
@@ -56,7 +56,7 @@
     "category": "Physical Security",
     "severity": 3,
     "region": "LATAM",
-    "lat": 4.7110,
+    "lat": 4.711,
     "lon": -74.0721
   },
   {
