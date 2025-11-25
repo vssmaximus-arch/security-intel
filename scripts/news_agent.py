@@ -70,8 +70,6 @@ FEEDS = [
     # --- Cyber ---
     {"source": "CISA Alerts", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml"},
     {"source": "BleepingComputer", "url": "https://www.bleepingcomputer.com/feed/"}
-
-    # Future: add Google News feeds here once you’re happy with volume
 ]
 
 # ---------------------------------------------------------------------------
@@ -170,9 +168,16 @@ def is_potential_sro(text: str) -> bool:
     return any(word in t for word in SRO_KEYWORDS)
 
 
-def load_locations() -> Dict[str, Any]:
+def load_locations():
+    """
+    Load config/locations.json.
+
+    Supports both:
+    - { "assets": [ {...}, ... ] }
+    - [ {...}, {...} ]
+    """
     if not os.path.exists(LOCATIONS_PATH):
-        return {"assets": []}
+        return []
     with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -186,7 +191,6 @@ def get_gemini_model():
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY environment variable not set")
     genai.configure(api_key=api_key)
-    # Use a model that exists for the google-generativeai SDK
     return genai.GenerativeModel("gemini-pro")
 
 
@@ -261,7 +265,6 @@ def fetch_entries() -> List[Dict[str, Any]]:
             if not is_potential_sro(combined):
                 continue
 
-            # Timestamp
             try:
                 if getattr(entry, "published_parsed", None):
                     dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
@@ -386,7 +389,14 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
-def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
+def build_map(events: List[Dict[str, Any]], locations_cfg):
+    """
+    Build the folium map.
+
+    locations_cfg can be:
+    - dict with key "assets" -> list
+    - plain list of asset dicts
+    """
     m = folium.Map(
         location=[10, 10],
         zoom_start=2,
@@ -396,8 +406,18 @@ def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
     )
     m.options["no_wrap"] = True
 
+    # Normalise assets structure
+    if isinstance(locations_cfg, dict):
+        assets = locations_cfg.get("assets", [])
+    elif isinstance(locations_cfg, list):
+        assets = locations_cfg
+    else:
+        assets = []
+
     # Dell assets – blue markers
-    for asset in locations_cfg.get("assets", []):
+    for asset in assets:
+        if not isinstance(asset, dict):
+            continue
         lat = asset.get("lat")
         lon = asset.get("lon")
         if lat is None or lon is None:
