@@ -13,8 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      # 1. SYNC
       - name: Sync with Server
-        run: git pull origin main
+        run: git pull origin main --no-rebase
 
       - uses: actions/setup-python@v4
         with:
@@ -22,14 +23,13 @@ jobs:
       
       - run: pip install -r requirements.txt
       
+      # 2. BRAIN
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
-      - name: Generate Reports
-        run: python scripts/generate_reports.py
-
+      # 3. SAVE
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
