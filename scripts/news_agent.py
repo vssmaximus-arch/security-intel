@@ -10,7 +10,6 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION ---
 TRUSTED_SOURCES = {
     "https://news.google.com/rss/search?q=cyberattack+OR+ransomware+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Cyber",
     "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
@@ -112,6 +111,11 @@ def fetch_news():
                     if lat == 0.0: lat, lon = get_hardcoded_coords(title)
                     else: lon = analysis.get('lon', 0.0)
                     
+                    # Region Logic
+                    region = analysis.get('region', 'Global')
+                    if "asia" in title.lower() or "china" in title.lower(): region = "APJC"
+                    if "brazil" in title.lower() or "mexico" in title.lower(): region = "LATAM"
+
                     all_candidates.append({
                         "id": hashlib.md5(title.encode()).hexdigest(),
                         "title": analysis.get('clean_title', title),
@@ -123,14 +127,15 @@ def fetch_news():
                         "source": source_name,
                         "category": analysis.get('category', "Uncategorized"),
                         "severity": analysis.get('severity', 1),
-                        "region": analysis.get('region', "Global"),
-                        "lat": lat, "lon": lon
+                        "region": region,
+                        "lat": lat,
+                        "lon": lon
                     })
         except Exception as e: print(f"Skipping {source_name}: {e}")
 
     all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
     
-    # Remove duplicates
+    # Dedup
     unique = {v['id']:v for v in all_candidates}.values()
     final_list = list(unique)[:500]
 
