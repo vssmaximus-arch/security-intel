@@ -4,15 +4,16 @@ Dell Global Security & Resiliency Intelligence – News Agent
 
 - Ingests RSS feeds
 - Applies strict SRO keyword pre-filter
-- Uses Gemini for final relevance / classification
+- Uses Gemini (google-generativeai) for final relevance / classification
 - Writes public/data/news.json
 - Writes public/map.html
 
 Design:
-- Still strict enough to cope with future Google News volume
-- But NEVER leaves news.json completely empty:
-  * If Gemini returns < MIN_EVENTS, we promote some pre-filtered items as low-severity warnings
-  * If absolutely nothing, we write a single heartbeat mock event
+- Strict enough to cope with future Google News volume
+- Hard caps per feed and overall
+- Never leaves news.json totally empty:
+  * If Gemini returns too few events, promote some pre-filtered items as low-severity warnings
+  * If absolutely nothing, write a heartbeat mock event
 """
 
 import os
@@ -23,9 +24,7 @@ from typing import List, Dict, Any
 
 import feedparser
 import folium
-
-from google import genai
-from google.genai import types as genai_types
+import google.generativeai as genai
 
 # ---------------------------------------------------------------------------
 # PATHS
@@ -41,10 +40,9 @@ LOCATIONS_PATH = os.path.join(BASE_DIR, "config", "locations.json")
 # FEEDS & LIMITS
 # ---------------------------------------------------------------------------
 
-# You can safely add Google News RSS later; this agent already has caps
 MAX_ITEMS_PER_FEED = 40       # hard cap per RSS source
 MAX_TOTAL_ITEMS = 300         # hard cap overall before AI
-MIN_EVENTS_AFTER_AI = 10      # if Gemini returns fewer than this, fallback kicks in
+MIN_EVENTS_AFTER_AI = 10      # we try to keep at least this many events
 
 FEEDS = [
     # --- Global wires ---
@@ -73,9 +71,7 @@ FEEDS = [
     {"source": "CISA Alerts", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml"},
     {"source": "BleepingComputer", "url": "https://www.bleepingcomputer.com/feed/"}
 
-    # --- Future: Google News RSS (kept out for now to avoid firehose)
-    # Example pattern once you’re ready:
-    # {"source": "GoogleNews Cyberattack", "url": "https://news.google.com/rss/search?q=cyberattack&hl=en-US&gl=US&ceid=US:en"},
+    # --- Future: Google News RSS can be added later; the caps above will protect you ---
 ]
 
 # ---------------------------------------------------------------------------
@@ -181,28 +177,22 @@ def load_locations() -> Dict[str, Any]:
         return json.load(f)
 
 # ---------------------------------------------------------------------------
-# GEMINI
+# GEMINI (google-generativeai)
 # ---------------------------------------------------------------------------
 
 
-def get_gemini_client():
+def get_gemini_model():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY environment variable not set")
-    return genai.Client(api_key=api_key)
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel("gemini-1.5-flash")  # adjust model name if needed
 
 
-def analyze_article(client, title: str, summary: str, link: str) -> Dict[str, Any]:
+def analyze_article(model, title: str, summary: str, link: str) -> Dict[str, Any]:
     """
-    Ask Gemini to:
-      - decide relevance
-      - categorize (Physical/Cyber/Logistics/Weather)
-      - assign severity 1–3
-      - identify region, country, city
-      - produce impact summary
-
-    If Gemini output is unusable (bad JSON etc.), we fail soft and let
-    higher-level logic decide whether to keep the item as a low-severity warning.
+    Call Gemini to decide relevance and classify.
+    Soft-fail (relevant=None) if JSON is bad.
     """
     user_prompt = f"""
 Act as a Dell Safety & Risk Operations (SRO) analyst.
@@ -224,23 +214,11 @@ Tasks:
    - city: impacted city / metro if clearly known
    - impact_summary: 2–3 sentence professional summary focused on business continuity.
 
-Return ONLY a single JSON object, for example:
-{{
-  "relevant": true,
-  "category": "Physical",
-  "severity": 2,
-  "region": "APJC",
-  "country": "India",
-  "city": "Bangalore",
-  "impact_summary": "..."
-}}
+Return ONLY a single JSON object.
 """
 
-    resp = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=[genai_types.Content(role="user", parts=[user_prompt])]
-    )
-    text = resp.text.strip()
+    resp = model.generate_content(user_prompt)
+    text = (resp.text or "").strip()
     if text.startswith("```"):
         text = text.strip("`")
         if text.lower().startswith("json"):
@@ -252,7 +230,6 @@ Return ONLY a single JSON object, for example:
             raise ValueError("Not a JSON object")
         return data
     except Exception:
-        # Soft failure – caller can still decide to keep item as severity 1 warning
         return {"relevant": None}
 
 # ---------------------------------------------------------------------------
@@ -283,7 +260,6 @@ def fetch_entries() -> List[Dict[str, Any]]:
             if not is_potential_sro(combined):
                 continue
 
-            # Basic published time parsing – tolerant
             try:
                 if getattr(entry, "published_parsed", None):
                     dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
@@ -318,32 +294,20 @@ def fetch_entries() -> List[Dict[str, Any]]:
 
 
 def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Main intelligence layer.
-
-    1. Ask Gemini to decide relevance + classification.
-    2. Build enriched events list.
-    3. If Gemini returns too few events (< MIN_EVENTS_AFTER_AI),
-       promote some of the pre-filtered items as severity 1 warnings so
-       dashboard is never empty even when strict.
-    4. If STILL nothing, create a heartbeat mock incident.
-    """
     if not items:
         return []
 
-    client = get_gemini_client()
+    model = get_gemini_model()
     enriched: List[Dict[str, Any]] = []
     rejected: List[Dict[str, Any]] = []
 
     for item in items:
-        ai = analyze_article(client, item["title"], item["summary"], item["link"])
+        ai = analyze_article(model, item["title"], item["summary"], item["link"])
 
-        # Explicit irrelevant
         if ai.get("relevant") is False:
             rejected.append(item)
             continue
 
-        # Properly relevant
         if ai.get("relevant") is True:
             category = ai.get("category") or "Physical"
             severity = int(ai.get("severity") or 1)
@@ -371,10 +335,9 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "impact_summary": impact_summary
             })
         else:
-            # ai["relevant"] is None – parsing error / bad JSON
             rejected.append(item)
 
-    # If Gemini was very strict, promote some rejected items as low-severity warnings
+    # If Gemini is too strict, promote some rejected as severity-1 warnings
     if len(enriched) < MIN_EVENTS_AFTER_AI and rejected:
         needed = MIN_EVENTS_AFTER_AI - len(enriched)
         for item in rejected[:needed]:
@@ -391,7 +354,7 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "impact_summary": combined[:400]
             })
 
-    # Absolute floor: heartbeat mock incident so dashboard never looks dead
+    # Absolute floor
     if not enriched:
         now = datetime.now(timezone.utc).isoformat()
         enriched.append({
@@ -426,10 +389,8 @@ def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
         max_bounds=True,
         prefer_canvas=True
     )
-    # Critical: avoid wraparound / repeating tiles
     m.options["no_wrap"] = True
 
-    # Dell assets – blue markers
     for asset in locations_cfg.get("assets", []):
         lat = asset.get("lat")
         lon = asset.get("lon")
@@ -444,7 +405,6 @@ def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
             popup=f"Dell Asset: {asset.get('name')} ({asset.get('city')}, {asset.get('country')})"
         ).add_to(m)
 
-    # Threats – color by severity
     for ev in events:
         lat, lon = ev.get("lat"), ev.get("lon")
         if lat is None or lon is None:
