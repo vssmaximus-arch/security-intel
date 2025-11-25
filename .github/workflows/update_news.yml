@@ -38,4 +38,27 @@ jobs:
 
       - name: Generate HTML reports
         run: |
-          python scripts
+          python scripts/generate_reports.py
+
+      - name: Git status
+        run: git status
+
+      - name: Configure Git user
+        run: |
+          git config user.name "SecurityIntelBot"
+          git config user.email "security-intel-bot@users.noreply.github.com"
+
+      - name: Add generated artifacts
+        run: |
+          git add public/data/news.json || true
+          git add public/data/forecast.json || true
+          git add public/map.html || true
+          git add public/reports/*.html || true
+
+      - name: Commit changes if any
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Updat
