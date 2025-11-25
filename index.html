@@ -10,9 +10,7 @@
     
     <style>
         body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
-        
-        /* UI ELEMENTS */
-        .navbar { background-color: #0076CE !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 1rem 2rem; }
+        .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
         .filter-container { background: white; padding: 1.5rem; border-radius: 8px; margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
         .card { border: none; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.04); }
         
@@ -28,13 +26,11 @@
         .nav-tabs .nav-link { color: #444; font-weight: 500; }
         .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         
-        /* VIEWS */
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
         #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        #travel-view { display: none; background: white; padding: 30px; border-radius: 8px; min-height: 400px; }
+        #travel-view { display: none; background: white; padding: 20px; border-radius: 8px; }
         
-        /* FORECAST */
-        .forecast-box { background: #fff; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; border-radius: 6px; display:none; }
+        .forecast-box { background: #fff; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; border-radius: 6px; display:none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
         
         .card-body img, iframe { display: none !important; }
@@ -55,15 +51,15 @@
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Regional</h6></li>
                         <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
-                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
+                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">China</a></li>
                         <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
                         <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
-                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
-                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">South East Asia</a></li>
+                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania</a></li>
+                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">SE Asia</a></li>
                     </ul>
                 </div>
             </div>
-            <span class="text-white" id="last-updated">Loading Data...</span>
+            <span class="text-white" id="last-updated">Loading...</span>
         </div>
     </nav>
     
@@ -80,7 +76,7 @@
             <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Map</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel Safety</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel</a></li>
         </ul>
 
         <div id="chart-container"><canvas id="riskChart"></canvas></div>
@@ -98,19 +94,72 @@
         </div>
 
         <div id="travel-view">
-            <h4 class="mb-4">Destination Risk Check</h4>
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <label class="form-label text-muted fw-bold">Select Country</label>
-                    <select id="travelCountry" class="form-select" onchange="renderTravelCheck()">
-                        <option value="">Select a destination...</option>
-                    </select>
-                </div>
-            </div>
+            <h5 class="mb-3">Destination Risk Check</h5>
+            <div class="row mb-4"><div class="col-md-6"><select id="travelCountry" class="form-select" onchange="renderTravelCheck()"><option>Select...</option></select></div></div>
             <div id="travel-feed"></div>
         </div>
 
         <iframe id="map-frame" src="map.html"></iframe>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let newsData = [];
+        let myChart = null;
+
+        function switchTab(tab) {
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('map-frame').style.display = 'none';
+            document.getElementById('chart-container').style.display = 'none';
+            document.getElementById('travel-view').style.display = 'none';
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
+            if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
+            if(tab === 'trends') {
+                document.getElementById('chart-container').style.display = 'block';
+                renderChart();
+            }
+            if(tab === 'travel') {
+                document.getElementById('travel-view').style.display = 'block';
+                populateCountries();
+            }
+        }
+
+        async function fetchNews() {
+            try {
+                const ts = new Date().getTime();
+                const r = await fetch('data/news.json?t=' + ts); 
+                if(r.ok) {
+                    newsData = await r.json();
+                    document.getElementById('last-updated').innerText = "Live DB: " + newsData.length + " Items"; 
+                } else {
+                    document.getElementById('last-updated').innerText = "Database Empty";
+                }
+                
+                const r2 = await fetch('data/forecast.json?t=' + ts);
+                if(r2.ok) {
+                    const fc = await r2.json();
+                    document.getElementById('forecast-display').style.display = 'block';
+                    document.getElementById('fc-title').innerText = fc.outlook_title;
+                    document.getElementById('fc-analysis').innerText = fc.analysis;
+                    document.getElementById('fc-bottom').innerText = fc.bottom_line;
+                }
+                renderNews();
+            } catch (e) { console.log("No data yet"); }
+        }
+
+        function renderNews() {
+            const dateF = document.getElementById('dateFilter').value;
+            const reg = document.getElementById('regionFilter').value;
+            const typ = document.getElementById('typeFilter').value;
+            const src = document.getElementById('searchBox').value.toLowerCase();
+            const con = document.getElementById('news-feed'); con.innerHTML = '';
+            
+            const filtered = newsData.filter(i => {
+                const dateMatch = dateF ? i.date_str === dateF : true;
+                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
+            });
+            
+            if(filtered.length===0
