@@ -22,7 +22,6 @@
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
         .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
         .card-title a { color: #172B4D; font-weight: 700; text-decoration: none; }
-        
         .nav-tabs .nav-link { color: #444; font-weight: 500; }
         .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
@@ -30,6 +29,10 @@
         #travel-view { display: none; background: white; padding: 20px; border-radius: 8px; }
         .card-body img { display: none !important; }
         .card-body iframe { display: none !important; }
+        
+        /* AI FORECAST WIDGET */
+        .forecast-box { background: linear-gradient(to right, #ffffff, #f8f9fa); border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; border-radius: 6px; display:none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
     </style>
 </head>
 <body onload="fetchNews()">
@@ -44,8 +47,8 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><h6 class="dropdown-header">Executive</h6></li>
-                        <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global</a></li>
-                        <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC</a></li>
+                        <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
+                        <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Regional</h6></li>
                         <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
@@ -62,15 +65,26 @@
     </nav>
     
     <div class="container mt-4">
+        
+        <div id="forecast-display" class="forecast-box">
+            <div class="forecast-label">AI Strategic Intelligence Outlook (7-Day)</div>
+            <h4 id="fc-title" class="mt-2" style="color:#333;">Analyzing Trends...</h4>
+            <p id="fc-analysis" class="text-muted mt-2"></p>
+            <div class="mt-3 pt-3 border-top">
+                <strong>🛑 Supply Chain Alert:</strong> <span id="fc-supply"></span><br>
+                <strong>💡 Executive Bottom Line:</strong> <span id="fc-bottom"></span>
+            </div>
+        </div>
+
         <ul class="nav nav-tabs mb-4" style="border-bottom: 2px solid #ddd;">
             <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Threat Velocity</a></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel Safety</a></li>
         </ul>
 
         <div id="chart-container">
-            <h5 class="mb-4">Weekly Risk Velocity</h5>
+            <h5 class="mb-4">Weekly Incident Velocity</h5>
             <canvas id="riskChart"></canvas>
         </div>
 
@@ -131,13 +145,26 @@
             try {
                 const ts = new Date().getTime();
                 const r = await fetch('data/news.json?t=' + ts); 
-                if(!r.ok) throw new Error("Not found");
-                newsData = await r.json();
-                document.getElementById('last-updated').innerText = "Live Database: " + newsData.length + " Items"; 
+                if(r.ok) {
+                    newsData = await r.json();
+                    document.getElementById('last-updated').innerText = "Live Database: " + newsData.length + " Items"; 
+                } else {
+                    document.getElementById('last-updated').innerText = "Database Empty";
+                }
+                
+                // Fetch AI Forecast
+                const r2 = await fetch('data/forecast.json?t=' + ts);
+                if(r2.ok) {
+                    const fc = await r2.json();
+                    document.getElementById('forecast-display').style.display = 'block';
+                    document.getElementById('fc-title').innerText = fc.outlook_title;
+                    document.getElementById('fc-analysis').innerText = fc.analysis;
+                    document.getElementById('fc-supply').innerText = fc.supply_chain_warning;
+                    document.getElementById('fc-bottom').innerText = fc.bottom_line;
+                }
+
                 renderNews();
-            } catch (e) { 
-                document.getElementById('news-feed').innerHTML = '<div class="text-center mt-5 text-muted"><h5>Database Empty</h5><p>No critical SRO events detected.</p></div>'; 
-            }
+            } catch (e) { console.log("No data yet"); }
         }
 
         function renderNews() {
@@ -179,7 +206,7 @@
                 data: {
                     labels: sortedDates,
                     datasets: [{
-                        label: 'Incident Velocity',
+                        label: 'Total Security Incidents',
                         data: counts,
                         backgroundColor: '#0076CE',
                         borderRadius: 4
