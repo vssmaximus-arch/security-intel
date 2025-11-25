@@ -22,11 +22,13 @@ jobs:
       
       - run: pip install -r requirements.txt
       
-      # Run the Unified Brain (Does scraping, mapping, reporting)
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
+
+      - name: Generate Reports
+        run: python scripts/generate_reports.py
 
       - run: |
           git config --global user.name 'SecurityIntelBot'
