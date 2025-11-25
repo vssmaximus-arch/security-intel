@@ -13,36 +13,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # 1. SYNC FIRST (Critical for Unjamming)
-      - name: Sync with Server
-        run: git pull origin main
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
       
       - run: pip install -r requirements.txt
       
-      # 2. Run AI Agent
+      # 1. Run the AI (Takes time)
       - name: Run AI News Agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/news_agent.py
 
-      # 3. Generate HTML Reports
+      # 2. Generate Reports
       - name: Generate Reports
         run: python scripts/generate_reports.py
 
-      # 4. Save & Push (With Rebase to handle your edits)
+      # 3. SAVE (The Fix: Pull -> Rebase -> Push)
       - run: |
           git config --global user.name 'SecurityIntelBot'
           git config --global user.email 'bot@noreply.github.com'
-          # Pull again just in case
-          git pull origin main --rebase
-          # Add files
+          
+          # Add the new files
           git add public/data/news.json public/reports/*.html
-          # Commit and Push
           git commit -m "Update intel and reports" || echo "No changes to commit"
+          
+          # CRITICAL FIX: Sync with your changes before pushing
+          git pull origin main --rebase
+          
+          # Now Push
           git push origin main
       
       - uses: peaceiris/actions-gh-pages@v3
