@@ -10,7 +10,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION: SRO SOURCES ---
+# --- CONFIGURATION: TRUSTED SOURCES ---
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
@@ -32,6 +32,7 @@ TRUSTED_SOURCES = {
     "https://www.bleepingcomputer.com/feed/": "BleepingComputer"
 }
 
+# --- NOISE FILTER ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -47,6 +48,7 @@ BLOCKED_KEYWORDS = [
     "blog is now closed", "live coverage", "follow our", "live blog", "crypto", "bitcoin"
 ]
 
+# --- SRO CATEGORIES ---
 KEYWORDS = {
     "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "hacker", "botnet", "apt group"],
     "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup", "civil unrest"],
@@ -66,7 +68,8 @@ CITY_COORDINATES = {
     "bangalore": [12.97, 77.59], "mumbai": [19.07, 72.87], "delhi": [28.70, 77.10], "chennai": [13.08, 80.27], "hyderabad": [17.38, 78.48],
     "singapore": [1.35, 103.81], "bangkok": [13.75, 100.50], "hanoi": [21.02, 105.83], "jakarta": [-6.20, 106.84], "manila": [14.59, 120.98],
     "london": [51.50, -0.12], "paris": [48.85, 2.35], "berlin": [52.52, 13.40], "dubai": [25.20, 55.27], "tel aviv": [32.08, 34.78],
-    "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62]
+    "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62],
+    "mexico city": [19.43, -99.13], "sao paulo": [-23.55, -46.63], "buenos aires": [-34.60, -58.38], "bogota": [4.71, -74.07], "santiago": [-33.44, -70.66]
 }
 
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
@@ -110,39 +113,51 @@ def is_duplicate_title(new_title, existing_titles):
         if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
     return False
 
+# --- SRO-FOCUSED AI PROMPT ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
     
-    # RELAXED PROMPT FOR PILOT: Allows "Warning" level events
     prompt = f"""
-    Role: Dell SRO Intelligence Analyst.
-    Task: Assess this news for Security, Logistics, or Safety risks.
+    Role: Senior Intelligence Analyst for Dell SRO.
+    Task: Categorize this news.
     
     Headline: "{title}"
     Snippet: "{snippet}"
     
     PROTOCOL:
-    1. KEEP (High Priority): Terror, War, Riots, Active Shooter, Port Strikes, Power Outage, Major Cyber Breach.
-    2. KEEP (Medium Priority): Travel Warnings, Weather Alerts, Transport Delays, Regional Instability.
-    3. DISCARD: Sports, Celebrity, Business/Stocks, Politics/Opinion, Minor/Individual Crime.
+    1. PRIORITY: Terror, War, Riots, Active Shooter, Port Strikes, Power Outage, Major Cyber Breach.
+    2. NOISE (DISCARD): Politics, Stocks, Social Issues, Minor Crime.
     
     OUTPUT JSON: 
     {{ 
       "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
       "severity": 1 (Info)|2 (Warning)|3 (Critical), 
       "clean_title": "Professional Headline", 
-      "summary": "1 sentence impact.", 
-      "region": "AMER"|"EMEA"|"APJC"|"Global", 
+      "summary": "1 sentence SRO impact.", 
+      "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", 
       "lat": 0.0, 
       "lon": 0.0 
     }}
     """
+    
     try:
         time.sleep(1.5)
         response = model.generate_content(prompt)
         text = response.text.replace("```json", "").replace("```", "")
         return json.loads(text)
     except: return None
+
+def determine_region(text, locations):
+    # Check Location List First
+    for loc in locations:
+        if loc['city'].lower() in text: return loc['region']
+        
+    # KEYWORD REGION LOGIC (Updated for LATAM)
+    if any(x in text for x in ["asia", "china", "india", "japan", "australia", "singapore", "korea"]): return "APJC"
+    elif any(x in text for x in ["europe", "uk", "germany", "france", "ukraine", "russia", "middle east", "israel"]): return "EMEA"
+    elif any(x in text for x in ["brazil", "mexico", "argentina", "colombia", "chile", "peru", "venezuela", "latin america", "panama", "costa rica"]): return "LATAM"
+    elif any(x in text for x in ["usa", "america", "canada", "united states", "texas", "california"]): return "AMER"
+    return "Global"
 
 def analyze_article_hybrid(title, summary, source_name):
     text = (title + " " + summary).lower()
@@ -157,10 +172,15 @@ def analyze_article_hybrid(title, summary, source_name):
         lon = ai_result.get('lon', 0.0)
         if lat == 0.0: lat, lon = get_hardcoded_coords(text)
 
+        # Allow AI to set region, otherwise fallback to keyword logic
+        region = ai_result.get('region', "Global")
+        if region not in ["AMER", "EMEA", "APJC", "LATAM", "Global"]:
+            region = determine_region(text, [])
+
         return {
             "category": ai_result.get('category', "Uncategorized"),
             "severity": ai_result.get('severity', 1),
-            "region": ai_result.get('region', "Global"),
+            "region": region,
             "clean_title": ai_result.get('clean_title', title),
             "ai_summary": ai_result.get('summary', summary),
             "lat": lat,
@@ -168,37 +188,30 @@ def analyze_article_hybrid(title, summary, source_name):
         }
     return None
 
-# --- FIXED MAP GENERATOR (With Blue Shields) ---
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
     folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
     
-    # 1. PLOT DELL ASSETS (Blue Shields)
     try:
         with open('config/locations.json', 'r') as f:
             assets = json.load(f)
             for asset in assets:
-                # Safe check for lat/lon
                 if 'lat' in asset and 'lon' in asset:
                     folium.Marker(
                         [asset['lat'], asset['lon']],
                         popup=f"<b>{asset['name']}</b><br>Type: {asset['type']}",
                         icon=folium.Icon(color="blue", icon="shield", prefix='fa')
                     ).add_to(m)
-    except Exception as e:
-        print(f"Warning: Could not load assets for map: {e}")
+    except: pass
 
-    # 2. PLOT THREATS
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
         if lat and lon and (lat != 0.0 or lon != 0.0):
-            color = "orange" # Default Warning
+            color = "orange"
             if item['severity'] == 3: color = "red"
-            
             popup_html = f"<div style='font-family:Arial;width:200px'><b>{item['title']}</b><br><span style='color:gray;font-size:12px'>{item['category']}</span></div>"
             folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=250), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
-            
     m.save(MAP_PATH)
 
 def fetch_news():
@@ -228,8 +241,7 @@ def fetch_news():
                 is_dup = False
                 for old in all_candidates:
                     if SequenceMatcher(None, title, old.get('title', '')).ratio() > 0.65:
-                        is_dup = True
-                        break
+                        is_dup = True; break
                 if is_dup: continue
 
                 clean_summary = clean_html(entry.summary if 'summary' in entry else "")
