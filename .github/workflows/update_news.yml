@@ -40,9 +40,6 @@ jobs:
         run: |
           python scripts/generate_reports.py
 
-      - name: Git status
-        run: git status
-
       - name: Configure Git user
         run: |
           git config user.name "SecurityIntelBot"
@@ -55,10 +52,14 @@ jobs:
           git add public/map.html || true
           git add public/reports/*.html || true
 
-      - name: Commit changes if any
+      - name: Commit changes (if any)
         run: |
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-          git commit -m "Updat
+          git commit -m "Update intel" || echo "Nothing to commit"
+
+      - name: Pull remote with 'ours' strategy (avoid conflicts)
+        run: |
+          git pull --strategy=ours origin ${{ github.ref_name }} || true
+
+      - name: Push changes
+        run: |
+          git push origin ${{ github.ref_name }} || true
