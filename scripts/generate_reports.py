@@ -41,14 +41,10 @@ def main():
         filtered = []
         for item in data:
             if item.get('severity', 1) < profile['min_severity']: continue
-            if profile['region'] != "ALL":
-                item_region = item.get('region', 'Global')
-                if item_region != profile['region'] and item_region != "Global": continue
-            
+            if profile['region'] != "ALL" and item.get('region') != profile['region']: continue
             if profile['keywords']:
                 text = (item.get('title', '') + item.get('snippet', '')).lower()
                 if not any(k in text for k in profile['keywords']): continue
-            
             filtered.append(item)
             
         with open(os.path.join(OUTPUT_DIR, f"{profile['id']}_latest.html"), "w") as f:
