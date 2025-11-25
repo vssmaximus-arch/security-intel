@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-25T15:58:09.793157+00:00",
+  "generated_at": "2025-11-25T16:58:41.216450+00:00",
   "events": [
     {
       "id": "4f094865a9b4438a",
@@ -66,10 +66,10 @@
       "impact_summary": "Protests have taken place over the coaches that take visitors up to the world heritage site in Peru."
     },
     {
-      "id": "67c0847d8459f3f3",
-      "title": "Is Africa's solar power revolution finally happening?",
+      "id": "9a0e360b77a098ed",
+      "title": "Africa's solar power revolution is finally happening",
       "summary": "Chinese solar equipment has been flooding African markets, partly as a ripple effect of the US-China trade war. It's one of several factors helping the continent gain traction with electrification.",
-      "link": "https://www.dw.com/en/is-africa-s-solar-power-revolution-finally-happening/a-74795571?maca=en-rss-en-world-4025-rdf",
+      "link": "https://www.dw.com/en/africa-s-solar-power-revolution-is-finally-happening/a-74795571?maca=en-rss-en-world-4025-rdf",
       "source": "DW World",
       "published": "2025-11-25T14:50:00+00:00",
       "category": "Physical",
@@ -130,22 +130,6 @@
       "impact_summary": "According to the 2024 Zambia Demographic and Health Survey, half of all women have experienced physical, emotional or sexual violence. Experts warn the true number is likely higher. But change is on the horizon."
     },
     {
-      "id": "02cb0a1ed692910b",
-      "title": "Japan's work-life balance at risk under new PM",
-      "summary": "Japan's new prime minister has vowed to \"work, work, work,\" even on two hours of sleep. Critics warn her stance could revive toxic overtime culture and reverse progress on reducing deaths from overwork.",
-      "link": "https://www.dw.com/en/japan-s-work-life-balance-at-risk-under-new-pm/a-74866948?maca=en-rss-en-world-4025-rdf",
-      "source": "DW World",
-      "published": "2025-11-24T15:17:00+00:00",
-      "category": "Physical",
-      "severity": 1,
-      "region": "Global",
-      "country": "",
-      "city": "",
-      "lat": null,
-      "lon": null,
-      "impact_summary": "Japan's new prime minister has vowed to \"work, work, work,\" even on two hours of sleep. Critics warn her stance could revive toxic overtime culture and reverse progress on reducing deaths from overwork."
-    },
-    {
       "id": "be01d785f01c4ba0",
       "title": "Green notification for tropical cyclone FOUR-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (1.518 million in Tropical Storm).",
       "summary": "From 25/11/2025 to 25/11/2025, a Tropical Storm (maximum wind speed of 83 km/h) FOUR-25 was active in NorthIndian. The cyclone affects these countries: Indonesia (vulnerability Low). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (1.518 million in tropical storm).",
@@ -160,6 +144,22 @@
       "lat": null,
       "lon": null,
       "impact_summary": "From 25/11/2025 to 25/11/2025, a Tropical Storm (maximum wind speed of 83 km/h) FOUR-25 was active in NorthIndian. The cyclone affects these countries: Indonesia (vulnerability Low). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (1.518 million in tropical storm)."
+    },
+    {
+      "id": "3842aa2a7051185d",
+      "title": "Green notification for tropical cyclone KOTO-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in Tropical Storm).",
+      "summary": "From 24/11/2025 to 25/11/2025, a Tropical Storm (maximum wind speed of 111 km/h) KOTO-25 was active in NWPacific. The cyclone affects these countries: Philippines, Viet Nam (vulnerability High). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in tropical storm).",
+      "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001236",
+      "source": "GDACS Alerts",
+      "published": "2025-11-24T19:52:20+00:00",
+      "category": "Physical",
+      "severity": 1,
+      "region": "Global",
+      "country": "",
+      "city": "",
+      "lat": null,
+      "lon": null,
+      "impact_summary": "From 24/11/2025 to 25/11/2025, a Tropical Storm (maximum wind speed of 111 km/h) KOTO-25 was active in NWPacific. The cyclone affects these countries: Philippines, Viet Nam (vulnerability High). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in tropical storm)."
     }
   ]
 }
