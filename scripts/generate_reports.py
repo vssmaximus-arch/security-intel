@@ -23,8 +23,10 @@ def generate_html(profile, items):
     if not items: html += "<p>No critical events.</p>"
     
     for item in items:
-        color = "red" if item['severity'] == 3 else "orange"
-        html += f"<div class='card {color}'><h3><a href='{item['link']}'>{item['title']}</a></h3><p>{item['snippet']}</p><small>{item['source']} | {item.get('date_str','N/A')}</small></div>"
+        color = "red" if item.get('severity') == 3 else "orange"
+        # Safely get snippet
+        snippet = item.get('snippet') or item.get('ai_summary') or "No summary available."
+        html += f"<div class='card {color}'><h3><a href='{item['link']}'>{item['title']}</a></h3><p>{snippet}</p><small>{item['source']} | {item.get('date_str','N/A')}</small></div>"
     
     html += "</body></html>"
     return html
@@ -33,9 +35,9 @@ def main():
     if not os.path.exists(DB_PATH): 
         data = []
     else:
-        try:
-            with open(DB_PATH, 'r') as f: data = json.load(f)
-        except: data = []
+        with open(DB_PATH, 'r') as f: 
+            try: data = json.load(f)
+            except: data = []
     
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     
