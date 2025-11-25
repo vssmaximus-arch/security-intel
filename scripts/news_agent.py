@@ -15,11 +15,11 @@ TRUSTED_SOURCES = {
     "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
     "https://news.google.com/rss/search?q=terrorist+attack+OR+bombing+OR+mass+shooting+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Security",
     "https://news.google.com/rss/search?q=earthquake+OR+typhoon+OR+tsunami+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Disaster",
-    "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
+    "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept",
     "https://gdacs.org/xml/rss.xml": "UN GDACS"
 }
 
-BLOCKED_KEYWORDS = ["entertainment", "celebrity", "movie", "film", "music", "sport", "football", "cricket", "dating", "gossip"]
+BLOCKED_KEYWORDS = ["entertainment", "celebrity", "movie", "music", "sport", "football", "cricket", "dating", "gossip"]
 
 DB_PATH = "public/data/news.json"
 FORECAST_PATH = "public/data/forecast.json"
@@ -27,9 +27,9 @@ MAP_PATH = "public/map.html"
 
 CITY_COORDINATES = {
     "sydney": [-33.86, 151.20], "melbourne": [-37.81, 144.96], "tokyo": [35.67, 139.65],
-    "beijing": [39.90, 116.40], "shanghai": [31.23, 121.47], "hong kong": [22.31, 114.16],
-    "bangalore": [12.97, 77.59], "singapore": [1.35, 103.81], "london": [51.50, -0.12],
-    "new york": [40.71, -74.00], "austin": [30.26, -97.74], "san francisco": [37.77, -122.41]
+    "beijing": [39.90, 116.40], "shanghai": [31.23, 121.47], "bangalore": [12.97, 77.59],
+    "singapore": [1.35, 103.81], "london": [51.50, -0.12], "new york": [40.71, -74.00],
+    "austin": [30.26, -97.74], "san francisco": [37.77, -122.41]
 }
 
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
@@ -40,9 +40,7 @@ else:
     model = None
 
 def clean_html(raw_html):
-    cleanr = re.compile('<.*?>')
-    text = re.sub(cleanr, '', raw_html)
-    return text.strip()
+    return re.sub(r'<.*?>', '', raw_html).strip()
 
 def parse_date(entry):
     try:
@@ -60,7 +58,7 @@ def get_hardcoded_coords(text):
 
 def ask_gemini_analyst(title, snippet):
     if not model: return None
-    prompt = f"""Role: Security Analyst.
+    prompt = f"""Role: Dell SRO Analyst.
     Headline: "{title}" Snippet: "{snippet}"
     Rules: Discard Politics/Stocks/Crime. Keep Physical/Cyber/Logistics.
     Output JSON: {{ "category": "Physical Security"|"Cyber"|"Logistics"|"Irrelevant", "severity": 1-3, "clean_title": "Title", "summary": "Summary", "region": "Global", "lat": 0.0, "lon": 0.0 }}"""
@@ -74,12 +72,20 @@ def ask_gemini_analyst(title, snippet):
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=2, min_zoom=2, max_bounds=True, tiles=None)
     folium.TileLayer("cartodb positron", no_wrap=True).add_to(m)
+    
+    # Add Dell Assets
+    try:
+        with open('config/locations.json', 'r') as f:
+            for asset in json.load(f):
+                folium.Marker([asset['lat'], asset['lon']], icon=folium.Icon(color="blue", icon="shield", prefix='fa')).add_to(m)
+    except: pass
+
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
         if lat and lon and (lat != 0.0 or lon != 0.0):
-            color = "orange" if item['severity'] == 2 else "red"
-            folium.Marker([lat, lon], popup=item['title'], icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
+            color = "red" if item['severity'] == 3 else "orange"
+            folium.Marker([lat, lon], popup=item['title'], icon=folium.Icon(color=color, icon="warning-sign")).add_to(m)
     m.save(MAP_PATH)
 
 def generate_forecast(articles):
@@ -98,7 +104,6 @@ def fetch_news():
             with open(DB_PATH, 'r') as f: all_candidates = json.load(f)
         except: pass
 
-    print("Scanning feeds...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
@@ -107,11 +112,15 @@ def fetch_news():
                 if len(title) < 15: continue
                 
                 analysis = ask_gemini_analyst(title, entry.summary if 'summary' in entry else "")
-                
                 if analysis and analysis.get('category') != "Irrelevant":
                     lat = analysis.get('lat', 0.0)
                     if lat == 0.0: lat, lon = get_hardcoded_coords(title)
                     else: lon = analysis.get('lon', 0.0)
+                    
+                    # Region Logic
+                    region = analysis.get('region', 'Global')
+                    if "asia" in title.lower() or "china" in title.lower(): region = "APJC"
+                    if "brazil" in title.lower() or "mexico" in title.lower(): region = "LATAM"
 
                     all_candidates.append({
                         "id": hashlib.md5(title.encode()).hexdigest(),
@@ -124,16 +133,14 @@ def fetch_news():
                         "source": source_name,
                         "category": analysis.get('category', "Uncategorized"),
                         "severity": analysis.get('severity', 1),
-                        "region": analysis.get('region', "Global"),
-                        "lat": lat,
-                        "lon": lon
+                        "region": region,
+                        "lat": lat, "lon": lon
                     })
         except Exception as e: print(f"Skipping {source_name}: {e}")
 
-    # Sort
     all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
     
-    # Remove duplicates
+    # Dedup
     unique = {v['id']:v for v in all_candidates}.values()
     final_list = list(unique)[:500]
 
@@ -142,7 +149,6 @@ def fetch_news():
     
     generate_interactive_map(final_list)
     generate_forecast(final_list)
-    print(f"Done. {len(final_list)} items.")
 
 if __name__ == "__main__":
     fetch_news()
