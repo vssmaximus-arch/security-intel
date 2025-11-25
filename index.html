@@ -10,13 +10,17 @@
     
     <style>
         body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
+        
+        /* UI ELEMENTS */
         .navbar { background-color: #0076CE !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 1rem 2rem; }
         .filter-container { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
         .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; transition: transform 0.2s; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        
         .severity-3 { border-left: 6px solid #D93F3F; }
         .severity-2 { border-left: 6px solid #F2AF00; }
         .severity-1 { border-left: 6px solid #6EA204; }
+        
         .badge-custom { font-weight: 600; padding: 0.4em 0.8em; border-radius: 4px; font-size: 0.7rem; margin-right: 8px; }
         .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
@@ -29,134 +33,98 @@
         #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         #travel-view { display: none; background: white; padding: 20px; border-radius: 8px; }
         
-        /* LOGIN SCREEN STYLES */
-        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #091E42; color: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .login-box { text-align: center; animation: fadeIn 0.5s; }
-        #error-msg { color: #ff6b6b; display: none; margin-top: 10px; font-size: 0.9rem; }
-        
+        .forecast-box { background: linear-gradient(to right, #ffffff, #f8f9fa); border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; border-radius: 6px; display:none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+
         .card-body img { display: none !important; }
         .card-body iframe { display: none !important; }
-        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-        
-        /* Blur content when not logged in */
-        #main-app { filter: blur(10px); pointer-events: none; }
-        body.logged-in #main-app { filter: none; pointer-events: all; }
     </style>
 </head>
-<body>
+<body onload="fetchNews()">
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h3 class="mb-4" style="letter-spacing: 1px;">Dell Global Security Intel</h3>
-            <input type="password" id="passcode" placeholder="Enter Access PIN" class="form-control w-auto text-center mb-3" onkeyup="if(event.key==='Enter') checkPass()">
-            <button onclick="checkPass()" class="btn btn-primary px-4" style="background-color: #0076CE; border:none;">Authenticate</button>
-            <div id="error-msg">Access Denied</div>
-        </div>
-    </div>
-
-    <div id="main-app">
-        <nav class="navbar navbar-dark">
-            <div class="container">
-                <div class="d-flex align-items-center">
-                    <span class="navbar-brand h1 mb-0">Global Security Intel</span>
-                    <div class="dropdown ms-3">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="color: #0076CE; font-weight:600;">
-                            📄 Daily Briefings
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">Executive</h6></li>
-                            <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global</a></li>
-                            <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Regional</h6></li>
-                            <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
-                            <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
-                            <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
-                            <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
-                            <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
-                            <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">South East Asia</a></li>
-                        </ul>
-                    </div>
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <span class="navbar-brand h1 mb-0">Global Security Intel</span>
+                <div class="dropdown ms-3">
+                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="color: #0076CE; font-weight:600;">
+                        📄 Daily Briefings
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Executive</h6></li>
+                        <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
+                        <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Regional</h6></li>
+                        <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
+                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
+                        <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
+                        <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
+                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
+                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">South East Asia</a></li>
+                    </ul>
                 </div>
-                <span class="text-white" id="last-updated">Loading...</span>
             </div>
-        </nav>
+            <span class="text-white" id="last-updated">Loading...</span>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
         
-        <div class="container mt-4">
-            <div id="forecast-display" class="forecast-box" style="background: white; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 20px; border-radius: 6px; display:none;">
-                <div style="color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px;">AI Strategic Intelligence Outlook</div>
-                <h4 id="fc-title" class="mt-2">Loading...</h4>
-                <p id="fc-analysis" class="text-muted"></p>
-                <div class="mt-3 pt-3 border-top">
-                    <strong>🛑 Supply Chain Alert:</strong> <span id="fc-supply"></span><br>
-                    <strong>💡 Executive Bottom Line:</strong> <span id="fc-bottom"></span>
-                </div>
+        <div id="forecast-display" class="forecast-box">
+            <div class="forecast-label">AI Strategic Intelligence Outlook (7-Day)</div>
+            <h4 id="fc-title" class="mt-2" style="color:#333;">Analyzing Trends...</h4>
+            <p id="fc-analysis" class="text-muted mt-2"></p>
+            <div class="mt-3 pt-3 border-top">
+                <strong>🛑 Supply Chain Alert:</strong> <span id="fc-supply"></span><br>
+                <strong>💡 Executive Bottom Line:</strong> <span id="fc-bottom"></span>
             </div>
-
-            <ul class="nav nav-tabs mb-4" style="border-bottom: 2px solid #ddd;">
-                <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel Safety</a></li>
-            </ul>
-
-            <div id="chart-container">
-                <h5 class="mb-4">Weekly Risk Velocity</h5>
-                <canvas id="riskChart"></canvas>
-            </div>
-
-            <div id="feed-view">
-                <div class="filter-container">
-                    <div class="row g-3">
-                        <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
-                        <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
-                        <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Weather/Event</option><option value="Infrastructure">Infrastructure</option></select></div>
-                        <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
-                    </div>
-                </div>
-                <div id="news-feed"></div>
-            </div>
-
-            <div id="travel-view">
-                <h5 class="mb-3">Destination Risk Check</h5>
-                <div class="row mb-4">
-                    <div class="col-md-6"><select id="travelCountry" class="form-select" onchange="renderTravelCheck()"><option value="">Select a country...</option></select></div>
-                </div>
-                <div id="travel-feed"></div>
-            </div>
-
-            <iframe id="map-frame" src="map.html"></iframe>
         </div>
+
+        <ul class="nav nav-tabs mb-4" style="border-bottom: 2px solid #ddd;">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel Safety</a></li>
+        </ul>
+
+        <div id="chart-container">
+            <h5 class="mb-4">Weekly Risk Velocity</h5>
+            <canvas id="riskChart"></canvas>
+        </div>
+
+        <div id="feed-view">
+            <div class="filter-container">
+                <div class="row g-3">
+                    <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
+                    <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
+                    <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Weather/Event</option><option value="Infrastructure">Infrastructure</option></select></div>
+                    <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
+                </div>
+            </div>
+            <div id="news-feed"></div>
+        </div>
+
+        <div id="travel-view">
+            <h5 class="mb-3">Destination Risk Check</h5>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <select id="travelCountry" class="form-select" onchange="renderTravelCheck()">
+                        <option value="">Select a country...</option>
+                    </select>
+                </div>
+            </div>
+            <div id="travel-feed"></div>
+        </div>
+
+        <iframe id="map-frame" src="map.html"></iframe>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // THIS IS THE SECURE HASH FOR "DellSec2025"
-        const AUTH_HASH = "55a5b067325372a40652375f7963b7a320d3c430d970fb79702993be39e2d238";
         let newsData = [];
         let myChart = null;
-
-        // 1. SECURE LOGIN FUNCTION
-        async function checkPass() {
-            const input = document.getElementById('passcode').value;
-            const buffer = new TextEncoder().encode(input);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if(hashHex === AUTH_HASH) {
-                // Success: Remove lock screen and load data
-                document.getElementById('login-screen').style.display = 'none';
-                document.body.classList.add('logged-in');
-                fetchNews();
-            } else {
-                // Fail
-                document.getElementById('error-msg').style.display = 'block';
-                document.getElementById('passcode').value = '';
-            }
-        }
-
-        // --- APP LOGIC ---
+        
         function switchTab(tab) {
             document.getElementById('feed-view').style.display = 'none';
             document.getElementById('map-frame').style.display = 'none';
@@ -219,52 +187,4 @@
                 let bCls = i.severity===3 ? 'badge-critical' : 'badge-warning';
                 let bTxt = i.severity===3 ? 'CRITICAL' : 'WARNING';
                 const niceDate = new Date(i.published).toLocaleString();
-                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
-            });
-        }
-
-        function renderChart() {
-            if(myChart) myChart.destroy();
-            const dateCounts = {};
-            newsData.forEach(item => {
-                const d = item.date_str;
-                if(!dateCounts[d]) dateCounts[d] = 0;
-                dateCounts[d]++;
-            });
-            const sortedDates = Object.keys(dateCounts).sort().slice(-7);
-            const counts = sortedDates.map(d => dateCounts[d]);
-
-            const ctx = document.getElementById('riskChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: sortedDates,
-                    datasets: [{
-                        label: 'Incident Velocity',
-                        data: counts,
-                        backgroundColor: '#0076CE',
-                        borderRadius: 4
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-            });
-        }
-
-        function populateCountries() {
-            const sel = document.getElementById('travelCountry');
-            const countries = ["Australia", "Brazil", "China", "France", "Germany", "India", "Indonesia", "Israel", "Japan", "Korea", "Malaysia", "Mexico", "Philippines", "Singapore", "Taiwan", "Thailand", "UK", "USA", "Vietnam"];
-            sel.innerHTML = '<option value="">Select a country...</option>';
-            countries.sort().forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-        }
-
-        function renderTravelCheck() {
-            const c = document.getElementById('travelCountry').value;
-            const con = document.getElementById('travel-feed'); con.innerHTML = '';
-            if(!c) return;
-            const hits = newsData.filter(i => (i.title + i.snippet).includes(c));
-            if(hits.length === 0) con.innerHTML = "<div class='alert alert-success'>✅ No critical threats detected for this location.</div>";
-            else hits.forEach(i => con.innerHTML += `<div class="alert alert-warning"><b>${i.date_str}</b>: ${i.title}</div>`);
-        }
-    </script>
-</body>
-</html>
+                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}
