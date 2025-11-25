@@ -11,10 +11,10 @@
     <style>
         body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; overflow: hidden; }
         
-        /* --- SECURE LOCK SCREEN --- */
+        /* LOCK SCREEN */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: #091E42; /* Dell Blue */
+            background: #091E42; 
             color: white; 
             z-index: 99999; 
             display: flex; 
@@ -23,48 +23,44 @@
             flex-direction: column;
         }
         
-        /* --- MAIN APP (Hidden & Blurred) --- */
-        #main-app { filter: blur(15px); opacity: 0.1; pointer-events: none; transition: all 0.5s ease; }
-        
-        /* Unlocked State */
+        /* MAIN APP */
+        #main-app { filter: blur(10px); opacity: 0.3; pointer-events: none; transition: all 0.5s ease; }
         body.unlocked { overflow: auto; }
         body.unlocked #login-screen { display: none; }
         body.unlocked #main-app { filter: none; opacity: 1; pointer-events: all; }
 
-        /* UI ELEMENTS */
+        /* UI */
         .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
-        .filter-container { background: white; padding: 1.5rem; border-radius: 8px; margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
-        .card { border: none; border-radius: 8px; margin-bottom: 1rem; }
+        .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; }
         .severity-3 { border-left: 6px solid #D93F3F; }
         .severity-2 { border-left: 6px solid #F2AF00; }
         .badge-custom { font-weight: 600; font-size: 0.7rem; margin-right: 8px; }
         .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
-        
-        .nav-tabs .nav-link { color: #444; font-weight: 500; }
-        .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
+        .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
         #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        #travel-view { display: none; background: white; padding: 20px; border-radius: 8px; }
-        
         .forecast-box { background: #fff; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; display:none; }
         .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
-        
         .card-body img, iframe { display: none !important; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-            <h3 style="color:#091E42; margin-bottom: 10px;">Security Intel</h3>
-            <p class="text-muted small mb-4">SRO Authorized Access Only</p>
+        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; width: 350px; color: #333;">
+            <h3 style="color:#091E42; margin-bottom: 20px;">Security Intel</h3>
+            <p class="text-muted small">Authorized Access Only</p>
             
-            <input type="password" id="passcode" class="form-control text-center mb-3" placeholder="Enter PIN" style="font-size: 1.2rem; letter-spacing: 2px;" onkeyup="if(event.key==='Enter') checkPass()">
+            <input type="password" id="passcode" class="form-control text-center mb-3" placeholder="Enter PIN" onkeyup="if(event.key==='Enter') checkPass()">
             
-            <button onclick="checkPass()" class="btn btn-primary w-100" style="background-color: #0076CE; font-weight: bold;">Authenticate</button>
-            
-            <p id="error-msg" style="color: #dc3545; margin-top: 15px; font-weight: bold; display:none;"></p>
+            <div class="form-check mb-3 text-start" style="font-size: 12px;">
+                <input class="form-check-input" type="checkbox" onclick="togglePass()">
+                <label class="form-check-label">Show Password</label>
+            </div>
+
+            <button onclick="checkPass()" class="btn btn-primary w-100" style="background-color: #0076CE;">Login</button>
+            <p id="error-msg" style="color: #dc3545; margin-top: 15px; font-weight: bold; font-size: 0.9rem; display:none;"></p>
         </div>
     </div>
 
@@ -74,14 +70,89 @@
                 <div class="d-flex align-items-center">
                     <span class="navbar-brand h1 mb-0">Global Security Intel</span>
                     <div class="dropdown ms-3">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 Daily Briefings</button>
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 Reports</button>
                         <ul class="dropdown-menu">
-                            <li><h6 class="dropdown-header">Executive</h6></li>
                             <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
                             <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Regional</h6></li>
                             <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
                             <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">China</a></li>
                             <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
-                            <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">
+                            <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
+                            <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania</a></li>
+                            <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">SE Asia</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <span class="text-white" id="last-updated">Loading...</span>
+            </div>
+        </nav>
+        
+        <div class="container mt-4">
+            <div id="forecast-display" class="forecast-box">
+                <div class="forecast-label">AI Strategic Outlook</div>
+                <h4 id="fc-title" class="mt-2">Loading...</h4>
+                <p id="fc-analysis" class="text-muted"></p>
+                <div class="mt-2 border-top pt-2"><strong>Bottom Line:</strong> <span id="fc-bottom"></span></div>
+            </div>
+
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Risk Trends</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Map</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel</a></li>
+            </ul>
+
+            <div id="chart-container"><canvas id="riskChart"></canvas></div>
+
+            <div id="feed-view">
+                <div class="filter-container">
+                    <div class="row g-3">
+                        <div class="col-md-2"><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
+                        <div class="col-md-3"><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
+                        <div class="col-md-3"><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risks</option><option value="Physical Security">Physical</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Weather</option><option value="Infrastructure">Infrastructure</option></select></div>
+                        <div class="col-md-4"><input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="renderNews()"></div>
+                    </div>
+                </div>
+                <div id="news-feed"></div>
+            </div>
+
+            <div id="travel-view">
+                <div class="row mb-4"><div class="col-md-6"><select id="travelCountry" class="form-select" onchange="renderTravelCheck()"><option>Select...</option></select></div></div>
+                <div id="travel-feed"></div>
+            </div>
+
+            <iframe id="map-frame" src="map.html"></iframe>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let newsData = [];
+        let myChart = null;
+
+        function togglePass() {
+            const x = document.getElementById("passcode");
+            x.type = (x.type === "password") ? "text" : "password";
+        }
+
+        function checkPass() {
+            // DIRECT MATCH + TRIM (Fixes accidental spaces)
+            const input = document.getElementById('passcode').value.trim();
+            const msg = document.getElementById('error-msg');
+            
+            if (input === "DellSec2025") {
+                document.body.classList.add('unlocked');
+                fetchNews();
+            } else {
+                msg.style.display = 'block';
+                msg.innerText = "❌ Incorrect PIN. Try 'DellSec2025'";
+            }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('map-frame').style.display = 'none';
+            document.getElementById('chart-container').style.display = 'none';
+            document.getElementById('travel-view').style.display = 'none';
+            document.querySelectorAll('.nav-link').
