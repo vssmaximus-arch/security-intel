@@ -54,4 +54,445 @@ FEEDS = [
     {"source": "DW World", "url": "https://rss.dw.com/rdf/rss-en-world"},
 
     # --- Official alerts / disasters ---
-    {"source": "USGS Sig
+    {"source": "USGS Significant EQ", "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.atom"},
+    {"source": "GDACS Alerts", "url": "https://www.gdacs.org/xml/rss.xml"},
+
+    # --- Regional (APJC focus) ---
+    {"source": "CNA Singapore", "url": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml"},
+    {"source": "SCMP", "url": "https://www.scmp.com/rss/91/feed"},
+    {"source": "Straits Times", "url": "https://www.straitstimes.com/news/world/rss.xml"},
+    {"source": "Yonhap Korea", "url": "https://en.yna.co.kr/feed/rss/world.xml"},
+    {"source": "Kyodo Japan", "url": "https://english.kyodonews.net/rss/news.xml"},
+
+    # --- Logistics / supply chain ---
+    {"source": "Loadstar", "url": "https://theloadstar.com/feed/"},
+    {"source": "Maritime Executive", "url": "https://www.maritime-executive.com/rss"},
+    {"source": "Splash247", "url": "https://splash247.com/feed/"},
+
+    # --- Cyber ---
+    {"source": "CISA Alerts", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml"},
+    {"source": "BleepingComputer", "url": "https://www.bleepingcomputer.com/feed/"}
+
+    # --- Future: Google News RSS (kept out for now to avoid firehose)
+    # Example pattern once you’re ready:
+    # {"source": "GoogleNews Cyberattack", "url": "https://news.google.com/rss/search?q=cyberattack&hl=en-US&gl=US&ceid=US:en"},
+]
+
+# ---------------------------------------------------------------------------
+# FILTERING – STRICT SRO PROFILE
+# ---------------------------------------------------------------------------
+
+BLOCKLIST_KEYWORDS = {
+    "celebrity", "gossip", "sport", "football", "soccer", "nba", "nfl",
+    "entertainment", "movie", "box office", "concert", "music video",
+    "stocks", "shares", "earnings", "ipo", "cryptocurrency",
+    "live blog", "live updates",
+    "theft", "burglary", "shoplifting", "pickpocket", "shoplifter"
+}
+
+SRO_KEYWORDS = {
+    # Physical
+    "terrorist", "terrorism", "bombing", "car bomb", "attack", "shooting",
+    "active shooter", "war", "airstrike", "missile", "insurgents",
+    "civil unrest", "protest", "riots", "coup",
+
+    # Resiliency / infra
+    "power outage", "blackout", "grid failure", "power grid", "telecom outage",
+    "infrastructure collapse", "bridge collapse", "dam collapse", "train derailment",
+
+    # Logistics
+    "port strike", "dock strike", "port closure", "port closed",
+    "airport closure", "airport closed", "trade blockade", "shipping halted",
+    "suez canal", "panama canal", "container ship", "cargo ship",
+
+    # Cyber (strategic)
+    "critical infrastructure", "ransomware", "nation state attack",
+    "state-sponsored", "supply chain attack", "industrial control system",
+
+    # Weather + infra
+    "typhoon", "hurricane", "cyclone", "super typhoon",
+    "earthquake", "tsunami", "volcanic eruption", "flooding", "landslide"
+}
+
+CITY_COORDS = {
+    "Sydney": (-33.8688, 151.2093),
+    "Tokyo": (35.6762, 139.6503),
+    "Bangalore": (12.9716, 77.5946),
+    "Bengaluru": (12.9716, 77.5946),
+    "Round Rock": (30.5083, -97.6789),
+    "Singapore": (1.3521, 103.8198),
+    "Hong Kong": (22.3193, 114.1694),
+    "Shanghai": (31.2304, 121.4737),
+    "Seoul": (37.5665, 126.9780),
+    "Mumbai": (19.0760, 72.8777),
+    "Delhi": (28.6139, 77.2090),
+    "Chennai": (13.0827, 80.2707)
+}
+
+REGION_BY_COUNTRY = {
+    "United States": "AMER",
+    "Canada": "AMER",
+    "Mexico": "LATAM",
+    "Brazil": "LATAM",
+    "Chile": "LATAM",
+    "Argentina": "LATAM",
+
+    "United Kingdom": "EMEA",
+    "Germany": "EMEA",
+    "France": "EMEA",
+    "Netherlands": "EMEA",
+    "UAE": "EMEA",
+    "Saudi Arabia": "EMEA",
+    "South Africa": "EMEA",
+
+    "India": "APJC",
+    "China": "APJC",
+    "Japan": "APJC",
+    "South Korea": "APJC",
+    "Republic of Korea": "APJC",
+    "Australia": "APJC",
+    "New Zealand": "APJC",
+    "Singapore": "APJC",
+    "Malaysia": "APJC",
+    "Thailand": "APJC",
+    "Vietnam": "APJC",
+    "Philippines": "APJC"
+}
+
+
+def hash_id(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+
+def is_blocked(text: str) -> bool:
+    t = text.lower()
+    return any(word in t for word in BLOCKLIST_KEYWORDS)
+
+
+def is_potential_sro(text: str) -> bool:
+    t = text.lower()
+    return any(word in t for word in SRO_KEYWORDS)
+
+
+def load_locations() -> Dict[str, Any]:
+    if not os.path.exists(LOCATIONS_PATH):
+        return {"assets": []}
+    with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+# ---------------------------------------------------------------------------
+# GEMINI
+# ---------------------------------------------------------------------------
+
+
+def get_gemini_client():
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY environment variable not set")
+    return genai.Client(api_key=api_key)
+
+
+def analyze_article(client, title: str, summary: str, link: str) -> Dict[str, Any]:
+    """
+    Ask Gemini to:
+      - decide relevance
+      - categorize (Physical/Cyber/Logistics/Weather)
+      - assign severity 1–3
+      - identify region, country, city
+      - produce impact summary
+
+    If Gemini output is unusable (bad JSON etc.), we fail soft and let
+    higher-level logic decide whether to keep the item as a low-severity warning.
+    """
+    user_prompt = f"""
+Act as a Dell Safety & Risk Operations (SRO) analyst.
+You only care about corporate security, business continuity and logistics.
+
+Article:
+Title: {title}
+Summary: {summary}
+Link: {link}
+
+Tasks:
+1. Decide if this is relevant for Dell corporate security / business continuity / supply chain.
+2. If NOT relevant, set "relevant": false.
+3. If relevant, fill:
+   - category: one of ["Physical", "Cyber", "Logistics", "Weather"]
+   - severity: integer 1, 2, or 3 (3 = highest impact)
+   - region: one of ["AMER", "LATAM", "EMEA", "APJC"]
+   - country: country most affected
+   - city: impacted city / metro if clearly known
+   - impact_summary: 2–3 sentence professional summary focused on business continuity.
+
+Return ONLY a single JSON object, for example:
+{{
+  "relevant": true,
+  "category": "Physical",
+  "severity": 2,
+  "region": "APJC",
+  "country": "India",
+  "city": "Bangalore",
+  "impact_summary": "..."
+}}
+"""
+
+    resp = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[genai_types.Content(role="user", parts=[user_prompt])]
+    )
+    text = resp.text.strip()
+    if text.startswith("```"):
+        text = text.strip("`")
+        if text.lower().startswith("json"):
+            text = text[4:].strip()
+
+    try:
+        data = json.loads(text)
+        if not isinstance(data, dict):
+            raise ValueError("Not a JSON object")
+        return data
+    except Exception:
+        # Soft failure – caller can still decide to keep item as severity 1 warning
+        return {"relevant": None}
+
+# ---------------------------------------------------------------------------
+# FEED INGESTION
+# ---------------------------------------------------------------------------
+
+
+def fetch_entries() -> List[Dict[str, Any]]:
+    items: List[Dict[str, Any]] = []
+    for feed in FEEDS:
+        try:
+            parsed = feedparser.parse(feed["url"])
+        except Exception:
+            continue
+
+        count = 0
+        for entry in parsed.entries:
+            if count >= MAX_ITEMS_PER_FEED:
+                break
+
+            title = entry.get("title", "") or ""
+            summary = entry.get("summary", "") or ""
+            link = entry.get("link", "") or ""
+            combined = f"{title} {summary}"
+
+            if is_blocked(combined):
+                continue
+            if not is_potential_sro(combined):
+                continue
+
+            # Basic published time parsing – tolerant
+            try:
+                if getattr(entry, "published_parsed", None):
+                    dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+                elif getattr(entry, "updated_parsed", None):
+                    dt = datetime(*entry.updated_parsed[:6], tzinfo=timezone.utc)
+                else:
+                    dt = datetime.now(timezone.utc)
+            except Exception:
+                dt = datetime.now(timezone.utc)
+
+            items.append({
+                "id": hash_id(link or title),
+                "title": title,
+                "summary": summary,
+                "link": link,
+                "source": feed["source"],
+                "published": dt.isoformat()
+            })
+            count += 1
+
+            if len(items) >= MAX_TOTAL_ITEMS:
+                break
+
+        if len(items) >= MAX_TOTAL_ITEMS:
+            break
+
+    return items
+
+# ---------------------------------------------------------------------------
+# AI ENRICHMENT + FALLBACK
+# ---------------------------------------------------------------------------
+
+
+def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Main intelligence layer.
+
+    1. Ask Gemini to decide relevance + classification.
+    2. Build enriched events list.
+    3. If Gemini returns too few events (< MIN_EVENTS_AFTER_AI),
+       promote some of the pre-filtered items as severity 1 warnings so
+       dashboard is never empty even when strict.
+    4. If STILL nothing, create a heartbeat mock incident.
+    """
+    if not items:
+        return []
+
+    client = get_gemini_client()
+    enriched: List[Dict[str, Any]] = []
+    rejected: List[Dict[str, Any]] = []
+
+    for item in items:
+        ai = analyze_article(client, item["title"], item["summary"], item["link"])
+
+        # Explicit irrelevant
+        if ai.get("relevant") is False:
+            rejected.append(item)
+            continue
+
+        # Properly relevant
+        if ai.get("relevant") is True:
+            category = ai.get("category") or "Physical"
+            severity = int(ai.get("severity") or 1)
+            region = ai.get("region") or "Global"
+            country = ai.get("country") or ""
+            city = ai.get("city") or ""
+            impact_summary = ai.get("impact_summary") or item["summary"]
+
+            if region == "Global" and country in REGION_BY_COUNTRY:
+                region = REGION_BY_COUNTRY[country]
+
+            lat, lon = None, None
+            if city in CITY_COORDS:
+                lat, lon = CITY_COORDS[city]
+
+            enriched.append({
+                **item,
+                "category": category,
+                "severity": severity,
+                "region": region,
+                "country": country,
+                "city": city,
+                "lat": lat,
+                "lon": lon,
+                "impact_summary": impact_summary
+            })
+        else:
+            # ai["relevant"] is None – parsing error / bad JSON
+            rejected.append(item)
+
+    # If Gemini was very strict, promote some rejected items as low-severity warnings
+    if len(enriched) < MIN_EVENTS_AFTER_AI and rejected:
+        needed = MIN_EVENTS_AFTER_AI - len(enriched)
+        for item in rejected[:needed]:
+            combined = item.get("summary") or item.get("title") or ""
+            enriched.append({
+                **item,
+                "category": "Physical",
+                "severity": 1,
+                "region": "Global",
+                "country": "",
+                "city": "",
+                "lat": None,
+                "lon": None,
+                "impact_summary": combined[:400]
+            })
+
+    # Absolute floor: heartbeat mock incident so dashboard never looks dead
+    if not enriched:
+        now = datetime.now(timezone.utc).isoformat()
+        enriched.append({
+            "id": "mock-incident",
+            "title": "No qualifying incidents – system heartbeat",
+            "summary": "The SRO monitoring pipeline is running but no high-impact incidents were detected.",
+            "link": "",
+            "source": "System",
+            "published": now,
+            "category": "Physical",
+            "severity": 1,
+            "region": "Global",
+            "country": "",
+            "city": "",
+            "lat": None,
+            "lon": None,
+            "impact_summary": "This mock record confirms the Dell SRO intelligence pipeline is functioning correctly."
+        })
+
+    return enriched
+
+# ---------------------------------------------------------------------------
+# MAP
+# ---------------------------------------------------------------------------
+
+
+def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
+    m = folium.Map(
+        location=[10, 10],
+        zoom_start=2,
+        min_zoom=2,
+        max_bounds=True,
+        prefer_canvas=True
+    )
+    # Critical: avoid wraparound / repeating tiles
+    m.options["no_wrap"] = True
+
+    # Dell assets – blue markers
+    for asset in locations_cfg.get("assets", []):
+        lat = asset.get("lat")
+        lon = asset.get("lon")
+        if lat is None or lon is None:
+            continue
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=6,
+            color="blue",
+            fill=True,
+            fill_opacity=0.8,
+            popup=f"Dell Asset: {asset.get('name')} ({asset.get('city')}, {asset.get('country')})"
+        ).add_to(m)
+
+    # Threats – color by severity
+    for ev in events:
+        lat, lon = ev.get("lat"), ev.get("lon")
+        if lat is None or lon is None:
+            continue
+        severity = ev.get("severity", 1)
+        color = "red" if severity == 3 else "orange" if severity == 2 else "darkred"
+        popup = (
+            f"<b>{ev['title']}</b><br>"
+            f"{ev.get('impact_summary', '')}<br>"
+            f"<i>{ev.get('source', '')}</i>"
+        )
+        folium.CircleMarker(
+            location=[lat, lon],
+            radius=6 + severity,
+            color=color,
+            fill=True,
+            fill_opacity=0.9,
+            popup=popup
+        ).add_to(m)
+
+    m.save(MAP_PATH)
+
+# ---------------------------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------------------------
+
+
+def main():
+    os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(MAP_PATH), exist_ok=True)
+
+    raw_items = fetch_entries()
+    print(f"[news_agent] Pre-filtered items: {len(raw_items)}")
+
+    events = enrich_with_ai(raw_items)
+    print(f"[news_agent] Final events written: {len(events)}")
+
+    locations_cfg = load_locations()
+
+    db = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "events": events
+    }
+    with open(DATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(db, f, ensure_ascii=False, indent=2)
+
+    build_map(events, locations_cfg)
+
+
+if __name__ == "__main__":
+    main()
