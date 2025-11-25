@@ -4,12 +4,12 @@ Dell Global Security & Resiliency Intelligence – News Agent
 
 - Ingests RSS feeds
 - Applies strict SRO keyword pre-filter
-- Uses Gemini (google-generativeai) for final relevance / classification
+- Uses Gemini (google-generativeai, model: gemini-pro) for relevance & classification
 - Writes public/data/news.json
 - Writes public/map.html
 
 Design:
-- Strict enough to cope with future Google News volume
+- Strict enough to handle future Google News volume
 - Hard caps per feed and overall
 - Never leaves news.json totally empty:
   * If Gemini returns too few events, promote some pre-filtered items as low-severity warnings
@@ -42,7 +42,7 @@ LOCATIONS_PATH = os.path.join(BASE_DIR, "config", "locations.json")
 
 MAX_ITEMS_PER_FEED = 40       # hard cap per RSS source
 MAX_TOTAL_ITEMS = 300         # hard cap overall before AI
-MIN_EVENTS_AFTER_AI = 10      # we try to keep at least this many events
+MIN_EVENTS_AFTER_AI = 10      # target minimum incidents after AI filtering
 
 FEEDS = [
     # --- Global wires ---
@@ -71,7 +71,7 @@ FEEDS = [
     {"source": "CISA Alerts", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml"},
     {"source": "BleepingComputer", "url": "https://www.bleepingcomputer.com/feed/"}
 
-    # --- Future: Google News RSS can be added later; the caps above will protect you ---
+    # Future: add Google News feeds here once you’re happy with volume
 ]
 
 # ---------------------------------------------------------------------------
@@ -186,13 +186,14 @@ def get_gemini_model():
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY environment variable not set")
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel("gemini-1.5-flash")  # adjust model name if needed
+    # Use a model that exists for the google-generativeai SDK
+    return genai.GenerativeModel("gemini-pro")
 
 
 def analyze_article(model, title: str, summary: str, link: str) -> Dict[str, Any]:
     """
     Call Gemini to decide relevance and classify.
-    Soft-fail (relevant=None) if JSON is bad.
+    Soft-fail (relevant=None) if JSON is bad or request errors.
     """
     user_prompt = f"""
 Act as a Dell Safety & Risk Operations (SRO) analyst.
@@ -217,14 +218,14 @@ Tasks:
 Return ONLY a single JSON object.
 """
 
-    resp = model.generate_content(user_prompt)
-    text = (resp.text or "").strip()
-    if text.startswith("```"):
-        text = text.strip("`")
-        if text.lower().startswith("json"):
-            text = text[4:].strip()
-
     try:
+        resp = model.generate_content(user_prompt)
+        text = (resp.text or "").strip()
+        if text.startswith("```"):
+            text = text.strip("`")
+            if text.lower().startswith("json"):
+                text = text[4:].strip()
+
         data = json.loads(text)
         if not isinstance(data, dict):
             raise ValueError("Not a JSON object")
@@ -260,6 +261,7 @@ def fetch_entries() -> List[Dict[str, Any]]:
             if not is_potential_sro(combined):
                 continue
 
+            # Timestamp
             try:
                 if getattr(entry, "published_parsed", None):
                     dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
@@ -302,7 +304,10 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     rejected: List[Dict[str, Any]] = []
 
     for item in items:
-        ai = analyze_article(model, item["title"], item["summary"], item["link"])
+        try:
+            ai = analyze_article(model, item["title"], item["summary"], item["link"])
+        except Exception:
+            ai = {"relevant": None}
 
         if ai.get("relevant") is False:
             rejected.append(item)
@@ -354,7 +359,7 @@ def enrich_with_ai(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "impact_summary": combined[:400]
             })
 
-    # Absolute floor
+    # Absolute floor – heartbeat event
     if not enriched:
         now = datetime.now(timezone.utc).isoformat()
         enriched.append({
@@ -391,6 +396,7 @@ def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
     )
     m.options["no_wrap"] = True
 
+    # Dell assets – blue markers
     for asset in locations_cfg.get("assets", []):
         lat = asset.get("lat")
         lon = asset.get("lon")
@@ -405,6 +411,7 @@ def build_map(events: List[Dict[str, Any]], locations_cfg: Dict[str, Any]):
             popup=f"Dell Asset: {asset.get('name')} ({asset.get('city')}, {asset.get('country')})"
         ).add_to(m)
 
+    # Threats – colored by severity
     for ev in events:
         lat, lon = ev.get("lat"), ev.get("lon")
         if lat is None or lon is None:
