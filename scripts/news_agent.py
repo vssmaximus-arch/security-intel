@@ -6,32 +6,41 @@ import re
 import time
 import folium
 import google.generativeai as genai
-from datetime import datetime, timedelta
+from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION ---
+# --- CONFIGURATION: FIREHOSE SOURCES ---
+# We use Google News Topic feeds to catch 10,000+ local sources instantly.
 TRUSTED_SOURCES = {
+    # 1. GLOBAL WIRES (The Baseline)
+    "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Wire",
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
-    "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
     "https://apnews.com/hub/ap-top-news.rss": "Associated Press",
-    "https://www.dw.com/xml/rss/rss-n-all": "Deutsche Welle",
+    
+    # 2. TOPIC AGGREGATORS (The Firehose)
+    # These pull from thousands of local papers based on keywords
+    "https://news.google.com/rss/search?q=cyberattack+OR+ransomware+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Cyber",
+    "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
+    "https://news.google.com/rss/search?q=terrorist+attack+OR+bombing+OR+mass+shooting+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Security",
+    "https://news.google.com/rss/search?q=earthquake+OR+typhoon+OR+tsunami+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Disaster",
+    
+    # 3. OFFICIAL ALERTS (Duty of Care)
     "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
-    "https://www.smartraveller.gov.au/rss": "Aus Smartraveller",
     "https://gdacs.org/xml/rss.xml": "UN GDACS (Disaster Alert)",
-    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom": "USGS Seismic Alert",
+    
+    # 4. REGIONAL HUBS (APJC Specific)
     "https://www.channelnewsasia.com/api/v1/rss-feeds/asia": "Channel News Asia",
     "https://www.scmp.com/rss/91/feed": "South China Morning Post",
     "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times",
-    "https://en.yna.co.kr/RSS/news.xml": "Yonhap News (Korea)",
     "https://english.kyodonews.net/rss/news.xml": "Kyodo News (Japan)",
+    
+    # 5. INDUSTRY SPECIALIST
     "https://theloadstar.com/feed/": "The Loadstar (Logistics)",
-    "https://www.maritime-executive.com/rss/news": "The Maritime Executive",
-    "https://splash247.com/feed/": "Splash247 (Asian Maritime)",
-    "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
-    "https://www.bleepingcomputer.com/feed/": "BleepingComputer"
+    "https://www.bleepingcomputer.com/feed/": "BleepingComputer (Cyber)"
 }
 
+# --- NOISE FILTER ---
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -59,6 +68,7 @@ DB_PATH = "public/data/news.json"
 FORECAST_PATH = "public/data/forecast.json"
 MAP_PATH = "public/map.html"
 
+# --- HARDCODED GEOCODER ---
 CITY_COORDINATES = {
     "sydney": [-33.86, 151.20], "melbourne": [-37.81, 144.96], "brisbane": [-27.47, 153.02], "perth": [-31.95, 115.86], "canberra": [-35.28, 149.13],
     "tokyo": [35.67, 139.65], "osaka": [34.69, 135.50], "fukuoka": [33.59, 130.40], "seoul": [37.56, 126.97], "busan": [35.17, 129.07],
@@ -110,17 +120,45 @@ def is_duplicate_title(new_title, existing_titles):
         if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
     return False
 
+# --- SRO-FOCUSED AI PROMPT ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
+    
     prompt = f"""
-    Role: Dell SRO Analyst. Filter & Categorize.
+    Role: Senior Intelligence Analyst for Dell Security & Resiliency Organization (SRO).
+    Task: Filter and Categorize this news item.
+    
     Headline: "{title}"
     Snippet: "{snippet}"
-    PROTOCOL:
-    1. PRIORITY: Terror, War, Riots, Active Shooter, Port Strikes, Major Cyber Breach.
-    2. NOISE (DISCARD): Politics, Stocks, Social Issues, Minor Crime.
-    OUTPUT JSON: {{ "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", "severity": 1-3, "clean_title": "Prof Headline", "summary": "1 sentence SRO impact.", "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", "lat": 0.0, "lon": 0.0 }}
+    
+    FILTERING PROTOCOL:
+    
+    1. **SRO PRIORITIES (KEEP)**:
+       - Terrorism, War/Conflict, Civil Unrest (Protests/Riots).
+       - Active Shooters, Kidnapping, Credible Threats to Executives/Facilities.
+       - Major Natural Disasters (Earthquake, Typhoon) impacting infrastructure.
+       - Power Grid Failures, Telecom Outages, Port Strikes, Supply Chain Disruptions.
+       - Strategic Cyber: ONLY Major breaches of Critical Infrastructure or Major Tech Partners.
+    
+    2. **NOISE (DISCARD)**:
+       - General Cyber (patches, minor hacks, crypto).
+       - Business/Finance/Stocks/Earnings.
+       - Politics/Opinion/Polls.
+       - Social Issues/Celebrity/Sports.
+       - Local Crime (unless Mass Casualty).
+    
+    OUTPUT JSON: 
+    {{ 
+      "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
+      "severity": 1 (Info)|2 (Warning)|3 (Critical), 
+      "clean_title": "Professional Headline", 
+      "summary": "1 sentence SRO impact assessment.", 
+      "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", 
+      "lat": 0.0, 
+      "lon": 0.0 
+    }}
     """
+    
     try:
         time.sleep(1.2)
         response = model.generate_content(prompt)
@@ -131,32 +169,43 @@ def ask_gemini_analyst(title, snippet):
 def analyze_article_hybrid(title, summary, source_name):
     text = (title + " " + summary).lower()
     if any(block in text for block in BLOCKED_KEYWORDS): return None
+
     ai_result = ask_gemini_analyst(title, summary)
+    
     if ai_result:
         if ai_result.get('category') == "Irrelevant": return None
+        
         lat = ai_result.get('lat', 0.0)
         lon = ai_result.get('lon', 0.0)
         if lat == 0.0: lat, lon = get_hardcoded_coords(text)
+
         return {
             "category": ai_result.get('category', "Uncategorized"),
             "severity": ai_result.get('severity', 1),
             "region": ai_result.get('region', "Global"),
             "clean_title": ai_result.get('clean_title', title),
             "ai_summary": ai_result.get('summary', summary),
-            "lat": lat, "lon": lon
+            "lat": lat,
+            "lon": lon
         }
     return None
 
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
     folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
+    
     try:
         with open('config/locations.json', 'r') as f:
             assets = json.load(f)
             for asset in assets:
                 if 'lat' in asset and 'lon' in asset:
-                    folium.Marker([asset['lat'], asset['lon']], popup=f"<b>{asset['name']}</b><br>{asset['type']}", icon=folium.Icon(color="blue", icon="shield", prefix='fa')).add_to(m)
+                    folium.Marker(
+                        [asset['lat'], asset['lon']],
+                        popup=f"<b>{asset['name']}</b><br>Type: {asset['type']}",
+                        icon=folium.Icon(color="blue", icon="shield", prefix='fa')
+                    ).add_to(m)
     except: pass
+
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
@@ -172,8 +221,7 @@ def generate_strategic_forecast(articles):
     if not model: return
     if not articles: return
 
-    # Take top 10 most critical items from last 24h
-    top_items = [f"- {i['title']} ({i['region']})" for i in articles[:10]]
+    top_items = [f"- {i['title']} ({i['region']})" for i in articles[:15]]
     items_str = "\n".join(top_items)
 
     prompt = f"""
@@ -203,30 +251,33 @@ def generate_strategic_forecast(articles):
 def fetch_news():
     locations = load_locations()
     all_candidates = []
+    
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
                 for item in history:
-                    if item['source'] in list(TRUSTED_SOURCES.values()):
-                        if not any(b in (item['title']+item['snippet']).lower() for b in BLOCKED_KEYWORDS):
-                            all_candidates.append(item)
+                    if not any(b in (item['title']+item['snippet']).lower() for b in BLOCKED_KEYWORDS):
+                        all_candidates.append(item)
         except: pass
 
-    print("Scanning feeds...")
+    print("Scanning Firehose feeds with SRO AI Agent...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
             for entry in feed.entries[:5]: 
                 title = entry.title
                 if len(title) < 15: continue
+                
                 is_dup = False
                 for old in all_candidates:
                     if SequenceMatcher(None, title, old.get('title', '')).ratio() > 0.65:
                         is_dup = True; break
                 if is_dup: continue
+
                 clean_summary = clean_html(entry.summary if 'summary' in entry else "")
                 analysis = analyze_article_hybrid(title, clean_summary, source_name)
+                
                 if analysis:
                     all_candidates.append({
                         "id": hashlib.md5(title.encode()).hexdigest(),
@@ -252,7 +303,7 @@ def fetch_news():
     with open(DB_PATH, "w") as f: json.dump(all_candidates, f, indent=2)
     
     generate_interactive_map(all_candidates)
-    generate_strategic_forecast(all_candidates) # Run Forecast
+    generate_strategic_forecast(all_candidates)
 
 if __name__ == "__main__":
     fetch_news()
