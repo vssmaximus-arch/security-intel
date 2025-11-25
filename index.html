@@ -7,45 +7,29 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
         body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
-        .navbar { background-color: #0076CE !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 1rem 2rem; }
-        .filter-container { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
-        .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; transition: transform 0.2s; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
+        .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; }
         .severity-3 { border-left: 6px solid #D93F3F; }
         .severity-2 { border-left: 6px solid #F2AF00; }
-        .severity-1 { border-left: 6px solid #6EA204; }
-        .badge-custom { font-weight: 600; padding: 0.4em 0.8em; border-radius: 4px; font-size: 0.7rem; margin-right: 8px; }
+        .badge-custom { font-weight: 600; font-size: 0.7rem; margin-right: 8px; }
         .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
-        .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
-        .card-title a { color: #172B4D; font-weight: 700; text-decoration: none; }
-        
-        .nav-tabs .nav-link { color: #444; font-weight: 500; }
-        .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
+        .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
-        #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card-body img, iframe { display: none !important; }
         
-        /* RISK SCORECARD STYLES */
-        #risk-view { display: none; }
-        .risk-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 8px solid #ddd; }
-        .risk-high { border-left-color: #D93F3F; }
-        .risk-med { border-left-color: #ffc107; }
-        .risk-low { border-left-color: #28a745; }
-        .score-circle { width: 50px; height: 50px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; color: #555; }
-        
-        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #091E42; color: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .card-body img { display: none !important; }
-        .card-body iframe { display: none !important; }
+        /* FORECAST WIDGET */
+        .forecast-box { background: white; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 20px; border-radius: 6px; display:none; }
+        .forecast-title { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-    <div id="login-screen">
+    <div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#091E42; color:white; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column;">
         <h3 class="mb-4">Dell Global Security Intel</h3>
         <input type="password" id="passcode" placeholder="Enter PIN" class="form-control w-auto text-center mb-3">
-        <button onclick="checkPass()" class="btn btn-primary" style="background-color: #0076CE;">Access Dashboard</button>
+        <button onclick="checkPass()" class="btn btn-primary" style="background-color:#0076CE;">Access</button>
     </div>
 
     <nav class="navbar navbar-dark">
@@ -53,21 +37,13 @@
             <div class="d-flex align-items-center">
                 <span class="navbar-brand h1 mb-0">Global Security Intel</span>
                 <div class="dropdown ms-3">
-                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="color: #0076CE; font-weight:600;">
-                        📄 Daily Briefings
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><h6 class="dropdown-header">Executive</h6></li>
+                    <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 Daily Briefings</button>
+                    <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global</a></li>
                         <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header">Regional</h6></li>
                         <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
-                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
-                        <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
-                        <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
-                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
-                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">South East Asia</a></li>
+                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">China</a></li>
                     </ul>
                 </div>
             </div>
@@ -75,33 +51,36 @@
         </div>
     </nav>
     
-    <div class="container">
-        <ul class="nav nav-tabs mb-4" style="border-bottom: 2px solid #ddd;">
-            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('risk')">Strategic Risk Index</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Velocity Trends</a></li>
-        </ul>
-
-        <div id="chart-container">
-            <canvas id="riskChart"></canvas>
+    <div class="container mt-4">
+        <div id="forecast-display" class="forecast-box">
+            <div class="forecast-title">AI Strategic Forecast (7-Day Outlook)</div>
+            <h4 id="fc-title" class="mt-2">Loading Forecast...</h4>
+            <p id="fc-analysis" class="text-muted"></p>
+            <div class="alert alert-light border mt-3"><strong>Bottom Line:</strong> <span id="fc-bottom"></span></div>
         </div>
 
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">✈️ Travel Safety</a></li>
+        </ul>
+
         <div id="feed-view">
-            <div class="filter-container">
-                <div class="row g-3">
-                    <div class="col-md-2"><label class="form-label small text-muted fw-bold">DATE</label><input type="date" id="dateFilter" class="form-control" onchange="renderNews()"></div>
-                    <div class="col-md-3"><label class="form-label small text-muted fw-bold">REGION</label><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global View</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
-                    <div class="col-md-3"><label class="form-label small text-muted fw-bold">RISK TYPE</label><select id="typeFilter" class="form-select" onchange="renderNews()"><option value="All">All Risk Types</option><option value="Physical Security">Physical Security</option><option value="Logistics">Logistics</option><option value="Cyber">Cyber</option><option value="Weather/Event">Natural Hazard</option></select></div>
-                    <div class="col-md-4"><label class="form-label small text-muted fw-bold">SEARCH</label><input type="text" id="searchBox" class="form-control" placeholder="Search intel..." onkeyup="renderNews()"></div>
-                </div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3"><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
+                <div class="col-md-9"><input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="renderNews()"></div>
             </div>
             <div id="news-feed"></div>
         </div>
 
-        <div id="risk-view">
-            <h5 class="mb-4">Regional Risk Assessment (Last 7 Days)</h5>
-            <div class="row" id="risk-grid"></div>
+        <div id="travel-view" style="display:none;">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="fw-bold">Select Destination:</label>
+                    <select id="travelCountry" class="form-select" onchange="renderTravelCheck()"><option>Loading countries...</option></select>
+                </div>
+            </div>
+            <div id="travel-feed"></div>
         </div>
 
         <iframe id="map-frame" src="map.html"></iframe>
@@ -110,141 +89,81 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let newsData = [];
-        let myChart = null;
-
         function checkPass() { if(document.getElementById('passcode').value === "DellSec2025") { document.getElementById('login-screen').style.display = 'none'; fetchNews(); } else { alert("Access Denied"); } }
         
         function switchTab(tab) {
             document.getElementById('feed-view').style.display = 'none';
             document.getElementById('map-frame').style.display = 'none';
-            document.getElementById('chart-container').style.display = 'none';
-            document.getElementById('risk-view').style.display = 'none';
-            
+            document.getElementById('travel-view').style.display = 'none';
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             event.target.classList.add('active');
 
             if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
             if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
-            if(tab === 'risk') {
-                document.getElementById('risk-view').style.display = 'block';
-                renderRiskScorecard();
-            }
-            if(tab === 'trends') {
-                document.getElementById('chart-container').style.display = 'block';
-                renderChart();
-            }
+            if(tab === 'travel') document.getElementById('travel-view').style.display = 'block';
         }
 
         async function fetchNews() {
             try {
-                const timestamp = new Date().getTime();
-                const r = await fetch('data/news.json?t=' + timestamp); 
-                if(!r.ok) throw new Error("Not found");
-                newsData = await r.json();
-                document.getElementById('last-updated').innerText = "Live Database: " + newsData.length + " Items"; 
+                const ts = new Date().getTime();
+                // Load News
+                const r1 = await fetch('data/news.json?t=' + ts); 
+                newsData = await r1.json();
+                document.getElementById('last-updated').innerText = "DB: " + newsData.length; 
+                
+                // Load Forecast
+                const r2 = await fetch('data/forecast.json?t=' + ts);
+                if(r2.ok) {
+                    const fc = await r2.json();
+                    document.getElementById('forecast-display').style.display = 'block';
+                    document.getElementById('fc-title').innerText = fc.outlook_title;
+                    document.getElementById('fc-analysis').innerText = fc.analysis;
+                    document.getElementById('fc-bottom').innerText = fc.bottom_line;
+                }
+
                 renderNews();
-            } catch (e) { 
-                document.getElementById('news-feed').innerHTML = '<div class="text-center mt-5"><h5>System Initializing... Check back in 10 mins.</h5></div>'; 
-            }
+                populateCountries();
+            } catch (e) { console.log(e); }
         }
 
         function renderNews() {
-            const dateF = document.getElementById('dateFilter').value;
             const reg = document.getElementById('regionFilter').value;
-            const typ = document.getElementById('typeFilter').value;
             const src = document.getElementById('searchBox').value.toLowerCase();
             const con = document.getElementById('news-feed'); con.innerHTML = '';
             
-            const filtered = newsData.filter(i => {
-                const dateMatch = dateF ? i.date_str === dateF : true;
-                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
-            });
-            
-            if(filtered.length===0) { con.innerHTML='<div class="text-center text-muted mt-5">No intelligence found for this selection.</div>'; return; }
+            const filtered = newsData.filter(i => (reg==='All'||i.region===reg) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src)));
             
             filtered.forEach(i => {
-                let bCls='badge-info', bTxt='INFO';
-                if(i.severity===3){bCls='badge-critical';bTxt='CRITICAL';} else if(i.severity===2){bCls='badge-warning';bTxt='WARNING';}
-                const niceDate = new Date(i.published).toLocaleString();
-                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
+                let bCls = i.severity===3 ? 'badge-critical' : 'badge-warning';
+                let bTxt = i.severity===3 ? 'CRITICAL' : 'WARNING';
+                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><span class="badge-custom ${bCls}">${bTxt}</span> <b>${i.region}</b><h5 class="mt-2"><a href="${i.link}" target="_blank" style="text-decoration:none; color:#333;">${i.title}</a></h5><p class="text-muted small">${i.snippet}</p></div></div>`;
             });
         }
 
-        function renderRiskScorecard() {
-            const container = document.getElementById('risk-grid');
-            container.innerHTML = '';
-            
-            // Calculate Scores based on Keywords in Title/Snippet
-            const scores = { 
-                "India": 0, "China": 0, "USA": 0, "Australia": 0, 
-                "Japan": 0, "Europe": 0, "Latin America": 0 
-            };
-            
-            // Simple Algorithm: Critical = 5 pts, Warning = 3 pts
-            newsData.forEach(item => {
-                let points = item.severity === 3 ? 5 : (item.severity === 2 ? 3 : 1);
-                const text = (item.title + item.snippet).toLowerCase();
-                
-                if(text.includes('india') || text.includes('delhi') || text.includes('bangalore')) scores['India'] += points;
-                if(text.includes('china') || text.includes('beijing') || text.includes('hong kong')) scores['China'] += points;
-                if(text.includes('usa') || text.includes('us') || text.includes('america')) scores['USA'] += points;
-                if(text.includes('australia') || text.includes('sydney')) scores['Australia'] += points;
-                if(text.includes('japan') || text.includes('tokyo')) scores['Japan'] += points;
-                if(item.region === 'EMEA') scores['Europe'] += points;
-                if(item.region === 'LATAM') scores['Latin America'] += points;
+        function populateCountries() {
+            // Scan descriptions for country names or use a manual list
+            // For MVP, we just look for keywords in the title
+            const countries = new Set();
+            newsData.forEach(i => {
+                // Simple extraction logic
+                if(i.title.includes("China")) countries.add("China");
+                if(i.title.includes("India")) countries.add("India");
+                if(i.title.includes("Japan")) countries.add("Japan");
+                if(i.title.includes("US")) countries.add("USA");
+                if(i.title.includes("UK")) countries.add("UK");
             });
-
-            for (const [country, score] of Object.entries(scores)) {
-                let level = "risk-low";
-                let label = "LOW";
-                let badge = "success";
-                
-                if (score > 15) { level = "risk-high"; label = "HIGH"; badge = "danger"; }
-                else if (score > 5) { level = "risk-med"; label = "ELEVATED"; badge = "warning"; }
-                
-                const html = `
-                <div class="col-md-4">
-                    <div class="risk-card ${level}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5>${country}</h5>
-                                <span class="badge bg-${badge}">${label}</span>
-                            </div>
-                            <div class="score-circle">${score}</div>
-                        </div>
-                        <p class="small text-muted mt-2 mb-0">Risk Velocity Score (7-Day)</p>
-                    </div>
-                </div>
-                `;
-                container.innerHTML += html;
-            }
+            const sel = document.getElementById('travelCountry');
+            sel.innerHTML = '<option value="">Select a country...</option>';
+            countries.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
         }
 
-        function renderChart() {
-            if(myChart) myChart.destroy();
-            const dateCounts = {};
-            newsData.forEach(item => {
-                const d = item.date_str;
-                if(!dateCounts[d]) dateCounts[d] = 0;
-                dateCounts[d]++;
-            });
-            const sortedDates = Object.keys(dateCounts).sort().slice(-7);
-            const counts = sortedDates.map(d => dateCounts[d]);
-
-            const ctx = document.getElementById('riskChart').getContext('2d');
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: sortedDates,
-                    datasets: [{
-                        label: 'Total Security Incidents',
-                        data: counts,
-                        backgroundColor: '#0076CE',
-                        borderRadius: 4
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-            });
+        function renderTravelCheck() {
+            const c = document.getElementById('travelCountry').value;
+            const con = document.getElementById('travel-feed'); con.innerHTML = '';
+            const hits = newsData.filter(i => i.title.includes(c) || i.snippet.includes(c));
+            
+            if(hits.length === 0) con.innerHTML = "<div class='alert alert-success'>No recent high-severity incidents detected for this location.</div>";
+            else hits.forEach(i => con.innerHTML += `<div class="alert alert-warning"><b>${i.date_str}:</b> ${i.title}</div>`);
         }
     </script>
 </body>
