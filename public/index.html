@@ -9,9 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; overflow: hidden; }
+        body { background-color: #F5F7FA; font-family: 'Inter', sans-serif; color: #333; }
         
-        /* LOCK SCREEN */
+        /* LOCK SCREEN - High Z-Index to sit on top */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: #091E42; 
@@ -23,21 +23,21 @@
             flex-direction: column;
         }
         
-        /* MAIN APP */
-        #main-app { filter: blur(10px); opacity: 0.3; pointer-events: none; transition: all 0.5s ease; }
-        body.unlocked { overflow: auto; }
-        body.unlocked #login-screen { display: none; }
-        body.unlocked #main-app { filter: none; opacity: 1; pointer-events: all; }
+        /* MAIN APP - Hidden by default */
+        #main-app { display: none; }
 
         /* UI */
         .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
-        .card { border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.04); margin-bottom: 1rem; }
+        .filter-container { background: white; padding: 1.5rem; border-radius: 8px; margin-top: -20px; margin-bottom: 2rem; position: relative; z-index: 10; }
+        .card { border: none; border-radius: 8px; margin-bottom: 1rem; }
         .severity-3 { border-left: 6px solid #D93F3F; }
         .severity-2 { border-left: 6px solid #F2AF00; }
         .badge-custom { font-weight: 600; font-size: 0.7rem; margin-right: 8px; }
         .badge-critical { background-color: #FFF0F0; color: #D93F3F; border: 1px solid #FAD7D7; }
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
-        .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
+        
+        .nav-tabs .nav-link { color: #444; font-weight: 500; }
+        .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
         #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         .forecast-box { background: #fff; border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; display:none; }
@@ -50,17 +50,9 @@
     <div id="login-screen">
         <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; width: 350px; color: #333;">
             <h3 style="color:#091E42; margin-bottom: 20px;">Security Intel</h3>
-            <p class="text-muted small">Authorized Access Only</p>
-            
-            <input type="password" id="passcode" class="form-control text-center mb-3" placeholder="Enter PIN" onkeyup="if(event.key==='Enter') checkPass()">
-            
-            <div class="form-check mb-3 text-start" style="font-size: 12px;">
-                <input class="form-check-input" type="checkbox" onclick="togglePass()">
-                <label class="form-check-label">Show Password</label>
-            </div>
-
-            <button onclick="checkPass()" class="btn btn-primary w-100" style="background-color: #0076CE;">Login</button>
-            <p id="error-msg" style="color: #dc3545; margin-top: 15px; font-weight: bold; font-size: 0.9rem; display:none;"></p>
+            <input type="password" id="passcode" class="form-control text-center mb-3" placeholder="Enter PIN">
+            <button id="auth-btn" onclick="attemptLogin()" class="btn btn-primary w-100" style="background-color: #0076CE;">Login</button>
+            <p id="error-msg" style="color: #dc3545; margin-top: 15px; font-weight: bold; display:none;">❌ Incorrect PIN</p>
         </div>
     </div>
 
@@ -131,28 +123,53 @@
         let newsData = [];
         let myChart = null;
 
-        function togglePass() {
-            const x = document.getElementById("passcode");
-            x.type = (x.type === "password") ? "text" : "password";
-        }
-
-        function checkPass() {
-            // DIRECT MATCH + TRIM (Fixes accidental spaces)
+        // --- HARDWIRED LOGIN LOGIC ---
+        function attemptLogin() {
             const input = document.getElementById('passcode').value.trim();
-            const msg = document.getElementById('error-msg');
             
             if (input === "DellSec2025") {
-                document.body.classList.add('unlocked');
+                // 1. Hide Lock Screen
+                document.getElementById('login-screen').style.display = 'none';
+                // 2. Show App
+                document.getElementById('main-app').style.display = 'block';
+                // 3. Load Data
                 fetchNews();
             } else {
-                msg.style.display = 'block';
-                msg.innerText = "❌ Incorrect PIN. Try 'DellSec2025'";
+                document.getElementById('error-msg').style.display = 'block';
+                document.getElementById('passcode').value = '';
             }
         }
 
+        // --- STANDARD APP LOGIC ---
         function switchTab(tab) {
             document.getElementById('feed-view').style.display = 'none';
             document.getElementById('map-frame').style.display = 'none';
             document.getElementById('chart-container').style.display = 'none';
             document.getElementById('travel-view').style.display = 'none';
-            document.querySelectorAll('.nav-link').
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
+            if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
+            if(tab === 'trends') {
+                document.getElementById('chart-container').style.display = 'block';
+                renderChart();
+            }
+            if(tab === 'travel') {
+                document.getElementById('travel-view').style.display = 'block';
+                populateCountries();
+            }
+        }
+
+        async function fetchNews() {
+            try {
+                const ts = new Date().getTime();
+                const r = await fetch('data/news.json?t=' + ts); 
+                if(r.ok) {
+                    newsData = await r.json();
+                    document.getElementById('last-updated').innerText = "Live DB: " + newsData.length + " Items"; 
+                }
+                const r2 = await fetch('data/forecast.json?t=' + ts);
+                if(r2.ok) {
+                    const fc = await r2.json();
+                    document.getElementById('forecast-display').style.display = 'block
