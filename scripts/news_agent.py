@@ -10,35 +10,39 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION ---
+# --- CONFIGURATION: SRO INTEL SOURCES ---
 TRUSTED_SOURCES = {
-    "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World News",
+    # GLOBAL WIRES (The Baseline)
+    "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
+    "https://apnews.com/hub/ap-top-news.rss": "Associated Press",
     "https://www.dw.com/xml/rss/rss-n-all": "Deutsche Welle",
-    "http://rss.cnn.com/rss/edition_world.rss": "CNN World",
-    "https://www.nytimes.com/services/xml/rss/nyt/World.xml": "New York Times World",
-    "https://www.theguardian.com/world/rss": "The Guardian World",
-    "https://feeds.washingtonpost.com/rss/world": "The Washington Post World",
-    "https://www.cnbc.com/id/100727362/device/rss/rss.html": "CNBC World News",
-    "http://feeds.skynews.com/feeds/rss/world.xml": "Sky News (UK) World",
-    "https://www.france24.com/en/rss": "France 24",
-    "https://www.cbc.ca/webfeed/rss/rss-world": "CBC World (Canada)",
-    "https://www.abc.net.au/news/feed/52278/rss.xml": "ABC News (Australia) Just In",
-    "https://rss.upi.com/news/world_news.rss": "United Press International (UPI)",
-    "http://www.xinhuanet.com/english/rss/world.xml": "Xinhua (China)",
-    "https://english.kyodonews.net/rss/all.xml": "Kyodo News (Japan)",
-    "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms": "Times of India World",
-    "https://www.scmp.com/rss/91/feed": "South China Morning Post (HK)",
-    "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times (Singapore)",
-    "https://www.japantimes.co.jp/feed": "The Japan Times",
-    "https://kyivindependent.com/feed": "The Kyiv Independent",
-    "https://www.themoscowtimes.com/rss/news": "The Moscow Times",
-    "https://feeds.npr.org/1004/rss.xml": "NPR World (USA)",
-    "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
+    
+    # DUTY OF CARE & TRAVEL RISK
+    "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
+    "https://www.smartraveller.gov.au/rss": "Aus Smartraveller",
     "https://gdacs.org/xml/rss.xml": "UN GDACS (Disaster Alert)",
-    "https://reliefweb.int/updates/rss.xml": "UN ReliefWeb"
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom": "USGS Seismic Alert",
+    
+    # REGIONAL (APJC Focus)
+    "https://www.channelnewsasia.com/api/v1/rss-feeds/asia": "Channel News Asia",
+    "https://www.scmp.com/rss/91/feed": "South China Morning Post",
+    "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times",
+    "https://en.yna.co.kr/RSS/news.xml": "Yonhap News (Korea)",
+    "https://english.kyodonews.net/rss/news.xml": "Kyodo News (Japan)",
+    
+    # SUPPLY CHAIN & RESILIENCY
+    "https://theloadstar.com/feed/": "The Loadstar (Logistics)",
+    "https://www.maritime-executive.com/rss/news": "The Maritime Executive",
+    "https://splash247.com/feed/": "Splash247 (Asian Maritime)",
+    
+    # CYBER (Strategic Only)
+    "https://www.cisa.gov/uscert/ncas/alerts.xml": "US CISA (Cyber Govt)",
+    "https://www.bleepingcomputer.com/feed/": "BleepingComputer"
 }
 
+# --- NOISE FILTER ---
+# Block "Low Value" items that clutter executive feeds
 BLOCKED_KEYWORDS = [
     "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
     "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
@@ -46,16 +50,28 @@ BLOCKED_KEYWORDS = [
     "princess", "gossip", "dating", "fashion", "lifestyle", "sexual assault", 
     "rape", "domestic", "murder trial", "hate speech", "convicted", "podcast",
     "claims", "alleges", "survey", "poll", "pledges", "vows", "commentary",
-    "opinion", "review", "social media", "viral", "trend", "market", "shares", 
-    "stocks", "investors", "investment", "profit", "revenue", "quarterly", 
-    "earnings", "brands", "cosmetics", "luxury", "retail", "sales", "consumers", 
-    "wealth", "billionaire", "rich list", "tourism", "holiday", "coroner", 
-    "inquest", "inquiry", "historic", "memorial", "anniversary", 
-    "blog is now closed", "live coverage", "follow our", "live blog", "stabbed",
-    "stabbing", "arrested", "charged", "jail", "prison", "court", "cocaine", "drug"
+    "opinion", "review", "social media", "viral", "trend",
+    "market", "shares", "stocks", "investors", "investment", "profit", "revenue",
+    "quarterly", "earnings", "brands", "cosmetics", "luxury", "retail", "sales",
+    "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday",
+    "coroner", "inquest", "inquiry", "historic", "memorial", "anniversary",
+    "blog is now closed", "live coverage", "follow our", "live blog", "crypto", "bitcoin"
 ]
 
-# --- HARDCODED GEOCODER (Guarantees Map Pins) ---
+# --- SRO CATEGORIES ---
+# Used for pre-filtering before AI takes over
+KEYWORDS = {
+    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "hacker", "botnet", "apt group"],
+    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup", "civil unrest"],
+    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway", "border crossing", "flight cancellation"],
+    "Infrastructure": ["power outage", "grid failure", "blackout", "telecom outage", "internet disruption", "undersea cable", "fiber cut", "water supply", "gas leak", "dam failure", "bridge collapse"],
+    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "flash flood", "eruption", "volcano"]
+}
+
+DB_PATH = "public/data/news.json"
+MAP_PATH = "public/map.html"
+
+# --- GEOCODER ---
 CITY_COORDINATES = {
     "sydney": [-33.86, 151.20], "melbourne": [-37.81, 144.96], "brisbane": [-27.47, 153.02], "perth": [-31.95, 115.86], "canberra": [-35.28, 149.13],
     "tokyo": [35.67, 139.65], "osaka": [34.69, 135.50], "fukuoka": [33.59, 130.40], "seoul": [37.56, 126.97], "busan": [35.17, 129.07],
@@ -65,9 +81,6 @@ CITY_COORDINATES = {
     "london": [51.50, -0.12], "paris": [48.85, 2.35], "berlin": [52.52, 13.40], "dubai": [25.20, 55.27], "tel aviv": [32.08, 34.78],
     "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62]
 }
-
-DB_PATH = "public/data/news.json"
-MAP_PATH = "public/map.html"
 
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 if GEMINI_KEY:
@@ -83,6 +96,11 @@ def clean_html(raw_html):
     text = text.replace("Read full story", "").replace("&nbsp;", " ")
     return text.strip()
 
+def load_locations():
+    try:
+        with open('config/locations.json', 'r') as f: return json.load(f)
+    except: return []
+
 def parse_date(entry):
     try:
         if 'published_parsed' in entry:
@@ -95,34 +113,64 @@ def parse_date(entry):
         now = datetime.now()
         return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
 
+def get_hardcoded_coords(text):
+    for city, coords in CITY_COORDINATES.items():
+        if city in text.lower(): return coords[0], coords[1]
+    return 0.0, 0.0
+
+def is_duplicate_title(new_title, existing_titles):
+    for old_title in existing_titles:
+        if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
+    return False
+
+# --- SRO AI ANALYST CORE ---
 def ask_gemini_analyst(title, snippet):
     if not model: return None
+    
     prompt = f"""
-    Role: Corporate Security Intelligence Analyst.
-    Task: Filter, Categorize, and Rewrite this news.
+    Role: Senior Intelligence Analyst for Dell Security & Resiliency Organization (SRO).
+    Context: We support Crisis Management, Executive Protection, Supply Chain, and Regional Security.
     
     Headline: "{title}"
     Snippet: "{snippet}"
     
-    RULES:
-    1. DISCARD (Return Irrelevant) if: Business, Politics, Social Issues, General Crime (murder/stabbing/drugs/arrests).
-    2. KEEP if: Terrorism, War, Mass Casualty, Infrastructure/Logistics Failure, Cyber Attack, Major Disaster.
+    STRICT EVALUATION PROTOCOL:
     
-    Output JSON: {{ "category": "Physical Security"|"Cyber"|"Logistics"|"Weather/Event"|"Irrelevant", "severity": 1-3, "clean_title": "Short Professional Title", "summary": "1 sentence impact.", "region": "AMER"|"EMEA"|"APJC"|"Global", "lat": 0.0, "lon": 0.0 }}
+    1. **PHYSICAL / DUTY OF CARE (Keep High Priority)**:
+       - Terrorism, War/Conflict, Civil Unrest (Protests/Riots).
+       - Active Shooters, Kidnapping, Credible Threats to Executives/Facilities.
+       - Major Natural Disasters (Earthquake, Typhoon) impacting infrastructure.
+    
+    2. **RESILIENCY & LOGISTICS (Keep High Priority)**:
+       - Power Grid Failures, Telecom/Internet Outages.
+       - Port Strikes, Airport Closures, Trade Blockades.
+       - Supply Chain disruptions in key hubs (China, India, Malaysia, etc).
+    
+    3. **CYBER (Keep ONLY Significant Events)**:
+       - DISCARD: Generic vulnerability news, patches, minor hacks, crypto scams.
+       - KEEP: Massive Global Outages (e.g. CrowdStrike style events), Nation-State Cyber Warfare, or breaches of Critical Infrastructure/Major Tech Partners.
+    
+    4. **NOISE (DISCARD)**:
+       - Politics (Opinion/Polls), Business (Stocks/Earnings), Social Issues, General/Local Crime.
+    
+    OUTPUT JSON: 
+    {{ 
+      "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
+      "severity": 1 (Info)|2 (Warning)|3 (Critical), 
+      "clean_title": "Professional, Executive-Ready Headline", 
+      "summary": "1 sentence operational impact assessment.", 
+      "region": "AMER"|"EMEA"|"APJC"|"Global", 
+      "lat": 0.0, 
+      "lon": 0.0 
+    }}
     """
+    
     try:
         time.sleep(1.5)
         response = model.generate_content(prompt)
         text = response.text.replace("```json", "").replace("```", "")
         return json.loads(text)
     except: return None
-
-def get_hardcoded_coords(text):
-    # Check if any known city is in the text
-    for city, coords in CITY_COORDINATES.items():
-        if city in text.lower():
-            return coords[0], coords[1]
-    return 0.0, 0.0
 
 def analyze_article_hybrid(title, summary, source_name):
     text = (title + " " + summary).lower()
@@ -133,11 +181,9 @@ def analyze_article_hybrid(title, summary, source_name):
     if ai_result:
         if ai_result.get('category') == "Irrelevant": return None
         
-        # Override 0.0 coords with Hardcoded City DB if available
         lat = ai_result.get('lat', 0.0)
         lon = ai_result.get('lon', 0.0)
-        if lat == 0.0:
-            lat, lon = get_hardcoded_coords(text)
+        if lat == 0.0: lat, lon = get_hardcoded_coords(text)
 
         return {
             "category": ai_result.get('category', "Uncategorized"),
@@ -152,7 +198,7 @@ def analyze_article_hybrid(title, summary, source_name):
 
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
-    folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3).add_to(m)
+    folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
     
     for item in articles:
         lat = item.get('lat')
@@ -167,16 +213,22 @@ def generate_interactive_map(articles):
     m.save(MAP_PATH)
 
 def fetch_news():
+    locations = load_locations()
+    allowed_names = list(TRUSTED_SOURCES.values())
     all_candidates = []
     
-    # Load History (Append Mode)
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
-                all_candidates = json.load(f)
+                history = json.load(f)
+                for item in history:
+                    if item['source'] in allowed_names:
+                        combined = (item['title'] + " " + item['snippet']).lower()
+                        if not any(b in combined for b in BLOCKED_KEYWORDS):
+                            all_candidates.append(item)
         except: pass
 
-    print("Scanning feeds...")
+    print("Scanning feeds with SRO AI Agent...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
@@ -184,10 +236,9 @@ def fetch_news():
                 title = entry.title
                 if len(title) < 15: continue
                 
-                # Check Duplicate by Title Similarity
                 is_dup = False
                 for old in all_candidates:
-                    if SequenceMatcher(None, title, old.get('original_title', old['title'])).ratio() > 0.65:
+                    if SequenceMatcher(None, title, old.get('title', '')).ratio() > 0.65:
                         is_dup = True
                         break
                 if is_dup: continue
@@ -199,7 +250,6 @@ def fetch_news():
                     all_candidates.append({
                         "id": hashlib.md5(title.encode()).hexdigest(),
                         "title": analysis['clean_title'],
-                        "original_title": title, # Keep for dedup
                         "snippet": analysis['ai_summary'],
                         "link": entry.link,
                         "published": parse_date(entry)[1],
@@ -212,11 +262,10 @@ def fetch_news():
                         "lat": analysis.get('lat'),
                         "lon": analysis.get('lon')
                     })
-        except Exception as e: print(f"Error {source_name}: {e}")
+        except Exception as e: print(f"Skipping {source_name}: {e}")
 
-    # Sort & Save
     all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
-    if len(all_candidates) > 1000: all_candidates = all_candidates[:1000] # Keep DB light
+    if len(all_candidates) > 1000: all_candidates = all_candidates[:1000]
 
     os.makedirs("public/data", exist_ok=True)
     with open(DB_PATH, "w") as f: json.dump(all_candidates, f, indent=2)
