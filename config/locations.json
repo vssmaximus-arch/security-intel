@@ -1,27 +1,41 @@
 [
-  {
-    "name": "Dell HQ",
-    "city": "Round Rock",
-    "region": "AMER"
-  },
-  {
-    "name": "Dell Manufacturing",
-    "city": "Limerick",
-    "region": "EMEA"
-  },
-  {
-    "name": "Dell APJC Hub",
-    "city": "Singapore",
-    "region": "APJC"
-  },
-  {
-    "name": "Dell India",
-    "city": "Bangalore",
-    "region": "APJC"
-  },
-  {
-    "name": "Dell Federal",
-    "city": "Washington",
-    "region": "AMER"
-  }
+  { "name": "Dell Global HQ (Round Rock)", "city": "Round Rock", "country": "USA", "region": "AMER", "type": "HQ", "lat": 30.5083, "lon": -97.6788 },
+  { "name": "Dell Hopkinton (Legacy EMC)", "city": "Hopkinton", "country": "USA", "region": "AMER", "type": "Office", "lat": 42.2287, "lon": -71.5226 },
+  { "name": "Dell Franklin Mfg", "city": "Franklin", "country": "USA", "region": "AMER", "type": "Factory", "lat": 42.0834, "lon": -71.3967 },
+  { "name": "Dell Apex Mfg", "city": "Apex", "country": "USA", "region": "AMER", "type": "Factory", "lat": 35.7327, "lon": -78.8503 },
+  { "name": "Dell Nashville", "city": "Nashville", "country": "USA", "region": "AMER", "type": "Office", "lat": 36.1627, "lon": -86.7816 },
+  { "name": "Dell Oklahoma City", "city": "Oklahoma City", "country": "USA", "region": "AMER", "type": "Office", "lat": 35.4676, "lon": -97.5164 },
+  { "name": "Dell Santa Clara", "city": "Santa Clara", "country": "USA", "region": "AMER", "type": "R&D", "lat": 37.3541, "lon": -121.9552 },
+  { "name": "Dell Toronto", "city": "Toronto", "country": "Canada", "region": "AMER", "type": "Office", "lat": 43.6510, "lon": -79.3470 },
+  { "name": "Dell Mexico City", "city": "Mexico City", "country": "Mexico", "region": "AMER", "type": "Office", "lat": 19.4326, "lon": -99.1332 },
+  { "name": "Dell Hortolândia Mfg", "city": "Hortolandia", "country": "Brazil", "region": "AMER", "type": "Factory", "lat": -22.8583, "lon": -47.2200 },
+  { "name": "Dell Eldorado do Sul", "city": "Eldorado do Sul", "country": "Brazil", "region": "AMER", "type": "Office", "lat": -30.0024, "lon": -51.3018 },
+
+  { "name": "Dell Limerick Mfg", "city": "Limerick", "country": "Ireland", "region": "EMEA", "type": "Factory", "lat": 52.6638, "lon": -8.6267 },
+  { "name": "Dell Cork (Mahon)", "city": "Cork", "country": "Ireland", "region": "EMEA", "type": "Office", "lat": 51.8985, "lon": -8.4756 },
+  { "name": "Dell Bracknell", "city": "Bracknell", "country": "UK", "region": "EMEA", "type": "Office", "lat": 51.4160, "lon": -0.7540 },
+  { "name": "Dell Montpellier", "city": "Montpellier", "country": "France", "region": "EMEA", "type": "Office", "lat": 43.6108, "lon": 3.8767 },
+  { "name": "Dell Frankfurt", "city": "Frankfurt", "country": "Germany", "region": "EMEA", "type": "Office", "lat": 50.1109, "lon": 8.6821 },
+  { "name": "Dell Amsterdam", "city": "Amsterdam", "country": "Netherlands", "region": "EMEA", "type": "Office", "lat": 52.3676, "lon": 4.9041 },
+  { "name": "Dell Dubai", "city": "Dubai", "country": "UAE", "region": "EMEA", "type": "Office", "lat": 25.2048, "lon": 55.2708 },
+  { "name": "Dell Lodz", "city": "Lodz", "country": "Poland", "region": "EMEA", "type": "Factory", "lat": 51.7592, "lon": 19.4560 },
+  { "name": "Dell Slough DC", "city": "Slough", "country": "UK", "region": "EMEA", "type": "Data Center", "lat": 51.5105, "lon": -0.5950 },
+
+  { "name": "Dell APJ HQ (Singapore)", "city": "Singapore", "country": "Singapore", "region": "APJC", "type": "HQ", "lat": 1.3521, "lon": 103.8198 },
+  { "name": "Dell Bangalore (Divyasree)", "city": "Bangalore", "country": "India", "region": "APJC", "type": "R&D", "lat": 12.9716, "lon": 77.5946 },
+  { "name": "Dell Hyderabad", "city": "Hyderabad", "country": "India", "region": "APJC", "type": "Office", "lat": 17.3850, "lon": 78.4867 },
+  { "name": "Dell Gurgaon", "city": "Gurgaon", "country": "India", "region": "APJC", "type": "Office", "lat": 28.4595, "lon": 77.0266 },
+  { "name": "Dell Chennai", "city": "Chennai", "country": "India", "region": "APJC", "type": "Office", "lat": 13.0827, "lon": 80.2707 },
+  { "name": "Dell Pune", "city": "Pune", "country": "India", "region": "APJC", "type": "Office", "lat": 18.5204, "lon": 73.8567 },
+  { "name": "Dell Xiamen Mfg", "city": "Xiamen", "country": "China", "region": "APJC", "type": "Factory", "lat": 24.4798, "lon": 118.0894 },
+  { "name": "Dell Chengdu Mfg", "city": "Chengdu", "country": "China", "region": "APJC", "type": "Factory", "lat": 30.5728, "lon": 104.0668 },
+  { "name": "Dell Shanghai", "city": "Shanghai", "country": "China", "region": "APJC", "type": "R&D", "lat": 31.2304, "lon": 121.4737 },
+  { "name": "Dell Beijing", "city": "Beijing", "country": "China", "region": "APJC", "type": "Office", "lat": 39.9042, "lon": 116.4074 },
+  { "name": "Dell Dalian", "city": "Dalian", "country": "China", "region": "APJC", "type": "Office", "lat": 38.9140, "lon": 121.6147 },
+  { "name": "Dell Taipei", "city": "Taipei", "country": "Taiwan", "region": "APJC", "type": "R&D", "lat": 25.0330, "lon": 121.5654 },
+  { "name": "Dell Cyberjaya", "city": "Cyberjaya", "country": "Malaysia", "region": "APJC", "type": "Office", "lat": 2.9213, "lon": 101.6559 },
+  { "name": "Dell Penang Mfg", "city": "Penang", "country": "Malaysia", "region": "APJC", "type": "Factory", "lat": 5.4141, "lon": 100.3288 },
+  { "name": "Dell Kawasaki", "city": "Kawasaki", "country": "Japan", "region": "APJC", "type": "Office", "lat": 35.5308, "lon": 139.7029 },
+  { "name": "Dell Sydney", "city": "Sydney", "country": "Australia", "region": "APJC", "type": "Office", "lat": -33.8688, "lon": 151.2093 },
+  { "name": "Dell Melbourne", "city": "Melbourne", "country": "Australia", "region": "APJC", "type": "Office", "lat": -37.8136, "lon": 144.9631 }
 ]
