@@ -1,1 +1,77 @@
-[]
+[
+  {
+    "id": "demo1",
+    "title": "Typhoon Melissa strengthens; Landfall expected in Taiwan",
+    "snippet": "Severe Typhoon warning issued for coastal Taiwan. Manufacturing hubs in Hsinchu and Taichung may face power interruptions and logistics delays of 48-72 hours.",
+    "link": "#",
+    "published": "2025-11-24T09:00:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1764000000.0,
+    "source": "UN GDACS",
+    "category": "Weather/Event",
+    "severity": 3,
+    "region": "APJC",
+    "lat": 25.033,
+    "lon": 121.5654
+  },
+  {
+    "id": "demo2",
+    "title": "Port Strike in Chennai disrupts logistics operations",
+    "snippet": "Dock workers in Chennai have commenced a 24-hour strike. Cargo movement halted. Expect delays for shipments originating from Southern India.",
+    "link": "#",
+    "published": "2025-11-24T08:30:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1763999000.0,
+    "source": "The Loadstar",
+    "category": "Logistics",
+    "severity": 2,
+    "region": "APJC",
+    "lat": 13.0827,
+    "lon": 80.2707
+  },
+  {
+    "id": "demo3",
+    "title": "Cyberattack targets critical energy infrastructure in Germany",
+    "snippet": "Federal authorities investigate ransomware attack on regional power grid. No immediate impact to Dell facilities, but monitoring grid stability.",
+    "link": "#",
+    "published": "2025-11-24T07:15:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1763995000.0,
+    "source": "US CISA (Cyber Govt)",
+    "category": "Cyber",
+    "severity": 3,
+    "region": "EMEA",
+    "lat": 52.52,
+    "lon": 13.405
+  },
+  {
+    "id": "demo4",
+    "title": "Civil Unrest in Bogota: Curfew Declared",
+    "snippet": "Protests escalate in downtown Bogota. Staff advised to avoid city center. Office remains closed until further notice.",
+    "link": "#",
+    "published": "2025-11-24T06:00:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1763990000.0,
+    "source": "Reuters Wire",
+    "category": "Physical Security",
+    "severity": 3,
+    "region": "LATAM",
+    "lat": 4.711,
+    "lon": -74.0721
+  },
+  {
+    "id": "demo5",
+    "title": "Power Outage affects Texas Grid",
+    "snippet": "Rolling blackouts reported in Austin area due to severe heat. Dell HQ operating on backup generators.",
+    "link": "#",
+    "published": "2025-11-24T05:30:00",
+    "date_str": "2025-11-24",
+    "timestamp": 1763980000.0,
+    "source": "Associated Press",
+    "category": "Infrastructure",
+    "severity": 2,
+    "region": "AMER",
+    "lat": 30.2672,
+    "lon": -97.7431
+  }
+]
