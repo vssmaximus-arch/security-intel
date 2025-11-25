@@ -6,7 +6,6 @@
     <title>Dell Global Security Intel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -27,13 +26,11 @@
         .nav-tabs .nav-link { color: #444; font-weight: 500; }
         .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
+        #chart-container { height: 300px; display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         
         #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #091E42; color: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .card-body img { display: none !important; }
         .card-body iframe { display: none !important; }
-        
-        /* New Chart Container */
-        #chart-container { height: 250px; margin-bottom: 20px; display:none; }
     </style>
 </head>
 <body>
@@ -47,21 +44,23 @@
         <div class="container">
             <div class="d-flex align-items-center">
                 <span class="navbar-brand h1 mb-0">Global Security Intel</span>
+                
                 <div class="dropdown ms-3">
                     <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="color: #0076CE; font-weight:600;">
                         📄 Daily Briefings
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><h6 class="dropdown-header">Executive Leadership</h6></li>
-                        <li><a class="dropdown-item" href="briefing_vp_global.pdf" target="_blank">Global VP (High Risks)</a></li>
-                        <li><a class="dropdown-item" href="briefing_dir_apjc.pdf" target="_blank">Director APJC (Full)</a></li>
+                        <li><h6 class="dropdown-header">Executive</h6></li>
+                        <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP (High Sev)</a></li>
+                        <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">Director APJC (Full)</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header">Regional Leads (RSM)</h6></li>
-                        <li><a class="dropdown-item" href="briefing_rsm_india.pdf" target="_blank">India (Anubhav M.)</a></li>
-                        <li><a class="dropdown-item" href="briefing_rsm_china.pdf" target="_blank">Greater China (Jason Y.)</a></li>
-                        <li><a class="dropdown-item" href="briefing_rsm_saem.pdf" target="_blank">SAEM / SE Asia (Siva P.)</a></li>
-                        <li><a class="dropdown-item" href="briefing_rsm_japan_korea.pdf" target="_blank">Japan & Korea (Tomoko/Wonjoon)</a></li>
-                        <li><a class="dropdown-item" href="briefing_rsm_anz.pdf" target="_blank">ANZ & Oceania (Aleks K.)</a></li>
+                        <li><h6 class="dropdown-header">Regional</h6></li>
+                        <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
+                        <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
+                        <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
+                        <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
+                        <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
+                        <li><a class="dropdown-item" href="reports/sea_latest.html" target="_blank">South East Asia</a></li>
                     </ul>
                 </div>
             </div>
@@ -76,7 +75,10 @@
             <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Global Threat Map</a></li>
         </ul>
 
-        <!-- FEED VIEW -->
+        <div id="chart-container">
+            <canvas id="riskChart"></canvas>
+        </div>
+
         <div id="feed-view">
             <div class="filter-container">
                 <div class="row g-3">
@@ -89,19 +91,10 @@
             <div id="news-feed"></div>
         </div>
 
-        <!-- TRENDS VIEW -->
-        <div id="chart-container" class="bg-white p-4 rounded shadow-sm">
-            <h5 class="mb-3">Weekly Risk Velocity (Incidents per Day)</h5>
-            <canvas id="riskChart"></canvas>
-        </div>
-
-        <!-- MAP VIEW -->
         <iframe id="map-frame" src="map.html"></iframe>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         let newsData = [];
         let myChart = null;
@@ -112,7 +105,6 @@
             document.getElementById('feed-view').style.display = 'none';
             document.getElementById('map-frame').style.display = 'none';
             document.getElementById('chart-container').style.display = 'none';
-            
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             event.target.classList.add('active');
 
@@ -161,17 +153,13 @@
 
         function renderChart() {
             if(myChart) myChart.destroy();
-            
-            // Aggregate Data by Date
             const dateCounts = {};
             newsData.forEach(item => {
                 const d = item.date_str;
                 if(!dateCounts[d]) dateCounts[d] = 0;
                 dateCounts[d]++;
             });
-
-            // Sort Dates
-            const sortedDates = Object.keys(dateCounts).sort().slice(-7); // Last 7 days
+            const sortedDates = Object.keys(dateCounts).sort().slice(-7);
             const counts = sortedDates.map(d => dateCounts[d]);
 
             const ctx = document.getElementById('riskChart').getContext('2d');
@@ -186,11 +174,7 @@
                         borderRadius: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
             });
         }
     </script>
