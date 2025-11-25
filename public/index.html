@@ -8,26 +8,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #F5F7FA; font-family: sans-serif; }
-        .navbar { background-color: #0076CE !important; padding: 1rem 2rem; }
+        .navbar { background-color: #0076CE !important; padding: 1rem; }
         .card { border: none; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        /* TAB CONTENT VISIBILITY */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        #map-frame { width: 100%; height: 600px; border: none; }
-        #chart-container { background: white; padding: 20px; margin-bottom: 20px; }
-        #travel-view { background: white; padding: 20px; }
+        .severity-3 { border-left: 6px solid #dc3545; }
+        .severity-2 { border-left: 6px solid #ffc107; }
+        .nav-link.active { color: #0076CE !important; border-bottom: 3px solid #0076CE; font-weight: bold; }
+        #map-frame { width: 100%; height: 600px; border: none; display: none; }
+        #chart-container { height: 300px; display: none; background: white; padding: 20px; margin-bottom: 20px; }
+        #travel-view { display: none; background: white; padding: 20px; }
         .forecast-box { background: white; border-left: 5px solid #6610f2; padding: 15px; margin-bottom: 20px; display: none; }
+        .card-body img { display: none; }
     </style>
 </head>
-<body onload="initApp()">
+<body onload="fetchNews()">
 
     <nav class="navbar navbar-dark">
         <div class="container">
             <span class="navbar-brand h1 mb-0">Global Security Intel</span>
             <div class="dropdown ms-3">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 Reports</button>
+                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 HTML Reports</button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
                     <li><a class="dropdown-item" href="reports/apjc_latest.html" target="_blank">APJC Director</a></li>
@@ -48,13 +47,13 @@
         </div>
 
         <ul class="nav nav-tabs mb-4">
-            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed', this)">Live Feed</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends', this)">Trends</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map', this)">Map</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel', this)">Travel</a></li>
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('feed')">Live Feed</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('trends')">Trends</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('map')">Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel</a></li>
         </ul>
 
-        <div id="feed-view" class="tab-content active">
+        <div id="feed-view">
             <div class="row g-2 mb-3">
                 <div class="col-md-3"><select id="regionFilter" class="form-select" onchange="renderNews()"><option value="All">Global</option><option value="AMER">AMER</option><option value="LATAM">LATAM</option><option value="EMEA">EMEA</option><option value="APJC">APJC</option></select></div>
                 <div class="col-md-9"><input type="text" id="searchBox" class="form-control" placeholder="Search..." onkeyup="renderNews()"></div>
@@ -62,151 +61,9 @@
             <div id="news-feed"></div>
         </div>
 
-        <div id="trends-view" class="tab-content">
-            <div id="chart-container"><canvas id="riskChart"></canvas></div>
-        </div>
-
-        <div id="map-view" class="tab-content">
-            <iframe id="map-frame" src="map.html"></iframe>
-        </div>
-
-        <div id="travel-view" class="tab-content">
+        <div id="chart-container"><canvas id="riskChart"></canvas></div>
+        <div id="travel-view">
             <select id="travelCountry" class="form-select mb-3" onchange="renderTravelCheck()"><option>Select Country...</option></select>
             <div id="travel-feed"></div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let newsData = [];
-        let myChart = null;
-
-        function initApp() {
-            fetchNews();
-        }
-
-        function switchTab(tabId, element) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            // Show selected content
-            document.getElementById(tabId + '-view').classList.add('active');
-            
-            // Update buttons
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-
-            if(tabId === 'trends') renderChart();
-            if(tabId === 'travel') populateCountries();
-        }
-
-        async function fetchNews() {
-            try {
-                const ts = new Date().getTime();
-                
-                // Fetch Forecast
-                fetch('data/forecast.json?t=' + ts)
-                    .then(r => r.json())
-                    .then(fc => {
-                        document.getElementById('forecast-display').style.display = 'block';
-                        document.getElementById('fc-analysis').innerText = fc.analysis || "No forecast available.";
-                    }).catch(() => console.log("No forecast"));
-
-                // Fetch News
-                const r = await fetch('data/news.json?t=' + ts);
-                if(!r.ok) throw new Error("Data missing");
-                
-                newsData = await r.json();
-                document.getElementById('last-updated').innerText = "Items: " + newsData.length;
-                renderNews();
-                
-            } catch (e) {
-                document.getElementById('last-updated').innerText = "No Data";
-                document.getElementById('news-feed').innerHTML = "<p class='text-center text-muted'>System Initializing...</p>";
-            }
-        }
-
-        function renderNews() {
-            const reg = document.getElementById('regionFilter').value;
-            const src = document.getElementById('searchBox').value.toLowerCase();
-            const con = document.getElementById('news-feed'); 
-            con.innerHTML = '';
-
-            if(!newsData || newsData.length === 0) {
-                con.innerHTML = "<p class='text-center text-muted'>No active threats.</p>"; 
-                return; 
-            }
-
-            const filtered = newsData.filter(i => {
-                const regionMatch = (reg === 'All' || (i.region && i.region === reg));
-                const textMatch = (i.title && i.title.toLowerCase().includes(src));
-                return regionMatch && textMatch;
-            });
-
-            if(filtered.length === 0) { con.innerHTML = "<p class='text-center text-muted'>No matches found.</p>"; return; }
-
-            filtered.forEach(i => {
-                let color = '#0d6efd'; // Blue default
-                if(i.severity === 3) color = '#dc3545'; // Red
-                if(i.severity === 2) color = '#ffc107'; // Yellow
-
-                // Handle fields safely (snippet vs summary)
-                const summary = i.snippet || i.ai_summary || i.summary || "No details available.";
-                const date = i.date_str || i.published || "Recent";
-                const region = i.region || "Global";
-
-                con.innerHTML += `
-                    <div class="card" style="border-left: 5px solid ${color}">
-                        <div class="card-body">
-                            <strong>${region}</strong> | 
-                            <a href="${i.link}" target="_blank" style="text-decoration:none; color:#333; font-weight:bold;">
-                                ${i.title}
-                            </a>
-                            <br>
-                            <small class="text-muted">${i.source} • ${date}</small>
-                            <p class="mt-2 mb-0 small">${summary}</p>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function renderChart() {
-            const ctx = document.getElementById('riskChart');
-            if(!ctx) return;
-            
-            if(myChart) myChart.destroy();
-            
-            const counts = {};
-            newsData.forEach(i => {
-                const d = i.date_str || "Unknown";
-                counts[d] = (counts[d] || 0) + 1;
-            });
-            
-            myChart = new Chart(ctx.getContext('2d'), { 
-                type: 'bar', 
-                data: { 
-                    labels: Object.keys(counts), 
-                    datasets: [{ label: 'Incidents', data: Object.values(counts), backgroundColor: '#0076CE' }] 
-                } 
-            });
-        }
-
-        function populateCountries() {
-            const sel = document.getElementById('travelCountry');
-            if(sel.options.length > 1) return; // Don't repopulate
-            
-            const list = ["Australia","Brazil","China","France","Germany","India","Israel","Japan","Korea","Malaysia","Mexico","Singapore","UK","USA","Vietnam"];
-            list.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-        }
-
-        function renderTravelCheck() {
-            const c = document.getElementById('travelCountry').value;
-            const hits = newsData.filter(i => (i.title && i.title.includes(c)) || (i.snippet && i.snippet.includes(c)));
-            
-            const con = document.getElementById('travel-feed');
-            con.innerHTML = hits.length 
-                ? hits.map(i => `<div class="alert alert-warning">${i.title}</div>`).join('') 
-                : "<div class='alert alert-success'>No threats detected.</div>";
-        }
-    </script>
-</body>
-</html>
+        <iframe id="
