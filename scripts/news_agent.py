@@ -6,11 +6,11 @@ import re
 import time
 import folium
 import google.generativeai as genai
-from datetime import datetime
+from datetime import datetime, timedelta
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION: SRO INTEL SOURCES ---
+# --- CONFIGURATION ---
 TRUSTED_SOURCES = {
     "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
     "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global",
@@ -56,9 +56,9 @@ KEYWORDS = {
 }
 
 DB_PATH = "public/data/news.json"
+FORECAST_PATH = "public/data/forecast.json"
 MAP_PATH = "public/map.html"
 
-# --- GEOCODER ---
 CITY_COORDINATES = {
     "sydney": [-33.86, 151.20], "melbourne": [-37.81, 144.96], "brisbane": [-27.47, 153.02], "perth": [-31.95, 115.86], "canberra": [-35.28, 149.13],
     "tokyo": [35.67, 139.65], "osaka": [34.69, 135.50], "fukuoka": [33.59, 130.40], "seoul": [37.56, 126.97], "busan": [35.17, 129.07],
@@ -112,32 +112,17 @@ def is_duplicate_title(new_title, existing_titles):
 
 def ask_gemini_analyst(title, snippet):
     if not model: return None
-    
     prompt = f"""
-    Role: Senior Intelligence Analyst for Dell SRO.
-    Task: Categorize this news.
-    
+    Role: Dell SRO Analyst. Filter & Categorize.
     Headline: "{title}"
     Snippet: "{snippet}"
-    
     PROTOCOL:
-    1. PRIORITY: Terror, War, Riots, Active Shooter, Port Strikes, Power Outage, Major Cyber Breach.
+    1. PRIORITY: Terror, War, Riots, Active Shooter, Port Strikes, Major Cyber Breach.
     2. NOISE (DISCARD): Politics, Stocks, Social Issues, Minor Crime.
-    
-    OUTPUT JSON: 
-    {{ 
-      "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
-      "severity": 1 (Info)|2 (Warning)|3 (Critical), 
-      "clean_title": "Professional Headline", 
-      "summary": "1 sentence SRO impact.", 
-      "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", 
-      "lat": 0.0, 
-      "lon": 0.0 
-    }}
+    OUTPUT JSON: {{ "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", "severity": 1-3, "clean_title": "Prof Headline", "summary": "1 sentence SRO impact.", "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", "lat": 0.0, "lon": 0.0 }}
     """
-    
     try:
-        time.sleep(1.5)
+        time.sleep(1.2)
         response = model.generate_content(prompt)
         text = response.text.replace("```json", "").replace("```", "")
         return json.loads(text)
@@ -146,43 +131,32 @@ def ask_gemini_analyst(title, snippet):
 def analyze_article_hybrid(title, summary, source_name):
     text = (title + " " + summary).lower()
     if any(block in text for block in BLOCKED_KEYWORDS): return None
-
     ai_result = ask_gemini_analyst(title, summary)
-    
     if ai_result:
         if ai_result.get('category') == "Irrelevant": return None
-        
         lat = ai_result.get('lat', 0.0)
         lon = ai_result.get('lon', 0.0)
         if lat == 0.0: lat, lon = get_hardcoded_coords(text)
-
         return {
             "category": ai_result.get('category', "Uncategorized"),
             "severity": ai_result.get('severity', 1),
             "region": ai_result.get('region', "Global"),
             "clean_title": ai_result.get('clean_title', title),
             "ai_summary": ai_result.get('summary', summary),
-            "lat": lat,
-            "lon": lon
+            "lat": lat, "lon": lon
         }
     return None
 
 def generate_interactive_map(articles):
     m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
     folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
-    
     try:
         with open('config/locations.json', 'r') as f:
             assets = json.load(f)
             for asset in assets:
                 if 'lat' in asset and 'lon' in asset:
-                    folium.Marker(
-                        [asset['lat'], asset['lon']],
-                        popup=f"<b>{asset['name']}</b><br>Type: {asset['type']}",
-                        icon=folium.Icon(color="blue", icon="shield", prefix='fa')
-                    ).add_to(m)
+                    folium.Marker([asset['lat'], asset['lon']], popup=f"<b>{asset['name']}</b><br>{asset['type']}", icon=folium.Icon(color="blue", icon="shield", prefix='fa')).add_to(m)
     except: pass
-
     for item in articles:
         lat = item.get('lat')
         lon = item.get('lon')
@@ -193,39 +167,66 @@ def generate_interactive_map(articles):
             folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=250), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
     m.save(MAP_PATH)
 
+# --- NEW: STRATEGIC FORECASTER ---
+def generate_strategic_forecast(articles):
+    if not model: return
+    if not articles: return
+
+    # Take top 10 most critical items from last 24h
+    top_items = [f"- {i['title']} ({i['region']})" for i in articles[:10]]
+    items_str = "\n".join(top_items)
+
+    prompt = f"""
+    Act as a Global Security Forecaster. Based on these recent events, predict the outlook for the NEXT 7 DAYS.
+    
+    Recent Events:
+    {items_str}
+    
+    Task:
+    1. Identify the top regional hotspot.
+    2. Predict one supply chain impact.
+    3. Provide a 1-sentence 'Executive Bottom Line'.
+    
+    Output JSON: {{ "outlook_title": "e.g. Escalating Tensions in APJC", "analysis": "...", "supply_chain_warning": "...", "bottom_line": "..." }}
+    """
+    try:
+        response = model.generate_content(prompt)
+        text = response.text.replace("```json", "").replace("```", "")
+        forecast_data = json.loads(text)
+        forecast_data["generated_at"] = datetime.now().strftime("%d %b %H:%M")
+        
+        with open(FORECAST_PATH, "w") as f:
+            json.dump(forecast_data, f, indent=2)
+    except Exception as e:
+        print(f"Forecast failed: {e}")
+
 def fetch_news():
     locations = load_locations()
-    allowed_names = list(TRUSTED_SOURCES.values())
     all_candidates = []
-    
     if os.path.exists(DB_PATH):
         try:
             with open(DB_PATH, 'r') as f:
                 history = json.load(f)
                 for item in history:
-                    if item['source'] in allowed_names:
-                        combined = (item['title'] + " " + item['snippet']).lower()
-                        if not any(b in combined for b in BLOCKED_KEYWORDS):
+                    if item['source'] in list(TRUSTED_SOURCES.values()):
+                        if not any(b in (item['title']+item['snippet']).lower() for b in BLOCKED_KEYWORDS):
                             all_candidates.append(item)
         except: pass
 
-    print("Scanning feeds with SRO AI Agent...")
+    print("Scanning feeds...")
     for url, source_name in TRUSTED_SOURCES.items():
         try:
             feed = feedparser.parse(url)
             for entry in feed.entries[:5]: 
                 title = entry.title
                 if len(title) < 15: continue
-                
                 is_dup = False
                 for old in all_candidates:
                     if SequenceMatcher(None, title, old.get('title', '')).ratio() > 0.65:
                         is_dup = True; break
                 if is_dup: continue
-
                 clean_summary = clean_html(entry.summary if 'summary' in entry else "")
                 analysis = analyze_article_hybrid(title, clean_summary, source_name)
-                
                 if analysis:
                     all_candidates.append({
                         "id": hashlib.md5(title.encode()).hexdigest(),
@@ -251,6 +252,7 @@ def fetch_news():
     with open(DB_PATH, "w") as f: json.dump(all_candidates, f, indent=2)
     
     generate_interactive_map(all_candidates)
+    generate_strategic_forecast(all_candidates) # Run Forecast
 
 if __name__ == "__main__":
     fetch_news()
