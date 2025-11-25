@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-25T15:22:47.547178+00:00",
+  "generated_at": "2025-11-25T15:44:48.608414+00:00",
   "events": [
     {
       "id": "4f094865a9b4438a",
@@ -34,12 +34,12 @@
       "impact_summary": "The ruling covers the case of a Polish couple who married in Berlin but Polish authorities refused to recognise their marriage."
     },
     {
-      "id": "f026d6ed8e801e06",
-      "title": "Tanzania cancels independence day celebrations after election unrest",
-      "summary": "The opposition has been rallying people to gather on that day to protest against post-poll killings.",
-      "link": "https://www.bbc.com/news/articles/c5y2gpp1q67o?at_medium=RSS&at_campaign=rss",
+      "id": "e4d99c0046e1d336",
+      "title": "What is Cartel de los Soles, which the US is labelling as a terrorist organisation?",
+      "summary": "The US says it is headed by Venezuela's president and other senior politicians, but some analysts say it does not even exist.",
+      "link": "https://www.bbc.com/news/articles/cy8j4ye5x0mo?at_medium=RSS&at_campaign=rss",
       "source": "BBC World",
-      "published": "2025-11-25T09:26:52+00:00",
+      "published": "2025-11-24T16:24:23+00:00",
       "category": "Physical",
       "severity": 1,
       "region": "Global",
@@ -47,7 +47,7 @@
       "city": "",
       "lat": null,
       "lon": null,
-      "impact_summary": "The opposition has been rallying people to gather on that day to protest against post-poll killings."
+      "impact_summary": "The US says it is headed by Venezuela's president and other senior politicians, but some analysts say it does not even exist."
     },
     {
       "id": "a5e507ec25ffaa27",
@@ -64,22 +64,6 @@
       "lat": null,
       "lon": null,
       "impact_summary": "Protests have taken place over the coaches that take visitors up to the world heritage site in Peru."
-    },
-    {
-      "id": "e4d99c0046e1d336",
-      "title": "What is Cartel de los Soles, which the US is labelling as a terrorist organisation?",
-      "summary": "The US says it is headed by Venezuela's president and other senior politicians, but some analysts say it does not even exist.",
-      "link": "https://www.bbc.com/news/articles/cy8j4ye5x0mo?at_medium=RSS&at_campaign=rss",
-      "source": "BBC World",
-      "published": "2025-11-24T16:24:23+00:00",
-      "category": "Physical",
-      "severity": 1,
-      "region": "Global",
-      "country": "",
-      "city": "",
-      "lat": null,
-      "lon": null,
-      "impact_summary": "The US says it is headed by Venezuela's president and other senior politicians, but some analysts say it does not even exist."
     },
     {
       "id": "67c0847d8459f3f3",
@@ -160,6 +144,22 @@
       "lat": null,
       "lon": null,
       "impact_summary": "Japan's new prime minister has vowed to \"work, work, work,\" even on two hours of sleep. Critics warn her stance could revive toxic overtime culture and reverse progress on reducing deaths from overwork."
+    },
+    {
+      "id": "3842aa2a7051185d",
+      "title": "Green notification for tropical cyclone KOTO-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in Tropical Storm).",
+      "summary": "From 24/11/2025 to 25/11/2025, a Tropical Storm (maximum wind speed of 111 km/h) KOTO-25 was active in NWPacific. The cyclone affects these countries: Philippines, Viet Nam (vulnerability High). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in tropical storm).",
+      "link": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001236",
+      "source": "GDACS Alerts",
+      "published": "2025-11-24T19:52:20+00:00",
+      "category": "Physical",
+      "severity": 1,
+      "region": "Global",
+      "country": "",
+      "city": "",
+      "lat": null,
+      "lon": null,
+      "impact_summary": "From 24/11/2025 to 25/11/2025, a Tropical Storm (maximum wind speed of 111 km/h) KOTO-25 was active in NWPacific. The cyclone affects these countries: Philippines, Viet Nam (vulnerability High). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in tropical storm)."
     }
   ]
 }
