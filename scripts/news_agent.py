@@ -10,16 +10,13 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from time import mktime
 
-# --- CONFIGURATION: FIREHOSE SOURCES ---
 TRUSTED_SOURCES = {
     "https://news.google.com/rss/search?q=cyberattack+OR+ransomware+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Cyber",
     "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
     "https://news.google.com/rss/search?q=terrorist+attack+OR+bombing+OR+mass+shooting+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Security",
     "https://news.google.com/rss/search?q=earthquake+OR+typhoon+OR+tsunami+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Disaster",
     "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
-    "https://gdacs.org/xml/rss.xml": "UN GDACS",
-    "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World",
-    "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Global"
+    "https://gdacs.org/xml/rss.xml": "UN GDACS"
 }
 
 BLOCKED_KEYWORDS = ["entertainment", "celebrity", "movie", "film", "music", "sport", "football", "cricket", "dating", "gossip"]
@@ -133,9 +130,12 @@ def fetch_news():
                     })
         except Exception as e: print(f"Skipping {source_name}: {e}")
 
-    # Remove duplicates and Sort
+    # Sort
+    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
+    
+    # Remove duplicates
     unique = {v['id']:v for v in all_candidates}.values()
-    final_list = sorted(list(unique), key=lambda x: x.get('timestamp', 0), reverse=True)[:500]
+    final_list = list(unique)[:500]
 
     os.makedirs("public/data", exist_ok=True)
     with open(DB_PATH, "w") as f: json.dump(final_list, f, indent=2)
