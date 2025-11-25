@@ -77,8 +77,7 @@ CITY_COORDINATES = {
     "bangalore": [12.97, 77.59], "mumbai": [19.07, 72.87], "delhi": [28.70, 77.10], "chennai": [13.08, 80.27], "hyderabad": [17.38, 78.48],
     "singapore": [1.35, 103.81], "bangkok": [13.75, 100.50], "hanoi": [21.02, 105.83], "jakarta": [-6.20, 106.84], "manila": [14.59, 120.98],
     "london": [51.50, -0.12], "paris": [48.85, 2.35], "berlin": [52.52, 13.40], "dubai": [25.20, 55.27], "tel aviv": [32.08, 34.78],
-    "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62],
-    "mexico city": [19.43, -99.13], "sao paulo": [-23.55, -46.63], "buenos aires": [-34.60, -58.38], "bogota": [4.71, -74.07], "santiago": [-33.44, -70.66]
+    "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62]
 }
 
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
@@ -107,4 +106,100 @@ def parse_date(entry):
             return dt.strftime("%Y-%m-%d"), dt.isoformat(), dt.timestamp()
         else:
             now = datetime.now()
-            return now.strftime("%Y-%m-%d"), now.
+            return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
+    except:
+        now = datetime.now()
+        return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
+
+def get_hardcoded_coords(text):
+    for city, coords in CITY_COORDINATES.items():
+        if city in text.lower(): return coords[0], coords[1]
+    return 0.0, 0.0
+
+def is_duplicate_title(new_title, existing_titles):
+    for old_title in existing_titles:
+        if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
+    return False
+
+# --- SRO-FOCUSED AI PROMPT ---
+def ask_gemini_analyst(title, snippet):
+    if not model: return None
+    
+    prompt = f"""
+    Role: Senior Intelligence Analyst for Dell Security & Resiliency Organization (SRO).
+    Task: Filter and Categorize this news item.
+    
+    Headline: "{title}"
+    Snippet: "{snippet}"
+    
+    FILTERING PROTOCOL:
+    
+    1. **PHYSICAL / DUTY OF CARE (Keep High Priority)**:
+       - Terrorism, War/Conflict, Civil Unrest (Protests/Riots).
+       - Active Shooters, Kidnapping, Credible Threats to Executives/Facilities.
+       - Major Natural Disasters (Earthquake, Typhoon) impacting infrastructure.
+    
+    2. **RESILIENCY & LOGISTICS (Keep High Priority)**:
+       - Power Grid Failures, Telecom/Internet Outages.
+       - Port Strikes, Airport Closures, Trade Blockades.
+       - Supply Chain disruptions in key hubs (China, India, Malaysia, etc).
+    
+    3. **CYBER (Keep ONLY Significant Events)**:
+       - DISCARD: Generic vulnerability news, patches, minor hacks, crypto scams.
+       - KEEP: Massive Global Outages, Nation-State Cyber Warfare, or breaches of Critical Infrastructure/Major Tech Partners.
+    
+    4. **NOISE (DISCARD)**:
+       - General Cyber (patches, minor hacks).
+       - Business/Finance/Stocks.
+       - Politics/Opinion/Polls.
+       - Social Issues/Celebrity/Sports.
+       - Local Crime (unless Mass Casualty).
+    
+    OUTPUT JSON: 
+    {{ 
+      "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
+      "severity": 1 (Info)|2 (Warning)|3 (Critical), 
+      "clean_title": "Professional Headline", 
+      "summary": "1 sentence SRO impact assessment.", 
+      "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", 
+      "lat": 0.0, 
+      "lon": 0.0 
+    }}
+    """
+    
+    try:
+        time.sleep(1.5)
+        response = model.generate_content(prompt)
+        text = response.text.replace("```json", "").replace("```", "")
+        return json.loads(text)
+    except: return None
+
+def analyze_article_hybrid(title, summary, source_name):
+    text = (title + " " + summary).lower()
+    if any(block in text for block in BLOCKED_KEYWORDS): return None
+
+    ai_result = ask_gemini_analyst(title, summary)
+    
+    if ai_result:
+        if ai_result.get('category') == "Irrelevant": return None
+        
+        lat = ai_result.get('lat', 0.0)
+        lon = ai_result.get('lon', 0.0)
+        if lat == 0.0: lat, lon = get_hardcoded_coords(text)
+
+        return {
+            "category": ai_result.get('category', "Uncategorized"),
+            "severity": ai_result.get('severity', 1),
+            "region": ai_result.get('region', "Global"),
+            "clean_title": ai_result.get('clean_title', title),
+            "ai_summary": ai_result.get('summary', summary),
+            "lat": lat,
+            "lon": lon
+        }
+    return None
+
+def generate_interactive_map(articles):
+    m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
+    folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
+    
+    for item in articles
