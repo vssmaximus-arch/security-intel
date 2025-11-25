@@ -14,7 +14,7 @@
         /* LOGIN SCREEN */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: #091E42; 
+            background: #091E42; /* Dell Dark Blue */
             color: white; 
             z-index: 9999; 
             display: flex; 
@@ -44,7 +44,7 @@
         .badge-warning { background-color: #FFF9E6; color: #B38600; border: 1px solid #FCECBC; }
         .badge-info { background-color: #F0F8FF; color: #0076CE; border: 1px solid #D1E9FF; }
         .card-title a { color: #172B4D; font-weight: 700; text-decoration: none; }
-
+        
         .nav-tabs .nav-link { color: #444; font-weight: 500; }
         .nav-tabs .nav-link.active { color: #0076CE; font-weight: 700; border-top: 3px solid #0076CE; }
         #map-frame { width: 100%; height: 600px; border: none; border-radius: 8px; display:none; }
@@ -53,7 +53,7 @@
         
         .forecast-box { background: linear-gradient(to right, #ffffff, #f8f9fa); border-left: 5px solid #6f42c1; padding: 20px; margin-bottom: 25px; border-radius: 6px; display:none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .forecast-label { color: #6f42c1; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
-        
+
         .card-body img { display: none !important; }
         .card-body iframe { display: none !important; }
     </style>
@@ -61,12 +61,12 @@
 <body>
 
     <div id="login-screen">
-        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; width: 350px;">
-            <h3 style="color:#091E42; margin-bottom: 20px;">Dell Security Intel</h3>
-            <p class="text-muted small mb-3">Authorized Personnel Only</p>
+        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="color:#091E42; margin-bottom: 20px;">Global Security Intel</h3>
+            <p class="text-muted small mb-3">SRO Authorized Access Only</p>
             <input type="password" id="passcode" class="form-control text-center mb-3" placeholder="Enter PIN" onkeyup="if(event.key==='Enter') checkPass()">
             <button onclick="checkPass()" class="btn btn-primary w-100" style="background-color: #0076CE;">Authenticate</button>
-            <p id="status-msg" style="color: red; margin-top: 15px; font-size: 0.85rem; display:none;"></p>
+            <p id="error-msg" style="color: #dc3545; margin-top: 15px; font-weight: bold; display:none;"></p>
         </div>
     </div>
 
@@ -76,7 +76,9 @@
                 <div class="d-flex align-items-center">
                     <span class="navbar-brand h1 mb-0">Global Security Intel</span>
                     <div class="dropdown ms-3">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">📄 Daily Briefings</button>
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" style="color: #0076CE; font-weight:600;">
+                            📄 Daily Briefings
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><h6 class="dropdown-header">Executive</h6></li>
                             <li><a class="dropdown-item" href="reports/global_latest.html" target="_blank">Global VP</a></li>
@@ -84,7 +86,7 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><h6 class="dropdown-header">Regional</h6></li>
                             <li><a class="dropdown-item" href="reports/india_latest.html" target="_blank">India</a></li>
-                            <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">China</a></li>
+                            <li><a class="dropdown-item" href="reports/greater_china_latest.html" target="_blank">Greater China</a></li>
                             <li><a class="dropdown-item" href="reports/japan_latest.html" target="_blank">Japan</a></li>
                             <li><a class="dropdown-item" href="reports/korea_latest.html" target="_blank">Korea</a></li>
                             <li><a class="dropdown-item" href="reports/oceania_latest.html" target="_blank">Oceania (ANZ)</a></li>
@@ -114,7 +116,10 @@
                 <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('travel')">Travel Safety</a></li>
             </ul>
 
-            <div id="chart-container"><canvas id="riskChart"></canvas></div>
+            <div id="chart-container">
+                <h5 class="mb-4">Weekly Risk Velocity</h5>
+                <canvas id="riskChart"></canvas>
+            </div>
 
             <div id="feed-view">
                 <div class="filter-container">
@@ -129,7 +134,14 @@
             </div>
 
             <div id="travel-view">
-                <div class="row mb-4"><div class="col-md-6"><select id="travelCountry" class="form-select" onchange="renderTravelCheck()"><option value="">Select a country...</option></select></div></div>
+                <h5 class="mb-3">Destination Risk Check</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <select id="travelCountry" class="form-select" onchange="renderTravelCheck()">
+                            <option value="">Select a country...</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="travel-feed"></div>
             </div>
 
@@ -137,4 +149,140 @@
         </div>
     </div>
 
-    <script src="
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // SECURE LOGIC (Base64 Encoding)
+        // "DellSec2025" -> "RGVsbFNlYzIwMjU="
+        const SECURE_TOKEN = "RGVsbFNlYzIwMjU=";
+        
+        let newsData = [];
+        let myChart = null;
+
+        function checkPass() {
+            const input = document.getElementById('passcode').value;
+            const msg = document.getElementById('error-msg');
+            
+            // Simple Browser-Safe Check
+            if (btoa(input) === SECURE_TOKEN) {
+                document.body.classList.add('unlocked');
+                fetchNews(); // Load data only after success
+            } else {
+                msg.style.display = 'block';
+                msg.innerText = "❌ Access Denied: Incorrect PIN";
+                document.getElementById('passcode').value = '';
+                setTimeout(() => { msg.style.display = 'none'; }, 2000);
+            }
+        }
+
+        // --- APP LOGIC ---
+        function switchTab(tab) {
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('map-frame').style.display = 'none';
+            document.getElementById('chart-container').style.display = 'none';
+            document.getElementById('travel-view').style.display = 'none';
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if(tab === 'feed') document.getElementById('feed-view').style.display = 'block';
+            if(tab === 'map') document.getElementById('map-frame').style.display = 'block';
+            if(tab === 'trends') {
+                document.getElementById('chart-container').style.display = 'block';
+                renderChart();
+            }
+            if(tab === 'travel') {
+                document.getElementById('travel-view').style.display = 'block';
+                populateCountries();
+            }
+        }
+
+        async function fetchNews() {
+            try {
+                const ts = new Date().getTime();
+                const r = await fetch('data/news.json?t=' + ts); 
+                if(r.ok) {
+                    newsData = await r.json();
+                    document.getElementById('last-updated').innerText = "Live Database: " + newsData.length + " Items"; 
+                } else {
+                    document.getElementById('last-updated').innerText = "Database Empty";
+                }
+                
+                const r2 = await fetch('data/forecast.json?t=' + ts);
+                if(r2.ok) {
+                    const fc = await r2.json();
+                    document.getElementById('forecast-display').style.display = 'block';
+                    document.getElementById('fc-title').innerText = fc.outlook_title;
+                    document.getElementById('fc-analysis').innerText = fc.analysis;
+                    document.getElementById('fc-supply').innerText = fc.supply_chain_warning;
+                    document.getElementById('fc-bottom').innerText = fc.bottom_line;
+                }
+                renderNews();
+            } catch (e) { console.log("No data yet"); }
+        }
+
+        function renderNews() {
+            const dateF = document.getElementById('dateFilter').value;
+            const reg = document.getElementById('regionFilter').value;
+            const typ = document.getElementById('typeFilter').value;
+            const src = document.getElementById('searchBox').value.toLowerCase();
+            const con = document.getElementById('news-feed'); con.innerHTML = '';
+            
+            const filtered = newsData.filter(i => {
+                const dateMatch = dateF ? i.date_str === dateF : true;
+                return dateMatch && (reg==='All'||i.region===reg) && (typ==='All'||i.category===typ) && (i.title.toLowerCase().includes(src)||i.snippet.toLowerCase().includes(src));
+            });
+            
+            if(filtered.length===0) { con.innerHTML='<div class="text-center text-muted mt-5">No active threats matching criteria.</div>'; return; }
+            
+            filtered.forEach(i => {
+                let bCls = i.severity===3 ? 'badge-critical' : 'badge-warning';
+                let bTxt = i.severity===3 ? 'CRITICAL' : 'WARNING';
+                const niceDate = new Date(i.published).toLocaleString();
+                con.innerHTML += `<div class="card severity-${i.severity}"><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="badge-custom ${bCls}">${bTxt}</span><span class="badge bg-light text-dark border">${i.category}</span><span class="ms-auto text-muted small">${i.region}</span></div><h5 class="card-title"><a href="${i.link}" target="_blank">${i.title}</a></h5><div class="text-muted small mb-2">${i.source} &bull; ${niceDate}</div><p class="mb-0 small text-secondary">${i.snippet}</p></div></div>`;
+            });
+        }
+
+        function renderChart() {
+            if(myChart) myChart.destroy();
+            const dateCounts = {};
+            newsData.forEach(item => {
+                const d = item.date_str;
+                if(!dateCounts[d]) dateCounts[d] = 0;
+                dateCounts[d]++;
+            });
+            const sortedDates = Object.keys(dateCounts).sort().slice(-7);
+            const counts = sortedDates.map(d => dateCounts[d]);
+
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: 'Incident Velocity',
+                        data: counts,
+                        backgroundColor: '#0076CE',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function populateCountries() {
+            const sel = document.getElementById('travelCountry');
+            const countries = ["Australia", "Brazil", "China", "France", "Germany", "India", "Indonesia", "Israel", "Japan", "Korea", "Malaysia", "Mexico", "Philippines", "Singapore", "Taiwan", "Thailand", "UK", "USA", "Vietnam"];
+            sel.innerHTML = '<option value="">Select a country...</option>';
+            countries.sort().forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+        }
+
+        function renderTravelCheck() {
+            const c = document.getElementById('travelCountry').value;
+            const con = document.getElementById('travel-feed'); con.innerHTML = '';
+            if(!c) return;
+            const hits = newsData.filter(i => (i.title + i.snippet).includes(c));
+            if(hits.length === 0) con.innerHTML = "<div class='alert alert-success'>✅ No critical threats detected for this location.</div>";
+            else hits.forEach(i => con.innerHTML += `<div class="alert alert-warning"><b>${i.date_str}</b>: ${i.title}</div>`);
+        }
+    </script>
+</body>
+</html>
