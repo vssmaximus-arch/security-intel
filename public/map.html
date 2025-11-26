@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_63ae31901e8eb221d87acbc374395ef7 {
+                #map_5dbdaade1fd03f4564c5b0dbde6fd8fa {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,16 +54,16 @@
 <body>
     
     
-            <div class="folium-map" id="map_63ae31901e8eb221d87acbc374395ef7" ></div>
+            <div class="folium-map" id="map_5dbdaade1fd03f4564c5b0dbde6fd8fa" ></div>
         
 </body>
 <script>
     
     
-            var map_63ae31901e8eb221d87acbc374395ef7 = L.map(
-                "map_63ae31901e8eb221d87acbc374395ef7",
+            var map_5dbdaade1fd03f4564c5b0dbde6fd8fa = L.map(
+                "map_5dbdaade1fd03f4564c5b0dbde6fd8fa",
                 {
-                    center: [10.0, 10.0],
+                    center: [20.0, 0.0],
                     crs: L.CRS.EPSG3857,
                     ...{
   "maxBounds": [
@@ -76,10 +76,9 @@
 180,
 ],
 ],
-  "zoom": 2,
+  "zoom": 3,
   "zoomControl": true,
-  "preferCanvas": true,
-  "noWrap": true,
+  "preferCanvas": false,
 }
 
                 }
@@ -89,875 +88,1440 @@
 
         
     
-            var tile_layer_063154047f65851828b0787d5b39420a = L.tileLayer(
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            var tile_layer_283c48690e9e766874ddc945b5637f0c = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
-  "minZoom": 2,
-  "maxZoom": 19,
-  "maxNativeZoom": 19,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
-  "subdomains": "abc",
+  "minZoom": 3,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": true,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
   "detectRetina": false,
   "tms": false,
   "opacity": 1,
+  "bounds": [
+[
+-90,
+-180,
+],
+[
+90,
+180,
+],
+],
 }
 
             );
         
     
-            tile_layer_063154047f65851828b0787d5b39420a.addTo(map_63ae31901e8eb221d87acbc374395ef7);
+            tile_layer_283c48690e9e766874ddc945b5637f0c.addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-            var circle_marker_653a3a64f8548c9b1ee9a182ff7d858f = L.circleMarker(
+            var marker_f9cd3052b5c072bc08895f2022e14247 = L.marker(
                 [30.5083, -97.6788],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_16fc2efe96c9af108e8c17e4e69406c6 = L.popup({
+            var icon_df4090cbaa14516d2fb88bd4bf8784b9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5ee8b3ff3c6f8cd75e31c1b55c71f3e0 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_71319e3b851e8b3fc31d57f5c9104874 = $(`<div id="html_71319e3b851e8b3fc31d57f5c9104874" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Global HQ (Round Rock) (Round Rock, USA)</div>`)[0];
-                popup_16fc2efe96c9af108e8c17e4e69406c6.setContent(html_71319e3b851e8b3fc31d57f5c9104874);
+                var html_098e86be37b1dd40cb6bc3e5299fc875 = $(`<div id="html_098e86be37b1dd40cb6bc3e5299fc875" style="width: 100.0%; height: 100.0%;"><b>Dell Global HQ (Round Rock)</b><br>Type: HQ</div>`)[0];
+                popup_5ee8b3ff3c6f8cd75e31c1b55c71f3e0.setContent(html_098e86be37b1dd40cb6bc3e5299fc875);
             
         
 
-        circle_marker_653a3a64f8548c9b1ee9a182ff7d858f.bindPopup(popup_16fc2efe96c9af108e8c17e4e69406c6)
+        marker_f9cd3052b5c072bc08895f2022e14247.bindPopup(popup_5ee8b3ff3c6f8cd75e31c1b55c71f3e0)
         ;
 
         
     
     
-            var circle_marker_6c72f93057e1bf2e7eb61e1ba6baa375 = L.circleMarker(
+                marker_f9cd3052b5c072bc08895f2022e14247.setIcon(icon_df4090cbaa14516d2fb88bd4bf8784b9);
+            
+    
+            var marker_9820f18cce8dfc2bea6ce89ae038d7e2 = L.marker(
                 [42.2287, -71.5226],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_c2c19eedaff9dd6ad7fd2c602d2429b7 = L.popup({
+            var icon_ec4379a2a525e626d3a781b91c8864b7 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_93e9a10399af9b798b05afdf7be6e037 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_506d4a7825f0b670ea58a971b79aaea0 = $(`<div id="html_506d4a7825f0b670ea58a971b79aaea0" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Hopkinton (Legacy EMC) (Hopkinton, USA)</div>`)[0];
-                popup_c2c19eedaff9dd6ad7fd2c602d2429b7.setContent(html_506d4a7825f0b670ea58a971b79aaea0);
+                var html_f0d83d6a9c5c0fa76ae753847937a3ab = $(`<div id="html_f0d83d6a9c5c0fa76ae753847937a3ab" style="width: 100.0%; height: 100.0%;"><b>Dell Hopkinton (Legacy EMC)</b><br>Type: Office</div>`)[0];
+                popup_93e9a10399af9b798b05afdf7be6e037.setContent(html_f0d83d6a9c5c0fa76ae753847937a3ab);
             
         
 
-        circle_marker_6c72f93057e1bf2e7eb61e1ba6baa375.bindPopup(popup_c2c19eedaff9dd6ad7fd2c602d2429b7)
+        marker_9820f18cce8dfc2bea6ce89ae038d7e2.bindPopup(popup_93e9a10399af9b798b05afdf7be6e037)
         ;
 
         
     
     
-            var circle_marker_b8444522d64ef1098b1c9d6f6d3ba141 = L.circleMarker(
+                marker_9820f18cce8dfc2bea6ce89ae038d7e2.setIcon(icon_ec4379a2a525e626d3a781b91c8864b7);
+            
+    
+            var marker_6210933ba9b08e2fdf6cd92c153632e3 = L.marker(
                 [42.0834, -71.3967],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_d7d79140002b0c86f2bcf2af3e3c22c1 = L.popup({
+            var icon_a159fdd634c2e4d27be5b5ecf6a6187c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5873d3d38a7c9719f4ba7bdd38184d8e = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_4776f34c2e919a952c9a4ae21857d1a1 = $(`<div id="html_4776f34c2e919a952c9a4ae21857d1a1" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Franklin Mfg (Franklin, USA)</div>`)[0];
-                popup_d7d79140002b0c86f2bcf2af3e3c22c1.setContent(html_4776f34c2e919a952c9a4ae21857d1a1);
+                var html_6a90c9ed2c7e7643e9d0ddd9995a245e = $(`<div id="html_6a90c9ed2c7e7643e9d0ddd9995a245e" style="width: 100.0%; height: 100.0%;"><b>Dell Franklin Mfg</b><br>Type: Factory</div>`)[0];
+                popup_5873d3d38a7c9719f4ba7bdd38184d8e.setContent(html_6a90c9ed2c7e7643e9d0ddd9995a245e);
             
         
 
-        circle_marker_b8444522d64ef1098b1c9d6f6d3ba141.bindPopup(popup_d7d79140002b0c86f2bcf2af3e3c22c1)
+        marker_6210933ba9b08e2fdf6cd92c153632e3.bindPopup(popup_5873d3d38a7c9719f4ba7bdd38184d8e)
         ;
 
         
     
     
-            var circle_marker_857a558a67de791e3a4d565483e8e93f = L.circleMarker(
+                marker_6210933ba9b08e2fdf6cd92c153632e3.setIcon(icon_a159fdd634c2e4d27be5b5ecf6a6187c);
+            
+    
+            var marker_37123ca9afd20a046e81d82dd55cf72e = L.marker(
                 [35.7327, -78.8503],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_13fa04452aac4e0f1fba38b3bc157b1b = L.popup({
+            var icon_42dbd7d77df16dc746492c22f329bacf = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8fe8596434d301e31ab345eebec6efa4 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_769c06c756bc8a3e47d91abe42729150 = $(`<div id="html_769c06c756bc8a3e47d91abe42729150" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Apex Mfg (Apex, USA)</div>`)[0];
-                popup_13fa04452aac4e0f1fba38b3bc157b1b.setContent(html_769c06c756bc8a3e47d91abe42729150);
+                var html_fdaa32fb5ddeac867645b681fda726d8 = $(`<div id="html_fdaa32fb5ddeac867645b681fda726d8" style="width: 100.0%; height: 100.0%;"><b>Dell Apex Mfg</b><br>Type: Factory</div>`)[0];
+                popup_8fe8596434d301e31ab345eebec6efa4.setContent(html_fdaa32fb5ddeac867645b681fda726d8);
             
         
 
-        circle_marker_857a558a67de791e3a4d565483e8e93f.bindPopup(popup_13fa04452aac4e0f1fba38b3bc157b1b)
+        marker_37123ca9afd20a046e81d82dd55cf72e.bindPopup(popup_8fe8596434d301e31ab345eebec6efa4)
         ;
 
         
     
     
-            var circle_marker_ad59abc51625836c2899d76ebef01f8d = L.circleMarker(
+                marker_37123ca9afd20a046e81d82dd55cf72e.setIcon(icon_42dbd7d77df16dc746492c22f329bacf);
+            
+    
+            var marker_f3578630bd542ed1166e35fee1dacc55 = L.marker(
                 [36.1627, -86.7816],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_d6aaeddfb946c9a7e4c65d925da2ca48 = L.popup({
+            var icon_238c6ce5c6cc22a50fd58e230dfee892 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4c3640532e7ca5076968f7237660dce2 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_f859e4f03a2843def20ebf87b030f036 = $(`<div id="html_f859e4f03a2843def20ebf87b030f036" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Nashville (Nashville, USA)</div>`)[0];
-                popup_d6aaeddfb946c9a7e4c65d925da2ca48.setContent(html_f859e4f03a2843def20ebf87b030f036);
+                var html_af949772d5f4ceff143040424e9ef379 = $(`<div id="html_af949772d5f4ceff143040424e9ef379" style="width: 100.0%; height: 100.0%;"><b>Dell Nashville</b><br>Type: Office</div>`)[0];
+                popup_4c3640532e7ca5076968f7237660dce2.setContent(html_af949772d5f4ceff143040424e9ef379);
             
         
 
-        circle_marker_ad59abc51625836c2899d76ebef01f8d.bindPopup(popup_d6aaeddfb946c9a7e4c65d925da2ca48)
+        marker_f3578630bd542ed1166e35fee1dacc55.bindPopup(popup_4c3640532e7ca5076968f7237660dce2)
         ;
 
         
     
     
-            var circle_marker_1023e87398416065199b841d7fd035b9 = L.circleMarker(
+                marker_f3578630bd542ed1166e35fee1dacc55.setIcon(icon_238c6ce5c6cc22a50fd58e230dfee892);
+            
+    
+            var marker_4eac5456573c864ebd36794deffe3019 = L.marker(
                 [35.4676, -97.5164],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_032784e27345919fd2a42ed44edf52a5 = L.popup({
+            var icon_e341689f70d8ab3b26d79811b02ef726 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_55c25fab0f44688e89077882c3f15a36 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_209cde129e10e1bcbd494fa0eec403f0 = $(`<div id="html_209cde129e10e1bcbd494fa0eec403f0" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Oklahoma City (Oklahoma City, USA)</div>`)[0];
-                popup_032784e27345919fd2a42ed44edf52a5.setContent(html_209cde129e10e1bcbd494fa0eec403f0);
+                var html_52c410423881363508f025a0119c11ee = $(`<div id="html_52c410423881363508f025a0119c11ee" style="width: 100.0%; height: 100.0%;"><b>Dell Oklahoma City</b><br>Type: Office</div>`)[0];
+                popup_55c25fab0f44688e89077882c3f15a36.setContent(html_52c410423881363508f025a0119c11ee);
             
         
 
-        circle_marker_1023e87398416065199b841d7fd035b9.bindPopup(popup_032784e27345919fd2a42ed44edf52a5)
+        marker_4eac5456573c864ebd36794deffe3019.bindPopup(popup_55c25fab0f44688e89077882c3f15a36)
         ;
 
         
     
     
-            var circle_marker_ea0fa91c1cf323317bc22e13e6535e31 = L.circleMarker(
+                marker_4eac5456573c864ebd36794deffe3019.setIcon(icon_e341689f70d8ab3b26d79811b02ef726);
+            
+    
+            var marker_4630f0fe3b616aeccf75420bf14c4d10 = L.marker(
                 [37.3541, -121.9552],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_7ade70141a85b552e733293689a02848 = L.popup({
+            var icon_0c2d4e761c40edb6f1cf5771596cd2fb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9469c7168f74c91119237909d2058a93 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_6870d335d9f6cb6facb44a9bbc97b69b = $(`<div id="html_6870d335d9f6cb6facb44a9bbc97b69b" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Santa Clara (Santa Clara, USA)</div>`)[0];
-                popup_7ade70141a85b552e733293689a02848.setContent(html_6870d335d9f6cb6facb44a9bbc97b69b);
+                var html_80a95c15924ff72f47edfb875b43085b = $(`<div id="html_80a95c15924ff72f47edfb875b43085b" style="width: 100.0%; height: 100.0%;"><b>Dell Santa Clara</b><br>Type: R&D</div>`)[0];
+                popup_9469c7168f74c91119237909d2058a93.setContent(html_80a95c15924ff72f47edfb875b43085b);
             
         
 
-        circle_marker_ea0fa91c1cf323317bc22e13e6535e31.bindPopup(popup_7ade70141a85b552e733293689a02848)
+        marker_4630f0fe3b616aeccf75420bf14c4d10.bindPopup(popup_9469c7168f74c91119237909d2058a93)
         ;
 
         
     
     
-            var circle_marker_72f91c74516570efc2a7d7081a507c73 = L.circleMarker(
+                marker_4630f0fe3b616aeccf75420bf14c4d10.setIcon(icon_0c2d4e761c40edb6f1cf5771596cd2fb);
+            
+    
+            var marker_8ff8c41ef04f418d46cb6259354a302d = L.marker(
                 [43.651, -79.347],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_e360c39e1cd13b17fe40be172c74257c = L.popup({
+            var icon_944a67770c345296c439d465c917fa54 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_aa23637bfd3662a0b9760d9c3332d1a8 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_9ab4c058440c3dd4709241b6d22c7f17 = $(`<div id="html_9ab4c058440c3dd4709241b6d22c7f17" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Toronto (Toronto, Canada)</div>`)[0];
-                popup_e360c39e1cd13b17fe40be172c74257c.setContent(html_9ab4c058440c3dd4709241b6d22c7f17);
+                var html_159d74912832fa563470fd0a1f74bcdc = $(`<div id="html_159d74912832fa563470fd0a1f74bcdc" style="width: 100.0%; height: 100.0%;"><b>Dell Toronto</b><br>Type: Office</div>`)[0];
+                popup_aa23637bfd3662a0b9760d9c3332d1a8.setContent(html_159d74912832fa563470fd0a1f74bcdc);
             
         
 
-        circle_marker_72f91c74516570efc2a7d7081a507c73.bindPopup(popup_e360c39e1cd13b17fe40be172c74257c)
+        marker_8ff8c41ef04f418d46cb6259354a302d.bindPopup(popup_aa23637bfd3662a0b9760d9c3332d1a8)
         ;
 
         
     
     
-            var circle_marker_2c2408bcd8176aaeba00be9552856565 = L.circleMarker(
+                marker_8ff8c41ef04f418d46cb6259354a302d.setIcon(icon_944a67770c345296c439d465c917fa54);
+            
+    
+            var marker_3ea7e785504293aa565853efc7d653c5 = L.marker(
                 [19.4326, -99.1332],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_3a5a99ba580ecbfa14e24a1cb5ca7360 = L.popup({
+            var icon_1ca9648a67859381b7064ac35f21a1d4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1b60883ace8944c458ac9b38ee93f974 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_d2f31a9e528fe1c87235fffe36e9a2b1 = $(`<div id="html_d2f31a9e528fe1c87235fffe36e9a2b1" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Mexico City (Mexico City, Mexico)</div>`)[0];
-                popup_3a5a99ba580ecbfa14e24a1cb5ca7360.setContent(html_d2f31a9e528fe1c87235fffe36e9a2b1);
+                var html_64be92faa2421888602c77b0ca78e58f = $(`<div id="html_64be92faa2421888602c77b0ca78e58f" style="width: 100.0%; height: 100.0%;"><b>Dell Mexico City</b><br>Type: Office</div>`)[0];
+                popup_1b60883ace8944c458ac9b38ee93f974.setContent(html_64be92faa2421888602c77b0ca78e58f);
             
         
 
-        circle_marker_2c2408bcd8176aaeba00be9552856565.bindPopup(popup_3a5a99ba580ecbfa14e24a1cb5ca7360)
+        marker_3ea7e785504293aa565853efc7d653c5.bindPopup(popup_1b60883ace8944c458ac9b38ee93f974)
         ;
 
         
     
     
-            var circle_marker_ba75ebb5810322c67f9db3e4bed29a0e = L.circleMarker(
+                marker_3ea7e785504293aa565853efc7d653c5.setIcon(icon_1ca9648a67859381b7064ac35f21a1d4);
+            
+    
+            var marker_4762f6db2827bb4980b16d558d0b918c = L.marker(
                 [-22.8583, -47.22],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_0563f185d0329b8a73a3062982c0161b = L.popup({
+            var icon_8350b2b04e77d6cc65625c465480a8dd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d989d7a40ae288017ee4e526580afb6a = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_8361829b193f6f042453e7e56650d6b0 = $(`<div id="html_8361829b193f6f042453e7e56650d6b0" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Hortolândia Mfg (Hortolandia, Brazil)</div>`)[0];
-                popup_0563f185d0329b8a73a3062982c0161b.setContent(html_8361829b193f6f042453e7e56650d6b0);
+                var html_1c8121e934d335b2154e17630603f7fb = $(`<div id="html_1c8121e934d335b2154e17630603f7fb" style="width: 100.0%; height: 100.0%;"><b>Dell Hortolândia Mfg</b><br>Type: Factory</div>`)[0];
+                popup_d989d7a40ae288017ee4e526580afb6a.setContent(html_1c8121e934d335b2154e17630603f7fb);
             
         
 
-        circle_marker_ba75ebb5810322c67f9db3e4bed29a0e.bindPopup(popup_0563f185d0329b8a73a3062982c0161b)
+        marker_4762f6db2827bb4980b16d558d0b918c.bindPopup(popup_d989d7a40ae288017ee4e526580afb6a)
         ;
 
         
     
     
-            var circle_marker_40bc37d411ccde6b171ac77976ed85e9 = L.circleMarker(
+                marker_4762f6db2827bb4980b16d558d0b918c.setIcon(icon_8350b2b04e77d6cc65625c465480a8dd);
+            
+    
+            var marker_ee950d152843d905811200e29ef5862d = L.marker(
                 [-30.0024, -51.3018],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_179e039563b5a86635f5cc57cb76db65 = L.popup({
+            var icon_15a348dab79799cffe7c2c4ddecee272 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ecf733a078e634c62b9f03bb7fe124b9 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_fef160b5efb1dff30aa104429529453c = $(`<div id="html_fef160b5efb1dff30aa104429529453c" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Eldorado do Sul (Eldorado do Sul, Brazil)</div>`)[0];
-                popup_179e039563b5a86635f5cc57cb76db65.setContent(html_fef160b5efb1dff30aa104429529453c);
+                var html_ff2519037a958a503a028f62dbfbba5a = $(`<div id="html_ff2519037a958a503a028f62dbfbba5a" style="width: 100.0%; height: 100.0%;"><b>Dell Eldorado do Sul</b><br>Type: Office</div>`)[0];
+                popup_ecf733a078e634c62b9f03bb7fe124b9.setContent(html_ff2519037a958a503a028f62dbfbba5a);
             
         
 
-        circle_marker_40bc37d411ccde6b171ac77976ed85e9.bindPopup(popup_179e039563b5a86635f5cc57cb76db65)
+        marker_ee950d152843d905811200e29ef5862d.bindPopup(popup_ecf733a078e634c62b9f03bb7fe124b9)
         ;
 
         
     
     
-            var circle_marker_43cc4b88372ce2a7e6f6f8228d9fff73 = L.circleMarker(
+                marker_ee950d152843d905811200e29ef5862d.setIcon(icon_15a348dab79799cffe7c2c4ddecee272);
+            
+    
+            var marker_9829b52c97490784440692dbfe6a96e6 = L.marker(
                 [52.6638, -8.6267],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_b2b8c5b714b68fc5a9f67091e681fa83 = L.popup({
+            var icon_39a4138885da33fedc9d82a1771f7d0a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_eb206761f1a29a8b55a82c798fb92396 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_e72db0d0717c6c6ac017bf6d5ebc1fa2 = $(`<div id="html_e72db0d0717c6c6ac017bf6d5ebc1fa2" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Limerick Mfg (Limerick, Ireland)</div>`)[0];
-                popup_b2b8c5b714b68fc5a9f67091e681fa83.setContent(html_e72db0d0717c6c6ac017bf6d5ebc1fa2);
+                var html_504d304acc81c4bc877ae4df52994f78 = $(`<div id="html_504d304acc81c4bc877ae4df52994f78" style="width: 100.0%; height: 100.0%;"><b>Dell Limerick Mfg</b><br>Type: Factory</div>`)[0];
+                popup_eb206761f1a29a8b55a82c798fb92396.setContent(html_504d304acc81c4bc877ae4df52994f78);
             
         
 
-        circle_marker_43cc4b88372ce2a7e6f6f8228d9fff73.bindPopup(popup_b2b8c5b714b68fc5a9f67091e681fa83)
+        marker_9829b52c97490784440692dbfe6a96e6.bindPopup(popup_eb206761f1a29a8b55a82c798fb92396)
         ;
 
         
     
     
-            var circle_marker_8a3aeca684c99aa86feeb2adaa0bfd93 = L.circleMarker(
+                marker_9829b52c97490784440692dbfe6a96e6.setIcon(icon_39a4138885da33fedc9d82a1771f7d0a);
+            
+    
+            var marker_1a995ef9f2db8fab898b4d3b0600fe5b = L.marker(
                 [51.8985, -8.4756],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_17d41c1ff288f8695f0b893e76d22655 = L.popup({
+            var icon_1b5c7a1f647209af850c8e0edc4547ab = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3ecdc62e1632a55fdaa37c6eb782b672 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_6d8e02002b839bed26243d57d9ba62c9 = $(`<div id="html_6d8e02002b839bed26243d57d9ba62c9" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Cork (Mahon) (Cork, Ireland)</div>`)[0];
-                popup_17d41c1ff288f8695f0b893e76d22655.setContent(html_6d8e02002b839bed26243d57d9ba62c9);
+                var html_cacb1745447330a8fe5757df4bcd4fad = $(`<div id="html_cacb1745447330a8fe5757df4bcd4fad" style="width: 100.0%; height: 100.0%;"><b>Dell Cork (Mahon)</b><br>Type: Office</div>`)[0];
+                popup_3ecdc62e1632a55fdaa37c6eb782b672.setContent(html_cacb1745447330a8fe5757df4bcd4fad);
             
         
 
-        circle_marker_8a3aeca684c99aa86feeb2adaa0bfd93.bindPopup(popup_17d41c1ff288f8695f0b893e76d22655)
+        marker_1a995ef9f2db8fab898b4d3b0600fe5b.bindPopup(popup_3ecdc62e1632a55fdaa37c6eb782b672)
         ;
 
         
     
     
-            var circle_marker_1bff41272f1cec44e4976a1806367af5 = L.circleMarker(
+                marker_1a995ef9f2db8fab898b4d3b0600fe5b.setIcon(icon_1b5c7a1f647209af850c8e0edc4547ab);
+            
+    
+            var marker_2ce1d9f76a0f7cec821125e63b5a24ca = L.marker(
                 [51.416, -0.754],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_e65a98ec2a272c9aae7730cece38fdac = L.popup({
+            var icon_34a15a52c2779b9ca1d5bcd53ea9d836 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_eea5bccccf73493d32ee3420eff3b7b6 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_c3957e5ac4411fc6944a8f39aea4fd34 = $(`<div id="html_c3957e5ac4411fc6944a8f39aea4fd34" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Bracknell (Bracknell, UK)</div>`)[0];
-                popup_e65a98ec2a272c9aae7730cece38fdac.setContent(html_c3957e5ac4411fc6944a8f39aea4fd34);
+                var html_169e548827a6d8124f50f1dc3dbe93c2 = $(`<div id="html_169e548827a6d8124f50f1dc3dbe93c2" style="width: 100.0%; height: 100.0%;"><b>Dell Bracknell</b><br>Type: Office</div>`)[0];
+                popup_eea5bccccf73493d32ee3420eff3b7b6.setContent(html_169e548827a6d8124f50f1dc3dbe93c2);
             
         
 
-        circle_marker_1bff41272f1cec44e4976a1806367af5.bindPopup(popup_e65a98ec2a272c9aae7730cece38fdac)
+        marker_2ce1d9f76a0f7cec821125e63b5a24ca.bindPopup(popup_eea5bccccf73493d32ee3420eff3b7b6)
         ;
 
         
     
     
-            var circle_marker_6b3c599d8a56d92ded86cbb8da00176e = L.circleMarker(
+                marker_2ce1d9f76a0f7cec821125e63b5a24ca.setIcon(icon_34a15a52c2779b9ca1d5bcd53ea9d836);
+            
+    
+            var marker_42097f51a829866f891e7f1726892451 = L.marker(
                 [43.6108, 3.8767],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_cd0647d83cbf97a297a7f154b2b51593 = L.popup({
+            var icon_4bd20d05c0ca2d255d965a92c473fba4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0bfec599174c27496f51d19fc1f68362 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_65ed5d9c92651fac6706bf234a06ac7c = $(`<div id="html_65ed5d9c92651fac6706bf234a06ac7c" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Montpellier (Montpellier, France)</div>`)[0];
-                popup_cd0647d83cbf97a297a7f154b2b51593.setContent(html_65ed5d9c92651fac6706bf234a06ac7c);
+                var html_db8514e5633dee51bbeac6c8e05dbc4b = $(`<div id="html_db8514e5633dee51bbeac6c8e05dbc4b" style="width: 100.0%; height: 100.0%;"><b>Dell Montpellier</b><br>Type: Office</div>`)[0];
+                popup_0bfec599174c27496f51d19fc1f68362.setContent(html_db8514e5633dee51bbeac6c8e05dbc4b);
             
         
 
-        circle_marker_6b3c599d8a56d92ded86cbb8da00176e.bindPopup(popup_cd0647d83cbf97a297a7f154b2b51593)
+        marker_42097f51a829866f891e7f1726892451.bindPopup(popup_0bfec599174c27496f51d19fc1f68362)
         ;
 
         
     
     
-            var circle_marker_73c61c1c10fa3abc8366830364692710 = L.circleMarker(
+                marker_42097f51a829866f891e7f1726892451.setIcon(icon_4bd20d05c0ca2d255d965a92c473fba4);
+            
+    
+            var marker_8dafb98dfa40c6b185bd1dbd0c5c7bd1 = L.marker(
                 [50.1109, 8.6821],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_d6b6036b7f6246765e3324dec5dec2f4 = L.popup({
+            var icon_a911f1d5fbc12b0732bdba66bdedbeef = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2df56cc3bf97255f5d2c1f5b7760bd45 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_8592bde1330a70c4a4a391f274d5a7c3 = $(`<div id="html_8592bde1330a70c4a4a391f274d5a7c3" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Frankfurt (Frankfurt, Germany)</div>`)[0];
-                popup_d6b6036b7f6246765e3324dec5dec2f4.setContent(html_8592bde1330a70c4a4a391f274d5a7c3);
+                var html_d1cd3c7f76c6b6b05ef80bce94c002a9 = $(`<div id="html_d1cd3c7f76c6b6b05ef80bce94c002a9" style="width: 100.0%; height: 100.0%;"><b>Dell Frankfurt</b><br>Type: Office</div>`)[0];
+                popup_2df56cc3bf97255f5d2c1f5b7760bd45.setContent(html_d1cd3c7f76c6b6b05ef80bce94c002a9);
             
         
 
-        circle_marker_73c61c1c10fa3abc8366830364692710.bindPopup(popup_d6b6036b7f6246765e3324dec5dec2f4)
+        marker_8dafb98dfa40c6b185bd1dbd0c5c7bd1.bindPopup(popup_2df56cc3bf97255f5d2c1f5b7760bd45)
         ;
 
         
     
     
-            var circle_marker_494126a09c757cab5cd4a1f5e55348bb = L.circleMarker(
+                marker_8dafb98dfa40c6b185bd1dbd0c5c7bd1.setIcon(icon_a911f1d5fbc12b0732bdba66bdedbeef);
+            
+    
+            var marker_012b68ab1d80efcfc13bdfd0c6cbac76 = L.marker(
                 [52.3676, 4.9041],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_c50bdf017310e0d966778576e87495c1 = L.popup({
+            var icon_95392aba6e44207679d02284c5733971 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_97f38352cd030341c4e5099f3c8e2d6c = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_505b2b51c0a613d0f0a737c2b155c4a9 = $(`<div id="html_505b2b51c0a613d0f0a737c2b155c4a9" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Amsterdam (Amsterdam, Netherlands)</div>`)[0];
-                popup_c50bdf017310e0d966778576e87495c1.setContent(html_505b2b51c0a613d0f0a737c2b155c4a9);
+                var html_c777724f0689a530846fcc191ba1db20 = $(`<div id="html_c777724f0689a530846fcc191ba1db20" style="width: 100.0%; height: 100.0%;"><b>Dell Amsterdam</b><br>Type: Office</div>`)[0];
+                popup_97f38352cd030341c4e5099f3c8e2d6c.setContent(html_c777724f0689a530846fcc191ba1db20);
             
         
 
-        circle_marker_494126a09c757cab5cd4a1f5e55348bb.bindPopup(popup_c50bdf017310e0d966778576e87495c1)
+        marker_012b68ab1d80efcfc13bdfd0c6cbac76.bindPopup(popup_97f38352cd030341c4e5099f3c8e2d6c)
         ;
 
         
     
     
-            var circle_marker_e60fd3b2e0ac2e18987b65e883f410bc = L.circleMarker(
+                marker_012b68ab1d80efcfc13bdfd0c6cbac76.setIcon(icon_95392aba6e44207679d02284c5733971);
+            
+    
+            var marker_fd1ebe957a0ff57a648a572447ca9214 = L.marker(
                 [25.2048, 55.2708],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_7bfb79a5a054e4c9008cd3f4f51a140d = L.popup({
+            var icon_a8482c5d982f042a433c70c296cb9abd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a69a1ce6f23d0e0603e94d96847541ed = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_cdcfffe35ab3de046dc5d46ed0e2ee0d = $(`<div id="html_cdcfffe35ab3de046dc5d46ed0e2ee0d" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Dubai (Dubai, UAE)</div>`)[0];
-                popup_7bfb79a5a054e4c9008cd3f4f51a140d.setContent(html_cdcfffe35ab3de046dc5d46ed0e2ee0d);
+                var html_d033115752e9cd0560c5e392f038f39c = $(`<div id="html_d033115752e9cd0560c5e392f038f39c" style="width: 100.0%; height: 100.0%;"><b>Dell Dubai</b><br>Type: Office</div>`)[0];
+                popup_a69a1ce6f23d0e0603e94d96847541ed.setContent(html_d033115752e9cd0560c5e392f038f39c);
             
         
 
-        circle_marker_e60fd3b2e0ac2e18987b65e883f410bc.bindPopup(popup_7bfb79a5a054e4c9008cd3f4f51a140d)
+        marker_fd1ebe957a0ff57a648a572447ca9214.bindPopup(popup_a69a1ce6f23d0e0603e94d96847541ed)
         ;
 
         
     
     
-            var circle_marker_991f9baa8a9f9aa2e545d1ae89b1d364 = L.circleMarker(
+                marker_fd1ebe957a0ff57a648a572447ca9214.setIcon(icon_a8482c5d982f042a433c70c296cb9abd);
+            
+    
+            var marker_60ea0472e413f391a0cec4f1cf3cab6e = L.marker(
                 [51.7592, 19.456],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_1945c25dc20a0a7cee9a859e634249b8 = L.popup({
+            var icon_c873bcea52c246d04926c609b51c1dbc = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9c3b8d1a1e941c05e052a524043d9182 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_bdd376c1d986acb43601fa97cc957c07 = $(`<div id="html_bdd376c1d986acb43601fa97cc957c07" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Lodz (Lodz, Poland)</div>`)[0];
-                popup_1945c25dc20a0a7cee9a859e634249b8.setContent(html_bdd376c1d986acb43601fa97cc957c07);
+                var html_b6545a2bf57f0ced336f6679de0d1fec = $(`<div id="html_b6545a2bf57f0ced336f6679de0d1fec" style="width: 100.0%; height: 100.0%;"><b>Dell Lodz</b><br>Type: Factory</div>`)[0];
+                popup_9c3b8d1a1e941c05e052a524043d9182.setContent(html_b6545a2bf57f0ced336f6679de0d1fec);
             
         
 
-        circle_marker_991f9baa8a9f9aa2e545d1ae89b1d364.bindPopup(popup_1945c25dc20a0a7cee9a859e634249b8)
+        marker_60ea0472e413f391a0cec4f1cf3cab6e.bindPopup(popup_9c3b8d1a1e941c05e052a524043d9182)
         ;
 
         
     
     
-            var circle_marker_33a10178f9cce7505161bed52bcb30f2 = L.circleMarker(
+                marker_60ea0472e413f391a0cec4f1cf3cab6e.setIcon(icon_c873bcea52c246d04926c609b51c1dbc);
+            
+    
+            var marker_c1458a4022816eed4a772d58726a45fb = L.marker(
                 [51.5105, -0.595],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_c469e1ed473e48f11f96dd33d702279c = L.popup({
+            var icon_1536ec0b3923c11ee2cb1b87a7f2ea82 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a7a1ef946a88ffa76cb30ff0c0b0112c = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_7f72ce3fb37882168f9ea6407cb2334c = $(`<div id="html_7f72ce3fb37882168f9ea6407cb2334c" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Slough DC (Slough, UK)</div>`)[0];
-                popup_c469e1ed473e48f11f96dd33d702279c.setContent(html_7f72ce3fb37882168f9ea6407cb2334c);
+                var html_1240a482ac49c8f22500de8ffb9c3284 = $(`<div id="html_1240a482ac49c8f22500de8ffb9c3284" style="width: 100.0%; height: 100.0%;"><b>Dell Slough DC</b><br>Type: Data Center</div>`)[0];
+                popup_a7a1ef946a88ffa76cb30ff0c0b0112c.setContent(html_1240a482ac49c8f22500de8ffb9c3284);
             
         
 
-        circle_marker_33a10178f9cce7505161bed52bcb30f2.bindPopup(popup_c469e1ed473e48f11f96dd33d702279c)
+        marker_c1458a4022816eed4a772d58726a45fb.bindPopup(popup_a7a1ef946a88ffa76cb30ff0c0b0112c)
         ;
 
         
     
     
-            var circle_marker_c8107a570ef604123e743da8f73ed047 = L.circleMarker(
+                marker_c1458a4022816eed4a772d58726a45fb.setIcon(icon_1536ec0b3923c11ee2cb1b87a7f2ea82);
+            
+    
+            var marker_fe6d3443fad11022ff552d09525eb1a4 = L.marker(
                 [1.3521, 103.8198],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_c96971750c5dad45bade421f20da2e8e = L.popup({
+            var icon_aef751dfcca02600cf197b7e44cf1c68 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f32152c856d797975736e18818336568 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_101b49eb33c415debda6db7baf7e167a = $(`<div id="html_101b49eb33c415debda6db7baf7e167a" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell APJ HQ (Singapore) (Singapore, Singapore)</div>`)[0];
-                popup_c96971750c5dad45bade421f20da2e8e.setContent(html_101b49eb33c415debda6db7baf7e167a);
+                var html_0653ec4228cf8f859dfcb73d74f495a6 = $(`<div id="html_0653ec4228cf8f859dfcb73d74f495a6" style="width: 100.0%; height: 100.0%;"><b>Dell APJ HQ (Singapore)</b><br>Type: HQ</div>`)[0];
+                popup_f32152c856d797975736e18818336568.setContent(html_0653ec4228cf8f859dfcb73d74f495a6);
             
         
 
-        circle_marker_c8107a570ef604123e743da8f73ed047.bindPopup(popup_c96971750c5dad45bade421f20da2e8e)
+        marker_fe6d3443fad11022ff552d09525eb1a4.bindPopup(popup_f32152c856d797975736e18818336568)
         ;
 
         
     
     
-            var circle_marker_a5ccfe2edaa3924003dcee9bae7f8659 = L.circleMarker(
+                marker_fe6d3443fad11022ff552d09525eb1a4.setIcon(icon_aef751dfcca02600cf197b7e44cf1c68);
+            
+    
+            var marker_773722f10497792af303c3907c91882e = L.marker(
                 [12.9716, 77.5946],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_3aa7b6913bdf884edd5027e24e8544bc = L.popup({
+            var icon_53fd713b17cb952e7ef5e466d1816b19 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_914d216c2e60fb1926014f2c1b504ad8 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_36d628a657ebccbf1933729f3b6278d8 = $(`<div id="html_36d628a657ebccbf1933729f3b6278d8" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Bangalore (Divyasree) (Bangalore, India)</div>`)[0];
-                popup_3aa7b6913bdf884edd5027e24e8544bc.setContent(html_36d628a657ebccbf1933729f3b6278d8);
+                var html_f016389dfde1c66f46ab8ebe01141b47 = $(`<div id="html_f016389dfde1c66f46ab8ebe01141b47" style="width: 100.0%; height: 100.0%;"><b>Dell Bangalore (Divyasree)</b><br>Type: R&D</div>`)[0];
+                popup_914d216c2e60fb1926014f2c1b504ad8.setContent(html_f016389dfde1c66f46ab8ebe01141b47);
             
         
 
-        circle_marker_a5ccfe2edaa3924003dcee9bae7f8659.bindPopup(popup_3aa7b6913bdf884edd5027e24e8544bc)
+        marker_773722f10497792af303c3907c91882e.bindPopup(popup_914d216c2e60fb1926014f2c1b504ad8)
         ;
 
         
     
     
-            var circle_marker_dcfb48ac3bd8c45dab4b9a1b57f413e6 = L.circleMarker(
+                marker_773722f10497792af303c3907c91882e.setIcon(icon_53fd713b17cb952e7ef5e466d1816b19);
+            
+    
+            var marker_c722768edd673ffdfb6439b9989a7880 = L.marker(
                 [17.385, 78.4867],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_b440901a8ad0422c81e74755bc2a55d3 = L.popup({
+            var icon_a45996aac282bccd4a71fcc5ddd75507 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b832f2bc2110d21a4710afa9908aab74 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_0be9c806ab10febabe628128cd06881f = $(`<div id="html_0be9c806ab10febabe628128cd06881f" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Hyderabad (Hyderabad, India)</div>`)[0];
-                popup_b440901a8ad0422c81e74755bc2a55d3.setContent(html_0be9c806ab10febabe628128cd06881f);
+                var html_b9584c1ea4fe1ba8cab67398c937b44d = $(`<div id="html_b9584c1ea4fe1ba8cab67398c937b44d" style="width: 100.0%; height: 100.0%;"><b>Dell Hyderabad</b><br>Type: Office</div>`)[0];
+                popup_b832f2bc2110d21a4710afa9908aab74.setContent(html_b9584c1ea4fe1ba8cab67398c937b44d);
             
         
 
-        circle_marker_dcfb48ac3bd8c45dab4b9a1b57f413e6.bindPopup(popup_b440901a8ad0422c81e74755bc2a55d3)
+        marker_c722768edd673ffdfb6439b9989a7880.bindPopup(popup_b832f2bc2110d21a4710afa9908aab74)
         ;
 
         
     
     
-            var circle_marker_0036bc588e70422eb6250d29fe4f44f6 = L.circleMarker(
+                marker_c722768edd673ffdfb6439b9989a7880.setIcon(icon_a45996aac282bccd4a71fcc5ddd75507);
+            
+    
+            var marker_d1d8a8c394ce849b7f9b5aa2ea9986a3 = L.marker(
                 [28.4595, 77.0266],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_82cd30eaea398c8900637ecdbe394f5d = L.popup({
+            var icon_559017e849ad0162f4ac3cb2a138ee51 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7b2c690acb933f9623981cd1340a1790 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_1c66641256f7679cebec92c7d6abc1c2 = $(`<div id="html_1c66641256f7679cebec92c7d6abc1c2" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Gurgaon (Gurgaon, India)</div>`)[0];
-                popup_82cd30eaea398c8900637ecdbe394f5d.setContent(html_1c66641256f7679cebec92c7d6abc1c2);
+                var html_27929edde59752556d1273552a203dea = $(`<div id="html_27929edde59752556d1273552a203dea" style="width: 100.0%; height: 100.0%;"><b>Dell Gurgaon</b><br>Type: Office</div>`)[0];
+                popup_7b2c690acb933f9623981cd1340a1790.setContent(html_27929edde59752556d1273552a203dea);
             
         
 
-        circle_marker_0036bc588e70422eb6250d29fe4f44f6.bindPopup(popup_82cd30eaea398c8900637ecdbe394f5d)
+        marker_d1d8a8c394ce849b7f9b5aa2ea9986a3.bindPopup(popup_7b2c690acb933f9623981cd1340a1790)
         ;
 
         
     
     
-            var circle_marker_fa75248f27ba383d384d99f721dabe6e = L.circleMarker(
+                marker_d1d8a8c394ce849b7f9b5aa2ea9986a3.setIcon(icon_559017e849ad0162f4ac3cb2a138ee51);
+            
+    
+            var marker_5387ff46fe2cd751553b449a2f2e5b75 = L.marker(
                 [13.0827, 80.2707],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_a65c7650ca4ec5aedcea013c11027317 = L.popup({
+            var icon_70ef727a1a3808e41eaa55fcb609288b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_56e6e028b6feca49b6dfbbb0f5b45f12 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_f8536bdf47872869bb3a3732b874e7f1 = $(`<div id="html_f8536bdf47872869bb3a3732b874e7f1" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Chennai (Chennai, India)</div>`)[0];
-                popup_a65c7650ca4ec5aedcea013c11027317.setContent(html_f8536bdf47872869bb3a3732b874e7f1);
+                var html_9b7808900a5613cccb036fb9cb38aca9 = $(`<div id="html_9b7808900a5613cccb036fb9cb38aca9" style="width: 100.0%; height: 100.0%;"><b>Dell Chennai</b><br>Type: Office</div>`)[0];
+                popup_56e6e028b6feca49b6dfbbb0f5b45f12.setContent(html_9b7808900a5613cccb036fb9cb38aca9);
             
         
 
-        circle_marker_fa75248f27ba383d384d99f721dabe6e.bindPopup(popup_a65c7650ca4ec5aedcea013c11027317)
+        marker_5387ff46fe2cd751553b449a2f2e5b75.bindPopup(popup_56e6e028b6feca49b6dfbbb0f5b45f12)
         ;
 
         
     
     
-            var circle_marker_f181c5ccf5572721b3af6e98ad915699 = L.circleMarker(
+                marker_5387ff46fe2cd751553b449a2f2e5b75.setIcon(icon_70ef727a1a3808e41eaa55fcb609288b);
+            
+    
+            var marker_3476b764ca9c5f572fd6dfc0db16b02d = L.marker(
                 [18.5204, 73.8567],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_6003809eead9526925cb66f20567fac3 = L.popup({
+            var icon_0c3491a0040f841c95fbcaae1dbd9e9a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_75e757c49d6c666e6a0845deb6fc7ae9 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_78fc5153009c6cfe641d82836cc49dce = $(`<div id="html_78fc5153009c6cfe641d82836cc49dce" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Pune (Pune, India)</div>`)[0];
-                popup_6003809eead9526925cb66f20567fac3.setContent(html_78fc5153009c6cfe641d82836cc49dce);
+                var html_d362e733878e7252683291559ff18ec2 = $(`<div id="html_d362e733878e7252683291559ff18ec2" style="width: 100.0%; height: 100.0%;"><b>Dell Pune</b><br>Type: Office</div>`)[0];
+                popup_75e757c49d6c666e6a0845deb6fc7ae9.setContent(html_d362e733878e7252683291559ff18ec2);
             
         
 
-        circle_marker_f181c5ccf5572721b3af6e98ad915699.bindPopup(popup_6003809eead9526925cb66f20567fac3)
+        marker_3476b764ca9c5f572fd6dfc0db16b02d.bindPopup(popup_75e757c49d6c666e6a0845deb6fc7ae9)
         ;
 
         
     
     
-            var circle_marker_4276c7fb485fbef69f871186158f7db8 = L.circleMarker(
+                marker_3476b764ca9c5f572fd6dfc0db16b02d.setIcon(icon_0c3491a0040f841c95fbcaae1dbd9e9a);
+            
+    
+            var marker_b2d618dbfca9e2bae95e0987793440b2 = L.marker(
                 [24.4798, 118.0894],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_182ea23126b4f57fe87f8f2318f7ad5c = L.popup({
+            var icon_6262c7f64f455b38b745fa7f7cb75a5b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c65b0423e7941e026af2f4507a0c4bfb = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_bfeab970bebcba644abfb5ab2d5d6c6e = $(`<div id="html_bfeab970bebcba644abfb5ab2d5d6c6e" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Xiamen Mfg (Xiamen, China)</div>`)[0];
-                popup_182ea23126b4f57fe87f8f2318f7ad5c.setContent(html_bfeab970bebcba644abfb5ab2d5d6c6e);
+                var html_6d693a448e4287757bd51ca4c5f994ca = $(`<div id="html_6d693a448e4287757bd51ca4c5f994ca" style="width: 100.0%; height: 100.0%;"><b>Dell Xiamen Mfg</b><br>Type: Factory</div>`)[0];
+                popup_c65b0423e7941e026af2f4507a0c4bfb.setContent(html_6d693a448e4287757bd51ca4c5f994ca);
             
         
 
-        circle_marker_4276c7fb485fbef69f871186158f7db8.bindPopup(popup_182ea23126b4f57fe87f8f2318f7ad5c)
+        marker_b2d618dbfca9e2bae95e0987793440b2.bindPopup(popup_c65b0423e7941e026af2f4507a0c4bfb)
         ;
 
         
     
     
-            var circle_marker_cd1bdf71074e78e11e4b5b40503b84bd = L.circleMarker(
+                marker_b2d618dbfca9e2bae95e0987793440b2.setIcon(icon_6262c7f64f455b38b745fa7f7cb75a5b);
+            
+    
+            var marker_7f0961a2d5414e97f89a11482931eeb8 = L.marker(
                 [30.5728, 104.0668],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_1dfb93c7307093e4ac99585183ce17eb = L.popup({
+            var icon_0381aafbe121e6513434bb5a6ba596ca = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_904d8a9d2408a7dadf264e2b03763764 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_a0cfcac68d97ec523023f6db84cfd4f8 = $(`<div id="html_a0cfcac68d97ec523023f6db84cfd4f8" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Chengdu Mfg (Chengdu, China)</div>`)[0];
-                popup_1dfb93c7307093e4ac99585183ce17eb.setContent(html_a0cfcac68d97ec523023f6db84cfd4f8);
+                var html_83e8f10ee62d92127252824b995c6d69 = $(`<div id="html_83e8f10ee62d92127252824b995c6d69" style="width: 100.0%; height: 100.0%;"><b>Dell Chengdu Mfg</b><br>Type: Factory</div>`)[0];
+                popup_904d8a9d2408a7dadf264e2b03763764.setContent(html_83e8f10ee62d92127252824b995c6d69);
             
         
 
-        circle_marker_cd1bdf71074e78e11e4b5b40503b84bd.bindPopup(popup_1dfb93c7307093e4ac99585183ce17eb)
+        marker_7f0961a2d5414e97f89a11482931eeb8.bindPopup(popup_904d8a9d2408a7dadf264e2b03763764)
         ;
 
         
     
     
-            var circle_marker_747913213eea777cab6b653a81fbe0ad = L.circleMarker(
+                marker_7f0961a2d5414e97f89a11482931eeb8.setIcon(icon_0381aafbe121e6513434bb5a6ba596ca);
+            
+    
+            var marker_95d5e3b12adaefaa8f60631d6f0fdbc8 = L.marker(
                 [31.2304, 121.4737],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_6b93ee607de88854785e339f83f21169 = L.popup({
+            var icon_fea46f085ae793dcbbc2fac46ea7b7b2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5663f42310e3bb5a0344a816e16b088b = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_ff56829183b3f6a39109e8ba2be06c62 = $(`<div id="html_ff56829183b3f6a39109e8ba2be06c62" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Shanghai (Shanghai, China)</div>`)[0];
-                popup_6b93ee607de88854785e339f83f21169.setContent(html_ff56829183b3f6a39109e8ba2be06c62);
+                var html_08c4a85123bb44f8c2bf3d0ba080fe7f = $(`<div id="html_08c4a85123bb44f8c2bf3d0ba080fe7f" style="width: 100.0%; height: 100.0%;"><b>Dell Shanghai</b><br>Type: R&D</div>`)[0];
+                popup_5663f42310e3bb5a0344a816e16b088b.setContent(html_08c4a85123bb44f8c2bf3d0ba080fe7f);
             
         
 
-        circle_marker_747913213eea777cab6b653a81fbe0ad.bindPopup(popup_6b93ee607de88854785e339f83f21169)
+        marker_95d5e3b12adaefaa8f60631d6f0fdbc8.bindPopup(popup_5663f42310e3bb5a0344a816e16b088b)
         ;
 
         
     
     
-            var circle_marker_fadeb172298fedba879ab9b6091c4ecc = L.circleMarker(
+                marker_95d5e3b12adaefaa8f60631d6f0fdbc8.setIcon(icon_fea46f085ae793dcbbc2fac46ea7b7b2);
+            
+    
+            var marker_6babfc1e89995931a95880af5fc3be98 = L.marker(
                 [39.9042, 116.4074],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_1271bbe35ef125c93fd2fe3a72926d84 = L.popup({
+            var icon_48018477bd1f8fb18d466d4ec9afe510 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d46a6d2367c19d03fa8aa689d02b3cd2 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_b93a5230853b1ddc4c542a1a5e4bd7f9 = $(`<div id="html_b93a5230853b1ddc4c542a1a5e4bd7f9" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Beijing (Beijing, China)</div>`)[0];
-                popup_1271bbe35ef125c93fd2fe3a72926d84.setContent(html_b93a5230853b1ddc4c542a1a5e4bd7f9);
+                var html_b728461f38e0d6b4bfa2c0ac98b6a242 = $(`<div id="html_b728461f38e0d6b4bfa2c0ac98b6a242" style="width: 100.0%; height: 100.0%;"><b>Dell Beijing</b><br>Type: Office</div>`)[0];
+                popup_d46a6d2367c19d03fa8aa689d02b3cd2.setContent(html_b728461f38e0d6b4bfa2c0ac98b6a242);
             
         
 
-        circle_marker_fadeb172298fedba879ab9b6091c4ecc.bindPopup(popup_1271bbe35ef125c93fd2fe3a72926d84)
+        marker_6babfc1e89995931a95880af5fc3be98.bindPopup(popup_d46a6d2367c19d03fa8aa689d02b3cd2)
         ;
 
         
     
     
-            var circle_marker_4a7f184b72e597f88a26b989944aec84 = L.circleMarker(
+                marker_6babfc1e89995931a95880af5fc3be98.setIcon(icon_48018477bd1f8fb18d466d4ec9afe510);
+            
+    
+            var marker_e1457aff774e4ad9193bf36586836e40 = L.marker(
                 [38.914, 121.6147],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_f9586b3841151b4f0e2579b352b31fe3 = L.popup({
+            var icon_6cb44215c46dc81c16c7d64eb900c51b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_fc50464562153faba6c1dacb6ac1abe2 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_f1685d2fd783b3593ee3d5af942d2161 = $(`<div id="html_f1685d2fd783b3593ee3d5af942d2161" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Dalian (Dalian, China)</div>`)[0];
-                popup_f9586b3841151b4f0e2579b352b31fe3.setContent(html_f1685d2fd783b3593ee3d5af942d2161);
+                var html_cd85fbd968dfaee9f58373248141d90e = $(`<div id="html_cd85fbd968dfaee9f58373248141d90e" style="width: 100.0%; height: 100.0%;"><b>Dell Dalian</b><br>Type: Office</div>`)[0];
+                popup_fc50464562153faba6c1dacb6ac1abe2.setContent(html_cd85fbd968dfaee9f58373248141d90e);
             
         
 
-        circle_marker_4a7f184b72e597f88a26b989944aec84.bindPopup(popup_f9586b3841151b4f0e2579b352b31fe3)
+        marker_e1457aff774e4ad9193bf36586836e40.bindPopup(popup_fc50464562153faba6c1dacb6ac1abe2)
         ;
 
         
     
     
-            var circle_marker_3a33cace11728f8f3ff2bd2f5195e6d2 = L.circleMarker(
+                marker_e1457aff774e4ad9193bf36586836e40.setIcon(icon_6cb44215c46dc81c16c7d64eb900c51b);
+            
+    
+            var marker_27d64084ce1062e3a0d4b718b8a69582 = L.marker(
                 [25.033, 121.5654],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_6d7ba206c069230c2a96105eae9a0489 = L.popup({
+            var icon_55049133e9fb5c97f9bc7c4bf6154dde = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_08830c1be9b5fccaf37bcc0af2645837 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_f49f008030c7a23d1e5911d5024f6a17 = $(`<div id="html_f49f008030c7a23d1e5911d5024f6a17" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Taipei (Taipei, Taiwan)</div>`)[0];
-                popup_6d7ba206c069230c2a96105eae9a0489.setContent(html_f49f008030c7a23d1e5911d5024f6a17);
+                var html_2ecc91afff00c24066d6be5b45cefb65 = $(`<div id="html_2ecc91afff00c24066d6be5b45cefb65" style="width: 100.0%; height: 100.0%;"><b>Dell Taipei</b><br>Type: R&D</div>`)[0];
+                popup_08830c1be9b5fccaf37bcc0af2645837.setContent(html_2ecc91afff00c24066d6be5b45cefb65);
             
         
 
-        circle_marker_3a33cace11728f8f3ff2bd2f5195e6d2.bindPopup(popup_6d7ba206c069230c2a96105eae9a0489)
+        marker_27d64084ce1062e3a0d4b718b8a69582.bindPopup(popup_08830c1be9b5fccaf37bcc0af2645837)
         ;
 
         
     
     
-            var circle_marker_caf4feda0652749cff8f94299fbb0d73 = L.circleMarker(
+                marker_27d64084ce1062e3a0d4b718b8a69582.setIcon(icon_55049133e9fb5c97f9bc7c4bf6154dde);
+            
+    
+            var marker_90db51f39699f071f4f41655e2009f79 = L.marker(
                 [2.9213, 101.6559],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_199be2abc127c912b378931703eb2c2a = L.popup({
+            var icon_cab9c72346753bfe30c12e15f16287d7 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b7ad0e1cd51fea4f1b21902b6fa79706 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_0c67d81504539be85fb37e7e81f86ed9 = $(`<div id="html_0c67d81504539be85fb37e7e81f86ed9" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Cyberjaya (Cyberjaya, Malaysia)</div>`)[0];
-                popup_199be2abc127c912b378931703eb2c2a.setContent(html_0c67d81504539be85fb37e7e81f86ed9);
+                var html_4a1213add95bedba5f0eb6a28918d229 = $(`<div id="html_4a1213add95bedba5f0eb6a28918d229" style="width: 100.0%; height: 100.0%;"><b>Dell Cyberjaya</b><br>Type: Office</div>`)[0];
+                popup_b7ad0e1cd51fea4f1b21902b6fa79706.setContent(html_4a1213add95bedba5f0eb6a28918d229);
             
         
 
-        circle_marker_caf4feda0652749cff8f94299fbb0d73.bindPopup(popup_199be2abc127c912b378931703eb2c2a)
+        marker_90db51f39699f071f4f41655e2009f79.bindPopup(popup_b7ad0e1cd51fea4f1b21902b6fa79706)
         ;
 
         
     
     
-            var circle_marker_a2cb43c6503302e097d6bc7512ad45a2 = L.circleMarker(
+                marker_90db51f39699f071f4f41655e2009f79.setIcon(icon_cab9c72346753bfe30c12e15f16287d7);
+            
+    
+            var marker_66b1969cabfd8a707083c10cfa6d7aa8 = L.marker(
                 [5.4141, 100.3288],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_02a075eeeaf0f47dd5978c8f60097186 = L.popup({
+            var icon_f6c0e71fa7a9b3159de5c5120fd9e67c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5dffa6ff852d54186daf765fc798bbb5 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_dd911d96ebf0c1d4378b928e8196eef0 = $(`<div id="html_dd911d96ebf0c1d4378b928e8196eef0" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Penang Mfg (Penang, Malaysia)</div>`)[0];
-                popup_02a075eeeaf0f47dd5978c8f60097186.setContent(html_dd911d96ebf0c1d4378b928e8196eef0);
+                var html_d1df5a760308559fd0e2b1d1cbf6cf0f = $(`<div id="html_d1df5a760308559fd0e2b1d1cbf6cf0f" style="width: 100.0%; height: 100.0%;"><b>Dell Penang Mfg</b><br>Type: Factory</div>`)[0];
+                popup_5dffa6ff852d54186daf765fc798bbb5.setContent(html_d1df5a760308559fd0e2b1d1cbf6cf0f);
             
         
 
-        circle_marker_a2cb43c6503302e097d6bc7512ad45a2.bindPopup(popup_02a075eeeaf0f47dd5978c8f60097186)
+        marker_66b1969cabfd8a707083c10cfa6d7aa8.bindPopup(popup_5dffa6ff852d54186daf765fc798bbb5)
         ;
 
         
     
     
-            var circle_marker_398c6fedeed7905503368387ebcc9297 = L.circleMarker(
+                marker_66b1969cabfd8a707083c10cfa6d7aa8.setIcon(icon_f6c0e71fa7a9b3159de5c5120fd9e67c);
+            
+    
+            var marker_1debfbcbcabb8fc3fcd7f6f2c3e68943 = L.marker(
                 [35.5308, 139.7029],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_04258bdb34fc9e56a58e54d4283687d3 = L.popup({
+            var icon_955b3e172c2c0ced405b5ca4363a8a87 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5f1ee3f0ac8f1ef25be652f6ab29973d = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_74b2790446f52e436af79af6c669c912 = $(`<div id="html_74b2790446f52e436af79af6c669c912" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Kawasaki (Kawasaki, Japan)</div>`)[0];
-                popup_04258bdb34fc9e56a58e54d4283687d3.setContent(html_74b2790446f52e436af79af6c669c912);
+                var html_265603673943bb4a721fe6c81a8e53cf = $(`<div id="html_265603673943bb4a721fe6c81a8e53cf" style="width: 100.0%; height: 100.0%;"><b>Dell Kawasaki</b><br>Type: Office</div>`)[0];
+                popup_5f1ee3f0ac8f1ef25be652f6ab29973d.setContent(html_265603673943bb4a721fe6c81a8e53cf);
             
         
 
-        circle_marker_398c6fedeed7905503368387ebcc9297.bindPopup(popup_04258bdb34fc9e56a58e54d4283687d3)
+        marker_1debfbcbcabb8fc3fcd7f6f2c3e68943.bindPopup(popup_5f1ee3f0ac8f1ef25be652f6ab29973d)
         ;
 
         
     
     
-            var circle_marker_2ec5ab298b2092da4c1a0570c718602f = L.circleMarker(
+                marker_1debfbcbcabb8fc3fcd7f6f2c3e68943.setIcon(icon_955b3e172c2c0ced405b5ca4363a8a87);
+            
+    
+            var marker_27e9ebafe0c80f5b6edaf0d5ad1a5704 = L.marker(
                 [-33.8688, 151.2093],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_39d500a4193fe7b9e914f2454d284da0 = L.popup({
+            var icon_83828ca603dd7bba7488cd35a14dedfe = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0a1914834b354af63dc2876c0d793461 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_6c02a61001ad46240d7e951638285e78 = $(`<div id="html_6c02a61001ad46240d7e951638285e78" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Sydney (Sydney, Australia)</div>`)[0];
-                popup_39d500a4193fe7b9e914f2454d284da0.setContent(html_6c02a61001ad46240d7e951638285e78);
+                var html_bc89eb36a2a5274c5034c2251bdc6fbb = $(`<div id="html_bc89eb36a2a5274c5034c2251bdc6fbb" style="width: 100.0%; height: 100.0%;"><b>Dell Sydney</b><br>Type: Office</div>`)[0];
+                popup_0a1914834b354af63dc2876c0d793461.setContent(html_bc89eb36a2a5274c5034c2251bdc6fbb);
             
         
 
-        circle_marker_2ec5ab298b2092da4c1a0570c718602f.bindPopup(popup_39d500a4193fe7b9e914f2454d284da0)
+        marker_27e9ebafe0c80f5b6edaf0d5ad1a5704.bindPopup(popup_0a1914834b354af63dc2876c0d793461)
         ;
 
         
     
     
-            var circle_marker_7a03862db9b06519c4c70d14afcbd60c = L.circleMarker(
+                marker_27e9ebafe0c80f5b6edaf0d5ad1a5704.setIcon(icon_83828ca603dd7bba7488cd35a14dedfe);
+            
+    
+            var marker_be0f8b857730c3535dee56b90f116ee6 = L.marker(
                 [-37.8136, 144.9631],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
-            ).addTo(map_63ae31901e8eb221d87acbc374395ef7);
+                {
+}
+            ).addTo(map_5dbdaade1fd03f4564c5b0dbde6fd8fa);
         
     
-        var popup_f8684931e8d32e79dd23dbf03ee3e326 = L.popup({
+            var icon_51c64e7a43db7ebb471eb8ca37588be8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "shield",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_73a6c8817bf29b1ca45c7e69c09f6b00 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_09c12db02328f599109fd196862b4fc4 = $(`<div id="html_09c12db02328f599109fd196862b4fc4" style="width: 100.0%; height: 100.0%;">Dell Asset: Dell Melbourne (Melbourne, Australia)</div>`)[0];
-                popup_f8684931e8d32e79dd23dbf03ee3e326.setContent(html_09c12db02328f599109fd196862b4fc4);
+                var html_315daa69658886528e8a7efa66a793c3 = $(`<div id="html_315daa69658886528e8a7efa66a793c3" style="width: 100.0%; height: 100.0%;"><b>Dell Melbourne</b><br>Type: Office</div>`)[0];
+                popup_73a6c8817bf29b1ca45c7e69c09f6b00.setContent(html_315daa69658886528e8a7efa66a793c3);
             
         
 
-        circle_marker_7a03862db9b06519c4c70d14afcbd60c.bindPopup(popup_f8684931e8d32e79dd23dbf03ee3e326)
+        marker_be0f8b857730c3535dee56b90f116ee6.bindPopup(popup_73a6c8817bf29b1ca45c7e69c09f6b00)
         ;
 
         
     
+    
+                marker_be0f8b857730c3535dee56b90f116ee6.setIcon(icon_51c64e7a43db7ebb471eb8ca37588be8);
+            
 </script>
 </html>
