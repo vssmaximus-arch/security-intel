@@ -32,6 +32,38 @@
     "impact_summary": "The US president said he had not heard the audio, but that it sounded like \"standard\" negotiations."
   },
   {
+    "id": "a35714a4a0a60506",
+    "title": "Where peace stands in Ukraine after frantic diplomacy",
+    "summary": "The Trump administration seems serious about reaching a deal despite all the apparent chaos around its efforts.",
+    "link": "https://www.bbc.com/news/articles/cly0jjv2lg1o?at_medium=RSS&at_campaign=rss",
+    "source": "BBC World",
+    "published": "2025-11-26T15:29:13+00:00",
+    "category": "Physical",
+    "severity": 1,
+    "region": "Global",
+    "country": "",
+    "city": "",
+    "lat": null,
+    "lon": null,
+    "impact_summary": "The Trump administration seems serious about reaching a deal despite all the apparent chaos around its efforts."
+  },
+  {
+    "id": "8fcf9f35a1a77dec",
+    "title": "Guinea-Bissau soldiers say they have taken power after reports of president's arrest",
+    "summary": "Umaro Sissoco Embaló's detention comes three days after a controversial presidential vote.",
+    "link": "https://www.bbc.com/news/articles/c0edww3qgq2o?at_medium=RSS&at_campaign=rss",
+    "source": "BBC World",
+    "published": "2025-11-26T15:51:37+00:00",
+    "category": "Physical",
+    "severity": 1,
+    "region": "Global",
+    "country": "",
+    "city": "",
+    "lat": null,
+    "lon": null,
+    "impact_summary": "Umaro Sissoco Embaló's detention comes three days after a controversial presidential vote."
+  },
+  {
     "id": "191c4f11956ae72d",
     "title": "Nicolas Sarkozy illegal campaign financing conviction upheld",
     "summary": "The former French president will have to serve a six-month term with an electronic bracelet, plus another six months suspended.",
@@ -46,38 +78,6 @@
     "lat": null,
     "lon": null,
     "impact_summary": "The former French president will have to serve a six-month term with an electronic bracelet, plus another six months suspended."
-  },
-  {
-    "id": "a8aa95f21e43fc89",
-    "title": "No real intent in Moscow to engage in peace talks, says von der Leyen",
-    "summary": "The European Commission chief said the EU would stand with Ukraine and support it \"in every way\".",
-    "link": "https://www.bbc.com/news/articles/c208wjpv4r9o?at_medium=RSS&at_campaign=rss",
-    "source": "BBC World",
-    "published": "2025-11-26T11:33:24+00:00",
-    "category": "Physical",
-    "severity": 1,
-    "region": "Global",
-    "country": "",
-    "city": "",
-    "lat": null,
-    "lon": null,
-    "impact_summary": "The European Commission chief said the EU would stand with Ukraine and support it \"in every way\"."
-  },
-  {
-    "id": "8fcf9f35a1a77dec",
-    "title": "Guinea-Bissau soldiers say they have taken power after reports of president's arrest",
-    "summary": "Umaro Sissoco Embaló's detention comes three days after a controversial presidential vote.",
-    "link": "https://www.bbc.com/news/articles/c0edww3qgq2o?at_medium=RSS&at_campaign=rss",
-    "source": "BBC World",
-    "published": "2025-11-26T15:40:22+00:00",
-    "category": "Physical",
-    "severity": 1,
-    "region": "Global",
-    "country": "",
-    "city": "",
-    "lat": null,
-    "lon": null,
-    "impact_summary": "Umaro Sissoco Embaló's detention comes three days after a controversial presidential vote."
   },
   {
     "id": "4e0c47e04bc47473",
@@ -96,12 +96,12 @@
     "impact_summary": "They argue the law - which will block users under 16 from having social media accounts - is unconstitutional."
   },
   {
-    "id": "7f42eab467c7d232",
-    "title": "Italian parliament unanimously votes to make femicide a crime",
-    "summary": "The gender-motivated murder of a woman will now be covered by a distinct clause in Italian law - punishable by a life sentence.",
-    "link": "https://www.bbc.com/news/articles/c1dzp050yn2o?at_medium=RSS&at_campaign=rss",
+    "id": "e808bb6759640bbb",
+    "title": "Chicago man accused of setting train passenger on fire had 72 prior arrests",
+    "summary": "The victim was reading her phone while riding on a train when the man allegedly doused her with gasoline.",
+    "link": "https://www.bbc.com/news/articles/cr4drle9k12o?at_medium=RSS&at_campaign=rss",
     "source": "BBC World",
-    "published": "2025-11-26T00:36:49+00:00",
+    "published": "2025-11-26T13:54:36+00:00",
     "category": "Physical",
     "severity": 1,
     "region": "Global",
@@ -109,7 +109,7 @@
     "city": "",
     "lat": null,
     "lon": null,
-    "impact_summary": "The gender-motivated murder of a woman will now be covered by a distinct clause in Italian law - punishable by a life sentence."
+    "impact_summary": "The victim was reading her phone while riding on a train when the man allegedly doused her with gasoline."
   },
   {
     "id": "6c50f208151292ce",
@@ -126,6 +126,22 @@
     "lat": null,
     "lon": null,
     "impact_summary": "The deadly floods have affected 2 million people, the majority of whom are still cut off from help."
+  },
+  {
+    "id": "7f42eab467c7d232",
+    "title": "Italian parliament unanimously votes to make femicide a crime",
+    "summary": "The gender-motivated murder of a woman will now be covered by a distinct clause in Italian law - punishable by a life sentence.",
+    "link": "https://www.bbc.com/news/articles/c1dzp050yn2o?at_medium=RSS&at_campaign=rss",
+    "source": "BBC World",
+    "published": "2025-11-26T00:36:49+00:00",
+    "category": "Physical",
+    "severity": 1,
+    "region": "Global",
+    "country": "",
+    "city": "",
+    "lat": null,
+    "lon": null,
+    "impact_summary": "The gender-motivated murder of a woman will now be covered by a distinct clause in Italian law - punishable by a life sentence."
   },
   {
     "id": "ceaf12aa866ee72c",
@@ -176,12 +192,12 @@
     "impact_summary": "The handover means the bodies of two deceased hostages are still being held in Gaza six weeks after the ceasefire began."
   },
   {
-    "id": "e808bb6759640bbb",
-    "title": "Chicago man accused of setting train passenger on fire had 72 prior arrests",
-    "summary": "The victim was reading her phone while riding on a train when the man allegedly doused her with gasoline.",
-    "link": "https://www.bbc.com/news/articles/cr4drle9k12o?at_medium=RSS&at_campaign=rss",
+    "id": "a8aa95f21e43fc89",
+    "title": "No real intent in Moscow to engage in peace talks, says von der Leyen",
+    "summary": "The European Commission chief said the EU would stand with Ukraine and support it \"in every way\".",
+    "link": "https://www.bbc.com/news/articles/c208wjpv4r9o?at_medium=RSS&at_campaign=rss",
     "source": "BBC World",
-    "published": "2025-11-26T13:54:36+00:00",
+    "published": "2025-11-26T11:33:24+00:00",
     "category": "Physical",
     "severity": 1,
     "region": "Global",
@@ -189,7 +205,7 @@
     "city": "",
     "lat": null,
     "lon": null,
-    "impact_summary": "The victim was reading her phone while riding on a train when the man allegedly doused her with gasoline."
+    "impact_summary": "The European Commission chief said the EU would stand with Ukraine and support it \"in every way\"."
   },
   {
     "id": "c135a7676f55a207",
@@ -222,21 +238,5 @@
     "lat": null,
     "lon": null,
     "impact_summary": "Mohammed Ibrahim, 16, from Florida, was detained by Israeli soldiers while on holiday in the occupied West Bank."
-  },
-  {
-    "id": "38106bd2672d196c",
-    "title": "Bolsonaro ordered to start serving 27-year prison sentence for Brazil coup plot",
-    "summary": "The Supreme Court says the former leader has exhausted his appeals and will start his prison term at a police station in Brasilia.",
-    "link": "https://www.bbc.com/news/articles/cr4dl19npv5o?at_medium=RSS&at_campaign=rss",
-    "source": "BBC World",
-    "published": "2025-11-26T10:54:39+00:00",
-    "category": "Physical",
-    "severity": 1,
-    "region": "Global",
-    "country": "",
-    "city": "",
-    "lat": null,
-    "lon": null,
-    "impact_summary": "The Supreme Court says the former leader has exhausted his appeals and will start his prison term at a police station in Brasilia."
   }
 ]
