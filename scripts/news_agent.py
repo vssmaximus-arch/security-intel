@@ -3,11 +3,9 @@
 Dell Global Security & Resiliency Intelligence – News Agent (RELAXED FILTERS)
 
 - Ingests RSS feeds
-- Uses a LIGHT SRO pre-filter:
-    * Only a blocklist (entertainment, sports, etc.)
-    * NO hard "must contain SRO keyword" gate anymore
+- Uses a LIGHT SRO pre-filter (blocklist only – no hard include keywords)
 - Uses Gemini (google-generativeai, model: gemini-pro) for relevance & classification
-- Writes public/data/news.json  ->  { "generated_at": "...", "events": [ ... ] }
+- Writes public/data/news.json  ->  [ {event}, {event}, ... ]  (PLAIN ARRAY)
 - Writes public/map.html
 
 Guarantees:
@@ -466,12 +464,9 @@ def main():
 
     locations_cfg = load_locations()
 
-    db = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "events": events
-    }
+    # WRITE AS PLAIN ARRAY
     with open(DATA_PATH, "w", encoding="utf-8") as f:
-        json.dump(db, f, ensure_ascii=False, indent=2)
+        json.dump(events, f, ensure_ascii=False, indent=2)
 
     build_map(events, locations_cfg)
 
