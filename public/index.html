@@ -130,29 +130,26 @@
                 document.getElementById('travel-view').style.display = 'block';
                 populateCountries();
             }
-
-            // update tab active class
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            if (tab === 'feed') document.querySelector('.nav-link[href="#"]').classList.add('active');
         }
 
         async function fetchNews() {
             try {
                 const ts = new Date().getTime();
 
-                // NEWS
-                const r = await fetch('data/news.json?t=' + ts);
+                // *** IMPORTANT: pull from raw GitHub so we know we get the same file you see in the repo ***
+                const newsUrl = "https://raw.githubusercontent.com/vssmaximus-arch/security-intel/main/public/data/news.json?t=" + ts;
+                const r = await fetch(newsUrl);
+
                 if (r.ok) {
                     const raw = await r.json();
-                    // Support both [ ... ] and { events: [...] }
                     newsData = Array.isArray(raw) ? raw : (raw.events || []);
                     document.getElementById('last-updated').innerText = "Items: " + newsData.length;
                     renderNews();
                 } else {
-                    console.log('Failed to load news.json', r.status);
+                    document.getElementById('last-updated').innerText = "Items: ERR";
                 }
 
-                // FORECAST
+                // Forecast (optional) – still from your Pages artifact
                 const r2 = await fetch('data/forecast.json?t=' + ts);
                 if (r2.ok) {
                     const fc = await r2.json();
@@ -161,7 +158,7 @@
                     }
                 }
             } catch (e) {
-                console.log('fetchNews error', e);
+                document.getElementById('last-updated').innerText = "Items: ERR";
             }
         }
 
