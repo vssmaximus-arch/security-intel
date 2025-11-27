@@ -1,6 +1,32 @@
 [
-  { "region": "EMEA", "severity": 3, "type": "Supply Chain", "url": "https://www.reuters.com", "source": "Reuters", "time": "12m ago", "title": "Red Sea Crisis Escalates", "snippet": "Major shipping lines divert vessels as security concerns mount near the Bab el-Mandeb strait." },
-  { "region": "EMEA", "severity": 3, "type": "Cyber Security", "url": "https://www.bleepingcomputer.com", "source": "BleepingComputer", "time": "28m ago", "title": "Critical Ransomware Strain Targets Manufacturing", "snippet": "New 'BlackCat' variant identified targeting industrial control systems in Germany." },
-  { "region": "LATAM", "severity": 3, "type": "Physical Security", "url": "https://www.ap.org", "source": "Associated Press", "time": "1h ago", "title": "Civil unrest triggers curfew in Bogota", "snippet": "Authorities declare 24-hour curfew following escalated protests near government district. Airport access restricted." },
-  { "region": "APJC", "severity": 2, "type": "Weather", "url": "https://www.channelnewsasia.com", "source": "CNA", "time": "1h 15m ago", "title": "Typhoon Signal 8 Hoisted in Hong Kong", "snippet": "Operations suspended across Kowloon bay area. Public transport limited." }
+  {
+    "region": "EMEA",
+    "severity": 3,
+    "type": "Supply Chain",
+    "url": "https://www.reuters.com",
+    "source": "Reuters",
+    "time": "12m ago",
+    "title": "Red Sea Crisis Escalates",
+    "snippet": "Major shipping lines divert vessels as security concerns mount near the Bab el-Mandeb strait."
+  },
+  {
+    "region": "EMEA",
+    "severity": 3,
+    "type": "Cyber Security",
+    "url": "https://www.bleepingcomputer.com",
+    "source": "BleepingComputer",
+    "time": "28m ago",
+    "title": "Critical Ransomware Strain Targets Manufacturing",
+    "snippet": "New 'BlackCat' variant identified targeting industrial control systems in Germany."
+  },
+  {
+    "region": "LATAM",
+    "severity": 3,
+    "type": "Physical Security",
+    "url": "https://www.ap.org",
+    "source": "Associated Press",
+    "time": "1h ago",
+    "title": "Civil unrest triggers curfew in Bogota",
+    "snippet": "Authorities declare 24-hour curfew following escalated protests near government district. Airport access restricted."
+  }
 ]
