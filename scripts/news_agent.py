@@ -1,309 +1,205 @@
-import feedparser
+#!/usr/bin/env python3
+"""
+SRO Intelligence – News Agent
+
+Pulls real RSS news, normalises it, and writes:
+  public/data/news.json
+
+The frontend expects each item to have:
+  region, type, severity, url, source, time, title, snippet
+"""
+
+from __future__ import annotations
+
 import json
-import os
-import hashlib
 import re
-import time
-import folium
-import google.generativeai as genai
-from datetime import datetime
-from difflib import SequenceMatcher
-from time import mktime
+from datetime import datetime, timezone
+from pathlib import Path
 
-# --- CONFIGURATION: FIREHOSE SOURCES ---
-# We use Google News Topic feeds to catch 10,000+ local sources instantly.
-TRUSTED_SOURCES = {
-    # 1. GLOBAL WIRES (The Baseline)
-    "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best": "Reuters Wire",
-    "http://feeds.bbci.co.uk/news/world/rss.xml": "BBC World Service",
-    "https://apnews.com/hub/ap-top-news.rss": "Associated Press",
-    
-    # 2. TOPIC AGGREGATORS (The Firehose)
-    # These pull from thousands of local papers based on keywords
-    "https://news.google.com/rss/search?q=cyberattack+OR+ransomware+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Cyber",
-    "https://news.google.com/rss/search?q=port+strike+OR+supply+chain+disruption+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Logistics",
-    "https://news.google.com/rss/search?q=terrorist+attack+OR+bombing+OR+mass+shooting+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Security",
-    "https://news.google.com/rss/search?q=earthquake+OR+typhoon+OR+tsunami+when:1d&hl=en-US&gl=US&ceid=US:en": "Google News: Disaster",
-    
-    # 3. OFFICIAL ALERTS (Duty of Care)
-    "https://travel.state.gov/_res/rss/TAs_TWs.xml": "US State Dept Travel",
-    "https://gdacs.org/xml/rss.xml": "UN GDACS (Disaster Alert)",
-    
-    # 4. REGIONAL HUBS (APJC Specific)
-    "https://www.channelnewsasia.com/api/v1/rss-feeds/asia": "Channel News Asia",
-    "https://www.scmp.com/rss/91/feed": "South China Morning Post",
-    "https://www.straitstimes.com/news/world/rss.xml": "The Straits Times",
-    "https://english.kyodonews.net/rss/news.xml": "Kyodo News (Japan)",
-    
-    # 5. INDUSTRY SPECIALIST
-    "https://theloadstar.com/feed/": "The Loadstar (Logistics)",
-    "https://www.bleepingcomputer.com/feed/": "BleepingComputer (Cyber)"
-}
+import feedparser
 
-# --- NOISE FILTER ---
-BLOCKED_KEYWORDS = [
-    "entertainment", "celebrity", "movie", "film", "star", "actor", "actress", 
-    "music", "song", "chart", "concert", "sport", "football", "cricket", "rugby", 
-    "tennis", "olympic", "strictly come dancing", "reality tv", "royal", "prince", 
-    "princess", "gossip", "dating", "fashion", "lifestyle", "sexual assault", 
-    "rape", "domestic", "murder trial", "hate speech", "convicted", "podcast",
-    "claims", "alleges", "survey", "poll", "pledges", "vows", "commentary",
-    "opinion", "review", "social media", "viral", "trend",
-    "market", "shares", "stocks", "investors", "investment", "profit", "revenue",
-    "quarterly", "earnings", "brands", "cosmetics", "luxury", "retail", "sales",
-    "consumers", "wealth", "billionaire", "rich list", "tourism", "holiday",
-    "coroner", "inquest", "inquiry", "historic", "memorial", "anniversary",
-    "blog is now closed", "live coverage", "follow our", "live blog", "crypto", "bitcoin"
+# -------- CONFIG --------
+
+# Where to write news.json (repo root / public / data / news.json)
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT_DIR / "public" / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+NEWS_PATH = DATA_DIR / "news.json"
+
+MAX_ITEMS_PER_FEED = 10
+TOTAL_ITEM_LIMIT = 80
+
+FEEDS = [
+    # Reuters – global / general
+    {
+        "url": "https://feeds.reuters.com/reuters/worldNews",
+        "region": "Global",
+        "type": "General",
+        "source": "Reuters",
+    },
+    {
+        "url": "https://feeds.reuters.com/reuters/businessNews",
+        "region": "Global",
+        "type": "Supply Chain",
+        "source": "Reuters",
+    },
+    # BleepingComputer – cyber
+    {
+        "url": "https://www.bleepingcomputer.com/feed/",
+        "region": "Global",
+        "type": "Cyber Security",
+        "source": "BleepingComputer",
+    },
+    # AP – security / conflict style
+    {
+        "url": "https://rsshub.app/apnews/security",
+        "region": "Global",
+        "type": "Physical Security",
+        "source": "AP (via RSSHub)",
+    },
 ]
 
-KEYWORDS = {
-    "Cyber": ["ransomware", "data breach", "ddos", "vulnerability", "malware", "cyber", "hacker", "botnet", "apt group"],
-    "Physical Security": ["terror", "gunman", "explosion", "riot", "protest", "shooting", "kidnap", "bomb", "assassination", "hostage", "armed attack", "active shooter", "mob violence", "insurgency", "coup", "civil unrest"],
-    "Logistics": ["port strike", "supply chain", "cargo", "shipping", "customs", "road closure", "airport closed", "grounded", "embargo", "trade war", "blockade", "railway", "border crossing", "flight cancellation"],
-    "Infrastructure": ["power outage", "grid failure", "blackout", "telecom outage", "internet disruption", "undersea cable", "fiber cut", "water supply", "gas leak", "dam failure", "bridge collapse"],
-    "Weather/Event": ["earthquake", "tsunami", "hurricane", "typhoon", "wildfire", "cyclone", "magnitude", "severe flood", "flood warning", "flash flood", "eruption", "volcano"]
-}
 
-DB_PATH = "public/data/news.json"
-FORECAST_PATH = "public/data/forecast.json"
-MAP_PATH = "public/map.html"
+# -------- HELPERS --------
 
-# --- HARDCODED GEOCODER ---
-CITY_COORDINATES = {
-    "sydney": [-33.86, 151.20], "melbourne": [-37.81, 144.96], "brisbane": [-27.47, 153.02], "perth": [-31.95, 115.86], "canberra": [-35.28, 149.13],
-    "tokyo": [35.67, 139.65], "osaka": [34.69, 135.50], "fukuoka": [33.59, 130.40], "seoul": [37.56, 126.97], "busan": [35.17, 129.07],
-    "beijing": [39.90, 116.40], "shanghai": [31.23, 121.47], "hong kong": [22.31, 114.16], "taipei": [25.03, 121.56], "shenzhen": [22.54, 114.05],
-    "bangalore": [12.97, 77.59], "mumbai": [19.07, 72.87], "delhi": [28.70, 77.10], "chennai": [13.08, 80.27], "hyderabad": [17.38, 78.48],
-    "singapore": [1.35, 103.81], "bangkok": [13.75, 100.50], "hanoi": [21.02, 105.83], "jakarta": [-6.20, 106.84], "manila": [14.59, 120.98],
-    "london": [51.50, -0.12], "paris": [48.85, 2.35], "berlin": [52.52, 13.40], "dubai": [25.20, 55.27], "tel aviv": [32.08, 34.78],
-    "new york": [40.71, -74.00], "washington": [38.90, -77.03], "san francisco": [37.77, -122.41], "austin": [30.26, -97.74], "chicago": [41.87, -87.62]
-}
 
-GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
-if GEMINI_KEY:
-    genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel('gemini-pro') 
-else:
-    model = None
+TAG_RE = re.compile(r"<[^>]+>")
 
-def clean_html(raw_html):
-    cleanr = re.compile('<.*?>')
-    text = re.sub(cleanr, '', raw_html)
-    text = re.sub(r'http\S+', '', text)
-    text = text.replace("Read full story", "").replace("&nbsp;", " ")
-    return text.strip()
 
-def load_locations():
-    try:
-        with open('config/locations.json', 'r') as f: return json.load(f)
-    except: return []
+def strip_html(text: str) -> str:
+    if not text:
+        return ""
+    text = TAG_RE.sub("", text)
+    return " ".join(text.split())
 
-def parse_date(entry):
-    try:
-        if 'published_parsed' in entry:
-            dt = datetime.fromtimestamp(mktime(entry.published_parsed))
-            return dt.strftime("%Y-%m-%d"), dt.isoformat(), dt.timestamp()
-        else:
-            now = datetime.now()
-            return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
-    except:
-        now = datetime.now()
-        return now.strftime("%Y-%m-%d"), now.isoformat(), now.timestamp()
 
-def get_hardcoded_coords(text):
-    for city, coords in CITY_COORDINATES.items():
-        if city in text.lower(): return coords[0], coords[1]
-    return 0.0, 0.0
+KEYWORDS_CRITICAL = [
+    "attack",
+    "explosion",
+    "blast",
+    "shooting",
+    "terror",
+    "ransomware",
+    "malware",
+    "breach",
+    "kidnap",
+    "kidnapping",
+    "war",
+    "missile",
+    "airstrike",
+    "riot",
+    "unrest",
+    "strike",
+    "shutdown",
+    "hurricane",
+    "earthquake",
+    "typhoon",
+    "flood",
+    "wildfire",
+]
 
-def is_duplicate_title(new_title, existing_titles):
-    for old_title in existing_titles:
-        if SequenceMatcher(None, new_title, old_title).ratio() > 0.65: return True
-    return False
 
-# --- SRO-FOCUSED AI PROMPT ---
-def ask_gemini_analyst(title, snippet):
-    if not model: return None
-    
-    prompt = f"""
-    Role: Senior Intelligence Analyst for Dell Security & Resiliency Organization (SRO).
-    Task: Filter and Categorize this news item.
-    
-    Headline: "{title}"
-    Snippet: "{snippet}"
-    
-    FILTERING PROTOCOL:
-    
-    1. **SRO PRIORITIES (KEEP)**:
-       - Terrorism, War/Conflict, Civil Unrest (Protests/Riots).
-       - Active Shooters, Kidnapping, Credible Threats to Executives/Facilities.
-       - Major Natural Disasters (Earthquake, Typhoon) impacting infrastructure.
-       - Power Grid Failures, Telecom Outages, Port Strikes, Supply Chain Disruptions.
-       - Strategic Cyber: ONLY Major breaches of Critical Infrastructure or Major Tech Partners.
-    
-    2. **NOISE (DISCARD)**:
-       - General Cyber (patches, minor hacks, crypto).
-       - Business/Finance/Stocks/Earnings.
-       - Politics/Opinion/Polls.
-       - Social Issues/Celebrity/Sports.
-       - Local Crime (unless Mass Casualty).
-    
-    OUTPUT JSON: 
-    {{ 
-      "category": "Physical Security"|"Cyber"|"Logistics"|"Infrastructure"|"Weather/Event"|"Irrelevant", 
-      "severity": 1 (Info)|2 (Warning)|3 (Critical), 
-      "clean_title": "Professional Headline", 
-      "summary": "1 sentence SRO impact assessment.", 
-      "region": "AMER"|"EMEA"|"APJC"|"LATAM"|"Global", 
-      "lat": 0.0, 
-      "lon": 0.0 
-    }}
-    """
-    
-    try:
-        time.sleep(1.2)
-        response = model.generate_content(prompt)
-        text = response.text.replace("```json", "").replace("```", "")
-        return json.loads(text)
-    except: return None
+def guess_severity(title: str, summary: str) -> int:
+    """Very rough keyword-based severity classifier."""
+    text = f"{title} {summary}".lower()
+    for kw in KEYWORDS_CRITICAL:
+        if kw in text:
+            return 3  # Critical
+    return 2  # Warning / elevated
 
-def analyze_article_hybrid(title, summary, source_name):
-    text = (title + " " + summary).lower()
-    if any(block in text for block in BLOCKED_KEYWORDS): return None
 
-    ai_result = ask_gemini_analyst(title, summary)
-    
-    if ai_result:
-        if ai_result.get('category') == "Irrelevant": return None
-        
-        lat = ai_result.get('lat', 0.0)
-        lon = ai_result.get('lon', 0.0)
-        if lat == 0.0: lat, lon = get_hardcoded_coords(text)
+def iso_time_from_entry(entry) -> str:
+    # Try RSS fields, fall back to "Recently"
+    dt = None
+    for attr in ("published_parsed", "updated_parsed"):
+        if getattr(entry, attr, None):
+            dt = getattr(entry, attr)
+            break
 
-        return {
-            "category": ai_result.get('category', "Uncategorized"),
-            "severity": ai_result.get('severity', 1),
-            "region": ai_result.get('region', "Global"),
-            "clean_title": ai_result.get('clean_title', title),
-            "ai_summary": ai_result.get('summary', summary),
-            "lat": lat,
-            "lon": lon
-        }
-    return None
-
-def generate_interactive_map(articles):
-    m = folium.Map(location=[20, 0], zoom_start=3, min_zoom=3, max_bounds=True, tiles=None)
-    folium.TileLayer("cartodb positron", no_wrap=True, min_zoom=3, bounds=[[-90, -180], [90, 180]]).add_to(m)
-    
-    try:
-        with open('config/locations.json', 'r') as f:
-            assets = json.load(f)
-            for asset in assets:
-                if 'lat' in asset and 'lon' in asset:
-                    folium.Marker(
-                        [asset['lat'], asset['lon']],
-                        popup=f"<b>{asset['name']}</b><br>Type: {asset['type']}",
-                        icon=folium.Icon(color="blue", icon="shield", prefix='fa')
-                    ).add_to(m)
-    except: pass
-
-    for item in articles:
-        lat = item.get('lat')
-        lon = item.get('lon')
-        if lat and lon and (lat != 0.0 or lon != 0.0):
-            color = "orange"
-            if item['severity'] == 3: color = "red"
-            popup_html = f"<div style='font-family:Arial;width:200px'><b>{item['title']}</b><br><span style='color:gray;font-size:12px'>{item['category']}</span></div>"
-            folium.Marker([lat, lon], popup=folium.Popup(popup_html, max_width=250), icon=folium.Icon(color=color, icon="info-sign")).add_to(m)
-    m.save(MAP_PATH)
-
-# --- NEW: STRATEGIC FORECASTER ---
-def generate_strategic_forecast(articles):
-    if not model: return
-    if not articles: return
-
-    top_items = [f"- {i['title']} ({i['region']})" for i in articles[:15]]
-    items_str = "\n".join(top_items)
-
-    prompt = f"""
-    Act as a Global Security Forecaster. Based on these recent events, predict the outlook for the NEXT 7 DAYS.
-    
-    Recent Events:
-    {items_str}
-    
-    Task:
-    1. Identify the top regional hotspot.
-    2. Predict one supply chain impact.
-    3. Provide a 1-sentence 'Executive Bottom Line'.
-    
-    Output JSON: {{ "outlook_title": "e.g. Escalating Tensions in APJC", "analysis": "...", "supply_chain_warning": "...", "bottom_line": "..." }}
-    """
-    try:
-        response = model.generate_content(prompt)
-        text = response.text.replace("```json", "").replace("```", "")
-        forecast_data = json.loads(text)
-        forecast_data["generated_at"] = datetime.now().strftime("%d %b %H:%M")
-        
-        with open(FORECAST_PATH, "w") as f:
-            json.dump(forecast_data, f, indent=2)
-    except Exception as e:
-        print(f"Forecast failed: {e}")
-
-def fetch_news():
-    locations = load_locations()
-    all_candidates = []
-    
-    if os.path.exists(DB_PATH):
+    if dt:
         try:
-            with open(DB_PATH, 'r') as f:
-                history = json.load(f)
-                for item in history:
-                    if not any(b in (item['title']+item['snippet']).lower() for b in BLOCKED_KEYWORDS):
-                        all_candidates.append(item)
-        except: pass
+            dt_ = datetime(
+                dt.tm_year,
+                dt.tm_mon,
+                dt.tm_mday,
+                dt.tm_hour,
+                dt.tm_min,
+                dt.tm_sec,
+                tzinfo=timezone.utc,
+            )
+            return dt_.isoformat()
+        except Exception:
+            pass
 
-    print("Scanning Firehose feeds with SRO AI Agent...")
-    for url, source_name in TRUSTED_SOURCES.items():
-        try:
-            feed = feedparser.parse(url)
-            for entry in feed.entries[:5]: 
-                title = entry.title
-                if len(title) < 15: continue
-                
-                is_dup = False
-                for old in all_candidates:
-                    if SequenceMatcher(None, title, old.get('title', '')).ratio() > 0.65:
-                        is_dup = True; break
-                if is_dup: continue
+    # Text fallback
+    text = (
+        getattr(entry, "published", None)
+        or getattr(entry, "updated", None)
+        or "Recently"
+    )
+    return str(text)
 
-                clean_summary = clean_html(entry.summary if 'summary' in entry else "")
-                analysis = analyze_article_hybrid(title, clean_summary, source_name)
-                
-                if analysis:
-                    all_candidates.append({
-                        "id": hashlib.md5(title.encode()).hexdigest(),
-                        "title": analysis['clean_title'],
-                        "snippet": analysis['ai_summary'],
-                        "link": entry.link,
-                        "published": parse_date(entry)[1],
-                        "date_str": parse_date(entry)[0],
-                        "timestamp": parse_date(entry)[2],
-                        "source": source_name,
-                        "category": analysis['category'],
-                        "severity": analysis['severity'],
-                        "region": analysis['region'],
-                        "lat": analysis.get('lat'),
-                        "lon": analysis.get('lon')
-                    })
-        except Exception as e: print(f"Skipping {source_name}: {e}")
 
-    all_candidates.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
-    if len(all_candidates) > 1000: all_candidates = all_candidates[:1000]
+# -------- MAIN COLLECTION --------
 
-    os.makedirs("public/data", exist_ok=True)
-    with open(DB_PATH, "w") as f: json.dump(all_candidates, f, indent=2)
-    
-    generate_interactive_map(all_candidates)
-    generate_strategic_forecast(all_candidates)
+
+def collect_news() -> list[dict]:
+    items: list[dict] = []
+
+    for feed_cfg in FEEDS:
+        url = feed_cfg["url"]
+        print(f"Fetching: {url}")
+        parsed = feedparser.parse(url)
+
+        if getattr(parsed, "bozo", 0):
+            print(f"  ! Problem parsing feed (bozo flag set) – skipping")
+            continue
+
+        for entry in parsed.entries[:MAX_ITEMS_PER_FEED]:
+            title = getattr(entry, "title", "").strip()
+            link = getattr(entry, "link", "").strip()
+            summary = strip_html(getattr(entry, "summary", "") or getattr(entry, "description", ""))
+            if not title or not link:
+                continue
+
+            severity = guess_severity(title, summary)
+            time_str = iso_time_from_entry(entry)
+
+            item = {
+                "region": feed_cfg["region"],
+                "type": feed_cfg["type"],
+                "severity": severity,
+                "url": link,
+                "source": feed_cfg["source"],
+                "time": time_str,
+                "title": title,
+                "snippet": summary[:500],
+            }
+            items.append(item)
+
+    # De-dup by (title, url)
+    seen = set()
+    unique_items = []
+    for it in items:
+        key = (it["title"], it["url"])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_items.append(it)
+
+    unique_items = unique_items[:TOTAL_ITEM_LIMIT]
+    print(f"Collected {len(unique_items)} news items.")
+    return unique_items
+
+
+def main() -> None:
+    items = collect_news()
+    if not items:
+        raise SystemExit("No news items collected – refusing to overwrite news.json with empty list.")
+
+    NEWS_PATH.write_text(json.dumps(items, indent=2), encoding="utf-8")
+    print(f"Wrote {len(items)} items to {NEWS_PATH}")
+
 
 if __name__ == "__main__":
-    fetch_news()
+    main()
