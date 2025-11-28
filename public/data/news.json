@@ -1,102 +1,175 @@
-[
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/security/openai-discloses-api-customer-data-breach-via-mixpanel-vendor-hack/",
-    "source": "BleepingComputer",
-    "time": "2025-11-27T11:27:06+00:00",
-    "title": "OpenAI discloses API customer data breach via Mixpanel vendor hack",
-    "snippet": "OpenAI is notifying some ChatGPT API customers that limited identifying information was exposed following a breach at its third-party analytics provider Mixpanel. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/security/new-shadowv2-botnet-malware-used-aws-outage-as-a-test-opportunity/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T22:24:14+00:00",
-    "title": "New ShadowV2 botnet malware used AWS outage as a test opportunity",
-    "snippet": "A new Mirai-based botnet malware named 'ShadowV2' has been observed targeting IoT devices from D-Link, TP-Link, and other vendors with exploits for known vulnerabilities. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 2,
-    "url": "https://www.bleepingcomputer.com/news/security/nordvpn-black-friday-deal-unlock-77-percent-off-vpn-plans-in-2025/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T20:00:37+00:00",
-    "title": "NordVPN Black Friday Deal: Unlock 77% off VPN plans in 2025",
-    "snippet": "The NordVPN Black Friday Deal is now live, and you can get the best discount available: 77% off that applies automatically when you follow our link. If you've been waiting for the right moment to upgrade your online security, privacy, and streaming freedom, this is the one VPN deals this Black Friday. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 2,
-    "url": "https://www.bleepingcomputer.com/news/security/popular-forge-library-gets-fix-for-signature-verification-bypass-flaw/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T19:32:42+00:00",
-    "title": "Popular Forge library gets fix for signature verification bypass flaw",
-    "snippet": "A vulnerability in the 'node-forge' package, a popular JavaScript cryptography library, could be exploited to bypass signature verifications by crafting data that appears valid. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/security/comcast-to-pay-15-million-fine-after-a-vendor-data-breach-affecting-270-000-customers/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T18:30:10+00:00",
-    "title": "Comcast to pay $1.5M fine for vendor breach affecting 270K customers",
-    "snippet": "Comcast will pay a $1.5 million fine to settle a Federal Communications Commission investigation into a February 2024 vendor data breach that exposed the personal information of nearly 275,000 customers. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/security/multiple-london-councils-it-systems-disrupted-by-cyberattack/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T17:26:11+00:00",
-    "title": "Multiple London councils' IT systems disrupted by cyberattack",
-    "snippet": "The Royal Borough of Kensington and Chelsea (RBKC) and the Westminster City Council (WCC) announced that they are experiencing service disruptions following a cybersecurity issue. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/microsoft/microsoft-fido2-security-keys-may-prompt-for-pin-after-recent-windows-updates/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T14:43:57+00:00",
-    "title": "Microsoft: Security keys may prompt for PIN after recent updates",
-    "snippet": "Microsoft warned users on Tuesday that FIDO2 security keys may prompt them to enter a PIN when signing in after installing Windows updates released since the September 2025 preview update. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/microsoft/microsoft-to-secure-entra-id-sign-ins-from-external-script-injection-attacks/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T13:26:06+00:00",
-    "title": "Microsoft to secure Entra ID sign-ins from script injection attacks",
-    "snippet": "Starting in mid-to-late October 2026, Microsoft will enhance the security of the Entra ID authentication system against external script injection attacks. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 3,
-    "url": "https://www.bleepingcomputer.com/news/security/asus-warns-of-new-critical-auth-bypass-flaw-in-aicloud-routers/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T11:41:00+00:00",
-    "title": "ASUS warns of new critical auth bypass flaw in AiCloud routers",
-    "snippet": "ASUS has released new firmware to patch nine security vulnerabilities, including a critical authentication bypass flaw in routers with AiCloud enabled. [...]"
-  },
-  {
-    "region": "Global",
-    "type": "Cyber Security",
-    "severity": 2,
-    "url": "https://www.bleepingcomputer.com/news/security/passwork-7-self-hosted-password-and-secrets-manager-for-enterprise-teams/",
-    "source": "BleepingComputer",
-    "time": "2025-11-26T10:12:17+00:00",
-    "title": "Passwork 7: Self-hosted password and secrets manager for enterprise teams",
-    "snippet": "Passwork 7 unifies enterprise password and secrets management in a self-hosted platform. Organizations can automate credential workflows and test the full system with a free trial and up to 50% Black Friday savings. [...]"
-  }
-]
+{
+  "generated_at": "2025-11-28T06:07:11.566655+00:00",
+  "articles": [
+    {
+      "title": "OpenAI discloses API customer data breach via Mixpanel vendor hack",
+      "link": "https://www.bleepingcomputer.com/news/security/openai-discloses-api-customer-data-breach-via-mixpanel-vendor-hack/",
+      "summary": "OpenAI is notifying some ChatGPT API customers that limited identifying information was exposed following a breach at its third-party analytics provider Mixpanel. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-27T11:27:06+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "New ShadowV2 botnet malware used AWS outage as a test opportunity",
+      "link": "https://www.bleepingcomputer.com/news/security/new-shadowv2-botnet-malware-used-aws-outage-as-a-test-opportunity/",
+      "summary": "A new Mirai-based botnet malware named 'ShadowV2' has been observed targeting IoT devices from D-Link, TP-Link, and other vendors with exploits for known vulnerabilities. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T22:24:14+00:00",
+      "region": "Global",
+      "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "NordVPN Black Friday Deal: Unlock 77% off VPN plans in 2025",
+      "link": "https://www.bleepingcomputer.com/news/security/nordvpn-black-friday-deal-unlock-77-percent-off-vpn-plans-in-2025/",
+      "summary": "The NordVPN Black Friday Deal is now live, and you can get the best discount available: 77% off that applies automatically when you follow our link. If you've been waiting for the right moment to upgrade your online security, privacy, and streaming freedom, this is the one VPN deals this Black Friday. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T20:00:37+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "Popular Forge library gets fix for signature verification bypass flaw",
+      "link": "https://www.bleepingcomputer.com/news/security/popular-forge-library-gets-fix-for-signature-verification-bypass-flaw/",
+      "summary": "A vulnerability in the 'node-forge' package, a popular JavaScript cryptography library, could be exploited to bypass signature verifications by crafting data that appears valid. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T19:32:42+00:00",
+      "region": "Global",
+      "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "Comcast to pay $1.5M fine for vendor breach affecting 270K customers",
+      "link": "https://www.bleepingcomputer.com/news/security/comcast-to-pay-15-million-fine-after-a-vendor-data-breach-affecting-270-000-customers/",
+      "summary": "Comcast will pay a $1.5 million fine to settle a Federal Communications Commission investigation into a February 2024 vendor data breach that exposed the personal information of nearly 275,000 customers. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T18:30:10+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "Multiple London councils' IT systems disrupted by cyberattack",
+      "link": "https://www.bleepingcomputer.com/news/security/multiple-london-councils-it-systems-disrupted-by-cyberattack/",
+      "summary": "The Royal Borough of Kensington and Chelsea (RBKC) and the Westminster City Council (WCC) announced that they are experiencing service disruptions following a cybersecurity issue. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T17:26:11+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security",
+        "Government"
+      ]
+    },
+    {
+      "title": "Microsoft: Security keys may prompt for PIN after recent updates",
+      "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-fido2-security-keys-may-prompt-for-pin-after-recent-windows-updates/",
+      "summary": "Microsoft warned users on Tuesday that FIDO2 security keys may prompt them to enter a PIN when signing in after installing Windows updates released since the September 2025 preview update. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T14:43:57+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Microsoft"
+      ]
+    },
+    {
+      "title": "Microsoft to secure Entra ID sign-ins from script injection attacks",
+      "link": "https://www.bleepingcomputer.com/news/microsoft/microsoft-to-secure-entra-id-sign-ins-from-external-script-injection-attacks/",
+      "summary": "Starting in mid-to-late October 2026, Microsoft will enhance the security of the Entra ID authentication system against external script injection attacks. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T13:26:06+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Microsoft",
+        "Security"
+      ]
+    },
+    {
+      "title": "ASUS warns of new critical auth bypass flaw in AiCloud routers",
+      "link": "https://www.bleepingcomputer.com/news/security/asus-warns-of-new-critical-auth-bypass-flaw-in-aicloud-routers/",
+      "summary": "ASUS has released new firmware to patch nine security vulnerabilities, including a critical authentication bypass flaw in routers with AiCloud enabled. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T11:41:00+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "Passwork 7: Self-hosted password and secrets manager for enterprise teams",
+      "link": "https://www.bleepingcomputer.com/news/security/passwork-7-self-hosted-password-and-secrets-manager-for-enterprise-teams/",
+      "summary": "Passwork 7 unifies enterprise password and secrets management in a self-hosted platform. Organizations can automate credential workflows and test the full system with a free trial and up to 50% Black Friday savings. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-26T10:12:17+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "OnSolve CodeRED cyberattack disrupts emergency alert systems nationwide",
+      "link": "https://www.bleepingcomputer.com/news/security/onsolve-codered-cyberattack-disrupts-emergency-alert-systems-nationwide/",
+      "summary": "Risk management company Crisis24 has confirmed its OnSolve CodeRED platform suffered a cyberattack that disrupted emergency notification systems used by state and local governments, police departments, and fire agencies across the United States. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-25T21:48:40+00:00",
+      "region": "AMER",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "The Black Friday 2025 Cybersecurity, IT, VPN, & Antivirus Deals",
+      "link": "https://www.bleepingcomputer.com/news/security/the-black-friday-2025-cybersecurity-it-vpn-and-antivirus-deals/",
+      "summary": "Black Friday 2025 is almost here, and early deals are already live across security software, online courses, system administration tools, antivirus products, and VPN services. These discounts are limited-time offers and vary by provider, so if you see something that fits your needs, it's best to act while it's available. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-25T19:14:06+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    }
+  ]
+}
