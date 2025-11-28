@@ -1,13 +1,183 @@
 {
-  "generated_at": "2025-11-28T15:37:57.495329+00:00",
+  "generated_at": "2025-11-28T16:49:31.315357+00:00",
   "articles": [
     {
-      "title": "Zelensky's chief of staff resigns after anti-corruption raid",
+      "title": "Guinea-Bissau president flees to Senegal after coup",
+      "link": "https://www.bbc.com/news/articles/c741m97lk42o?at_medium=RSS&at_campaign=rss",
+      "summary": "Umaro Sissoco Embaló has arrived in Senegal \"safe and sound\" on a chartered military plane, authorities say.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-28T16:41:58+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Zelensky's chief of staff resigns after Ukrainian anti-corruption raid on his home",
       "link": "https://www.bbc.com/news/articles/ckg9nd2wddno?at_medium=RSS&at_campaign=rss",
       "summary": "Yermak, 54, has been Zelensky's closest adviser throughout Russia's full-scale war.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-28T15:34:29+00:00",
+      "timestamp": "2025-11-28T16:39:17+00:00",
       "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Sri Lanka Battered by Cyclone as Death Toll Climbs to 69",
+      "link": "https://www.nytimes.com/2025/11/28/world/asia/sri-lanka-cyclone-ditwah-toll.html",
+      "summary": "Torrential downpours and high winds struck large parts of the island nation as Cyclone Ditwah churned northwest toward India.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-28T16:37:48+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Landslides and Mudslides",
+        "Deaths (Fatalities)",
+        "Politics and Government",
+        "Weather",
+        "Floods",
+        "Sri Lanka"
+      ]
+    },
+    {
+      "title": "Legacy Python Bootstrap Scripts Create Domain-Takeover Risk in Multiple PyPI Packages",
+      "link": "https://thehackernews.com/2025/11/legacy-python-bootstrap-scripts-create.html",
+      "summary": "Cybersecurity researchers have discovered vulnerable code in legacy Python packages that could potentially pave the way for a supply chain compromise on the Python Package Index (PyPI) via a domain takeover attack. Software supply chain security company ReversingLabs said it found the \"vulnerability\" in bootstrap files provided by a build and deployment automation tool named \"zc.buildout.\" \"The",
+      "source": "thehackernews.com",
+      "timestamp": "2025-11-28T16:27:00+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Israeli Forces Kill Two Palestinians in West Bank After They Appear to Surrender, Video Shows",
+      "link": "https://www.nytimes.com/2025/11/28/world/middleeast/israel-west-bank-shooting-palestinians-video.html",
+      "summary": "The Israeli authorities said they were investigating the shooting, which came amid days of extensive military operations in the West Bank.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-28T16:23:34+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Palestinians",
+        "Defense and Military Forces",
+        "Palestinian Authority",
+        "Israel",
+        "Jenin (West Bank)",
+        "West Bank"
+      ]
+    },
+    {
+      "title": "North Korean Hackers Deploy 197 npm Packages to Spread Updated OtterCookie Malware",
+      "link": "https://thehackernews.com/2025/11/north-korean-hackers-deploy-197-npm.html",
+      "summary": "The North Korean threat actors behind the Contagious Interview campaign have continued to flood the npm registry with 197 more malicious packages since last month. According to Socket, these packages have been downloaded over 31,000 times, and are designed to deliver a variant of OtterCookie that brings together the features of BeaverTail and prior versions of OtterCookie. Some of the",
+      "source": "thehackernews.com",
+      "timestamp": "2025-11-28T16:18:00+00:00",
+      "region": "APJC",
+      "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Thirteen killed in deadliest Israeli raid for months in southern Syria",
+      "link": "https://www.bbc.com/news/articles/cp89k31krz4o?at_medium=RSS&at_campaign=rss",
+      "summary": "Israel said it was targeting militants in the village of Beit Jinn, but Syria's foreign ministry condemns what it called a \"war crime\".",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-28T16:12:58+00:00",
+      "region": "EMEA",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "French Football Federation discloses data breach after cyberattack",
+      "link": "https://www.bleepingcomputer.com/news/security/french-football-federation-fff-discloses-data-breach-after-cyberattack/",
+      "summary": "The French Football Federation (FFF) disclosed a data breach on Friday after attackers used a compromised account to gain access to administrative management software used by football clubs. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-28T16:12:03+00:00",
+      "region": "Global",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Security"
+      ]
+    },
+    {
+      "title": "Officials Had Been Warned for Over a Year Before Hong Kong Fire",
+      "link": "https://www.nytimes.com/2025/11/28/world/asia/hong-kong-fire-officials-warned.html",
+      "summary": "Residents of Wang Fuk Court apartments had raised concerns about flammable foam panels and scaffold netting, but the government did not take decisive action.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-28T16:05:03+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Hong Kong Apartment Complex Fire (Nov 2025)",
+        "Fires and Firefighters",
+        "Accidents and Safety",
+        "Corruption (Institutional)",
+        "Hong Kong",
+        "Workplace Hazards and Violations",
+        "Restoration and Renovation",
+        "Buildings (Structures)",
+        "Deaths (Fatalities)"
+      ]
+    },
+    {
+      "title": "One of world's longest serving democratic leaders loses election in St. Vincent and the Grenadines - ABC News",
+      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNVnJvMGxHUXAtaXc2eXVmdzhvWkRCemZGZFN6eFNHSWhPS2gxemRoaDRQaVlmSWJHN1VzemIyV180bVppakZJSlpGQ2ZnczN6bW5uSzZxWjlVeVJ3d0pYZFlGclJ5Y0lGTTJRN2FuQ1RHMTNCRERpV0hrbENOYTJ6RGN4WGhuVHRvQUdrSGFHOHdBQ0dHRDhIWm1kVjBuY2pjeG15djBIVmZJMzdQYWxReWJ0N0RrMkXSAbwBQVVfeXFMUDVCXzVSVnhFd0FlQXJKWGx0Q3NzVU5EWGQyazdEdUM5RFZRN19JVjdISmpKM19CRmpuZW1PbEhKU3VQcWhQUXNzQllzM0Y0di1pMTdSbkw4LUM2c0ROY21oc2U2QmwyeXpDOWdES0JLalE4VUhUQllncUplMGRFQk1KVFVuS2dSY29ySjNkR05yM2NwVkE2THIwa3pCWUNQZ2Y0X183dXBfaU5Tb1lnaXBiSDVHTllaM1p4R0k?oc=5",
+      "summary": "One of world's longest serving democratic leaders loses election in St. Vincent and the Grenadines ABC News",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T16:02:07+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Andriy Yermak, Zelensky’s Chief of Staff, Resigns",
+      "link": "https://www.nytimes.com/2025/11/28/world/europe/zelensky-yermak-resigns-ukraine-corruption-scandal.html",
+      "summary": "Andriy Yermak, President Volodymyr Zelensky’s chief of staff and top peace negotiator, became the highest-ranking casualty of an investigation into a vast kickback scheme.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-28T15:54:16+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Russian Invasion of Ukraine (2022)",
+        "Corruption (Institutional)",
+        "Politics and Government",
+        "Government Contracts and Procurement",
+        "Bribery and Kickbacks",
+        "Servant of the People (Ukrainian Political Party)",
+        "Yermak, Andriy",
+        "Zelensky, Volodymyr",
+        "Putin, Vladimir V",
+        "Trump, Donald J",
+        "Ukraine"
+      ]
+    },
+    {
+      "title": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPMVI4dG9vNHpGRkpMYk9yRWw0R09OSkVCWmxnQjVRaWxvT3B3dFU0WjMtcS1lT3FnbktpQmswMUVOV1NraTlaSFFxVkpXQTBhT2R3MDI3dFd6U0J0Z1psVGVudmJqS0dseVFDQngtbVpvS19CYTc4d3pvZGRYazdUWE9Oa2lZdWNKRExaZzdUVWxGaFNVd2xvWnIwa1VzdHR2OU93M1ZxZmJVcTNBazdCcVQxYmh4M3hldkFKWF9Wd1B3MjRGVXhoWXN2UzVTMER1VE5ZYmNTbFRmWFV1cVUxVFhlbE5zZw?oc=5",
+      "summary": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T15:49:00+00:00",
+      "region": "Global",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -97,18 +267,6 @@
       ]
     },
     {
-      "title": "Iran to boycott World Cup draw due to anger over limited US visas for Iranians - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQYksybno3aV8wNDA3aVVGbUUtWEQ0Z3lEeENyOFZzTTc0eFNxZDJwbmh4OXBta0hYMVNQQjdabWp0dWxkLWNtTmMyWENMOVNsd2xxZzNQYW04MzFZY0UzSGoyMFdZNEdZMHZWQkFJZjk0YWp6U1FianE5eVBsMUNYZkROSVpFMWZPeHVVTE54NktwNGZzdW9wdmc4UFhDWHl5VV9XWkJ0SEM3Yy1fUGtwQ1RpcklMQjBiZWJQdTV2VkxnWVM2WHc?oc=5",
-      "summary": "Iran to boycott World Cup draw due to anger over limited US visas for Iranians The Guardian",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T15:05:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Israeli Raid in Southern Syria Kills at Least 13, Syrian Officials Say",
       "link": "https://www.nytimes.com/2025/11/28/world/europe/israel-syria-raid-beit-jinn.html",
       "summary": "The raid appeared to be one of Israel’s deadliest cross-border incursions since Bashar al-Assad, Syria’s former dictator, was ousted last year.",
@@ -129,6 +287,18 @@
       ]
     },
     {
+      "title": "Tunisia hands prison terms to dozens of opposition figures",
+      "link": "https://www.bbc.com/news/articles/c0r9qzrxdwwo?at_medium=RSS&at_campaign=rss",
+      "summary": "The defendants were accused of attempting a coup - but human rights groups say the trial was politically motivated.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-28T15:03:15+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Pope Leo Visits Turkey on His First Trip as Pontiff",
       "link": "https://www.nytimes.com/2025/11/27/world/europe/pope-leo-trip-pictures.html",
       "summary": "The pope started his six-day trip, which will also include a visit to Lebanon.",
@@ -146,6 +316,18 @@
         "Lebanon",
         "internal-open-access-from-nl"
       ]
+    },
+    {
+      "title": "Rohan Bopanna retires: ‘I went from almost quitting tennis to becoming World No. 1’ - ATP Tour",
+      "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5VU2d0SGxibC1mZll4czFGOXAwMl9Qd3FVcTVOeURYX1hOb1Y1MWdOS1ZnZEdCanhWX04xVWNQeW1fSnk1b3BwOFJKcXdGb0E5dVc5aXpVcW1GM3BmQkpRZ1pUUnBBTVBKeTBZSHR6elRuOWdOT29SdU9Nclg?oc=5",
+      "summary": "Rohan Bopanna retires: ‘I went from almost quitting tennis to becoming World No. 1’ ATP Tour",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T14:51:36+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Death Toll Rises to 128 in Hong Kong High-Rise Fire",
@@ -170,25 +352,6 @@
         "Bamboo",
         "Compensation for Damages (Law)",
         "Hong Kong"
-      ]
-    },
-    {
-      "title": "Israeli Forces Kill Two Palestinians in West Bank After They Appear to Surrender, Video Shows",
-      "link": "https://www.nytimes.com/2025/11/28/world/middleeast/israel-west-bank-shooting-palestinians-video.html",
-      "summary": "The Israeli authorities said they were investigating the shooting, which came amid days of extensive military operations in the West Bank.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-28T14:40:07+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Palestinians",
-        "Defense and Military Forces",
-        "Palestinian Authority",
-        "Israel",
-        "Jenin (West Bank)",
-        "West Bank"
       ]
     },
     {
@@ -253,6 +416,18 @@
       "tags": []
     },
     {
+      "title": "Trump says US will pause migration from 'third-world countries' - BBC",
+      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5Dc0lfOFJSa1RTekJ5LWd5ejJpMW44N3BmVnRoTWdUVk5wTWl6aF9aekducjlDVUxTME9JT2k2bUxEdUJ5bkl4Nm5iR1dfZkJ4ZlFzOWtNNWg3QdIBX0FVX3lxTFBXeC1RUUkycC1USktKMmJlZkl1RmZvVm1FZGN1WlhTR2d4ejJKd0RDTjMzOXdQaGxhdzFXejVzQVdDVVAzMmIwSk9uV0czT0VoblhpNl9KZjg0em83cXlr?oc=5",
+      "summary": "Trump says US will pause migration from 'third-world countries' BBC",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T14:12:24+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Trump pauses immigration from ‘Third World’ countries: What that means - Al Jazeera",
       "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNc2psRzZWNjQ0QjYyX3RQRWtBSFhONlA5NDZ6aUZubUsxaVpGSUxnaVZsRHNreU1wUFdWZ0NsSVA3NVQ1aDBxblRlVEFLU2hXUHB3OGFqdzdXUHBkczBzZnF2VGc3UlQyNVJOVzFHMElXRk1DM3ZHbHVKaGtOQ2dMMjcwbWNuS3VxWjF2dFdYOHZFdlRWY1VRRDZZNWpaM0JZWjhNdUxTU1JjY05SMXfSAbMBQVVfeXFMT1pQd2RkSjltbGhsbWhNTm51Vk9wSGtYaGYweUMySFh4c0E3ODR1TVRGMkFsRVhMQTdHY3EtY1JTUC1jdUQyQUE2LW85eU9vb0ZUdk9mQ2VRU3VJYWhPTE9iangzODdaYzlLUmd2d01NN1ducmFyM1l6c2NLMldXdkhOU0FqY1lRTnpNbGNlbkxONVo4SzJZRHBQNF9iRkx4YlFFcDZIN1RkTDczSEk5d2h3QWc?oc=5",
       "summary": "Trump pauses immigration from ‘Third World’ countries: What that means Al Jazeera",
@@ -289,18 +464,6 @@
       "tags": []
     },
     {
-      "title": "Trump says US will pause migration from 'third-world countries' - BBC",
-      "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5Dc0lfOFJSa1RTekJ5LWd5ejJpMW44N3BmVnRoTWdUVk5wTWl6aF9aekducjlDVUxTME9JT2k2bUxEdUJ5bkl4Nm5iR1dfZkJ4ZlFzOWtNNWg3QdIBX0FVX3lxTFBXeC1RUUkycC1USktKMmJlZkl1RmZvVm1FZGN1WlhTR2d4ejJKd0RDTjMzOXdQaGxhdzFXejVzQVdDVVAzMmIwSk9uV0czT0VoblhpNl9KZjg0em83cXlr?oc=5",
-      "summary": "Trump says US will pause migration from 'third-world countries' BBC",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T13:57:48+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Trump Cut Europe Out of Ukraine Talks. Here’s How Europe Pushed Back.",
       "link": "https://www.nytimes.com/2025/11/27/world/europe/europe-ukraine-trump.html",
       "summary": "European leaders were blindsided by President Trump’s 28-point-plan to end the Ukraine war, setting off a dash for influence.",
@@ -328,37 +491,6 @@
       "source": "www.bbc.com",
       "timestamp": "2025-11-28T13:54:56+00:00",
       "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Sri Lanka on High Alert as Cyclone Death Toll Reaches 56",
-      "link": "https://www.nytimes.com/2025/11/28/world/asia/sri-lanka-cyclone-ditwah-toll.html",
-      "summary": "Torrential downpours and high winds were forecast for nearly all of the island nation as Cyclone Ditwah churned northwest toward India.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-28T13:53:12+00:00",
-      "region": "APJC",
-      "severity": 2,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Landslides and Mudslides",
-        "Deaths (Fatalities)",
-        "Politics and Government",
-        "Weather",
-        "Floods",
-        "Sri Lanka"
-      ]
-    },
-    {
-      "title": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPMVI4dG9vNHpGRkpMYk9yRWw0R09OSkVCWmxnQjVRaWxvT3B3dFU0WjMtcS1lT3FnbktpQmswMUVOV1NraTlaSFFxVkpXQTBhT2R3MDI3dFd6U0J0Z1psVGVudmJqS0dseVFDQngtbVpvS19CYTc4d3pvZGRYazdUWE9Oa2lZdWNKRExaZzdUVWxGaFNVd2xvWnIwa1VzdHR2OU93M1ZxZmJVcTNBazdCcVQxYmh4M3hldkFKWF9Wd1B3MjRGVXhoWXN2UzVTMER1VE5ZYmNTbFRmWFV1cVUxVFhlbE5zZw?oc=5",
-      "summary": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting The Guardian",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T13:49:00+00:00",
-      "region": "Global",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -415,6 +547,18 @@
       "summary": "Trump says US will ‘permanently pause migration from all Third World countries’ CNN",
       "source": "news.google.com",
       "timestamp": "2025-11-28T13:27:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Oh yes he is! Kiefer Sutherland dives into the world of panto - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPU1RtanB4UWlRRTRHcWxDalZ3bzVNUlRFYXlyS3JybUhDa1prR1VYT3VfcXVLci1Rc1EzSU54a3ExbVdIcERISlpqbDdPRG50NnF2V1hzVFZ5cTNNOWpJOVZiWFpPZUhzUE1NUEJRUEZBMDBDV284OWJvMlNfNTQ5azJzSUFLeTdxb1hPSlBUcXFHaU5OZmxmZVBSZkphVy0tdlpJWDhXRzFPUTFqd05ibUtTeTNuWXhMZTg0dQ?oc=5",
+      "summary": "Oh yes he is! Kiefer Sutherland dives into the world of panto The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T13:22:00+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -518,18 +662,6 @@
       "tags": []
     },
     {
-      "title": "Guinea-Bissau president flees to Senegal after coup",
-      "link": "https://www.bbc.com/news/articles/c741m97lk42o?at_medium=RSS&at_campaign=rss",
-      "summary": "Umaro Sissoco Embaló has arrived in Senegal \"safe and sound\" on a chartered military plane, authorities say.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T11:17:43+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Basketball: Philippines beat Guam in FIBA World Cup 2027 Asia qualifiers behind Justin Brownlee's 22 points - Olympics.com",
       "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPN25zUFlEdy0wS3BKVGdKeHdjUW1mSmN1bExDLUoxcTR3SUdxeWZtWkZUMFpyZ1RyblJsRzNMOWVBaUROQWNsVnZRbVRwYzhsb3I2QmJmYWZjZmVFRmVrYzhKUnkxdnJRcHBGWW9NOTM1dWJYN1NTbFJqVjNXNE1JT25nanpsa1VrYmF2WGI2a205bWs2blE?oc=5",
       "summary": "Basketball: Philippines beat Guam in FIBA World Cup 2027 Asia qualifiers behind Justin Brownlee's 22 points Olympics.com",
@@ -609,18 +741,6 @@
       "timestamp": "2025-11-28T10:43:43+00:00",
       "region": "Global",
       "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Ten killed in deadliest Israeli raid for months in southern Syria",
-      "link": "https://www.bbc.com/news/articles/cp89k31krz4o?at_medium=RSS&at_campaign=rss",
-      "summary": "The village of Beit Jinn came under attack in what Israel said was an operation against a militant group.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T10:39:06+00:00",
-      "region": "EMEA",
-      "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
@@ -749,18 +869,6 @@
       "tags": []
     },
     {
-      "title": "Scores killed as floods sweep several Asian nations",
-      "link": "https://www.bbc.com/news/videos/cp9kxxy123do?at_medium=RSS&at_campaign=rss",
-      "summary": "At least 80 people have died in Indonesia with another 56 dead in Sri Lanka in a week of extreme weather.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T08:44:15+00:00",
-      "region": "APJC",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "MS Teams Guest Access Can Remove Defender Protection When Users Join External Tenants",
       "link": "https://thehackernews.com/2025/11/ms-teams-guest-access-can-remove.html",
       "summary": "Cybersecurity researchers have shed light on a cross-tenant blind spot that allows attackers to bypass Microsoft Defender for Office 365 protections via the guest access feature in Teams. \"When users operate as guests in another tenant, their protections are determined entirely by that hosting environment, not by their home organization,\" Ontinue security researcher Rhys Downing said in a report",
@@ -857,18 +965,6 @@
       "tags": []
     },
     {
-      "title": "Trump Just Threatened Third World Countries - Which Are They? - NDTV",
-      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOVXA0MTBJN1JETnVNRnZKVDd2M1F4aVIzcnNrY2huT2s1LVI5RVNxazBjU1RCb3N4OVVkLXdRRW1TaWhTNWJRTkQyYXZyaVpnSnBMaUxkOXlkc2tfT2thQ3czbkFkQ1pOVEtqV2U5MzNQWnVyclBfNFZIWUExQ2VQX1NBcXZlRFBta3BzRFFGWFVScFJWVk9JOUQ1MGNrQm94R09Lbi1sTnp5QUdsYnpQdTI5V3Q3VU5oenJFcnlLWU3SAcgBQVVfeXFMUEN0ZWFoVFFtX1VEUDJfTXUyaEl2Mmd4NkVJMTRPLTNrT3RLVW5TSEFMUU1GeG1ZaG5HYWZORTBBVjl1YTZIN2ZsWVNpaDJDWmFjbUJ1QlphZkxPVG1VMmRrYy1Ibzg3RlhOTGVyZ0xkRkF1RklYYk9zS1pNaFN1cTNRMWV5SnhFdl81SE9tQnNkVmJsVFU0eDRnM0pEcFNjTXh2WU1pb0x2SE5nMkJPejE4MFFzb01Gdjc4R2hJRFVqZjRhUkdRRUo?oc=5",
-      "summary": "Trump Just Threatened Third World Countries - Which Are They? NDTV",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T06:07:22+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Trump says U.S. to 'permanently pause migration from all Third World Countries’ after DC shooting - CNBC",
       "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNSGFmd2hjSEVtR25kQ1ZzUjZ2VDBJZENfWW1SVHNtX25wN2xNRUtBMER1QUl5aGk2SWdJaGU5Z3lHRWRtR05EUzkyLUZRZk1WM1ctcTV2RkduOXBoYkRnbFVYNHlXRk1BNEhYRTRYZFdTb0h4dVZISnlENERuR0NTWmFrSEJfUi1fSy1KLVI4TDVRT1lZMk9MSUhsdmNaemJKV2NZa2k2Z3YtUHPSAbABQVVfeXFMT0s1MFJoSmFvaDR1Y212c2hvbFpYOFdxZFloVHZNVzdHYkFRZ1R5RXZYdGt5eEIzZ3VEdVo2Z0RiVEU1dm1Sa09fbnAycG9RN09CcXZfWmRjMURIa1pwOVdNTS1Zel83MndtdnAza3F3eTB1V2dpVFdweDVRSzJnSnhBcDZDWFdmSmVQRkJzcXVsTGpQeVVPeGtCMWNvcDdCVDMwc0pUSHdRM1dneU5kU0o?oc=5",
       "summary": "Trump says U.S. to 'permanently pause migration from all Third World Countries’ after DC shooting CNBC",
@@ -903,7 +999,7 @@
       "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOYXRwdXNEQ2V4Y1dMdVpESll3dTlHa2dkTldVY1VwVE9qWXdCd0R6QTdYeF8yNzhEbGh1Q0ZTVWtOajFHMktxcm1LWGo2b001eVIxOFR5TmRjNDN6LTgwZmoxbXlXajFCM2g1cVlQbk9IYWlxNGxyQWowa1hYRmpSUHhXYmF0WndvSjViaTdtSFZqTjJO?oc=5",
       "summary": "2026 World Cup draw: How to watch, teams, and everything else you need to know The New York Times",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T05:20:05+00:00",
+      "timestamp": "2025-11-28T05:20:00+00:00",
       "region": "AMER",
       "severity": 1,
       "lat": null,
@@ -1019,18 +1115,6 @@
       "tags": []
     },
     {
-      "title": "Here’s the latest.",
-      "link": "https://www.nytimes.com/live/2025/11/27/world/hong-kong-fire/heres-the-latest",
-      "summary": "",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T23:47:40+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "‘No Alarm Went Off’: Hong Kong Fire Survivor Recounts Harrowing Escape",
       "link": "https://www.nytimes.com/2025/11/27/world/asia/hong-kong-fire-survivors-escape.html",
       "summary": "Many windows were covered, preventing residents from seeing the fire and smoke, one survivor said.",
@@ -1058,6 +1142,18 @@
       "source": "www.bbc.com",
       "timestamp": "2025-11-27T22:18:56+00:00",
       "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "With Mikaela Shiffrin waiting at the finish, Aleksander Aamodt Kilde makes early comeback to World Cup racing - VailDaily.com",
+      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxOQVJuQ295UTU2anZETldYV3ZJWUx6clN3OEFIeU1NTnNyOENDb2h3N0M3dXN6NE9RdUJOWVp2eFJwNE9YUWZXaDdaN1hKMlVldUtQNUdKdFdnTlN1ZE13UTJWcEo0dmdWaDFySDNNeXJ5eDNOSGVvcFJYempDcTFCLWpNbS1WbkxuS0pQUDBPRHgtb1pNeHFOY2RjRzVXZw?oc=5",
+      "summary": "With Mikaela Shiffrin waiting at the finish, Aleksander Aamodt Kilde makes early comeback to World Cup racing VailDaily.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-27T22:13:11+00:00",
+      "region": "Global",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -1365,18 +1461,6 @@
       "tags": []
     },
     {
-      "title": "'Seinfeld' Trivia: Take the World's Hardest Quiz - Rolling Stone",
-      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPRURmMGFxT3BoR0hoVXhrQmJibjRWVW1NaE8xVXliaUktdm5ac0N5V0ZCb1o3dE0ybERyU29ZWEc5d0JLNE9iZnFDVzNJR0hzeTZqNmdWcHVrT0dIQllLQWo2Z0V2QjAyRGNhWWN5dUJyc2hvZGVUS3dGMFpUWjZiNnpva1hadGpDRFpKUnI0dllqN09HYVA4SGRjYVJNMjh1TG5tRmtkSQ?oc=5",
-      "summary": "'Seinfeld' Trivia: Take the World's Hardest Quiz Rolling Stone",
-      "source": "news.google.com",
-      "timestamp": "2025-11-27T15:00:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Webinar: Learn to Spot Risks and Patch Safely with Community-Maintained Tools",
       "link": "https://thehackernews.com/2025/11/webinar-learn-to-spot-risks-and-patch.html",
       "summary": "If you're using community tools like Chocolatey or Winget to keep systems updated, you're not alone. These platforms are fast, flexible, and easy to work with—making them favorites for IT teams. But there’s a catch... The very tools that make your job easier might also be the reason your systems are at risk. These tools are run by the community. That means anyone can add or update packages. Some",
@@ -1387,25 +1471,6 @@
       "lat": null,
       "lon": null,
       "tags": []
-    },
-    {
-      "title": "Heading to the Mideast, Pope Leo May Show ‘Who He Really Is’",
-      "link": "https://www.nytimes.com/2025/11/27/world/middleeast/pope-leo-trip.html",
-      "summary": "The pontiff begins a trip to Turkey and Lebanon on Thursday — the first foreign voyage of his papacy, and his biggest test yet.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T14:48:59+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Leo XIV",
-        "Roman Catholic Church",
-        "Christians and Christianity",
-        "Turkey",
-        "Lebanon",
-        "Francis"
-      ]
     },
     {
       "title": "The British Public Thinks Immigration Is Up. It’s Actually Down, Sharply.",
@@ -1790,18 +1855,6 @@
       "tags": []
     },
     {
-      "title": "Jakarta Overtakes Tokyo as World’s Largest City, UN Report Says - The New York Times",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxObW9Ja0pLTFExcVprYzhsWHdTbEtvYkhsdndKRlhORjlfeHpNSk92V1hETjh1cVJqam9jTXFvUDQ4TUFEYnA4b1A5aGJsX1FvRmlJR1JtOUVFNzlrUHZkenZBMFVfOGc5MnhndFlmVWg0M0FHSmpnQk1VNHFwWHhlX2ZIVFRKMzRFYlZxdVI2cXRSbmFpZFE?oc=5",
-      "summary": "Jakarta Overtakes Tokyo as World’s Largest City, UN Report Says The New York Times",
-      "source": "news.google.com",
-      "timestamp": "2025-11-26T12:25:59+00:00",
-      "region": "AMER",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Cybersecurity Is Now a Core Business Discipline",
       "link": "https://www.securityweek.com/cybersecurity-is-now-a-core-business-discipline/",
       "summary": "Boardroom conversations about cyber can no longer be siloed apart from strategy, operations, or geopolitics. The post Cybersecurity Is Now a Core Business Discipline appeared first on SecurityWeek .",
@@ -2167,42 +2220,6 @@
       "timestamp": "2025-11-21T14:09:56+00:00",
       "region": "Global",
       "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Google Brings AirDrop Compatibility to Android’s Quick Share Using Rust-Hardened Security",
-      "link": "https://thehackernews.com/2025/11/google-adds-airdrop-compatibility-to.html",
-      "summary": "In a surprise move, Google on Thursday announced that it has updated Quick Share, its peer-to-peer file transfer service, to work with Apple's equipment AirDrop, allowing users to more easily share files and photos between Android and iPhone devices. The cross-platform sharing feature is currently limited to the Pixel 10 lineup and works with iPhone, iPad, and macOS devices, with plans to expand",
-      "source": "thehackernews.com",
-      "timestamp": "2025-11-21T13:00:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Why IT Admins Choose Samsung for Mobile Security",
-      "link": "https://thehackernews.com/2025/11/why-it-admins-choose-samsung-for-mobile.html",
-      "summary": "Ever wonder how some IT teams keep corporate data safe without slowing down employees? Of course you have. Mobile devices are essential for modern work—but with mobility comes risk. IT admins, like you, juggle protecting sensitive data while keeping teams productive. That’s why more enterprises are turning to Samsung for mobile security. Hey—you're busy, so here's a quick-read article on what",
-      "source": "thehackernews.com",
-      "timestamp": "2025-11-21T11:00:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Graduate jobs under threat from AI, PwC boss says",
-      "link": "https://www.bbc.com/news/articles/cm272510e6jo?at_medium=RSS&at_campaign=rss",
-      "summary": "The accountancy giant says artificial intelligence will eventually lead to fewer entry-level positions at the firm.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-21T02:34:57+00:00",
-      "region": "Global",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
