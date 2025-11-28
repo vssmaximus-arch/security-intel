@@ -394,7 +394,8 @@
 </div>
 
 <script>
-    const NEWS_URL = 'data/news.json';   // live feed from Python agent
+    // IMPORTANT: point to the file created by news_agent.py
+    const NEWS_URL = 'public/data/news.json';
 
     let currentRadius = 5; 
     let GENERAL_NEWS_FEED = [];          // live or fallback
@@ -428,7 +429,7 @@
         { region: "AMER", type: "Flash Flood [TEST]", icon: "water", color: "#f9ab00", distVal: 4.8, distStr: "4.8km", site: "Dell Nashville Hub", desc: "TEST: example river flooding scenario." }
     ];
 
-    // Dell locations (same as your earlier version – truncated is fine for now)
+    // Dell locations
     const MAP_LOCATIONS = [
         { region: "AMER", name: "Dell Round Rock HQ", lat: 30.5083, lon: -97.6788, type: "dell" },
         { region: "EMEA", name: "Dell Cork Campus", lat: 51.8985, lon: -8.4756, type: "dell" },
@@ -437,17 +438,14 @@
         { region: "LATAM", name: "Dell Mexico City", lat: 19.4326, lon: -99.1332, type: "dell" }
     ];
 
-    // Simulated archive data
     const ARCHIVE_DATA = [
         { region: "Global", severity: 1, type: "Archive", url: "#", source: "System Archive (TEST)", time: "Historical", title: "Archive placeholder only", snippet: "Hook this up to historical data later." }
     ];
 
-    // Travel advisory & country lists (unchanged from your previous version, shortened here)
     const MOCK_ADVISORIES = {
         "Australia": { level: 1, text: "Exercise Normal Precautions." },
         "United States": { level: 2, text: "Exercise Increased Caution due to crime and terrorism." },
         "India": { level: 2, text: "Exercise Increased Caution due to crime and terrorism." }
-        // ... keep the rest of your advisory table here if you want full coverage
     };
     const COUNTRIES = ["Australia","United States","India","United Kingdom","Singapore","Japan","Brazil","South Africa","United Arab Emirates"];
 
@@ -458,11 +456,11 @@
         startClock();
         populateCountries();
         initFeedStatusLabel();
-        loadNewsAndStart();     // <-- key: pulls live news.json then renders
+        loadNewsAndStart();     // pulls live JSON then renders
         setInterval(() => {
             const activeEl = document.querySelector('.nav-item-custom.active');
             const region = activeEl ? activeEl.innerText.trim() : 'Global';
-            loadNewsAndStart(region);     // refresh from backend every 5 minutes
+            loadNewsAndStart(region);     // refresh every 5 min
         }, 300000);
     });
 
