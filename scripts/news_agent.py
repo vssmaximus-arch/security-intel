@@ -7,42 +7,69 @@ from urllib.parse import urlparse
 import feedparser
 from bs4 import BeautifulSoup
 
+# Make our requests look less like a bot
+feedparser.USER_AGENT = "SRO-Intel/1.0 (+https://github.com/vssmaximus-arch/security-intel)"
+
 # Base paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# Feeds to pull
+# --------------------------------------------------------------------
+# FEEDS
+# --------------------------------------------------------------------
+# Mix of:
+# - General world / business
+# - Security / cyber
+# - Disaster feeds with real geo coordinates (for proximity alerts)
 FEEDS = [
+    # Reuters (may set bozo flag but usually still parses)
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
+
+    # General global news
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://feeds.bbci.co.uk/news/technology/rss.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "https://news.google.com/rss/search?q=world&hl=en-US&gl=US&ceid=US:en",
+
+    # Cyber / security
     "https://www.bleepingcomputer.com/feed/",
-    "https://rsshub.app/apnews/security",
+    "https://feeds.feedburner.com/TheHackersNews",
+    "https://krebsonsecurity.com/feed/",
+    "https://www.securityweek.com/feed",
+
+    # Disasters with coordinates (for proximity alerts)
+    "https://www.gdacs.org/xml/rss_1h.xml",  # GDACS global disasters (gdacs:lat/lon)
+    "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",  # EMSC earthquakes (geo:lat/lon)
 ]
 
 # Very simple region classifier based on keywords in title/summary
 REGION_KEYWORDS = {
     "AMER": [
-        "united states", "u.s.", "america", "american", "canada",
+        "united states", "u.s.", "usa", "america", "american", "canada",
         "brazil", "mexico", "argentina", "chile", "peru", "colombia",
-        "panama", "caribbean"
+        "panama", "caribbean", "new york", "washington", "california",
+        "texas", "toronto", "vancouver"
     ],
     "EMEA": [
         "europe", "eu ", "european", " uk ", "united kingdom", "britain",
-        "england", "germany", "france", "spain", "italy", "poland",
-        "ireland", "africa", "nigeria", "south africa", "kenya",
-        "middle east", "saudi", "uae", "dubai", "israel", "egypt"
+        "england", "scotland", "wales", "germany", "france", "spain",
+        "italy", "poland", "ireland", "africa", "nigeria", "south africa",
+        "kenya", "middle east", "saudi", "uae", "dubai", "israel", "egypt",
+        "russia", "ukraine", "poland", "sweden", "norway", "denmark"
     ],
     "APJC": [
-        "asia", "asian", "india", "china", "hong kong", "taiwan",
-        "japan", "tokyo", "osaka", "singapore", "malaysia",
-        "thailand", "philippines", "vietnam", "australia", "sydney",
-        "melbourne", "korea", "seoul", "indonesia"
+        "asia", "asian", "india", "china", "beijing", "shanghai",
+        "hong kong", "taiwan", "japan", "tokyo", "osaka", "singapore",
+        "malaysia", "thailand", "philippines", "vietnam", "australia",
+        "sydney", "melbourne", "korea", "seoul", "indonesia", "new zealand"
     ],
     "LATAM": [
         "latin america", "latam", "brazil", "mexico", "chile", "peru",
-        "argentina", "colombia", "bogota", "santiago", "buenos aires"
+        "argentina", "colombia", "bogota", "santiago", "buenos aires",
+        "rio de janeiro", "sao paulo", "lima"
     ],
 }
 
@@ -72,11 +99,12 @@ def guess_severity(text: str) -> int:
         "attack", "massive", "explosion", "bomb", "killed", "dead",
         "critical", "severe", "breach", "ransomware", "earthquake",
         "hurricane", "typhoon", "evacuate", "evacuation",
-        "state of emergency",
+        "state of emergency", "wildfire", "strike", "shutdown",
     ]
     warning_words = [
         "warning", "alert", "flood", "storm", "malware",
         "vulnerability", "outage", "disruption", "protest", "unrest",
+        "clashes", "tensions", "sanction", "heatwave",
     ]
 
     if any(w in t for w in critical_words):
@@ -109,10 +137,24 @@ def entry_timestamp(entry) -> str:
 def extract_coords(entry):
     """
     Try to pull geo coordinates if the feed provides them.
+    We explicitly check common namespaces:
+      - geo:lat / geo:long
+      - lat / long
+      - gdacs:lat / gdacs:lon
     If not present, return (None, None) – proximity engine will skip.
     """
-    lat = getattr(entry, "geo_lat", None) or getattr(entry, "lat", None)
-    lon = getattr(entry, "geo_long", None) or getattr(entry, "lon", None)
+    lat = (
+        getattr(entry, "geo_lat", None)
+        or getattr(entry, "lat", None)
+        or getattr(entry, "gdacs_lat", None)
+    )
+    lon = (
+        getattr(entry, "geo_long", None)
+        or getattr(entry, "long", None)
+        or getattr(entry, "lon", None)
+        or getattr(entry, "gdacs_lon", None)
+    )
+
     try:
         if lat is not None and lon is not None:
             return float(lat), float(lon)
@@ -124,6 +166,11 @@ def extract_coords(entry):
 def fetch_feed(url: str):
     print(f"Fetching: {url}")
     parsed = feedparser.parse(url)
+
+    if getattr(parsed, "bozo", False):
+        # Feed is malformed but we still try to use what we can.
+        print(f"  [INFO] Feed reported bozo flag: {parsed.bozo_exception}")
+
     items = []
 
     for e in parsed.entries[:30]:  # cap per feed
@@ -132,10 +179,14 @@ def fetch_feed(url: str):
         summary_html = getattr(e, "summary", "") or getattr(e, "description", "")
         summary = clean_html(summary_html)
 
+        if not title and not summary:
+            continue  # junk
+
         source = urlparse(link or url).netloc or urlparse(url).netloc
         ts = entry_timestamp(e)
-        region = classify_region(title + " " + summary)
-        severity = guess_severity(title + " " + summary)
+        text_for_class = f"{title} {summary}"
+        region = classify_region(text_for_class)
+        severity = guess_severity(text_for_class)
         lat, lon = extract_coords(e)
 
         tags = []
@@ -156,6 +207,8 @@ def fetch_feed(url: str):
                 "tags": tags,
             }
         )
+
+    print(f"  Parsed {len(items)} items from feed")
     return items
 
 
@@ -167,9 +220,9 @@ def main():
         except Exception as exc:
             print(f"[WARN] Failed feed {url}: {exc}")
 
-    # Newest first, cap at 100
+    # Newest first, cap at 150
     all_items.sort(key=lambda x: x["timestamp"], reverse=True)
-    all_items = all_items[:100]
+    all_items = all_items[:150]
 
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
         json.dump(
