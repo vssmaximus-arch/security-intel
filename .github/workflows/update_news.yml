@@ -5,6 +5,10 @@ on:
     - cron: "*/30 * * * *"    # every 30 minutes
   workflow_dispatch:
 
+# Give this workflow permission to push back to the repo
+permissions:
+  contents: write
+
 jobs:
   update-feed:
     runs-on: ubuntu-latest
@@ -29,6 +33,8 @@ jobs:
           python news_agent.py
 
       - name: Commit and Push Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "SRO-Bot"
           git config --global user.email "actions@github.com"
