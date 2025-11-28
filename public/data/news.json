@@ -1,37 +1,46 @@
 {
-  "generated_at": "2025-11-28T08:15:29.945695+00:00",
+  "generated_at": "2025-11-28T08:55:16.039543+00:00",
   "articles": [
     {
-      "title": "'This was preventable': Fury and questions after Hong Kong's deadliest blaze in decades",
-      "link": "https://www.bbc.com/news/articles/cn8e5j20g27o?at_medium=RSS&at_campaign=rss",
-      "summary": "Questions are mounting as to how the deadly fire spread so rapidly - and who should be held responsible.",
+      "title": "National Guard member dies after shooting in Washington DC",
+      "link": "https://www.bbc.com/news/articles/cwyx4y6007lo?at_medium=RSS&at_campaign=rss",
+      "summary": "Sarah Beckstrom, 20, succumbed to her injuries, while a second guardsman remains in critical condition, Donald Trump says.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-28T08:09:28+00:00",
-      "region": "APJC",
+      "timestamp": "2025-11-28T08:48:33+00:00",
+      "region": "AMER",
       "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
     },
     {
+      "title": "Property Tied to Ukraine’s Lead Negotiator Is Searched in Corruption Case",
+      "link": "https://www.nytimes.com/2025/11/28/world/europe/ukraine-yermak-corruption-peace-talks.html",
+      "summary": "The scrutiny of Andriy Yermak, President Volodymyr Zelensky’s chief of staff, could disrupt U.S.-led peace talks and further rattle Ukrainian politics.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-28T08:42:31+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Corruption (Institutional)",
+        "Russian Invasion of Ukraine (2022)",
+        "Peace Process",
+        "Yermak, Andriy",
+        "Zelensky, Volodymyr",
+        "Putin, Vladimir V",
+        "Russia",
+        "Ukraine"
+      ]
+    },
+    {
       "title": "Ukraine anti-corruption agents search home of Zelensky's top adviser",
       "link": "https://www.bbc.com/news/articles/c058lp086zvo?at_medium=RSS&at_campaign=rss",
       "summary": "Andriy Yermak has played a crucial role in Ukraine's response to Russia's war and is lead negotiator in peace talks.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-28T07:58:00+00:00",
+      "timestamp": "2025-11-28T08:34:23+00:00",
       "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Japan's same-sex marriage ban is constitutional, says Tokyo court",
-      "link": "https://www.bbc.com/news/articles/clyz7njqwvvo?at_medium=RSS&at_campaign=rss",
-      "summary": "The ruling bucks a trend set by courts around Japan that had raised hopes for marriage equality.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T07:57:44+00:00",
-      "region": "APJC",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -42,7 +51,7 @@
       "link": "https://www.nytimes.com/2025/11/28/world/asia/hong-kong-fire.html",
       "summary": "Hope of finding survivors has dwindled, with many residents of the densely packed Wang Fuk Court apartment towers still unaccounted for.",
       "source": "www.nytimes.com",
-      "timestamp": "2025-11-28T07:34:02+00:00",
+      "timestamp": "2025-11-28T08:22:53+00:00",
       "region": "APJC",
       "severity": 1,
       "lat": null,
@@ -63,11 +72,11 @@
       ]
     },
     {
-      "title": "Guinea-Bissau president flees to Senegal after coup",
-      "link": "https://www.bbc.com/news/articles/c741m97lk42o?at_medium=RSS&at_campaign=rss",
-      "summary": "Sissoco Embaló has arrived in Senegal \"safe and sound\" on a chartered military plane, authorities say.",
+      "title": "Trump says US will 'permanently pause' migration from 'third world countries'",
+      "link": "https://www.bbc.com/news/articles/cdxweyy157go?at_medium=RSS&at_campaign=rss",
+      "summary": "The president did not name which countries would be affected, but vowed to remove anyone \"not a net asset\" to the US.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-28T07:29:42+00:00",
+      "timestamp": "2025-11-28T08:21:38+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -75,12 +84,36 @@
       "tags": []
     },
     {
-      "title": "Trump says US will 'permanently pause' migration from 'third world countries'",
-      "link": "https://www.bbc.com/news/articles/cdxweyy157go?at_medium=RSS&at_campaign=rss",
-      "summary": "The president did not name which countries would be affected, but vowed to remove anyone \"not a net asset\" to the US.",
+      "title": "Guinea-Bissau president flees to Senegal after coup",
+      "link": "https://www.bbc.com/news/articles/c741m97lk42o?at_medium=RSS&at_campaign=rss",
+      "summary": "Sissoco Embaló has arrived in Senegal \"safe and sound\" on a chartered military plane, authorities say.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-28T07:16:15+00:00",
+      "timestamp": "2025-11-28T08:18:37+00:00",
       "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "'This was preventable': Fury and questions after Hong Kong's deadliest blaze in decades",
+      "link": "https://www.bbc.com/news/articles/cn8e5j20g27o?at_medium=RSS&at_campaign=rss",
+      "summary": "Questions are mounting as to how the deadly fire spread so rapidly - and who should be held responsible.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-28T08:09:28+00:00",
+      "region": "APJC",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Japan's same-sex marriage ban is constitutional, says Tokyo court",
+      "link": "https://www.bbc.com/news/articles/clyz7njqwvvo?at_medium=RSS&at_campaign=rss",
+      "summary": "The ruling bucks a trend set by courts around Japan that had raised hopes for marriage equality.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-28T07:57:44+00:00",
+      "region": "APJC",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -123,11 +156,11 @@
       "tags": []
     },
     {
-      "title": "Trump says he'll \"permanently pause migration from all Third World Countries\" - Axios",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNc0hrbTc4THk1VEdveGRUMkxTZE5lbVBDSmh4VkE0dmt2NVJSVkhiWlBfY0ZtNEZURS1JV1BYNEp0ZFQ2U0Q0dmdoSG5IWlBCU3MtWTZQaFNzZ1Y4bWJ2MFVjLXVkWjJjWl9PTzdEbWx4RmNYWGpORmtFRl9jVjJUdm84Wl9LdDJ3QWw1VUxnR1RDdw?oc=5",
-      "summary": "Trump says he'll \"permanently pause migration from all Third World Countries\" Axios",
+      "title": "Trump says US will 'permanently pause migration from all Third World countries' - CNN",
+      "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOdWV0QW44TWxVcUxTQVNweUl5RUY2dlFONk1UXzBiNEN4YjdTRVozWW14ZVU4UVVoZTM0RTFtd25NSnFoM0ZtTTg3YzAtblM2MTJ2X2lXSEFzWm42LXcxRXozdjBRZGRXZk9fNGhfYy1PZXhaOVV2Y3JPZTBDVEx0ZTFfZUVoMW9mR196NDNGTGJQQXZLUVk2TlNrQnpOUHQ4WmJrSTBFSHluM00xYVhxNzd5Tk5CX0JHdnZ5b1RrRXJHMndSVGNjMzFHOXkwMzRuSFRzZnBMcW9iQQ?oc=5",
+      "summary": "Trump says US will 'permanently pause migration from all Third World countries' CNN",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T07:05:22+00:00",
+      "timestamp": "2025-11-28T07:02:38+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -152,6 +185,30 @@
       "summary": "Trump announces freeze on all migration from 'third world countries' after National Guard shooting Le Monde.fr",
       "source": "news.google.com",
       "timestamp": "2025-11-28T06:58:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "WST World Cup Kitakyushu Street 2025: Paris 2024 champion Yoshizawa Coco crashes out in quarter-finals - Olympics.com",
+      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNTlhKMGFMN1Y2VnNhWGVnV0MxbjVpZ29mVzZxbHhOLVh3bEJCMFBlZ0t5Mzc2SmREcVdrTlNveU9wR2pScWMwOTdwdEtGYW9tbVlORmk3WWlPdGNOMVZSMmxLMTZmZnMzSFR4MFlmaHVJRjlsSHEzUkRIQXpqNzJfbHJ2OGNWTlFVSm9DSWVqVGgyQ19YZC1NMkJHT1dRY2thS3c?oc=5",
+      "summary": "WST World Cup Kitakyushu Street 2025: Paris 2024 champion Yoshizawa Coco crashes out in quarter-finals Olympics.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T06:43:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Trump says he'll \"permanently pause migration from all Third World Countries\" - Axios",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNc0hrbTc4THk1VEdveGRUMkxTZE5lbVBDSmh4VkE0dmt2NVJSVkhiWlBfY0ZtNEZURS1JV1BYNEp0ZFQ2U0Q0dmdoSG5IWlBCU3MtWTZQaFNzZ1Y4bWJ2MFVjLXVkWjJjWl9PTzdEbWx4RmNYWGpORmtFRl9jVjJUdm84Wl9LdDJ3QWw1VUxnR1RDdw?oc=5",
+      "summary": "Trump says he'll \"permanently pause migration from all Third World Countries\" Axios",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T06:41:08+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -190,6 +247,18 @@
       ]
     },
     {
+      "title": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPMVI4dG9vNHpGRkpMYk9yRWw0R09OSkVCWmxnQjVRaWxvT3B3dFU0WjMtcS1lT3FnbktpQmswMUVOV1NraTlaSFFxVkpXQTBhT2R3MDI3dFd6U0J0Z1psVGVudmJqS0dseVFDQngtbVpvS19CYTc4d3pvZGRYazdUWE9Oa2lZdWNKRExaZzdUVWxGaFNVd2xvWnIwa1VzdHR2OU93M1ZxZmJVcTNBazdCcVQxYmh4M3hldkFKWF9Wd1B3MjRGVXhoWXN2UzVTMER1VE5ZYmNTbFRmWFV1cVUxVFhlbE5zZw?oc=5",
+      "summary": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T06:11:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "What Are Third World Countries That Trump Just Threatened - NDTV",
       "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOVXA0MTBJN1JETnVNRnZKVDd2M1F4aVIzcnNrY2huT2s1LVI5RVNxazBjU1RCb3N4OVVkLXdRRW1TaWhTNWJRTkQyYXZyaVpnSnBMaUxkOXlkc2tfT2thQ3czbkFkQ1pOVEtqV2U5MzNQWnVyclBfNFZIWUExQ2VQX1NBcXZlRFBta3BzRFFGWFVScFJWVk9JOUQ1MGNrQm94R09Lbi1sTnp5QUdsYnpQdTI5V3Q3VU5oenJFcnlLWU3SAcgBQVVfeXFMUEN0ZWFoVFFtX1VEUDJfTXUyaEl2Mmd4NkVJMTRPLTNrT3RLVW5TSEFMUU1GeG1ZaG5HYWZORTBBVjl1YTZIN2ZsWVNpaDJDWmFjbUJ1QlphZkxPVG1VMmRrYy1Ibzg3RlhOTGVyZ0xkRkF1RklYYk9zS1pNaFN1cTNRMWV5SnhFdl81SE9tQnNkVmJsVFU0eDRnM0pEcFNjTXh2WU1pb0x2SE5nMkJPejE4MFFzb01Gdjc4R2hJRFVqZjRhUkdRRUo?oc=5",
       "summary": "What Are Third World Countries That Trump Just Threatened NDTV",
@@ -226,42 +295,6 @@
       "tags": []
     },
     {
-      "title": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPMVI4dG9vNHpGRkpMYk9yRWw0R09OSkVCWmxnQjVRaWxvT3B3dFU0WjMtcS1lT3FnbktpQmswMUVOV1NraTlaSFFxVkpXQTBhT2R3MDI3dFd6U0J0Z1psVGVudmJqS0dseVFDQngtbVpvS19CYTc4d3pvZGRYazdUWE9Oa2lZdWNKRExaZzdUVWxGaFNVd2xvWnIwa1VzdHR2OU93M1ZxZmJVcTNBazdCcVQxYmh4M3hldkFKWF9Wd1B3MjRGVXhoWXN2UzVTMER1VE5ZYmNTbFRmWFV1cVUxVFhlbE5zZw?oc=5",
-      "summary": "Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting The Guardian",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T05:36:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "WST World Cup Kitakyushu Street 2025: Paris 2024 champion Yoshizawa Coco crashes out in quarter-finals - Olympics.com",
-      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNTlhKMGFMN1Y2VnNhWGVnV0MxbjVpZ29mVzZxbHhOLVh3bEJCMFBlZ0t5Mzc2SmREcVdrTlNveU9wR2pScWMwOTdwdEtGYW9tbVlORmk3WWlPdGNOMVZSMmxLMTZmZnMzSFR4MFlmaHVJRjlsSHEzUkRIQXpqNzJfbHJ2OGNWTlFVSm9DSWVqVGgyQ19YZC1NMkJHT1dRY2thS3c?oc=5",
-      "summary": "WST World Cup Kitakyushu Street 2025: Paris 2024 champion Yoshizawa Coco crashes out in quarter-finals Olympics.com",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T05:33:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "News and current affairs from Germany and around the world – DW - DW",
-      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFA0ZWlYZDNMaFVsZ1NnYnZfaVR4RHVjNnRkYTBnUUpJWjBHbUZGOVhnVFIteVU2TzFPcHNJdE5LdlNIbk54bE5CUjRDdVoyb2pNd3c?oc=5",
-      "summary": "News and current affairs from Germany and around the world – DW DW",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T05:32:54+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "A.I. and the Trillion-Dollar Question",
       "link": "https://www.nytimes.com/2025/11/28/world/ai-valuations-markets-technology-hongkong-fire.html",
       "summary": "Even the companies building the technology don’t seem exactly sure where it’s headed.",
@@ -284,7 +317,7 @@
       "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOYXRwdXNEQ2V4Y1dMdVpESll3dTlHa2dkTldVY1VwVE9qWXdCd0R6QTdYeF8yNzhEbGh1Q0ZTVWtOajFHMktxcm1LWGo2b001eVIxOFR5TmRjNDN6LTgwZmoxbXlXajFCM2g1cVlQbk9IYWlxNGxyQWowa1hYRmpSUHhXYmF0WndvSjViaTdtSFZqTjJO?oc=5",
       "summary": "2026 World Cup draw: How to watch, teams, and everything else you need to know The New York Times",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T05:20:05+00:00",
+      "timestamp": "2025-11-28T05:20:00+00:00",
       "region": "AMER",
       "severity": 1,
       "lat": null,
@@ -342,18 +375,6 @@
         "China",
         "Min Aung Hlaing"
       ]
-    },
-    {
-      "title": "US Will Permanently Pause Migration From All '3rd World Countries': Trump - NDTV",
-      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOYUs3WS01cVZoVVhITXlZc0VET25EU1ZjSVlOUjR3eEw4aU1PazdFTEQxc09pdWs0ZHF5Q0xHQ01kWlZzM0M0Q3cydm9wUk1OZFZyOXZtQl84TURsbFlGWm5Pa09fUWo1WkMwNVVhTUJQOEhTbzhHaHpmY0xmSFFoN2NQTWtWZXgybHM3SnhISGk4aVlTNlBqYURTYnFMQTVFRUMyZ3pMNzJITF9QTmNSaWYxWjktSjFCTGdDRGFUTVhTeEhqQnJxQnlzZlRHQdIB1gFBVV95cUxPdVZQTmVIZHpRdG9QdmFhZkRLMlc0OUxOWmhIMDNQZmN3NDlpWHhzTmxjQ2lmNnpCWTJneWZUTzRWaDhMOFB3YUQwUzdiZHlNMGNPSm5ZUmFKU0FLRTVBSERpSjV5X1htVEtHcl9tRGFPMW1ZYXNTZmJFeWhnQ3lnWkhmb2lldG1lY0hmaWt5ZEpGbHpnUF9mOUFlR3dqWmExaWVLSlp0SVd5UXBPODBLQmR4TjZpWlprQ1hIMWZHOWRhU0EzSDBvQjVmQ2tqX2pRYVc0Rmt3?oc=5",
-      "summary": "US Will Permanently Pause Migration From All '3rd World Countries': Trump NDTV",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T04:51:56+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "What in the world is a fossa? The San Diego Zoo now has three more - NBC 7 San Diego",
@@ -426,18 +447,6 @@
         "Hong Kong Apartment Complex Fire (Nov 2025)",
         "internal-open-access-from-nl"
       ]
-    },
-    {
-      "title": "National Guard member dies after shooting in Washington DC",
-      "link": "https://www.bbc.com/news/articles/cwyx4y6007lo?at_medium=RSS&at_campaign=rss",
-      "summary": "Sarah Beckstrom, 20, succumbed to her injuries, while a second guardsman remains in critical condition, Donald Trump says.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T01:29:45+00:00",
-      "region": "AMER",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "What we know about shooting of National Guard in Washington DC",
@@ -604,18 +613,6 @@
       "tags": []
     },
     {
-      "title": "With Mikaela Shiffrin waiting at the finish, Aleksander Aamodt Kilde makes early comeback to World Cup racing - VailDaily.com",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxOQVJuQ295UTU2anZETldYV3ZJWUx6clN3OEFIeU1NTnNyOENDb2h3N0M3dXN6NE9RdUJOWVp2eFJwNE9YUWZXaDdaN1hKMlVldUtQNUdKdFdnTlN1ZE13UTJWcEo0dmdWaDFySDNNeXJ5eDNOSGVvcFJYempDcTFCLWpNbS1WbkxuS0pQUDBPRHgtb1pNeHFOY2RjRzVXZw?oc=5",
-      "summary": "With Mikaela Shiffrin waiting at the finish, Aleksander Aamodt Kilde makes early comeback to World Cup racing VailDaily.com",
-      "source": "news.google.com",
-      "timestamp": "2025-11-27T22:13:11+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "What to Know About the Coup in Guinea-Bissau",
       "link": "https://www.nytimes.com/2025/11/27/world/africa/guinea-bissau-coup.html",
       "summary": "The opposition has accused the president of putting a general in charge of the government so that he could stay in power and lead by proxy.",
@@ -635,6 +632,18 @@
         "Guinea-Bissau",
         "internal-open-access-from-nl"
       ]
+    },
+    {
+      "title": "For Trump, there’s Columbus Day and Victory Day, but no World Aids Day - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOZHU5SFdCSkxRNUxZT0EtNllwUFJUb3NJUmZDZVZpTHRVeDRxWjIyLWZjenVYOUZ0eEZETVJwcVEtNnhsbFpCaGtqdHpDQ29IWllqRUhkU2QxQktiX25GUFZjNnRuV0dhaUdiS21jZTJsQnFYLWdYYVk4WHloenVIdQ?oc=5",
+      "summary": "For Trump, there’s Columbus Day and Victory Day, but no World Aids Day The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-27T21:29:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Israeli troops kill two Palestinians after they appear to surrender",
@@ -890,6 +899,18 @@
         "Sudani, Mohammed Shia al-",
         "Iraq"
       ]
+    },
+    {
+      "title": "2026 World Cup: Full List of Matches, Schedule, Locations - Sports Illustrated",
+      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOajl0QUsyM2tfSk9ybUVIRDI3ZFhJbUt5VW4xV19ub0oyQjdIX29xSVdEbmJSSWRkNFNaQjV1eVBiS3BfSUVGY2ZlOGdiaW9jbkJVWFc5WlROd1JWTzNYWFVzLUZQdlpGSGlOczJhaUVONGVBZDJKY0NnMGJ4aHNocjhXVQ?oc=5",
+      "summary": "2026 World Cup: Full List of Matches, Schedule, Locations Sports Illustrated",
+      "source": "news.google.com",
+      "timestamp": "2025-11-27T16:15:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Asahi Data Breach Impacts 2 Million Individuals",
@@ -1314,30 +1335,6 @@
       ]
     },
     {
-      "title": "E.P.A. Delays Requirements to Cut Methane, a Potent Greenhouse Gas",
-      "link": "https://www.nytimes.com/2025/11/26/climate/epa-delays-methane-oil-gas.html",
-      "summary": "Oil and gas firms were supposed to start reducing methane, a powerful driver of climate change. The agency is giving them more time and may cancel the requirement.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-26T22:52:44+00:00",
-      "region": "LATAM",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Global Warming",
-        "Greenhouse Gas Emissions",
-        "United States Politics and Government",
-        "Oil (Petroleum) and Gasoline",
-        "Methane",
-        "Regulation and Deregulation of Industry",
-        "Natural Gas",
-        "Environment",
-        "Environmental Protection Agency",
-        "Zeldin, Lee M",
-        "Trump, Donald J"
-      ]
-    },
-    {
       "title": "As Trade Talks Stall, Carney Moves to Shield Canada from Trump Tariffs",
       "link": "https://www.nytimes.com/2025/11/26/world/canada/trump-carney-canada-tariffs-trade.html",
       "summary": "Prime Minister Mark Carney announced curbs on steel imports, a new tariff and help with steel and lumber freight costs in a bid to aid Canadian industries.",
@@ -1438,50 +1435,6 @@
       "tags": [
         "Security",
         "Government"
-      ]
-    },
-    {
-      "title": "Meet Rey, the Admin of ‘Scattered Lapsus$ Hunters’",
-      "link": "https://krebsonsecurity.com/2025/11/meet-rey-the-admin-of-scattered-lapsus-hunters/",
-      "summary": "A prolific cybercriminal group that calls itself \"Scattered LAPSUS$ Hunters\" made headlines regularly this year by stealing data from and publicly mass extorting dozens of major corporations. But the tables seem to have turned somewhat for \"Rey,\" the moniker chosen by the technical operator and public face of the hacker group: Earlier this week, Rey confirmed his real life identity and agreed to an interview after KrebsOnSecurity tracked him down and contacted his father.",
-      "source": "krebsonsecurity.com",
-      "timestamp": "2025-11-26T17:22:36+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "A Little Sunshine",
-        "Breadcrumbs",
-        "Ne'er-Do-Well News",
-        "Ransomware",
-        "BreachForums",
-        "CrowdStrike",
-        "Cyb3r Drag0nz Team",
-        "cybero5tdev@proton.me",
-        "Disney/Hulu",
-        "FedEx",
-        "Flashpoint",
-        "Hellcat",
-        "Hikki-Chan",
-        "KELA",
-        "LAPSUS$",
-        "o5tdev",
-        "Orange Romania",
-        "Saif Al-Din Khader",
-        "Scattered LAPSUS$ Hunters",
-        "Scattered Spider",
-        "Schneider Electric",
-        "SentinelOne",
-        "ShinyHunters",
-        "ShinySp1d3r",
-        "SpyCloud",
-        "Telefonica",
-        "Toyota",
-        "U.S. Centers for Disease Control and Prevention",
-        "ups",
-        "wristmug",
-        "Zaid Khader"
       ]
     },
     {
@@ -1992,44 +1945,6 @@
       "tags": []
     },
     {
-      "title": "Is Your Android TV Streaming Box Part of a Botnet?",
-      "link": "https://krebsonsecurity.com/2025/11/is-your-android-tv-streaming-box-part-of-a-botnet/",
-      "summary": "On the surface, the Superbox media streaming devices for sale at retailers like BestBuy and Walmart may seem like a steal: They offer unlimited access to more than 2,200 pay-per-view and streaming services like Netflix, ESPN and Hulu, all for a one-time fee of around $400. But security experts warn these TV boxes require intrusive software that forces the user's network to relay Internet traffic for others, traffic that is often tied to cybercrime activity such as advertising fraud and account takeovers.",
-      "source": "krebsonsecurity.com",
-      "timestamp": "2025-11-24T18:44:52+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "A Little Sunshine",
-        "Internet of Things (IoT)",
-        "Web Fraud 2.0",
-        "Amazon",
-        "ARP poisoning",
-        "BadBox 2.0 Enterprise",
-        "BestBuy",
-        "Censys",
-        "Electronic Frontier Foundation",
-        "Federal Bureau of Investigation",
-        "Grass OpCo (BVI) Ltd",
-        "Half Space Labs Limited",
-        "IPidea",
-        "Lower Tribeca Corp.",
-        "Netcat",
-        "Newegg",
-        "Riley Kilmer",
-        "Spur",
-        "Super Media Technology Company Ltd.",
-        "Superbox",
-        "SuperCaja",
-        "Synthient",
-        "Tcpdump",
-        "Walmart",
-        "Wynd Network"
-      ]
-    },
-    {
       "title": "New Fluent Bit Flaws Expose Cloud to RCE and Stealthy Infrastructure Intrusions",
       "link": "https://thehackernews.com/2025/11/new-fluent-bit-flaws-expose-cloud-to.html",
       "summary": "Cybersecurity researchers have discovered five vulnerabilities in Fluent Bit, an open-source and lightweight telemetry agent, that could be chained to compromise and take over cloud infrastructures. The security defects \"allow attackers to bypass authentication, perform path traversal, achieve remote code execution, cause denial-of-service conditions, and manipulate tags,\" Oligo Security said in",
@@ -2193,6 +2108,30 @@
       "timestamp": "2025-11-21T08:05:00+00:00",
       "region": "AMER",
       "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Graduate jobs under threat from AI, PwC boss says",
+      "link": "https://www.bbc.com/news/articles/cm272510e6jo?at_medium=RSS&at_campaign=rss",
+      "summary": "The accountancy giant says artificial intelligence will eventually lead to fewer entry-level positions at the firm.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-21T02:34:57+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Streaming platform Twitch added to Australia's teen social media ban",
+      "link": "https://www.bbc.com/news/articles/cx2n2955g10o?at_medium=RSS&at_campaign=rss",
+      "summary": "It joins other platforms including Facebook, Instagram, TikTok and Snapchat in the ban that starts next month.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-21T02:33:49+00:00",
+      "region": "APJC",
+      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
