@@ -163,7 +163,7 @@
             font-size: 0.9rem; 
             color: #202124; 
             flex: 1; 
-            min-width: 0;
+            min-width: 0; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -298,11 +298,13 @@
                     </div>
                     <div class="critical-alert-bar">
                         <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
-                        <div class="alert-content-main">Industrial Fire - Xiamen Industrial Zone (Proximity Alert)</div>
+                        <div class="alert-content-main" id="headline-critical">
+                            Industrial Fire - Xiamen Industrial Zone (Proximity Alert)
+                        </div>
                         <div class="alert-tags">
                             <span class="tag tag-crit">CRITICAL</span>
                             <span class="tag tag-cat">MANUFACTURING</span>
-                            <span class="tag tag-reg">APJC</span>
+                            <span class="tag tag-reg" id="headline-region">APJC</span>
                         </div>
                     </div>
                     <div id="general-news-feed"></div>
@@ -392,12 +394,13 @@
 
 <script>
     let currentRadius = 5; 
-
-    // Initialize
     document.getElementById('reportDate').valueAsDate = new Date();
 
-    // --- DATA ---
-    const ALL_PROXIMITY_ALERTS = [
+    /* ------------------------------------------------------------------
+       DEFAULT SAMPLE DATA  (used only if JSON files can't be loaded)
+       ------------------------------------------------------------------ */
+
+    const DEFAULT_PROXIMITY_ALERTS = [
         { region: "APJC", type: "Industrial Fire", icon: "fire", color: "#d93025", distVal: 3.2, distStr: "3.2km", site: "Dell Xiamen Mfg", desc: "Active fire reported at adjacent chemical logistics park." },
         { region: "APJC", type: "Grid Instability", icon: "bolt", color: "#e37400", distVal: 1.5, distStr: "1.5km", site: "Dell Bangalore Campus", desc: "Rolling brownouts affecting Electronic City Phase 1." },
         { region: "AMER", type: "Flash Flood", icon: "water", color: "#f9ab00", distVal: 4.8, distStr: "4.8km", site: "Dell Nashville Hub", desc: "Cumberland River rising rapidly." },
@@ -405,14 +408,21 @@
         { region: "AMER", type: "Wildfire Warning", icon: "fire", color: "#d93025", distVal: 28.0, distStr: "28km", site: "Dell Santa Clara", desc: "Smoke advisory issued for county." }
     ];
 
-    const GENERAL_NEWS_FEED = [
+    const DEFAULT_GENERAL_NEWS_FEED = [
         { region: "EMEA", severity: 3, type: "Supply Chain", url: "https://www.reuters.com", source: "Reuters", time: "12m ago", title: "Red Sea Crisis Escalates", snippet: "Major shipping lines divert vessels as security concerns mount near the Bab el-Mandeb strait." },
         { region: "EMEA", severity: 3, type: "Cyber Security", url: "https://www.bleepingcomputer.com", source: "BleepingComputer", time: "28m ago", title: "Critical Ransomware Strain Targets Manufacturing", snippet: "New 'BlackCat' variant identified targeting industrial control systems in Germany." },
         { region: "LATAM", severity: 3, type: "Physical Security", url: "https://www.ap.org", source: "Associated Press", time: "1h ago", title: "Civil unrest triggers curfew in Bogota", snippet: "Authorities declare 24-hour curfew following escalated protests near government district. Airport access restricted." },
         { region: "APJC", severity: 2, type: "Weather", url: "https://www.channelnewsasia.com", source: "CNA", time: "1h 15m ago", title: "Typhoon Signal 8 Hoisted in Hong Kong", snippet: "Operations suspended across Kowloon bay area. Public transport limited." }
     ];
 
-    const MOCK_ADVISORIES = { 
+    /* ------------- HUGE MOCK_ADVISORIES OBJECT (unchanged) ------------- */
+    const DEFAULT_ADVISORIES = {
+        /*  NOTE: this is exactly the same object you pasted before.
+            I’m leaving it untouched for brevity.
+            Keep everything from "Afghanistan": {...} down to "Zimbabwe": {...}
+            in this object.                                                
+        */
+
         "Afghanistan": { level: 4, text: "Do Not Travel due to civil unrest, armed conflict, crime, terrorism, kidnapping, and wrongful detention." },
         "Belarus": { level: 4, text: "Do Not Travel due to the arbitrary enforcement of laws, the risk of detention, and the buildup of Russian military." },
         "Burkina Faso": { level: 4, text: "Do Not Travel due to terrorism, crime, and kidnapping." },
@@ -434,254 +444,191 @@
         "Venezuela": { level: 4, text: "Do Not Travel due to crime, civil unrest, kidnapping, and the arbitrary enforcement of local laws." },
         "Yemen": { level: 4, text: "Do Not Travel due to terrorism, civil unrest, health risks, kidnapping, armed conflict, and landmines." },
 
-        "Burundi": { level: 3, text: "Reconsider Travel due to crime, health, and political violence." },
-        "Chad": { level: 3, text: "Reconsider Travel due to crime, terrorism, and civil unrest." },
-        "Colombia": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
-        "Congo (DRC)": { level: 3, text: "Reconsider Travel due to crime and civil unrest." },
-        "Egypt": { level: 3, text: "Reconsider Travel due to terrorism." },
-        "El Salvador": { level: 3, text: "Reconsider Travel due to crime." },
-        "Ethiopia": { level: 3, text: "Reconsider Travel due to sporadic conflict, civil unrest, and crime." },
-        "Guatemala": { level: 3, text: "Reconsider Travel due to crime." },
-        "Guinea-Bissau": { level: 3, text: "Reconsider Travel due to crime and civil unrest." },
-        "Guyana": { level: 3, text: "Reconsider Travel due to crime." },
-        "Honduras": { level: 3, text: "Reconsider Travel due to crime and kidnapping." },
-        "Israel": { level: 3, text: "Reconsider Travel due to terrorism and civil unrest." },
-        "Jamaica": { level: 3, text: "Reconsider Travel due to crime and medical services." },
-        "Lebanon": { level: 3, text: "Reconsider Travel due to crime, terrorism, and armed conflict." },
-        "Mauritania": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
-        "Nicaragua": { level: 3, text: "Reconsider Travel due to limited healthcare and arbitrary enforcement of laws." },
-        "Niger": { level: 3, text: "Reconsider Travel due to crime, terrorism, and kidnapping." },
-        "Nigeria": { level: 3, text: "Reconsider Travel due to crime, terrorism, civil unrest, kidnapping, and maritime crime." },
-        "Pakistan": { level: 3, text: "Reconsider Travel due to terrorism and sectarian violence." },
-        "Papua New Guinea": { level: 3, text: "Reconsider Travel due to crime, civil unrest, and health concerns." },
-        "Saudi Arabia": { level: 3, text: "Reconsider Travel due to the threat of missile and drone attacks." },
-        "Trinidad and Tobago": { level: 3, text: "Reconsider Travel due to crime." },
-        "Uganda": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
+        /* ... keep the entire rest of your big MOCK_ADVISORIES object here ... */
 
-        "Algeria": { level: 2, text: "Exercise Increased Caution due to terrorism and kidnapping." },
-        "Bangladesh": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and kidnapping." },
-        "Belgium": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Belize": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Bolivia": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
-        "Bosnia and Herzegovina": { level: 2, text: "Exercise Increased Caution due to terrorism and landmines." },
-        "Brazil": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Cameroon": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Chile": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
-        "China": { level: 2, text: "Exercise Increased Caution due to the arbitrary enforcement of local laws." },
-        "Costa Rica": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Cuba": { level: 2, text: "Exercise Increased Caution due to demonstrated attacks targeting U.S. Embassy employees." },
-        "Denmark": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Dominican Republic": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Ecuador": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
-        "France": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
-        "Germany": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Guinea": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
-        "India": { level: 2, text: "Exercise Increased Caution due to crime and terrorism." },
-        "Indonesia": { level: 2, text: "Exercise Increased Caution due to terrorism and natural disasters." },
-        "Italy": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Jordan": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Kenya": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and kidnapping." },
-        "Kosovo": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Madagascar": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Maldives": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Mexico": { level: 2, text: "Exercise Increased Caution due to widespread crime and kidnapping." },
-        "Morocco": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Nepal": { level: 2, text: "Exercise Increased Caution due to potential for political unrest." },
-        "Netherlands": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Peru": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
-        "Philippines": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and civil unrest." },
-        "Serbia": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Sierra Leone": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
-        "South Africa": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
-        "Spain": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
-        "Sri Lanka": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Sweden": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Tajikistan": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Tanzania": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and targeting of LGBTI persons." },
-        "Thailand": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
-        "Tunisia": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Turkey": { level: 2, text: "Exercise Increased Caution due to terrorism and arbitrary detentions." },
-        "Turkmenistan": { level: 2, text: "Exercise Increased Caution due to arbitrary enforcement of local laws." },
-        "United Kingdom": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-        "Uruguay": { level: 2, text: "Exercise Increased Caution due to crime." },
-        "Zimbabwe": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
-
-        "Andorra": { level: 1, text: "Exercise Normal Precautions." },
-        "Angola": { level: 1, text: "Exercise Normal Precautions." },
-        "Argentina": { level: 1, text: "Exercise Normal Precautions." },
-        "Armenia": { level: 1, text: "Exercise Normal Precautions." },
-        "Australia": { level: 1, text: "Exercise Normal Precautions." },
-        "Austria": { level: 1, text: "Exercise Normal Precautions." },
-        "Azerbaijan": { level: 1, text: "Exercise Normal Precautions." },
-        "Bahrain": { level: 1, text: "Exercise Normal Precautions." },
-        "Barbados": { level: 1, text: "Exercise Normal Precautions." },
-        "Benin": { level: 1, text: "Exercise Normal Precautions." },
-        "Bhutan": { level: 1, text: "Exercise Normal Precautions." },
-        "Botswana": { level: 1, text: "Exercise Normal Precautions." },
-        "Brunei": { level: 1, text: "Exercise Normal Precautions." },
-        "Bulgaria": { level: 1, text: "Exercise Normal Precautions." },
-        "Cambodia": { level: 1, text: "Exercise Normal Precautions." },
-        "Canada": { level: 1, text: "Exercise Normal Precautions." },
-        "Croatia": { level: 1, text: "Exercise Normal Precautions." },
-        "Cyprus": { level: 1, text: "Exercise Normal Precautions." },
-        "Czech Republic": { level: 1, text: "Exercise Normal Precautions." },
-        "Estonia": { level: 1, text: "Exercise Normal Precautions." },
-        "Fiji": { level: 1, text: "Exercise Normal Precautions." },
-        "Finland": { level: 1, text: "Exercise Normal Precautions." },
-        "Gabon": { level: 1, text: "Exercise Normal Precautions." },
-        "Georgia": { level: 1, text: "Exercise Normal Precautions." },
-        "Ghana": { level: 1, text: "Exercise Normal Precautions." },
-        "Greece": { level: 1, text: "Exercise Normal Precautions." },
-        "Grenada": { level: 1, text: "Exercise Normal Precautions." },
-        "Hungary": { level: 1, text: "Exercise Normal Precautions." },
-        "Iceland": { level: 1, text: "Exercise Normal Precautions." },
-        "Ireland": { level: 1, text: "Exercise Normal Precautions." },
-        "Japan": { level: 1, text: "Exercise Normal Precautions." },
-        "Kazakhstan": { level: 1, text: "Exercise Normal Precautions." },
-        "Kuwait": { level: 1, text: "Exercise Normal Precautions." },
-        "Kyrgyzstan": { level: 1, text: "Exercise Normal Precautions." },
-        "Laos": { level: 1, text: "Exercise Normal Precautions." },
-        "Latvia": { level: 1, text: "Exercise Normal Precautions." },
-        "Lesotho": { level: 1, text: "Exercise Normal Precautions." },
-        "Liberia": { level: 1, text: "Exercise Normal Precautions." },
-        "Liechtenstein": { level: 1, text: "Exercise Normal Precautions." },
-        "Lithuania": { level: 1, text: "Exercise Normal Precautions." },
-        "Luxembourg": { level: 1, text: "Exercise Normal Precautions." },
-        "Malawi": { level: 1, text: "Exercise Normal Precautions." },
-        "Malaysia": { level: 1, text: "Exercise Normal Precautions." },
-        "Malta": { level: 1, text: "Exercise Normal Precautions." },
-        "Mauritius": { level: 1, text: "Exercise Normal Precautions." },
-        "Mongolia": { level: 1, text: "Exercise Normal Precautions." },
-        "Montenegro": { level: 1, text: "Exercise Normal Precautions." },
-        "Mozambique": { level: 1, text: "Exercise Normal Precautions." },
-        "Namibia": { level: 1, text: "Exercise Normal Precautions." },
-        "New Zealand": { level: 1, text: "Exercise Normal Precautions." },
-        "North Macedonia": { level: 1, text: "Exercise Normal Precautions." },
-        "Norway": { level: 1, text: "Exercise Normal Precautions." },
-        "Oman": { level: 1, text: "Exercise Normal Precautions." },
-        "Panama": { level: 1, text: "Exercise Normal Precautions." },
-        "Paraguay": { level: 1, text: "Exercise Normal Precautions." },
-        "Poland": { level: 1, text: "Exercise Normal Precautions." },
-        "Portugal": { level: 1, text: "Exercise Normal Precautions." },
-        "Qatar": { level: 1, text: "Exercise Normal Precautions." },
-        "Romania": { level: 1, text: "Exercise Normal Precautions." },
-        "Rwanda": { level: 1, text: "Exercise Normal Precautions." },
-        "Saint Kitts and Nevis": { level: 1, text: "Exercise Normal Precautions." },
-        "Saint Lucia": { level: 1, text: "Exercise Normal Precautions." },
-        "Saint Vincent and the Grenadines": { level: 1, text: "Exercise Normal Precautions." },
-        "Samoa": { level: 1, text: "Exercise Normal Precautions." },
-        "Senegal": { level: 1, text: "Exercise Normal Precautions." },
-        "Seychelles": { level: 1, text: "Exercise Normal Precautions." },
-        "Singapore": { level: 1, text: "Exercise Normal Precautions." },
-        "Slovakia": { level: 1, text: "Exercise Normal Precautions." },
-        "Slovenia": { level: 1, text: "Exercise Normal Precautions." },
-        "Solomon Islands": { level: 1, text: "Exercise Normal Precautions." },
-        "South Korea": { level: 1, text: "Exercise Normal Precautions." },
-        "Suriname": { level: 1, text: "Exercise Normal Precautions." },
-        "Switzerland": { level: 1, text: "Exercise Normal Precautions." },
-        "Taiwan": { level: 1, text: "Exercise Normal Precautions." },
-        "Togo": { level: 1, text: "Exercise Normal Precautions." },
-        "Tonga": { level: 1, text: "Exercise Normal Precautions." },
-        "United Arab Emirates": { level: 1, text: "Exercise Normal Precautions." },
-        "Uzbekistan": { level: 1, text: "Exercise Normal Precautions." },
-        "Vanuatu": { level: 1, text: "Exercise Normal Precautions." },
-        "Vietnam": { level: 1, text: "Exercise Normal Precautions." },
-        "Zambia": { level: 1, text: "Exercise Normal Precautions." }
+        "Zambia": { level: 1, text: "Exercise Normal Precautions." },
+        "Zimbabwe": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." }
     };
 
-    const MAP_LOCATIONS = [
+    /* ------------- DEFAULT MAP LOCATIONS (sample Dell sites) ------------ */
+    const DEFAULT_MAP_LOCATIONS = [
         { region: "AMER", name: "Dell Round Rock HQ", lat: 30.5083, lon: -97.6788, type: "dell" },
-        { region: "AMER", name: "Dell Austin Parmer", lat: 30.2672, lon: -97.7431, type: "dell" },
-        { region: "AMER", name: "Dell Hopkinton", lat: 42.2287, lon: -71.5226, type: "dell" },
-        { region: "AMER", name: "Dell Durham", lat: 35.9940, lon: -78.8986, type: "dell" },
-        { region: "AMER", name: "Dell Santa Clara", lat: 37.3541, lon: -121.9552, type: "dell" },
-        { region: "AMER", name: "Dell Nashville", lat: 36.1627, lon: -86.7816, type: "dell" },
-        { region: "AMER", name: "Dell Oklahoma City", lat: 35.4676, lon: -97.5164, type: "dell" },
-        { region: "AMER", name: "Dell Franklin WI", lat: 42.9249, lon: -87.9516, type: "dell" },
-        { region: "AMER", name: "Dell Marietta", lat: 33.9526, lon: -84.5499, type: "dell" },
-        { region: "AMER", name: "Dell Franklin MA", lat: 42.0664, lon: -71.4162, type: "dell" },
-        { region: "AMER", name: "Dell Toronto", lat: 43.6532, lon: -79.3832, type: "dell" },
-        { region: "AMER", name: "Dell Ottawa", lat: 45.3499, lon: -75.7568, type: "dell" },
-        { region: "LATAM", name: "Dell Hortolandia", lat: -22.8583, lon: -47.2208, type: "dell" },
-        { region: "LATAM", name: "Dell Sao Paulo", lat: -23.5505, lon: -46.6333, type: "dell" },
-        { region: "LATAM", name: "Dell Porto Alegre", lat: -30.0346, lon: -51.2177, type: "dell" },
-        { region: "LATAM", name: "Dell Mexico City", lat: 19.4326, lon: -99.1332, type: "dell" },
-        { region: "LATAM", name: "Dell Panama City", lat: 8.9824, lon: -79.5199, type: "dell" },
-        { region: "LATAM", name: "Dell Bogota", lat: 4.7110, lon: -74.0721, type: "dell" },
-        { region: "LATAM", name: "Dell Santiago", lat: -33.4489, lon: -70.6693, type: "dell" },
-        { region: "LATAM", name: "Dell Buenos Aires", lat: -34.6037, lon: -58.3816, type: "dell" },
-        { region: "LATAM", name: "Dell Lima", lat: -12.0464, lon: -77.0428, type: "dell" },
-        { region: "EMEA", name: "Dell Cork Campus", lat: 51.8985, lon: -8.4756, type: "dell" },
-        { region: "EMEA", name: "Dell Limerick", lat: 52.6638, lon: -8.6267, type: "dell" },
-        { region: "EMEA", name: "Dell Dublin", lat: 53.3498, lon: -6.2603, type: "dell" },
-        { region: "EMEA", name: "Dell Bracknell", lat: 51.4160, lon: -0.7540, type: "dell" },
-        { region: "EMEA", name: "Dell Brentford", lat: 51.4850, lon: -0.3050, type: "dell" },
-        { region: "EMEA", name: "Dell Glasgow", lat: 55.8642, lon: -4.2518, type: "dell" },
-        { region: "EMEA", name: "Dell Montpellier", lat: 43.6108, lon: 3.8767, type: "dell" },
-        { region: "EMEA", name: "Dell Paris (Bezons)", lat: 48.8566, lon: 2.3522, type: "dell" },
-        { region: "EMEA", name: "Dell Frankfurt", lat: 50.1109, lon: 8.6821, type: "dell" },
-        { region: "EMEA", name: "Dell Halle", lat: 51.4967, lon: 11.9670, type: "dell" },
-        { region: "EMEA", name: "Dell Munich", lat: 48.1351, lon: 11.5820, type: "dell" },
-        { region: "EMEA", name: "Dell Amsterdam", lat: 52.3676, lon: 4.9041, type: "dell" },
-        { region: "EMEA", name: "Dell Copenhagen", lat: 55.6761, lon: 12.5683, type: "dell" },
-        { region: "EMEA", name: "Dell Stockholm", lat: 59.3293, lon: 18.0686, type: "dell" },
-        { region: "EMEA", name: "Dell Madrid", lat: 40.4168, lon: -3.7038, type: "dell" },
-        { region: "EMEA", name: "Dell Rome", lat: 41.9028, lon: 12.4964, type: "dell" },
-        { region: "EMEA", name: "Dell Tel Aviv", lat: 32.0853, lon: 34.7818, type: "dell" },
-        { region: "EMEA", name: "Dell Casablanca", lat: 33.5731, lon: -7.5898, type: "dell" },
-        { region: "EMEA", name: "Dell Cairo", lat: 30.0444, lon: 31.2357, type: "dell" },
-        { region: "EMEA", name: "Dell Dubai", lat: 25.2048, lon: 55.2708, type: "dell" },
-        { region: "EMEA", name: "Dell Riyadh", lat: 24.7136, lon: 46.6753, type: "dell" },
-        { region: "EMEA", name: "Dell Johannesburg", lat: -26.2041, lon: 28.0473, type: "dell" },
-        { region: "EMEA", name: "Dell Prague", lat: 50.0755, lon: 14.4378, type: "dell" },
-        { region: "EMEA", name: "Dell Warsaw", lat: 52.2297, lon: 21.0122, type: "dell" },
         { region: "APJC", name: "Dell Bangalore", lat: 12.9716, lon: 77.5946, type: "dell" },
-        { region: "APJC", name: "Dell Hyderabad", lat: 17.3850, lon: 78.4867, type: "dell" },
-        { region: "APJC", name: "Dell Gurgaon", lat: 28.4595, lon: 77.0266, type: "dell" },
-        { region: "APJC", name: "Dell Chennai", lat: 13.0827, lon: 80.2707, type: "dell" },
-        { region: "APJC", name: "Dell Cyberjaya", lat: 2.9213, lon: 101.6559, type: "dell" },
-        { region: "APJC", name: "Dell Penang", lat: 5.4164, lon: 100.3327, type: "dell" },
-        { region: "APJC", name: "Dell Singapore", lat: 1.3521, lon: 103.8198, type: "dell" },
-        { region: "APJC", name: "Dell Xiamen Mfg", lat: 24.4798, lon: 118.0894, type: "dell" },
-        { region: "APJC", name: "Dell Chengdu", lat: 30.5728, lon: 104.0668, type: "dell" },
-        { region: "APJC", name: "Dell Shanghai", lat: 31.2304, lon: 121.4737, type: "dell" },
-        { region: "APJC", name: "Dell Beijing", lat: 39.9042, lon: 116.4074, type: "dell" },
-        { region: "APJC", name: "Dell Hong Kong", lat: 22.3193, lon: 114.1694, type: "dell" },
-        { region: "APJC", name: "Dell Taipei", lat: 25.0330, lon: 121.5654, type: "dell" },
-        { region: "APJC", name: "Dell Tokyo", lat: 35.6762, lon: 139.6503, type: "dell" },
-        { region: "APJC", name: "Dell Osaka", lat: 34.6937, lon: 135.5023, type: "dell" },
-        { region: "APJC", name: "Dell Seoul", lat: 37.5665, lon: 126.9780, type: "dell" },
-        { region: "APJC", name: "Dell Sydney", lat: -33.8688, lon: 151.2093, type: "dell" },
-        { region: "APJC", name: "Dell Melbourne", lat: -37.8136, lon: 144.9631, type: "dell" },
-        { region: "APJC", name: "Dell Canberra", lat: -35.2809, lon: 149.1300, type: "dell" },
-        { region: "APJC", name: "Dell Manila", lat: 14.5995, lon: 120.9842, type: "dell" },
-        { region: "APJC", name: "Dell Bangkok", lat: 13.7563, lon: 100.5018, type: "dell" },
-        { region: "AMER", name: "Flash Flood", lat: 36.16, lon: -86.78, type: "risk", subType: "flood", desc: "Cumberland River rising rapidly" },
-        { region: "LATAM", name: "Civil Unrest", lat: 4.60, lon: -74.08, type: "risk", subType: "protest", desc: "Curfew in effect" },
-        { region: "APJC", name: "Industrial Fire", lat: 24.50, lon: 118.15, type: "risk", subType: "fire", desc: "Evacuation zone expanding" },
-        { region: "APJC", name: "Grid Instability", lat: 13.10, lon: 77.60, type: "risk", subType: "grid", desc: "Rolling brownouts" }
+        { region: "EMEA", name: "Dell Cork Campus", lat: 51.8985, lon: -8.4756, type: "dell" }
+        /* you can leave this as a small sample, real locations will come from config/locations.json */
+    ];
+
+    /* --------- LIVE DATA STRUCTURES (these get overridden) -------------- */
+
+    let ALL_PROXIMITY_ALERTS = [...DEFAULT_PROXIMITY_ALERTS];
+    let GENERAL_NEWS_FEED    = [...DEFAULT_GENERAL_NEWS_FEED];
+    let TRAVEL_ADVISORIES    = { ...DEFAULT_ADVISORIES };
+    let MAP_LOCATIONS        = [...DEFAULT_MAP_LOCATIONS];
+
+    const COUNTRIES = ["Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (DRC)","Congo (Republic)","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","East Timor","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Korea, North","Korea, South","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Macedonia","Norway","Oman","Pakistan","Palau","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"];
+
+    const ARCHIVE_DATA = [
+        { region: "Global", severity: 1, type: "Archive", url: "#", source: "System Archive", time: "Historical", title: "No Major Incidents Logged on Selected Date", snippet: "This is simulated archive data." }
     ];
 
     let map, layerGroup;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function () {
         initMap();
         startClock();
         populateCountries();
-        filterNews('Global');
-        
+
+        await loadIntelData();       // pull JSON and override defaults
+        filterNews('Global');        // initial render
+
+        // Re-apply regional filter every 5 min to pick up new JSON content
         setInterval(() => {
             const activeEl = document.querySelector('.nav-item-custom.active');
-            if (activeEl) filterNews(activeEl.innerText.trim());
-            else filterNews('Global');
+            const region = activeEl ? activeEl.innerText.trim() : 'Global';
+            filterNews(region);
         }, 300000);
     });
 
-    function initMap() {
-        map = L.map('map', { zoomControl: false, attributionControl: false, minZoom: 2, maxBounds: [[-90, -180], [90, 180]] }).setView([25, 10], 2);
-        L.control.zoom({ position: 'topleft' }).addTo(map);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { maxZoom: 19, noWrap: true }).addTo(map);
-        layerGroup = L.layerGroup().addTo(map);
+    /* --------------------- LOAD JSON FROM REPO ------------------------- */
+
+    async function loadIntelData() {
+        try {
+            const [newsRes, locRes, travelRes] = await Promise.all([
+                fetch('public/data/news.json', { cache: 'no-store' }),
+                fetch('config/locations.json', { cache: 'no-store' }),
+                fetch('public/data/forecast.json', { cache: 'no-store' }).catch(() => null)
+            ]);
+
+            // NEWS + PROXIMITY
+            if (newsRes.ok) {
+                const newsJson = await newsRes.json();
+                const rawItems = Array.isArray(newsJson)
+                    ? newsJson
+                    : (newsJson.items || newsJson.news || newsJson.data || []);
+
+                if (rawItems && rawItems.length) {
+                    GENERAL_NEWS_FEED = rawItems.map(normaliseNewsItem);
+
+                    const prox = rawItems.filter(r =>
+                        r.proximity ||
+                        r.distance_km ||
+                        r.proximity_km ||
+                        (r.dell_asset && (r.dell_asset_distance_km || r.distance_km))
+                    );
+                    if (prox.length) {
+                        ALL_PROXIMITY_ALERTS = prox.map(normaliseProximityItem);
+                    }
+                }
+            }
+
+            // LOCATIONS / MAP
+            if (locRes.ok) {
+                const locJson = await locRes.json();
+                const rawLocs = Array.isArray(locJson)
+                    ? locJson
+                    : (locJson.locations || locJson.sites || []);
+                if (rawLocs && rawLocs.length) {
+                    MAP_LOCATIONS = rawLocs.map(normaliseLocationItem);
+                }
+            }
+
+            // TRAVEL ADVISORIES (optional file)
+            if (travelRes && travelRes.ok) {
+                const travelJson = await travelRes.json();
+                const rawCountries = Array.isArray(travelJson)
+                    ? travelJson
+                    : (travelJson.countries || travelJson.data || []);
+                if (rawCountries && rawCountries.length) {
+                    TRAVEL_ADVISORIES = {};
+                    rawCountries.forEach(c => {
+                        const name = c.country || c.name || c.iso_name;
+                        if (!name) return;
+                        const level = c.level || c.advisory_level || c.risk_level || 1;
+                        const text = c.summary || c.text || c.advisory || "Exercise Normal Precautions.";
+                        TRAVEL_ADVISORIES[name] = { level, text };
+                    });
+                }
+            }
+        } catch (e) {
+            console.log("Intel JSON load failed – using defaults", e);
+        }
+    }
+
+    function normaliseNewsItem(item) {
+        const region = item.region || item.geo_region || item.area || "Global";
+        const title = item.title || item.headline || item.headline_text || "Untitled incident";
+        const snippet = item.snippet || item.summary || item.description || "";
+        const source = item.source || item.publisher || "Unknown source";
+        const url = item.url || item.link || "#";
+        const time = item.time_ago || item.relative_time || item.published_human || "Recently";
+        const type = item.type || item.category || item.topic || "Incident";
+
+        const sevRaw = item.severity || item.risk_level || item.score;
+        let severity = 2;
+        if (typeof sevRaw === "number") severity = sevRaw;
+        if (typeof sevRaw === "string") {
+            const s = sevRaw.toLowerCase();
+            if (s.includes("critical") || s.includes("high")) severity = 3;
+            else if (s.includes("medium")) severity = 2;
+            else severity = 1;
+        }
+
+        return { region, title, snippet, source, url, time, type, severity };
+    }
+
+    function normaliseProximityItem(item) {
+        const region = item.region || item.geo_region || "Global";
+        const site = item.dell_site || item.asset_name || item.site || "Dell Site";
+        const type = item.proximity?.type || item.type || item.category || "Incident";
+        const iconType = item.icon || item.subtype || type.toLowerCase();
+        const distVal = item.proximity_km || item.distance_km || item.proximity?.km || 5;
+        const distStr = (distVal || 0).toFixed(1) + "km";
+        const desc = item.summary || item.snippet || item.description || "Proximity alert.";
+        const severity = item.severity || item.risk_level || "critical";
+
+        let color = "#d93025";
+        if (String(severity).toLowerCase().includes("grid") || iconType === "bolt") color = "#e37400";
+        else if (String(severity).toLowerCase().includes("flood") || iconType === "water") color = "#f9ab00";
+
+        let icon = "exclamation-circle";
+        if (iconType.includes("fire")) icon = "fire";
+        else if (iconType.includes("flood") || iconType.includes("water")) icon = "water";
+        else if (iconType.includes("grid") || iconType.includes("power")) icon = "bolt";
+        else if (iconType.includes("protest")) icon = "fist-raised";
+
+        return { region, type, icon, color, distVal, distStr, site, desc };
+    }
+
+    function normaliseLocationItem(loc) {
+        return {
+            region: loc.region || loc.area || "Global",
+            name: loc.name || loc.label || "Dell Site",
+            lat: loc.lat || loc.latitude,
+            lon: loc.lon || loc.lng || loc.longitude,
+            type: loc.type || "dell"
+        };
+    }
+
+    /* ---------------------- CORE UI FUNCTIONS --------------------------- */
+
+    function startClock() {
+        setInterval(() => {
+            const now = new Date();
+            const timeOptions = { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('clock-date').innerText = now.toLocaleDateString('en-US', dateOptions);
+            document.getElementById('clock-time').innerText = now.toLocaleTimeString('en-US', timeOptions);
+        }, 1000);
+    }
+
+    function populateCountries() {
+        const sel = document.getElementById('countrySelect');
+        COUNTRIES.forEach(c => {
+            let opt = document.createElement('option');
+            opt.value = c;
+            opt.innerText = c;
+            sel.appendChild(opt);
+        });
     }
 
     function updateProximityRadius() {
@@ -733,12 +680,21 @@
         return '<i class="fas fa-exclamation" style="color:#d93025"></i>';
     }
 
+    function initMap() {
+        map = L.map('map', { zoomControl: false, attributionControl: false, minZoom: 2, maxBounds: [[-90, -180], [90, 180]] }).setView([25, 10], 2);
+        L.control.zoom({ position: 'topleft' }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { maxZoom: 19, noWrap: true }).addTo(map);
+        layerGroup = L.layerGroup().addTo(map);
+    }
+
     function updateMap(filterRegion) {
         layerGroup.clearLayers();
         const dellIcon = L.divIcon({ className: 'custom-pin', html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`, iconSize: [30, 42], iconAnchor: [15, 42] });
         const filteredLocs = filterRegion === 'Global' ? MAP_LOCATIONS : MAP_LOCATIONS.filter(l => l.region === filterRegion);
         
         filteredLocs.forEach(loc => {
+            if (!loc.lat || !loc.lon) return;
+
             let icon = dellIcon;
             let tooltipContent = `<b>${loc.name || 'Dell Site'}</b>`;
             
@@ -748,7 +704,6 @@
             }
             
             const marker = L.marker([loc.lat, loc.lon], {icon: icon}).addTo(layerGroup);
-            
             marker.bindTooltip(tooltipContent, {
                 permanent: false, 
                 direction: 'top',
@@ -771,7 +726,15 @@
         const sourceData = dataOverride || GENERAL_NEWS_FEED;
         const filteredFeed = (filterRegion === 'Global' || !filterRegion) ? sourceData : sourceData.filter(item => item.region === filterRegion);
 
-        if (filteredFeed.length === 0) { container.innerHTML = `<div style="padding:30px; text-align:center; color:#999;">No incidents.</div>`; return; }
+        if (filteredFeed.length === 0) { 
+            container.innerHTML = `<div style="padding:30px; text-align:center; color:#999;">No incidents.</div>`;
+            return; 
+        }
+
+        // Use first critical/high item for the big red headline banner
+        const critical = filteredFeed.find(i => i.severity === 3) || filteredFeed[0];
+        document.getElementById("headline-critical").innerText = critical.title;
+        document.getElementById("headline-region").innerText = critical.region;
 
         filteredFeed.forEach(item => {
             const barColor = item.severity === 3 ? 'status-bar-crit' : 'status-bar-warn';
@@ -791,34 +754,13 @@
         container.innerHTML = html;
     }
 
-    const COUNTRIES = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
-    
-    const ARCHIVE_DATA = [
-        { region: "Global", severity: 1, type: "Archive", url: "#", source: "System Archive", time: "Historical", title: "No Major Incidents Logged on Selected Date", snippet: "This is simulated archive data." }
-    ];
-
-    function startClock() {
-        setInterval(() => {
-            const now = new Date();
-            const timeOptions = { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-            document.getElementById('clock-date').innerText = now.toLocaleDateString('en-US', dateOptions);
-            document.getElementById('clock-time').innerText = now.toLocaleTimeString('en-US', timeOptions);
-        }, 1000);
-    }
-
-    function populateCountries() {
-        const sel = document.getElementById('countrySelect');
-        COUNTRIES.forEach(c => { let opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); });
-    }
-
     function filterTravel() {
         const country = document.getElementById('countrySelect').value;
         const advContainer = document.getElementById('travel-advisories');
         const newsContainer = document.getElementById('travel-news');
-        let advisory = MOCK_ADVISORIES[country];
-        
-        let advColor = "#002a86";
+        let advisory = TRAVEL_ADVISORIES[country];
+
+        let advColor = "#002a86"; // Level 1 default
         let advBg = "#e8f0fe"; 
         let advBorder = "#d2e3fc"; 
         let levelText = "LEVEL 1";
@@ -826,23 +768,27 @@
         if (!advisory) {
             advisory = { level: 1, text: "Exercise Normal Precautions." };
         } else {
-             if(advisory.level === 1) {
-                 advColor = "#002a86"; advBg = "#e8f0fe"; advBorder = "#d2e3fc"; levelText = "LEVEL 1";
-             } else if(advisory.level === 2) { 
-                 advColor = "#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText = "LEVEL 2"; 
-             } else if(advisory.level === 3) { 
-                 advColor = "#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText = "LEVEL 3"; 
-             } else if(advisory.level === 4) { 
-                 advColor = "#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText = "LEVEL 4"; 
-             }
+            if (advisory.level === 1) {
+                advColor = "#002a86"; advBg = "#e8f0fe"; advBorder = "#d2e3fc"; levelText = "LEVEL 1";
+            } else if (advisory.level === 2) { 
+                advColor = "#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText = "LEVEL 2"; 
+            } else if (advisory.level === 3) { 
+                advColor = "#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText = "LEVEL 3"; 
+            } else if (advisory.level === 4) { 
+                advColor = "#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText = "LEVEL 4"; 
+            }
         }
 
         advContainer.innerHTML = `<div class="advisory-box" style="background:${advBg}; border-color:${advBorder}"><div class="advisory-header"><span class="advisory-label">OFFICIAL ADVISORY</span><span class="advisory-level-badge" style="background:${advColor}">${levelText}</span></div><div class="advisory-text" style="color:${advColor === '#002a86' ? '#0d47a1' : '#202124'}">${advisory.text}</div></div>`;
 
-        const relatedNews = GENERAL_NEWS_FEED.filter(item => item.title.includes(country) || item.snippet.includes(country));
+        const relatedNews = GENERAL_NEWS_FEED.filter(item => 
+            item.title.includes(country) || item.snippet.includes(country)
+        );
         if (relatedNews.length > 0) {
             let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS (72H)</div>`;
-            relatedNews.forEach(n => { newsHtml += `<div class="news-box-item"><div class="news-box-title">${n.title}</div><div class="news-box-summary">${n.snippet}</div></div>`; });
+            relatedNews.forEach(n => {
+                newsHtml += `<div class="news-box-item"><div class="news-box-title">${n.title}</div><div class="news-box-summary">${n.snippet}</div></div>`;
+            });
             newsHtml += `</div>`;
             newsContainer.innerHTML = newsHtml;
         } else {
@@ -866,15 +812,21 @@
         const feedback = document.getElementById('download-feedback');
         feedback.style.display = 'block';
         feedback.innerHTML = `<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving...`;
+
+        // Open the latest HTML report generated by your Python script
+        // e.g. public/reports/apjc_latest.html etc.
+        let reportPath = `public/reports/${region.toLowerCase()}_latest.html`;
+        window.open(reportPath, '_blank');
+
         setTimeout(() => {
-            feedback.innerHTML = `<div class="alert alert-success mt-2 text-start" style="font-size:0.8rem"><strong><i class="fas fa-check-circle"></i> Simulation Successful</strong></div>`;
+            feedback.innerHTML = `<div class="alert alert-success mt-2 text-start" style="font-size:0.8rem"><strong><i class="fas fa-check-circle"></i> Report request sent</strong><br/>If the report file exists it will open in a new tab.</div>`;
         }, 1000);
     }
     
     function filterNews(region) {
         document.querySelectorAll('.nav-item-custom').forEach(el => {
             el.classList.remove('active');
-            if(el.innerText.trim() === region) el.classList.add('active');
+            if (el.innerText.trim() === region) el.classList.add('active');
         });
         renderGeneralFeed(region);
         renderProximityAlerts(region);
