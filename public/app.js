@@ -4,6 +4,7 @@ let currentRadius = 5;
 let map, layerGroup;
 let MAP_LOCATIONS = [];
 let GENERAL_NEWS_FEED = [];
+let PROXIMITY_DATA = { radius_km: 50, alerts: [] };
 let CURRENT_PROX_ALERTS = [];
 
 // Initialize
@@ -11,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     initMap();
     startClock();
 
-    // Load Data asynchronously
+    // Load data asynchronously
     await loadData();
 
     populateCountries();
@@ -33,14 +34,25 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function loadData() {
     try {
-        // Fetch locations and news from folders relative to index.html
-        const [locResponse, newsResponse] = await Promise.all([
+        const [locResponse, newsResponse, proxResponse] = await Promise.all([
             fetch('config/locations.json'),
-            fetch('data/news.json')
+            fetch('data/news.json'),
+            fetch('data/proximity.json').catch(() => null)
         ]);
 
         MAP_LOCATIONS = await locResponse.json();
-        GENERAL_NEWS_FEED = await newsResponse.json();
+
+        const newsJson = await newsResponse.json();
+        GENERAL_NEWS_FEED = newsJson.articles || newsJson || [];
+
+        if (proxResponse && proxResponse.ok) {
+            const proxJson = await proxResponse.json();
+            PROXIMITY_DATA.radius_km = proxJson.radius_km || 50;
+            PROXIMITY_DATA.alerts = proxJson.alerts || [];
+            console.log(`Loaded ${PROXIMITY_DATA.alerts.length} proximity alerts`);
+        } else {
+            console.log('No proximity.json found or fetch failed – Proximity Alerts panel will be empty.');
+        }
 
         console.log('Data loaded successfully');
     } catch (error) {
@@ -49,75 +61,8 @@ async function loadData() {
     }
 }
 
-// --- STATIC DATA (still test / placeholder in UI) ---
+// --- TRAVEL ADVISORY STATIC DATA (advisory levels) ---
 
-const ALL_PROXIMITY_ALERTS = [
-    {
-        region: 'APJC',
-        type: 'Industrial Fire',
-        icon: 'fire',
-        color: '#d93025',
-        distVal: 3.2,
-        distStr: '3.2km',
-        site: 'Dell Xiamen Mfg',
-        desc: 'Active fire reported at adjacent chemical logistics park.'
-    },
-    {
-        region: 'APJC',
-        type: 'Grid Instability',
-        icon: 'bolt',
-        color: '#e37400',
-        distVal: 1.5,
-        distStr: '1.5km',
-        site: 'Dell Bangalore Campus',
-        desc: 'Rolling brownouts affecting Electronic City Phase 1.'
-    },
-    {
-        region: 'AMER',
-        type: 'Flash Flood',
-        icon: 'water',
-        color: '#f9ab00',
-        distVal: 4.8,
-        distStr: '4.8km',
-        site: 'Dell Nashville Hub',
-        desc: 'Cumberland River rising rapidly.'
-    },
-    {
-        region: 'EMEA',
-        type: 'Protest Activity',
-        icon: 'fist-raised',
-        color: '#333',
-        distVal: 12.5,
-        distStr: '12.5km',
-        site: 'Dell Cork Campus',
-        desc: 'Transport strike affecting city center routes.'
-    },
-    {
-        region: 'AMER',
-        type: 'Wildfire Warning',
-        icon: 'fire',
-        color: '#d93025',
-        distVal: 28.0,
-        distStr: '28km',
-        site: 'Dell Santa Clara',
-        desc: 'Smoke advisory issued for county.'
-    }
-];
-
-const ARCHIVE_DATA = [
-    {
-        region: 'Global',
-        severity: 1,
-        type: 'Archive',
-        url: '#',
-        source: 'System Archive',
-        time: 'Historical',
-        title: 'No Major Incidents Logged on Selected Date',
-        snippet: 'This is simulated archive data.'
-    }
-];
-
-// MOCK_ADVISORIES is very large, kept here as static config.
 const MOCK_ADVISORIES = {
     "Afghanistan": { level: 4, text: "Do Not Travel due to civil unrest, armed conflict, crime, terrorism, kidnapping, and wrongful detention." },
     "Belarus": { level: 4, text: "Do Not Travel due to the arbitrary enforcement of laws, the risk of detention, and the buildup of Russian military." },
@@ -162,9 +107,134 @@ const MOCK_ADVISORIES = {
     "Saudi Arabia": { level: 3, text: "Reconsider Travel due to the threat of missile and drone attacks." },
     "Trinidad and Tobago": { level: 3, text: "Reconsider Travel due to crime." },
     "Uganda": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
-    // ... (rest of advisories unchanged from your original file)
+    "Algeria": { level: 2, text: "Exercise Increased Caution due to terrorism and kidnapping." },
+    "Bangladesh": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and kidnapping." },
+    "Belgium": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Belize": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Bolivia": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "Bosnia and Herzegovina": { level: 2, text: "Exercise Increased Caution due to terrorism and landmines." },
+    "Brazil": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Cameroon": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Chile": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "China": { level: 2, text: "Exercise Increased Caution due to the arbitrary enforcement of local laws." },
+    "Costa Rica": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Cuba": { level: 2, text: "Exercise Increased Caution due to demonstrated attacks targeting U.S. Embassy employees." },
+    "Denmark": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Dominican Republic": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Ecuador": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "France": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
+    "Germany": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Guinea": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "India": { level: 2, text: "Exercise Increased Caution due to crime and terrorism." },
+    "Indonesia": { level: 2, text: "Exercise Increased Caution due to terrorism and natural disasters." },
+    "Italy": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Jordan": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Kenya": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and kidnapping." },
+    "Kosovo": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Madagascar": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Maldives": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Mexico": { level: 2, text: "Exercise Increased Caution due to widespread crime and kidnapping." },
+    "Morocco": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Nepal": { level: 2, text: "Exercise Increased Caution due to potential for political unrest." },
+    "Netherlands": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Peru": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "Philippines": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and civil unrest." },
+    "Serbia": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Sierra Leone": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "South Africa": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "Spain": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
+    "Sri Lanka": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Sweden": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Tajikistan": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Tanzania": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and targeting of LGBTI persons." },
+    "Thailand": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "Tunisia": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Turkey": { level: 2, text: "Exercise Increased Caution due to terrorism and arbitrary detentions." },
+    "Turkmenistan": { level: 2, text: "Exercise Increased Caution due to arbitrary enforcement of local laws." },
+    "United Kingdom": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Uruguay": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Zimbabwe": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "Andorra": { level: 1, text: "Exercise Normal Precautions." },
+    "Angola": { level: 1, text: "Exercise Normal Precautions." },
+    "Argentina": { level: 1, text: "Exercise Normal Precautions." },
+    "Armenia": { level: 1, text: "Exercise Normal Precautions." },
+    "Australia": { level: 1, text: "Exercise Normal Precautions." },
+    "Austria": { level: 1, text: "Exercise Normal Precautions." },
+    "Azerbaijan": { level: 1, text: "Exercise Normal Precautions." },
+    "Bahrain": { level: 1, text: "Exercise Normal Precautions." },
+    "Barbados": { level: 1, text: "Exercise Normal Precautions." },
+    "Benin": { level: 1, text: "Exercise Normal Precautions." },
+    "Bhutan": { level: 1, text: "Exercise Normal Precautions." },
+    "Botswana": { level: 1, text: "Exercise Normal Precautions." },
+    "Brunei": { level: 1, text: "Exercise Normal Precautions." },
+    "Bulgaria": { level: 1, text: "Exercise Normal Precautions." },
+    "Cambodia": { level: 1, text: "Exercise Normal Precautions." },
+    "Canada": { level: 1, text: "Exercise Normal Precautions." },
+    "Croatia": { level: 1, text: "Exercise Normal Precautions." },
+    "Cyprus": { level: 1, text: "Exercise Normal Precautions." },
+    "Czech Republic": { level: 1, text: "Exercise Normal Precautions." },
+    "Estonia": { level: 1, text: "Exercise Normal Precautions." },
+    "Fiji": { level: 1, text: "Exercise Normal Precautions." },
+    "Finland": { level: 1, text: "Exercise Normal Precautions." },
+    "Gabon": { level: 1, text: "Exercise Normal Precautions." },
+    "Georgia": { level: 1, text: "Exercise Normal Precautions." },
+    "Ghana": { level: 1, text: "Exercise Normal Precautions." },
+    "Greece": { level: 1, text: "Exercise Normal Precautions." },
+    "Grenada": { level: 1, text: "Exercise Normal Precautions." },
+    "Hungary": { level: 1, text: "Exercise Normal Precautions." },
+    "Iceland": { level: 1, text: "Exercise Normal Precautions." },
+    "Ireland": { level: 1, text: "Exercise Normal Precautions." },
+    "Japan": { level: 1, text: "Exercise Normal Precautions." },
+    "Kazakhstan": { level: 1, text: "Exercise Normal Precautions." },
+    "Kuwait": { level: 1, text: "Exercise Normal Precautions." },
+    "Kyrgyzstan": { level: 1, text: "Exercise Normal Precautions." },
+    "Laos": { level: 1, text: "Exercise Normal Precautions." },
+    "Latvia": { level: 1, text: "Exercise Normal Precautions." },
+    "Lesotho": { level: 1, text: "Exercise Normal Precautions." },
+    "Liberia": { level: 1, text: "Exercise Normal Precautions." },
+    "Liechtenstein": { level: 1, text: "Exercise Normal Precautions." },
+    "Lithuania": { level: 1, text: "Exercise Normal Precautions." },
+    "Luxembourg": { level: 1, text: "Exercise Normal Precautions." },
+    "Malawi": { level: 1, text: "Exercise Normal Precautions." },
+    "Malaysia": { level: 1, text: "Exercise Normal Precautions." },
+    "Malta": { level: 1, text: "Exercise Normal Precautions." },
+    "Mauritius": { level: 1, text: "Exercise Normal Precautions." },
+    "Mongolia": { level: 1, text: "Exercise Normal Precautions." },
+    "Montenegro": { level: 1, text: "Exercise Normal Precautions." },
+    "Mozambique": { level: 1, text: "Exercise Normal Precautions." },
+    "Namibia": { level: 1, text: "Exercise Normal Precautions." },
+    "New Zealand": { level: 1, text: "Exercise Normal Precautions." },
+    "Norway": { level: 1, text: "Exercise Normal Precautions." },
+    "Oman": { level: 1, text: "Exercise Normal Precautions." },
+    "Panama": { level: 1, text: "Exercise Normal Precautions." },
+    "Paraguay": { level: 1, text: "Exercise Normal Precautions." },
+    "Poland": { level: 1, text: "Exercise Normal Precautions." },
+    "Portugal": { level: 1, text: "Exercise Normal Precautions." },
+    "Qatar": { level: 1, text: "Exercise Normal Precautions." },
+    "Romania": { level: 1, text: "Exercise Normal Precautions." },
+    "Rwanda": { level: 1, text: "Exercise Normal Precautions." },
+    "Saint Kitts and Nevis": { level: 1, text: "Exercise Normal Precautions." },
+    "Saint Lucia": { level: 1, text: "Exercise Normal Precautions." },
+    "Saint Vincent and the Grenadines": { level: 1, text: "Exercise Normal Precautions." },
+    "Samoa": { level: 1, text: "Exercise Normal Precautions." },
+    "Senegal": { level: 1, text: "Exercise Normal Precautions." },
+    "Seychelles": { level: 1, text: "Exercise Normal Precautions." },
+    "Singapore": { level: 1, text: "Exercise Normal Precautions." },
+    "Slovakia": { level: 1, text: "Exercise Normal Precautions." },
+    "Slovenia": { level: 1, text: "Exercise Normal Precautions." },
+    "Solomon Islands": { level: 1, text: "Exercise Normal Precautions." },
+    "Switzerland": { level: 1, text: "Exercise Normal Precautions." },
+    "Taiwan": { level: 1, text: "Exercise Normal Precautions." },
+    "Togo": { level: 1, text: "Exercise Normal Precautions." },
+    "Tonga": { level: 1, text: "Exercise Normal Precautions." },
+    "United Arab Emirates": { level: 1, text: "Exercise Normal Precautions." },
+    "Uzbekistan": { level: 1, text: "Exercise Normal Precautions." },
+    "Vanuatu": { level: 1, text: "Exercise Normal Precautions." },
+    "Vietnam": { level: 1, text: "Exercise Normal Precautions." },
+    "Zambia": { level: 1, text: "Exercise Normal Precautions." }
 };
 
+// base list (used + merged with advisory keys)
 const COUNTRIES = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina",
     "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
@@ -225,58 +295,78 @@ function updateProximityRadius() {
     renderProximityAlerts(currentRegion);
 }
 
+function classifyAlertIconAndColor(alert) {
+    const type = (alert.type || '').toLowerCase();
+    let icon = 'exclamation-triangle';
+    let color = '#f9ab00';
+
+    if (alert.severity >= 3) {
+        color = '#d93025';
+    } else if (alert.severity === 2) {
+        color = '#e37400';
+    }
+
+    if (type.includes('fire') || type.includes('explosion') || type.includes('wildfire')) {
+        icon = 'fire';
+    } else if (type.includes('flood') || type.includes('storm') || type.includes('hurricane')) {
+        icon = 'water';
+    } else if (type.includes('power') || type.includes('grid') || type.includes('utility')) {
+        icon = 'bolt';
+    } else if (type.includes('protest') || type.includes('strike') || type.includes('riot')) {
+        icon = 'fist-raised';
+    }
+
+    return { icon, color };
+}
+
 function renderProximityAlerts(filterRegion) {
     const container = document.getElementById('proximity-alerts-container');
     if (!container) return;
 
-    const filteredAlerts = ALL_PROXIMITY_ALERTS.filter(item => {
-        const regionMatch = (filterRegion === 'Global' || item.region === filterRegion);
-        const distMatch = item.distVal <= currentRadius;
+    const alerts = PROXIMITY_DATA.alerts || [];
+    const filtered = alerts.filter(a => {
+        const regionMatch =
+            filterRegion === 'Global' ||
+            a.site_region === filterRegion ||
+            a.region === filterRegion;
+        const distMatch = a.distance_km <= currentRadius;
         return regionMatch && distMatch;
     });
 
-    // keep in memory so the map can use the same filtered set
-    CURRENT_PROX_ALERTS = filteredAlerts;
+    CURRENT_PROX_ALERTS = filtered;
 
-    if (filteredAlerts.length === 0) {
-        container.innerHTML =
-            `<div style="padding:15px; text-align:center; color:#999;">No alerts within ${currentRadius}km.</div>`;
+    if (filtered.length === 0) {
+        container.innerHTML = `<div style="padding:15px; text-align:center; color:#999;">No alerts within ${currentRadius}km.</div>`;
         return;
     }
 
     let html = '';
-    filteredAlerts.forEach(item => {
+    filtered.forEach(a => {
+        const { icon, color } = classifyAlertIconAndColor(a);
+        const distStr = `${a.distance_km.toFixed(1)}km`;
         html += `
         <div class="alert-row">
             <div class="alert-top">
                 <div class="alert-type">
-                    <i class="fas fa-${item.icon}" style="color:${item.color}; margin-right:8px;"></i> ${item.type}
+                    <i class="fas fa-${icon}" style="color:${color}; margin-right:8px;"></i> ${a.type || 'Incident'}
                 </div>
-                <div class="alert-dist" style="color:${item.color}">${item.distStr}</div>
+                <div class="alert-dist" style="color:${color}">${distStr}</div>
             </div>
             <div class="alert-site">
-                <i class="far fa-building"></i> ${item.site}
+                <i class="far fa-building"></i> ${a.site_name}
             </div>
-            <div class="alert-desc">${item.desc}</div>
+            <div class="alert-desc">${a.summary || ''}</div>
         </div>`;
     });
     container.innerHTML = html;
 }
 
-// map icon helper – supports both the icon names used in ALL_PROXIMITY_ALERTS and any subType in locations
+// Icon helper for map pins
 function getIconHtml(type) {
-    if (type === 'fire') {
-        return '<i class="fas fa-fire" style="color:#d93025"></i>';
-    }
-    if (type === 'bolt' || type === 'grid') {
-        return '<i class="fas fa-bolt" style="color:#e37400"></i>';
-    }
-    if (type === 'water' || type === 'flood') {
-        return '<i class="fas fa-water" style="color:#f9ab00"></i>';
-    }
-    if (type === 'fist-raised' || type === 'protest') {
-        return '<i class="fas fa-fist-raised" style="color:#333"></i>';
-    }
+    if (type === 'fire') return '<i class="fas fa-fire" style="color:#d93025"></i>';
+    if (type === 'bolt' || type === 'grid') return '<i class="fas fa-bolt" style="color:#e37400"></i>';
+    if (type === 'water' || type === 'flood') return '<i class="fas fa-water" style="color:#f9ab00"></i>';
+    if (type === 'fist-raised' || type === 'protest') return '<i class="fas fa-fist-raised" style="color:#333"></i>';
     return '<i class="fas fa-exclamation" style="color:#d93025"></i>';
 }
 
@@ -323,33 +413,32 @@ function updateMap(filterRegion) {
         marker.on('mouseout', function () { this.closeTooltip(); });
     });
 
-    // 2) Proximity alerts (current sidebar set), anchored near the related Dell site
-    CURRENT_PROX_ALERTS.forEach(alert => {
-        // extra guard if updateMap is called with a different region
-        if (filterRegion !== 'Global' && alert.region !== filterRegion) return;
+    // 2) Proximity alerts (real incidents), anchored near incident location
+    CURRENT_PROX_ALERTS.forEach(a => {
+        if (filterRegion !== 'Global' &&
+            a.site_region !== filterRegion &&
+            a.region !== filterRegion) {
+            return;
+        }
 
-        const siteLoc = MAP_LOCATIONS.find(loc =>
-            (!loc.type || loc.type === 'site') &&
-            loc.name === alert.site
-        );
-        if (!siteLoc) return;
-
-        // slight offset so incident icon doesn't sit exactly on top of the site pin
-        const offsetLat = siteLoc.lat + 0.3;
-        const offsetLon = siteLoc.lon + 0.3;
+        const { icon } = classifyAlertIconAndColor(a);
 
         const incidentIcon = L.divIcon({
             className: 'custom-pin',
-            html: `<div class="marker-incident">${getIconHtml(alert.icon)}</div>`,
+            html: `<div class="marker-incident">${getIconHtml(icon)}</div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
 
-        const marker = L.marker([offsetLat, offsetLon], { icon: incidentIcon }).addTo(layerGroup);
+        const lat = a.incident_lat ?? a.site_lat;
+        const lon = a.incident_lon ?? a.site_lon;
+
+        const marker = L.marker([lat, lon], { icon: incidentIcon }).addTo(layerGroup);
 
         const tooltipContent =
-            `<b>${alert.type}</b><br>${alert.site}<br>${alert.desc}` +
-            `<br><span style="color:${alert.color}">${alert.distStr}</span>`;
+            `<b>${a.type || 'Incident'}</b><br>${a.site_name}` +
+            `<br>${a.summary || ''}` +
+            `<br><span style="color:#f97316">${a.distance_km.toFixed(1)}km from site</span>`;
 
         marker.bindTooltip(tooltipContent, {
             permanent: false,
@@ -432,7 +521,16 @@ function populateCountries() {
     const sel = document.getElementById('countrySelect');
     if (!sel) return;
 
-    COUNTRIES.forEach(c => {
+    const set = new Set();
+
+    // base list
+    COUNTRIES.forEach(c => set.add(c));
+    // make sure every advisory country is included
+    Object.keys(MOCK_ADVISORIES).forEach(c => set.add(c));
+
+    const all = Array.from(set).sort((a, b) => a.localeCompare(b));
+
+    all.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
         opt.innerText = c;
