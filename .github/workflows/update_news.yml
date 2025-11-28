@@ -1,59 +1,51 @@
 name: SRO Intel Feed Update
 
 on:
-  # Runs every 30 minutes – adjust if you want
   schedule:
+    # run every 30 minutes
     - cron: "*/30 * * * *"
-  # Manual run button in GitHub UI
   workflow_dispatch:
 
 jobs:
   update-feed:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f scripts/requirements.txt ]; then
-            pip install -r scripts/requirements.txt
-          else
-            echo "No scripts/requirements.txt file found – skipping pip install"
-          fi
+          python -m pip install -r requirements.txt
 
       - name: Run Intelligence Agent
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # make sure this secret exists
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           cd scripts
           python news_agent.py
-          python generate_reports.py
 
       - name: Commit and Push Data
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "SRO-Bot"
           git config --global user.email "sro-bot@example.com"
 
-          # Stage ALL changes (JSON, reports, HTML, etc.)
-          git add -A
+          # add files that the agent updates
+          git add public/news.json public/forecast.json public/map.html || true
 
-          # If nothing is staged, exit cleanly (prevents the error you saw)
+          # if nothing changed, exit cleanly
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git commit -m "Update intel feed"
+          git commit -m "Auto update intel feed"
           git push
