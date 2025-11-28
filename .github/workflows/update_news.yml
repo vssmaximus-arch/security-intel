@@ -1,43 +1,59 @@
 name: SRO Intel Feed Update
 
 on:
+  # Runs every 30 minutes – adjust if you want
   schedule:
-    - cron: '*/15 * * * *' # Runs every 15 minutes
-  workflow_dispatch: # Allows you to click "Run workflow" manually for testing
-
-permissions:
-  contents: write # Required to push the updated JSON file back to the repo
+    - cron: "*/30 * * * *"
+  # Manual run button in GitHub UI
+  workflow_dispatch:
 
 jobs:
   update-feed:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          python-version: '3.9'
+          persist-credentials: true
 
-      - name: Install Dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f scripts/requirements.txt ]; then
+            pip install -r scripts/requirements.txt
+          else
+            echo "No scripts/requirements.txt file found – skipping pip install"
+          fi
 
       - name: Run Intelligence Agent
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/news_agent.py
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # make sure this secret exists
+        run: |
+          cd scripts
+          python news_agent.py
+          python generate_reports.py
 
       - name: Commit and Push Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name 'SRO-Bot'
-          git config --global user.email 'bot@noreply.github.com'
-          # This matches the path where your script saves data
-          # Based on your screenshot structure, this should be public/data/news.json
-          # BUT make sure your python script path matches this!
-          git add public/data/news.json
-          # Only commit if there are changes to avoid empty commit errors
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update: SRO Intel Feed" && git push)
+          git config --global user.name "SRO-Bot"
+          git config --global user.email "sro-bot@example.com"
+
+          # Stage ALL changes (JSON, reports, HTML, etc.)
+          git add -A
+
+          # If nothing is staged, exit cleanly (prevents the error you saw)
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update intel feed"
+          git push
