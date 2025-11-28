@@ -1,142 +1,176 @@
+#!/usr/bin/env python3
+"""
+generate_reports.py
+
+Reads public/data/news.json and produces simple HTML briefings for the
+Daily Briefings modal.
+
+Outputs:
+  public/reports/global_latest.html
+  public/reports/apjc_latest.html
+  public/reports/emea_latest.html
+  public/reports/amer_latest.html
+  public/reports/latam_latest.html
+
+Plus a few country/cluster profiles mapped very roughly by keywords.
+"""
+
+from __future__ import annotations
+
+import html
 import json
-import os
-from datetime import datetime
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Callable
 
-# --- CONFIGURATION ---
-DB_PATH = "public/data/news.json"
-OUTPUT_DIR = "public/reports"
 
-PROFILES = [
-    { "id": "global", "title": "Global VP Security (Critical Risks)", "region": "ALL", "min_severity": 2, "keywords": [] },
-    { "id": "apjc", "title": "Director APJC (Regional Overview)", "region": "APJC", "min_severity": 1, "keywords": [] },
-    { "id": "india", "title": "India Lead (Anubhav Mishra)", "region": "APJC", "min_severity": 1, "keywords": ["india", "bangalore", "delhi", "mumbai", "chennai", "hyderabad", "pune", "gurgaon", "kolkata", "ahmedabad"] },
-    { "id": "greater_china", "title": "Greater China (Jason Yang)", "region": "APJC", "min_severity": 1, "keywords": ["china", "hong kong", "taiwan", "beijing", "shanghai", "shenzhen", "guangzhou", "xiamen", "macau", "chengdu", "wuhan"] },
-    { "id": "japan", "title": "Japan (Tomoko Koyama)", "region": "APJC", "min_severity": 1, "keywords": ["japan", "tokyo", "osaka", "kyoto", "fukuoka", "kawasaki", "nagoya"] },
-    { "id": "korea", "title": "Korea (Wonjoon Moon)", "region": "APJC", "min_severity": 1, "keywords": ["korea", "seoul", "busan", "incheon", "daejeon", "cheonan"] },
-    { "id": "oceania", "title": "Oceania (Aleks Krasavcev)", "region": "APJC", "min_severity": 1, "keywords": ["australia", "new zealand", "sydney", "melbourne", "brisbane", "perth", "auckland", "fiji", "canberra", "papua new guinea"] },
-    { "id": "sea", "title": "South East Asia (Sivakumaran P.)", "region": "APJC", "min_severity": 1, "keywords": ["singapore", "malaysia", "thailand", "vietnam", "indonesia", "philippines", "bangladesh", "myanmar", "cambodia", "laos", "nepal", "sri lanka", "pakistan"] }
-]
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DATA_FILE = ROOT_DIR / "public" / "data" / "news.json"
+REPORT_DIR = ROOT_DIR / "public" / "reports"
+REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
-def generate_html(profile, items):
-    date_str = datetime.now().strftime("%d %b %Y")
-    
-    # CSS STYLING (Separated for safety)
-    css = """
-    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .header { border-bottom: 4px solid #0076CE; padding-bottom: 20px; margin-bottom: 30px; }
-    h1 { color: #0076CE; margin: 0; font-size: 28px; letter-spacing: -0.5px; }
-    .meta { color: #666; font-size: 14px; margin-top: 8px; font-weight: 500; }
-    .section-title { font-size: 18px; font-weight: 700; color: #444; margin-top: 30px; margin-bottom: 15px; border-left: 4px solid #ddd; padding-left: 10px; text-transform: uppercase; }
-    .card { background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-bottom: 15px; transition: transform 0.2s; }
-    .card:hover { border-color: #0076CE; transform: translateY(-1px); }
-    .badges { margin-bottom: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .tag { display: inline-block; padding: 4px 8px; border-radius: 4px; color: white; margin-right: 5px; }
-    .critical { background-color: #dc3545; } 
-    .warning { background-color: #ffc107; color: #000; } 
-    .info { background-color: #0d6efd; }
-    .title { font-size: 18px; font-weight: 700; display: block; margin-bottom: 8px; color: #111; text-decoration: none; }
-    .title:hover { color: #0076CE; text-decoration: underline; }
-    .source { font-size: 12px; color: #888; margin-bottom: 10px; display: block; }
-    .summary { font-size: 14px; line-height: 1.6; color: #555; }
-    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999; }
-    """
 
-    # HTML STRUCTURE
-    html = f"""<!DOCTYPE html>
-    <html>
-    <head>
-        <title>{profile['title']} - {date_str}</title>
-        <style>{css}</style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>{profile['title']}</h1>
-                <div class="meta">Daily Intelligence Briefing | Generated: {date_str}</div>
-            </div>
-    """
-    
-    if not items:
-        html += """
-        <div style="text-align: center; padding: 40px; color: #777;">
-            <h3>No Significant Incidents Detected</h3>
-            <p>There are no active security alerts matching this profile in the last 24 hours.</p>
-        </div>
-        """
+def load_articles() -> List[Dict[str, Any]]:
+    if not DATA_FILE.exists():
+        print(f"{DATA_FILE} not found, no reports generated.")
+        return []
+    data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+    arts = data.get("articles") or data.get("Articles") or []
+    if not isinstance(arts, list):
+        return []
+    return arts
+
+
+def simple_filter(region: str) -> Callable[[Dict[str, Any]], bool]:
+    r = region.upper()
+    def f(a: Dict[str, Any]) -> bool:
+        return (a.get("region", "").upper() == r) or (r == "GLOBAL")
+    return f
+
+
+def keyword_filter(keywords: List[str]) -> Callable[[Dict[str, Any]], bool]:
+    lowers = [k.lower() for k in keywords]
+    def f(a: Dict[str, Any]) -> bool:
+        text = f"{a.get('title','')} {a.get('snippet','')}".lower()
+        return any(k in text for k in lowers)
+    return f
+
+
+REPORT_PROFILES: Dict[str, Dict[str, Any]] = {
+    # region field based
+    "Global": {"slug": "global", "filter": simple_filter("Global")},
+    "APJC": {"slug": "apjc", "filter": simple_filter("APJC")},
+    "EMEA": {"slug": "emea", "filter": simple_filter("EMEA")},
+    "AMER": {"slug": "amer", "filter": simple_filter("AMER")},
+    "LATAM": {"slug": "latam", "filter": simple_filter("LATAM")},
+
+    # RSM / country clusters – coarse keyword filters
+    "India": {"slug": "india", "filter": keyword_filter(["India", "New Delhi", "Mumbai", "Bangalore"])},
+    "Oceania": {"slug": "oceania", "filter": keyword_filter(["Australia", "Sydney", "Melbourne", "New Zealand", "Auckland"])},
+    "Japan": {"slug": "japan", "filter": keyword_filter(["Japan", "Tokyo", "Osaka"])},
+    "South_Korea": {"slug": "south_korea", "filter": keyword_filter(["South Korea", "Seoul", "Busan", "ROK"])},
+    "SAEM": {"slug": "saem", "filter": keyword_filter(["Pakistan", "Bangladesh", "Sri Lanka", "Nepal", "Myanmar", "emerging market"])},
+    "Greater_China_HK": {"slug": "greater_china_hk", "filter": keyword_filter(["China", "Hong Kong", "PRC", "Shanghai", "Beijing", "Guangzhou"])},
+    "Taiwan": {"slug": "taiwan", "filter": keyword_filter(["Taiwan", "Taipei"])},
+    "Malaysia": {"slug": "malaysia", "filter": keyword_filter(["Malaysia", "Kuala Lumpur", "Penang", "Cyberjaya"])},
+    "Singapore": {"slug": "singapore", "filter": keyword_filter(["Singapore"])},
+}
+
+
+def render_report(title: str, profile_key: str, articles: List[Dict[str, Any]]) -> str:
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    if not articles:
+        body_html = "<p>No relevant articles in the current feed window for this profile.</p>"
     else:
-        categories = ["Physical Security", "Cyber", "Logistics", "Weather/Event", "Infrastructure"]
-        for cat in categories:
-            cat_items = [i for i in items if i['category'] == cat]
-            if cat_items:
-                html += f"<div class='section-title'>{cat}</div>"
-                for item in cat_items:
-                    sev_class = "critical" if item['severity'] == 3 else ("warning" if item['severity'] == 2 else "info")
-                    sev_label = "CRITICAL" if item['severity'] == 3 else ("WARNING" if item['severity'] == 2 else "INFO")
-                    
-                    html += f"""
-                    <div class="card">
-                        <div class="badges">
-                            <span class="tag {sev_class}">{sev_label}</span>
-                            <span style="color: #999; float: right;">{item.get('region', 'Global')}</span>
-                        </div>
-                        <a href="{item['link']}" target="_blank" class="title">{item['title']}</a>
-                        <span class="source">{item['source']} &bull; {item['date_str']}</span>
-                        <div class="summary">{item['snippet']}</div>
+        items = []
+        for a in articles[:25]:
+            items.append(
+                f"""
+                <li style="margin-bottom:12px;">
+                    <div style="font-weight:700;">{html.escape(a.get('title',''))}</div>
+                    <div style="font-size:12px;color:#555;margin-bottom:2px;">
+                        {html.escape(a.get('source',''))} • {html.escape(str(a.get('time','')))}
+                        • Severity: {html.escape(str(a.get('severity', '')))}
+                        • Type: {html.escape(a.get('type',''))}
                     </div>
-                    """
+                    <div style="font-size:13px;margin-bottom:4px;">{html.escape(a.get('snippet',''))}</div>
+                    <div><a href="{html.escape(a.get('url','#'))}" target="_blank">Source link</a></div>
+                </li>
+                """
+            )
+        body_html = "<ul style='list-style:none;padding-left:0;'>" + "\n".join(items) + "</ul>"
 
-    html += """
-            <div class="footer">
-                CONFIDENTIAL - Internal Use Only<br>
-                Generated by Dell Global Security Intelligence Platform
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return html
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{html.escape(title)} – SRO Daily Briefing</title>
+  <style>
+    body {{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:#f5f5f5;
+      margin:0;
+      padding:0;
+    }}
+    .container {{
+      max-width: 960px;
+      margin: 32px auto;
+      background:#ffffff;
+      border-radius:12px;
+      padding:24px 28px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.12);
+    }}
+    h1 {{
+      margin-top:0;
+      font-size:22px;
+    }}
+    .meta {{
+      font-size:12px;
+      color:#666;
+      margin-bottom:12px;
+    }}
+    .badge {{
+      display:inline-block;
+      font-size:11px;
+      font-weight:700;
+      padding:2px 6px;
+      border-radius:4px;
+      background:#e8f0fe;
+      color:#1a73e8;
+      margin-right:4px;
+    }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SRO Daily Intelligence Briefing – {html.escape(title)}</h1>
+    <div class="meta">
+      <span class="badge">AUTO-GENERATED</span>
+      <span class="badge">{html.escape(profile_key)}</span>
+      Generated at {html.escape(ts)} from live feed (heuristic classification).
+    </div>
+    {body_html}
+  </div>
+</body>
+</html>
+"""
 
-def main():
-    # Robust Loading
-    if not os.path.exists(DB_PATH): 
-        data = []
-    else:
-        try:
-            with open(DB_PATH, 'r') as f: data = json.load(f)
-        except: data = []
-    
-    # Sort by Severity then Date
-    data.sort(key=lambda x: (x.get('severity', 1), x.get('published', '')), reverse=True)
-    
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    
-    for profile in PROFILES:
-        filtered = []
-        for item in data:
-            # Severity Filter
-            if item.get('severity', 1) < profile['min_severity']: continue
-            
-            # Region Lock
-            if profile['region'] != "ALL":
-                item_region = item.get('region', 'Global')
-                if item_region != profile['region'] and item_region != "Global": continue
-            
-            # Keyword Scope
-            if profile['keywords']:
-                text = (item.get('title', '') + " " + item.get('snippet', '')).lower()
-                if not any(k in text for k in profile['keywords']): continue
-            
-            filtered.append(item)
-            
-        # Generate File
-        html_content = generate_html(profile, filtered[:30])
-        filename = f"{profile['id']}_latest.html"
-        
-        with open(os.path.join(OUTPUT_DIR, filename), "w") as f:
-            f.write(html_content)
-            
-    print(f"Successfully generated {len(PROFILES)} HTML reports.")
+
+def main() -> None:
+    all_articles = load_articles()
+    if not all_articles:
+        return
+
+    for key, cfg in REPORT_PROFILES.items():
+        slug = cfg["slug"]
+        filt = cfg["filter"]
+        subset = [a for a in all_articles if filt(a)]
+        title = key.replace("_", " ")
+        html_text = render_report(title, key, subset)
+        out_path = REPORT_DIR / f"{slug}_latest.html"
+        out_path.write_text(html_text, encoding="utf-8")
+        print(f"Wrote report {out_path} with {len(subset)} articles.")
+
 
 if __name__ == "__main__":
     main()
