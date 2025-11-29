@@ -1,12 +1,168 @@
 {
-  "generated_at": "2025-11-29T09:34:59.930675+00:00",
+  "generated_at": "2025-11-29T10:41:41.256753+00:00",
   "articles": [
+    {
+      "title": "More than 600,000 without power in Kyiv after Russian strikes",
+      "link": "https://www.bbc.com/news/articles/cx2gylngx7go?at_medium=RSS&at_campaign=rss",
+      "summary": "The overnight attack kills at least three and leaves many in the Ukrainian capital.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-29T10:34:24+00:00",
+      "region": "EMEA",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Latin American Leaders Face Both Trump and Voters Deported by the U.S.",
+      "link": "https://www.nytimes.com/2025/11/29/world/americas/honduras-deportees-elections.html",
+      "summary": "The upcoming election in Honduras shows how politicians must balance cooperation with the Trump administration with their obligation to undocumented citizens in the United States who may be deported.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T10:01:32+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Deportation",
+        "Illegal Immigration",
+        "United States International Relations",
+        "Foreign Aid",
+        "Immigration and Emigration",
+        "Remittances",
+        "Castro, Xiomara",
+        "Petro, Gustavo",
+        "Trump, Donald J",
+        "Bukele, Nayib",
+        "Central America",
+        "El Salvador",
+        "Honduras",
+        "Latin America"
+      ]
+    },
+    {
+      "title": "Israeli Hostage Recounts Beatings and Starvation During Hamas Captivity",
+      "link": "https://www.nytimes.com/2025/11/29/world/middleeast/israel-hostage-hamas-gaza-torture-segev-kalfon.html",
+      "summary": "Segev Kalfon said he endured physical abuse and mind games during 738 days in the hands of Hamas. Now, he asks why it took so long for Israel to bring him home.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T10:00:42+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Kidnapping and Hostages",
+        "Israel-Gaza War (2023- )",
+        "Palestinians",
+        "Hamas",
+        "Gaza Strip",
+        "Israel"
+      ]
+    },
+    {
+      "title": "The Ukrainians Stuck in Russia’s New Gulag",
+      "link": "https://www.nytimes.com/2025/11/29/world/europe/the-ukrainians-stuck-in-russias-new-gulag.html",
+      "summary": "Even if a peace can be reached, it won’t be easy to solve the problem of Ukrainian civilians languishing in Russian jails. This is one prisoner’s story.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T10:00:10+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Russian Invasion of Ukraine (2022)",
+        "Political Prisoners",
+        "Defense and Military Forces",
+        "Torture",
+        "Human Rights and Human Rights Violations",
+        "War Crimes, Genocide and Crimes Against Humanity",
+        "Politics and Government",
+        "Kidnapping and Hostages",
+        "Prisons and Prisoners",
+        "Prisoners of War",
+        "Geneva Conventions",
+        "Sex Crimes",
+        "International Committee of the Red Cross",
+        "Organization for Security and Cooperation in Europe",
+        "United Nations",
+        "Europe",
+        "Ukraine",
+        "Russia"
+      ]
+    },
+    {
+      "title": "Syria Tiptoes Toward Transitional Justice One Year After Assad’s Ouster",
+      "link": "https://www.nytimes.com/2025/11/29/world/middleeast/syria-civil-war-assad.html",
+      "summary": "Fourteen people are on trial, charged with crimes related to an outbreak of sectarian violence under the new government. The abuses of the old Assad regime still await a reckoning.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T10:00:06+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "War and Armed Conflicts",
+        "Minorities",
+        "Alawite Muslims",
+        "Politics and Government",
+        "Law and Legislation",
+        "Murders, Attempted Murders and Homicides",
+        "Defense and Military Forces",
+        "Human Rights and Human Rights Violations",
+        "Middle East and North Africa Unrest (2010- )",
+        "Assad, Bashar al-",
+        "Syria"
+      ]
+    },
+    {
+      "title": "Russia Bombards Ukraine for Nearly 10 Hours in a Deadly Assault",
+      "link": "https://www.nytimes.com/2025/11/29/world/europe/ukraine-kyiv-missiles.html",
+      "summary": "The attack came as U.S. officials were expected to hold peace talks with Ukrainian and Russian officials in the coming days.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T09:38:35+00:00",
+      "region": "AMER",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Russian Invasion of Ukraine (2022)",
+        "Trump, Donald J",
+        "Zelensky, Volodymyr",
+        "Kyiv (Ukraine)",
+        "Russia",
+        "Ukraine"
+      ]
+    },
+    {
+      "title": "Nigeria blames jihadist groups for wave of kidnappings but others accuse criminal gangs",
+      "link": "https://www.bbc.com/news/articles/cvgj9dd983xo?at_medium=RSS&at_campaign=rss",
+      "summary": "Analysts instead blame criminal gangs for the kidnapping of more than 250 schoolchildren last week.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-29T09:34:57+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
     {
       "title": "Planes grounded after Airbus discovers solar radiation could impact systems",
       "link": "https://www.bbc.com/news/articles/c8e9d13x2z7o?at_medium=RSS&at_campaign=rss",
       "summary": "The issue is thought to affect 6,000 planes, which will need to undergo an urgent software update or have computers replaced.",
       "source": "www.bbc.com",
       "timestamp": "2025-11-29T09:23:06+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "The CEO of the world's largest data center company predicts will drive the business forward - Fortune",
+      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFA1NVhKMGxJR3VuQzY3Njd1dlZna1lMVkpBbV8tM3hUSzl6SXFvTEtNZmNmcEhMc0N4eUxUUkREQ0lHLTRGcjQ1UmZoQWVBVjZXLXUwQTVCQVE5WktfeTVQZGFFSlNzX3ZGQS1yV2N4Q1VPY0NVVzluRVNBOA?oc=5",
+      "summary": "The CEO of the world's largest data center company predicts will drive the business forward Fortune",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T09:00:00+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -104,18 +260,6 @@
       "summary": "Juan Orlando Hernández was sentenced in the US to 45 years behind bars for conspiring to smuggle cocaine.",
       "source": "www.bbc.com",
       "timestamp": "2025-11-29T07:28:01+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Frazer Clarke vs TKV: Olympian being inspired by Fabio Wardley - BBC",
-      "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1ERFlVb3hIdmloWGFXWEhMbDZTM3p0SmltMW91bzVEdjI0a3BMR2lPUW04emJaOThLVm82WWVWQlBpd2QwcWYtb1ozRVlMYWs3UFkyaFdZYVZ3cWw2ZEd2aTh2b2k?oc=5",
-      "summary": "Frazer Clarke vs TKV: Olympian being inspired by Fabio Wardley BBC",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T07:26:25+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -246,6 +390,18 @@
         "Malaysia",
         "Myanmar"
       ]
+    },
+    {
+      "title": "14 U.S. stadiums proposed among 20 possible sites for 2031 Women's World Cup - NBC News",
+      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNZTZHNjI5alhTeUw5X2tyVGdQTEJHZ09TSmVuREtKdHQyR21GUWZxNXprbExyd09lX08yaGlxdzg1b2J1MjRUUFF2dHBmSjI1WGNhZ1FMREgxS0tlVWxxVGRGeDFpVXVVdGtUcjlfeklwclVWSk15NVNxSnRUVGpDc0JPd3ctZXhNRW02ODhmcDk1eV96Mk5kZWU4XzJLYzkyX3pnd0dGRUJkT0ZQZWJvakFn?oc=5",
+      "summary": "14 U.S. stadiums proposed among 20 possible sites for 2031 Women's World Cup NBC News",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T04:36:00+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Trump’s Response to Shooting Shows Intensified Anti-Migrant Stance",
@@ -466,6 +622,18 @@
       "tags": []
     },
     {
+      "title": "'My brothers might force me' - Tuilagi on possible Samoa switch - BBC",
+      "link": "https://news.google.com/rss/articles/CBMia0FVX3lxTE1LTUZkbFZIMEl4Vm9JajNxRzBlUDh5WENoYzNtZHhEWWhSUVZsb2VYYVU2aWw3cGV3LTVfV094VFUyWU5CSlpGUnJtN19PU0RzRjU4V1gwNVlZcjl6MTNUaW9jTXZFTXhQcmIw?oc=5",
+      "summary": "'My brothers might force me' - Tuilagi on possible Samoa switch BBC",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T23:32:22+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Worker Cleared of Stealing Snacks From Office Fridge After 2 Years in Court",
       "link": "https://www.nytimes.com/2025/11/28/world/asia/choco-pie-custard-theft-court.html",
       "summary": "A South Korean man accused of stealing a Choco Pie and a mini custard cake was acquitted after a prosecution that drew widespread criticism.",
@@ -600,6 +768,18 @@
       "tags": []
     },
     {
+      "title": "The week around the world in 20 pictures - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPRnlkQUcyRXhqRjlSTUYxUkxoQ2FTOWJqZElqQ3JRdlBzYWZ1Zl9YWjJHWTdjSEZiLTU5a0NvdjZoZmtobHBLRmRjQnFCdGJUYTJzRzdTSDg0cUp3Uy04TldoSXhzdzVVX0xWQkJXbFRRWVBlY0FzalkxVDRZMHRfeUo4SXVyM0VBWXhHN0hHbmJoeFFhUlhUV1ZFeU1IV3RiYzlR?oc=5",
+      "summary": "The week around the world in 20 pictures The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T19:56:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Andriy Yermak Resigns: What to Know About Ukrainian Official",
       "link": "https://www.nytimes.com/2025/11/28/world/europe/yermak-zelensky-ukraine-what-to-know.html",
       "summary": "The chief of staff to President Volodymyr Zelensky of Ukraine was seen as the second-most powerful person in Ukraine. He was dismissed on Friday.",
@@ -630,18 +810,6 @@
       "timestamp": "2025-11-28T19:40:55+00:00",
       "region": "EMEA",
       "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Frustration and Confusion Ripple Across Markets on CME Outage - Bloomberg.com",
-      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQUEpXMk9uazA1RnJ1eUlwLXYzV2sxME14N19VZnR4ZktsZmhXVzdDVEZJU0ZYbGxEZzRuam1OOUVnZ011WGhfVVd0Nlg0NlBZdlhOX3JEaEtySjZ6T3FobmQzS1phRlpUcWY2UDBfUGFaOGJMT0NORTktSmxqeFpxTl9nbHJEWUQxeERyRFdnbUJmRzNhX215QWwzVjlXOUN5ZVJfR3JZSEhZR0VXRWpiMU9R?oc=5",
-      "summary": "Frustration and Confusion Ripple Across Markets on CME Outage Bloomberg.com",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T19:10:14+00:00",
-      "region": "Global",
-      "severity": 2,
       "lat": null,
       "lon": null,
       "tags": []
@@ -774,18 +942,6 @@
       ]
     },
     {
-      "title": "Trump Says U.S. Will Pause Migration From ‘Third World Countries’ After D.C. Shooting - The New York Times",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNd2xJenEwbmk2bUJreGY1Zld3cmxSYklUd0FMdWg3VEgyZjJKTWFxUkZTcndJME01ekVUMjV4bzRUUXpQYU5EeDNmUE1HOFBvTTVrUFVPdjRJZ2I0dHBpVFNMcE1UR1JkcEgzc3RxRFo0TFkxblBueWRwNTJHZUNYS2Z3Yzl2TTZ4czV0ZGM5T3VzQQ?oc=5",
-      "summary": "Trump Says U.S. Will Pause Migration From ‘Third World Countries’ After D.C. Shooting The New York Times",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T18:15:00+00:00",
-      "region": "AMER",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Israeli Raid in Southern Syria Kills at Least 13, Syrian Officials Say",
       "link": "https://www.nytimes.com/2025/11/28/world/europe/israel-syria-raid-beit-jinn.html",
       "summary": "The raid was one of Israel’s deadliest cross-border incursions since Bashar al-Assad, Syria’s former dictator, was ousted last year.",
@@ -803,30 +959,6 @@
         "Defense and Military Forces",
         "Civilian Casualties",
         "Golan Heights"
-      ]
-    },
-    {
-      "title": "Louvre Raising Ticket Prices for Non-European Visitors",
-      "link": "https://www.nytimes.com/2025/11/27/world/europe/louvre-higher-ticket-prices.html",
-      "summary": "From Jan. 14, visitors to the museum from outside the European Economic Area will pay 45 percent more for entry to help finance its ambitious renovation plan.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-28T18:12:17+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "internal-open-access-from-nl",
-        "Museums",
-        "Art",
-        "Prices (Fares, Fees and Rates)",
-        "Finances",
-        "Restoration and Renovation",
-        "International Relations",
-        "Organized Labor",
-        "Louvre Museum",
-        "Paris (France)",
-        "France"
       ]
     },
     {
@@ -870,18 +1002,6 @@
       ]
     },
     {
-      "title": "The surprise success stories to follow at the World Cup - BBC",
-      "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE84emlDVHR6Nmo3MDk0dFY4cUxFNDVBQU82Rl96Vm55YXE5Qmw2R1J3ejBQbkozU1c1NEhjaXNiWG1oeDFuR212OFhtNThCeXlFTXI3eWM3U3JDUVE?oc=5",
-      "summary": "The surprise success stories to follow at the World Cup BBC",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T17:38:14+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Aftershocks of an Art Crime Reverberate in Japan",
       "link": "https://www.nytimes.com/2025/11/28/world/asia/japan-art-forgeries.html",
       "summary": "At least four works by a famous convicted forger have been discovered in Japan. Transparency about the mistakes, however, has sparked as much curiosity as scandal.",
@@ -922,6 +1042,18 @@
         "Turkey",
         "Lebanon"
       ]
+    },
+    {
+      "title": "Trump warns of 'permanent pause' in migration from 'third world countries,' mass deportations after death - The Times of India",
+      "link": "https://news.google.com/rss/articles/CBMiwAJBVV95cUxQbHdmSVJ1czE0SU9XZkdkWXhHZW5aZmNwVVJmbmMxTjlreloxS2xhRXJsdlV5U3p2R3hDNklDalk0bENwQzlsZXQ5bkEyM2xqR1ZUaVVNSWMtMXNTb09QX2RSQ1FEbUNtWW5KR3o5d0lqTlRIbWtBM3BVTklMbGk3Zm5oWTk4SlVoeE5VSWJ4WVp2bVFSek1tYThVbzBTcml4a2FxNkVxNHRCeEF6cDU4LVpCZ0wySkJNNU43MFJrWF9WX2xGX0FrLU13Vm9mQW9HdTg2YS1ZSy12UVV6QXc0Vk1UYkFBdkN6YVY5ZmNfX0xVc0V6LTFoZ2NCbWlpckhPZ3NIaVJ4Wm9reU82S1JfNUY5T1o0UWJaRGhGNlNuOW1TdFgweVhEWlpXbkh3UjJJZk45UlV0Q0gyemk4Qzh4QtIBxgJBVV95cUxQSm5vbTlVN1VXbjlrajgwUG9WeEF4eFdQRC1XQnNJTlR5SkVOTGJ1a2pHSG1fSGlYM2RXN0ZOckRrRTdUdTRRMWdpMjFLd0l0b2ozbW1jQk5DbGk3bExYbE5rZUNEWkxrR0xCVzItWjhNWHVNc1dnaTRnbTVXa1ZyOUNUeXU5bWJndjBkWmpqQldGMkN0WjFXOThqMXhfWWo2d2Y0eGpwN3p5U0JvdTBQeWNaWHlVV3hPMnRyaTFjTk1jREFaWmJGSGxqSTY2V3R6OU9ldXJwQ0p5WkhhaV9LUDZpOS04QzVTQWpaU2w4LV9qXzJaOEFzVTYxa2dsaG9SV0xOVi1yVnZsV3hXODZBTDllcy1ZMzd3c2I5WF9uYzBsVTlIblpWWVVWNUJEOFF2WG13Y0VJSXdKWFpxcmVJRzB6NTVWUQ?oc=5",
+      "summary": "Trump warns of 'permanent pause' in migration from 'third world countries,' mass deportations after death The Times of India",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T16:48:00+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Sri Lanka Battered by Cyclone as Death Toll Climbs to 69",
@@ -1005,18 +1137,6 @@
       "tags": []
     },
     {
-      "title": "Trump pausing migration from 'third world countries' - DW",
-      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNUTNQcGJySFdvcWZXYmx2S013RjYwd0d0UTlPY0RuMGZaRTFPUGpzc2VWSTFwUklFVzUweG1UOVhacWowRUlaVXFfZW9lX1k1YjRvXzJnVGJ5d3FjWm4tdnhaTm5ua2t3OF9PU0RSc3FXV18yU3B6ejJfMzNPYUlUZVR1ZUV1R3loN2k00gGLAUFVX3lxTFB0YU8tZWtCYXVBeXNYMHhEZEJyRzZRWHJkdjFTSk4zTDZ1VFFDQ0JmTnZNelpvOXpRN2NjN3J0c2VnSVNlcGhfVk9Rb1dHRkhRejVFYVFLV2lDUmtuelQxWnE3OEFCc2dpakh0VGYyX2xpMDdMSUlETDl0ZlRDZFRrMTQ0dVZQRExHUXM?oc=5",
-      "summary": "Trump pausing migration from 'third world countries' DW",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T15:16:10+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Lightning detected on Mars for the first time, scientists say",
       "link": "https://www.bbc.com/news/articles/c0q5w13e58zo?at_medium=RSS&at_campaign=rss",
       "summary": "Researchers heard electric crackles on 28 hours of recordings made over two Martian years.",
@@ -1034,6 +1154,18 @@
       "summary": "The defendants were accused of attempting a coup - but human rights groups say the trial was politically motivated.",
       "source": "www.bbc.com",
       "timestamp": "2025-11-28T15:03:15+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Rohan Bopanna retires: ‘I went from almost quitting tennis to becoming World No. 1’ - ATP Tour",
+      "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5VU2d0SGxibC1mZll4czFGOXAwMl9Qd3FVcTVOeURYX1hOb1Y1MWdOS1ZnZEdCanhWX04xVWNQeW1fSnk1b3BwOFJKcXdGb0E5dVc5aXpVcW1GM3BmQkpRZ1pUUnBBTVBKeTBZSHR6elRuOWdOT29SdU9Nclg?oc=5",
+      "summary": "Rohan Bopanna retires: ‘I went from almost quitting tennis to becoming World No. 1’ ATP Tour",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T14:51:36+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -1103,18 +1235,6 @@
       "tags": []
     },
     {
-      "title": "Iran to boycott World Cup draw over US visa issues - Reuters",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxNZU1tV1dFT3c4cWJyYll6TmI0MEotV1dNeGJiaTRFTFVIbXRDUHRoc2hRaGhUQmUyUGVfVENVV1RhRlRzZ2JUOTc4cnp6SXYzUWxKcDZUVE93cmRUQjBrblJhTldyaDc1ZHhrdFdlZi1KOFR1dU12TkVhMEE2WW9pNFBvczJZbnZqZkVuU3dKekdJNVVpeTM3VDlYa3J2UQ?oc=5",
-      "summary": "Iran to boycott World Cup draw over US visa issues Reuters",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T13:46:32+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Home of Ukraine’s Lead Negotiator Is Searched in Corruption Case",
       "link": "https://www.nytimes.com/2025/11/28/world/europe/ukraine-yermak-corruption-peace-talks.html",
       "summary": "The scrutiny of Andriy Yermak, President Volodymyr Zelensky’s chief of staff, could disrupt U.S.-led peace talks and further rattle Ukrainian politics.",
@@ -1138,21 +1258,9 @@
     {
       "title": "DHS points to US travel ban list when asked about 'Third World' countries - Reuters",
       "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPUnZUNVZieGVjeUZnbmgwTUhsZzJocG9rbk55eTZmQ0oxVGRQUU5EeV91R0F0aWNEblgySEZUNGFkakRMbGljcDRzRDc1bTd5MVRJamJXZ1pCMU5JdkNRWnN2X0lGWml2dUNYRGJrS0QydG5JMDM1Ykg3TGxibllycF9Dalh3aHdBZHR6MTAzUHpMaWVjQVFBcElnMVdCRHR2XzRxVGtPY0V1azY2QmhN?oc=5",
-      "summary": "DHS points to US travel ban list when asked about 'Third World' countries Reuters Trump vows to ‘permanently pause’ migration from ‘Third World countries’ politico.eu Trump vows to 'permanently pause' migration from 'third world countries' after National Guard shooting NBC News",
+      "summary": "DHS points to US travel ban list when asked about 'Third World' countries Reuters",
       "source": "news.google.com",
       "timestamp": "2025-11-28T13:35:58+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Oh yes he is! Kiefer Sutherland dives into the world of panto - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPU1RtanB4UWlRRTRHcWxDalZ3bzVNUlRFYXlyS3JybUhDa1prR1VYT3VfcXVLci1Rc1EzSU54a3ExbVdIcERISlpqbDdPRG50NnF2V1hzVFZ5cTNNOWpJOVZiWFpPZUhzUE1NUEJRUEZBMDBDV284OWJvMlNfNTQ5azJzSUFLeTdxb1hPSlBUcXFHaU5OZmxmZVBSZkphVy0tdlpJWDhXRzFPUTFqd05ibUtTeTNuWXhMZTg0dQ?oc=5",
-      "summary": "Oh yes he is! Kiefer Sutherland dives into the world of panto The Guardian",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T13:22:00+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -1160,11 +1268,23 @@
       "tags": []
     },
     {
-      "title": "What to know about Mikaela Shiffrin in World Cup at Copper Mountain - USA Today",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPelZhTFZXQlY2ZERHYVA3aUJIRERsTjlzb25HLTdQcFZIay1lWko3aHRXeWJfcXFoTzVzNjA3bldUbTZUUFo2aXZMb1BybFd1YkpwSmRSRmhqbXprNTBaeEdrWndadVN2cHk2aG1lZEVuX1VoVUFYNkRDOER0Q2lyZUctSWZybkRPVlJUWmlYTHJTdXJfdFdQTHpCa0wxY296TGRWallCWGg4M05mSVoxZFJsT19kSTF1dTF0bw?oc=5",
-      "summary": "What to know about Mikaela Shiffrin in World Cup at Copper Mountain USA Today",
+      "title": "Ukrainian Nobel Prize Winner Sees World at a Defining Moment - Bloomberg.com",
+      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOaTRRLUpiVTlXTXNKSE4wU01jSmQ2UlNvdGl2ZFd5bWl2ZXlpeF9YTklGVEhqWUJmM0cySGM2YzNIdElzUXRrM24xUFJ0Y09lSllfdFlobUZzLWdhb3RZZEZGUy1WZkZuTTU2YjAwekRuTWRVbWlmaHpYcVRHcVlWNVhTMVYyNTJGNEdrZG1TTm9VTjZST3ZCSER6aFQzS3V1QkVnMFdNUzkyN29hdlBsLQ?oc=5",
+      "summary": "Ukrainian Nobel Prize Winner Sees World at a Defining Moment Bloomberg.com",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T13:06:14+00:00",
+      "timestamp": "2025-11-28T13:35:16+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Trump Says U.S. Will Pause Migration From ‘Third World Countries’ After D.C. Shooting - The New York Times",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNd2xJenEwbmk2bUJreGY1Zld3cmxSYklUd0FMdWg3VEgyZjJKTWFxUkZTcndJME01ekVUMjV4bzRUUXpQYU5EeDNmUE1HOFBvTTVrUFVPdjRJZ2I0dHBpVFNMcE1UR1JkcEgzc3RxRFo0TFkxblBueWRwNTJHZUNYS2Z3Yzl2TTZ4czV0ZGM5T3VzQQ?oc=5",
+      "summary": "Trump Says U.S. Will Pause Migration From ‘Third World Countries’ After D.C. Shooting The New York Times",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T13:27:21+00:00",
       "region": "AMER",
       "severity": 1,
       "lat": null,
@@ -1184,6 +1304,18 @@
       "tags": []
     },
     {
+      "title": "Trump vows to ‘permanently pause’ migration from ‘Third World countries’ - politico.eu",
+      "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOVG93QUp6cEtDcGcwZVlSVHNaRF9UclJMdlZpbUhlcGstNW9Kb29QajRkWXc0aUNpdnBXdVdQdVp6Yy16aHZrSklMMVlUbUFmbDJ2ZjdRWHd6Mjl0UmR3d1NCWE9IMElYYmhHZWhKMXVSTzkyYkZUTG9tbzU4UU9PS04xV2ZKa29VNnF3YUprSXNIaGVmd08zWFhrOA?oc=5",
+      "summary": "Trump vows to ‘permanently pause’ migration from ‘Third World countries’ politico.eu",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T11:21:00+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Why Organizations Are Turning to RPAM",
       "link": "https://thehackernews.com/2025/11/why-organizations-are-turning-to-rpam.html",
       "summary": "As IT environments become increasingly distributed and organizations adopt hybrid and remote work at scale, traditional perimeter-based security models and on-premises Privileged Access Management (PAM) solutions no longer suffice. IT administrators, contractors and third-party vendors now require secure access to critical systems from any location and on any device, without compromising",
@@ -1196,11 +1328,11 @@
       "tags": []
     },
     {
-      "title": "Reality shifting opens portals to the weirdness of our world - Psyche",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPYlJfOVNxVklwWHJDaDkwWncyZnBvY3B5RU1Fc2wtdWNCVlpOSkpBVjdSU1p3Zm1LbnNJbURlVlBHdkdzY3BodWdMdjVKb21Ya25KVUdoTDZpTWNRcFZyQjZpazNocy1uUmg2Qmc3eW1QYW93VlNNd0NvSVk4SVVjNHBXNURuUUIwc0FOUA?oc=5",
-      "summary": "Reality shifting opens portals to the weirdness of our world Psyche",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T11:00:00+00:00",
+      "title": "Watch: Pope struggles to remove cloth covering plaque",
+      "link": "https://www.bbc.com/news/videos/cev8exezvw2o?at_medium=RSS&at_campaign=rss",
+      "summary": "It took several attemps for Pope Leo and church clergy to unveil a plaque covered by a white sheet at an Istanbul cathedral.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-28T10:49:03+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -1208,11 +1340,11 @@
       "tags": []
     },
     {
-      "title": "Watch: Pope struggles to remove cloth covering plaque",
-      "link": "https://www.bbc.com/news/videos/cev8exezvw2o?at_medium=RSS&at_campaign=rss",
-      "summary": "It took several attemps for Pope Leo and church clergy to unveil a plaque covered by a white sheet at an Istanbul cathedral.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T10:49:03+00:00",
+      "title": "Iran to boycott FIFA 2026 World Cup draw in US over visa dispute - Al Jazeera",
+      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOc2daM2lfS05taWNoYk9oN1FBMVg2cjBiNkdKcUp4cUJyUlFRTmJveGxZYzctSzdZbDRiX01kMWN0by1xdml6ZWtUTW05TWZvZ0M2WUJvVlh5Wkw1SnhqaWRfYWVoRmEzdmVvVFpNRk1pa3pvbjMyOU5HVExkSFB2NGNnWWxYTXhaSjNzeEhVVkZEVmEwRW8xVmlCVEdhRk1LX3YxdjAzd9IBrAFBVV95cUxNQUhKM0sxZ0JKcTg1MFNnUG9nR1A0b2o5QkRSLVVsc2U1bV9KOXhRVTVhd0N1VDlmLVVXZHIwVmdVU01hUVE2YUY0aU9fZmEwNE5DUDM1V0hxR09PZ1RiVDE5Qm5lWGFuZXdFMmNpSnlWd2xqWEhzQmV4Q0V5SGpCa2tfVnFXTE5ZdGxfdWstYUFFUjdTVEJWSktiMEttNnJfaGRrWmsxc2wwcjNr?oc=5",
+      "summary": "Iran to boycott FIFA 2026 World Cup draw in US over visa dispute Al Jazeera",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T10:43:43+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -1266,36 +1398,6 @@
       "timestamp": "2025-11-28T08:09:28+00:00",
       "region": "APJC",
       "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "A.I. and the Trillion-Dollar Question",
-      "link": "https://www.nytimes.com/2025/11/28/world/ai-valuations-markets-technology-hongkong-fire.html",
-      "summary": "Even the companies building the technology don’t seem exactly sure where it’s headed.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-28T05:30:02+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Artificial Intelligence",
-        "Hong Kong Apartment Complex Fire (Nov 2025)",
-        "United States Economy",
-        "Computers and the Internet",
-        "Finances"
-      ]
-    },
-    {
-      "title": "2026 World Cup draw: How to watch, teams, and everything else you need to know - The New York Times",
-      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOYXRwdXNEQ2V4Y1dMdVpESll3dTlHa2dkTldVY1VwVE9qWXdCd0R6QTdYeF8yNzhEbGh1Q0ZTVWtOajFHMktxcm1LWGo2b001eVIxOFR5TmRjNDN6LTgwZmoxbXlXajFCM2g1cVlQbk9IYWlxNGxyQWowa1hYRmpSUHhXYmF0WndvSjViaTdtSFZqTjJO?oc=5",
-      "summary": "2026 World Cup draw: How to watch, teams, and everything else you need to know The New York Times",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T05:23:34+00:00",
-      "region": "AMER",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -1362,46 +1464,6 @@
       "tags": []
     },
     {
-      "title": "What to Know About the Coup in Guinea-Bissau",
-      "link": "https://www.nytimes.com/2025/11/27/world/africa/guinea-bissau-coup.html",
-      "summary": "The opposition has accused the president of putting a general in charge of the government so that he could stay in power and lead by proxy.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T21:50:33+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "internal-open-access-from-nl",
-        "Coups D'Etat and Attempted Coups D'Etat",
-        "Politics and Government",
-        "Demonstrations, Protests and Riots",
-        "Defense and Military Forces",
-        "Elections",
-        "Guinea-Bissau",
-        "Embalo, Umaro Sissoco",
-        "Dias, Fernando (1978- )",
-        "Inta-a, Horta"
-      ]
-    },
-    {
-      "title": "Why Is the U.S. Threatening Venezuela?",
-      "link": "https://www.nytimes.com/video/world/americas/100000010549651/trump-venezuela-pressure-campaign.html",
-      "summary": "Venezuela doesn’t play a large role in the drug trade to the United States, so what is motivating the massive military buildup? Julian E. Barnes, who reports on intelligence and international security, discusses the issues with our senior writer Katrin Bennhold.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T18:20:13+00:00",
-      "region": "AMER",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Drug Abuse and Traffic",
-        "Defense and Military Forces",
-        "Venezuela",
-        "United States"
-      ]
-    },
-    {
       "title": "Bloody Wolf Expands Java-based NetSupport RAT Attacks in Kyrgyzstan and Uzbekistan",
       "link": "https://thehackernews.com/2025/11/bloody-wolf-expands-java-based.html",
       "summary": "The threat actor known as Bloody Wolf has been attributed to a cyber attack campaign that has targeted Kyrgyzstan since at least June 2025 with the goal of delivering NetSupport RAT. As of October 2025, the activity has expanded to also single out Uzbekistan, Group-IB researchers Amirbek Kurbanov and Volen Kayo said in a report published in collaboration with Ukuk, a state enterprise under the",
@@ -1425,30 +1487,6 @@
       "lon": null,
       "tags": [
         "Security"
-      ]
-    },
-    {
-      "title": "Putin Defends Witkoff Against Accusations of Pro-Russia Bias",
-      "link": "https://www.nytimes.com/2025/11/27/world/europe/putin-witkoff-trump.html",
-      "summary": "The Russian leader called the U.S. special envoy “an intelligent man” who is properly representing his country in peace negotiations.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T16:54:58+00:00",
-      "region": "AMER",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Russian Invasion of Ukraine (2022)",
-        "Peace Process",
-        "International Relations",
-        "Bloomberg News",
-        "Dmitriev, Kirill A (1975- )",
-        "Putin, Vladimir V",
-        "Trump, Donald J",
-        "Witkoff, Steven",
-        "Russia",
-        "United States",
-        "Ukraine"
       ]
     },
     {
@@ -2217,30 +2255,6 @@
         "Nuwber",
         "OneRep"
       ]
-    },
-    {
-      "title": "Vinted blocks 'sickening' sexually explicit ads",
-      "link": "https://www.bbc.com/news/articles/cn515p22nxno?at_medium=RSS&at_campaign=rss",
-      "summary": "The online marketplace removed adverts which included a video a user said depicted a pornographic scene.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-20T18:10:50+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Deepfake 'nudify' site fined £55,000 over lack of age checks",
-      "link": "https://www.bbc.com/news/articles/c0qpq5q9712o?at_medium=RSS&at_campaign=rss",
-      "summary": "The regulator said it had also opened new investigations into 20 porn sites over suspected online safety breaches.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-20T13:19:23+00:00",
-      "region": "Global",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
     }
   ]
 }
