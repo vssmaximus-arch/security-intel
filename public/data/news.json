@@ -1,6 +1,68 @@
 {
-  "generated_at": "2025-11-29T05:40:51.303065+00:00",
+  "generated_at": "2025-11-29T06:54:44.359137+00:00",
   "articles": [
+    {
+      "title": "Deadly Hong Kong Fire is a Test of Beijing’s Rule in the City",
+      "link": "https://www.nytimes.com/2025/11/29/world/asia/hong-kong-fire-beijing-john-lee.html",
+      "summary": "After Beijing reshaped the political order in Hong Kong in its image, the fire has become a test of how well that new system can govern in a crisis.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T06:40:33+00:00",
+      "region": "APJC",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Fires and Firefighters",
+        "Hong Kong Apartment Complex Fire (Nov 2025)",
+        "Politics and Government",
+        "Deaths (Fatalities)",
+        "Volunteers and Community Service",
+        "Affordable Housing",
+        "Lee, John (1957- )",
+        "Xi Jinping"
+      ]
+    },
+    {
+      "title": "State Department Boosts Resources to Process Business Visas for South Koreans",
+      "link": "https://www.nytimes.com/2025/11/29/us/politics/state-dept-south-korea-visas.html",
+      "summary": "The Trump administration has been trying to repair the damage from the detention of hundreds of South Koreans in an immigration raid in Georgia.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T06:06:23+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "United States International Relations",
+        "Visas",
+        "Foreign Workers",
+        "LG Energy Solution",
+        "Hyundai Motor Co",
+        "State Department",
+        "Trump, Donald J",
+        "Seoul (South Korea)",
+        "Georgia",
+        "United States Politics and Government",
+        "Factories and Manufacturing",
+        "Diplomatic Service, Embassies and Consulates",
+        "International Relations",
+        "Foreign Investments",
+        "South Korea",
+        "United States"
+      ]
+    },
+    {
+      "title": "Planes grounded after Airbus discovers solar radiation could impact systems",
+      "link": "https://www.bbc.com/news/articles/c8e9d13x2z7o?at_medium=RSS&at_campaign=rss",
+      "summary": "The issue is thought to affect 6,000 planes, which will need to undergo an urgent software update or have computers replaced.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-29T06:01:25+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
     {
       "title": "Trump to Pardon Juan Orlando Hernández, Honduran Ex-Leader Convicted in Drug Case",
       "link": "https://www.nytimes.com/2025/11/28/world/americas/trump-pardon-honduras-hernandez.html",
@@ -19,36 +81,6 @@
         "Hernandez, Juan Orlando",
         "Trump, Donald J",
         "Honduras",
-        "United States"
-      ]
-    },
-    {
-      "title": "State Department Boosts Resources to Process Business Visas for South Koreans",
-      "link": "https://www.nytimes.com/2025/11/29/us/politics/state-dept-south-korea-visas.html",
-      "summary": "The Trump administration has been trying to repair the damage from the detention of hundreds of South Koreans in an immigration raid in Georgia.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-29T05:26:43+00:00",
-      "region": "APJC",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "United States International Relations",
-        "Visas",
-        "Foreign Workers",
-        "LG Energy Solution",
-        "Hyundai Motor Co",
-        "State Department",
-        "Trump, Donald J",
-        "Seoul (South Korea)",
-        "Georgia",
-        "United States Politics and Government",
-        "Immigration and Emigration",
-        "Factories and Manufacturing",
-        "Diplomatic Service, Embassies and Consulates",
-        "International Relations",
-        "Foreign Investments",
-        "South Korea",
         "United States"
       ]
     },
@@ -104,18 +136,6 @@
       ]
     },
     {
-      "title": "Russian drone strikes hit Kyiv residential areas despite peace moves",
-      "link": "https://www.bbc.com/news/articles/cx2gylngx7go?at_medium=RSS&at_campaign=rss",
-      "summary": "The attack on Ukraine's capital early on Saturday killed one person and injured seven, city officials said.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-29T04:48:18+00:00",
-      "region": "EMEA",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Trump’s Response to Shooting Shows Intensified Anti-Migrant Stance",
       "link": "https://www.nytimes.com/2025/11/28/us/politics/trumps-response-to-shooting-shows-intensified-anti-migrant-stance.html",
       "summary": "The president is furiously demanding limits on migration and attacking ethnic groups as he steps up his efforts to equate immigration with crime and economic distress.",
@@ -132,6 +152,18 @@
         "Trump, Donald J",
         "Immigration and Emigration"
       ]
+    },
+    {
+      "title": "USA Take 102-67 W Over Nicaragua to Open 2027 FIBA World Cup Qualifying - USA Basketball",
+      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9rbHNnUHhIcXNoaUlGV1IwVXkxSlVSYjVud2pKaFRqM2M1SGFucUJpaEtkN2xVd1lRam1mSmdxc3BJdG9iUU1Ud1ZkNUtuR1JuUkhZM21PTWYtanlJalRGX1VZQ2tNdlk?oc=5",
+      "summary": "USA Take 102-67 W Over Nicaragua to Open 2027 FIBA World Cup Qualifying USA Basketball",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T04:17:58+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Officials Had Been Warned for Over a Year Before Hong Kong Fire",
@@ -161,6 +193,18 @@
       "summary": "2025-26 FIS Alpine Ski World Cup: Stefan Brennsteiner claims first World Cup victory, as Marco Odermatt skies out at Copper Mountain Olympics.com",
       "source": "news.google.com",
       "timestamp": "2025-11-29T03:03:31+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Jamaica stun Puerto Rico in World Cup Qualifiers historic debut - fiba.basketball",
+      "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQdmlPd056aHJSRlBDM3lkZTFWRkFCbkZSeVllcFlFUXdwaVZKVmVGQ0U3cml5S2ZINmlUMUJBVUpxWjBFRmUwcVBWYmRNT2x0czQtS2xSUFRCdmRiSl9VQTBhaU8tQ1ZUcklhdmpFd1gyNnJMSk9yNVNRRUNCZGpyRXhpLUNIN2NNZ3lwMDQ3S1Q4REp2dWNLbTgxY0dDY2hy?oc=5",
+      "summary": "Jamaica stun Puerto Rico in World Cup Qualifiers historic debut fiba.basketball",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T02:46:53+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -334,6 +378,18 @@
       ]
     },
     {
+      "title": "We searched for a true Christmas market - and may have found one",
+      "link": "https://www.bbc.com/news/articles/clyzdxyjx2eo?at_medium=RSS&at_campaign=rss",
+      "summary": "We visited festive markets in the UK and Germany to check which come closest to the real deal.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-29T00:03:22+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Trump says he will pardon ex-Honduras president convicted of drug trafficking",
       "link": "https://www.bbc.com/news/articles/c1kpm0rvxepo?at_medium=RSS&at_campaign=rss",
       "summary": "Juan Orlando Hernández was sentenced in the US last year to 45 years behind bars for conspiring to import cocaine into the country.",
@@ -346,23 +402,11 @@
       "tags": []
     },
     {
-      "title": "San Diego karate team wins world championship title in Florida - 10News.com",
-      "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOSTJwVnA2UDZncnBhYXdlUWpWcXZWTS1ORkJvc1M2LU42RTZ5bGRiUmlJMGxxcGdPVUduR2tUeU1iYnhGOHhGZWV6LTZORlk2R1pzamhLeVpnTHJuZG91VVNnZno3Zm1PZEdlcDBzdW5seG12aVJRRUFBRGlMVVhELTNtUExoNEhNZjJhdmVGT09GRzlPM05JcS1zb1ZWeU11Wmx2NUpn?oc=5",
-      "summary": "San Diego karate team wins world championship title in Florida 10News.com",
+      "title": "Austrian claims first-career World Cup win at Copper Cup giant slalom - VailDaily.com",
+      "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPaHlCM3ctOXk1RTVsbTlrd0pkRkZBbEIwS2FWZndCQU1TbzNURGpob2FhQjhpLTlUc0F5QUlLbW5HZEZtWFFQRzJ5QVJCYTl5OEx0Y3lKZ0l5bkgxM3RTNFMxbzI0aGlrSmk0dUhkOXpNX0lMTGJjdjlsZUFPS0lsalBieVNhbGRTeExENGpkTW5XVFdwbllGWDZyNmxkLW1qdVRtTUVNeU5FaFJlRFc4?oc=5",
+      "summary": "Austrian claims first-career World Cup win at Copper Cup giant slalom VailDaily.com",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T23:38:11+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Orlando named in joint bid for 2031 FIFA Women's World Cup - WESH",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPdmMzVWhPY0NkaDIxUTFtZnFvR0xfS0wyVUpaZ0NoY0l1QmFPTmoyT2hOSTRLMGZEQWdCTTF3QmhhMEdGMGVlRi1wTDNwd0ZZMUd0NVRQVUtKT2M2dkVoWXdhdzNqdWE4OFRCMjZsYkpUanA2ZFNsTzVIbllPQ1V2OGpLODVzSXZ3S2NzQWhrbERKRllJSEE?oc=5",
-      "summary": "Orlando named in joint bid for 2031 FIFA Women's World Cup WESH",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T23:15:00+00:00",
+      "timestamp": "2025-11-28T22:53:13+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -551,6 +595,18 @@
       "tags": []
     },
     {
+      "title": "Frustration and Confusion Ripple Across Markets on CME Outage - Bloomberg.com",
+      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQUEpXMk9uazA1RnJ1eUlwLXYzV2sxME14N19VZnR4ZktsZmhXVzdDVEZJU0ZYbGxEZzRuam1OOUVnZ011WGhfVVd0Nlg0NlBZdlhOX3JEaEtySjZ6T3FobmQzS1phRlpUcWY2UDBfUGFaOGJMT0NORTktSmxqeFpxTl9nbHJEWUQxeERyRFdnbUJmRzNhX215QWwzVjlXOUN5ZVJfR3JZSEhZR0VXRWpiMU9R?oc=5",
+      "summary": "Frustration and Confusion Ripple Across Markets on CME Outage Bloomberg.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T19:10:14+00:00",
+      "region": "Global",
+      "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Andriy Yermak, Zelensky’s Chief of Staff, Resigns",
       "link": "https://www.nytimes.com/2025/11/28/world/europe/zelensky-yermak-resigns-ukraine-corruption-scandal.html",
       "summary": "Andriy Yermak, President Volodymyr Zelensky’s chief of staff and top peace negotiator, became the highest-ranking casualty of an investigation into a vast kickback scheme.",
@@ -573,6 +629,18 @@
         "Trump, Donald J",
         "Ukraine"
       ]
+    },
+    {
+      "title": "The week around the world in 20 pictures - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPRnlkQUcyRXhqRjlSTUYxUkxoQ2FTOWJqZElqQ3JRdlBzYWZ1Zl9YWjJHWTdjSEZiLTU5a0NvdjZoZmtobHBLRmRjQnFCdGJUYTJzRzdTSDg0cUp3Uy04TldoSXhzdzVVX0xWQkJXbFRRWVBlY0FzalkxVDRZMHRfeUo4SXVyM0VBWXhHN0hHbmJoeFFhUlhUV1ZFeU1IV3RiYzlR?oc=5",
+      "summary": "The week around the world in 20 pictures The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T18:46:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Runaway nuns can stay in Alpine convent if they leave social media",
@@ -840,18 +908,6 @@
       ]
     },
     {
-      "title": "Window on the World Column | Tucker the Wonder Dog - The King City Rustler",
-      "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNbXBYdTVpSXNyMUdQODNIZGlyMzZJeC1CZ3ROZDZVaWVWV3d6ay0xWFRfOWFhTlltcXNGOWxuWDZwSVFIVWdINkRGQXRuZWpBRmxvaWV5Q1poemd6N0VUTVZjZHRraU5XSXlabVhEUlplbi0zRkpMaUYwY3N5YUJhS0FmVQ?oc=5",
-      "summary": "Window on the World Column | Tucker the Wonder Dog The King City Rustler",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T16:30:58+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Legacy Python Bootstrap Scripts Create Domain-Takeover Risk in Multiple PyPI Packages",
       "link": "https://thehackernews.com/2025/11/legacy-python-bootstrap-scripts-create.html",
       "summary": "Cybersecurity researchers have discovered vulnerable code in legacy Python packages that could potentially pave the way for a supply chain compromise on the Python Package Index (PyPI) via a domain takeover attack. Software supply chain security company ReversingLabs said it found the \"vulnerability\" in bootstrap files provided by a build and deployment automation tool named \"zc.buildout.\" \"The",
@@ -900,18 +956,6 @@
       "tags": [
         "Security"
       ]
-    },
-    {
-      "title": "How to Watch 2025 Australian GP Round of FIM World Supercross WSX - Racer X",
-      "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQM0U1YXF0VjQtSkdjbHkySUZaZERGTG1aV2hWRTh6YnNsNDFESUhFbWpIVmpsNHNQajR3Z1g2Ull3Rlc5cjdvM3pxSVdzaFMtdURQTnE1VXVrZ0J4SXVFdVZzaEFhMVVOUGQyREE5NVlUa1VxNXFQbjgyTzlvVWt2SS1QSnVSZw?oc=5",
-      "summary": "How to Watch 2025 Australian GP Round of FIM World Supercross WSX Racer X",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T16:05:00+00:00",
-      "region": "APJC",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "One of world's longest serving democratic leaders loses election in St. Vincent and the Grenadines - ABC News",
@@ -1076,18 +1120,6 @@
       "tags": []
     },
     {
-      "title": "Oh yes he is! Kiefer Sutherland dives into the world of panto - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPU1RtanB4UWlRRTRHcWxDalZ3bzVNUlRFYXlyS3JybUhDa1prR1VYT3VfcXVLci1Rc1EzSU54a3ExbVdIcERISlpqbDdPRG50NnF2V1hzVFZ5cTNNOWpJOVZiWFpPZUhzUE1NUEJRUEZBMDBDV284OWJvMlNfNTQ5azJzSUFLeTdxb1hPSlBUcXFHaU5OZmxmZVBSZkphVy0tdlpJWDhXRzFPUTFqd05ibUtTeTNuWXhMZTg0dQ?oc=5",
-      "summary": "Oh yes he is! Kiefer Sutherland dives into the world of panto The Guardian",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T13:22:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "First Thing: Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting - The Guardian",
       "link": "https://news.google.com/rss/articles/CBMi9gFBVV95cUxPa3ZqMHNJX0I4THFaUF90bDZ6Y2wtWWlzTTYtVEVmSTF1SlFRZ0hpVk5XOE5Jcl9PbC1JY01PTnVRRE1id3lVX2RVUG1yZzJidEJYaFZ1ZUdPN05Nb3d4elA5Um5CTk5QLWM2c3o5dXhBNm9DbkhMcnBvZE5nQ2VyMGg1SHVnaXlKd012M1gxWlhmcnpwamFIVkxYazZISlBtdkhQbWtyeWtaYW1FcW9FRng5T1h3blRpZ0R2NnNGcl9peGVxR25vMmFjSTkyTU1ZR0xGd25xVGFPZGRaWmV2ZkZOTFQ2d3c2RVFMSUc5OGRVNTIzVnc?oc=5",
       "summary": "First Thing: Trump says he will ‘permanently pause’ migration from ‘third world countries’ after national guard shooting The Guardian",
@@ -1112,12 +1144,24 @@
       "tags": []
     },
     {
-      "title": "Trump vows to ‘permanently pause’ migration from ‘Third World countries’ - politico.eu",
-      "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOVG93QUp6cEtDcGcwZVlSVHNaRF9UclJMdlZpbUhlcGstNW9Kb29QajRkWXc0aUNpdnBXdVdQdVp6Yy16aHZrSklMMVlUbUFmbDJ2ZjdRWHd6Mjl0UmR3d1NCWE9IMElYYmhHZWhKMXVSTzkyYkZUTG9tbzU4UU9PS04xV2ZKa29VNnF3YUprSXNIaGVmd08zWFhrOA?oc=5",
-      "summary": "Trump vows to ‘permanently pause’ migration from ‘Third World countries’ politico.eu",
+      "title": "Trump pausing migration from 'third world countries' - DW",
+      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNUTNQcGJySFdvcWZXYmx2S013RjYwd0d0UTlPY0RuMGZaRTFPUGpzc2VWSTFwUklFVzUweG1UOVhacWowRUlaVXFfZW9lX1k1YjRvXzJnVGJ5d3FjWm4tdnhaTm5ua2t3OF9PU0RSc3FXV18yU3B6ejJfMzNPYUlUZVR1ZUV1R3loN2k00gGLAUFVX3lxTFB0YU8tZWtCYXVBeXNYMHhEZEJyRzZRWHJkdjFTSk4zTDZ1VFFDQ0JmTnZNelpvOXpRN2NjN3J0c2VnSVNlcGhfVk9Rb1dHRkhRejVFYVFLV2lDUmtuelQxWnE3OEFCc2dpakh0VGYyX2xpMDdMSUlETDl0ZlRDZFRrMTQ0dVZQRExHUXM?oc=5",
+      "summary": "Trump pausing migration from 'third world countries' DW",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T11:21:00+00:00",
-      "region": "EMEA",
+      "timestamp": "2025-11-28T12:00:20+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Trump says he'll \"permanently pause migration from all Third World Countries\" - Axios",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNc0hrbTc4THk1VEdveGRUMkxTZE5lbVBDSmh4VkE0dmt2NVJSVkhiWlBfY0ZtNEZURS1JV1BYNEp0ZFQ2U0Q0dmdoSG5IWlBCU3MtWTZQaFNzZ1Y4bWJ2MFVjLXVkWjJjWl9PTzdEbWx4RmNYWGpORmtFRl9jVjJUdm84Wl9LdDJ3QWw1VUxnR1RDdw?oc=5",
+      "summary": "Trump says he'll \"permanently pause migration from all Third World Countries\" Axios",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T11:44:50+00:00",
+      "region": "Global",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -1143,18 +1187,6 @@
       "timestamp": "2025-11-28T11:09:00+00:00",
       "region": "Global",
       "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Watch: Pope struggles to remove cloth covering plaque",
-      "link": "https://www.bbc.com/news/videos/cev8exezvw2o?at_medium=RSS&at_campaign=rss",
-      "summary": "It took several attemps for Pope Leo and church clergy to unveil a plaque covered by a white sheet at an Istanbul cathedral.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T10:49:03+00:00",
-      "region": "Global",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -1235,36 +1267,12 @@
       "tags": []
     },
     {
-      "title": "Japan's same-sex marriage ban is constitutional, says Tokyo court",
-      "link": "https://www.bbc.com/news/articles/clyz7njqwvvo?at_medium=RSS&at_campaign=rss",
-      "summary": "The ruling bucks a trend set by courts around Japan that had raised hopes for marriage equality.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T07:57:44+00:00",
-      "region": "APJC",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Trump says US will 'permanently pause migration from all Third World countries' - CNN",
       "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOdWV0QW44TWxVcUxTQVNweUl5RUY2dlFONk1UXzBiNEN4YjdTRVozWW14ZVU4UVVoZTM0RTFtd25NSnFoM0ZtTTg3YzAtblM2MTJ2X2lXSEFzWm42LXcxRXozdjBRZGRXZk9fNGhfYy1PZXhaOVV2Y3JPZTBDVEx0ZTFfZUVoMW9mR196NDNGTGJQQXZLUVk2TlNrQnpOUHQ4WmJrSTBFSHluM00xYVhxNzd5Tk5CX0JHdnZ5b1RrRXJHMndSVGNjMzFHOXkwMzRuSFRzZnBMcW9iQQ?oc=5",
       "summary": "Trump says US will 'permanently pause migration from all Third World countries' CNN",
       "source": "news.google.com",
       "timestamp": "2025-11-28T07:02:38+00:00",
       "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Trump says U.S. to 'permanently pause migration from all Third World Countries’ after DC shooting - CNBC",
-      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNSGFmd2hjSEVtR25kQ1ZzUjZ2VDBJZENfWW1SVHNtX25wN2xNRUtBMER1QUl5aGk2SWdJaGU5Z3lHRWRtR05EUzkyLUZRZk1WM1ctcTV2RkduOXBoYkRnbFVYNHlXRk1BNEhYRTRYZFdTb0h4dVZISnlENERuR0NTWmFrSEJfUi1fSy1KLVI4TDVRT1lZMk9MSUhsdmNaemJKV2NZa2k2Z3YtUHPSAbABQVVfeXFMT0s1MFJoSmFvaDR1Y212c2hvbFpYOFdxZFloVHZNVzdHYkFRZ1R5RXZYdGt5eEIzZ3VEdVo2Z0RiVEU1dm1Sa09fbnAycG9RN09CcXZfWmRjMURIa1pwOVdNTS1Zel83MndtdnAza3F3eTB1V2dpVFdweDVRSzJnSnhBcDZDWFdmSmVQRkJzcXVsTGpQeVVPeGtCMWNvcDdCVDMwc0pUSHdRM1dneU5kU0o?oc=5",
-      "summary": "Trump says U.S. to 'permanently pause migration from all Third World Countries’ after DC shooting CNBC",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T05:42:55+00:00",
-      "region": "AMER",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -1287,6 +1295,18 @@
         "Computers and the Internet",
         "Finances"
       ]
+    },
+    {
+      "title": "Is the World Cup really the equivalent of 104 Super Bowls? - The New York Times",
+      "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNRnFqeHF3anVDN0lLenQ4bXRfS3hRSUdQb3BOZXZyd0xOLXdENVJFNjg2QUQwcnpKR3dPdWk0VW9fM1ZpQ2NqbmVaV3c3RjlveTNqSjNaamFUSmZfMmJSbWhmLUdkekRNVkNkUl9fTERGTEJPLWpPUVRtZngxTXM4Y25INk9aRFdjQ1J2VUtYMGZHd2tmbkczS2l5MURQVl81ZVJjaHFoc2g3YU1fMmk0?oc=5",
+      "summary": "Is the World Cup really the equivalent of 104 Super Bowls? The New York Times",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T05:10:00+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Did Myanmar’s Junta Demolish Scam Centers Just for Show?",
@@ -1454,23 +1474,6 @@
         "Ransomware",
         "Asahi",
         "data breach"
-      ]
-    },
-    {
-      "title": "Russia Labels Navalny’s Anti-Corruption Group as Terrorist Organization",
-      "link": "https://www.nytimes.com/2025/11/27/world/europe/russia-navalny-terrorist.html",
-      "summary": "A legal assault against the opposition leader’s movement has deepened since his death in prison last year.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T15:49:33+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Supreme Court of Russia",
-        "Navalny, Aleksei A",
-        "Russia",
-        "Terrorism"
       ]
     },
     {
@@ -1659,18 +1662,6 @@
       "tags": [
         "Security"
       ]
-    },
-    {
-      "title": "Trump Administration Will No Longer Commemorate World AIDS Day - The New York Times",
-      "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE85TTJZQWNaNmdNRThkdHVGQ2JPNzBGemdoaUI1andROFNZQVJ5U2NveFVnQmJnYUJmejRsZm91Y0JYeUwwUWlOX1hEVkk0RUJLc2JwRDZEcHkxajhnc1A5cFNVWmctSVZ4WW9Hc0xRUTk0dUpGb08tMGtn?oc=5",
-      "summary": "Trump Administration Will No Longer Commemorate World AIDS Day The New York Times",
-      "source": "news.google.com",
-      "timestamp": "2025-11-26T18:37:16+00:00",
-      "region": "AMER",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "Shai-Hulud v2 Spreads From npm to Maven, as Campaign Exposes Thousands of Secrets",
@@ -2231,6 +2222,18 @@
       "timestamp": "2025-11-20T18:10:50+00:00",
       "region": "Global",
       "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Deepfake 'nudify' site fined £55,000 over lack of age checks",
+      "link": "https://www.bbc.com/news/articles/c0qpq5q9712o?at_medium=RSS&at_campaign=rss",
+      "summary": "The regulator said it had also opened new investigations into 20 porn sites over suspected online safety breaches.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-20T13:19:23+00:00",
+      "region": "Global",
+      "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
