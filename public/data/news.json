@@ -1,6 +1,120 @@
 {
-  "generated_at": "2025-11-29T04:44:53.549507+00:00",
+  "generated_at": "2025-11-29T05:40:51.303065+00:00",
   "articles": [
+    {
+      "title": "Trump to Pardon Juan Orlando Hernández, Honduran Ex-Leader Convicted in Drug Case",
+      "link": "https://www.nytimes.com/2025/11/28/world/americas/trump-pardon-honduras-hernandez.html",
+      "summary": "Juan Orlando Hernández was accused of receiving millions in bribes and partnering with cocaine traffickers. He was convicted in Manhattan in 2024 and sentenced to 45 years in prison.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T05:32:13+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "United States Politics and Government",
+        "Drug Abuse and Traffic",
+        "Amnesties, Commutations and Pardons",
+        "United States International Relations",
+        "Hernandez, Juan Orlando",
+        "Trump, Donald J",
+        "Honduras",
+        "United States"
+      ]
+    },
+    {
+      "title": "State Department Boosts Resources to Process Business Visas for South Koreans",
+      "link": "https://www.nytimes.com/2025/11/29/us/politics/state-dept-south-korea-visas.html",
+      "summary": "The Trump administration has been trying to repair the damage from the detention of hundreds of South Koreans in an immigration raid in Georgia.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T05:26:43+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "United States International Relations",
+        "Visas",
+        "Foreign Workers",
+        "LG Energy Solution",
+        "Hyundai Motor Co",
+        "State Department",
+        "Trump, Donald J",
+        "Seoul (South Korea)",
+        "Georgia",
+        "United States Politics and Government",
+        "Immigration and Emigration",
+        "Factories and Manufacturing",
+        "Diplomatic Service, Embassies and Consulates",
+        "International Relations",
+        "Foreign Investments",
+        "South Korea",
+        "United States"
+      ]
+    },
+    {
+      "title": "South Africans Were Promised Job, but Ended Up ‘Going to War’ for Russia",
+      "link": "https://www.nytimes.com/2025/11/29/world/africa/south-africa-russia-ukraine-fighters-zuma.html",
+      "summary": "The South African government is investigating how more than a dozen men unwittingly ended up on the front line in Russia’s war on Ukraine.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T05:03:33+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Russian Invasion of Ukraine (2022)",
+        "Russia",
+        "South Africa",
+        "Mercenaries and Private Military Contractors",
+        "Frauds and Swindling",
+        "Ramaphosa, Cyril",
+        "Zuma, Jacob G",
+        "Africa",
+        "Donbas (Ukraine)",
+        "Ukraine",
+        "Spear of the Nation (MK) (South African Political Party)",
+        "Defense and Military Forces",
+        "International Relations",
+        "Draft and Recruitment (Military)",
+        "Suits and Litigation (Civil)",
+        "Zuma-Sambudla, Duduzile",
+        "Zuma-Mncube, Nkosazana Bonganini"
+      ]
+    },
+    {
+      "title": "Where Hundreds of Undocumented Migrants Have Died in Custody",
+      "link": "https://www.nytimes.com/2025/11/29/world/asia/where-hundreds-of-undocumented-migrants-have-died-in-custody.html",
+      "summary": "Malaysia launched a “year of enforcement” in response to a surge in undocumented migrants, many of them from Myanmar. Some faced nightmarish fates.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T05:01:07+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Illegal Immigration",
+        "Deaths (Fatalities)",
+        "Myanmar Earthquake (March 28, 2025)",
+        "Politics and Government",
+        "Immigration Detention",
+        "Deportation",
+        "Malaysia",
+        "Myanmar"
+      ]
+    },
+    {
+      "title": "Russian drone strikes hit Kyiv residential areas despite peace moves",
+      "link": "https://www.bbc.com/news/articles/cx2gylngx7go?at_medium=RSS&at_campaign=rss",
+      "summary": "The attack on Ukraine's capital early on Saturday killed one person and injured seven, city officials said.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-29T04:48:18+00:00",
+      "region": "EMEA",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
     {
       "title": "Trump’s Response to Shooting Shows Intensified Anti-Migrant Stance",
       "link": "https://www.nytimes.com/2025/11/28/us/politics/trumps-response-to-shooting-shows-intensified-anti-migrant-stance.html",
@@ -39,27 +153,6 @@
         "Restoration and Renovation",
         "Buildings (Structures)",
         "Deaths (Fatalities)"
-      ]
-    },
-    {
-      "title": "Trump to Pardon Juan Orlando Hernández, Honduran Ex-Leader Convicted in Drug Case",
-      "link": "https://www.nytimes.com/2025/11/28/world/americas/trump-pardon-honduras-hernandez.html",
-      "summary": "Juan Orlando Hernández was accused of receiving millions in bribes and partnering with cocaine traffickers. He was convicted in Manhattan in 2024 and sentenced to 45 years in prison.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-29T03:16:43+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "United States Politics and Government",
-        "Drug Abuse and Traffic",
-        "Amnesties, Commutations and Pardons",
-        "United States International Relations",
-        "Hernandez, Juan Orlando",
-        "Trump, Donald J",
-        "Honduras",
-        "United States"
       ]
     },
     {
@@ -160,6 +253,18 @@
       "tags": []
     },
     {
+      "title": "World’s cartoonists on this week’s events - politico.eu",
+      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNYnQ2NTNudmtYSE9XSHBWSEItOUlOa3VsQ19fN0NWYk0xOGg1TXM0dzZSUDM4bWJ4S0JobTB0ZXJBU0ZiU2FPbWtrNjRMVXNIa0d6cUYweWpWUHQ1enlsc2dPUFNsNk9jdzU2T1FlQUJQVXFXOXdPLTBJeF9HUEdacWZn?oc=5",
+      "summary": "World’s cartoonists on this week’s events politico.eu",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T01:58:50+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "How Trump's pledge to tackle Sudan atrocities could play out",
       "link": "https://www.bbc.com/news/articles/c1dz36ep673o?at_medium=RSS&at_campaign=rss",
       "summary": "The war is being fuelled by regional powers and the US president may have some leverage over them.",
@@ -253,11 +358,11 @@
       "tags": []
     },
     {
-      "title": "Austrian claims first-career World Cup win at Copper Cup giant slalom - VailDaily.com",
-      "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPaHlCM3ctOXk1RTVsbTlrd0pkRkZBbEIwS2FWZndCQU1TbzNURGpob2FhQjhpLTlUc0F5QUlLbW5HZEZtWFFQRzJ5QVJCYTl5OEx0Y3lKZ0l5bkgxM3RTNFMxbzI0aGlrSmk0dUhkOXpNX0lMTGJjdjlsZUFPS0lsalBieVNhbGRTeExENGpkTW5XVFdwbllGWDZyNmxkLW1qdVRtTUVNeU5FaFJlRFc4?oc=5",
-      "summary": "Austrian claims first-career World Cup win at Copper Cup giant slalom VailDaily.com",
+      "title": "Orlando named in joint bid for 2031 FIFA Women's World Cup - WESH",
+      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPdmMzVWhPY0NkaDIxUTFtZnFvR0xfS0wyVUpaZ0NoY0l1QmFPTmoyT2hOSTRLMGZEQWdCTTF3QmhhMEdGMGVlRi1wTDNwd0ZZMUd0NVRQVUtKT2M2dkVoWXdhdzNqdWE4OFRCMjZsYkpUanA2ZFNsTzVIbllPQ1V2OGpLODVzSXZ3S2NzQWhrbERKRllJSEE?oc=5",
+      "summary": "Orlando named in joint bid for 2031 FIFA Women's World Cup WESH",
       "source": "news.google.com",
-      "timestamp": "2025-11-28T22:53:13+00:00",
+      "timestamp": "2025-11-28T23:15:00+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -336,18 +441,6 @@
       "source": "news.google.com",
       "timestamp": "2025-11-28T21:57:25+00:00",
       "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Brazil and the World System - Phenomenal World",
-      "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5DYi1DNjBiRkhTOXhtNjNhOWo4VHh2aWdPWXhicksxekJMc2tvNnFpay04NkM4Sk5xZkZ6aUpiNWd1R1U1MnlJZ1Z2MkY0YWszSFpJRlhTc3AzdTI1R1ZjVFVVWnlSTGEzVlpZWmdnMnJVc04wRDBPOU9pRQ?oc=5",
-      "summary": "Brazil and the World System Phenomenal World",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T21:42:44+00:00",
-      "region": "AMER",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -452,18 +545,6 @@
       "source": "www.bbc.com",
       "timestamp": "2025-11-28T19:40:55+00:00",
       "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Ian McEwan on Imagining the World After Disaster - The New Yorker",
-      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQZi1BLUkyalNZRFVHMUdhY0l4Z0UzT1I3Ulp1ZGpkQmt4MEJ5NkZWQnlMX0RzVmhRNXN6b3h3ZzRsY2hhNC02R0xVM3lpZHhjekVNbzNyamU3NWlyZTR3NWljVXRPOUpWREp3NFFIUmxCbEsxNHg3a0xRa1NOa0xkMjJfUk8wWWttSnU5NkY2c1JjYlZOR3BzdlZSZEZQa3hHazQ3N1JCS2hFOTRy?oc=5",
-      "summary": "Ian McEwan on Imagining the World After Disaster The New Yorker",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T19:00:00+00:00",
-      "region": "AMER",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -845,30 +926,6 @@
       "tags": []
     },
     {
-      "title": "National Guard member dies after shooting in Washington DC",
-      "link": "https://www.bbc.com/news/articles/cwyx4y6007lo?at_medium=RSS&at_campaign=rss",
-      "summary": "Sarah Beckstrom, 20, succumbed to her injuries, while a second guardsman remains in critical condition, Donald Trump says.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-28T15:17:05+00:00",
-      "region": "AMER",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Trump vows to halt migration from 'Third World Countries' after DC attack - USA Today",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQand0UVR3ODVnTzFUdlZscjF6R1JLZEVkWVJ6bmYzbUc3ZTZDd3QxNFFuWU5ueThLMlJxQjNFdkJXMVA1bFVzM3FSQVpFS3dIQndZbUlZU2ZzX0w3MUdhQllrMWVrbmdMSG82OGhodzUwSzNjWGViVFdmam5aMzY3eVY5d3hBT05EUG9mMk9INm5jSFMtTkRwdEhKRGdvRkZWeTlUUXZoRzh5ckZOUzlEWi1aTi1KZVNQTXc?oc=5",
-      "summary": "Trump vows to halt migration from 'Third World Countries' after DC attack USA Today",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T15:16:27+00:00",
-      "region": "AMER",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Lightning detected on Mars for the first time, scientists say",
       "link": "https://www.bbc.com/news/articles/c0q5w13e58zo?at_medium=RSS&at_campaign=rss",
       "summary": "Researchers heard electric crackles on 28 hours of recordings made over two Martian years.",
@@ -1055,6 +1112,18 @@
       "tags": []
     },
     {
+      "title": "Trump vows to ‘permanently pause’ migration from ‘Third World countries’ - politico.eu",
+      "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOVG93QUp6cEtDcGcwZVlSVHNaRF9UclJMdlZpbUhlcGstNW9Kb29QajRkWXc0aUNpdnBXdVdQdVp6Yy16aHZrSklMMVlUbUFmbDJ2ZjdRWHd6Mjl0UmR3d1NCWE9IMElYYmhHZWhKMXVSTzkyYkZUTG9tbzU4UU9PS04xV2ZKa29VNnF3YUprSXNIaGVmd08zWFhrOA?oc=5",
+      "summary": "Trump vows to ‘permanently pause’ migration from ‘Third World countries’ politico.eu",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T11:21:00+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Trump vows to 'permanently pause' migration from 'third world countries' after National Guard shooting - NBC News",
       "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPbzN4eWhoZ1pkTWZFakhhWkxlOXJPeWh0WGhOTXI5Ynd1czllWmhMZnhHRjdxWDlqMkhoQUZPM3Ewd180SUdERGNvMEh6TkxvdTUxQXdyWG5DUGd0QVFpeEQ3eWd1SW9KOVlKWmZxQWtFM0h6dlBVM01jd1VQa0xTN3JqRHB1bXBpX2VXYU5MWnJBVGd0SzRGbExNc05JRUI5NThxZzgtRlVOeEg3QUdpTjhiSDU2aGpWc2xHOUpjM1JwbVBqNlFV0gFWQVVfeXFMTnJBejZKb0JXUHoxdkVFYms1d09ZZ3ZiSGZVRS1venZhd1JwNDl2ZC1Pc2lRYlMxQTZ4dko1YW10a2xjVC1WSVNPNkh6WUxtZXdCZlNuV2c?oc=5",
       "summary": "Trump vows to 'permanently pause' migration from 'third world countries' after National Guard shooting NBC News",
@@ -1184,6 +1253,18 @@
       "source": "news.google.com",
       "timestamp": "2025-11-28T07:02:38+00:00",
       "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Trump says U.S. to 'permanently pause migration from all Third World Countries’ after DC shooting - CNBC",
+      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNSGFmd2hjSEVtR25kQ1ZzUjZ2VDBJZENfWW1SVHNtX25wN2xNRUtBMER1QUl5aGk2SWdJaGU5Z3lHRWRtR05EUzkyLUZRZk1WM1ctcTV2RkduOXBoYkRnbFVYNHlXRk1BNEhYRTRYZFdTb0h4dVZISnlENERuR0NTWmFrSEJfUi1fSy1KLVI4TDVRT1lZMk9MSUhsdmNaemJKV2NZa2k2Z3YtUHPSAbABQVVfeXFMT0s1MFJoSmFvaDR1Y212c2hvbFpYOFdxZFloVHZNVzdHYkFRZ1R5RXZYdGt5eEIzZ3VEdVo2Z0RiVEU1dm1Sa09fbnAycG9RN09CcXZfWmRjMURIa1pwOVdNTS1Zel83MndtdnAza3F3eTB1V2dpVFdweDVRSzJnSnhBcDZDWFdmSmVQRkJzcXVsTGpQeVVPeGtCMWNvcDdCVDMwc0pUSHdRM1dneU5kU0o?oc=5",
+      "summary": "Trump says U.S. to 'permanently pause migration from all Third World Countries’ after DC shooting CNBC",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T05:42:55+00:00",
+      "region": "AMER",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -1321,27 +1402,6 @@
       "tags": []
     },
     {
-      "title": "France Creates Voluntary Military Service as Europe Faces Russian Threat",
-      "link": "https://www.nytimes.com/2025/11/27/world/europe/france-military-service.html",
-      "summary": "The effort, aimed at young people, came after an army chief angered many by saying the country must accept the possible loss of “our children” in a future war.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T17:41:35+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "France",
-        "Macron, Emmanuel (1977- )",
-        "Defense and Military Forces",
-        "Youth",
-        "Russian Invasion of Ukraine (2022)",
-        "Mandon, Fabien (1969- )",
-        "Europe",
-        "internal-open-access-from-nl"
-      ]
-    },
-    {
       "title": "Malicious LLMs empower inexperienced hackers with advanced tools",
       "link": "https://www.bleepingcomputer.com/news/security/malicious-llms-empower-inexperienced-hackers-with-advanced-tools/",
       "summary": "Unrestricted large language models (LLMs) like WormGPT 4 and KawaiiGPT are improving their capabilities to generate malicious code, delivering functional scripts for ransomware encryptors and lateral movement. [...]",
@@ -1377,25 +1437,6 @@
         "Russia",
         "United States",
         "Ukraine"
-      ]
-    },
-    {
-      "title": "Rocket Attack on Iraqi Gas Field Cuts Power to Most of Kurdistan",
-      "link": "https://www.nytimes.com/2025/11/27/world/middleeast/rocket-attack-iraq-power-kurdistan.html",
-      "summary": "The strike is the latest in a string of attacks on energy infrastructure in Iraq’s northern Kurdish region, which some regional authorities have privately blamed on Iran-affiliated militias.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T16:36:26+00:00",
-      "region": "Global",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Kurds",
-        "Iran-Israel Proxy Conflict",
-        "Oil (Petroleum) and Gasoline",
-        "Islamic State in Iraq and Syria (ISIS)",
-        "Sudani, Mohammed Shia al-",
-        "Iraq"
       ]
     },
     {
@@ -1469,33 +1510,6 @@
       "lat": null,
       "lon": null,
       "tags": []
-    },
-    {
-      "title": "The British Public Thinks Immigration Is Up. It’s Actually Down, Sharply.",
-      "link": "https://www.nytimes.com/2025/11/27/world/europe/uk-immigration-statistics.html",
-      "summary": "Net migration to Britain has fallen by almost 80 percent from its 2023 peak, according to data released on Thursday.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-27T14:16:34+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Illegal Immigration",
-        "Immigration and Emigration",
-        "Politics and Government",
-        "Polls and Public Opinion",
-        "Refugees and Displaced Persons",
-        "Asylum, Right of",
-        "Great Britain Withdrawal from EU (Brexit)",
-        "Labour Party (Great Britain)",
-        "Office for National Statistics (United Kingdom)",
-        "Mahmood, Shabana (1980- )",
-        "English Channel",
-        "Europe",
-        "Great Britain",
-        "Farage, Nigel (1964- )"
-      ]
     },
     {
       "title": "OBR calls in cyber expert over botched release of Budget analysis",
