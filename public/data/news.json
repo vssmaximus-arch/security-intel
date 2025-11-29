@@ -1,6 +1,57 @@
 {
-  "generated_at": "2025-11-29T11:28:33.417847+00:00",
+  "generated_at": "2025-11-29T11:41:57.539067+00:00",
   "articles": [
+    {
+      "title": "In Firing His No. 2, Zelensky Loses Both a Negotiator and an Enforcer",
+      "link": "https://www.nytimes.com/2025/11/29/world/europe/zelensky-yermak-ukraine.html",
+      "summary": "Andriy Yermak had ensured internal discipline in Ukraine’s wartime politics. He also led the country’s peace negotiations, which now must go on without him.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T11:31:28+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Russian Invasion of Ukraine (2022)",
+        "United States International Relations",
+        "International Relations",
+        "Politics and Government",
+        "Trump, Donald J",
+        "Yermak, Andriy",
+        "Zelensky, Volodymyr",
+        "Europe",
+        "Russia",
+        "Ukraine",
+        "United States"
+      ]
+    },
+    {
+      "title": "Leak confirms OpenAI is preparing ads on ChatGPT for public roll out",
+      "link": "https://www.bleepingcomputer.com/news/artificial-intelligence/leak-confirms-openai-is-preparing-ads-on-chatgpt-for-public-roll-out/",
+      "summary": "OpenAI is now internally testing 'ads' inside ChatGPT that could redefine the web economy. [...]",
+      "source": "www.bleepingcomputer.com",
+      "timestamp": "2025-11-29T11:31:22+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Artificial Intelligence",
+        "Technology"
+      ]
+    },
+    {
+      "title": "Fall of Zelensky's top aide - reboot for Kyiv or costly shake-up?",
+      "link": "https://www.bbc.com/news/articles/cz0nljm4y74o?at_medium=RSS&at_campaign=rss",
+      "summary": "A widening corruption scandal has forced the resignation of Ukraine's second most powerful person.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-29T11:29:35+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
     {
       "title": "Second 2-man bobsleigh victory for Johannes Lochner - IBSF",
       "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNNjExTEhPSjRzQU9STmZzeE1Va1YydTU4QThlLXpockwteERFT2IteXlET0VGMk4tWjQ4RTk4dklWcHpwZUFaVVlVeTlYdVk1QTgyWk5iT1Z4d2RaYWxZRFhHQ283d00wVC1MR1NseWYzQzBmeXJYN2FRNXlSU1FWNDFGT0JoaFNCMmpGVXI2Snl4YVJ6N0YtM0xaeWxMcEhVSERmbFNFOTFlbnp6MzdweHhR?oc=5",
@@ -62,30 +113,6 @@
       "lat": null,
       "lon": null,
       "tags": []
-    },
-    {
-      "title": "In Firing His No. 2, Zelensky Loses Both a Negotiator and an Enforcer",
-      "link": "https://www.nytimes.com/2025/11/29/world/europe/zelensky-yermak-ukraine.html",
-      "summary": "Andriy Yermak had ensured internal discipline in Ukraine’s wartime politics. He also led the country’s peace negotiations, which now must go on without him.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-29T11:01:19+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Russian Invasion of Ukraine (2022)",
-        "United States International Relations",
-        "International Relations",
-        "Politics and Government",
-        "Trump, Donald J",
-        "Yermak, Andriy",
-        "Zelensky, Volodymyr",
-        "Europe",
-        "Russia",
-        "Ukraine",
-        "United States"
-      ]
     },
     {
       "title": "Fresh Reporting on Asylum Seekers at the U.S.-Canadian Border",
@@ -493,18 +520,6 @@
         "Honduras",
         "United States"
       ]
-    },
-    {
-      "title": "Measles - World Health Organization (WHO)",
-      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5CSm90Nlo1aVhLczFhQ3MwSV80amFZNzd4WWZBbHFqbllGaXJ1S3psNFZ5YkxwbVB5bG93bTY5bnc1SEFaOTRtekd3ZVlmYXltT2lvYjRqbTNyc2VBYnE0WTkyYXpUT0k?oc=5",
-      "summary": "Measles World Health Organization (WHO)",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T05:29:15+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "South Africans Were Promised Job, but Ended Up ‘Going to War’ for Russia",
@@ -1128,6 +1143,18 @@
       "tags": [
         "Microsoft"
       ]
+    },
+    {
+      "title": "Trump Cut Europe Out of Ukraine Talks. Here’s How Europe Pushed Back. - The New York Times",
+      "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTE01UmJXZ282c2Vwa2g1WDFYVGJrRENYZ0VZNzhic0pzUmc4RnZvZ2l3M2FCRlg3UXhnZl95UE5yTzBpeWhGbk1nM25rUXVaMVVmamUyNGl5eGs4bWNrOUVKOVdibmkxc0JGSXV6ZDIyZk9PV0dTMzdYV2l4dWxaZw?oc=5",
+      "summary": "Trump Cut Europe Out of Ukraine Talks. Here’s How Europe Pushed Back. The New York Times",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T18:06:00+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Zelensky's top adviser resigns after anti-corruption raid on his home",
@@ -2217,30 +2244,6 @@
       "timestamp": "2025-11-21T14:09:56+00:00",
       "region": "Global",
       "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Graduate jobs under threat from AI, PwC boss says",
-      "link": "https://www.bbc.com/news/articles/cm272510e6jo?at_medium=RSS&at_campaign=rss",
-      "summary": "The accountancy giant says artificial intelligence will eventually lead to fewer entry-level positions at the firm.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-21T02:34:57+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Streaming platform Twitch added to Australia's teen social media ban",
-      "link": "https://www.bbc.com/news/articles/cx2n2955g10o?at_medium=RSS&at_campaign=rss",
-      "summary": "It joins other platforms including Facebook, Instagram, TikTok and Snapchat in the ban that starts next month.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-21T02:33:49+00:00",
-      "region": "APJC",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
