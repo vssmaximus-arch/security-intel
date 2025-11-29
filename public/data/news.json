@@ -1,6 +1,25 @@
 {
-  "generated_at": "2025-11-29T20:38:59.141144+00:00",
+  "generated_at": "2025-11-29T21:32:07.482985+00:00",
   "articles": [
+    {
+      "title": "Russia Bombards Ukraine for Nearly 10 Hours in a Deadly Assault",
+      "link": "https://www.nytimes.com/2025/11/29/world/europe/ukraine-kyiv-missiles.html",
+      "summary": "The attack came as U.S. officials were expected to hold peace talks with Ukrainian and Russian officials in the coming days.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-29T20:53:40+00:00",
+      "region": "AMER",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Russian Invasion of Ukraine (2022)",
+        "Trump, Donald J",
+        "Zelensky, Volodymyr",
+        "Kyiv (Ukraine)",
+        "Russia",
+        "Ukraine"
+      ]
+    },
     {
       "title": "Venezuela calls Trump airspace closure warning 'colonialist threat'",
       "link": "https://www.bbc.com/news/articles/c741mpdyw9no?at_medium=RSS&at_campaign=rss",
@@ -58,18 +77,6 @@
         "Israel",
         "Khan Younis (Gaza Strip)"
       ]
-    },
-    {
-      "title": "England v Brazil? This World Cup draw must offer us glimpses of glory not the grotesque | Jonathan Wilson - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQeTFyMkJlWmRRMUdaRHpBZTFIdnhZeFNzNG5SNG5SeXpudWVTTVZKSzB6MTRiRkZNbXRYSG5tQ2d1QlN5aEJ4SWpTMXpjQVhWSTNCWE9NWEdvRHRUMXZoam1HWHdtY1VPWTJ1V3M3VkZRUHAwQnN2czB5ZXhEWmxtRWZKOTRxbDd5ZHJZdFlEMDN5UE9HbDFMSkdYTFVpMkUwY2RhbTZHdWwzS2pWbXpHelFlUkJEcldNdEtaWDhacmRwbnY5TS1YUkxiN01lcml4?oc=5",
-      "summary": "England v Brazil? This World Cup draw must offer us glimpses of glory not the grotesque | Jonathan Wilson The Guardian",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T20:02:00+00:00",
-      "region": "AMER",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "As Cyclone Deaths Pass 150, Sri Lanka Is Overwhelmed by Rescue Demand",
@@ -156,6 +163,18 @@
       ]
     },
     {
+      "title": "He almost died sailing around the world. Now he’s getting ready to try again. - Centralmaine.com",
+      "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPUlVOUVFLMVFDX2k0VWlJQ1FMMW13TVZreTE1b0twTUdCTk5RM3ZRQUM3YkhQNUdSS3NDX0ZVbXI3Q1NsZDZTandrLXI0a0VmMDd5bzFYU0VaREM1UmstMWVQY2c3TVVSYWJpZm55SnlWeVJTZms0eUhGMElvOU45M0x6ZFBMVml1SWxMUl9IaWx6SU95dHBmUkMzWThRRERYa3hUR0s2V3ZFRjc5WEQ1X0ZZYXFfdw?oc=5",
+      "summary": "He almost died sailing around the world. Now he’s getting ready to try again. Centralmaine.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T18:23:29+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Dodgers Star Outfielder Makes World Baseball Classic Intentions Known - Sports Illustrated",
       "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPZDYwa1c3QllidnRGaDdYS1VZS0tNcUNORTY4VkxLSTFHR2lYMk4tSmcyZDRSdGp1c2JiYkxNMUJTZXpITW02N1J0U3dNYjh2TGF1aDQzLXJicWQ3UG93a1ZwQ09IR0tWVlpJbEl1N2hJXzVuYlZJamlWMnpCUGFYSFJuaWZlVWRzTDY3ekxLNUs5aTloNWxIdHZFYzd4THpYUDJROGQwM2htWmh2ZHJV?oc=5",
       "summary": "Dodgers Star Outfielder Makes World Baseball Classic Intentions Known Sports Illustrated",
@@ -168,9 +187,9 @@
       "tags": []
     },
     {
-      "title": "‘Worst feeling in the world’: Family survives a night on the ocean after boat capsizes - WIS News 10",
-      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQTjlfQWM1UGNJckV0V2szRDV1bVF0d3NiR0Nxa0NUXzBqWGt0M3lhQnR1cEhDN0pIY3BSVmJKMUE1OXE1S0pVWXg0Xzh0bWRaYzVVWUNfbW9XZ0pLLUszcEdRaG1wdUplM29zczdIMDJfQkVxQV9IbHMyczZ4TnVibmRETDE3R0p3a0NQY181Q1JaVDFIOWQzZXY1dzk3NVM4bVlz0gG3AUFVX3lxTFBSSW5lNE9QNzRELUhHVjJ0WHVLNms0ZkRIQXp4c3B0NWFJcUdndlRUSzhpXzk1bWV4OW9VbWRJQXlaWld4emtHYVYyYWtXTGNDNE9WR0pWN0ZNT1JDRmwxZEUyWkVPYWhOV2ZNVGlxSTJsUWFVaXluUmtqZGFCZDFkMjRqbEExR205MW9JRlRVTlFwcWo2QWp2cHUwcjZnTXBfOXRCcHlEU2NxYktFamdxLU9ab01MRQ?oc=5",
-      "summary": "‘Worst feeling in the world’: Family survives a night on the ocean after boat capsizes WIS News 10",
+      "title": "‘Worst feeling in the world’: Family survives a night on the ocean after boat capsizes - WAVE News",
+      "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPeVJUVWVhM1M2MWVHUjNhV1VnVmtidDRUN2pJSmc1N0dNUkY2dEFKVC01QUhOWUlhaW1POTl3R0JQbENhZWN0NWNhNHYzM2swRmFKSm5JbkFKVjNSYTkyajNWR0tfQnl2cWxCYTl1NUlmUFNUUTdxcXBCbnR2QWg1N3dETWp0dmswWUxFZDZfQklzSmRTSlVTSUZmYTFpMFp3VVNR0gG3AUFVX3lxTFBiWWctUjZhS1E2cDROWkFkUVpYb1dibkphVEVhTlpkWnJEdTBQRjBvbm5zSWczR3ZTbWpKN0w5YnFmNWt2NEVraHFfd0R3Z3E2ejBXNWpyenZxNV9obmQ2MHI3azNXbXdsTmhkWEVNNWZLWGlwaGhNXzl1TkIwbXA2cG4ydFFwWWxIVHlic1QwVGtRTWZIWWQ2SXFUQmpiZERCN1NCSGU0OXNHYkktTzkyR0U3SXZ4dw?oc=5",
+      "summary": "‘Worst feeling in the world’: Family survives a night on the ocean after boat capsizes WAVE News",
       "source": "news.google.com",
       "timestamp": "2025-11-29T17:40:00+00:00",
       "region": "Global",
@@ -223,42 +242,11 @@
       "tags": []
     },
     {
-      "title": "Russia Bombards Ukraine for Nearly 10 Hours in a Deadly Assault",
-      "link": "https://www.nytimes.com/2025/11/29/world/europe/ukraine-kyiv-missiles.html",
-      "summary": "The attack came as U.S. officials were expected to hold peace talks with Ukrainian and Russian officials in the coming days.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-29T17:10:49+00:00",
-      "region": "AMER",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Russian Invasion of Ukraine (2022)",
-        "Trump, Donald J",
-        "Zelensky, Volodymyr",
-        "Kyiv (Ukraine)",
-        "Russia",
-        "Ukraine"
-      ]
-    },
-    {
       "title": "New Hulu special fuses fashion and science to commemorate World AIDS Day - ABC7 Los Angeles",
       "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQdS00Q0JpS2Y4ZXJuZ3BHbWJKcFRXWmFaazZTVUE4clE4ajl4NEtIZk5OWUZfY0hHOXY1NUVBaDdCdWI3dV9XUVZRYTd1UTc4NGFFaHdDQ1hPWG5ZelYyMmxlTmhLUTFfN0tpQUFhTnFyV0thcjNFSGZlUG9KUkpzd3NiWXlkTzFyX3J3RUNKSVdmLS1FSlFjaGJjeEs1d9IBowFBVV95cUxNZ21leFM3RXhYQjRidnl0am9Yb1BWc2pnNVlOMDItZ3NSQ1Y1SzBDSWJYSnJ0eDNJdy12VTAyckFzendDZnk1TEw3bWhEUU4zVUd3ajZyV2g5dkV1OWI1TzhkdWtxYW5rMURjMVA2SnhZell2QlNsbGVJcFU5WXVoRGd2WXhtb1NneWYxMXZZdXFyMzF3Q1k4MTNwNHVTNE1WZC1z?oc=5",
       "summary": "New Hulu special fuses fashion and science to commemorate World AIDS Day ABC7 Los Angeles",
       "source": "news.google.com",
       "timestamp": "2025-11-29T17:01:43+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "20 Best Snowboarding Resorts in the World, According to Expert Boarders - Travel + Leisure",
-      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQUEhFWW05OWlFZ1F2T0VyMG5JSzg1LXJmaHgwVnVsbXNfMFVaR1JqTkc4Y0NDUmFEX193aGxMb2h0eDBIeXE2ekFteEhHWFRwU3o4Q25PUXpZSGF5cFJsVkJYVUJCTm5OWDJRakFlLUotLTZGRzZXSTMta1ZKTElidWNJOTBkbG94UHJfTA?oc=5",
-      "summary": "20 Best Snowboarding Resorts in the World, According to Expert Boarders Travel + Leisure",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T17:00:00+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -409,9 +397,33 @@
       ]
     },
     {
+      "title": "FCC Warns of Cybersecurity Risks After Texas, Virginia Breaches - radioworld.com",
+      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNVE1aXzhZYVRWazNkYWdaTnRNSUs3ZUNNUWRzNXpDYVdScE1iYU1QQjB1U3ctUHVlc09SMlc0MGM4SmFQS0laVDFLQk5BaE9QV3pvby1HSkY2LVFWSzRSMGtZeVpyN1FUUC1wY3FTa0ptbjZsRHZrNF9FSVh6NW13eUZhb2dvaWQwaXFzWVRwVXoyRnByYzB6NXpJMnFtN0hMSlZEWm9MX01GaTg?oc=5",
+      "summary": "FCC Warns of Cybersecurity Risks After Texas, Virginia Breaches radioworld.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T15:01:53+00:00",
+      "region": "AMER",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "The Outspoken CEO Behind the World’s Fastest-Growing Arms Maker - The Wall Street Journal",
-      "link": "https://news.google.com/rss/articles/CBMipwNBVV95cUxPd19HdlV2cElyRmd5UjFUM053RG5GdVRaeXo4MkdfVU0tc19uV3g5R3NMU2VvOVFjTlRuN2VFYkR1azlPWm10aE9hbGg1TER5WVFVaUMzcWEyZlJqWFhpQVBsVzVHekxCWTN1MVpIMXBHcEVrYVplM3dKVmRwRk1JYWppbmIxMjZIYnFiREpfYS1waWZpeEhUWHFDTVBZbzY2NG55WnFsMjQzRFkyam5wcjdmcWFtbzZiMGhrdDNjQXdwV0pvWmx0VnRGT1hqSG1rczBuRFZDRnE4MDI5Vmc2SXU3WDdYYXZTcHZlSWVNMWp6YUhtQmduQl9IUERRS2RzbG1BR3lrLUlXa24xY1B0MHMxWjFWeUcxZnE5VldONzNLb3VkTDUzb0g3dEdRaDd1QVhyY0VxRmlGLWxWUFIzQjI0SXFzQ241UmFxczJuYXR2ODkySWNROWlhbVpDT085MGw4QWlyYTY0WmpuUFVVUndpMEJCbHRwSnotaGVfR3dtNkNFMlVUY2hhZTBlZ1NaQW9vWW54M2VyTWhZekRWZlRIbU9GSkE?oc=5",
+      "link": "https://news.google.com/rss/articles/CBMipwNBVV95cUxOZGxQODlFT09sVVpkTFZ2VHdQZnlGelpSTUN1ZG1CRGpmTFhVMnBCeHgtczRVT2prRnNfY2swWmkzSVpuaFJUX202OV9wZUZvXzYxMU5LZC0zbnRWQ2VFOW5CSi1rZ2d4NkVncDRfS1Z3SUtYVjQ0NndFM1ZpWkFCcmlFVFRwb1ZTYmJ4YXlZemJFMGRpcGpQSVVPNGpFVEFVeHpmWF9aUnNVamREb2o5ODJDM29oOE1qeUNpRWZqNW5zQTlLTEw5dW9UZ0tIZVB0MmVwMzg2QlNMSUZHRXI2cjJYbGZJcVJ4cExnZDZqbktoUTVMWEdDaF8ycmwwdy1xeXVfYVc5RW5HX242RXVpbHJwb3laOG1aczJ5ZkswRkxBNm5PUnVZNXNaV3B4MU9yeHA0RC1DbmRrR2RJaFhTOFBUblJJNUx0T1Zadno0c2ZwdVc0cVBiUnhVT3IwSVpJNWw5Vk11QzVNZzd4OEVLR0xLLS1IZlRJeTZJY185QmxCXzdsXzlHUWt1UEdpOExrS1RLY3JmN3VVMFNGWUR2UGhPbU0yWnM?oc=5",
       "summary": "The Outspoken CEO Behind the World’s Fastest-Growing Arms Maker The Wall Street Journal",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T15:00:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Atlanta, Birmingham, Nashville could host in 2031 Women’s World Cup - Chattanooga Times Free Press",
+      "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQTlJ3Q3FFYnA5M3RKeEs5c2dPZWNHdDFLWU1aQnVrYkQydFo3OVRoQi1xamJBQXduS2twUGJQY2hWU1JjaVVjd0RYT2Y3RHpwdjM3ejN5VnA3RERHbURzYVJ5MUk3YUpDZ2M2ZW51NXNZUEZjcGtEYW1oVGVrS21pZ3NBdGFrako4VFgwbmJfVnJEWWI4SDlrcnZkMS0?oc=5",
+      "summary": "Atlanta, Birmingham, Nashville could host in 2031 Women’s World Cup Chattanooga Times Free Press",
       "source": "news.google.com",
       "timestamp": "2025-11-29T15:00:00+00:00",
       "region": "Global",
@@ -447,6 +459,18 @@
       "summary": "Pope at Mass: Bring hope in world where religion is used to justify war Vatican News",
       "source": "news.google.com",
       "timestamp": "2025-11-29T14:50:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "14 US stadiums, including Denver's Mile High, proposed among 20 possible sites for 2031 Women's World Cup - The Colorado Sun",
+      "link": "https://news.google.com/rss/articles/CBMickFVX3lxTE9KX3hxZEJ6YTFrMmxFU0hET2U0X0ctYWh4TmtaVzZPTGJSWGU4d0tiNzdndUxfS08ycXg3OUVVbGVRWmlaNTJvWjlfd2VXX1h3RzFoMUFmRnB0TXM3ZFFvR0g2Zmdoc1JpUlN3SVpzTFVrUQ?oc=5",
+      "summary": "14 US stadiums, including Denver's Mile High, proposed among 20 possible sites for 2031 Women's World Cup The Colorado Sun",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T14:35:31+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -659,10 +683,10 @@
     },
     {
       "title": "The Ukrainians Stuck in Russia’s New Gulag",
-      "link": "https://www.nytimes.com/2025/11/29/world/europe/the-ukrainians-stuck-in-russias-new-gulag.html",
+      "link": "https://www.nytimes.com/2025/11/29/world/europe/ukraine-russia-prisoner.html",
       "summary": "Even if a peace can be reached, it won’t be easy to solve the problem of Ukrainian civilians languishing in Russian jails. This is one prisoner’s story.",
       "source": "www.nytimes.com",
-      "timestamp": "2025-11-29T10:00:10+00:00",
+      "timestamp": "2025-11-29T10:00:11+00:00",
       "region": "EMEA",
       "severity": 1,
       "lat": null,
@@ -804,7 +828,7 @@
     },
     {
       "title": "Where Hundreds of Undocumented Migrants Have Died in Custody",
-      "link": "https://www.nytimes.com/2025/11/29/world/asia/where-hundreds-of-undocumented-migrants-have-died-in-custody.html",
+      "link": "https://www.nytimes.com/2025/11/29/world/asia/malaysia-migrant-detentions-deaths.html",
       "summary": "Malaysia launched a “year of enforcement” in response to a surge in undocumented migrants, many of them from Myanmar. Some faced nightmarish fates.",
       "source": "www.nytimes.com",
       "timestamp": "2025-11-29T05:01:08+00:00",
@@ -979,18 +1003,6 @@
       "tags": []
     },
     {
-      "title": "Trump says he'll \"permanently pause migration from all Third World Countries\" - Axios",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNc0hrbTc4THk1VEdveGRUMkxTZE5lbVBDSmh4VkE0dmt2NVJSVkhiWlBfY0ZtNEZURS1JV1BYNEp0ZFQ2U0Q0dmdoSG5IWlBCU3MtWTZQaFNzZ1Y4bWJ2MFVjLXVkWjJjWl9PTzdEbWx4RmNYWGpORmtFRl9jVjJUdm84Wl9LdDJ3QWw1VUxnR1RDdw?oc=5",
-      "summary": "Trump says he'll \"permanently pause migration from all Third World Countries\" Axios",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T23:51:51+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Trump says he plans to end immigration from \"Third-World Countries\" - CBS News",
       "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOTzJUYng0YWsxTGxDcXRldXNjTmIxam9rYThobVBVUWxBWTFxR0ktUlNWUGV4dGFrU0twQzVxMEdsQTlvTGdYSXZxOHl3eVFwQ0wwTkRQRWFFancwcmlSNDJqNG1sRUdWUVVIRkxyLVh2VHl0MWhtY0F5U0FXNFVYeDJoVmdMRHZZZFNkNGtR?oc=5",
       "summary": "Trump says he plans to end immigration from \"Third-World Countries\" CBS News",
@@ -1123,18 +1135,6 @@
       ]
     },
     {
-      "title": "Ian McEwan on Imagining the World After Disaster - The New Yorker",
-      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQZi1BLUkyalNZRFVHMUdhY0l4Z0UzT1I3Ulp1ZGpkQmt4MEJ5NkZWQnlMX0RzVmhRNXN6b3h3ZzRsY2hhNC02R0xVM3lpZHhjekVNbzNyamU3NWlyZTR3NWljVXRPOUpWREp3NFFIUmxCbEsxNHg3a0xRa1NOa0xkMjJfUk8wWWttSnU5NkY2c1JjYlZOR3BzdlZSZEZQa3hHazQ3N1JCS2hFOTRy?oc=5",
-      "summary": "Ian McEwan on Imagining the World After Disaster The New Yorker",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T19:00:00+00:00",
-      "region": "AMER",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Andriy Yermak, Zelensky’s Chief of Staff, Resigns",
       "link": "https://www.nytimes.com/2025/11/28/world/europe/zelensky-yermak-resigns-ukraine-corruption-scandal.html",
       "summary": "Andriy Yermak, President Volodymyr Zelensky’s chief of staff and top peace negotiator, became the highest-ranking casualty of an investigation into a vast kickback scheme.",
@@ -1227,6 +1227,18 @@
         "Jenin (West Bank)",
         "West Bank"
       ]
+    },
+    {
+      "title": "Trump Says U.S. Will Pause Migration From ‘Third World Countries’ After D.C. Shooting - The New York Times",
+      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNd2xJenEwbmk2bUJreGY1Zld3cmxSYklUd0FMdWg3VEgyZjJKTWFxUkZTcndJME01ekVUMjV4bzRUUXpQYU5EeDNmUE1HOFBvTTVrUFVPdjRJZ2I0dHBpVFNMcE1UR1JkcEgzc3RxRFo0TFkxblBueWRwNTJHZUNYS2Z3Yzl2TTZ4czV0ZGM5T3VzQQ?oc=5",
+      "summary": "Trump Says U.S. Will Pause Migration From ‘Third World Countries’ After D.C. Shooting The New York Times",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T18:15:00+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Israeli Raid in Southern Syria Kills at Least 13, Syrian Officials Say",
@@ -1606,18 +1618,6 @@
       "timestamp": "2025-11-27T10:03:00+00:00",
       "region": "Global",
       "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "What Worries the World – November 2025 - Ipsos",
-      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBMSC1vVzVZM041bWtWa2FPSTkzZDBDYnM1SV96eENhS19VdkVpQmgtdDE2WG1VNkU1NHlLVDJYYlA4WGxYV0pYV3QzQUJORU9TeEZ5NXVR?oc=5",
-      "summary": "What Worries the World – November 2025 Ipsos",
-      "source": "news.google.com",
-      "timestamp": "2025-11-27T09:48:50+00:00",
-      "region": "Global",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
