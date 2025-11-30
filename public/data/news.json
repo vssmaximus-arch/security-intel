@@ -1,6 +1,23 @@
 {
-  "generated_at": "2025-11-30T13:20:13.107678+00:00",
+  "generated_at": "2025-11-30T13:46:10.171083+00:00",
   "articles": [
+    {
+      "title": "Netanyahu Asks Israel’s President to Pardon Him in Corruption Cases",
+      "link": "https://www.nytimes.com/2025/11/30/world/middleeast/netanyahu-pardon-request-israel.html",
+      "summary": "Prime Minister Benjamin Netanyahu made the contentious appeal weeks after President Trump made the same request to the Israeli president.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-30T13:41:01+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Corruption (Institutional)",
+        "Politics and Government",
+        "Netanyahu, Benjamin",
+        "Israel"
+      ]
+    },
     {
       "title": "Climate protesters in kayaks disrupt operations at Australia port",
       "link": "https://www.bbc.com/news/videos/c865p45j3qeo?at_medium=RSS&at_campaign=rss",
@@ -24,23 +41,6 @@
       "lat": null,
       "lon": null,
       "tags": []
-    },
-    {
-      "title": "Netanyahu Asks Israel’s President to Pardon Him in Corruption Cases",
-      "link": "https://www.nytimes.com/2025/11/30/world/middleeast/netanyahu-pardon-request-israel.html",
-      "summary": "Prime Minister Benjamin Netanyahu made the appeal weeks after President Trump made the same request to the Israeli president.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-30T12:42:44+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Corruption (Institutional)",
-        "Politics and Government",
-        "Netanyahu, Benjamin",
-        "Israel"
-      ]
     },
     {
       "title": "Hong Kong’s Migrant Domestic Workers Mourn Their Losses in Deadly Fire",
@@ -120,13 +120,13 @@
       "tags": []
     },
     {
-      "title": "Rising Tide protest: climate activists stop three ships from entering world’s largest coal port in Newcastle - The Guardian",
-      "link": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxNNFc3REZRZnJQZHRyTU5rNUYyVnA2dGVtenhEZVNoWk5tSmtzRXloU3V2NW9BX2I3UFE1YUlzNTBUVUNkRFNTMkg0NktOeEJQNFBKM3VRcUJGWjJ2U05JWkFBQWtzSHIzcmVYbGtqejRpcF9UbWQyLW1uSGJrM210NTdadGhCNnRXYWlEaU45TzBITDVvaEhYXzlSaTl4Zks4NW82TEZpZkhPbFNyRVkxdnM1Z3pxbUtTSXZhM0d1b3BIY3djb0FJRnVhTG9YSS0xV3NNQ2V3N3RMU3JicUJjNWJzbmJSMi15YlJ3R0NyOA?oc=5",
-      "summary": "Rising Tide protest: climate activists stop three ships from entering world’s largest coal port in Newcastle The Guardian",
+      "title": "Mental health in the flawless world of fashion - DW",
+      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOVzRYQzZDdklKcU5KT2JjMXhEU01ETmZlRXJRTEhIT21vT1EteUM4UGswSW9uR1NFeF9KLXpnVF9MelIyWmpZbkJCMlBFYkhWcUYtRVc4NE9SekMtc0lXLXN3dDBjd0FVVFF2elVRb2JaRW53enV6eHBOVXdCVzFKUTlYX0RjcmxueW9n?oc=5",
+      "summary": "Mental health in the flawless world of fashion DW",
       "source": "news.google.com",
-      "timestamp": "2025-11-30T12:11:00+00:00",
-      "region": "LATAM",
-      "severity": 2,
+      "timestamp": "2025-11-30T12:13:12+00:00",
+      "region": "Global",
+      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -363,18 +363,6 @@
       "tags": []
     },
     {
-      "title": "Get Ready for a World with Fewer Barriers To War - Bloomberg.com",
-      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQVDFoa3MyTVZKdGVRZm5VY1VFei01RkI1MlZuQ0pYbUFoeXdCV2xDYUxZWjVpbVJMcDk1cjNYQTdEVlVNbUVZbXZXQ0tHUEtDRi1wc0hVVnhUNTFxYVdRd2w4dkF2bERZWVFGYTh4R05SbkQzSWwzcEViYnN4ZkFLdTMxV051aE5mOURBVVFmRTVvbFpKX3NyYkt0dmRCYUwwdkdfQg?oc=5",
-      "summary": "Get Ready for a World with Fewer Barriers To War Bloomberg.com",
-      "source": "news.google.com",
-      "timestamp": "2025-11-30T09:00:33+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "French farm has €90,000 worth of snails stolen",
       "link": "https://www.bbc.com/news/articles/c93wnyxjkxko?at_medium=RSS&at_campaign=rss",
       "summary": "The break-in was \"a real blow\", says L'Escargot Des Grands Crus, which was preparing deliveries for the holiday season.",
@@ -411,18 +399,6 @@
       "tags": []
     },
     {
-      "title": "News and current affairs from Germany and around the world – DW - DW",
-      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFA0ZWlYZDNMaFVsZ1NnYnZfaVR4RHVjNnRkYTBnUUpJWjBHbUZGOVhnVFIteVU2TzFPcHNJdE5LdlNIbk54bE5CUjRDdVoyb2pNd3c?oc=5",
-      "summary": "News and current affairs from Germany and around the world – DW DW",
-      "source": "news.google.com",
-      "timestamp": "2025-11-30T07:12:30+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Ukraine hits tankers in Black Sea in escalation against Russia",
       "link": "https://www.bbc.com/news/articles/cp9ky5z2gx0o?at_medium=RSS&at_campaign=rss",
       "summary": "The two ships struck by drones were thought to be used to bypass Western sanctions on Russia.",
@@ -430,6 +406,18 @@
       "timestamp": "2025-11-30T06:22:36+00:00",
       "region": "EMEA",
       "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "News and current affairs from Germany and around the world – DW - DW",
+      "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFA0ZWlYZDNMaFVsZ1NnYnZfaVR4RHVjNnRkYTBnUUpJWjBHbUZGOVhnVFIteVU2TzFPcHNJdE5LdlNIbk54bE5CUjRDdVoyb2pNd3c?oc=5",
+      "summary": "News and current affairs from Germany and around the world – DW DW",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T05:10:51+00:00",
+      "region": "EMEA",
+      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -570,6 +558,18 @@
       "source": "www.bbc.com",
       "timestamp": "2025-11-29T22:53:36+00:00",
       "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Mikaela Shiffrin improves, but no Americans make top 10 at Copper - USA Today",
+      "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNb0RvYmVKc3JvRjNValhwbTVNYnV3R2h6SnBIZVphNGFCTkFCaDE2akktdHNUTV9ZN1VudktjaG9ZU2hqTkdkd2lmMzJrbGJZNUxCRk96eVBUWkVGSm5obXlZWmwxd1daOEhsTnhsdktYaXJsVjRGV3FDTE1RNm5RSVZfcm5Bd1ZVcTFvTnA3UjdGTWYxMEhabmcxTWdlTlVqZFE1LWxDTXJwVmozSnZEb1ZoaEItZw?oc=5",
+      "summary": "Mikaela Shiffrin improves, but no Americans make top 10 at Copper USA Today",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T22:45:09+00:00",
+      "region": "AMER",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -922,6 +922,18 @@
       "tags": []
     },
     {
+      "title": "Iran boycotting 2026 World Cup draw ceremony in Washington due to denied visas by Trump administration - Fox News",
+      "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNZmVXRktVdDFlaVJLMVlPV200ZXVJbGFraWJZRVNXUFhfTV80dTBhay1vRWxCSTdrVVlBbTJuczNHMmR0d0tvYTY4NUZYaVhnSE9aSXRsNTJtTmhyYTlKOWViT3Z6WDNhYUsxSU9SUm44d3BqZnplZm5MU01fWVFZUGg4c0JSaWNUcDdzeXkteWU5dWVFY2IzZ1YxX3FwNURlYTVLME1DN2lHaWRCNWJmSU1VUVBTRldUYkI1VjE4Q2JSZ9IBxwFBVV95cUxQbUUwalBmU0dHd1lqcjM4YlRlSlBKNTBRSFFxVGVHeWxCcVVHemZHY1R0V3VPcVdUeEpUc0lXNGVZWnFRZ2I0bnJiR0xXTTZCR3YtMUhNTXZVTnVjcVdCb1hFYjM2V3ZvRzd6a2I0SVl3S0NLSlZEQjJacC1PUXNYYnFBYl95bjFaVHRldWgwX0lIcVFieVF4elRRcUJ1bmlRYVh0amxSMnI0Q0RYeDdvVVN0X0ZMSHFBeTR6Y2tiSnEwd1Nnd20w?oc=5",
+      "summary": "Iran boycotting 2026 World Cup draw ceremony in Washington due to denied visas by Trump administration Fox News",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T12:33:52+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Russian strikes cause power outages for more than 600,000 in Ukraine",
       "link": "https://www.bbc.com/news/articles/cx2gylngx7go?at_medium=RSS&at_campaign=rss",
       "summary": "The overnight attack kills at least three and injures dozens more.",
@@ -1210,18 +1222,6 @@
         "Somalia",
         "Afghanistan"
       ]
-    },
-    {
-      "title": "World’s cartoonists on this week’s events - politico.eu",
-      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNYnQ2NTNudmtYSE9XSHBWSEItOUlOa3VsQ19fN0NWYk0xOGg1TXM0dzZSUDM4bWJ4S0JobTB0ZXJBU0ZiU2FPbWtrNjRMVXNIa0d6cUYweWpWUHQ1enlsc2dPUFNsNk9jdzU2T1FlQUJQVXFXOXdPLTBJeF9HUEdacWZn?oc=5",
-      "summary": "World’s cartoonists on this week’s events politico.eu",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T01:58:50+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "Why the rich and powerful couldn't say no to Epstein",
