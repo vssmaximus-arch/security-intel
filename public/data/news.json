@@ -1,13 +1,85 @@
 {
-  "generated_at": "2025-11-30T11:41:43.586494+00:00",
+  "generated_at": "2025-11-30T13:20:13.107678+00:00",
   "articles": [
     {
-      "title": "Hong Kong fire death toll rises to 146 as thousands pay respects",
-      "link": "https://www.bbc.com/news/articles/cp34yk7z6yxo?at_medium=RSS&at_campaign=rss",
-      "summary": "Authorities say they have completed searches of four of the towers as part of a criminal probe.",
+      "title": "Climate protesters in kayaks disrupt operations at Australia port",
+      "link": "https://www.bbc.com/news/videos/c865p45j3qeo?at_medium=RSS&at_campaign=rss",
+      "summary": "Dozens have been arrested during climate protests at one of the world's biggest coal export ports.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-30T11:38:36+00:00",
+      "timestamp": "2025-11-30T13:08:54+00:00",
+      "region": "APJC",
+      "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Four killed in shooting at family gathering in California",
+      "link": "https://www.bbc.com/news/articles/cvg81p61dnmo?at_medium=RSS&at_campaign=rss",
+      "summary": "Police say 10 others are injured in what they believe is a \"targeted\" shooting, with children among the victims.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T12:52:32+00:00",
       "region": "AMER",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Netanyahu Asks Israel’s President to Pardon Him in Corruption Cases",
+      "link": "https://www.nytimes.com/2025/11/30/world/middleeast/netanyahu-pardon-request-israel.html",
+      "summary": "Prime Minister Benjamin Netanyahu made the appeal weeks after President Trump made the same request to the Israeli president.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-30T12:42:44+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Corruption (Institutional)",
+        "Politics and Government",
+        "Netanyahu, Benjamin",
+        "Israel"
+      ]
+    },
+    {
+      "title": "Hong Kong’s Migrant Domestic Workers Mourn Their Losses in Deadly Fire",
+      "link": "https://www.nytimes.com/2025/11/30/world/asia/hongkong-fire-domestic-workers.html",
+      "summary": "At least eight workers died, and many of those who survived, after saving children and others in their care, are worried about losing their jobs and being forced to leave.",
+      "source": "www.nytimes.com",
+      "timestamp": "2025-11-30T12:31:39+00:00",
+      "region": "APJC",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": [
+        "Hong Kong",
+        "Hong Kong Apartment Complex Fire (Nov 2025)",
+        "Fires and Firefighters",
+        "Workplace Hazards and Violations",
+        "Domestic Service",
+        "Migrant Labor (Non-Agriculture)"
+      ]
+    },
+    {
+      "title": "Opinion | Trump’s world view offers Beijing a window of opportunity on Taiwan - South China Morning Post",
+      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQRVNwdDFsa1IwRjcxZWhfQmJ3T0dqS0ZUUWhjaHNGNFgyelFJZ3Z4VEg1TUF2T09MUmp6cVptVGkzZmt4R2plQWJEajE4SlJ6MFVrMkNWbmtTV1M4V0hrcy1UNU1LeXdGOUlaRm5SRDc1clkyNElqbm1Pd2JacWo2c3lWTE1DZnBPbzZhQ0otalB3MjV2WGQ3RVZZVjVRWEV4NmtGYURWUC1DXzNZRFctLTB0VXRjbDV20gG4AUFVX3lxTE5aWm9tWUdqNFBVc0k5bWxUcWhmeGE1ckNuczdvQ2l6c0Z2Q0lTNkQ5SXhoa1ZiRENEbTZIZ1pldlo1QnNXYzkzYWdkWmZDQ2lGOFNGekd4YmVZOWx6UWpuX1Q0R244TElPWHNFdmQ1VzNMS3Z0aGNEUHdXVW80R3FoNVNqNVVzU181aTJBZmI2M3JMTngwOXM1MThhN3N3MWVoR3A1OGtOUnhBRjZQY3ZFMGxibjdiNzA?oc=5",
+      "summary": "Opinion | Trump’s world view offers Beijing a window of opportunity on Taiwan South China Morning Post",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T12:30:08+00:00",
+      "region": "APJC",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Kazakh pair accused of using spycam and earpieces to win A$1.2m in casino",
+      "link": "https://www.bbc.com/news/articles/c075zd0j2j3o?at_medium=RSS&at_campaign=rss",
+      "summary": "The husband and wife are alleged to have used a range of devices to cheat card games over a number of weeks.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T12:23:44+00:00",
+      "region": "Global",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -18,7 +90,7 @@
       "link": "https://www.nytimes.com/2025/11/30/world/asia/flooding-indonesia-thailand-southeast-asia.html",
       "summary": "Hundreds of people have been killed and millions displaced as extreme weather has ravaged Southeast Asia this month. Indonesia’s heavy rain was linked to two tropical cyclones.",
       "source": "www.nytimes.com",
-      "timestamp": "2025-11-30T11:36:55+00:00",
+      "timestamp": "2025-11-30T12:13:43+00:00",
       "region": "APJC",
       "severity": 3,
       "lat": null,
@@ -36,6 +108,66 @@
       ]
     },
     {
+      "title": "Hong Kong fire death toll rises to 146 as thousands pay respects",
+      "link": "https://www.bbc.com/news/articles/cp34yk7z6yxo?at_medium=RSS&at_campaign=rss",
+      "summary": "Authorities say they have completed searches of four of the seven towers as part of a criminal investigation.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T12:13:41+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Rising Tide protest: climate activists stop three ships from entering world’s largest coal port in Newcastle - The Guardian",
+      "link": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxNNFc3REZRZnJQZHRyTU5rNUYyVnA2dGVtenhEZVNoWk5tSmtzRXloU3V2NW9BX2I3UFE1YUlzNTBUVUNkRFNTMkg0NktOeEJQNFBKM3VRcUJGWjJ2U05JWkFBQWtzSHIzcmVYbGtqejRpcF9UbWQyLW1uSGJrM210NTdadGhCNnRXYWlEaU45TzBITDVvaEhYXzlSaTl4Zks4NW82TEZpZkhPbFNyRVkxdnM1Z3pxbUtTSXZhM0d1b3BIY3djb0FJRnVhTG9YSS0xV3NNQ2V3N3RMU3JicUJjNWJzbmJSMi15YlJ3R0NyOA?oc=5",
+      "summary": "Rising Tide protest: climate activists stop three ships from entering world’s largest coal port in Newcastle The Guardian",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T12:11:00+00:00",
+      "region": "LATAM",
+      "severity": 2,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "The World Still Hasn’t Made Sense of ChatGPT - The Atlantic",
+      "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPczVTSlpNS3VGRk9LeU1qLVp0SWFzX0RHcl9NQzBIcUtPQkRPVUFDSkp4T1FxaXhuM1lwQVowSmFRUGJOQnVadnNnRlB2T2JCUWtmSXRiWngyOXZwZXJBY1JISDBpaFFRVi1ZeUdwdnJTajRQYXdWZHVxMnphZjYxTGxzTDFTM1k?oc=5",
+      "summary": "The World Still Hasn’t Made Sense of ChatGPT The Atlantic",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T12:00:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Death toll from Indonesia flooding rises to 442",
+      "link": "https://www.bbc.com/news/articles/c5y9ejley9do?at_medium=RSS&at_campaign=rss",
+      "summary": "Hundreds have been killed across South East Asia, with monsoons exacerbated by cyclones also affecting Thailand and Malaysia.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T11:59:49+00:00",
+      "region": "APJC",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Benjamin Netanyahu seeks pardon from Israel's president",
+      "link": "https://www.bbc.com/news/articles/c4gv76r5qpvo?at_medium=RSS&at_campaign=rss",
+      "summary": "\"An immediate end to the trial would greatly help lower the flames and promote broad reconciliation,\" Israel's PM says.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T11:49:50+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "How to watch Mikaela Shiffrin in the slalom race at Copper World Cup - USA Today",
       "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNSlJocnhsR2RzR1RTWXZ1dWpsMElNNnJkLWkzYTFIUmVlOVFzZ2MxTlJMRjlPUUkyZ1ZINWVVZVd5d0VaY0xaV3RYNHpyZmJydHc5Skhndk8zU0NsV3pyeHVjc29MaW5DS2RBQmsxeTI3U25VYmVaUS0yMXk0bzBwRUp3cGdCUF9OT1JMdHpfclV4Y1F6SHF0aHA0b2U5NVM2empZVGhIeUFKM0Y1cnEwY3pNQnNPM2N0ZHgzMlBBT2JtV1NJSW56QXhvVXRlT2phNHF5Zzh3?oc=5",
       "summary": "How to watch Mikaela Shiffrin in the slalom race at Copper World Cup USA Today",
@@ -46,23 +178,6 @@
       "lat": null,
       "lon": null,
       "tags": []
-    },
-    {
-      "title": "Israel’s Netanyahu Requests Pardon in Corruption Cases",
-      "link": "https://www.nytimes.com/2025/11/30/world/middleeast/netanyahu-pardon-request-israel.html",
-      "summary": "The move comes two weeks after President Trump wrote to Israel’s president urging a pardon for Prime Minister Benjamin Netanyahu.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-30T11:03:27+00:00",
-      "region": "EMEA",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Corruption (Institutional)",
-        "Politics and Government",
-        "Netanyahu, Benjamin",
-        "Israel"
-      ]
     },
     {
       "title": "Second 2-woman Bobsleigh victory for World Champions Nolte/Levi - IBSF",
@@ -108,30 +223,6 @@
       "timestamp": "2025-11-30T10:56:41+00:00",
       "region": "AMER",
       "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Virat Kohli Breaks Sachin Tendulkar's World Record With 52nd Hundred In ODI Cricket - NDTV Sports",
-      "link": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxQc2ZUNHlGaEFUMzQ5MnoxVnV3NnlHcURrVW5mV3d4cVNSLXlTQmZVT2ZHUUVjTnUweUtwM1hDUkhTcmFiOU5vcmswOTBROTdMVzlOaTlmVWp3VXBjVER0Q2tTWDQ0TW9jVVNoV3RUN2U1RHUyVXZDRmRXTHo0U1Vxbmhfd28zZVNGME5xaXFGMnBFLVVQSko0c21wa3FyeXNRaWpOVUdNQmdzVVUwNzdtdTRoaG45dHhkSndFMDNnSmVPQ3lxcTBMeEU4M3ROOFNqZEpFbHA3SFV5UlNJaWROc9IB6AFBVV95cUxPVHlnQ3RGUWRzQmFFQ2lIZzc4enQ4ZWlHUURuY0o1YU5lako3VEE4VnVIXzdabEotYThWaEhVTHAzVVNvMGthWHg1eUVuMWtXNjc4UldSM2U2YkNtRFBoV0liYUFQYThVNFJiTTljaEpILXowM2tNZ2FRMTFGcG1vWjF0VDJLbnVQV2xmNlhBWk9fUV94Ym9WUC0tT01KUHJGZExKc3pVV2FIVHprNW9TUG8yLXNhRHZqLTVKU0JLSlBxWVgwdzYxWm9WZzdXRFk2NV8tdFpSRlVMRnJjdFQ2QW80VGNoejM0?oc=5",
-      "summary": "Virat Kohli Breaks Sachin Tendulkar's World Record With 52nd Hundred In ODI Cricket NDTV Sports",
-      "source": "news.google.com",
-      "timestamp": "2025-11-30T10:51:37+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Death toll from Indonesia flooding rises to 417",
-      "link": "https://www.bbc.com/news/articles/c5y9ejley9do?at_medium=RSS&at_campaign=rss",
-      "summary": "Hundreds have been killed across South East Asia, with monsoons exacerbated by cyclones also affecting Thailand and Malaysia.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-30T10:38:54+00:00",
-      "region": "APJC",
-      "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
@@ -272,11 +363,11 @@
       "tags": []
     },
     {
-      "title": "French farm has €90,000 worth of snails stolen",
-      "link": "https://www.bbc.com/news/articles/c93wnyxjkxko?at_medium=RSS&at_campaign=rss",
-      "summary": "The break-in was \"a real blow\", says L'Escargot Des Grands Crus, which was preparing deliveries for the holiday season.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-30T08:45:37+00:00",
+      "title": "Get Ready for a World with Fewer Barriers To War - Bloomberg.com",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQVDFoa3MyTVZKdGVRZm5VY1VFei01RkI1MlZuQ0pYbUFoeXdCV2xDYUxZWjVpbVJMcDk1cjNYQTdEVlVNbUVZbXZXQ0tHUEtDRi1wc0hVVnhUNTFxYVdRd2w4dkF2bERZWVFGYTh4R05SbkQzSWwzcEViYnN4ZkFLdTMxV051aE5mOURBVVFmRTVvbFpKX3NyYkt0dmRCYUwwdkdfQg?oc=5",
+      "summary": "Get Ready for a World with Fewer Barriers To War Bloomberg.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T09:00:33+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -284,13 +375,13 @@
       "tags": []
     },
     {
-      "title": "Four killed in shooting at child's birthday party in California",
-      "link": "https://www.bbc.com/news/articles/cvg81p61dnmo?at_medium=RSS&at_campaign=rss",
-      "summary": "Police say 10 others are injured in what they believe is a \"targeted\" shooting, with children among the victims.",
+      "title": "French farm has €90,000 worth of snails stolen",
+      "link": "https://www.bbc.com/news/articles/c93wnyxjkxko?at_medium=RSS&at_campaign=rss",
+      "summary": "The break-in was \"a real blow\", says L'Escargot Des Grands Crus, which was preparing deliveries for the holiday season.",
       "source": "www.bbc.com",
-      "timestamp": "2025-11-30T08:03:24+00:00",
-      "region": "AMER",
-      "severity": 3,
+      "timestamp": "2025-11-30T08:45:37+00:00",
+      "region": "Global",
+      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -308,11 +399,23 @@
       "tags": []
     },
     {
+      "title": "Skateboarding - WST World Cup Kitakyushu Street 2025: Shirai Sora wins men's crown with last trick - Olympics.com",
+      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNaEtJZVh6TFp5TDRsZ2FkclVFeGNIM2tEVFNTX2lZdkpYNl9ac2RtRFJvMUlGVEtYU1l2NjJOdFFEQWYzVHlGQ1UtT1JIUk9Vbjh2WnlpY0p2VGNWZnE4NWhuODJLZzNMSXRYWjRGYXpNWWZzX1I2NDZQSmRTLWhubHJWNEtXekp5Q1RmR0Q0LTBNbFd4QXBNa3dONzhFTy1MNmlWYjdXZnF2bHZnMlM0V0FHODU?oc=5",
+      "summary": "Skateboarding - WST World Cup Kitakyushu Street 2025: Shirai Sora wins men's crown with last trick Olympics.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T07:41:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "News and current affairs from Germany and around the world – DW - DW",
       "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFA0ZWlYZDNMaFVsZ1NnYnZfaVR4RHVjNnRkYTBnUUpJWjBHbUZGOVhnVFIteVU2TzFPcHNJdE5LdlNIbk54bE5CUjRDdVoyb2pNd3c?oc=5",
       "summary": "News and current affairs from Germany and around the world – DW DW",
       "source": "news.google.com",
-      "timestamp": "2025-11-30T06:46:46+00:00",
+      "timestamp": "2025-11-30T07:12:30+00:00",
       "region": "EMEA",
       "severity": 1,
       "lat": null,
@@ -355,25 +458,13 @@
       ]
     },
     {
-      "title": "Venezuela condemns Trump's threat to close country's airspace",
+      "title": "Venezuela condemns Trump airspace closure warning",
       "link": "https://www.bbc.com/news/articles/c741mpdyw9no?at_medium=RSS&at_campaign=rss",
       "summary": "The US says it is fighting drugs smuggling, but Venezuela says Donald Trump's aim is to topple President Nicolás Maduro.",
       "source": "www.bbc.com",
       "timestamp": "2025-11-30T04:39:09+00:00",
       "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Public invited to 38th anniversary of World AIDS Day - Lynnwood Times",
-      "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBTOER6endtcTRySXlILUppZ21MTGx0Ul9wMlpqN3JfQmZzVExEYnI5Mm5ESWRsSDJxR0piN2Vua19sOTZaYktzZ3N3OXBzcUhWOWtnVGhITzhvdUdx?oc=5",
-      "summary": "Public invited to 38th anniversary of World AIDS Day Lynnwood Times",
-      "source": "news.google.com",
-      "timestamp": "2025-11-30T03:58:13+00:00",
-      "region": "Global",
-      "severity": 1,
+      "severity": 2,
       "lat": null,
       "lon": null,
       "tags": []
@@ -391,21 +482,9 @@
       "tags": []
     },
     {
-      "title": "More than 24 hours later, the football world waits for Lane Kiffin’s decision - NBC Sports",
-      "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNd193V1kxZUVORkx3N2J4cW8taGF4OUp6QUpVeGRQWGZfU1A1Mms2a0o0ZUJZMl9NdTFXVWVCczRBZWw4c3d5QmRDZVhaVnA4X2hqblhYVUNKOUpKMm16MG1lZGRERV9yZGZ5NDdTWEN3Z1hsekUxLWItWWlmUE9TT0RCREczNG81Z0FMT3JnbXlkWi02MF9TYnFvQ3Fqa3FWLWFZYjl5R0dmVjRJXzE3MnpUNDNZR0xud3JpbFZTTFYzcFM1TUFoTHdrZjJXOVZoQzRZ?oc=5",
-      "summary": "More than 24 hours later, the football world waits for Lane Kiffin’s decision NBC Sports",
-      "source": "news.google.com",
-      "timestamp": "2025-11-30T01:36:45+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Drinking is a way of life in Ireland - can a warning label change that?",
       "link": "https://www.bbc.com/news/articles/c2465lndrnno?at_medium=RSS&at_campaign=rss",
-      "summary": "The labels, which warn of cancer risks, are among the strongest warnings on alcohol anywhere in the world.",
+      "summary": "From sober curious to dedicated pint-lovers, 20-somethings tell us about their outlook on drinking.",
       "source": "www.bbc.com",
       "timestamp": "2025-11-30T01:29:16+00:00",
       "region": "EMEA",
@@ -578,18 +657,6 @@
       ]
     },
     {
-      "title": "Mikaela Shiffrin takes her 103rd World Cup win in the women’s slalom in Gurgl, Austria - adidas News",
-      "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOeU4tN0JsWWZiYlpGMGt4VUg5NVZfNjRYekp0X3NYb3MzektBdzY1cll5MTBDc2NmUmE4Tjd5RHlLMVdOUE15OV9FdERGanJKUG1fVlpheEtmYWpMS0NQMEVsRWFySVRaMjNpVW1FUThOY1VGZ3o1MUtsM2ljQ1kxU2Q1NDMxVXFPa21PWm1wWDRhaGdYXzJPMl9lajRuQjZxc3Iybk1MdHkxMUVzcUdmN3Nzajk0eHh1YzVZUVVhd05fZTdtN19QbTR1NktKM3VUZFFJZ3c1MnhRUG85T3l2cU45Zw?oc=5",
-      "summary": "Mikaela Shiffrin takes her 103rd World Cup win in the women’s slalom in Gurgl, Austria adidas News",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T21:44:16+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Top Trump Aides to Meet With Ukrainians in Florida on Sunday",
       "link": "https://www.nytimes.com/2025/11/29/us/politics/trump-aides-ukraine-florida-meeting.html",
       "summary": "Secretary of State Marco Rubio, Steve Witkoff and Jared Kushner plan to discuss peace terms again after an uproar over a 28-point proposal drafted with Russian input.",
@@ -632,6 +699,18 @@
         "Russia",
         "Ukraine"
       ]
+    },
+    {
+      "title": "Ryan Cochran-Siegle Carries U.S. Men in Euro-Dominated Copper Races - skimag.com",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOeVloZXRwcFdPNTlhSlY1Y1VmRGFrMUVKTWs5THhndC1jWWV2clNRMDdZQVlTWTktd2dpMDNMNWp2VEtDQ2RZdlVJX3JXd1lHOHJZTDRrSFlWSVVkMVlEenFyNUF4dzY3Z1g3NE9iR1ZvY3lnSUFWcjk2WjZJN1U4RnI1bHEzcG5uLV9nZW14ZmhncTJ4cy1WVXBn?oc=5",
+      "summary": "Ryan Cochran-Siegle Carries U.S. Men in Euro-Dominated Copper Races skimag.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T20:49:07+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Women's World Cup could come to LA in 2031 - LAist",
@@ -771,11 +850,11 @@
       ]
     },
     {
-      "title": "How to watch Mikaela Shiffrin race giant slalom at Copper Mountain - USA Today",
-      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOLWw2clBObWppTmpGUmdVWUt4TGNoalFPcEdTX2ZOTVh0YkMtb01hOWY3dEs1Q0Q2bmd0dzZ1NEd3Z3dHYnllZnJibFM1YndndEJxck9fYmpsdFY2dVROU251YU1xX0g3ZUxGTEtYZGRpb1FlUUJoYkxodi1LUTdVRHFtLUp1dU1BMHY3RUxNTVB0a2psNmxUYlBxZWtDYWtYMUswTDNiUldzTUxEd19pYk8xUGpkYVU?oc=5",
-      "summary": "How to watch Mikaela Shiffrin race giant slalom at Copper Mountain USA Today",
+      "title": "Love claims monobob World Cup gold for U.S. - ESPN",
+      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNT2p3VENLZFBfbms0LURBeVZVNHBlMG51Vk1DcE5IdXlLRHl3S2xmbHQxSnNvX2lKV294azFzRzRKRDZoNG5TMGR2SUI5eVRmMUZiMlY1VWtpREhzQ21HbFdONFduMl9kQVpzUUlPMERhZXEycXVST1Z3REdXYkVWa05YYXNWTnVrZVBwVVJYdnFFZEFvVTBnNy1fRmpIbFpoUGc?oc=5",
+      "summary": "Love claims monobob World Cup gold for U.S. ESPN",
       "source": "news.google.com",
-      "timestamp": "2025-11-29T16:10:33+00:00",
+      "timestamp": "2025-11-29T15:42:00+00:00",
       "region": "AMER",
       "severity": 1,
       "lat": null,
@@ -831,18 +910,6 @@
       ]
     },
     {
-      "title": "Pope at Mass: Bring hope in world where religion is used to justify war - Vatican News",
-      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQcDNHWkFsc01LZllQYnJjdTRDcjYwU29Bc2Y0NEFrSlc5WGxLZlZ3cVNLWU8zREo2bWswZzVMQlVaLU1GM3lzVENRTmMwVnMyRVphNTIxRlE0MFpMZmZfWWpYU0tJR1FsamNLYkhkSmRvU1FiaVZyemYxeVRMcVpjSEQweUlpYno3VFQ2SmtoMHJCdHM4aTV6NURBdUltOEVsbWFJVzlUdUV0SHBYZ3FsWklrMG9peGc?oc=5",
-      "summary": "Pope at Mass: Bring hope in world where religion is used to justify war Vatican News",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T14:50:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Flights returning to normal after Airbus warning grounded planes",
       "link": "https://www.bbc.com/news/articles/c4gp9d28p74o?at_medium=RSS&at_campaign=rss",
       "summary": "Around 6,000 planes were affected after an issue that could corrupt data was discovered.",
@@ -850,18 +917,6 @@
       "timestamp": "2025-11-29T12:37:29+00:00",
       "region": "Global",
       "severity": 2,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Iran boycotting 2026 World Cup draw ceremony in Washington due to denied visas by Trump administration - Fox News",
-      "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNZmVXRktVdDFlaVJLMVlPV200ZXVJbGFraWJZRVNXUFhfTV80dTBhay1vRWxCSTdrVVlBbTJuczNHMmR0d0tvYTY4NUZYaVhnSE9aSXRsNTJtTmhyYTlKOWViT3Z6WDNhYUsxSU9SUm44d3BqZnplZm5MU01fWVFZUGg4c0JSaWNUcDdzeXkteWU5dWVFY2IzZ1YxX3FwNURlYTVLME1DN2lHaWRCNWJmSU1VUVBTRldUYkI1VjE4Q2JSZ9IBxwFBVV95cUxQbUUwalBmU0dHd1lqcjM4YlRlSlBKNTBRSFFxVGVHeWxCcVVHemZHY1R0V3VPcVdUeEpUc0lXNGVZWnFRZ2I0bnJiR0xXTTZCR3YtMUhNTXZVTnVjcVdCb1hFYjM2V3ZvRzd6a2I0SVl3S0NLSlZEQjJacC1PUXNYYnFBYl95bjFaVHRldWgwX0lIcVFieVF4elRRcUJ1bmlRYVh0amxSMnI0Q0RYeDdvVVN0X0ZMSHFBeTR6Y2tiSnEwd1Nnd20w?oc=5",
-      "summary": "Iran boycotting 2026 World Cup draw ceremony in Washington due to denied visas by Trump administration Fox News",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T12:33:52+00:00",
-      "region": "AMER",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -886,18 +941,6 @@
       "timestamp": "2025-11-29T12:30:00+00:00",
       "region": "APJC",
       "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Three days of mourning begin after Hong Kong's deadliest fire in decades",
-      "link": "https://www.bbc.com/news/articles/c8dy9lne2plo?at_medium=RSS&at_campaign=rss",
-      "summary": "At least 128 people have died and hundreds remain unaccounted for following the fire which engulfed several tower blocks.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-29T12:18:06+00:00",
-      "region": "APJC",
-      "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
@@ -986,18 +1029,6 @@
         "United States",
         "Book of Lives: A Memoir of Sorts (Book)"
       ]
-    },
-    {
-      "title": "The world’s youngest self-made billionaire hasn’t taken a day off in 3 years and can’t stop thinking about work—here’s how he keeps from burnout - Yahoo Finance",
-      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxONGgzbzJnb21wTjRzQWprM3AxeGhIb1I2bVBNMk1Yb1FDeGZEWlo3cmdpZ0VLemRVLUVRTWM2b1NELU0ydjhtSU85c0taTm5CcU9oWldZd21rWTc3NkFhUGdaWFpTLWdDeFNBTFJ4cWMtWnhnbWZXbGRiN00tZlVLSkdVYnI4OW5XRkE?oc=5",
-      "summary": "The world’s youngest self-made billionaire hasn’t taken a day off in 3 years and can’t stop thinking about work—here’s how he keeps from burnout Yahoo Finance",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T10:22:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "Latin American Leaders Face Both Trump and Voters Deported by the U.S.",
@@ -1094,23 +1125,6 @@
       "tags": []
     },
     {
-      "title": "A Hong Kong Fire Survivor’s Escape, in His Own Words",
-      "link": "https://www.nytimes.com/2025/11/28/world/asia/hong-kong-fire-survivor-escape-story.html",
-      "summary": "In his own words, William Li, a resident of the Hong Kong apartment complex that became an inferno, recounted how he and two neighbors survived until help arrived.",
-      "source": "www.nytimes.com",
-      "timestamp": "2025-11-29T08:44:19+00:00",
-      "region": "APJC",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "Hong Kong",
-        "Hong Kong Apartment Complex Fire (Nov 2025)",
-        "Fires and Firefighters",
-        "Rescues"
-      ]
-    },
-    {
       "title": "US halts all asylum claim decisions in wake of National Guard shooting - BBC",
       "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5Dc0lfOFJSa1RTekJ5LWd5ejJpMW44N3BmVnRoTWdUVk5wTWl6aF9aekducjlDVUxTME9JT2k2bUxEdUJ5bkl4Nm5iR1dfZkJ4ZlFzOWtNNWg3QdIBX0FVX3lxTFBXeC1RUUkycC1USktKMmJlZkl1RmZvVm1FZGN1WlhTR2d4ejJKd0RDTjMzOXdQaGxhdzFXejVzQVdDVVAzMmIwSk9uV0czT0VoblhpNl9KZjg0em83cXlr?oc=5",
       "summary": "US halts all asylum claim decisions in wake of National Guard shooting BBC",
@@ -1196,6 +1210,18 @@
         "Somalia",
         "Afghanistan"
       ]
+    },
+    {
+      "title": "World’s cartoonists on this week’s events - politico.eu",
+      "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNYnQ2NTNudmtYSE9XSHBWSEItOUlOa3VsQ19fN0NWYk0xOGg1TXM0dzZSUDM4bWJ4S0JobTB0ZXJBU0ZiU2FPbWtrNjRMVXNIa0d6cUYweWpWUHQ1enlsc2dPUFNsNk9jdzU2T1FlQUJQVXFXOXdPLTBJeF9HUEdacWZn?oc=5",
+      "summary": "World’s cartoonists on this week’s events politico.eu",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T01:58:50+00:00",
+      "region": "EMEA",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Why the rich and powerful couldn't say no to Epstein",
@@ -1321,6 +1347,18 @@
         "Social Media",
         "Markus Grasl"
       ]
+    },
+    {
+      "title": "Iran boycotting World Cup draw citing visa denials - ESPN",
+      "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNTmRUWVlsQjZmUmlkR2JBNFJKRzJCRWFmTE41Q3l3Nmk5alJ2SnVYWWdwM2VyWFh3ZFNiMFJUR2JwZzhsUTZ3Yl9JdWZBazE3QUE4cElVMUhCdUQwX19Ha0hjQnJYcmNvOTJCYmkteTN0TEh2bmF2dHR2WGw4aTB0MzNDYWlTQXZLenpKdHpjMXBQM1U?oc=5",
+      "summary": "Iran boycotting World Cup draw citing visa denials ESPN",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T18:20:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Microsoft: Windows updates make password login option invisible",
@@ -1485,18 +1523,6 @@
       "timestamp": "2025-11-28T08:33:00+00:00",
       "region": "Global",
       "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Measles - World Health Organization (WHO)",
-      "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5CSm90Nlo1aVhLczFhQ3MwSV80amFZNzd4WWZBbHFqbllGaXJ1S3psNFZ5YkxwbVB5bG93bTY5bnc1SEFaOTRtekd3ZVlmYXltT2lvYjRqbTNyc2VBYnE0WTkyYXpUT0k?oc=5",
-      "summary": "Measles World Health Organization (WHO)",
-      "source": "news.google.com",
-      "timestamp": "2025-11-28T08:00:00+00:00",
-      "region": "Global",
-      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -2234,39 +2260,6 @@
       "lat": null,
       "lon": null,
       "tags": []
-    },
-    {
-      "title": "Streaming platform Twitch added to Australia's teen social media ban",
-      "link": "https://www.bbc.com/news/articles/cx2n2955g10o?at_medium=RSS&at_campaign=rss",
-      "summary": "It joins other platforms including Facebook, Instagram, TikTok and Snapchat in the ban that starts next month.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-21T02:33:49+00:00",
-      "region": "APJC",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Mozilla Says It’s Finally Done With Two-Faced Onerep",
-      "link": "https://krebsonsecurity.com/2025/11/mozilla-says-its-finally-done-with-two-faced-onerep/",
-      "summary": "In March 2024, Mozilla said it was winding down its collaboration with Onerep -- an identity protection service offered with the Firefox web browser that promises to remove users from hundreds of people-search sites -- after KrebsOnSecurity revealed Onerep's founder had created dozens of people-search services and was continuing to operate at least one of them. Sixteen months later, however, Mozilla is still promoting Onerep. This week, Mozilla announced their partnership with Onerep will officially end next month.",
-      "source": "krebsonsecurity.com",
-      "timestamp": "2025-11-20T19:06:51+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": [
-        "A Little Sunshine",
-        "Ne'er-Do-Well News",
-        "Dimitiri Shelest",
-        "firefox",
-        "Monitor Plus",
-        "Mozilla",
-        "Nuwber",
-        "OneRep"
-      ]
     }
   ]
 }
