@@ -1,6 +1,30 @@
 {
-  "generated_at": "2025-11-30T07:31:21.993633+00:00",
+  "generated_at": "2025-11-30T07:43:40.513550+00:00",
   "articles": [
+    {
+      "title": "Hundreds dead and missing in flooding across South East Asia",
+      "link": "https://www.bbc.com/news/articles/c5y9ejley9do?at_medium=RSS&at_campaign=rss",
+      "summary": "The region faces some of the worst floods in years, with millions affected in Indonesia, Malaysia and Thailand.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T07:40:37+00:00",
+      "region": "APJC",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Four killed in shooting at child's birthday party in California",
+      "link": "https://www.bbc.com/news/articles/cvg81p61dnmo?at_medium=RSS&at_campaign=rss",
+      "summary": "Police say 10 others are injured in what they believe is a \"targeted\" shooting, with children among the victims.",
+      "source": "www.bbc.com",
+      "timestamp": "2025-11-30T07:35:33+00:00",
+      "region": "AMER",
+      "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
     {
       "title": "Skateboarding - WST World Cup Kitakyushu Street 2025: 13-year-old Matsumoto Ibuki dazzles to first tour title - Olympics.com",
       "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPVW9CUE94VDJQb2NiUUNsMVMyMkRHYlJUcWJ3b0Q2aDBpSE5hOWw4MDNmaTduSDRuUjlTQklxT2RzM0theV9Ha2l3MjJIeFZuN0RDRWdNSmFsZDVWaTBzRWhIM29qbjFTbHZjcmc5XzlfTklyYlFCWUdmS2pqWUtBU1ljNzN2YzJrOGEtaDBNQUV6ZzV6dHc?oc=5",
@@ -30,21 +54,9 @@
       "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQUVNYMlZDSkZCVE1UUWptcUx1Q2JhOFVxU2t0VDBrTk5ZU1R5cFRnNWFpakRraFR0N0cyMVRianVwY1V4MFQ1cThCWEhjSFNlYk5UelJiaXl2bXRXZVNhRjl0aEEzWHZwenlTbmFhUkVGdGgzb1NyN0duMHR1UnRBQ0pfVC1lMHc5ZmJMVWdn?oc=5",
       "summary": "Robinson revels in record fifth World Cup win Reuters",
       "source": "news.google.com",
-      "timestamp": "2025-11-30T06:16:00+00:00",
+      "timestamp": "2025-11-30T06:16:12+00:00",
       "region": "Global",
       "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Four killed in shooting at child's birthday party in California",
-      "link": "https://www.bbc.com/news/articles/cvg81p61dnmo?at_medium=RSS&at_campaign=rss",
-      "summary": "Police say 10 others are injured in what they believe is a \"targeted\" shooting, with children among the victims.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-30T05:57:27+00:00",
-      "region": "AMER",
-      "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
@@ -85,18 +97,6 @@
       "tags": []
     },
     {
-      "title": "Hundreds dead and missing in flooding across South East Asia",
-      "link": "https://www.bbc.com/news/articles/c5y9ejley9do?at_medium=RSS&at_campaign=rss",
-      "summary": "The region is hit by some of the worst floods in years, with millions affected in Indonesia, Malaysia and Thailand.",
-      "source": "www.bbc.com",
-      "timestamp": "2025-11-30T04:30:11+00:00",
-      "region": "APJC",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Public invited to 38th anniversary of World AIDS Day - Lynnwood Times",
       "link": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBTOER6endtcTRySXlILUppZ21MTGx0Ul9wMlpqN3JfQmZzVExEYnI5Mm5ESWRsSDJxR0piN2Vua19sOTZaYktzZ3N3OXBzcUhWOWtnVGhITzhvdUdx?oc=5",
       "summary": "Public invited to 38th anniversary of World AIDS Day Lynnwood Times",
@@ -109,12 +109,24 @@
       "tags": []
     },
     {
-      "title": "Why is Iran boycotting the 2026 FIFA World Cup draw in the United States next week? - The Indian Express",
-      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPeHdNcDZSQURPQUNOVlp1T21kUllPVTBqVlpRVVpDUmtfZThqRTYtNks3d213Zm1NZGJwdkFGMG9ISHJsZ3lnSFRGcnU2dFlHS2hyYzVuN2h4d3BST3R6VnV2dmROODRUQzZwb2pwalBkSkFHYzdxMHlhSk9WZmlkWnFibmVvc20wZUk2emdMcUxOWHVjWWN5dE9oQ00xblpBRHfSAagBQVVfeXFMUHlKUHFZTlY4NnBlQXM0bFVWaUFreHUwaUloMF8xcWhKS25rd2lHeDhBeFpYVlFwTWRpdXJlZFdJTFF3Y1l4SEFZQUl6LVZqWFNEVnVHSWtIY2tUSWlYeElGT2xMa2thS3U1a2U2N1lEeHI3UkFUSjdLZnptcU9kZk1zV3BHLV95dzBLaW1sdkk2RklhR1VCcE1aTW9iZWpBeEprZ1FRbzh3?oc=5",
-      "summary": "Why is Iran boycotting the 2026 FIFA World Cup draw in the United States next week? The Indian Express",
+      "title": "Jefferson County offers free HIV testing for World AIDS Day - WBMA",
+      "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQM2JlekVxMHpYN2EwUGFVakNKWGJNT2lvQXZSTHIwcGIzdEF3eV9VdWdGOTlTMXNiS1d0aXBQVFJNdnhGdnE5aVE3OVctLWd1QXhtc2FqZEVfVWhnRDBCX180ZlktMVBLTXp5UXprN3pIUFNqNW5HQkk5aEFsSHdPNVVZdFN2WHpwakxJS1A5Ni05bVJF?oc=5",
+      "summary": "Jefferson County offers free HIV testing for World AIDS Day WBMA",
       "source": "news.google.com",
-      "timestamp": "2025-11-30T03:16:49+00:00",
-      "region": "AMER",
+      "timestamp": "2025-11-30T03:55:31+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Hyderabad doctor reveals 'no 1 high fibre food in the world that has 10 times more fibre than your daily bowl of oats' | Health - Hindustan Times",
+      "link": "https://news.google.com/rss/articles/CBMilAJBVV95cUxNcDJsemUzdGNBOFNNY293NnJ5ZTJvdFkwX28xSzhVZl9TUlJ3elZRTVFuVDl0QXcwTDdyZTk2dmNYMkRmSV9NeWlUbjZYVk01SXNILTdoWmhSZFFaaXZiUGt4d1dNd01ZU1RidjFaZzIwaEEwMmVsLW5nSUlIMC1XQUlFSElyMS1rNlY2WkxPQnNYRW1Vd0dmdlktTHZoMGtoRllRSUsxaTZoZ2JOTHhETEVWb2Vadml5QWdWa3BHX25fR3NRbTRSZWdUdWFNMGhGQzFaOXJjSS1ObkFJbXVfcjNZN3o1RmVUNUJ4aFp2bkstaUVkQnV2YUZPcU41bDVwV3VOOE1wTC1vMkEwb0pXUjFjQnrSAZoCQVVfeXFMUEd5ZzFzVDFkNUNVM3lHY0JwZE9ObXduODRmMzRsdnFmaTNzdUZ3c3BxZGhDeWFCUkFYS3VWOEdSdzV0dGxjaXRzQVd3YlhoQ3VXdkY3MkI0QlVYOWhJTzh5dEgyZjFpZzh2Ri1PN2dveEtkWU1HOWxsZEt6aUpPMXpjUjJDQ2w4Y2ktZ0Zabl9lT3I5eTBDZmp2UmpidTVFTjgyNmF0elhXQzVmS0UxZUFBUVZBREQ4dkRXTE5sY19xcHRscVlma2RuaElBdm1DMVhOcHRWNEtlMlBJQ0ZlQTNLMnhvZVZOajZPVWNSVjg3RmtyVFMwRmpzYXRydUpvTVJYbjNZRmEtTWtFSHY4Q1JTMTNhNjkxcVJR?oc=5",
+      "summary": "Hyderabad doctor reveals 'no 1 high fibre food in the world that has 10 times more fibre than your daily bowl of oats' | Health Hindustan Times",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T03:23:09+00:00",
+      "region": "Global",
       "severity": 1,
       "lat": null,
       "lon": null,
@@ -176,6 +188,18 @@
       "timestamp": "2025-11-30T01:04:19+00:00",
       "region": "APJC",
       "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Dodgers' World Series repeat leads list of Capital One Plays of the Year - MLB.com",
+      "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE40Y2pUdmlaRnNjdmdOZjNKVmQwOUxoSjhudzhHUE42QWNhMHFnRGtiU09iRnhndGRMMkJzbmN6X0hJa1Z5Q0ZMcDNfWEhSWkltX3ZZemc5aE51amlGbHlOZktrV19hakFXcHBva0l2MXLSAXxBVV95cUxNWnJlRnZZQW5TSDBYYVVsSzJNYko3dFFHYUsxc1d2bVRyWTNNUWtpMFY0REJobWc3SFZMMUg5eHBlNFJTQ1dieU1sa0k4Ym1BWURfZURjaDFsemtRSzlfTzRqSWlDSUx3a2pERFhGektmN1cwYXpGcy1qeUI0?oc=5",
+      "summary": "Dodgers' World Series repeat leads list of Capital One Plays of the Year MLB.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-30T00:54:10+00:00",
+      "region": "Global",
+      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
@@ -356,18 +380,6 @@
       ]
     },
     {
-      "title": "Mikaela Shiffrin takes her 103rd World Cup win in the women’s slalom in Gurgl, Austria - adidas News",
-      "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOeU4tN0JsWWZiYlpGMGt4VUg5NVZfNjRYekp0X3NYb3MzektBdzY1cll5MTBDc2NmUmE4Tjd5RHlLMVdOUE15OV9FdERGanJKUG1fVlpheEtmYWpMS0NQMEVsRWFySVRaMjNpVW1FUThOY1VGZ3o1MUtsM2ljQ1kxU2Q1NDMxVXFPa21PWm1wWDRhaGdYXzJPMl9lajRuQjZxc3Iybk1MdHkxMUVzcUdmN3Nzajk0eHh1YzVZUVVhd05fZTdtN19QbTR1NktKM3VUZFFJZ3c1MnhRUG85T3l2cU45Zw?oc=5",
-      "summary": "Mikaela Shiffrin takes her 103rd World Cup win in the women’s slalom in Gurgl, Austria adidas News",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T21:44:16+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Top Trump Aides to Meet With Ukrainians in Florida on Sunday",
       "link": "https://www.nytimes.com/2025/11/29/us/politics/trump-aides-ukraine-florida-meeting.html",
       "summary": "Secretary of State Marco Rubio, Steve Witkoff and Jared Kushner plan to discuss peace terms again after an uproar over a 28-point proposal drafted with Russian input.",
@@ -410,6 +422,18 @@
         "Russia",
         "Ukraine"
       ]
+    },
+    {
+      "title": "Ryan Cochran-Siegle Carries U.S. Men in Euro-Dominated Copper Races - skimag.com",
+      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOeVloZXRwcFdPNTlhSlY1Y1VmRGFrMUVKTWs5THhndC1jWWV2clNRMDdZQVlTWTktd2dpMDNMNWp2VEtDQ2RZdlVJX3JXd1lHOHJZTDRrSFlWSVVkMVlEenFyNUF4dzY3Z1g3NE9iR1ZvY3lnSUFWcjk2WjZJN1U4RnI1bHEzcG5uLV9nZW14ZmhncTJ4cy1WVXBn?oc=5",
+      "summary": "Ryan Cochran-Siegle Carries U.S. Men in Euro-Dominated Copper Races skimag.com",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T20:49:07+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Women's World Cup could come to LA in 2031 - LAist",
@@ -542,18 +566,6 @@
       ]
     },
     {
-      "title": "AEW World Champion Samoa Joe vs. Eddie Kingston for the Title Made Official for AEW Dynamite: Winter is Coming - All Elite Wrestling",
-      "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOenFxOHFxVElIajBWbG4xTDNudXVqVXI4LV9DRW9RTnM2a3RmaVBWZjFNVXczMlJxV3JJaHByTGZNazdaaHp4NVdiN0xuTjIwc29RTmN2ZXBNQ0FZa0JYc0VJNjVjS2p0QVFEUmRMb1Naa1MxeGx3X3NCZThpaExaQVNLM2dCRTdPZzdVODF3?oc=5",
-      "summary": "AEW World Champion Samoa Joe vs. Eddie Kingston for the Title Made Official for AEW Dynamite: Winter is Coming All Elite Wrestling",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T18:01:34+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Mourners Honor Victims of Hong Kong Apartment Fire",
       "link": "https://www.nytimes.com/2025/11/29/world/asia/mourners-hong-kong-fire.html",
       "summary": "The police said they expected the death toll of 128 to rise as the authorities began combing through the charred apartment towers.",
@@ -571,18 +583,6 @@
         "Lee, John (1957- )",
         "Hong Kong"
       ]
-    },
-    {
-      "title": "Junior Hockey World Cup 2025: India edge closer to quarter-final spot with 17-0 win over Oman - Olympics.com",
-      "link": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQd1pyZGxxZHZkNGRQUmUwOGdUVkRuem53LW10MXEtNGxQMkp4U1U2dGVvTENZTkFLb1lnYmkyZzhnWnd2VWtmRWltT3dUOGtDYU1La3lBZHdjY2hONWVpR0RRWHFLbEF3QVQzanI3dUM4N3hfRFc3b3czS19HbWxZY1pvWGlDeXNOT3FRWk1yV1V1dw?oc=5",
-      "summary": "Junior Hockey World Cup 2025: India edge closer to quarter-final spot with 17-0 win over Oman Olympics.com",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T17:30:00+00:00",
-      "region": "APJC",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "How to watch Mikaela Shiffrin race giant slalom at Copper Mountain - USA Today",
@@ -621,18 +621,6 @@
       "tags": []
     },
     {
-      "title": "Monobob World Champion Kaysha Love wins World Cup in Innsbruck with start and track record - IBSF",
-      "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNa3NYY3hPOWF2cTQtdGc3UXlLZldIa1kwX0JXdWx1dzlLZDYwbGdhb1NldzBRZG8wSmotcW04U0xiSUJtNHZRcTNzSzRCSnlLYWFWNWhVZDU3WkdJaXlCb2ExSkFnWndiUkt4SGROWTBUQXVySWNSRUlBSnQ4REcwMEtvWHRIQjA3cENyaG4za1B1T0VGenlXOUptZG52a0lTYThqMXV2bi1sZHc0YkN5cGtTLXg1SFZBc3kwYWtGV2lENXNK?oc=5",
-      "summary": "Monobob World Champion Kaysha Love wins World Cup in Innsbruck with start and track record IBSF",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T15:23:13+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Japanese beer giant Asahi says data breach hit 1.5 million people",
       "link": "https://www.bleepingcomputer.com/news/security/japanese-beer-giant-asahi-says-data-breach-hit-15-million-people/",
       "summary": "Asahi Group Holdings, Japan's largest beer producer, has finished the investigation into the September cyberattack and found that the incident has impacted up to 1.9 million individuals. [...]",
@@ -645,30 +633,6 @@
       "tags": [
         "Security"
       ]
-    },
-    {
-      "title": "New Hulu special fuses fashion and science to commemorate World AIDS Day - ABC7 Los Angeles",
-      "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQdS00Q0JpS2Y4ZXJuZ3BHbWJKcFRXWmFaazZTVUE4clE4ajl4NEtIZk5OWUZfY0hHOXY1NUVBaDdCdWI3dV9XUVZRYTd1UTc4NGFFaHdDQ1hPWG5ZelYyMmxlTmhLUTFfN0tpQUFhTnFyV0thcjNFSGZlUG9KUkpzd3NiWXlkTzFyX3J3RUNKSVdmLS1FSlFjaGJjeEs1d9IBowFBVV95cUxNZ21leFM3RXhYQjRidnl0am9Yb1BWc2pnNVlOMDItZ3NSQ1Y1SzBDSWJYSnJ0eDNJdy12VTAyckFzendDZnk1TEw3bWhEUU4zVUd3ajZyV2g5dkV1OWI1TzhkdWtxYW5rMURjMVA2SnhZell2QlNsbGVJcFU5WXVoRGd2WXhtb1NneWYxMXZZdXFyMzF3Q1k4MTNwNHVTNE1WZC1z?oc=5",
-      "summary": "New Hulu special fuses fashion and science to commemorate World AIDS Day ABC7 Los Angeles",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T15:17:19+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "The Outspoken CEO Behind the World’s Fastest-Growing Arms Maker - The Wall Street Journal",
-      "link": "https://news.google.com/rss/articles/CBMipwNBVV95cUxPN2R3S0VQYmJaQnRWQ0FKVi1RcG9fZUIxaTVyZkxPeW5CMUVqYzc0UTBHTjF5TkE1US1tMWZJN2kyTmtUV0xYLVV0VVVkaVBtQ01xR2owRzllNkx4djZ3aTBrNENDYXRGQXdxUTlMT2doTXFoUnQwVnlIdl85NlVzRzRLRW5OQTlXVnhWTjhrZUM4cG5fWHctbTJtby0yeE96MEh6Vm45cGFkSzVIWVM2WGZ2YVV6cnlnVkNlQWhNWHp1SWRVYXRWaFUxWGRzNWwtZEkxNjc5anVKXzJ3ZUY2akVyeWdvb0FySnFqUVc4dVZDTk4zTS0xQVJUS0ctcEo4QVhERHFKS0V6ZlRaTndsbWgwN2w1QzEtbjd3UExhZzNrTkg1UzhWaHRJRWVLSnN1MTlySnhJaEEyQjc2bnlvMWxvOFloVjVFWm9oWlVGbG5HWjVJLTBqeF91VEVMcVBCbFRCbWpLTWhuRmpBR0pMMEtRRUI4b0p4ZlBkVGhqcHJfSjJJLVRfUHlic3YzTzJtbG8wVDBnQ3Zid1pCV0dNZC1LVUlUbmc?oc=5",
-      "summary": "The Outspoken CEO Behind the World’s Fastest-Growing Arms Maker The Wall Street Journal",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T15:00:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
     },
     {
       "title": "Did Pope Leo Pray in Istanbul’s Blue Mosque? Not Visibly, at Least.",
@@ -697,18 +661,6 @@
       "summary": "Pope at Mass: Bring hope in world where religion is used to justify war Vatican News",
       "source": "news.google.com",
       "timestamp": "2025-11-29T14:50:00+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "Iran boycotting World Cup draw citing visa restrictions for soccer officials - The Hill",
-      "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQZmt5S0FibVpLZ3BNTV8tSWxIOThzbUFEa2pZS3VMZVItZm5OUGh0Q0lfVzRZUHBlQWRVYkZfdWpuQWNnMjdORHZqTm5jcF9USVU2WXBfS2FFS1NBUS1idG50S3VRbjdNbE03Tkc0ak92eUR0eHA3bHc5WmdiT2FQMDd4dHFsbXlhMmNPUHpNQUl5Zjdna1phUVJ6SmJCN0hVLWQ3bnV2cW92YVFIM0ZNSzB6WG0tTE44ekJCUTZ2UHV5TkZQ0gHKAUFVX3lxTE9WaVF4cWJjdU9UZW91Vk43YnZEZkNHTFlxWm9zNDdIemt3M3Vnb0FLb2pZLXBvS2VHUTFOY29jUHgzc3NSelJDZmQzVDN0MnFPLVo0RzlGRld6cTNzNTVEbFR6eGxFX2lWZmhMdEt3Vkx0TU5UUnNnVkVtZXp3M29tWWQ4Q3RHTVRqVERVTmNSUDJBZDVScTBXa1dsaDZrcVVxVEZrXzlWbGZQUkk5VzN4WWNkMTlKU0dvWC1iRGNkNGFYZUVMSWltTkE?oc=5",
-      "summary": "Iran boycotting World Cup draw citing visa restrictions for soccer officials The Hill",
-      "source": "news.google.com",
-      "timestamp": "2025-11-29T13:24:00+00:00",
       "region": "Global",
       "severity": 1,
       "lat": null,
@@ -879,6 +831,18 @@
         "United States",
         "Book of Lives: A Memoir of Sorts (Book)"
       ]
+    },
+    {
+      "title": "World Atlas calls Mississippi city one of 12 'most welcoming' in US - The Clarion-Ledger",
+      "link": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxPUnlxWk45R2dlZGM3ZXpHek5EUGduWEZrTlJOeXZaR1V2d0d3ZjgwVy1hVGdtb2FLS3hvT1VYVTlrSnRpV2MweGE4c3JTWGdGd3M4cm1hMFJiYkJvMGNqWUtISVNZRGFUNEZoT0g4ZFo0WGxadnlBOGlWemNLVmRxQ0VzeC1WYjVUVUZPY1VTUXgyYk1VWHRsaXFyQ05JbWxxZ05uWUFnRDRpTWhUUjI1WjRvb041SVZaOXhUS3MteXA0R1pkNUdyMFkyNUp4UW4xdk9Pd3drRURZbVMzU3c?oc=5",
+      "summary": "World Atlas calls Mississippi city one of 12 'most welcoming' in US The Clarion-Ledger",
+      "source": "news.google.com",
+      "timestamp": "2025-11-29T10:19:29+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
     },
     {
       "title": "Latin American Leaders Face Both Trump and Voters Deported by the U.S.",
@@ -1430,6 +1394,18 @@
       "tags": []
     },
     {
+      "title": "Trump vows to 'permanently pause' migration from 'third world countries' after National Guard shooting - NBC News",
+      "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPbzN4eWhoZ1pkTWZFakhhWkxlOXJPeWh0WGhOTXI5Ynd1czllWmhMZnhHRjdxWDlqMkhoQUZPM3Ewd180SUdERGNvMEh6TkxvdTUxQXdyWG5DUGd0QVFpeEQ3eWd1SW9KOVlKWmZxQWtFM0h6dlBVM01jd1VQa0xTN3JqRHB1bXBpX2VXYU5MWnJBVGd0SzRGbExNc05JRUI5NThxZzgtRlVOeEg3QUdpTjhiSDU2aGpWc2xHOUpjM1JwbVBqNlFV0gFWQVVfeXFMTnJBejZKb0JXUHoxdkVFYms1d09ZZ3ZiSGZVRS1venZhd1JwNDl2ZC1Pc2lRYlMxQTZ4dko1YW10a2xjVC1WSVNPNkh6WUxtZXdCZlNuV2c?oc=5",
+      "summary": "Trump vows to 'permanently pause' migration from 'third world countries' after National Guard shooting NBC News",
+      "source": "news.google.com",
+      "timestamp": "2025-11-28T11:10:00+00:00",
+      "region": "Global",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
       "title": "Why Organizations Are Turning to RPAM",
       "link": "https://thehackernews.com/2025/11/why-organizations-are-turning-to-rpam.html",
       "summary": "As IT environments become increasingly distributed and organizations adopt hybrid and remote work at scale, traditional perimeter-based security models and on-premises Privileged Access Management (PAM) solutions no longer suffice. IT administrators, contractors and third-party vendors now require secure access to critical systems from any location and on any device, without compromising",
@@ -1640,6 +1616,30 @@
       "timestamp": "2025-11-27T10:03:00+00:00",
       "region": "Global",
       "severity": 3,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Opinion | Donate This Holiday Season: The World’s Poorest People Need Your Help - The New York Times",
+      "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQc28taEtmd3l3S1FzM3JQUzBJQjBpaV9nNm1JbmIyYVB0X0Vsdng1WnhhTGVfWVlMb29veXVvMFduSDdDRGx5NERjb1NFTTQwWnY0N0JUVmFCaUM5ejRyTUxxUUpPODBvRkdrX3ZsemtiYjl2WWtVVVFDRmtITGxNY2xNQklZWExJYWc?oc=5",
+      "summary": "Opinion | Donate This Holiday Season: The World’s Poorest People Need Your Help The New York Times",
+      "source": "news.google.com",
+      "timestamp": "2025-11-27T10:02:33+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "What Worries the World – November 2025 - Ipsos",
+      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBMSC1vVzVZM041bWtWa2FPSTkzZDBDYnM1SV96eENhS19VdkVpQmgtdDE2WG1VNkU1NHlLVDJYYlA4WGxYV0pYV3QzQUJORU9TeEZ5NXVR?oc=5",
+      "summary": "What Worries the World – November 2025 Ipsos",
+      "source": "news.google.com",
+      "timestamp": "2025-11-27T09:48:50+00:00",
+      "region": "Global",
+      "severity": 1,
       "lat": null,
       "lon": null,
       "tags": []
