@@ -49,17 +49,30 @@ class Location:
 
 def load_news() -> List[Dict[str, Any]]:
     if not os.path.exists(NEWS_PATH):
+        print(f"[WARN] news.json not found at {NEWS_PATH}")
         return []
-    with open(NEWS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    try:
+        with open(NEWS_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] news.json is not valid JSON: {e}")
+        return []
     return data.get("articles", [])
 
 
 def load_locations() -> List[Location]:
     if not os.path.exists(LOCATIONS_PATH):
+        print(f"[WARN] locations.json not found at {LOCATIONS_PATH}, no locations loaded.")
         return []
-    with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
-        raw = json.load(f)
+
+    try:
+        with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except json.JSONDecodeError as e:
+        # THIS is what was crashing your workflow before
+        print(f"[ERROR] locations.json is not valid JSON: {e}")
+        print("[ERROR] No proximity alerts will be generated until this file is fixed.")
+        return []
 
     locations: List[Location] = []
     for item in raw:
@@ -75,6 +88,7 @@ def load_locations() -> List[Location]:
             )
         except (KeyError, TypeError, ValueError):
             continue
+    print(f"[INFO] Loaded {len(locations)} locations from locations.json")
     return locations
 
 
@@ -94,6 +108,10 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
     If a feed item has no lat/lon, it will never be treated as a proximity alert.
     """
     alerts: List[Dict[str, Any]] = []
+
+    if not locations:
+        print("[WARN] No locations loaded; skipping proximity alert generation.")
+        return alerts
 
     for article in articles:
         lat = article.get("lat")
@@ -117,7 +135,6 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                         "article_link": article.get("link"),
                         "severity": article.get("severity", 1),
                         "summary": article.get("summary"),
-                            # site
                         "site_name": loc.name,
                         "site_country": loc.country,
                         "site_region": loc.region,
@@ -129,6 +146,7 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
 
     # Sort: most severe and closest first
     alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
+    print(f"[INFO] Built {len(alerts)} proximity alerts")
     return alerts
 
 
@@ -269,7 +287,7 @@ def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) 
 def main():
     articles = load_news()
     locations = load_locations()
-    print(f"Loaded {len(articles)} articles and {len(locations)} locations")
+    print(f"Loaded {len(articles)} articles and {len(locations)} locations (for proximity)")
 
     # --- Proximity alerts JSON (backend only; UI can read this) ---
     proximity_alerts = build_proximity_alerts(articles, locations)
