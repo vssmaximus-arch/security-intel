@@ -26,7 +26,7 @@ LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(REPORT_DIR, exist_ok=True)
 
-# <= this is how close an incident has to be to a site to count as a proximity alert
+# Distance threshold for proximity alerts (km)
 RADIUS_KM = 50
 
 # Report audiences
@@ -40,7 +40,7 @@ REPORT_PROFILES = {
 
 GEMINI_MODEL = "gemini-1.5-flash"
 
-# Security-relevant keyword buckets for RSM / SRO use-cases
+# Keyword buckets tuned for SRO / RSM scope
 SECURITY_KEYWORDS = {
     "resilience_crisis": [
         "earthquake",
@@ -197,7 +197,6 @@ SECURITY_KEYWORDS = {
     ],
 }
 
-# Flattened keyword list for quick scanning
 ALL_SECURITY_TERMS = [kw.lower() for bucket in SECURITY_KEYWORDS.values() for kw in bucket]
 
 
@@ -222,20 +221,25 @@ def load_locations() -> List[Location]:
     """
     Robust loader for config/locations.json.
 
-    - Handles normal valid JSON.
-    - If JSONDecodeError occurs (common with trailing commas or comments),
-      it attempts a best-effort cleanup so the pipeline keeps running.
+    Handles:
+    - Missing file  -> returns empty list
+    - Empty file    -> returns empty list
+    - Invalid JSON  -> tries to clean comments / trailing commas, otherwise returns empty list
     """
     if not os.path.exists(LOCATIONS_PATH):
+        print("locations.json not found; continuing with zero locations.")
         return []
 
     with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
         raw_text = f.read()
 
+    if not raw_text.strip():
+        print("locations.json is empty; continuing with zero locations.")
+        return []
+
     try:
         raw = json.loads(raw_text)
     except JSONDecodeError:
-        # Remove JS-style comments and fix common trailing comma issues
         cleaned_lines: List[str] = []
         for line in raw_text.splitlines():
             stripped = line.strip()
@@ -243,9 +247,13 @@ def load_locations() -> List[Location]:
                 continue
             cleaned_lines.append(line)
         cleaned = "\n".join(cleaned_lines)
-        # Remove trailing commas before } or ]
         cleaned = re.sub(r",(\s*[}\]])", r"\1", cleaned)
-        raw = json.loads(cleaned)
+        try:
+            raw = json.loads(cleaned)
+        except JSONDecodeError as exc:
+            print(f"locations.json is not valid JSON even after cleanup: {exc}")
+            print("Continuing with zero locations.")
+            return []
 
     locations: List[Location] = []
     for item in raw:
@@ -260,13 +268,11 @@ def load_locations() -> List[Location]:
                 )
             )
         except (KeyError, TypeError, ValueError):
-            # Skip bad or incomplete rows instead of killing the job
             continue
     return locations
 
 
 def haversine_km(lat1, lon1, lat2, lon2) -> float:
-    """Great-circle distance between two points in km."""
     rlat1, rlon1, rlat2, rlon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlon = rlon2 - rlon1
     dlat = rlat2 - rlat1
@@ -276,10 +282,6 @@ def haversine_km(lat1, lon1, lat2, lon2) -> float:
 
 
 def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
-    """
-    Build proximity alerts for incidents that have coordinates.
-    If a feed item has no lat/lon, it will never be treated as a proximity alert.
-    """
     alerts: List[Dict[str, Any]] = []
 
     for article in articles:
@@ -304,7 +306,6 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                         "article_link": article.get("link"),
                         "severity": article.get("severity", 1),
                         "summary": article.get("summary"),
-                        # site
                         "site_name": loc.name,
                         "site_country": loc.country,
                         "site_region": loc.region,
@@ -314,7 +315,6 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                     }
                 )
 
-    # Sort: most severe and closest first
     alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
     return alerts
 
@@ -322,7 +322,7 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
 def init_gemini():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or genai is None:
-        print("Gemini not configured; will use simple text reports.")
+        print("Gemini not configured – using RSS summary text.")
         return None
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(GEMINI_MODEL)
@@ -345,16 +345,14 @@ Region / audience: {profile_label}
 
 Using ONLY the incidents listed below, produce a one-page briefing with:
 
-1) **Executive Overview** – 3–5 sentences focused on business impact (people, facilities, travel, supply chain, brand).
-2) **Top 3 risks for the next 24–72 hours** – numbered list. For each risk, clearly explain:
+1) Executive Overview – 3–5 sentences focused on business impact (people, facilities, travel, supply chain, brand).
+2) Top 3 risks for the next 24–72 hours – numbered list. For each risk, clearly explain:
    - What is happening
    - Why it matters to Dell (sites, staff, suppliers, major customers, travel)
    - Immediate watchpoints or decisions for SRO / Regional Security leadership.
-3) **Outlook & recommendations** – 1–2 short paragraphs with concrete, actionable guidance for Regional Security Managers
-   (e.g. travel posture, communications, contingency planning, site controls).
+3) Outlook & recommendations – 1–2 short paragraphs with concrete, actionable guidance for Regional Security Managers.
 
-Tone: concise, analytical, and operational. Do NOT give generic cyber hygiene tips or basic safety advice.
-Do NOT invent events that are not in the list.
+Tone: concise, analytical, operational. Do NOT invent events that are not in the list.
 
 Incidents:
 {incidents_text}
@@ -381,7 +379,6 @@ def simple_text_summary(profile_label: str, articles: List[Dict[str, Any]]) -> s
 
 
 def render_html_report(profile_label: str, body_text: str, generated_at: datetime) -> str:
-    # crude escaping – good enough for plain text from Gemini
     safe_body = (
         body_text.replace("&", "&amp;")
         .replace("<", "&lt;")
@@ -438,10 +435,6 @@ def render_html_report(profile_label: str, body_text: str, generated_at: datetim
 
 
 def _normalise_title(title: str) -> str:
-    """
-    Normalise titles so we can de-duplicate near-identical stories
-    from different outlets (e.g. '... - Reuters', '... | BBC').
-    """
     if not title:
         return ""
     t = title.lower().strip()
@@ -453,13 +446,6 @@ def _normalise_title(title: str) -> str:
 
 
 def _is_security_relevant(article: Dict[str, Any]) -> bool:
-    """
-    Filter out sports / lifestyle / irrelevant tech noise.
-
-    Logic:
-    - All severity 3 (critical) items are kept.
-    - For severity 2 (warning) and 1 (info), require at least one security keyword hit.
-    """
     title = article.get("title", "") or ""
     summary = article.get("summary", "") or ""
     text = f"{title} {summary}".lower()
@@ -496,11 +482,9 @@ def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) 
         if allowed_regions and a.get("region", "Global") not in allowed_regions:
             continue
 
-        # Security relevance filter
         if not _is_security_relevant(a):
             continue
 
-        # De-duplicate on normalised title
         norm = _normalise_title(a.get("title", ""))
         if norm in seen_titles:
             continue
@@ -508,7 +492,6 @@ def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) 
 
         selected.append(a)
 
-    # Sort: newest + severity
     selected.sort(
         key=lambda x: (
             x.get("timestamp", ""),
@@ -524,7 +507,6 @@ def main():
     locations = load_locations()
     print(f"Loaded {len(articles)} articles and {len(locations)} locations")
 
-    # --- Proximity alerts JSON (backend only; UI can read this) ---
     proximity_alerts = build_proximity_alerts(articles, locations)
     with open(PROXIMITY_PATH, "w", encoding="utf-8") as f:
         json.dump(
@@ -539,7 +521,6 @@ def main():
         )
     print(f"Wrote {len(proximity_alerts)} proximity alerts to {PROXIMITY_PATH}")
 
-    # --- Daily briefings via Gemini (or simple text) ---
     model = init_gemini()
     now = datetime.now(timezone.utc)
 
