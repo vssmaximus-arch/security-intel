@@ -1,5 +1,22 @@
 [
   {
+    "title": "Glassworm malware returns in third wave of malicious VS Code packages",
+    "url": "https://www.bleepingcomputer.com/news/security/glassworm-malware-returns-in-third-wave-of-malicious-vs-code-packages/",
+    "snippet_raw": "The Glassworm campaign, which first emerged on the OpenVSX and Microsoft Visual Studio marketplaces in October, is now in its third wave, with 24 new packages added on the two platforms. [...]",
+    "source": "www.bleepingcomputer.com",
+    "time": "2025-12-01T21:08:15+00:00",
+    "region": "Global",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Security"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "The Glassworm campaign, which first emerged on the OpenVSX and Microsoft Visual Studio marketplaces in October, is now in its third wave, with 24 new packages added on the two platforms. [...]"
+  },
+  {
     "title": "Retail giant Coupang data breach impacts 33.7 million customers",
     "url": "https://www.bleepingcomputer.com/news/security/retail-giant-coupang-suffers-data-breach-impacting-337-million-people/",
     "snippet_raw": "South Korea's largest retailer, Coupang, has suffered a data breach that exposed the personal information of 33.7 million customers. [...]",
