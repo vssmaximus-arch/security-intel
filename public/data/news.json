@@ -401,36 +401,6 @@
     "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) on Friday added a critical security flaw impacting Oracle Identity Manager to its Known Exploited Vulnerabilities (KEV) catalog, citing evidence of active exploitation. The vulnerability in quest…"
   },
   {
-    "title": "SEC Drops SolarWinds Case After Years of High-Stakes Cybersecurity Scrutiny",
-    "url": "https://thehackernews.com/2025/11/sec-drops-solarwinds-case-after-years.html",
-    "snippet_raw": "The U.S. Securities and Exchange Commission (SEC) has abandoned its lawsuit against SolarWinds and its chief information security officer, alleging that the company had misled investors about the security practices that led to the 2020 supply chain attack. In a joint motion filed November 20, 2025, the SEC, along with SolarWinds and its CISO Timothy G. Brown, asked the court to voluntarily",
-    "source": "thehackernews.com",
-    "time": "2025-11-21T08:05:00+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The U.S. Securities and Exchange Commission (SEC) has abandoned its lawsuit against SolarWinds and its chief information security officer, alleging that the company had misled investors about the security practices that led to the 2020 supply chain attack. In …"
-  },
-  {
-    "title": "Salesforce Flags Unauthorized Data Access via Gainsight-Linked OAuth Activity",
-    "url": "https://thehackernews.com/2025/11/salesforce-flags-unauthorized-data.html",
-    "snippet_raw": "Salesforce has warned of detected \"unusual activity\" related to Gainsight-published applications connected to the platform. \"Our investigation indicates this activity may have enabled unauthorized access to certain customers’ Salesforce data through the app's connection,\" the company said in an advisory. The cloud services firm said it has taken the step of revoking all active access and refresh",
-    "source": "thehackernews.com",
-    "time": "2025-11-21T05:32:00+00:00",
-    "region": "Global",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Site Security / Insider Risk",
-    "type": "PHYSICAL SECURITY",
-    "snippet": "Salesforce has warned of detected \"unusual activity\" related to Gainsight-published applications connected to the platform. \"Our investigation indicates this activity may have enabled unauthorized access to certain customers’ Salesforce data through the app's …"
-  },
-  {
     "title": "Microsoft Patch Tuesday, November 2025 Edition",
     "url": "https://krebsonsecurity.com/2025/11/microsoft-patch-tuesday-november-2025-edition/",
     "snippet_raw": "Microsoft this week pushed security updates to fix more than 60 vulnerabilities in its Windows operating systems and supported software, including at least one zero-day bug that is already being exploited. Microsoft also fixed a glitch that prevented some Windows 10 users from taking advantage of an extra year of security updates, which is nice because the zero-day flaw and other critical weaknesses patched today affect all versions of Windows, including Windows 10.",
