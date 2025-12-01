@@ -1,5 +1,30 @@
 [
   {
+    "title": "Australian Man Sentenced to Prison for Wi-Fi Attacks at Airports and on Flights",
+    "url": "https://www.securityweek.com/australian-man-sentenced-to-prison-for-wi-fi-attacks-at-airports-and-on-flights/",
+    "snippet_raw": "Michael Clapsis has been sentenced to 7 years and 4 months in prison for stealing sensitive information. The post Australian Man Sentenced to Prison for Wi-Fi Attacks at Airports and on Flights appeared first on SecurityWeek .",
+    "source": "www.securityweek.com",
+    "time": "2025-12-01T09:03:07+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Cybercrime",
+      "Mobile & Wireless",
+      "Australia",
+      "evil twin",
+      "hacker",
+      "Michale Clapsis",
+      "sentenced",
+      "Wi-Fi",
+      "wireless"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Michael Clapsis has been sentenced to 7 years and 4 months in prison for stealing sensitive information. The post Australian Man Sentenced to Prison for Wi-Fi Attacks at Airports and on Flights appeared first on SecurityWeek ."
+  },
+  {
     "title": "CISA Adds Actively Exploited XSS Bug CVE-2021-26829 in OpenPLC ScadaBR to KEV",
     "url": "https://thehackernews.com/2025/11/cisa-adds-actively-exploited-xss-bug.html",
     "snippet_raw": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) has updated its Known Exploited Vulnerabilities (KEV) catalog to include a security flaw impacting OpenPLC ScadaBR, citing evidence of active exploitation. The vulnerability in question is CVE-2021-26829 (CVSS score: 5.4), a cross-site scripting (XSS) flaw that affects Windows and Linux versions of the software via",
