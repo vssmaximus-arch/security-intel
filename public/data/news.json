@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-01T05:46:12.159092+00:00",
+  "generated_at": "2025-12-01T06:00:58.446038+00:00",
   "articles": [
     {
       "title": "Breaking a world record in India could spark something big for pole vaulting, says Mondo Duplantis - Times of India",
@@ -18,7 +18,7 @@
       "link": "https://www.nytimes.com/2025/11/30/world/asia/hongkong-fire-domestic-workers.html",
       "summary": "At least eight workers died, and many of those who survived, after saving children and others in their care, are worried about losing their jobs and being forced to leave.",
       "source": "www.nytimes.com",
-      "timestamp": "2025-12-01T05:28:52+00:00",
+      "timestamp": "2025-12-01T05:28:53+00:00",
       "region": "APJC",
       "severity": 3,
       "lat": null,
@@ -41,6 +41,30 @@
       "timestamp": "2025-12-01T05:10:27+00:00",
       "region": "EMEA",
       "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Anticipation builds for U.S., Canadian soccer fans with World Cup draw - Cascadia Daily News",
+      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOV0Z3TDJTV0lFUzNCQnhHc3lVLVdzSGxZelR6TV92NXBVNkI5Rk1QTEh1aWh0VjdHbTljUVNFSlRpT2VDby1OeVlJOE03alQySFhrbzNndkhsNnN5WTc0U25JSUxBRGg2aWZZaGxJUkliUDVRUUx5dEd0eF83SF9xYXNaUGNFWVlNdE1fSmtmMUxteHJtSW5VZEhwWUhMaDhOMElQeDJnRmZsSXZ0UHp0aw?oc=5",
+      "summary": "Anticipation builds for U.S., Canadian soccer fans with World Cup draw Cascadia Daily News",
+      "source": "news.google.com",
+      "timestamp": "2025-12-01T05:10:16+00:00",
+      "region": "AMER",
+      "severity": 1,
+      "lat": null,
+      "lon": null,
+      "tags": []
+    },
+    {
+      "title": "Tomiris Shifts to Public-Service Implants for Stealthier C2 in Attacks on Government Targets",
+      "link": "https://thehackernews.com/2025/12/tomiris-shifts-to-public-service.html",
+      "summary": "The threat actor known as Tomiris has been attributed to attacks targeting foreign ministries, intergovernmental organizations, and government entities in Russia with an aim to establish remote access and deploy additional tools. \"These attacks highlight a notable shift in Tomiris's tactics, namely the increased use of implants that leverage public services (e.g., Telegram and Discord) as",
+      "source": "thehackernews.com",
+      "timestamp": "2025-12-01T05:07:00+00:00",
+      "region": "EMEA",
+      "severity": 3,
       "lat": null,
       "lon": null,
       "tags": []
@@ -1714,18 +1738,6 @@
       "tags": []
     },
     {
-      "title": "What Worries the World – November 2025 - Ipsos",
-      "link": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBMSC1vVzVZM041bWtWa2FPSTkzZDBDYnM1SV96eENhS19VdkVpQmgtdDE2WG1VNkU1NHlLVDJYYlA4WGxYV0pYV3QzQUJORU9TeEZ5NXVR?oc=5",
-      "summary": "What Worries the World – November 2025 Ipsos",
-      "source": "news.google.com",
-      "timestamp": "2025-11-27T09:48:50+00:00",
-      "region": "Global",
-      "severity": 1,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
       "title": "Gainsight Expands Impacted Customer List Following Salesforce Security Alert",
       "link": "https://thehackernews.com/2025/11/gainsight-expands-impacted-customer.html",
       "summary": "Gainsight has disclosed that the recent suspicious activity targeting its applications has affected more customers than previously thought. The company said Salesforce initially provided a list of 3 impacted customers and that it has \"expanded to a larger list\" as of November 21, 2025. It did not reveal the exact number of customers who were impacted, but its CEO, Chuck Ganapathi, said \"we",
@@ -2230,18 +2242,6 @@
       "source": "thehackernews.com",
       "timestamp": "2025-11-22T06:47:00+00:00",
       "region": "Global",
-      "severity": 3,
-      "lat": null,
-      "lon": null,
-      "tags": []
-    },
-    {
-      "title": "CISA Warns of Actively Exploited Critical Oracle Identity Manager Zero-Day Vulnerability",
-      "link": "https://thehackernews.com/2025/11/cisa-warns-of-actively-exploited.html",
-      "summary": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) on Friday added a critical security flaw impacting Oracle Identity Manager to its Known Exploited Vulnerabilities (KEV) catalog, citing evidence of active exploitation. The vulnerability in question is CVE-2025-61757 (CVSS score: 9.8), a case of missing authentication for a critical function that can result in pre-authenticated",
-      "source": "thehackernews.com",
-      "timestamp": "2025-11-22T06:45:00+00:00",
-      "region": "AMER",
       "severity": 3,
       "lat": null,
       "lon": null,
