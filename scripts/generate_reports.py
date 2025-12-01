@@ -7,61 +7,68 @@ NEWS_FILE = os.path.join(DATA_DIR, "news.json")
 LOC_FILE = "config/locations.json"
 REPORT_FILE = os.path.join(DATA_DIR, "daily_summary.json")
 
-
 def safe_load_json(path, fallback):
-    """Load JSON safely. Never crashes. Returns fallback on any error."""
+    """Load JSON safely. Never crashes."""
     try:
         if not os.path.exists(path):
-            print(f"[WARN] Missing JSON: {path}. Using fallback.")
+            print(f"[WARN] Missing {path}")
             return fallback
 
         raw = open(path, "r", encoding="utf-8").read().strip()
         if raw == "":
-            print(f"[WARN] Empty JSON: {path}. Using fallback.")
+            print(f"[WARN] Empty {path}")
             return fallback
 
         return json.loads(raw)
-
     except Exception as e:
-        print(f"[WARN] Corrupt JSON in {path}: {e}. Using fallback.")
+        print(f"[WARN] Corrupt JSON in {path}: {e}")
         return fallback
 
 
 def load_news():
-    return safe_load_json(NEWS_FILE, fallback=[])
+    raw = safe_load_json(NEWS_FILE, fallback={"articles": []})
+
+    # FIX — always return list of articles
+    if isinstance(raw, dict) and "articles" in raw:
+        return raw["articles"]
+
+    if isinstance(raw, list):
+        return raw
+
+    print("[WARN] Unexpected news.json format, using empty list")
+    return []
 
 
 def load_locations():
-    return safe_load_json(LOC_FILE, fallback=[])
+    raw = safe_load_json(LOC_FILE, fallback=[])
+    return raw if isinstance(raw, list) else []
 
 
-def generate_daily_summary(news_items):
-    """Generate simple summary instead of crashing."""
+def generate_daily_summary(articles):
     return {
         "timestamp": datetime.datetime.utcnow().isoformat(),
-        "count": len(news_items),
-        "top_items": news_items[:10]
+        "article_count": len(articles),
+        "top_articles": articles[:10]
     }
 
 
 def main():
     print("=== Running Secure Report Generator ===")
 
-    news = load_news()
-    print(f"Loaded {len(news)} news items safely.")
+    articles = load_news()
+    print(f"Loaded {len(articles)} articles")
 
     locations = load_locations()
-    print(f"Loaded {len(locations)} locations safely.")
+    print(f"Loaded {len(locations)} locations")
 
-    summary = generate_daily_summary(news)
-    print("Generated summary.")
+    summary = generate_daily_summary(articles)
 
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(REPORT_FILE, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
-    print(f"Written summary to {REPORT_FILE}")
-    print("=== Completed Successfully ===")
+    print("Summary written to", REPORT_FILE)
+    print("=== Done ===")
 
 
 if __name__ == "__main__":
