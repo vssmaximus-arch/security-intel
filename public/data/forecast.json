@@ -1,6 +1,14 @@
 {
-  "outlook_title": "System Initializing",
-  "analysis": "Data gathering in progress. Forecast will be generated after next intelligence cycle.",
-  "supply_chain_warning": "Monitoring global logistics.",
-  "bottom_line": "Standard vigilance advised."
+  "generated_at": "2025-12-01T08:46:55.758497Z",
+  "total": 30,
+  "by_region": {
+    "AMER": 8,
+    "APJC": 8,
+    "Global": 14
+  },
+  "by_severity": {
+    "1": 1,
+    "2": 5,
+    "3": 24
+  }
 }
