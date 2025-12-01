@@ -1,4 +1,4 @@
-import json
+=import json
 import os
 import re
 from dataclasses import dataclass
@@ -209,12 +209,99 @@ class Location:
     lon: float
 
 
+# ---------- SAFE JSON LOADER ----------
+
+
+def safe_load_json(path: str, fallback):
+    """
+    Load JSON safely.
+    - Missing file  -> fallback
+    - Empty file    -> fallback
+    - Corrupt JSON  -> fallback
+    """
+    try:
+        if not os.path.exists(path):
+            print(f"[WARN] Missing JSON: {path}. Using fallback.")
+            return fallback
+
+        raw = open(path, "r", encoding="utf-8").read().strip()
+        if raw == "":
+            print(f"[WARN] Empty JSON: {path}. Using fallback.")
+            return fallback
+
+        return json.loads(raw)
+    except JSONDecodeError as exc:
+        print(f"[WARN] Corrupt JSON in {path}: {exc}. Using fallback.")
+        return fallback
+    except Exception as exc:
+        print(f"[WARN] Unexpected error reading {path}: {exc}. Using fallback.")
+        return fallback
+
+
+# ---------- LOADERS ----------
+
+
 def load_news() -> List[Dict[str, Any]]:
-    if not os.path.exists(NEWS_PATH):
-        return []
-    with open(NEWS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data.get("articles", [])
+    """
+    Robust loader for public/data/news.json.
+
+    Supports both:
+    - array form: [ {...}, {...} ]
+    - object form: { "articles": [ {...} ] }
+
+    Also normalises field names so this script always has:
+    - timestamp
+    - link
+    - summary
+    - region
+    - severity
+    """
+    raw = safe_load_json(NEWS_PATH, fallback=[])
+
+    if isinstance(raw, dict):
+        articles = raw.get("articles") or raw.get("items") or []
+    else:
+        articles = raw
+
+    normalised: List[Dict[str, Any]] = []
+
+    for item in articles:
+        if not isinstance(item, dict):
+            continue
+
+        ts = item.get("timestamp") or item.get("time")
+        link = item.get("link") or item.get("url")
+        summary = (
+            item.get("summary")
+            or item.get("snippet")
+            or item.get("snippet_raw")
+            or ""
+        )
+        region = item.get("region", "Global")
+        severity = int(item.get("severity", 1))
+        source = item.get("source", "")
+        title = item.get("title", "")
+        lat = item.get("lat")
+        lon = item.get("lon")
+
+        out = dict(item)
+        out.update(
+            {
+                "timestamp": ts,
+                "link": link,
+                "summary": summary,
+                "region": region,
+                "severity": severity,
+                "source": source,
+                "title": title,
+                "lat": lat,
+                "lon": lon,
+            }
+        )
+        normalised.append(out)
+
+    print(f"Loaded {len(normalised)} articles from {NEWS_PATH}")
+    return normalised
 
 
 def load_locations() -> List[Location]:
@@ -272,6 +359,9 @@ def load_locations() -> List[Location]:
     return locations
 
 
+# ---------- GEO / PROXIMITY ----------
+
+
 def haversine_km(lat1, lon1, lat2, lon2) -> float:
     rlat1, rlon1, rlat2, rlon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlon = rlon2 - rlon1
@@ -315,8 +405,11 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                     }
                 )
 
-    alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
+    alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]]))
     return alerts
+
+
+# ---------- GEMINI / SUMMARISATION ----------
 
 
 def init_gemini():
@@ -434,6 +527,9 @@ def render_html_report(profile_label: str, body_text: str, generated_at: datetim
 """
 
 
+# ---------- FILTERS ----------
+
+
 def _normalise_title(title: str) -> str:
     if not title:
         return ""
@@ -500,6 +596,9 @@ def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) 
         reverse=True,
     )
     return selected
+
+
+# ---------- MAIN ----------
 
 
 def main():
