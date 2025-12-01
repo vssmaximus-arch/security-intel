@@ -1,3 +1,5 @@
+# scripts/news_agent.py
+
 import json
 import os
 import time
@@ -22,17 +24,14 @@ NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
 # ---------- FEEDS ----------
 
-# Focused on security / risk / world disruption
 FEEDS = [
-    # General world / crisis
+    # World / business (for strikes, disasters, etc.)
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
 
-    # Cyber / security specific
+    # Core security feeds
     "https://www.bleepingcomputer.com/feed/",
     "https://rsshub.app/apnews/security",
-
-    # Additional security / tech risk feeds (feedparser will just skip if unreachable)
     "https://feeds.feedburner.com/TheHackersNews",
     "https://krebsonsecurity.com/feed/",
     "https://www.securityweek.com/feed",
@@ -44,34 +43,34 @@ REGION_KEYWORDS = {
     "AMER": [
         "united states", "u.s.", "usa", "america", "american", "canada",
         "brazil", "mexico", "argentina", "chile", "peru", "colombia",
-        "panama", "caribbean"
+        "panama", "caribbean", "houston", "new york", "chicago",
+        "dallas", "atlanta", "silicon valley", "california",
     ],
     "EMEA": [
         "europe", " eu ", "european", " uk ", "united kingdom", "britain",
         "england", "scotland", "wales", "germany", "france", "spain",
         "italy", "poland", "ireland", "africa", "nigeria", "south africa",
         "kenya", "morocco", "algeria", "tunisia",
-        "middle east", "saudi", "uae", "dubai", "israel", "egypt", "turkey"
+        "middle east", "saudi", "uae", "dubai", "israel", "egypt", "turkey",
+        "netherlands", "amsterdam", "belgium", "brussels",
+        "sweden", "stockholm", "norway", "oslo",
     ],
     "APJC": [
-        "asia", "asian", "india", "new delhi", "mumbai",
+        "asia", "asian", "india", "new delhi", "mumbai", "bangalore", "bengaluru",
         "china", "beijing", "shanghai", "hong kong", "taiwan",
         "japan", "tokyo", "osaka", "singapore", "malaysia",
         "thailand", "philippines", "vietnam", "australia", "sydney",
-        "melbourne", "korea", "seoul", "indonesia"
+        "melbourne", "korea", "seoul", "indonesia",
+        "xiamen", "chengdu", "penang", "hyderabad",
     ],
     "LATAM": [
         "latin america", "latam", "brazil", "mexico", "chile", "peru",
-        "argentina", "colombia", "bogota", "santiago", "buenos aires"
+        "argentina", "colombia", "bogota", "santiago", "buenos aires",
     ],
 }
 
 # ---------- SRO PILLAR FILTERING ----------
 
-# Each rule has:
-#   pillar   – which SRO pillar
-#   type     – short label used in the UI "type" chip
-#   keywords – any of these words => relevant
 PILLAR_RULES = [
     {
         "pillar": "Resilience / Crisis Management",
@@ -82,7 +81,7 @@ PILLAR_RULES = [
             "power outage", "blackout", "infrastructure failure",
             "state of emergency", "evacuation", "airport closed",
             "port closed", "port closure", "operations suspended",
-            "shutdown", "lockdown", "civil unrest", "riot", "curfew"
+            "shutdown", "lockdown", "civil unrest", "riot", "curfew",
         ],
     },
     {
@@ -92,10 +91,10 @@ PILLAR_RULES = [
             "kidnapping", "kidnapped", "abduction", "abducted",
             "assassination", "shooting", "stabbing", "armed robbery",
             "gang violence", "terror attack", "terrorist attack",
-            "explosion", "bombing",
+            "explosion", "bombing", "mass shooting",
             "travel advisory", "do not travel", "travel warning",
             "infectious disease", "epidemic", "outbreak",
-            "cholera", "ebola", "covid", "pandemic"
+            "cholera", "ebola", "covid", "pandemic",
         ],
     },
     {
@@ -107,7 +106,8 @@ PILLAR_RULES = [
             "dock workers", "container ship", "shipping delays",
             "cargo theft", "truck hijacking", "warehouse fire",
             "manufacturing plant", "factory fire", "industrial fire",
-            "semiconductor plant", "logistics hub"
+            "semiconductor plant", "logistics hub",
+            "port of", "shipping terminal", "rail yard",
         ],
     },
     {
@@ -118,7 +118,8 @@ PILLAR_RULES = [
             "intrusion", "breach of perimeter", "gate crash",
             "security guard assaulted", "access control failure",
             "security camera failure", "cctv failure",
-            "insider threat", "internal theft", "loss prevention"
+            "insider threat", "internal theft", "loss prevention",
+            "data center breach", "datacenter breach",
         ],
     },
     {
@@ -130,10 +131,30 @@ PILLAR_RULES = [
             "law enforcement raid", "police raid",
             "corruption investigation", "bribery investigation",
             "fraud investigation", "criminal charges",
+            "sec investigation", "regulatory fine", "gdpr fine",
         ],
     },
 ]
 
+# Things that are almost always marketing / fluff, *not* operational risk
+MARKETING_PATTERNS = [
+    "challenges you need to solve",
+    "things you need to know",
+    "webinar", "whitepaper", "ebook",
+    "sponsored", "advertorial",
+    "top 5", "top 10", "best practices",
+    "how to secure", "ultimate guide",
+]
+
+# Strong vendor / critical-infra signals (makes us more likely to keep)
+MAJOR_VENDOR_KEYWORDS = [
+    "dell", "emc", "vmware", "aws", "azure", "microsoft",
+    "google cloud", "oracle", "sap", "salesforce", "cisco",
+    "broadcom", "intel", "hp ", "hewlett packard",
+    "critical infrastructure", "energy grid", "power grid",
+]
+
+# ---------- CLASSIFIERS ----------
 
 def classify_region(text: str) -> str:
     if not text:
@@ -147,10 +168,7 @@ def classify_region(text: str) -> str:
 
 
 def score_pillars(text: str):
-    """
-    Return (best_pillar, type, score).
-    Score is just number of keyword hits; 0 => not relevant for SRO.
-    """
+    """Return (best_pillar, type, score). 0 = not SRO-relevant."""
     if not text:
         return None, "GENERAL", 0
     t = text.lower()
@@ -182,6 +200,8 @@ def guess_severity(text: str) -> int:
         "earthquake", "hurricane", "typhoon", "evacuate",
         "evacuation", "state of emergency", "kidnapping",
         "terrorist attack", "mass shooting",
+        "zero-day", "0-day", "actively exploited", "kev catalog",
+        "supply chain attack", "supply chain compromise",
     ]
     warning_words = [
         "warning", "alert", "flood", "storm", "malware",
@@ -196,6 +216,17 @@ def guess_severity(text: str) -> int:
     return 1
 
 
+def is_marketing_article(title: str, summary: str) -> bool:
+    t = f"{title} {summary}".lower()
+    return any(p in t for p in MARKETING_PATTERNS)
+
+
+def has_major_vendor_signal(text: str) -> bool:
+    t = text.lower()
+    return any(w in t for w in MAJOR_VENDOR_KEYWORDS)
+
+# ---------- UTIL ----------
+
 def clean_html(html: str) -> str:
     if not html:
         return ""
@@ -205,7 +236,6 @@ def clean_html(html: str) -> str:
 
 
 def entry_timestamp(entry) -> str:
-    dt = None
     if getattr(entry, "published_parsed", None):
         dt = datetime.fromtimestamp(time.mktime(entry.published_parsed), tz=timezone.utc)
     elif getattr(entry, "updated_parsed", None):
@@ -225,8 +255,7 @@ def extract_coords(entry):
         return None, None
     return None, None
 
-
-# ---------- GEMINI ONE-LINE SUMMARIES ----------
+# ---------- GEMINI ONE-LINERS ----------
 
 GEMINI_MODEL = "gemini-1.5-flash"
 
@@ -246,7 +275,6 @@ def init_gemini():
 
 def ai_one_liner(model, title: str, summary: str) -> str:
     if model is None:
-        # fallback – trimmed RSS summary
         text = summary or title
         return (text[:260] + "…") if len(text) > 260 else text
 
@@ -256,7 +284,8 @@ You are an analyst writing for Dell Technologies' Security & Resiliency Office.
 Write ONE sentence (max 35 words) that:
 - starts with an impact label like "Critical Logistics Warning:", "Security Alert:", or "Travel Risk:"
 - explains WHY this incident matters operationally for a global tech company.
-Avoid marketing fluff.
+- avoid generic cyber advice or product marketing.
+- no bullet points.
 
 Headline: {title}
 Feed snippet: {summary}
@@ -264,23 +293,20 @@ Feed snippet: {summary}
     try:
         resp = model.generate_content(prompt)
         line = (resp.text or "").strip()
-        # Hard cap to avoid huge strings
         return (line[:260] + "…") if len(line) > 260 else line
     except Exception as exc:
         print(f"Gemini one-liner error: {exc}")
         text = summary or title
         return (text[:260] + "…") if len(text) > 260 else text
 
-
 # ---------- FETCH / FILTER ----------
-
 
 def fetch_feed(url: str):
     print(f"Fetching: {url}")
     parsed = feedparser.parse(url)
     items = []
 
-    for e in parsed.entries[:40]:  # cap per feed
+    for e in parsed.entries[:40]:
         title = getattr(e, "title", "").strip()
         link = getattr(e, "link", "").strip()
         summary_html = getattr(e, "summary", "") or getattr(e, "description", "")
@@ -289,22 +315,34 @@ def fetch_feed(url: str):
         source = urlparse(link or url).netloc or urlparse(url).netloc
         ts = entry_timestamp(e)
 
-        core_text = f"{title} {summary}".lower()
-        region = classify_region(core_text)
-        severity = guess_severity(core_text)
-        pillar, incident_type, pillar_score = score_pillars(core_text)
+        core_text = f"{title} {summary}"
+        core_lower = core_text.lower()
+
+        region = classify_region(core_lower)
+        severity = guess_severity(core_lower)
+        pillar, incident_type, pillar_score = score_pillars(core_lower)
         lat, lon = extract_coords(e)
 
         tags = []
         if getattr(e, "tags", None):
             tags = [t.term for t in e.tags if getattr(t, "term", None)]
 
-        # ----- HARD FILTER -----
-        # * We keep:
-        #   - anything with pillar match (pillar_score > 0)
-        #   - OR severity >= 2 and region != "Global"
-        # This gets rid of "funny sports story" rubbish.
-        if pillar_score == 0 and not (severity >= 2 and region != "Global"):
+        # ---- HARD FILTER LOGIC ----
+        # Kill obvious marketing / opinion content
+        if is_marketing_article(title, summary):
+            continue
+
+        vendor_hit = has_major_vendor_signal(core_lower)
+
+        # Keep if:
+        #   - pillar match (SRO-relevant), OR
+        #   - vendor-related AND severity >= 2, OR
+        #   - severity == 3 AND region != "Global"
+        if not (
+            pillar_score > 0
+            or (vendor_hit and severity >= 2)
+            or (severity == 3 and region != "Global")
+        ):
             continue
 
         items.append(
@@ -333,7 +371,6 @@ def main():
     for url in FEEDS:
         try:
             for it in fetch_feed(url):
-                # Deduplicate by title+source
                 key = (it["title"].lower(), it["source"].lower())
                 if key in seen_keys:
                     continue
@@ -344,18 +381,14 @@ def main():
 
     # Newest first
     all_items.sort(key=lambda x: x["time"], reverse=True)
-    # Cap to 120 max
     all_items = all_items[:120]
 
-    # Add AI one-liner summaries (snippet field)
     model = init_gemini()
     for art in all_items:
         art["snippet"] = ai_one_liner(model, art["title"], art["snippet_raw"])
-        # keep raw if ever needed
-        # UI uses 'snippet'
 
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
-        # FRONTEND expects an ARRAY, not {articles: [...]}
+        # FRONTEND expects an ARRAY
         json.dump(all_items, f, ensure_ascii=False, indent=2)
 
     print(f"Wrote {len(all_items)} filtered items to {NEWS_PATH}")
