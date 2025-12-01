@@ -1,44 +1,52 @@
+#!/usr/bin/env python3
+"""
+generate_reports.py
 
-# scripts/generate_report.py
+End-to-end script that:
+- Safely loads news.json and locations.json (never crashes on bad JSON)
+- Generates simple regional HTML reports
+- Generates proximity.json for the map
+- Generates a lightweight forecast.json summary
+
+Drop this file into scripts/generate_reports.py and run:
+    python scripts/news_agent.py
+    python scripts/generate_reports.py
+"""
 
 import json
+import math
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from math import radians, sin, cos, asin, sqrt
-from typing import List, Dict, Any
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
-try:
-    import google.generativeai as genai
-except Exception:
-    genai = None
+# ---------- PATHS ----------
 
-# Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 REPORT_DIR = os.path.join(BASE_DIR, "public", "reports")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 
-NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-PROXIMITY_PATH = os.path.join(DATA_DIR, "proximity.json")
-LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
-
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(REPORT_DIR, exist_ok=True)
 
-# <= this is how close an incident has to be to a site to count as a proximity alert
-RADIUS_KM = 50
+NEWS_FILE = os.path.join(DATA_DIR, "news.json")
+LOC_FILE = os.path.join(CONFIG_DIR, "locations.json")
+PROX_FILE = os.path.join(DATA_DIR, "proximity.json")
+FORECAST_FILE = os.path.join(DATA_DIR, "forecast.json")
 
-# Report audiences
-REPORT_PROFILES = {
-    "global": {"label": "Global", "regions": ["Global", "AMER", "EMEA", "APJC", "LATAM"]},
-    "amer": {"label": "AMER", "regions": ["AMER"]},
-    "emea": {"label": "EMEA", "regions": ["EMEA"]},
-    "apjc": {"label": "APJC", "regions": ["APJC"]},
-    "latam": {"label": "LATAM", "regions": ["LATAM"]},
+# HTML report outputs expected by the front-end
+REGION_REPORT_FILES = {
+    "AMER": os.path.join(REPORT_DIR, "amer_latest.html"),
+    "EMEA": os.path.join(REPORT_DIR, "emea_latest.html"),
+    "APJC": os.path.join(REPORT_DIR, "apjc_latest.html"),
+    "LATAM": os.path.join(REPORT_DIR, "latam_latest.html"),
+    "Global": os.path.join(REPORT_DIR, "global_latest.html"),
 }
 
-GEMINI_MODEL = "gemini-1.5-flash"
+
+# ---------- MODELS ----------
 
 
 @dataclass
@@ -50,268 +58,378 @@ class Location:
     lon: float
 
 
-def load_news() -> List[Dict[str, Any]]:
-    if not os.path.exists(NEWS_PATH):
-        return []
-    with open(NEWS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
+@dataclass
+class Incident:
+    title: str
+    url: str
+    snippet: str
+    source: str
+    time: str
+    region: str
+    severity: int
+    lat: Optional[float]
+    lon: Optional[float]
+    tags: List[str]
+    pillar: Optional[str]
+    incident_type: str  # "CRISIS", "PHYSICAL SECURITY", etc.
 
-    # Handle both old shape {articles:[...]} and new direct array [...]
-    if isinstance(data, dict):
-        return data.get("articles", [])
-    if isinstance(data, list):
-        return data
-    return []
+
+# ---------- UTILS ----------
+
+
+def safe_load_json(path: str, fallback: Any):
+    """
+    Load JSON safely.
+    - Missing file  -> fallback
+    - Empty file    -> fallback
+    - Corrupt JSON  -> fallback
+    Never raises; only prints a warning.
+    """
+    try:
+        if not os.path.exists(path):
+            print(f"[WARN] Missing JSON: {path}. Using fallback.")
+            return fallback
+
+        if os.path.getsize(path) == 0:
+            print(f"[WARN] Empty JSON: {path}. Using fallback.")
+            return fallback
+
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as exc:
+        print(f"[WARN] Corrupt JSON in {path}: {exc}. Using fallback.")
+        return fallback
+
+
+def parse_iso(dt_str: str) -> datetime:
+    try:
+        return datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+    except Exception:
+        return datetime.utcnow()
+
+
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle distance between two points on Earth in km."""
+    r = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(
+        dlambda / 2
+    ) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return r * c
+
+
+# ---------- LOADERS ----------
+
+
+def load_news() -> List[Incident]:
+    raw = safe_load_json(NEWS_FILE, fallback=[])
+
+    incidents: List[Incident] = []
+    for item in raw:
+        try:
+            incidents.append(
+                Incident(
+                    title=item.get("title", "").strip(),
+                    url=item.get("url", "").strip(),
+                    snippet=item.get("snippet") or item.get("snippet_raw", "") or "",
+                    source=item.get("source", ""),
+                    time=item.get("time", ""),
+                    region=item.get("region", "Global"),
+                    severity=int(item.get("severity", 1)),
+                    lat=item.get("lat"),
+                    lon=item.get("lon"),
+                    tags=item.get("tags", []) or [],
+                    pillar=item.get("pillar"),
+                    incident_type=item.get("type", "GENERAL"),
+                )
+            )
+        except Exception:
+            # Skip obviously broken rows but keep going
+            continue
+
+    # Newest first
+    incidents.sort(key=lambda x: parse_iso(x.time), reverse=True)
+    print(f"Loaded {len(incidents)} incidents from {NEWS_FILE}")
+    return incidents
 
 
 def load_locations() -> List[Location]:
-    if not os.path.exists(LOCATIONS_PATH):
-        return []
-    with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
-        raw = json.load(f)
-
+    raw = safe_load_json(LOC_FILE, fallback=[])
     locations: List[Location] = []
+
     for item in raw:
         try:
             locations.append(
                 Location(
-                    name=item["name"],
-                    country=item.get("country", ""),
-                    region=item.get("region", "Global"),
+                    name=str(item["name"]),
+                    country=str(item.get("country", "")),
+                    region=str(item.get("region", "Global")),
                     lat=float(item["lat"]),
                     lon=float(item["lon"]),
                 )
             )
         except (KeyError, TypeError, ValueError):
+            # Bad entry – ignore
             continue
+
+    print(f"Loaded {len(locations)} locations from {LOC_FILE}")
     return locations
 
 
-def haversine_km(lat1, lon1, lat2, lon2) -> float:
-    rlat1, rlon1, rlat2, rlon2 = map(radians, [lat1, lon1, lat2, lon2])
-    dlon = rlon2 - rlon1
-    dlat = rlat2 - rlat1
-    a = sin(dlat / 2) ** 2 + cos(rlat1) * cos(rlat2) * sin(dlon / 2) ** 2
-    c = 2 * asin(sqrt(a))
-    return 6371 * c
+# ---------- REPORT GENERATION ----------
 
 
-def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
-    alerts: List[Dict[str, Any]] = []
-
-    for article in articles:
-        lat = article.get("lat")
-        lon = article.get("lon")
-        if lat is None or lon is None:
-            continue
-        try:
-            alat = float(lat)
-            alon = float(lon)
-        except (TypeError, ValueError):
-            continue
-
-        for loc in locations:
-            dist = haversine_km(alat, alon, loc.lat, loc.lon)
-            if dist <= RADIUS_KM:
-                alerts.append(
-                    {
-                        "article_title": article.get("title"),
-                        "article_source": article.get("source"),
-                        "article_time": article.get("time"),
-                        "article_link": article.get("url"),
-                        "severity": article.get("severity", 1),
-                        "summary": article.get("snippet") or article.get("snippet_raw"),
-                        # site
-                        "site_name": loc.name,
-                        "site_country": loc.country,
-                        "site_region": loc.region,
-                        "distance_km": round(dist, 1),
-                        "lat": alat,
-                        "lon": alon,
-                    }
-                )
-
-    alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
-    return alerts
+def group_by_region(incidents: List[Incident]) -> Dict[str, List[Incident]]:
+    groups: Dict[str, List[Incident]] = {
+        "AMER": [],
+        "EMEA": [],
+        "APJC": [],
+        "LATAM": [],
+        "Global": [],
+    }
+    for inc in incidents:
+        region = inc.region if inc.region in groups else "Global"
+        groups[region].append(inc)
+    return groups
 
 
-def init_gemini():
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key or genai is None:
-        print("Gemini not configured; will use simple text reports.")
-        return None
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel(GEMINI_MODEL)
+def render_region_html(region: str, incidents: List[Incident]) -> str:
+    """Very simple HTML report; front-end just iframes this."""
+    title = f"{region} – Latest Security & Risk Incidents"
 
+    rows = []
+    for inc in incidents[:80]:  # cap per report
+        sev_label = {3: "CRITICAL", 2: "WARNING", 1: "INFO"}.get(inc.severity, "INFO")
+        pillar = inc.pillar or "General"
+        tags = ", ".join(inc.tags) if inc.tags else ""
+        when = inc.time
 
-def summarise_with_gemini(model, profile_label: str, articles: List[Dict[str, Any]]) -> str:
-    if model is None or not articles:
-        return ""
-
-    bullets = []
-    for a in articles[:30]:
-        line = (
-            f"- [{a.get('source')}] {a.get('title')} "
-            f"({a.get('time')}) – {a.get('snippet') or a.get('snippet_raw')}"
+        rows.append(
+            f"""
+            <article class="incident">
+              <header>
+                <span class="severity severity-{inc.severity}">{sev_label}</span>
+                <span class="type">{pillar}</span>
+              </header>
+              <h3><a href="{inc.url}" target="_blank" rel="noopener noreferrer">{inc.title}</a></h3>
+              <p class="meta">{when} · {inc.source}</p>
+              <p class="snippet">{inc.snippet}</p>
+              <p class="tags">{tags}</p>
+            </article>
+            """
         )
-        bullets.append(line)
-    incidents_text = "\n".join(bullets)
 
-    prompt = f"""
-You are creating a concise daily security & risk briefing for Dell Technologies regional leadership.
+    body = "\n".join(rows) if rows else "<p>No recent incidents matching filters.</p>"
 
-Region / audience: {profile_label}
-
-Using ONLY the incidents below, produce:
-- A short 3–5 sentence executive overview.
-- 3–7 numbered key developments with practical impact, written in business language.
-- A closing section called "Watch list (next 24–72h)" with 3–5 very short bullets.
-
-Focus on:
-- geopolitical risk, physical security, cyber incidents, supply chain, major natural disasters and civil unrest,
-- events that could impact Dell, critical suppliers, logistics or large customer segments.
-
-Avoid vendor marketing fluff or generic cyber hygiene tips.
-
-Incidents:
-{incidents_text}
-"""
-    try:
-        resp = model.generate_content(prompt)
-        return resp.text
-    except Exception as exc:
-        print(f"Gemini error: {exc}")
-        return ""
-
-
-def simple_text_summary(profile_label: str, articles: List[Dict[str, Any]]) -> str:
-    if not articles:
-        return f"No significant items in the last 24 hours for {profile_label}."
-
-    lines = [f"{len(articles)} items in the last 24 hours affecting {profile_label}:", ""]
-    for a in articles[:30]:
-        ts = (a.get("time", "") or "")[:19].replace("T", " ")
-        lines.append(f"- [{ts}] {a.get('source')}: {a.get('title')}")
-    return "\n".join(lines)
-
-
-def render_html_report(profile_label: str, body_text: str, generated_at: datetime) -> str:
-    safe_body = (
-        (body_text or "")
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
-    return f"""<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SRO Daily Briefing – {profile_label}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <title>{title}</title>
   <style>
     body {{
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 32px;
-      background:#0f172a;
-      color:#e5e7eb;
-    }}
-    .card {{
-      max-width: 960px;
-      margin: 0 auto;
-      background:#020617;
-      border-radius: 18px;
-      padding: 24px 28px;
-      box-shadow: 0 18px 45px rgba(15,23,42,0.8);
-      border:1px solid rgba(148,163,184,0.3);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 12px 16px;
+      background: #0b0c10;
+      color: #e5e7eb;
     }}
     h1 {{
-      font-size: 24px;
-      margin-bottom: 4px;
+      font-size: 18px;
+      margin-bottom: 8px;
     }}
-    pre {{
-      white-space: pre-wrap;
-      font-family: inherit;
-      line-height: 1.5;
+    .incident {{
+      border-bottom: 1px solid #1f2933;
+      padding: 12px 0;
+    }}
+    .incident:last-child {{
+      border-bottom: none;
+    }}
+    .severity {{
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 999px;
+      margin-right: 6px;
+      text-transform: uppercase;
+    }}
+    .severity-3 {{ background: #b91c1c; color: #f9fafb; }}
+    .severity-2 {{ background: #d97706; color: #111827; }}
+    .severity-1 {{ background: #4b5563; color: #f9fafb; }}
+    .type {{
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }}
+    h3 {{
+      margin: 4px 0;
       font-size: 14px;
     }}
+    h3 a {{
+      color: #f9fafb;
+      text-decoration: none;
+    }}
+    h3 a:hover {{
+      text-decoration: underline;
+    }}
     .meta {{
-      font-size: 12px;
-      color:#9ca3af;
-      margin-bottom: 12px;
+      font-size: 11px;
+      color: #9ca3af;
+      margin: 2px 0 4px 0;
+    }}
+    .snippet {{
+      margin: 0 0 4px 0;
+    }}
+    .tags {{
+      font-size: 11px;
+      color: #6b7280;
     }}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>SRO Daily Briefing – {profile_label}</h1>
-    <div class="meta">Generated automatically at {generated_at.strftime('%Y-%m-%d %H:%M UTC')}</div>
-    <pre>{safe_body}</pre>
-  </div>
+  <h1>{title}</h1>
+  {body}
 </body>
 </html>
 """
+    return html
 
 
-def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) -> List[Dict[str, Any]]:
-    now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(hours=24)
+def write_region_reports(incidents: List[Incident]) -> None:
+    groups = group_by_region(incidents)
+    for region, path in REGION_REPORT_FILES.items():
+        html = render_region_html(region, groups.get(region, []))
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"Wrote report for {region}: {path}")
 
-    selected: List[Dict[str, Any]] = []
-    for a in articles:
-        ts_raw = a.get("time") or a.get("timestamp")
-        if not ts_raw:
+
+# ---------- PROXIMITY / MAP DATA ----------
+
+
+def compute_proximity(
+    incidents: List[Incident],
+    locations: List[Location],
+    max_distance_km: float = 300.0,
+) -> List[Dict[str, Any]]:
+    """
+    For each location, find nearby incidents with coordinates within max_distance_km.
+    Returns data tailored for the map front-end.
+    """
+    result: List[Dict[str, Any]] = []
+
+    # Pre-filter incidents that have coordinates
+    geo_incidents: List[Tuple[Incident, float, float]] = []
+    for inc in incidents:
+        if inc.lat is None or inc.lon is None:
             continue
         try:
-            ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
-        except ValueError:
+            lat = float(inc.lat)
+            lon = float(inc.lon)
+            geo_incidents.append((inc, lat, lon))
+        except (TypeError, ValueError):
             continue
-        if ts < cutoff:
-            continue
-        if allowed_regions and a.get("region", "Global") not in allowed_regions:
-            continue
-        selected.append(a)
 
-    selected.sort(key=lambda x: (x.get("time", ""), x.get("severity", 1)), reverse=True)
-    return selected
+    for loc in locations:
+        nearby: List[Dict[str, Any]] = []
+
+        for inc, ilat, ilon in geo_incidents:
+            dist = haversine_km(loc.lat, loc.lon, ilat, ilon)
+            if dist <= max_distance_km:
+                nearby.append(
+                    {
+                        "title": inc.title,
+                        "url": inc.url,
+                        "snippet": inc.snippet,
+                        "source": inc.source,
+                        "time": inc.time,
+                        "region": inc.region,
+                        "severity": inc.severity,
+                        "pillar": inc.pillar,
+                        "type": inc.incident_type,
+                        "lat": ilat,
+                        "lon": ilon,
+                        "distance_km": round(dist, 1),
+                    }
+                )
+
+        # Only include facilities with at least one hit
+        if nearby:
+            nearby.sort(key=lambda x: x["distance_km"])
+            result.append(
+                {
+                    "facility": loc.name,
+                    "country": loc.country,
+                    "region": loc.region,
+                    "lat": loc.lat,
+                    "lon": loc.lon,
+                    "incidents": nearby,
+                }
+            )
+
+    print(f"Computed proximity for {len(result)} facilities (max {max_distance_km} km)")
+    return result
+
+
+# ---------- FORECAST / SUMMARY ----------
+
+
+def build_forecast_summary(incidents: List[Incident]) -> Dict[str, Any]:
+    """
+    Very simple JSON used to feed a dashboard widget:
+    counts by region and severity.
+    """
+    summary: Dict[str, Any] = {
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "total": len(incidents),
+        "by_region": {},
+        "by_severity": {1: 0, 2: 0, 3: 0},
+    }
+
+    for inc in incidents:
+        region = inc.region or "Global"
+        summary["by_region"].setdefault(region, 0)
+        summary["by_region"][region] += 1
+
+        if inc.severity in summary["by_severity"]:
+            summary["by_severity"][inc.severity] += 1
+        else:
+            summary["by_severity"][inc.severity] = 1
+
+    return summary
+
+
+# ---------- MAIN ----------
 
 
 def main():
-    articles = load_news()
+    print("=== Running generate_reports.py ===")
+
+    incidents = load_news()
     locations = load_locations()
-    print(f"Loaded {len(articles)} articles and {len(locations)} locations")
 
-    # --- Proximity alerts JSON (backend only; UI reads this) ---
-    proximity_alerts = build_proximity_alerts(articles, locations)
-    with open(PROXIMITY_PATH, "w", encoding="utf-8") as f:
-        json.dump(
-            {
-                "generated_at": datetime.now(timezone.utc).isoformat(),
-                "radius_km": RADIUS_KM,
-                "alerts": proximity_alerts,
-            },
-            f,
-            ensure_ascii=False,
-            indent=2,
-        )
-    print(f"Wrote {len(proximity_alerts)} proximity alerts to {PROXIMITY_PATH}")
+    # HTML regional reports
+    write_region_reports(incidents)
 
-    # --- Daily briefings via Gemini (or simple text) ---
-    model = init_gemini()
-    now = datetime.now(timezone.utc)
+    # Proximity data for map
+    proximity = compute_proximity(incidents, locations, max_distance_km=300.0)
+    with open(PROX_FILE, "w", encoding="utf-8") as f:
+        json.dump(proximity, f, ensure_ascii=False, indent=2)
+    print(f"Wrote proximity data: {PROX_FILE}")
 
-    for key, cfg in REPORT_PROFILES.items():
-        region_articles = filter_last_24h(articles, cfg["regions"])
+    # Forecast / high-level summary
+    forecast = build_forecast_summary(incidents)
+    with open(FORECAST_FILE, "w", encoding="utf-8") as f:
+        json.dump(forecast, f, ensure_ascii=False, indent=2)
+    print(f"Wrote forecast summary: {FORECAST_FILE}")
 
-        if model:
-            body = summarise_with_gemini(model, cfg["label"], region_articles)
-        else:
-            body = simple_text_summary(cfg["label"], region_articles)
-
-        html = render_html_report(cfg["label"], body, now)
-        out_path = os.path.join(REPORT_DIR, f"{key}_latest.html")
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(html)
-        print(f"Wrote report {out_path} with {len(region_articles)} articles")
+    print("=== generate_reports.py completed successfully ===")
 
 
 if __name__ == "__main__":
