@@ -2,58 +2,59 @@ name: SRO Intel Feed Update
 
 on:
   schedule:
-    - cron: "*/15 * * * *"    # every 30 minutes
+    # run every 30 minutes
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
   update-feed:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write   # allow pushing back to the repo
+
     steps:
-    - name: Set up job
-      run: echo "Starting update..."
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0            # IMPORTANT: allows git pull --rebase
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements.txt
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install feedparser folium requests beautifulsoup4 google-generativeai
+      - name: Run Intelligence Agent
+        run: |
+          cd scripts
+          python news_agent.py
+          python generate_reports.py
 
-    - name: Run Intelligence Agent
-      run: |
-        cd scripts
-        python news_agent.py
-        python generate_reports.py
+      - name: Commit and Push Data
+        run: |
+          git config user.name "SRO-Bot"
+          git config user.email "sro-bot@users.noreply.github.com"
 
-    - name: Commit and Push Data
-      run: |
-        git config --global user.name "SRO-Bot"
-        git config --global user.email "sro-bot@example.com"
+          # See if anything actually changed
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No changes to commit."
+            exit 0
+          fi
 
-        # Make sure local matches remote
-        git fetch origin
-        git checkout main
-        git pull --rebase origin main
+          # Add generated data + reports (whole dirs covers news.json, proximity.json, html reports, etc.)
+          git add public/data public/reports || true
 
-        # Stage updated files
-        git add public/data/news.json || true
-        git add public/data/proximity.json || true
-        git add public/reports/*.html || true
+          # Nothing staged? then bail out cleanly
+          if [[ -z "$(git diff --cached --name-only)" ]]; then
+            echo "No tracked files changed, skipping commit."
+            exit 0
+          fi
 
-        # If nothing to commit, exit cleanly
-        if git diff --cached --quiet; then
-          echo "No changes to commit."
-          exit 0
-        fi
-
-        git commit -m "Auto-update: SRO Intel Feed"
-        git push origin HEAD:main
+          git commit -m "Auto-update: SRO Intel Feed"
+          # IMPORTANT: no git pull / rebase here – just push current HEAD to main
+          git push origin HEAD:main
