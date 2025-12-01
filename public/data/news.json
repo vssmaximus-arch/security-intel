@@ -187,23 +187,6 @@
     "snippet": "Gainsight has disclosed that the recent suspicious activity targeting its applications has affected more customers than previously thought. The company said Salesforce initially provided a list of 3 impacted customers and that it has \"expanded to a larger list…"
   },
   {
-    "title": "New ShadowV2 botnet malware used AWS outage as a test opportunity",
-    "url": "https://www.bleepingcomputer.com/news/security/new-shadowv2-botnet-malware-used-aws-outage-as-a-test-opportunity/",
-    "snippet_raw": "A new Mirai-based botnet malware named 'ShadowV2' has been observed targeting IoT devices from D-Link, TP-Link, and other vendors with exploits for known vulnerabilities. [...]",
-    "source": "www.bleepingcomputer.com",
-    "time": "2025-11-26T22:24:14+00:00",
-    "region": "Global",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Security"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "A new Mirai-based botnet malware named 'ShadowV2' has been observed targeting IoT devices from D-Link, TP-Link, and other vendors with exploits for known vulnerabilities. [...]"
-  },
-  {
     "title": "Shai-Hulud v2 Spreads From npm to Maven, as Campaign Exposes Thousands of Secrets",
     "url": "https://thehackernews.com/2025/11/shai-hulud-v2-campaign-spreads-from-npm.html",
     "snippet_raw": "The second wave of the Shai-Hulud supply chain attack has spilled over to the Maven ecosystem after compromising more than 830 packages in the npm registry. The Socket Research Team said it identified a Maven Central package named org.mvnpm:posthog-node:4.18.1 that embeds the same two components associated with Sha1-Hulud: the \"setup_bun.js\" loader and the main payload \"bun_environment.js.\" The",
@@ -412,21 +395,6 @@
     "pillar": "Site Security / Insider Risk",
     "type": "PHYSICAL SECURITY",
     "snippet": "Salesforce has warned of detected \"unusual activity\" related to Gainsight-published applications connected to the platform. \"Our investigation indicates this activity may have enabled unauthorized access to certain customers’ Salesforce data through the app's …"
-  },
-  {
-    "title": "ShadowRay 2.0 Exploits Unpatched Ray Flaw to Build Self-Spreading GPU Cryptomining Botnet",
-    "url": "https://thehackernews.com/2025/11/shadowray-20-exploits-unpatched-ray.html",
-    "snippet_raw": "Oligo Security has warned of ongoing attacks exploiting a two-year-old security flaw in the Ray open-source artificial intelligence (AI) framework to turn infected clusters with NVIDIA GPUs into a self-replicating cryptocurrency mining botnet. The activity, codenamed ShadowRay 2.0, is an evolution of a prior wave that was observed between September 2023 and March 2024. The attack, at its core,",
-    "source": "thehackernews.com",
-    "time": "2025-11-20T17:24:00+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Oligo Security has warned of ongoing attacks exploiting a two-year-old security flaw in the Ray open-source artificial intelligence (AI) framework to turn infected clusters with NVIDIA GPUs into a self-replicating cryptocurrency mining botnet. The activity, co…"
   },
   {
     "title": "Microsoft Patch Tuesday, November 2025 Edition",
