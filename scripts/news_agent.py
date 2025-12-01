@@ -7,71 +7,132 @@ from urllib.parse import urlparse
 import feedparser
 from bs4 import BeautifulSoup
 
-# Make our requests look less like a bot
-feedparser.USER_AGENT = "SRO-Intel/1.0 (+https://github.com/vssmaximus-arch/security-intel)"
+try:
+    import google.generativeai as genai
+except Exception:
+    genai = None
 
-# Base paths
+# ---------- PATHS ----------
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
+
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# --------------------------------------------------------------------
-# FEEDS
-# --------------------------------------------------------------------
-# Mix of:
-# - General world / business
-# - Security / cyber
-# - Disaster feeds with real geo coordinates (for proximity alerts)
+# ---------- FEEDS ----------
+
+# Focused on security / risk / world disruption
 FEEDS = [
-    # Reuters (may set bozo flag but usually still parses)
+    # General world / crisis
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
 
-    # General global news
-    "https://feeds.bbci.co.uk/news/world/rss.xml",
-    "https://feeds.bbci.co.uk/news/technology/rss.xml",
-    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-    "https://news.google.com/rss/search?q=world&hl=en-US&gl=US&ceid=US:en",
-
-    # Cyber / security
+    # Cyber / security specific
     "https://www.bleepingcomputer.com/feed/",
+    "https://rsshub.app/apnews/security",
+
+    # Additional security / tech risk feeds (feedparser will just skip if unreachable)
     "https://feeds.feedburner.com/TheHackersNews",
     "https://krebsonsecurity.com/feed/",
     "https://www.securityweek.com/feed",
-
-    # Disasters with coordinates (for proximity alerts)
-    "https://www.gdacs.org/xml/rss_1h.xml",  # GDACS global disasters (gdacs:lat/lon)
-    "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",  # EMSC earthquakes (geo:lat/lon)
 ]
 
-# Very simple region classifier based on keywords in title/summary
+# ---------- REGIONS ----------
+
 REGION_KEYWORDS = {
     "AMER": [
         "united states", "u.s.", "usa", "america", "american", "canada",
         "brazil", "mexico", "argentina", "chile", "peru", "colombia",
-        "panama", "caribbean", "new york", "washington", "california",
-        "texas", "toronto", "vancouver"
+        "panama", "caribbean"
     ],
     "EMEA": [
-        "europe", "eu ", "european", " uk ", "united kingdom", "britain",
+        "europe", " eu ", "european", " uk ", "united kingdom", "britain",
         "england", "scotland", "wales", "germany", "france", "spain",
         "italy", "poland", "ireland", "africa", "nigeria", "south africa",
-        "kenya", "middle east", "saudi", "uae", "dubai", "israel", "egypt",
-        "russia", "ukraine", "poland", "sweden", "norway", "denmark"
+        "kenya", "morocco", "algeria", "tunisia",
+        "middle east", "saudi", "uae", "dubai", "israel", "egypt", "turkey"
     ],
     "APJC": [
-        "asia", "asian", "india", "china", "beijing", "shanghai",
-        "hong kong", "taiwan", "japan", "tokyo", "osaka", "singapore",
-        "malaysia", "thailand", "philippines", "vietnam", "australia",
-        "sydney", "melbourne", "korea", "seoul", "indonesia", "new zealand"
+        "asia", "asian", "india", "new delhi", "mumbai",
+        "china", "beijing", "shanghai", "hong kong", "taiwan",
+        "japan", "tokyo", "osaka", "singapore", "malaysia",
+        "thailand", "philippines", "vietnam", "australia", "sydney",
+        "melbourne", "korea", "seoul", "indonesia"
     ],
     "LATAM": [
         "latin america", "latam", "brazil", "mexico", "chile", "peru",
-        "argentina", "colombia", "bogota", "santiago", "buenos aires",
-        "rio de janeiro", "sao paulo", "lima"
+        "argentina", "colombia", "bogota", "santiago", "buenos aires"
     ],
 }
+
+# ---------- SRO PILLAR FILTERING ----------
+
+# Each rule has:
+#   pillar   – which SRO pillar
+#   type     – short label used in the UI "type" chip
+#   keywords – any of these words => relevant
+PILLAR_RULES = [
+    {
+        "pillar": "Resilience / Crisis Management",
+        "type": "CRISIS",
+        "keywords": [
+            "earthquake", "hurricane", "typhoon", "cyclone", "tsunami",
+            "flood", "landslide", "storm", "wildfire", "heatwave",
+            "power outage", "blackout", "infrastructure failure",
+            "state of emergency", "evacuation", "airport closed",
+            "port closed", "port closure", "operations suspended",
+            "shutdown", "lockdown", "civil unrest", "riot", "curfew"
+        ],
+    },
+    {
+        "pillar": "Regional Security / Duty of Care",
+        "type": "PERSONNEL",
+        "keywords": [
+            "kidnapping", "kidnapped", "abduction", "abducted",
+            "assassination", "shooting", "stabbing", "armed robbery",
+            "gang violence", "terror attack", "terrorist attack",
+            "explosion", "bombing",
+            "travel advisory", "do not travel", "travel warning",
+            "infectious disease", "epidemic", "outbreak",
+            "cholera", "ebola", "covid", "pandemic"
+        ],
+    },
+    {
+        "pillar": "Supply Chain / Asset Protection",
+        "type": "SUPPLY CHAIN",
+        "keywords": [
+            "supply chain disruption", "supply disruption",
+            "logistics disruption", "port strike", "port workers",
+            "dock workers", "container ship", "shipping delays",
+            "cargo theft", "truck hijacking", "warehouse fire",
+            "manufacturing plant", "factory fire", "industrial fire",
+            "semiconductor plant", "logistics hub"
+        ],
+    },
+    {
+        "pillar": "Site Security / Insider Risk",
+        "type": "PHYSICAL SECURITY",
+        "keywords": [
+            "unauthorised access", "unauthorized access",
+            "intrusion", "breach of perimeter", "gate crash",
+            "security guard assaulted", "access control failure",
+            "security camera failure", "cctv failure",
+            "insider threat", "internal theft", "loss prevention"
+        ],
+    },
+    {
+        "pillar": "Compliance & Investigations",
+        "type": "COMPLIANCE",
+        "keywords": [
+            "regulation change", "regulatory change", "new regulation",
+            "data protection law", "privacy law",
+            "law enforcement raid", "police raid",
+            "corruption investigation", "bribery investigation",
+            "fraud investigation", "criminal charges",
+        ],
+    },
+]
 
 
 def classify_region(text: str) -> str:
@@ -85,6 +146,26 @@ def classify_region(text: str) -> str:
     return "Global"
 
 
+def score_pillars(text: str):
+    """
+    Return (best_pillar, type, score).
+    Score is just number of keyword hits; 0 => not relevant for SRO.
+    """
+    if not text:
+        return None, "GENERAL", 0
+    t = text.lower()
+    best_rule = None
+    best_score = 0
+    for rule in PILLAR_RULES:
+        hits = sum(1 for kw in rule["keywords"] if kw in t)
+        if hits > best_score:
+            best_score = hits
+            best_rule = rule
+    if best_rule and best_score > 0:
+        return best_rule["pillar"], best_rule["type"], best_score
+    return None, "GENERAL", 0
+
+
 def guess_severity(text: str) -> int:
     """
     3 = critical
@@ -96,15 +177,16 @@ def guess_severity(text: str) -> int:
     t = text.lower()
 
     critical_words = [
-        "attack", "massive", "explosion", "bomb", "killed", "dead",
-        "critical", "severe", "breach", "ransomware", "earthquake",
-        "hurricane", "typhoon", "evacuate", "evacuation",
-        "state of emergency", "wildfire", "strike", "shutdown",
+        "attack", "explosion", "bomb", "killed", "dead",
+        "critical", "severe", "breach", "ransomware",
+        "earthquake", "hurricane", "typhoon", "evacuate",
+        "evacuation", "state of emergency", "kidnapping",
+        "terrorist attack", "mass shooting",
     ]
     warning_words = [
         "warning", "alert", "flood", "storm", "malware",
-        "vulnerability", "outage", "disruption", "protest", "unrest",
-        "clashes", "tensions", "sanction", "heatwave",
+        "vulnerability", "outage", "disruption",
+        "strike", "protest", "unrest",
     ]
 
     if any(w in t for w in critical_words):
@@ -123,7 +205,6 @@ def clean_html(html: str) -> str:
 
 
 def entry_timestamp(entry) -> str:
-    """Return ISO8601 UTC timestamp for the item."""
     dt = None
     if getattr(entry, "published_parsed", None):
         dt = datetime.fromtimestamp(time.mktime(entry.published_parsed), tz=timezone.utc)
@@ -135,26 +216,8 @@ def entry_timestamp(entry) -> str:
 
 
 def extract_coords(entry):
-    """
-    Try to pull geo coordinates if the feed provides them.
-    We explicitly check common namespaces:
-      - geo:lat / geo:long
-      - lat / long
-      - gdacs:lat / gdacs:lon
-    If not present, return (None, None) – proximity engine will skip.
-    """
-    lat = (
-        getattr(entry, "geo_lat", None)
-        or getattr(entry, "lat", None)
-        or getattr(entry, "gdacs_lat", None)
-    )
-    lon = (
-        getattr(entry, "geo_long", None)
-        or getattr(entry, "long", None)
-        or getattr(entry, "lon", None)
-        or getattr(entry, "gdacs_lon", None)
-    )
-
+    lat = getattr(entry, "geo_lat", None) or getattr(entry, "lat", None)
+    lon = getattr(entry, "geo_long", None) or getattr(entry, "lon", None)
     try:
         if lat is not None and lon is not None:
             return float(lat), float(lon)
@@ -163,78 +226,139 @@ def extract_coords(entry):
     return None, None
 
 
+# ---------- GEMINI ONE-LINE SUMMARIES ----------
+
+GEMINI_MODEL = "gemini-1.5-flash"
+
+
+def init_gemini():
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key or genai is None:
+        print("Gemini not configured – using RSS summary text.")
+        return None
+    try:
+        genai.configure(api_key=api_key)
+        return genai.GenerativeModel(GEMINI_MODEL)
+    except Exception as exc:
+        print(f"Gemini init error: {exc}")
+        return None
+
+
+def ai_one_liner(model, title: str, summary: str) -> str:
+    if model is None:
+        # fallback – trimmed RSS summary
+        text = summary or title
+        return (text[:260] + "…") if len(text) > 260 else text
+
+    prompt = f"""
+You are an analyst writing for Dell Technologies' Security & Resiliency Office.
+
+Write ONE sentence (max 35 words) that:
+- starts with an impact label like "Critical Logistics Warning:", "Security Alert:", or "Travel Risk:"
+- explains WHY this incident matters operationally for a global tech company.
+Avoid marketing fluff.
+
+Headline: {title}
+Feed snippet: {summary}
+"""
+    try:
+        resp = model.generate_content(prompt)
+        line = (resp.text or "").strip()
+        # Hard cap to avoid huge strings
+        return (line[:260] + "…") if len(line) > 260 else line
+    except Exception as exc:
+        print(f"Gemini one-liner error: {exc}")
+        text = summary or title
+        return (text[:260] + "…") if len(text) > 260 else text
+
+
+# ---------- FETCH / FILTER ----------
+
+
 def fetch_feed(url: str):
     print(f"Fetching: {url}")
     parsed = feedparser.parse(url)
-
-    if getattr(parsed, "bozo", False):
-        # Feed is malformed but we still try to use what we can.
-        print(f"  [INFO] Feed reported bozo flag: {parsed.bozo_exception}")
-
     items = []
 
-    for e in parsed.entries[:30]:  # cap per feed
+    for e in parsed.entries[:40]:  # cap per feed
         title = getattr(e, "title", "").strip()
         link = getattr(e, "link", "").strip()
         summary_html = getattr(e, "summary", "") or getattr(e, "description", "")
         summary = clean_html(summary_html)
 
-        if not title and not summary:
-            continue  # junk
-
         source = urlparse(link or url).netloc or urlparse(url).netloc
         ts = entry_timestamp(e)
-        text_for_class = f"{title} {summary}"
-        region = classify_region(text_for_class)
-        severity = guess_severity(text_for_class)
+
+        core_text = f"{title} {summary}".lower()
+        region = classify_region(core_text)
+        severity = guess_severity(core_text)
+        pillar, incident_type, pillar_score = score_pillars(core_text)
         lat, lon = extract_coords(e)
 
         tags = []
         if getattr(e, "tags", None):
             tags = [t.term for t in e.tags if getattr(t, "term", None)]
 
+        # ----- HARD FILTER -----
+        # * We keep:
+        #   - anything with pillar match (pillar_score > 0)
+        #   - OR severity >= 2 and region != "Global"
+        # This gets rid of "funny sports story" rubbish.
+        if pillar_score == 0 and not (severity >= 2 and region != "Global"):
+            continue
+
         items.append(
             {
                 "title": title,
-                "link": link,
-                "summary": summary,
+                "url": link,
+                "snippet_raw": summary,
                 "source": source,
-                "timestamp": ts,
+                "time": ts,
                 "region": region,
                 "severity": severity,
                 "lat": lat,
                 "lon": lon,
                 "tags": tags,
+                "pillar": pillar,
+                "type": incident_type,
             }
         )
-
-    print(f"  Parsed {len(items)} items from feed")
     return items
 
 
 def main():
     all_items = []
+    seen_keys = set()
+
     for url in FEEDS:
         try:
-            all_items.extend(fetch_feed(url))
+            for it in fetch_feed(url):
+                # Deduplicate by title+source
+                key = (it["title"].lower(), it["source"].lower())
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                all_items.append(it)
         except Exception as exc:
             print(f"[WARN] Failed feed {url}: {exc}")
 
-    # Newest first, cap at 150
-    all_items.sort(key=lambda x: x["timestamp"], reverse=True)
-    all_items = all_items[:150]
+    # Newest first
+    all_items.sort(key=lambda x: x["time"], reverse=True)
+    # Cap to 120 max
+    all_items = all_items[:120]
+
+    # Add AI one-liner summaries (snippet field)
+    model = init_gemini()
+    for art in all_items:
+        art["snippet"] = ai_one_liner(model, art["title"], art["snippet_raw"])
+        # keep raw if ever needed
+        # UI uses 'snippet'
 
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
-        json.dump(
-            {
-                "generated_at": datetime.now(timezone.utc).isoformat(),
-                "articles": all_items,
-            },
-            f,
-            ensure_ascii=False,
-            indent=2,
-        )
-    print(f"Wrote {len(all_items)} items to {NEWS_PATH}")
+        # FRONTEND expects an ARRAY, not {articles: [...]}
+        json.dump(all_items, f, ensure_ascii=False, indent=2)
+
+    print(f"Wrote {len(all_items)} filtered items to {NEWS_PATH}")
 
 
 if __name__ == "__main__":
