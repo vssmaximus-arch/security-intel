@@ -1,52 +1,209 @@
-#!/usr/bin/env python3
-"""
-generate_reports.py
-
-End-to-end script that:
-- Safely loads news.json and locations.json (never crashes on bad JSON)
-- Generates simple regional HTML reports
-- Generates proximity.json for the map
-- Generates a lightweight forecast.json summary
-
-Drop this file into scripts/generate_reports.py and run:
-    python scripts/news_agent.py
-    python scripts/generate_reports.py
-"""
-
 import json
-import math
 import os
+import re
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime, timedelta, timezone
+from math import radians, sin, cos, asin, sqrt
+from typing import List, Dict, Any
 
-# ---------- PATHS ----------
+from json import JSONDecodeError
+
+try:
+    import google.generativeai as genai
+except Exception:
+    genai = None
+
+# ---------------------------------------------------------------------------
+# PATHS
+# ---------------------------------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 REPORT_DIR = os.path.join(BASE_DIR, "public", "reports")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 
+NEWS_PATH = os.path.join(DATA_DIR, "news.json")
+PROXIMITY_PATH = os.path.join(DATA_DIR, "proximity.json")
+LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
+
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(REPORT_DIR, exist_ok=True)
 
-NEWS_FILE = os.path.join(DATA_DIR, "news.json")
-LOC_FILE = os.path.join(CONFIG_DIR, "locations.json")
-PROX_FILE = os.path.join(DATA_DIR, "proximity.json")
-FORECAST_FILE = os.path.join(DATA_DIR, "forecast.json")
+# Distance threshold for proximity alerts (km)
+RADIUS_KM = 50
 
-# HTML report outputs expected by the front-end
-REGION_REPORT_FILES = {
-    "AMER": os.path.join(REPORT_DIR, "amer_latest.html"),
-    "EMEA": os.path.join(REPORT_DIR, "emea_latest.html"),
-    "APJC": os.path.join(REPORT_DIR, "apjc_latest.html"),
-    "LATAM": os.path.join(REPORT_DIR, "latam_latest.html"),
-    "Global": os.path.join(REPORT_DIR, "global_latest.html"),
+# Report audiences
+REPORT_PROFILES = {
+    "global": {"label": "Global", "regions": ["Global", "AMER", "EMEA", "APJC", "LATAM"]},
+    "amer": {"label": "AMER", "regions": ["AMER"]},
+    "emea": {"label": "EMEA", "regions": ["EMEA"]},
+    "apjc": {"label": "APJC", "regions": ["APJC"]},
+    "latam": {"label": "LATAM", "regions": ["LATAM"]},
 }
 
+GEMINI_MODEL = "gemini-1.5-flash"
 
-# ---------- MODELS ----------
+# ---------------------------------------------------------------------------
+# KEYWORDS – tuned for SRO / RSM scope
+# ---------------------------------------------------------------------------
+
+SECURITY_KEYWORDS = {
+    "resilience_crisis": [
+        "earthquake",
+        "flood",
+        "flash flood",
+        "landslide",
+        "hurricane",
+        "typhoon",
+        "cyclone",
+        "storm",
+        "wildfire",
+        "bushfire",
+        "tsunami",
+        "eruption",
+        "volcano",
+        "heatwave",
+        "power outage",
+        "blackout",
+        "grid failure",
+        "infrastructure failure",
+        "dam failure",
+        "port closure",
+        "airport closure",
+        "road blocked",
+        "road blockage",
+        "bridge collapse",
+        "state of emergency",
+    ],
+    "civil_unrest": [
+        "protest",
+        "demonstration",
+        "riot",
+        "unrest",
+        "clashes",
+        "looting",
+        "curfew",
+        "martial law",
+        "strike",
+        "walkout",
+        "industrial action",
+        "labour dispute",
+    ],
+    "duty_of_care": [
+        "kidnap",
+        "kidnapping",
+        "abduction",
+        "hostage",
+        "shooting",
+        "stabbing",
+        "armed attack",
+        "terror attack",
+        "terrorist",
+        "gunfire",
+        "explosion",
+        "bomb",
+        "car bomb",
+        "ied",
+        "assassination",
+        "crime wave",
+        "gang violence",
+        "sexual assault",
+        "health alert",
+        "health advisory",
+        "outbreak",
+        "epidemic",
+        "pandemic",
+        "virus",
+        "infection",
+        "covid",
+        "cholera",
+        "dengue",
+    ],
+    "supply_chain_assets": [
+        "supply chain disruption",
+        "supply disruption",
+        "logistics disruption",
+        "shipping delay",
+        "shipment delay",
+        "cargo theft",
+        "truck hijack",
+        "hijacked truck",
+        "warehouse fire",
+        "factory fire",
+        "plant fire",
+        "port congestion",
+        "port strike",
+        "dock strike",
+        "rail strike",
+        "airport strike",
+        "customs strike",
+        "manufacturing halt",
+        "production halt",
+        "production stopped",
+        "plant shutdown",
+        "factory shutdown",
+        "distribution centre",
+        "distribution center",
+    ],
+    "site_security_insider": [
+        "security breach",
+        "intrusion",
+        "break-in",
+        "break in",
+        "trespass",
+        "trespassing",
+        "unauthorised access",
+        "unauthorized access",
+        "badge misuse",
+        "badge violation",
+        "access control failure",
+        "cctv failure",
+        "video surveillance failure",
+        "insider threat",
+        "employee theft",
+        "loss prevention",
+        "armed robbery",
+        "robbery",
+        "burglary",
+    ],
+    "compliance_investigations": [
+        "regulation change",
+        "regulatory change",
+        "new law",
+        "security law",
+        "data protection law",
+        "privacy law",
+        "fine",
+        "regulator",
+        "regulatory action",
+        "law enforcement",
+        "police raid",
+        "investigation",
+        "corruption",
+        "bribery",
+        "fraud",
+        "criminal charges",
+        "indicted",
+    ],
+    "cyber": [
+        "ransomware",
+        "data breach",
+        "data leak",
+        "credential leak",
+        "cyber attack",
+        "cyberattack",
+        "ddos",
+        "denial of service",
+        "malware",
+        "botnet",
+        "vulnerability",
+        "zero-day",
+        "zero day",
+        "exploit",
+    ],
+}
+
+ALL_SECURITY_TERMS = [kw.lower() for bucket in SECURITY_KEYWORDS.values() for kw in bucket]
 
 
 @dataclass
@@ -58,378 +215,443 @@ class Location:
     lon: float
 
 
-@dataclass
-class Incident:
-    title: str
-    url: str
-    snippet: str
-    source: str
-    time: str
-    region: str
-    severity: int
-    lat: Optional[float]
-    lon: Optional[float]
-    tags: List[str]
-    pillar: Optional[str]
-    incident_type: str  # "CRISIS", "PHYSICAL SECURITY", etc.
+# ---------------------------------------------------------------------------
+# LOADERS (news + locations) – SAFE / ROBUST
+# ---------------------------------------------------------------------------
 
 
-# ---------- UTILS ----------
-
-
-def safe_load_json(path: str, fallback: Any):
+def load_news() -> List[Dict[str, Any]]:
     """
-    Load JSON safely.
-    - Missing file  -> fallback
-    - Empty file    -> fallback
-    - Corrupt JSON  -> fallback
-    Never raises; only prints a warning.
+    Load and NORMALISE news items from public/data/news.json
+
+    Supports:
+      - JSON array (your current file)
+      - {"articles": [...]} shape
+
+    Normalises fields to:
+      title, source, link, summary, region, severity, timestamp, lat, lon
     """
+    if not os.path.exists(NEWS_PATH):
+        print("news.json not found; continuing with zero articles.")
+        return []
+
+    raw_text = open(NEWS_PATH, "r", encoding="utf-8").read().strip()
+    if not raw_text:
+        print("news.json is empty; continuing with zero articles.")
+        return []
+
     try:
-        if not os.path.exists(path):
-            print(f"[WARN] Missing JSON: {path}. Using fallback.")
-            return fallback
+        data = json.loads(raw_text)
+    except JSONDecodeError as exc:
+        print(f"news.json is not valid JSON: {exc}")
+        print("Continuing with zero articles.")
+        return []
 
-        if os.path.getsize(path) == 0:
-            print(f"[WARN] Empty JSON: {path}. Using fallback.")
-            return fallback
+    if isinstance(data, dict) and isinstance(data.get("articles"), list):
+        items = data["articles"]
+    elif isinstance(data, list):
+        items = data
+    else:
+        print("news.json has unexpected structure; continuing with zero articles.")
+        return []
 
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as exc:
-        print(f"[WARN] Corrupt JSON in {path}: {exc}. Using fallback.")
-        return fallback
+    normalised: List[Dict[str, Any]] = []
 
-
-def parse_iso(dt_str: str) -> datetime:
-    try:
-        return datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
-    except Exception:
-        return datetime.utcnow()
-
-
-def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Great-circle distance between two points on Earth in km."""
-    r = 6371.0
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    dphi = math.radians(lat2 - lat1)
-    dlambda = math.radians(lon2 - lon1)
-
-    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(
-        dlambda / 2
-    ) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return r * c
-
-
-# ---------- LOADERS ----------
-
-
-def load_news() -> List[Incident]:
-    raw = safe_load_json(NEWS_FILE, fallback=[])
-
-    incidents: List[Incident] = []
-    for item in raw:
-        try:
-            incidents.append(
-                Incident(
-                    title=item.get("title", "").strip(),
-                    url=item.get("url", "").strip(),
-                    snippet=item.get("snippet") or item.get("snippet_raw", "") or "",
-                    source=item.get("source", ""),
-                    time=item.get("time", ""),
-                    region=item.get("region", "Global"),
-                    severity=int(item.get("severity", 1)),
-                    lat=item.get("lat"),
-                    lon=item.get("lon"),
-                    tags=item.get("tags", []) or [],
-                    pillar=item.get("pillar"),
-                    incident_type=item.get("type", "GENERAL"),
-                )
-            )
-        except Exception:
-            # Skip obviously broken rows but keep going
+    for item in items:
+        if not isinstance(item, dict):
             continue
 
-    # Newest first
-    incidents.sort(key=lambda x: parse_iso(x.time), reverse=True)
-    print(f"Loaded {len(incidents)} incidents from {NEWS_FILE}")
-    return incidents
+        title = item.get("title") or ""
+        source = item.get("source") or item.get("site") or ""
+        link = item.get("url") or item.get("link") or ""
+        summary = (
+            item.get("snippet")
+            or item.get("summary")
+            or item.get("snippet_raw")
+            or ""
+        )
+        region = item.get("region") or "Global"
+        severity = int(item.get("severity", 1))
+
+        # timestamps: news_agent uses "time"
+        ts = (
+            item.get("timestamp")
+            or item.get("time")
+            or item.get("published")
+            or ""
+        )
+
+        lat = item.get("lat")
+        lon = item.get("lon")
+
+        normalised.append(
+            {
+                "title": title,
+                "source": source,
+                "link": link,
+                "summary": summary,
+                "region": region,
+                "severity": severity,
+                "timestamp": ts,
+                "lat": lat,
+                "lon": lon,
+            }
+        )
+
+    print(f"Loaded {len(normalised)} normalised articles from news.json")
+    return normalised
 
 
 def load_locations() -> List[Location]:
-    raw = safe_load_json(LOC_FILE, fallback=[])
+    """
+    Robust loader for config/locations.json.
+
+    Handles:
+    - Missing file  -> returns empty list
+    - Empty file    -> returns empty list
+    - Invalid JSON  -> strips // and # comments and trailing commas, then retries
+    """
+    if not os.path.exists(LOCATIONS_PATH):
+        print("locations.json not found; continuing with zero locations.")
+        return []
+
+    raw_text = open(LOCATIONS_PATH, "r", encoding="utf-8").read()
+
+    if not raw_text.strip():
+        print("locations.json is empty; continuing with zero locations.")
+        return []
+
+    try:
+        raw = json.loads(raw_text)
+    except JSONDecodeError:
+        cleaned_lines: List[str] = []
+        for line in raw_text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("//") or stripped.startswith("#"):
+                continue
+            cleaned_lines.append(line)
+        cleaned = "\n".join(cleaned_lines)
+        cleaned = re.sub(r",(\s*[}\]])", r"\1", cleaned)
+        try:
+            raw = json.loads(cleaned)
+        except JSONDecodeError as exc:
+            print(f"locations.json is not valid JSON even after cleanup: {exc}")
+            print("Continuing with zero locations.")
+            return []
+
     locations: List[Location] = []
+    if not isinstance(raw, list):
+        print("locations.json root is not a list; continuing with zero locations.")
+        return []
 
     for item in raw:
         try:
             locations.append(
                 Location(
-                    name=str(item["name"]),
-                    country=str(item.get("country", "")),
-                    region=str(item.get("region", "Global")),
+                    name=item["name"],
+                    country=item.get("country", ""),
+                    region=item.get("region", "Global"),
                     lat=float(item["lat"]),
                     lon=float(item["lon"]),
                 )
             )
         except (KeyError, TypeError, ValueError):
-            # Bad entry – ignore
             continue
 
-    print(f"Loaded {len(locations)} locations from {LOC_FILE}")
+    print(f"Loaded {len(locations)} locations from locations.json")
     return locations
 
 
-# ---------- REPORT GENERATION ----------
+# ---------------------------------------------------------------------------
+# GEO / PROXIMITY
+# ---------------------------------------------------------------------------
 
 
-def group_by_region(incidents: List[Incident]) -> Dict[str, List[Incident]]:
-    groups: Dict[str, List[Incident]] = {
-        "AMER": [],
-        "EMEA": [],
-        "APJC": [],
-        "LATAM": [],
-        "Global": [],
-    }
-    for inc in incidents:
-        region = inc.region if inc.region in groups else "Global"
-        groups[region].append(inc)
-    return groups
+def haversine_km(lat1, lon1, lat2, lon2) -> float:
+    rlat1, rlon1, rlat2, rlon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlon = rlon2 - rlon1
+    dlat = rlat2 - rlat1
+    a = sin(dlat / 2) ** 2 + cos(rlat1) * cos(rlat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    return 6371 * c
 
 
-def render_region_html(region: str, incidents: List[Incident]) -> str:
-    """Very simple HTML report; front-end just iframes this."""
-    title = f"{region} – Latest Security & Risk Incidents"
+def build_proximity_alerts(
+    articles: List[Dict[str, Any]],
+    locations: List[Location],
+) -> List[Dict[str, Any]]:
+    alerts: List[Dict[str, Any]] = []
 
-    rows = []
-    for inc in incidents[:80]:  # cap per report
-        sev_label = {3: "CRITICAL", 2: "WARNING", 1: "INFO"}.get(inc.severity, "INFO")
-        pillar = inc.pillar or "General"
-        tags = ", ".join(inc.tags) if inc.tags else ""
-        when = inc.time
+    for article in articles:
+        lat = article.get("lat")
+        lon = article.get("lon")
+        if lat is None or lon is None:
+            continue
+        try:
+            alat = float(lat)
+            alon = float(lon)
+        except (TypeError, ValueError):
+            continue
 
-        rows.append(
-            f"""
-            <article class="incident">
-              <header>
-                <span class="severity severity-{inc.severity}">{sev_label}</span>
-                <span class="type">{pillar}</span>
-              </header>
-              <h3><a href="{inc.url}" target="_blank" rel="noopener noreferrer">{inc.title}</a></h3>
-              <p class="meta">{when} · {inc.source}</p>
-              <p class="snippet">{inc.snippet}</p>
-              <p class="tags">{tags}</p>
-            </article>
-            """
-        )
+        for loc in locations:
+            dist = haversine_km(alat, alon, loc.lat, loc.lon)
+            if dist <= RADIUS_KM:
+                alerts.append(
+                    {
+                        "article_title": article.get("title"),
+                        "article_source": article.get("source"),
+                        "article_timestamp": article.get("timestamp"),
+                        "article_link": article.get("link"),
+                        "severity": int(article.get("severity", 1)),
+                        "summary": article.get("summary"),
+                        "site_name": loc.name,
+                        "site_country": loc.country,
+                        "site_region": loc.region,
+                        "distance_km": round(dist, 1),
+                        "lat": alat,
+                        "lon": alon,
+                    }
+                )
 
-    body = "\n".join(rows) if rows else "<p>No recent incidents matching filters.</p>"
+    alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
+    return alerts
 
-    html = f"""<!DOCTYPE html>
+
+# ---------------------------------------------------------------------------
+# GEMINI / SUMMARISERS
+# ---------------------------------------------------------------------------
+
+
+def init_gemini():
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key or genai is None:
+        print("Gemini not configured – using text-only summaries.")
+        return None
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel(GEMINI_MODEL)
+
+
+def summarise_with_gemini(model, profile_label: str, articles: List[Dict[str, Any]]) -> str:
+    if model is None or not articles:
+        return ""
+
+    bullets = []
+    for a in articles[:40]:
+        line = f"- [{a.get('source')}] {a.get('title')} ({a.get('timestamp')}) – {a.get('summary')}"
+        bullets.append(line)
+    incidents_text = "\n".join(bullets)
+
+    prompt = f"""
+You are the lead security intelligence analyst for Dell Technologies.
+
+Region / audience: {profile_label}
+
+Using ONLY the incidents listed below, produce a one-page briefing with:
+
+1) Executive Overview – 3–5 sentences focused on business impact (people, facilities, travel, supply chain, brand).
+2) Top 3 risks for the next 24–72 hours – numbered list. For each risk, clearly explain:
+   - What is happening
+   - Why it matters to Dell (sites, staff, suppliers, major customers, travel)
+   - Immediate watchpoints or decisions for SRO / Regional Security leadership.
+3) Outlook & recommendations – 1–2 short paragraphs with concrete, actionable guidance for Regional Security Managers.
+
+Tone: concise, analytical, operational. Do NOT invent events that are not in the list.
+
+Incidents:
+{incidents_text}
+"""
+    try:
+        resp = model.generate_content(prompt)
+        return resp.text
+    except Exception as exc:
+        print(f"Gemini error: {exc}")
+        return ""
+
+
+def simple_text_summary(profile_label: str, articles: List[Dict[str, Any]]) -> str:
+    if not articles:
+        return f"No significant items in the last 24 hours for {profile_label}."
+
+    lines = [f"{len(articles)} security-relevant items in the last 24 hours affecting {profile_label}:", ""]
+    for a in articles[:40]:
+        ts = (a.get("timestamp") or "")[:19].replace("T", " ")
+        sev = int(a.get("severity", 1))
+        sev_label = {3: "CRITICAL", 2: "WARNING"}.get(sev, "INFO")
+        lines.append(f"- [{ts}] ({sev_label}) {a.get('source')}: {a.get('title')}")
+    return "\n".join(lines)
+
+
+def render_html_report(profile_label: str, body_text: str, generated_at: datetime) -> str:
+    safe_body = (
+        body_text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    )
+    return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>{title}</title>
+  <meta charset="UTF-8" />
+  <title>SRO Daily Briefing – {profile_label}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {{
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 14px;
-      margin: 0;
-      padding: 12px 16px;
-      background: #0b0c10;
-      color: #e5e7eb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 32px;
+      background:#0f172a;
+      color:#e5e7eb;
+    }}
+    .card {{
+      max-width: 960px;
+      margin: 0 auto;
+      background:#020617;
+      border-radius: 18px;
+      padding: 24px 28px;
+      box-shadow: 0 18px 45px rgba(15,23,42,0.8);
+      border:1px solid rgba(148,163,184,0.3);
     }}
     h1 {{
-      font-size: 18px;
-      margin-bottom: 8px;
+      font-size: 24px;
+      margin-bottom: 4px;
     }}
-    .incident {{
-      border-bottom: 1px solid #1f2933;
-      padding: 12px 0;
-    }}
-    .incident:last-child {{
-      border-bottom: none;
-    }}
-    .severity {{
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 999px;
-      margin-right: 6px;
-      text-transform: uppercase;
-    }}
-    .severity-3 {{ background: #b91c1c; color: #f9fafb; }}
-    .severity-2 {{ background: #d97706; color: #111827; }}
-    .severity-1 {{ background: #4b5563; color: #f9fafb; }}
-    .type {{
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #9ca3af;
-    }}
-    h3 {{
-      margin: 4px 0;
+    pre {{
+      white-space: pre-wrap;
+      font-family: inherit;
+      line-height: 1.5;
       font-size: 14px;
     }}
-    h3 a {{
-      color: #f9fafb;
-      text-decoration: none;
-    }}
-    h3 a:hover {{
-      text-decoration: underline;
-    }}
     .meta {{
-      font-size: 11px;
-      color: #9ca3af;
-      margin: 2px 0 4px 0;
-    }}
-    .snippet {{
-      margin: 0 0 4px 0;
-    }}
-    .tags {{
-      font-size: 11px;
-      color: #6b7280;
+      font-size: 12px;
+      color:#9ca3af;
+      margin-bottom: 12px;
     }}
   </style>
 </head>
 <body>
-  <h1>{title}</h1>
-  {body}
+  <div class="card">
+    <h1>SRO Daily Briefing – {profile_label}</h1>
+    <div class="meta">Generated automatically at {generated_at.strftime('%Y-%m-%d %H:%M UTC')}</div>
+    <pre>{safe_body}</pre>
+  </div>
 </body>
 </html>
 """
-    return html
 
 
-def write_region_reports(incidents: List[Incident]) -> None:
-    groups = group_by_region(incidents)
-    for region, path in REGION_REPORT_FILES.items():
-        html = render_region_html(region, groups.get(region, []))
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(html)
-        print(f"Wrote report for {region}: {path}")
+# ---------------------------------------------------------------------------
+# FILTERING LOGIC
+# ---------------------------------------------------------------------------
 
 
-# ---------- PROXIMITY / MAP DATA ----------
+def _normalise_title(title: str) -> str:
+    if not title:
+        return ""
+    t = title.lower().strip()
+    for sep in [" - ", " | ", " — "]:
+        if sep in t:
+            t = t.split(sep)[0]
+            break
+    return re.sub(r"\s+", " ", t)
 
 
-def compute_proximity(
-    incidents: List[Incident],
-    locations: List[Location],
-    max_distance_km: float = 300.0,
-) -> List[Dict[str, Any]]:
-    """
-    For each location, find nearby incidents with coordinates within max_distance_km.
-    Returns data tailored for the map front-end.
-    """
-    result: List[Dict[str, Any]] = []
+def _is_security_relevant(article: Dict[str, Any]) -> bool:
+    title = article.get("title", "") or ""
+    summary = article.get("summary", "") or ""
+    text = f"{title} {summary}".lower()
 
-    # Pre-filter incidents that have coordinates
-    geo_incidents: List[Tuple[Incident, float, float]] = []
-    for inc in incidents:
-        if inc.lat is None or inc.lon is None:
+    severity = int(article.get("severity", 1))
+    if severity >= 3:
+        return True
+
+    for kw in ALL_SECURITY_TERMS:
+        if kw in text:
+            return True
+
+    return False
+
+
+def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) -> List[Dict[str, Any]]:
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(hours=24)
+
+    selected: List[Dict[str, Any]] = []
+    seen_titles: set[str] = set()
+
+    for a in articles:
+        ts_raw = a.get("timestamp")
+        if not ts_raw:
             continue
         try:
-            lat = float(inc.lat)
-            lon = float(inc.lon)
-            geo_incidents.append((inc, lat, lon))
-        except (TypeError, ValueError):
+            ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if ts < cutoff:
             continue
 
-    for loc in locations:
-        nearby: List[Dict[str, Any]] = []
+        if allowed_regions and a.get("region", "Global") not in allowed_regions:
+            continue
 
-        for inc, ilat, ilon in geo_incidents:
-            dist = haversine_km(loc.lat, loc.lon, ilat, ilon)
-            if dist <= max_distance_km:
-                nearby.append(
-                    {
-                        "title": inc.title,
-                        "url": inc.url,
-                        "snippet": inc.snippet,
-                        "source": inc.source,
-                        "time": inc.time,
-                        "region": inc.region,
-                        "severity": inc.severity,
-                        "pillar": inc.pillar,
-                        "type": inc.incident_type,
-                        "lat": ilat,
-                        "lon": ilon,
-                        "distance_km": round(dist, 1),
-                    }
-                )
+        if not _is_security_relevant(a):
+            continue
 
-        # Only include facilities with at least one hit
-        if nearby:
-            nearby.sort(key=lambda x: x["distance_km"])
-            result.append(
-                {
-                    "facility": loc.name,
-                    "country": loc.country,
-                    "region": loc.region,
-                    "lat": loc.lat,
-                    "lon": loc.lon,
-                    "incidents": nearby,
-                }
-            )
+        norm = _normalise_title(a.get("title", ""))
+        if norm in seen_titles:
+            continue
+        seen_titles.add(norm)
 
-    print(f"Computed proximity for {len(result)} facilities (max {max_distance_km} km)")
-    return result
+        selected.append(a)
+
+    selected.sort(
+        key=lambda x: (
+            x.get("timestamp", ""),
+            int(x.get("severity", 1)),
+        ),
+        reverse=True,
+    )
+    return selected
 
 
-# ---------- FORECAST / SUMMARY ----------
-
-
-def build_forecast_summary(incidents: List[Incident]) -> Dict[str, Any]:
-    """
-    Very simple JSON used to feed a dashboard widget:
-    counts by region and severity.
-    """
-    summary: Dict[str, Any] = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "total": len(incidents),
-        "by_region": {},
-        "by_severity": {1: 0, 2: 0, 3: 0},
-    }
-
-    for inc in incidents:
-        region = inc.region or "Global"
-        summary["by_region"].setdefault(region, 0)
-        summary["by_region"][region] += 1
-
-        if inc.severity in summary["by_severity"]:
-            summary["by_severity"][inc.severity] += 1
-        else:
-            summary["by_severity"][inc.severity] = 1
-
-    return summary
-
-
-# ---------- MAIN ----------
+# ---------------------------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------------------------
 
 
 def main():
-    print("=== Running generate_reports.py ===")
-
-    incidents = load_news()
+    articles = load_news()
     locations = load_locations()
+    print(f"Loaded {len(articles)} articles and {len(locations)} locations")
 
-    # HTML regional reports
-    write_region_reports(incidents)
+    # --- Proximity JSON for the map ---
+    proximity_alerts = build_proximity_alerts(articles, locations)
+    with open(PROXIMITY_PATH, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "radius_km": RADIUS_KM,
+                "alerts": proximity_alerts,
+            },
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
+    print(f"Wrote {len(proximity_alerts)} proximity alerts to {PROXIMITY_PATH}")
 
-    # Proximity data for map
-    proximity = compute_proximity(incidents, locations, max_distance_km=300.0)
-    with open(PROX_FILE, "w", encoding="utf-8") as f:
-        json.dump(proximity, f, ensure_ascii=False, indent=2)
-    print(f"Wrote proximity data: {PROX_FILE}")
+    # --- Regional HTML briefings ---
+    model = init_gemini()
+    now = datetime.now(timezone.utc)
 
-    # Forecast / high-level summary
-    forecast = build_forecast_summary(incidents)
-    with open(FORECAST_FILE, "w", encoding="utf-8") as f:
-        json.dump(forecast, f, ensure_ascii=False, indent=2)
-    print(f"Wrote forecast summary: {FORECAST_FILE}")
+    for key, cfg in REPORT_PROFILES.items():
+        region_articles = filter_last_24h(articles, cfg["regions"])
 
-    print("=== generate_reports.py completed successfully ===")
+        if model:
+            body = summarise_with_gemini(model, cfg["label"], region_articles)
+        else:
+            body = simple_text_summary(cfg["label"], region_articles)
+
+        html = render_html_report(cfg["label"], body, now)
+        out_path = os.path.join(REPORT_DIR, f"{key}_latest.html")
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"Wrote report {out_path} with {len(region_articles)} filtered articles")
 
 
 if __name__ == "__main__":
