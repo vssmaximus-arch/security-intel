@@ -1,3 +1,5 @@
+# scripts/generate_reports.py
+
 import json
 import os
 import re
@@ -13,10 +15,7 @@ try:
 except Exception:
     genai = None
 
-# ---------------------------------------------------------------------------
-# PATHS
-# ---------------------------------------------------------------------------
-
+# Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 REPORT_DIR = os.path.join(BASE_DIR, "public", "reports")
@@ -43,163 +42,57 @@ REPORT_PROFILES = {
 
 GEMINI_MODEL = "gemini-1.5-flash"
 
-# ---------------------------------------------------------------------------
-# KEYWORDS – tuned for SRO / RSM scope
-# ---------------------------------------------------------------------------
-
+# Keyword buckets reused from fetcher for “security relevant” test
 SECURITY_KEYWORDS = {
     "resilience_crisis": [
-        "earthquake",
-        "flood",
-        "flash flood",
-        "landslide",
-        "hurricane",
-        "typhoon",
-        "cyclone",
-        "storm",
-        "wildfire",
-        "bushfire",
-        "tsunami",
-        "eruption",
-        "volcano",
-        "heatwave",
-        "power outage",
-        "blackout",
-        "grid failure",
-        "infrastructure failure",
-        "dam failure",
-        "port closure",
-        "airport closure",
-        "road blocked",
-        "road blockage",
-        "bridge collapse",
-        "state of emergency",
+        "earthquake", "flood", "flash flood", "landslide", "hurricane",
+        "typhoon", "cyclone", "storm", "wildfire", "bushfire", "tsunami",
+        "eruption", "volcano", "heatwave", "power outage", "blackout",
+        "grid failure", "infrastructure failure", "dam failure",
+        "port closure", "airport closure", "state of emergency",
     ],
     "civil_unrest": [
-        "protest",
-        "demonstration",
-        "riot",
-        "unrest",
-        "clashes",
-        "looting",
-        "curfew",
-        "martial law",
-        "strike",
-        "walkout",
-        "industrial action",
-        "labour dispute",
+        "protest", "demonstration", "riot", "unrest", "clashes",
+        "looting", "curfew", "martial law", "strike", "walkout",
+        "industrial action", "labour dispute", "labor dispute",
     ],
     "duty_of_care": [
-        "kidnap",
-        "kidnapping",
-        "abduction",
-        "hostage",
-        "shooting",
-        "stabbing",
-        "armed attack",
-        "terror attack",
-        "terrorist",
-        "gunfire",
-        "explosion",
-        "bomb",
-        "car bomb",
-        "ied",
-        "assassination",
-        "crime wave",
-        "gang violence",
-        "sexual assault",
-        "health alert",
-        "health advisory",
-        "outbreak",
-        "epidemic",
-        "pandemic",
-        "virus",
-        "infection",
-        "covid",
-        "cholera",
-        "dengue",
+        "kidnap", "kidnapping", "abduction", "hostage", "shooting",
+        "stabbing", "armed attack", "terror attack", "terrorist",
+        "gunfire", "explosion", "bomb", "car bomb", "ied",
+        "assassination", "crime wave", "gang violence",
+        "sexual assault", "health alert", "health advisory",
+        "outbreak", "epidemic", "pandemic", "virus", "infection",
+        "covid", "cholera", "dengue",
     ],
     "supply_chain_assets": [
-        "supply chain disruption",
-        "supply disruption",
-        "logistics disruption",
-        "shipping delay",
-        "shipment delay",
-        "cargo theft",
-        "truck hijack",
-        "hijacked truck",
-        "warehouse fire",
-        "factory fire",
-        "plant fire",
-        "port congestion",
-        "port strike",
-        "dock strike",
-        "rail strike",
-        "airport strike",
-        "customs strike",
-        "manufacturing halt",
-        "production halt",
-        "production stopped",
-        "plant shutdown",
-        "factory shutdown",
-        "distribution centre",
-        "distribution center",
+        "supply chain disruption", "supply disruption", "logistics disruption",
+        "shipping delay", "shipment delay", "cargo theft", "truck hijack",
+        "warehouse fire", "factory fire", "plant fire",
+        "port congestion", "port strike", "dock strike", "rail strike",
+        "airport strike", "customs strike", "manufacturing halt",
+        "production halt", "production stopped", "plant shutdown",
+        "factory shutdown", "distribution centre", "distribution center",
     ],
     "site_security_insider": [
-        "security breach",
-        "intrusion",
-        "break-in",
-        "break in",
-        "trespass",
-        "trespassing",
-        "unauthorised access",
-        "unauthorized access",
-        "badge misuse",
-        "badge violation",
-        "access control failure",
-        "cctv failure",
-        "video surveillance failure",
-        "insider threat",
-        "employee theft",
-        "loss prevention",
-        "armed robbery",
-        "robbery",
-        "burglary",
+        "security breach", "intrusion", "break-in", "break in", "trespass",
+        "unauthorised access", "unauthorized access", "badge misuse",
+        "access control failure", "cctv failure",
+        "insider threat", "employee theft", "loss prevention",
+        "armed robbery", "robbery", "burglary",
     ],
     "compliance_investigations": [
-        "regulation change",
-        "regulatory change",
-        "new law",
-        "security law",
-        "data protection law",
-        "privacy law",
-        "fine",
-        "regulator",
-        "regulatory action",
-        "law enforcement",
-        "police raid",
-        "investigation",
-        "corruption",
-        "bribery",
-        "fraud",
-        "criminal charges",
-        "indicted",
+        "regulation change", "regulatory change", "new law",
+        "security law", "data protection law", "privacy law", "fine",
+        "regulator", "regulatory action", "law enforcement", "police raid",
+        "investigation", "corruption", "bribery", "fraud",
+        "criminal charges", "indicted",
     ],
     "cyber": [
-        "ransomware",
-        "data breach",
-        "data leak",
-        "credential leak",
-        "cyber attack",
-        "cyberattack",
-        "ddos",
-        "denial of service",
-        "malware",
-        "botnet",
-        "vulnerability",
-        "zero-day",
-        "zero day",
-        "exploit",
+        "ransomware", "data breach", "data leak", "credential leak",
+        "cyber attack", "cyberattack", "ddos", "denial of service",
+        "malware", "botnet", "vulnerability", "zero-day", "zero day",
+        "exploit", "spyware", "backdoor",
     ],
 }
 
@@ -215,91 +108,58 @@ class Location:
     lon: float
 
 
-# ---------------------------------------------------------------------------
-# LOADERS (news + locations) – SAFE / ROBUST
-# ---------------------------------------------------------------------------
+# ---------- LOADERS ----------
 
 
 def load_news() -> List[Dict[str, Any]]:
     """
-    Load and NORMALISE news items from public/data/news.json
+    Normalise public/data/news.json into internal schema:
 
-    Supports:
-      - JSON array (your current file)
-      - {"articles": [...]} shape
-
-    Normalises fields to:
-      title, source, link, summary, region, severity, timestamp, lat, lon
+    {
+        title, source, timestamp, summary, severity, region, lat, lon, link
+    }
     """
     if not os.path.exists(NEWS_PATH):
         print("news.json not found; continuing with zero articles.")
         return []
 
-    raw_text = open(NEWS_PATH, "r", encoding="utf-8").read().strip()
-    if not raw_text:
-        print("news.json is empty; continuing with zero articles.")
-        return []
-
     try:
-        data = json.loads(raw_text)
+        with open(NEWS_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
     except JSONDecodeError as exc:
         print(f"news.json is not valid JSON: {exc}")
-        print("Continuing with zero articles.")
         return []
 
-    if isinstance(data, dict) and isinstance(data.get("articles"), list):
-        items = data["articles"]
-    elif isinstance(data, list):
-        items = data
+    if isinstance(data, list):
+        raw_items = data
+    elif isinstance(data, dict) and "articles" in data:
+        raw_items = data["articles"]
     else:
-        print("news.json has unexpected structure; continuing with zero articles.")
+        print("news.json format not recognised; expected list or {articles:[...]} ")
         return []
 
-    normalised: List[Dict[str, Any]] = []
-
-    for item in items:
-        if not isinstance(item, dict):
+    items: List[Dict[str, Any]] = []
+    for it in raw_items:
+        try:
+            items.append(
+                {
+                    "title": it.get("title", ""),
+                    "source": it.get("source", ""),
+                    "timestamp": it.get("time") or it.get("timestamp"),
+                    "summary": it.get("snippet") or it.get("snippet_raw", ""),
+                    "severity": int(it.get("severity", 1)),
+                    "region": it.get("region", "Global"),
+                    "lat": it.get("lat"),
+                    "lon": it.get("lon"),
+                    "link": it.get("url") or it.get("link"),
+                }
+            )
+        except Exception:
+            # If one row is weird, skip it and move on.
             continue
 
-        title = item.get("title") or ""
-        source = item.get("source") or item.get("site") or ""
-        link = item.get("url") or item.get("link") or ""
-        summary = (
-            item.get("snippet")
-            or item.get("summary")
-            or item.get("snippet_raw")
-            or ""
-        )
-        region = item.get("region") or "Global"
-        severity = int(item.get("severity", 1))
-
-        # timestamps: news_agent uses "time"
-        ts = (
-            item.get("timestamp")
-            or item.get("time")
-            or item.get("published")
-            or ""
-        )
-
-        lat = item.get("lat")
-        lon = item.get("lon")
-
-        normalised.append(
-            {
-                "title": title,
-                "source": source,
-                "link": link,
-                "summary": summary,
-                "region": region,
-                "severity": severity,
-                "timestamp": ts,
-                "lat": lat,
-                "lon": lon,
-            }
-        )
-
-    print(f"Loaded {len(normalised)} normalised articles from news.json")
-    return normalised
+    print(f"Loaded {len(items)} normalised articles from news.json")
+    return items
 
 
 def load_locations() -> List[Location]:
@@ -307,15 +167,16 @@ def load_locations() -> List[Location]:
     Robust loader for config/locations.json.
 
     Handles:
-    - Missing file  -> returns empty list
-    - Empty file    -> returns empty list
-    - Invalid JSON  -> strips // and # comments and trailing commas, then retries
+    - Missing file  -> empty list
+    - Empty file    -> empty list
+    - Invalid JSON  -> tries to strip comments / trailing commas
     """
     if not os.path.exists(LOCATIONS_PATH):
         print("locations.json not found; continuing with zero locations.")
         return []
 
-    raw_text = open(LOCATIONS_PATH, "r", encoding="utf-8").read()
+    with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
+        raw_text = f.read()
 
     if not raw_text.strip():
         print("locations.json is empty; continuing with zero locations.")
@@ -340,10 +201,6 @@ def load_locations() -> List[Location]:
             return []
 
     locations: List[Location] = []
-    if not isinstance(raw, list):
-        print("locations.json root is not a list; continuing with zero locations.")
-        return []
-
     for item in raw:
         try:
             locations.append(
@@ -362,9 +219,7 @@ def load_locations() -> List[Location]:
     return locations
 
 
-# ---------------------------------------------------------------------------
-# GEO / PROXIMITY
-# ---------------------------------------------------------------------------
+# ---------- GEO / PROXIMITY ----------
 
 
 def haversine_km(lat1, lon1, lat2, lon2) -> float:
@@ -376,40 +231,106 @@ def haversine_km(lat1, lon1, lat2, lon2) -> float:
     return 6371 * c
 
 
-def build_proximity_alerts(
-    articles: List[Dict[str, Any]],
-    locations: List[Location],
-) -> List[Dict[str, Any]]:
+def _is_security_relevant(article: Dict[str, Any]) -> bool:
+    title = article.get("title", "") or ""
+    summary = article.get("summary", "") or ""
+    text = f"{title} {summary}".lower()
+
+    severity = int(article.get("severity", 1))
+    if severity >= 3:
+        return True
+
+    for kw in ALL_SECURITY_TERMS:
+        if kw in text:
+            return True
+
+    return False
+
+
+def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
+    """
+    Proximity rules:
+    - Only incidents with severity >= 2 and security relevance.
+    - Use article lat/lon when present.
+    - If no lat/lon, try to snap to Dell sites by matching site name or country
+      in the article text (title + summary).
+    """
     alerts: List[Dict[str, Any]] = []
 
     for article in articles:
-        lat = article.get("lat")
-        lon = article.get("lon")
-        if lat is None or lon is None:
+        sev = int(article.get("severity", 1))
+        if sev < 2:
             continue
-        try:
-            alat = float(lat)
-            alon = float(lon)
-        except (TypeError, ValueError):
+        if not _is_security_relevant(article):
             continue
 
-        for loc in locations:
-            dist = haversine_km(alat, alon, loc.lat, loc.lon)
-            if dist <= RADIUS_KM:
+        title = article.get("title", "") or ""
+        summary = article.get("summary", "") or ""
+        text = f"{title} {summary}".lower()
+
+        alat = article.get("lat")
+        alon = article.get("lon")
+
+        # 1) If we have coordinates, do real distance checks.
+        if alat is not None and alon is not None:
+            try:
+                alat = float(alat)
+                alon = float(alon)
+            except (TypeError, ValueError):
+                alat = alon = None
+
+        if alat is not None and alon is not None:
+            for loc in locations:
+                dist = haversine_km(alat, alon, loc.lat, loc.lon)
+                if dist <= RADIUS_KM:
+                    alerts.append(
+                        {
+                            "article_title": title,
+                            "article_source": article.get("source"),
+                            "article_timestamp": article.get("timestamp"),
+                            "article_link": article.get("link"),
+                            "severity": sev,
+                            "summary": summary,
+                            "site_name": loc.name,
+                            "site_country": loc.country,
+                            "site_region": loc.region,
+                            "distance_km": round(dist, 1),
+                            "lat": alat,
+                            "lon": alon,
+                        }
+                    )
+            continue  # done with this article
+
+        # 2) No coordinates – try to snap to Dell sites by text match.
+        if alat is None or alon is None:
+            for loc in locations:
+                loc_name = loc.name.lower()
+                loc_country = (loc.country or "").lower()
+
+                if loc_name and loc_name in text:
+                    matched = True
+                elif loc_country and loc_country in text:
+                    matched = True
+                else:
+                    matched = False
+
+                if not matched:
+                    continue
+
                 alerts.append(
                     {
-                        "article_title": article.get("title"),
+                        "article_title": title,
                         "article_source": article.get("source"),
                         "article_timestamp": article.get("timestamp"),
                         "article_link": article.get("link"),
-                        "severity": int(article.get("severity", 1)),
-                        "summary": article.get("summary"),
+                        "severity": sev,
+                        "summary": summary,
                         "site_name": loc.name,
                         "site_country": loc.country,
                         "site_region": loc.region,
-                        "distance_km": round(dist, 1),
-                        "lat": alat,
-                        "lon": alon,
+                        "distance_km": 0.0,
+                        "lat": loc.lat,
+                        "lon": loc.lon,
                     }
                 )
 
@@ -417,15 +338,13 @@ def build_proximity_alerts(
     return alerts
 
 
-# ---------------------------------------------------------------------------
-# GEMINI / SUMMARISERS
-# ---------------------------------------------------------------------------
+# ---------- SUMMARY GENERATION ----------
 
 
 def init_gemini():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or genai is None:
-        print("Gemini not configured – using text-only summaries.")
+        print("Gemini not configured – using plain-text summary.")
         return None
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(GEMINI_MODEL)
@@ -474,7 +393,7 @@ def simple_text_summary(profile_label: str, articles: List[Dict[str, Any]]) -> s
 
     lines = [f"{len(articles)} security-relevant items in the last 24 hours affecting {profile_label}:", ""]
     for a in articles[:40]:
-        ts = (a.get("timestamp") or "")[:19].replace("T", " ")
+        ts = a.get("timestamp", "")[:19].replace("T", " ")
         sev = int(a.get("severity", 1))
         sev_label = {3: "CRITICAL", 2: "WARNING"}.get(sev, "INFO")
         lines.append(f"- [{ts}] ({sev_label}) {a.get('source')}: {a.get('title')}")
@@ -537,11 +456,6 @@ def render_html_report(profile_label: str, body_text: str, generated_at: datetim
 """
 
 
-# ---------------------------------------------------------------------------
-# FILTERING LOGIC
-# ---------------------------------------------------------------------------
-
-
 def _normalise_title(title: str) -> str:
     if not title:
         return ""
@@ -551,22 +465,6 @@ def _normalise_title(title: str) -> str:
             t = t.split(sep)[0]
             break
     return re.sub(r"\s+", " ", t)
-
-
-def _is_security_relevant(article: Dict[str, Any]) -> bool:
-    title = article.get("title", "") or ""
-    summary = article.get("summary", "") or ""
-    text = f"{title} {summary}".lower()
-
-    severity = int(article.get("severity", 1))
-    if severity >= 3:
-        return True
-
-    for kw in ALL_SECURITY_TERMS:
-        if kw in text:
-            return True
-
-    return False
 
 
 def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) -> List[Dict[str, Any]]:
@@ -610,9 +508,7 @@ def filter_last_24h(articles: List[Dict[str, Any]], allowed_regions: List[str]) 
     return selected
 
 
-# ---------------------------------------------------------------------------
-# MAIN
-# ---------------------------------------------------------------------------
+# ---------- MAIN ----------
 
 
 def main():
@@ -620,7 +516,7 @@ def main():
     locations = load_locations()
     print(f"Loaded {len(articles)} articles and {len(locations)} locations")
 
-    # --- Proximity JSON for the map ---
+    # Proximity alerts (used by map + sidebar)
     proximity_alerts = build_proximity_alerts(articles, locations)
     with open(PROXIMITY_PATH, "w", encoding="utf-8") as f:
         json.dump(
@@ -635,7 +531,7 @@ def main():
         )
     print(f"Wrote {len(proximity_alerts)} proximity alerts to {PROXIMITY_PATH}")
 
-    # --- Regional HTML briefings ---
+    # Regional daily briefings
     model = init_gemini()
     now = datetime.now(timezone.utc)
 
