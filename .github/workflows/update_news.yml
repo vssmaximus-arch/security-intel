@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # IMPORTANT: enables pulling latest changes
+          fetch-depth: 0
 
       - name: Pull latest changes
         run: |
@@ -35,9 +35,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Install from requirements.txt if present
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          # Belt-and-braces: ensure these core libs are present even if requirements.txt path/contents change
+          pip install feedparser folium requests beautifulsoup4 google-generativeai
 
-      - name: Run news ingest
+      - name: Run news ingest (RSS -> public/data/news.json)
         run: python scripts/news_agent.py
 
       - name: Generate proximity alerts + daily reports
