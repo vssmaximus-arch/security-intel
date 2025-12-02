@@ -1,5 +1,98 @@
 [
   {
+    "title": "Japan Coast Guard reports standoff with Chinese vessels near Senkaku Islands",
+    "url": "https://www.japantimes.co.jp/news/2025/12/02/japan/politics/china-ships-territorial-waters/",
+    "snippet_raw": "Relations have been strained since Prime Minister Sanae Takaichi suggested last month that Japan could intervene militarily in a Chinese attack on Taiwan.",
+    "source": "www.japantimes.co.jp",
+    "time": "2025-12-02T05:15:00+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "JAPAN"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Relations have been strained since Prime Minister Sanae Takaichi suggested last month that Japan could intervene militarily in a Chinese attack on Taiwan."
+  },
+  {
+    "title": "World: Transformative TVET for the building and construction sector: Embracing digitalization, greening and migration trends",
+    "url": "https://reliefweb.int/report/world/transformative-tvet-building-and-construction-sector-embracing-digitalization-greening-and-migration-trends",
+    "snippet_raw": "Countries: World, Ethiopia, Jordan, Pakistan, South Africa, Syrian Arab Republic, United Kingdom of Great Britain and Northern Ireland Source: UN Educational, Scientific and Cultural Organization Please refer to the attached file. Short summary Future-proofing skills for a sustainable and inclusive construction industry There is an urgent need to expand the skilled workforce and promote green practices in the building and construction industry. The sector, currently employing approximately 7 per cent of the global working population, accounts for over a third of global energy demand (UNEP, 2025). The digitalization of technical and vocational education and training (TVET) is creating new opportunities to improve sustainability, access, safety and relevance. At the same time, migration is reshaping labour markets, increasing the importance of skills recognition, ethical recruitment and responsive TVET systems. Persistent gaps in infrastructure, curriculum modernization and trainer competence – particularly in low-resource contexts – continue to pose major challenges. This publication examines the transformation of TVET for construction through intersecting lenses of digitalization, greening and migration. Drawing on insights from the Bridging Innovation and Learning in TVET (BILT) Expert Group, case studies and literature from Africa, Asia and the Pacific, and Europe, it analyses trends and provides recommendations for making TVET more inclusive, future-focused and resilient. These recommendations integrate cross-cutting insights and pathways for aligning standards, delivery, partnerships and workforce planning in construction-related training. TVET leaders and industry stakeholders are encouraged to innovate and collaborate to address rapidly evolving industry needs and broader global challenges.",
+    "source": "reliefweb.int",
+    "time": "2025-12-02T05:03:11+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "World",
+      "Ethiopia",
+      "Jordan",
+      "Pakistan",
+      "South Africa",
+      "Syrian Arab Republic",
+      "United Kingdom of Great Britain and Northern Ireland",
+      "UN Educational, Scientific and Cultural Organization",
+      "Protection and Human Rights",
+      "Recovery and Reconstruction",
+      "Analysis"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Countries: World, Ethiopia, Jordan, Pakistan, South Africa, Syrian Arab Republic, United Kingdom of Great Britain and Northern Ireland Source: UN Educational, Scientific and Cultural Organization Please refer to the attached file. Short summary Future-proofing…"
+  },
+  {
+    "title": "Shells found in Spain could be among oldest known musical instruments",
+    "url": "https://www.theguardian.com/science/2025/dec/02/neolithic-conch-like-shell-spain-catalonia-discovery-musical-instruments",
+    "snippet_raw": "Conch-shell trumpets discovered in Neolithic settlements and mines in Catalonia make tone similar to french horn, says lead researcher As a child, Miquel López García was fascinated by the conch shell, kept in the bathroom, that his father’s family in the southern Spanish region of Almería had blown to warn their fellow villagers of rising rivers and approaching flood waters. The hours he spent getting that “characteristically potent sound out of it” paid off last year when the archaeologist, musicologist and professional trumpet player pressed his lips to eight conch-shell trumpets. Their tones, he says, could carry insights into the lives of the people who lived in north-east Spain 6,000 years ago. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T05:00:17+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Archaeology",
+      "Science",
+      "Spain",
+      "Europe",
+      "Music",
+      "Culture",
+      "World news",
+      "Higher education",
+      "Research"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Conch-shell trumpets discovered in Neolithic settlements and mines in Catalonia make tone similar to french horn, says lead researcher As a child, Miquel López García was fascinated by the conch shell, kept in the bathroom, that his father’s family in the sout…"
+  },
+  {
+    "title": "UN experts accuse one of England’s biggest social landlords of habitability failings",
+    "url": "https://www.theguardian.com/society/2025/dec/02/un-experts-accuse-one-of-england-biggest-social-landlords-l-and-q-habitability-failings",
+    "snippet_raw": "Exclusive: Letter says L&Q appears to have systematically failed in its duty to provide adequate standard of living UN experts have said that one of England’s biggest social landlords appears to have systematically failed to ensure the habitability of its rental properties. In a letter to the UK government, they cite the case of a disabled tenant, Sanjay Ramburn, 55, who they say lived with his family of five in an L&Q group property in Forest Gate, east London, for several years with no electricity. They experienced four ceiling collapses, as well as severe damp and mould that affected their health. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T05:00:17+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Social housing",
+      "Housing",
+      "England",
+      "Society",
+      "Communities",
+      "London",
+      "United Nations",
+      "UK news"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Exclusive: Letter says L&Q appears to have systematically failed in its duty to provide adequate standard of living UN experts have said that one of England’s biggest social landlords appears to have systematically failed to ensure the habitability of its rent…"
+  },
+  {
     "title": "Hong Kong to set up inquiry into deadly fire",
     "url": "https://abcnews.go.com/International/wireStory/hong-kong-set-inquiry-deadly-fire-128023549",
     "snippet_raw": "Hong Kong has set up an independent commission to investigate a deadly fire that burned seven apartment buildings and killed at least 151 people",
@@ -55,6 +148,21 @@
     "snippet": "The mental state of a man who has admitted to killing his father at Pilliga in north-west New South Wales will be key to the outcome of his murder trial."
   },
   {
+    "title": "Sri Lankan Thanks 'Indian Soldiers' For Relief Efforts During Cyclone Ditwah: 'Forever Grateful'",
+    "url": "https://www.ndtv.com/feature/sri-lankan-thanks-indian-soldiers-for-relief-efforts-during-cyclone-ditwah-forever-grateful-9734602#publisher=newsstand",
+    "snippet_raw": "An Indian Air Force C-130 J plane after landing in Colombo.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T04:35:27+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "An Indian Air Force C-130 J plane after landing in Colombo."
+  },
+  {
     "title": "White House defends ‘double-tap’ US attack on alleged drug boat as lawful",
     "url": "https://www.scmp.com/news/world/americas/article/3334858/white-house-defends-double-tap-us-attack-alleged-drug-boat-lawful?utm_source=rss_feed",
     "snippet_raw": "A US admiral acting under the authority of US Defence Secretary Pete Hegseth ordered a “double-tap” military operation that targeted survivors of an initial attack on an alleged drug smuggling boat, the White House said on Monday. The legality of the Trump administration’s deadly strikes against suspected drug traffickers in the Caribbean and Pacific has already been questioned, and reports of the follow-up attack on survivors have triggered further accusations of a possible war crime. A total...",
@@ -68,6 +176,21 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "A US admiral acting under the authority of US Defence Secretary Pete Hegseth ordered a “double-tap” military operation that targeted survivors of an initial attack on an alleged drug smuggling boat, the White House said on Monday. The legality of the Trump adm…"
+  },
+  {
+    "title": "Witkoff and Kushner to meet Putin in Moscow to discuss an end to the Ukraine war",
+    "url": "https://www.straitstimes.com/world/europe/witkoff-and-kushner-to-meet-putin-in-moscow-to-discuss-an-end-to-the-ukraine-war",
+    "snippet_raw": "MOSCOW/WASHINGTON, Dec 2 - U.S. President Donald Trump's special envoy, Steve Witkoff, and son-in-law Jared Kushner will meet Russian President Vladimir Putin on Tuesday for talks on a possible way to end the deadliest European conflict since World War Two.",
+    "source": "www.straitstimes.com",
+    "time": "2025-12-02T04:29:57+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "MOSCOW/WASHINGTON, Dec 2 - U.S. President Donald Trump's special envoy, Steve Witkoff, and son-in-law Jared Kushner will meet Russian President Vladimir Putin on Tuesday for talks on a possible way to end the deadliest European conflict since World War Two."
   },
   {
     "title": "Hong Kong leader orders independent probe into city's deadliest fire in decades",
@@ -87,7 +210,7 @@
     "snippet": "Authorities point to substandard plastic mesh and insulation foam used during renovation works fueling a blaze that quickly spread to seven high-rise towers, claiming 151 lives."
   },
   {
-    "title": "A Lookback At Rubaiya Sayeed Kidnapping Case Of 1989",
+    "title": "A 1989 Kidnapping Case And The Release Of 5 Terrorists",
     "url": "https://www.ndtv.com/india-news/a-lookback-at-rubaiya-sayeed-kidnapping-case-of-1989-mufti-mohammad-sayeed-jklf-9734475#publisher=newsstand",
     "snippet_raw": "Rubaiya Sayeed, daughter of the then Union Home Minister, Mufti Mohammad Sayeed.",
     "source": "www.ndtv.com",
@@ -618,25 +741,6 @@
     "snippet": "Bamboo-clad buildings have long been a distinctive feature of the territory, which still relies on thousands of skilled workers who use them as scaffolding."
   },
   {
-    "title": "NSW to cut power of e-bikes as rider killed in Sydney garbage truck crash",
-    "url": "https://www.abc.net.au/news/2025-12-02/nsw-ebike-garbage-truck-death-sydney-cbd/106090300",
-    "snippet_raw": "The rider, a man aged in his 30s, was treated by paramedics but could not be saved.",
-    "source": "www.abc.net.au",
-    "time": "2025-12-02T01:18:06+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Road Accidents and Incidents",
-      "Death and Dying",
-      "State and Territory Government"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The rider, a man aged in his 30s, was treated by paramedics but could not be saved."
-  },
-  {
     "title": "China’s $1 flu shots show price squeeze for vaccine makers",
     "url": "https://www.straitstimes.com/asia/east-asia/chinas-1-flu-shots-show-price-squeeze-for-vaccine-makers",
     "snippet_raw": "Once riding high on the Covid-19 boom, China’s vaccine industry now faces a reckoning.",
@@ -650,27 +754,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "Once riding high on the Covid-19 boom, China’s vaccine industry now faces a reckoning."
-  },
-  {
-    "title": "ADAM (Advanced Disaster Analysis & Mapping) - Flood Impact Analysis Sri Lanka (01 December 2025)",
-    "url": "https://reliefweb.int/map/sri-lanka/adam-advanced-disaster-analysis-mapping-flood-impact-analysis-sri-lanka-01-december-2025",
-    "snippet_raw": "Country: Sri Lanka Source: World Food Programme Please refer to the attached Map.",
-    "source": "reliefweb.int",
-    "time": "2025-12-02T01:06:47+00:00",
-    "region": "Global",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Sri Lanka",
-      "World Food Programme",
-      "Map",
-      "Flood",
-      "Land Slide"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Country: Sri Lanka Source: World Food Programme Please refer to the attached Map."
   },
   {
     "title": "England football star arrested at airport over attempted rape allegations",
@@ -726,23 +809,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Rescuers battled to clear roads, while improved weather conditions have revealed the scale of the disaster."
-  },
-  {
-    "title": "Options narrow for Maduro after call with Trump, sources say",
-    "url": "https://www.japantimes.co.jp/news/2025/12/02/world/politics/trump-maduro-call-venezuela/",
-    "snippet_raw": "The call from U.S. President Donald Trump came after months of increasing U.S. pressure on Venezuela, including strikes against alleged drug-smuggling boats in the Caribbean.",
-    "source": "www.japantimes.co.jp",
-    "time": "2025-12-02T00:28:00+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "WORLD"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The call from U.S. President Donald Trump came after months of increasing U.S. pressure on Venezuela, including strikes against alleged drug-smuggling boats in the Caribbean."
   },
   {
     "title": "\"Baseless\": India Rejects Pak's Airspace Denial Claims For Sri Lanka Aid",
@@ -807,21 +873,6 @@
     "snippet": "Joaquín Guzmán López admitted to having the once-untouchable drug kingpin Ismael Zambada García abducted and flown to the United States, among a sweeping set of other crimes."
   },
   {
-    "title": "Delhi India Gate Protest: 3 Protestors Sent To Police Custody",
-    "url": "https://www.ndtv.com/india-news/delhi-india-gate-air-pollution-protest-3-protestors-sent-to-police-custody-9733906#publisher=newsstand",
-    "snippet_raw": "A total of 23 protesters were arrested during air pollution protest in Delhi last month in November.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-01T23:26:48+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "A total of 23 protesters were arrested during air pollution protest in Delhi last month in November."
-  },
-  {
     "title": "Does Candace Owens have facts to support her Emmanuel Macron and Charlie Kirk claim? French officials highlight fresh doubts",
     "url": "https://timesofindia.indiatimes.com/world/us-streamers/does-candace-owens-have-facts-to-support-her-emmanuel-macron-and-charlie-kirk-claim-french-officials-highlight-fresh-doubts/articleshow/125706535.cms",
     "snippet_raw": "Candace Owens alleged on X that Emmanuel and Brigitte Macron paid for her assassination, citing an \"urgent warning\" from a French official. French authorities, including GIGN, have vehemently denied the claim, labeling it \"fake.\" Experts note Owens has a history of spreading debunked rumors about Brigitte Macron, further undermining her current accusation.",
@@ -867,6 +918,23 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "The 14 FEMA employees who signed the so-called Katrina declaration went back to work for a little while Monday — but the Department of Homeland Security now says that should never have happened. Why it matters: A spokesperson for DHS told Axios in an email tha…"
+  },
+  {
+    "title": "Jeffries says not to expect Democrats to pursue Hegseth impeachment over boat strikes",
+    "url": "https://www.axios.com/2025/12/01/jeffries-hegseth-impeach-venezuela-drug-boats",
+    "snippet_raw": "House Minority Leader Hakeem Jeffries (D-N.Y.) signaled Monday that Democrats are unlikely to pursue impeachment against Secretary of Defense Pete Hegseth over alleged follow-up strikes against boats in the Caribbean. Why it matters: Impeachment has been a fraught subject for Democrats this year, with Jeffries acknowledging that Republican control of both chambers of Congress makes any impeachment effort virtually dead on arrival. \"Republicans will never allow articles of impeachment to be brought to the floor of the House of Representatives, and we know that's the case,\" Jeffries said at a press conference Monday. \"Donald Trump will order them not to do it,\" he added. Driving the news: White House press secretary Karoline Leavitt denied Monday that Hegseth was the one who ordered a second strike on an alleged Venezuelan drug boat on Sept. 2 to take out survivors of an earlier strike. The Washington Post reported last week thay Hegseth's directive in the operation was, in the words of one anonymous source, to \"kill everybody,\" which led a military commander to order a second strike. Leavitt said Hegseth \"authorized Admiral [Frank] Bradley to conduct these kinetic strikes. He worked well within his authority and the law.\" What they're saying: \"The White House is lying, but that's no surprise,\" Jeffries said at his press conference when asked by Axios about Leavitt's comments. \"It is my understanding that Pete Hegseth, the so-called secretary of defense, was absolutely involved. I think he may have even recently acknowledged that because the facts are incapable of being disputed.\" Jeffries reiterated his past call for Hegseth to resign voluntarily, saying he is \"the most unqualified secretary of defense in American history.\" What to watch: The top Republican and Democrat on both the House and Senate Armed Services committees have said they plan to vigorously investigate the reporting. Jeffries leaned on those probes as the alternative to impeachment, telling reporters: \"What's on the table is a meaningful investigation which we can hope would be bipartisan.\"",
+    "source": "www.axios.com",
+    "time": "2025-12-01T22:54:33+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "top"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "House Minority Leader Hakeem Jeffries (D-N.Y.) signaled Monday that Democrats are unlikely to pursue impeachment against Secretary of Defense Pete Hegseth over alleged follow-up strikes against boats in the Caribbean. Why it matters: Impeachment has been a fra…"
   },
   {
     "title": "Florida influencer Ethan Ladner sparks big debate after TikTok school shooting threat leads to sudden arrest",
@@ -943,21 +1011,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Unusually destructive storms have killed more than 1,200 people across the region and displaced millions in South and Southeast Asia."
-  },
-  {
-    "title": "Cyclone Ditwah: Schools, Colleges To Remain Shut Today In Chennai, Other Districts",
-    "url": "https://www.ndtv.com/india-news/cyclone-ditwah-schools-colleges-to-remain-shut-today-in-chennai-other-districts-9733831#publisher=newsstand",
-    "snippet_raw": "Cyclone Ditwah: Authorities have urged residents to remain cautious and avoid unnecessary travel.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-01T22:16:35+00:00",
-    "region": "Global",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Cyclone Ditwah: Authorities have urged residents to remain cautious and avoid unnecessary travel."
   },
   {
     "title": "Deadly Floods in Indonesia Leave Hundreds Missing",
@@ -1276,19 +1329,27 @@
     "snippet": "Rescue efforts in Peru's central Ucayali region are being hindered by strong currents on the river, one official said."
   },
   {
-    "title": "Peru landslide sinks boats in Amazon region river, killing 12",
-    "url": "https://www.straitstimes.com/world/peru-landslide-sinks-boats-in-amazon-region-river-killing-12",
-    "snippet_raw": "LIMA, Dec 1 - At least 12 people have died and 20 more were left injured after a landslide in Peru's Amazon region sunk two boats on the Ucayali river, local health authorities said on Monday.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-01T19:09:52+00:00",
+    "title": "Resident doctors in England to go on strike in run-up to Christmas",
+    "url": "https://www.theguardian.com/society/2025/dec/01/resident-doctors-england-strike-christmas",
+    "snippet_raw": "Five days of strike action over jobs and pay to take place from 17 to 22 December Thousands of doctors in England are to go on strike again this month, in a dispute over pay and job security. The British Medical Association has announced that resident doctors – formerly known as junior doctors – will begin a five-day strike action that will run from 7am on 17 December until 7am on 22 December. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-01T19:07:34+00:00",
     "region": "AMER",
-    "severity": 1,
+    "severity": 2,
     "lat": null,
     "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "LIMA, Dec 1 - At least 12 people have died and 20 more were left injured after a landslide in Peru's Amazon region sunk two boats on the Ucayali river, local health authorities said on Monday."
+    "tags": [
+      "NHS",
+      "Doctors",
+      "England",
+      "Industrial action",
+      "UK news",
+      "Society",
+      "Health"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Five days of strike action over jobs and pay to take place from 17 to 22 December Thousands of doctors in England are to go on strike again this month, in a dispute over pay and job security. The British Medical Association has announced that resident doctors …"
   },
   {
     "title": "Floods kill at least 1,100 people across south and south-east Asia – video",
@@ -1701,6 +1762,21 @@
     "snippet": "Hat Yai has entered full recovery and clean-up mode nine days after massive flooding."
   },
   {
+    "title": "More than 1,160 dead after extreme flooding across Asia",
+    "url": "https://www.abc.net.au/news/2025-12-02/more-than-1000-dead-in-flooding-in-indonesia-thailand-sri-lanka/106089220",
+    "snippet_raw": "Indonesia, Thailand and Sri Lanka are reeling from flooding that has killed hundreds in each country and destroyed communities.",
+    "source": "www.abc.net.au",
+    "time": "2025-12-01T14:46:50+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Indonesia, Thailand and Sri Lanka are reeling from flooding that has killed hundreds in each country and destroyed communities."
+  },
+  {
     "title": "Trump backs Hegseth as Congress plans boat strike review",
     "url": "https://www.axios.com/2025/12/01/trump-hegseth-venezuela-strike-order",
     "snippet_raw": "President Trump said he believes Defense Secretary Pete Hegseth's denial of a report alleging he ordered military forces to leave no survivors in a strike on a suspected drug trafficking boat from Venezuela. The big picture: The U.S. has ramped up its military pressure on Venezuela and President Nicolás Maduro despite legal experts and lawmakers sounding the alarm over the legality of the strikes on alleged drug traffickers that have killed dozens. Hegseth slammed The Washington Post's report that he directed military officials to kill everyone aboard a vessel, which allegedly resulted in a second strike to take out two survivors. The Intercept also previously reported on the follow-up attack. He dismissed the allegations as \"fabricated, inflammatory, and derogatory\" on X but said \"these highly effective strikes are specifically intended to be 'lethal, kinetic strikes.'\" Driving the news: \"He said he did not say that, and I believe him 100%,\" Trump told reporters aboard Air Force One on Sunday. The president added that \"we'll look into it\" and that he wouldn't have wanted a second strike. \"The first strike was very lethal. It was fine. And if there were two people around, but Pete said that didn't happen,\" he said. \"I have great confidence.\" Trump added, \"Pete said he did not order the death of those two men,\" Friction point: But lawmakers have expressed increasing concern over the shadowy operations and are seeking to conduct their own oversight of the strikes. House Armed Services Committee Chairman Mike Rogers (R-Ala.) and Ranking Member Adam Smith (D-Wash.) said in a Saturday statement that they \"take seriously\" the reports of follow-up strikes and are \"taking bipartisan action to gather a full accounting of the operation in question.\" Similarly, Senate Armed Services Committee Chair Sen. Roger Wicker (R-Miss.) and Ranking Member Jack Reed (D-R.I.) said in a statement the committee will conduct \"vigorous oversight to determine the facts related to these circumstances.\" What they're saying: Sen. Tim Kaine (D-Va.) said on CBS News' \"Face the Nation\" Sunday that if the allegations are proven true, \"this rises to the level of a war crime.\" Rep. Mike Turner (R-Ohio), the former chair of the House Intelligence Committee, also said on CBS that there \"are very serious concerns in Congress about the attacks on the so-called drug boats down in the Caribbean and the Pacific, and the legal justification that's been provided\" How he responded: After lawmakers aired their concerns on the morning political show circuit, Hegseth took to his personal account Sunday evening to share an image of the children's cartoon turtle Franklin firing a weapon at what appear to be drug-smuggling boats. \"For your Christmas wish list...\" he wrote. What we're watching: Trump signaled Thursday that the squeeze on Venezuela will only tighten, saying that land operations will start \"very soon.\" Days later, he issued a broad directive on Truth Social declaring the airspace above and surrounding Venezuela \"CLOSED IN ITS ENTIRETY,\" which the Venezuelan government castigated as a \"hostile, unilateral, and arbitrary act.\" Asked Sunday whether his statement about the country's airspace signaled an imminent airstrike, Trump replied, \"Don't read anything into it.\" Go deeper: What to know about the military forces Trump is assembling near Venezuela",
@@ -1779,21 +1855,6 @@
     "snippet": "In a high-level visit to Lebanon from 23 to 25 November, Amnesty International’s Secretary General, Agnès Callamard, called on Lebanese authorities to take concrete steps towards accountability for violations of international humanitarian law during the armed …"
   },
   {
-    "title": "Mainland China public donations for Hong Kong fire relief top HK$80 million",
-    "url": "https://www.scmp.com/news/article/3334807/mainland-china-public-donations-hong-kong-fire-relief-top-hk80-million?utm_source=rss_feed",
-    "snippet_raw": "Hong Kong has received a wave of compassion from mainland China over the deadly fire in Tai Po, the city’s worst in decades, with public donations from across the border exceeding HK$80 million (US$10.27 million). The China Social Welfare Foundation announced that donations from 1.7 million residents on the mainland had exceeded 76 million yuan (US$10.74 million) or about HK$83.5 million, as of Sunday. Many donors also contributed to the Hong Kong government’s relief fund and local charities,...",
-    "source": "www.scmp.com",
-    "time": "2025-12-01T13:46:59+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Hong Kong has received a wave of compassion from mainland China over the deadly fire in Tai Po, the city’s worst in decades, with public donations from across the border exceeding HK$80 million (US$10.27 million). The China Social Welfare Foundation announced …"
-  },
-  {
     "title": "West African bloc delegation arrives in Guinea-Bissau for talks with military coup leaders",
     "url": "https://abcnews.go.com/International/wireStory/west-african-bloc-delegation-arrives-guinea-bissau-talks-127997062",
     "snippet_raw": "ECOWAS delegation has arrived in Guinea-Bissau on Monday, as the military government which seized power in the country banned all demonstrations, strikes and activities regarded as threat to peace and stability",
@@ -1810,28 +1871,6 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "ECOWAS delegation has arrived in Guinea-Bissau on Monday, as the military government which seized power in the country banned all demonstrations, strikes and activities regarded as threat to peace and stability"
-  },
-  {
-    "title": "Suspected members of neo-Nazi terror group arrested in Spain",
-    "url": "https://www.theguardian.com/world/2025/dec/01/suspected-members-of-neo-nazi-terror-group-the-base-arrested-in-spain",
-    "snippet_raw": "Three people are accused of belonging to the Base, an ‘accelerationist’ white power organisation founded in the US Police in Spain have arrested three people on suspicion of belonging to the Base, a global neo-Nazi terrorist group that incites and trains members in techniques to overthrow governments and bring about a race war. The group, which has been designated a terrorist organisation by the EU, the UK, Canada, Australia and New Zealand, is part of a worldwide “accelerationist” white power movement that prepares its cells to carry out violent and destabilising attacks. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-12-01T13:15:59+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Spain",
-      "The far right",
-      "Europe",
-      "World news",
-      "Antisemitism",
-      "Race"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Three people are accused of belonging to the Base, an ‘accelerationist’ white power organisation founded in the US Police in Spain have arrested three people on suspicion of belonging to the Base, a global neo-Nazi terrorist group that incites and trains membe…"
   },
   {
     "title": "Death toll in Indonesia floods passes 500 with hundreds more missing",
@@ -2305,21 +2344,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Rescue and recovery and efforts are under way in parts of South and Southeast Asia where the number of those killed in devastating floods continues to rise."
-  },
-  {
-    "title": "Hong Kong student detained for urging probe into deadly fire leaves police station",
-    "url": "https://www.straitstimes.com/asia/east-asia/hong-kong-student-urging-probe-into-deadly-fire-leaves-police-station",
-    "snippet_raw": "Mr Miles Kwan left the Cheung Sha Wan Division police station in a taxi on Dec 1 afternoon.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-01T07:15:00+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Mr Miles Kwan left the Cheung Sha Wan Division police station in a taxi on Dec 1 afternoon."
   },
   {
     "title": "Onlookers review – snapshots of a south-east Asian country shaped by tourism",
@@ -3581,7 +3605,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "18",
+      "20",
       "US"
     ],
     "pillar": "Resilience / Crisis Management",
