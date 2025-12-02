@@ -1,27 +1,222 @@
 [
   {
-    "title": "Putin attacks Europe for unacceptable demands, accuses leaders of hindering Ukraine peace talks – Europe live",
-    "url": "https://www.theguardian.com/world/live/2025/dec/02/ukraine-war-live-trump-peace-deal-witkoff-to-meet-putin",
-    "snippet_raw": "Russian leader says ‘we are ready’ if Europe wants war In parallel to Witkoff’s meeting in Moscow, we will also follow Volodymyr Zelenskyy’s first visit to Ireland. He has arrived in Dublin last night , and has a busy schedule today, paying a brief visit to the country’s new president Catherine Connolly , before meeting with key government figures including the taisoeach, Micheál Martin , and addressing both chambers of the Irish parliament in the afternoon. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-12-02T15:28:05+00:00",
-    "region": "EMEA",
+    "title": "In Photos and Video: Devastating Floods Swamp South Asia",
+    "url": "https://www.nytimes.com/2025/12/02/world/asia/floods-indonesia-sri-lanka-thailand-photos.html",
+    "snippet_raw": "Images of the destruction caused by storms that have torn through South and Southeast Asia.",
+    "source": "www.nytimes.com",
+    "time": "2025-12-02T16:52:28+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Floods",
+      "Landslides and Mudslides",
+      "Hurricanes and Tropical Storms",
+      "Weather",
+      "Rain",
+      "Sri Lanka",
+      "Southeast Asia"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Images of the destruction caused by storms that have torn through South and Southeast Asia."
+  },
+  {
+    "title": "Large Winter Storm Brings Snow and Ice to Northeast and Mid-Atlantic",
+    "url": "https://www.nytimes.com/2025/12/02/weather/snow-winter-storm-northeast-ny-nj.html",
+    "snippet_raw": "The major storm dropped a wintry mix of precipitation across the Midwest overnight, creating a treacherous commute for millions of Americans.",
+    "source": "www.nytimes.com",
+    "time": "2025-12-02T16:41:16+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Snow and Snowstorms",
+      "Weather",
+      "Hochul, Kathleen C",
+      "New England States (US)",
+      "Mid-Atlantic States (US)",
+      "Maine",
+      "Massachusetts",
+      "Pennsylvania",
+      "Rain"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "The major storm dropped a wintry mix of precipitation across the Midwest overnight, creating a treacherous commute for millions of Americans."
+  },
+  {
+    "title": "Mass killings in the U.S. just hit a record low since '06",
+    "url": "https://www.axios.com/2025/12/02/mass-killings-us-drop-record-low-2025",
+    "snippet_raw": "Data: Mass Killing Database ; Chart: Axios Visuals Mass killings in the U.S. so far this year have dropped to their lowest level since researchers began tracking mass homicides in 2006. The big picture: This decline tracks with a broader cooling of violent crime across the U.S. following pandemic-era spikes, though criminologists suggest the drop may simply mark a return to historic averages. Experts also note mass-killing numbers can swing sharply year to year because the totals are small. The fine print: The database—maintained by the Associated Press and USA Today in partnership with Northeastern University—counts incidents where four or more people are intentionally killed in a 24-hour period, not including the killer. Driving the news: A recent shooting at a child's birthday party in California that killed three children and one adult brought the number of mass killings so far in 2025 to 17, according to the database. So far, 2025 has seen the lowest number of such tragedies since 2006, the first year of available data in the database. The highest number, 46, was recorded in 2019. Zoom out: The Gun Violence Archive, a separate database that uses a broader definition to include shootings where victims survived, similarly recorded a drop in both mass shootings and mass murders so far in 2025. The archive tracked 381 mass shootings so far in 2025, with the most recent an incident that injured four men in St. Paul on Monday. Last year, the archive tracked 503 mass shootings — down from 659 in 2023. Worth noting: The AP–USA Today mass killing database found that most mass killings in the U.S. involve guns. This year, 14 of the 17 incidents involved firearms, and of the 629 total mass killings since 2006 in the database, 79% involved firearms. One stunning stat: While news coverage often centers around mass killings in public, the database shows that around 67% happen in and around people's homes. Catch up quick: Violent crimes rates in major cities across the country have been on the decline after a COVID-era spike. But the shadow of gun violence is pervasive in the U.S., where around 1 in 15 adults has been on the scene at a mass shooting, according to a study reviewed by Axios' Alayna Alvarez. The bottom line: While mass killings fell this year to date, that statistic alone does not necessarily fully capture grim reality of gun violence in the U.S. For example, the Annunciation Catholic Church shooting earlier this year that killed two children does not fit the definition of a mass killing and is therefore not counted on the database. But there has been progress on initiatives targeting gun violence, such as those driven by a 2022 bipartisan gun safety bill signed into law by former President Biden. Go deeper: Minneapolis mass shooting prompts calls for assault weapons ban, early intervention",
+    "source": "www.axios.com",
+    "time": "2025-12-02T16:40:59+00:00",
+    "region": "AMER",
     "severity": 3,
     "lat": null,
     "lon": null,
     "tags": [
-      "Russia",
-      "Ukraine",
-      "Trump administration",
-      "Vladimir Putin",
-      "Donald Trump",
-      "Volodymyr Zelenskyy",
+      "top"
+    ],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Data: Mass Killing Database ; Chart: Axios Visuals Mass killings in the U.S. so far this year have dropped to their lowest level since researchers began tracking mass homicides in 2006. The big picture: This decline tracks with a broader cooling of violent cri…"
+  },
+  {
+    "title": "Ukraine detains British army veteran on suspicion of spying for Russia",
+    "url": "https://www.ft.com/content/62d972c6-ed55-4632-a4ea-9ca470f27a65",
+    "snippet_raw": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres",
+    "source": "www.ft.com",
+    "time": "2025-12-02T16:36:49+00:00",
+    "region": "Global",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres"
+  },
+  {
+    "title": "Suspect charged with murder in West End shooting, Winnipeg police say",
+    "url": "https://globalnews.ca/news/11555631/langside-street-homicide-arrest-winnipeg-police/",
+    "snippet_raw": "Melvin Catcheway, 25, was killed Aug. 29 on Langside Street after an altercation with another man, police said.",
+    "source": "globalnews.ca",
+    "time": "2025-12-02T16:21:15+00:00",
+    "region": "Global",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Crime",
+      "crime in winnipeg",
+      "Winnipeg homicide",
+      "Winnipeg police"
+    ],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Melvin Catcheway, 25, was killed Aug. 29 on Langside Street after an altercation with another man, police said."
+  },
+  {
+    "title": "Former EU top diplomat among three held in fraud investigation",
+    "url": "https://www.theguardian.com/world/2025/dec/02/former-eu-top-diplomat-federica-mogherini-arrest-fraud-investigation",
+    "snippet_raw": "Belgian police raid EU foreign service HQ and College of Europe and arrest Federica Mogherini and two others Belgian police have arrested three people including the EU’s former top diplomat Federica Mogherini and raided the headquarters of the EU foreign service and the elite College of Europe as part of an investigation into suspected fraud. The three were detained “as part of a probe into suspected fraud related to EU-funded training for junior diplomats”, the European public prosecutor’s office said in a statement, without naming individuals. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T16:13:53+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "European Union",
+      "European Commission",
+      "Belgium",
       "Europe",
       "World news"
     ],
+    "pillar": "Compliance & Investigations",
+    "type": "COMPLIANCE",
+    "snippet": "Belgian police raid EU foreign service HQ and College of Europe and arrest Federica Mogherini and two others Belgian police have arrested three people including the EU’s former top diplomat Federica Mogherini and raided the headquarters of the EU foreign servi…"
+  },
+  {
+    "title": "Judge-led panel to probe deadly blaze as Hong Kong goes ahead with election",
+    "url": "https://www.scmp.com/news/hong-kong/society/article/3334962/judge-led-panel-probe-deadly-blaze-hong-kong-goes-ahead-election?utm_source=rss_feed",
+    "snippet_raw": "Hong Kong Chief Executive John Lee Ka-chiu has ordered the setting up of a judge-led independent review committee on the blaze that engulfed a Tai Po residential estate while formally announcing that the Legislative Council election will go ahead on Sunday as scheduled. The death toll from the inferno that swept through seven of the eight blocks of Wang Fuk Court last Wednesday rose to 156 after five more bodies were found on Tuesday. Of the total, 127 victims have been identified, while about...",
+    "source": "www.scmp.com",
+    "time": "2025-12-02T16:13:26+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
     "pillar": null,
     "type": "GENERAL",
-    "snippet": "Russian leader says ‘we are ready’ if Europe wants war In parallel to Witkoff’s meeting in Moscow, we will also follow Volodymyr Zelenskyy’s first visit to Ireland. He has arrived in Dublin last night , and has a busy schedule today, paying a brief visit to th…"
+    "snippet": "Hong Kong Chief Executive John Lee Ka-chiu has ordered the setting up of a judge-led independent review committee on the blaze that engulfed a Tai Po residential estate while formally announcing that the Legislative Council election will go ahead on Sunday as …"
+  },
+  {
+    "title": "US Homeland Security secretary calls for more travel bans",
+    "url": "https://www.bbc.com/news/articles/c79x3rwxjryo?at_medium=RSS&at_campaign=rss",
+    "snippet_raw": "Kristi Noem says she will recommend a ban on entry for several countries that she says are \"flooding\" the US with criminal activity.",
+    "source": "www.bbc.com",
+    "time": "2025-12-02T16:13:08+00:00",
+    "region": "Global",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Kristi Noem says she will recommend a ban on entry for several countries that she says are \"flooding\" the US with criminal activity."
+  },
+  {
+    "title": "Situation Report #1 - Floods and Landslides in Aceh, North Sumatera, and West Sumatera provinces in Indonesia",
+    "url": "https://reliefweb.int/report/indonesia/situation-report-1-floods-and-landslides-aceh-north-sumatera-and-west-sumatera-provinces-indonesia",
+    "snippet_raw": "Country: Indonesia Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file.",
+    "source": "reliefweb.int",
+    "time": "2025-12-02T16:09:07+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Indonesia",
+      "UN Office for the Coordination of Humanitarian Affairs"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Country: Indonesia Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file."
+  },
+  {
+    "title": "Ontario may need to throw out millions of dollars in PPE: auditor general",
+    "url": "https://globalnews.ca/news/11555649/ford-government-ppe-oversupply-auditor-general/",
+    "snippet_raw": "During the height of COVID-19, the Ford government signed long-term contracts with Ontario manufacturers for desperately needed masks for health-care workers.",
+    "source": "globalnews.ca",
+    "time": "2025-12-02T16:05:15+00:00",
+    "region": "Global",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Politics",
+      "Ford government",
+      "Ontario politics",
+      "PPE"
+    ],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "During the height of COVID-19, the Ford government signed long-term contracts with Ontario manufacturers for desperately needed masks for health-care workers."
+  },
+  {
+    "title": "Perez Hilton reacts as Brian Harpole breaks silence on strange hand signal claims in Charlie Kirk shooting case",
+    "url": "https://timesofindia.indiatimes.com/world/us-streamers/perez-hilton-reacts-as-brian-harpole-breaks-silence-on-strange-hand-signal-claims-in-charlie-kirk-shooting-case/articleshow/125722044.cms",
+    "snippet_raw": "Podcaster Perez Hilton has slammed online conspiracy theories surrounding Charlie Kirk's death, calling them \"ridiculous\" and \"unsettling.\" Kirk's former security chief, Brian Harpole, vehemently denied claims that his hand movements were \"signals\" for the shooter, emphasizing the absurdity of such accusations. Harpole also defended other security personnel and Kirk's grieving wife against baseless online speculation.",
+    "source": "timesofindia.indiatimes.com",
+    "time": "2025-12-02T16:01:00+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Podcaster Perez Hilton has slammed online conspiracy theories surrounding Charlie Kirk's death, calling them \"ridiculous\" and \"unsettling.\" Kirk's former security chief, Brian Harpole, vehemently denied claims that his hand movements were \"signals\" for the sho…"
+  },
+  {
+    "title": "Nigeria's defence minister resigns amid kidnapping crisis",
+    "url": "https://www.bbc.com/news/articles/c62lg9047e0o?at_medium=RSS&at_campaign=rss",
+    "snippet_raw": "His departure on health grounds coincides with a spate of mass abductions across the West African state.",
+    "source": "www.bbc.com",
+    "time": "2025-12-02T15:52:40+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "His departure on health grounds coincides with a spate of mass abductions across the West African state."
   },
   {
     "title": "The Philippines Spent Big on Flood Control, but the Water Keeps Rising",
@@ -209,21 +404,6 @@
     "snippet": "Cyclone Ditwah led to massive floods in Sri Lanka and parts of south east Asia."
   },
   {
-    "title": "US Homeland Security secretary calls for more travel bans",
-    "url": "https://www.bbc.com/news/articles/c79x3rwxjryo?at_medium=RSS&at_campaign=rss",
-    "snippet_raw": "Kristi Noem says she will recommend a ban on entry for several countries that she says are \"flooding\" the US with criminal activity.",
-    "source": "www.bbc.com",
-    "time": "2025-12-02T14:16:25+00:00",
-    "region": "Global",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Kristi Noem says she will recommend a ban on entry for several countries that she says are \"flooding\" the US with criminal activity."
-  },
-  {
     "title": "Honduras: MSF concludes Arbovirus prevention project in Tegucigalpa",
     "url": "https://reliefweb.int/report/honduras/msf-concludes-arbovirus-prevention-project-tegucigalpa",
     "snippet_raw": "Country: Honduras Source: Médecins Sans Frontières Médecins Sans Frontières (MSF) has concluded our Arbovirus prevention project in Tegucigalpa, Honduras . This was an innovative initiative that combined science and community participation to reduce the transmission of dengue fever . While the activities related to the project finished in September 2025, the final scientific results are still being analysed. We expect to have these findings published in journals during the first quarter of 2026. Launched in 2023 , the project was implemented in collaboration with the Ministry of Health, the National Autonomous University of Honduras, the World Mosquito Program, the Metropolitan Health Region of the Central District, and local communities. Targeting the neighbourhoods of La Joya, El Edén, and El Manchén, it combined vector control methods such as Wolbachia -carrying mosquitoes, 1 indoor residual spraying, and py“This project demonstrates that innovation and community participation can go hand in hand in the fight against vector-borne diseases,” says Edgard Boquín, the project’s coordinator. “It was a unique project within MSF globally, leaving us with valuable lessons in prevention and public health.” Although the prevention project has concluded, we maintain our commitment to providing healthcare to communities in Honduras through our sexual and reproductive health project in San Pedro Sula, ongoing epidemiological monitoring of dengue and other Arboviral diseases, and preparedness strategies for potential emergencies. Mosquitoes which carry Wolbachia, a naturally-occurring bacteria, have a reduced ability to transmit arboviruses, like dengue.riproxyfen disks on water wells, with strong community participation in all phases. Key outcomes: More than 8.5 million mosquitoes were released carrying the Wolbachia bacteria in El Manchén, with 97.8 per cent prevalence of Wolbachia in the local Aedes aegypti mosquito population. The dengue cases in El Manchén were significantly lower than expected, based on historical trends between this area and control areas that did not receive *Wolbachia-*carrying mosquitoes. Statistical analyses suggest that the introduction of Wolbachia may have contributed significantly to this reduction in the incidence of dengue in El Manchén during last year’s outbreak. The project reached 7,500 households through spraying and water well interventions in La Joya and El Edén.",
@@ -244,21 +424,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "Country: Honduras Source: Médecins Sans Frontières Médecins Sans Frontières (MSF) has concluded our Arbovirus prevention project in Tegucigalpa, Honduras . This was an innovative initiative that combined science and community participation to reduce the transm…"
-  },
-  {
-    "title": "OBR board member says Reeves did not mislead public on Budget",
-    "url": "https://www.ft.com/content/b93fcdca-99c7-462a-90dc-270260226d85",
-    "snippet_raw": "UK chancellor’s fiscal warnings backed by David Miles a day after economic watchdog’s chair resigns",
-    "source": "www.ft.com",
-    "time": "2025-12-02T14:13:26+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "UK chancellor’s fiscal warnings backed by David Miles a day after economic watchdog’s chair resigns"
   },
   {
     "title": "Tchad : Rapport de situation de l’épidémie du Choléra (du 24 au 30 Novembre 2025)",
@@ -438,7 +603,7 @@
   {
     "title": "Plea deal for drug kingpin El Chapo’s son details abduction of cartel boss",
     "url": "https://www.theguardian.com/world/2025/dec/02/el-chapo-son-plea-deal-el-mayo-zambada",
-    "snippet_raw": "Joaquín Guzmán López’s alleged kidnapping was to show cooperation with US leaders, attorney says Armed men entered through a window to ambush Ismael “El Mayo” Zambada, the most elusive of the Sinaloa cartel’s leaders, who was then loaded onto a plane, drugged and spirited across the border to the United States, according to details revealed on Monday in the plea hearing of the drug trafficker who abducted him. Joaquín Guzmán López, the 39-year-old son of former Sinaloa cartel kingpin Joaquín “ El Chapo ” Guzmán, pleaded guilty to two counts of drug trafficking and continuing criminal enterprise in federal court in Chicago after admitting his role in overseeing the transport of tens of thousands of kilograms (pounds) of drugs to the US. Continue reading...",
+    "snippet_raw": "Joaquín Guzmán López’s alleged kidnapping was to show cooperation with US leaders, attorney says Armed men entered through a window to ambush Ismael “El Mayo” Zambada, the most elusive of the Sinaloa cartel’s leaders, who was then loaded on to a plane, drugged and spirited across the border to the United States, according to details revealed on Monday in the plea hearing of the drug trafficker who abducted him. Joaquín Guzmán López, the 39-year-old son of former Sinaloa cartel kingpin Joaquín “ El Chapo ” Guzmán, pleaded guilty to two counts of drug trafficking and continuing criminal enterprise in federal court in Chicago after admitting his role in overseeing the transport of tens of thousands of kilograms of drugs to the US. Continue reading...",
     "source": "www.theguardian.com",
     "time": "2025-12-02T13:24:48+00:00",
     "region": "AMER",
@@ -457,7 +622,7 @@
     ],
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
-    "snippet": "Joaquín Guzmán López’s alleged kidnapping was to show cooperation with US leaders, attorney says Armed men entered through a window to ambush Ismael “El Mayo” Zambada, the most elusive of the Sinaloa cartel’s leaders, who was then loaded onto a plane, drugged …"
+    "snippet": "Joaquín Guzmán López’s alleged kidnapping was to show cooperation with US leaders, attorney says Armed men entered through a window to ambush Ismael “El Mayo” Zambada, the most elusive of the Sinaloa cartel’s leaders, who was then loaded on to a plane, drugged…"
   },
   {
     "title": "New York City faces risk of airline delays as heavy snow hits upstate, New England",
@@ -655,7 +820,7 @@
   {
     "title": "Trump’s full-throttle threats suggest no backing down from aims to topple Maduro’s regime",
     "url": "https://www.theguardian.com/world/2025/dec/02/trump-nicolas-maduro-venezuela",
-    "snippet_raw": "As US-Venezuela tensions have long simmered, Trump’s alleged ultimatum may tip relations to boiling point Deadly airstrikes and a military buildup: how the US pressure campaign against Venezuela has unfolded in the Caribbean Weeks of saber-rattling, dark threats and a US military buildup not seen in Latin America since the 1962 Cuban missile crisis led on 21 November, somewhat anti-climactically, to a telephone call, when Donald Trump rang the man he has cast as his arch-adversary, Nicolás Maduro of Venezuela . By Trump’s own account, it was less an attempt at opening dialogue en route to a mutually beneficial compromise than a bid to up the ante by imparting an ultimatum. Continue reading...",
+    "snippet_raw": "As US-Venezuela tensions have long simmered, Trump’s alleged ultimatum may tip relations to boiling point Deadly airstrikes and a military buildup: how the US pressure campaign against Venezuela has unfolded in the Caribbean Weeks of saber-rattling, dark threats and a US military buildup not seen in Latin America since the 1962 Cuban missile crisis led on 21 November, somewhat anticlimactically, to a telephone call, when Donald Trump rang the man he has cast as his arch-adversary, Nicolás Maduro of Venezuela . By Trump’s own account, it was less an attempt at opening dialogue en route to a mutually beneficial compromise than a bid to up the ante by imparting an ultimatum. Continue reading...",
     "source": "www.theguardian.com",
     "time": "2025-12-02T12:31:54+00:00",
     "region": "AMER",
@@ -864,21 +1029,6 @@
     "snippet": "Landslides buried homes and crippled rescue and relief efforts, while floodwaters washed ashore dozens of logs."
   },
   {
-    "title": "Nigeria's defence minister resigns amid kidnapping crisis",
-    "url": "https://www.bbc.com/news/articles/c62lg9047e0o?at_medium=RSS&at_campaign=rss",
-    "snippet_raw": "His departure on health grounds coincides with a spate of mass abductions across the West African state.",
-    "source": "www.bbc.com",
-    "time": "2025-12-02T11:59:24+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "His departure on health grounds coincides with a spate of mass abductions across the West African state."
-  },
-  {
     "title": "Afghanistan: Humanitarian Needs and Response Plan 2026 Summary",
     "url": "https://reliefweb.int/report/afghanistan/afghanistan-humanitarian-needs-and-response-plan-2026-summary",
     "snippet_raw": "Country: Afghanistan Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached Infographic. Overview In 2026, an estimated 21.9 million people—45 per cent of Afghanistan’s population—will require humanitarian assistance. While this represents a modest 4 per cent decrease from 2025, needs remain among the highest globally in a non-conflict setting. Humanitarian conditions continue to be driven by deep structural vulnerability, worsening food insecurity, and recurrent shocks, including climate-driven drought, large-scale returnee inflows, frequent earthquakes and floods, multiple disease outbreaks, and severe protection risks, especially for women and girls. Food insecurity has deteriorated sharply. In 2026, 17.4 million people are projected to face acute food insecurity, including 5.2 million in IPC Phase 4 (Emergency)—more than double the figure recorded last year. At the same time, drought conditions persist, with 12 provinces severely affected and 3.4 million people already impacted. Under anticipated La Niña conditions, below-average rainfall and above-average temperatures are forecast into early 2026. Protection risks remain acute and are expected to intensify due to the enforcement of existing restrictions on women and girls by the de facto authorities and the introduction of new ones, alongside persistent explosive ordnance contamination, gender-based violence, child labour and early marriage. On average, around 50 people are killed or injured each month by explosive ordnance. Mass cross-border returns further compound needs: more than 2.52 million Afghans returned from Iran and Pakistan in 2025 alone, placing significant pressure on host communities, basic services and livelihoods. In response, humanitarian partners will prioritize 17.5 million people for assistance in 2026—around 80 per cent of those in need—through a coordinated response costing US$1.72 billion. Assistance will focus on life-saving and protective interventions, including food, shelter, healthcare, nutrition, safe water, hygiene, and multi-purpose cash support, prioritizing inter-sector severity 4 areas where life-threatening needs are most acute and intersect.",
@@ -920,21 +1070,6 @@
     "snippet": "The virus is harmless to humans, but spreads rapidly among pigs and wild boar."
   },
   {
-    "title": "Ukraine detains British army veteran on suspicion of spying for Russia",
-    "url": "https://www.ft.com/content/62d972c6-ed55-4632-a4ea-9ca470f27a65",
-    "snippet_raw": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres",
-    "source": "www.ft.com",
-    "time": "2025-12-02T11:35:05+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres"
-  },
-  {
     "title": "SecAlerts Cuts Through the Noise with a Smarter, Faster Way to Track Vulnerabilities",
     "url": "https://thehackernews.com/2025/12/secalerts-cuts-through-noise-with.html",
     "snippet_raw": "Vulnerability management is a core component of every cybersecurity strategy. However, businesses often use thousands of software without realising it (when was the last time you checked?), and keeping track of all the vulnerability alerts, notifications, and updates can be a burden on resources and often leads to missed vulnerabilities. Taking into account that nearly 10% of",
@@ -950,13 +1085,13 @@
     "snippet": "Vulnerability management is a core component of every cybersecurity strategy. However, businesses often use thousands of software without realising it (when was the last time you checked?), and keeping track of all the vulnerability alerts, notifications, and …"
   },
   {
-    "title": "Spanish swine fever outbreak may be linked to food eaten by boar, say officials",
+    "title": "Nine boars found dead in Spanish swine fever outbreak",
     "url": "https://www.theguardian.com/world/2025/dec/02/spanish-swine-fever-outbreak-pork-industry-boar-food",
     "snippet_raw": "Hundreds of police, rangers and military personnel deployed to tackle virus threatening pork export industry Spanish authorities have deployed hundreds of police officers, wildlife rangers and military personnel in an effort to contain an outbreak of highly infectious African swine fever (ASF) outside Barcelona before it becomes a major threat to the country’s €8.8bn-a-year pork export industry. Officials believe the virus, detected in the municipality of Bellaterra, may have begun to circulate after a wild boar ate contaminated food that had been brought in from outside Spain. Continue reading...",
     "source": "www.theguardian.com",
     "time": "2025-12-02T11:26:48+00:00",
     "region": "EMEA",
-    "severity": 1,
+    "severity": 3,
     "lat": null,
     "lon": null,
     "tags": [
@@ -1018,35 +1153,12 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "14",
+      "12",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The latest mass killing in the United States occurred Saturday when three children ages 8, 9 and 14, and an adult were killed in a shooting at a child’s birthday party in California"
-  },
-  {
-    "title": "In Photos and Video: Devastating Floods Swamp South Asia",
-    "url": "https://www.nytimes.com/2025/12/02/world/asia/floods-indonesia-sri-lanka-thailand-photos.html",
-    "snippet_raw": "Images of the destruction caused by storms that have torn through South and Southeast Asia.",
-    "source": "www.nytimes.com",
-    "time": "2025-12-02T11:16:14+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Floods",
-      "Landslides and Mudslides",
-      "Hurricanes and Tropical Storms",
-      "Weather",
-      "Rain",
-      "Sri Lanka",
-      "Southeast Asia"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Images of the destruction caused by storms that have torn through South and Southeast Asia."
   },
   {
     "title": "Northeast prepares for first major snowstorm of season",
@@ -1169,6 +1281,32 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Unusually destructive storms have killed at least 1,350 people across the region and displaced millions in South and Southeast Asia."
+  },
+  {
+    "title": "BMA chair denies using junior doctors’ strikes to progress political career",
+    "url": "https://www.theguardian.com/society/2025/dec/02/bma-chair-tom-dolphin-junior-doctors-strikes-nhs-political-career",
+    "snippet_raw": "Tom Dolphin, who applied to be Labour candidate in 2024, says political career not relevant as he defends strikes The head of the doctors’ union has denied he is pursuing further strike action to progress his own political career after the Labour party overlooked him as a prospective candidate for parliament. The British Medical Association has announced that resident doctors – formerly known as junior doctors – in England will stage another five-day strike from 7am on 17 December until 7am on 22 December. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T10:07:22+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Doctors",
+      "Industrial action",
+      "Trade unions",
+      "NHS",
+      "Wes Streeting",
+      "Health policy",
+      "Public sector pay",
+      "Politics",
+      "Society",
+      "UK news"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Tom Dolphin, who applied to be Labour candidate in 2024, says political career not relevant as he defends strikes The head of the doctors’ union has denied he is pursuing further strike action to progress his own political career after the Labour party overloo…"
   },
   {
     "title": "Iran President Warns Of Potential 'Evacuation' As Tehran's Taps Run Dry",
@@ -1497,21 +1635,6 @@
     "snippet": "Many uncertain about the future after losing everything in the country’s deadliest natural disaster for years When the rains began, Layani Rasika Niroshani was not worried. The 36-year-old mother of two was used to the heavy monsoon showers that drench Sri Lan…"
   },
   {
-    "title": "Mass Killings In 2025 Hit Lowest Level Since 2006",
-    "url": "https://www.ndtv.com/world-news/mass-killings-in-2025-hit-lowest-level-since-2006-9734744#publisher=newsstand",
-    "snippet_raw": "About 82% of this year's mass killings involved a firearm. Since 2006, 3,234 people have died in mass killings and 81% of them were shooting victims.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-02T08:06:05+00:00",
-    "region": "Global",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "About 82% of this year's mass killings involved a firearm. Since 2006, 3,234 people have died in mass killings and 81% of them were shooting victims."
-  },
-  {
     "title": "How a South Korean e-commerce giant missed mega data leak for 5 months",
     "url": "https://www.scmp.com/news/asia/east-asia/article/3334890/south-koreas-coupang-took-5-months-spot-data-leak-affecting-over-33-million-people?utm_source=rss_feed",
     "snippet_raw": "South Korea’s president ordered on Tuesday swift action to penalise those responsible for a major data leak at e-commerce giant Coupang affecting more than 33 million customers. It was “astonishing that the company failed to recognise the breach for five months”, President Lee Jae-myung said, adding that the “scale of the damage is massive”. Coupang is South Korea’s most popular online shopping platform, serving millions of customers with lightning-fast deliveries of products from groceries to...",
@@ -1525,21 +1648,6 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "South Korea’s president ordered on Tuesday swift action to penalise those responsible for a major data leak at e-commerce giant Coupang affecting more than 33 million customers. It was “astonishing that the company failed to recognise the breach for five month…"
-  },
-  {
-    "title": "Fearing AI job losses, some young workers in Britain shift towards skilled trades",
-    "url": "https://www.straitstimes.com/world/europe/fearing-ai-job-losses-some-young-workers-in-britain-shift-towards-skilled-trades",
-    "snippet_raw": "White-collar jobs are viewed as more vulnerable to disruption by AI and automation than manual labour.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T07:45:00+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "White-collar jobs are viewed as more vulnerable to disruption by AI and automation than manual labour."
   },
   {
     "title": "Race to get aid to Asia flood survivors as toll tops 1,200",
@@ -1606,7 +1714,7 @@
   {
     "title": "UK and Europe’s hidden landfills at risk of leaking toxic waste into water supplies",
     "url": "https://www.theguardian.com/environment/2025/dec/02/uk-europe-hidden-landfill-leaking-toxic-waste-water-supplies",
-    "snippet_raw": "Exclusive: Rising flood risks driven by climate change could release chemicals from ageing sites – posing threats to ecosystems ‘I kept smelling a horrible nasty smell’: the risks of England’s old dumping grounds Thousands of landfills across the UK and Europe sit in floodplains, posing a potential threat to drinking water and conservation areas if toxic waste is released into rivers, soils and ecosystems, it can be revealed. The findings are the result of the first continent-wide mapping of landfills, conducted by the Guardian, Watershed Investigations and Investigate Europe . Disclaimer: This dataset may contain duplicate records. Duplicates can arise from multiple data sources, repeated entries, or variations in data collection processes. While efforts have been made to identify and reduce duplication, some records may remain. Journalismfund.eu provided funding support for the investigation. Continue reading...",
+    "snippet_raw": "Exclusive: Rising flood risks driven by climate change could release chemicals from ageing sites – posing threats to ecosystems ‘I kept smelling a horrible nasty smell’: the risks of England’s old dumping grounds Thousands of landfills across the UK and Europe sit in floodplains, posing a potential threat to drinking water and conservation areas if toxic waste is released into rivers, soils and ecosystems, it can be revealed. The findings are the result of the first continent-wide mapping of landfills, conducted by the Guardian, Watershed Investigations and Investigate Europe . Disclaimer: This dataset may contain duplicate records. Duplicates can arise from multiple data sources, repeated entries, or variations in data collection processes. While efforts have been made to identify and reduce duplication, some records may remain. Journalismfund.eu provided funding support for the investigation. This article was corrected on 2 December 2025; the original version said the analysis had found 335 landfills in coastal erosion zones in England, Wales and France; in fact it had found 346. Continue reading...",
     "source": "www.theguardian.com",
     "time": "2025-12-02T07:00:19+00:00",
     "region": "AMER",
@@ -1655,21 +1763,6 @@
     "snippet": "A traumatised Nigerian woman seeking asylum in Britain meets a kindred spirit in Joy Gharoro-Akpojotor’s evocative tale This poignant drama was clearly made on a dinky budget that probably stretched to barely more than crisps and squash on the catering tables.…"
   },
   {
-    "title": "Pursuit of hoppiness: how China’s cash-conscious drinkers embraced craft beers",
-    "url": "https://www.scmp.com/economy/china-economy/article/3334230/pursuit-hoppiness-why-chinas-cash-conscious-drinkers-have-embraced-craft-beers?utm_source=rss_feed",
-    "snippet_raw": "As China’s traditional spirits and premium wines grapple with declining consumption, a significant shift is under way across the beverage landscape. This three-part series examines the challenges faced by Maotai town as its once-coveted baijiu liquor loses its lustre, the impact of economic shutdowns on European wine imports, and the rise of craft beer as a budget-friendly alternative for consumers seeking quality without breaking the bank. Despite the sweltering heat, the pavement outside a new...",
-    "source": "www.scmp.com",
-    "time": "2025-12-02T07:00:09+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "As China’s traditional spirits and premium wines grapple with declining consumption, a significant shift is under way across the beverage landscape. This three-part series examines the challenges faced by Maotai town as its once-coveted baijiu liquor loses its…"
-  },
-  {
     "title": "Hong Kong orders independent probe into deadly blaze",
     "url": "https://www.abc.net.au/news/2025-12-02/hong-kong-leader-orders-probe-into-deadly-fire/106092930",
     "snippet_raw": "Hong Kong will set up an independent committee to investigate the cause of the city's deadliest fire in decades, including the oversight of the renovations blamed for the disaster.",
@@ -1713,21 +1806,6 @@
     "snippet": "In today’s newsletter: As suppliers get ready to meet policy makers and space agencies at the industry’s largest gathering, a look at the exploration and exploitation of space Good morning. This week Glasgow hosts one of the UK’s largest ever gatherings of the…"
   },
   {
-    "title": "Pope says Middle East needs ‘new approaches’ to reject violence",
-    "url": "https://www.straitstimes.com/world/europe/pope-to-end-first-overseas-trip-by-praying-with-100000-lebanese",
-    "snippet_raw": "He also prayed at the site of a catastrophic port explosion on Aug 4, 2020 which killed more than 220 people.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T06:19:57+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "He also prayed at the site of a catastrophic port explosion on Aug 4, 2020 which killed more than 220 people."
-  },
-  {
     "title": "Race to get aid to Asia flood survivors as death toll tops 1,300",
     "url": "https://www.straitstimes.com/asia/se-asia/race-to-get-aid-to-asia-flood-survivors-with-hundreds-of-thousands-stranded",
     "snippet_raw": "The devastation means hundreds of thousands of people are now struggling to secure clean water and food.",
@@ -1741,21 +1819,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "The devastation means hundreds of thousands of people are now struggling to secure clean water and food."
-  },
-  {
-    "title": "Brazilian youth killed after climbing into lion enclosure at zoo",
-    "url": "https://www.straitstimes.com/world/brazilian-teen-killed-after-climbing-into-lion-enclosure-at-zoo",
-    "snippet_raw": "Gerson de Melo Machado struggled with severe mental health issues and dreamed of being a lion tamer.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T06:09:00+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Gerson de Melo Machado struggled with severe mental health issues and dreamed of being a lion tamer."
   },
   {
     "title": "Hong Kong leader orders investigation into deadly fire that killed 151",
@@ -1837,31 +1900,6 @@
     "snippet": "Relations have been strained since Prime Minister Sanae Takaichi suggested last month that Japan could intervene militarily in a Chinese attack on Taiwan."
   },
   {
-    "title": "Shells found in Spain could be among oldest known musical instruments",
-    "url": "https://www.theguardian.com/science/2025/dec/02/neolithic-conch-like-shell-spain-catalonia-discovery-musical-instruments",
-    "snippet_raw": "Conch-shell trumpets discovered in Neolithic settlements and mines in Catalonia make tone similar to french horn, says lead researcher As a child, Miquel López García was fascinated by the conch shell, kept in the bathroom, that his father’s family in the southern Spanish region of Almería had blown to warn their fellow villagers of rising rivers and approaching flood waters. The hours he spent getting that “characteristically potent sound out of it” paid off last year when the archaeologist, musicologist and professional trumpet player pressed his lips to eight conch-shell trumpets. Their tones, he says, could carry insights into the lives of the people who lived in north-east Spain 6,000 years ago. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-12-02T05:00:17+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Archaeology",
-      "Science",
-      "Spain",
-      "Europe",
-      "Music",
-      "Culture",
-      "World news",
-      "Higher education",
-      "Research"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Conch-shell trumpets discovered in Neolithic settlements and mines in Catalonia make tone similar to french horn, says lead researcher As a child, Miquel López García was fascinated by the conch shell, kept in the bathroom, that his father’s family in the sout…"
-  },
-  {
     "title": "Noem reveals sweeping travel ban plan after meeting with Trump",
     "url": "https://www.axios.com/2025/12/02/trump-travel-ban-more-countries-noem-dhs-plan",
     "snippet_raw": "Homeland Security Secretary Kristi Noem said after meeting with President Trump on Monday that she's recommending a travel ban on multiple countries in connection with criminal activity in the U.S. The big picture: Trump widened his administration's hardline immigration crackdown after officials said the suspect in last Wednesday's ambush-style shooting in D.C. that killed one National Guard member and critically injured another was an Afghan national . Zoom in: \"I am recommending a full travel ban on every damn country that's been flooding our nation with killers, leeches, and entitlement junkies,\" Noem said on X, without specifying which countries she was referring to. \"Our forefathers built this nation on blood, sweat, and the unyielding love of freedom — not for foreign invaders to slaughter our heroes, suck dry our hard-earned tax dollars, or snatch the benefits owed to AMERICANS,\" Noem said. \"WE DON'T WANT THEM. NOT ONE.\" Context: White House press secretary Karoline Leavitt told Fox News in a Monday night interview that Trump shared on Truth Social that the president had several months ago \"announced a travel ban on 19 third-world and failed state countries around the world.\" Now, Noem is \"recommending that travel ban widens and covers more countries around the globe,\" Leavitt added. State of play: The U.S. Citizenship and Immigration Services last week announced a review of every green card holder from 19 countries of \"concern,\" including Afghanistan, Iran, Haiti and Venezuela, which Leavitt appeared to be referring to in her interview. These countries featured in a June proclamation , titled: \"Restricting the entry of foreign nationals to protect the United States from foreign terrorists and other national security and public security threats.\" Trump said last week he \"will permanently pause migration from all Third World Countries to allow the U.S. system to fully recover,\" but his administration did not immediately clarify which countries would be targeted by this. What they're saying: The White House referred Axios to the Department of Homeland Security for comment on which countries would be targeted in Noem's travel ban plan, and the DHS said it would be \"announcing the list soon.\" The State Department, which typically processes visas, did not immediately respond to Axios' Monday night request for comment. Go deeper: Trump wants to revoke the citizenship of some naturalized Americans: What to know",
@@ -1907,12 +1945,30 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "13",
+      "14",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The Trump administration has announced new immigration restrictions following the shooting of two National Guard members by a suspect who is an Afghan national"
+  },
+  {
+    "title": "White House says admiral ordered follow-up strike on alleged drug boat, insists attack was lawful",
+    "url": "https://abcnews.go.com/US/wireStory/white-house-admiral-ordered-follow-strike-alleged-drug-128014230",
+    "snippet_raw": "The White House says a Navy admiral ordered a second strike on an alleged drug boat in the Caribbean Sea and insists the September attack that has come under bipartisan scrutiny was lawful",
+    "source": "abcnews.go.com",
+    "time": "2025-12-02T04:26:40+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "25",
+      "US"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "The White House says a Navy admiral ordered a second strike on an alleged drug boat in the Caribbean Sea and insists the September attack that has come under bipartisan scrutiny was lawful"
   },
   {
     "title": "Hong Kong leader orders independent probe into city's deadliest fire in decades",
@@ -2266,7 +2322,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "22",
+      "23",
       "US"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -2363,7 +2419,7 @@
   {
     "title": "Mexican authorities kill one of country’s top fentanyl traffickers",
     "url": "https://www.theguardian.com/world/2025/dec/01/mexico-kill-drug-trafficker-el-pichon-pedro-inzunza-coronel",
-    "snippet_raw": "Pedro Inzunza Coronel, alias ‘El Pichón’, was killed during an anti-drug operation by the Mexican navy in Sinaloa Mexican authorities have killed one of the country’s top fentanyl traffickers, accused of importing tens of thousands of kilos of the drug into the US and wanted by the US authorities on narco-terrorism charges. Pedro Inzunza Coronel, alias “El Pichón”, (The Pigeon) was killed on Sunday during an anti-drug operation by the Mexican navy in the north-western state of Sinaloa. Continue reading...",
+    "snippet_raw": "Pedro Inzunza Coronel, alias ‘El Pichón’, was killed during an anti-drug operation by the Mexican navy in Sinaloa Mexican authorities have killed one of the country’s top fentanyl traffickers, accused of importing tens of thousands of kilos of the drug into the US and wanted by US authorities on narco-terrorism charges. Pedro Inzunza Coronel, alias “El Pichón”, (The Pigeon) was killed on Sunday during an anti-drug operation by the Mexican navy in the north-western state of Sinaloa. Continue reading...",
     "source": "www.theguardian.com",
     "time": "2025-12-01T18:21:30+00:00",
     "region": "AMER",
@@ -2374,6 +2430,7 @@
       "Mexico",
       "Fentanyl",
       "Americas",
+      "Drugs trade",
       "World news",
       "Drugs"
     ],
@@ -2883,21 +2940,6 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "Bill Gates says he would support deploying artificial cooling technologies to lower global temperatures — but only if the planet hits so-called climate tipping points. Why it matters : The Microsoft co-founder and philanthropist is a major funder of research i…"
-  },
-  {
-    "title": "Arrests over Hong Kong flats fire hits 13 as death toll continues to increase",
-    "url": "https://news.sky.com/story/hong-kong-high-rise-fire-13-arrested-for-suspected-manslaughter-as-death-toll-hits-151-13477818",
-    "snippet_raw": "Thirteen people have been arrested for suspected manslaughter after Hong Kong's deadliest fire in decades, officials have said.",
-    "source": "news.sky.com",
-    "time": "2025-12-01T09:47:00+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Thirteen people have been arrested for suspected manslaughter after Hong Kong's deadliest fire in decades, officials have said."
   },
   {
     "title": "Hong Kong politician Peggy Wong files police report amid Tai Po fire scrutiny",
@@ -3675,27 +3717,5 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "The attack came as U.S. officials were expected to hold peace talks with Ukrainian and Russian officials in the coming days."
-  },
-  {
-    "title": "Gaza death toll surpasses 70,000, says health ministry",
-    "url": "https://www.theguardian.com/world/2025/nov/29/gaza-death-toll-rises-says-health-ministry",
-    "snippet_raw": "Two Palestinian children reportedly killed on Saturday as Israel continues its strikes after latest ceasefire The Palestinian death toll has surpassed 70,000 since the Israel-Gaza war began, Gaza’s health ministry said on Saturday, while a hospital reported Israeli fire killed two Palestinian children in the territory’s south. The toll has continued to rise after the latest ceasefire took effect on 10 October. Israel still carries out strikes in response to what it has called violations of the truce, and bodies from earlier in the war are being recovered from the rubble. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-11-29T20:32:30+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Palestine",
-      "Israel",
-      "Hamas",
-      "Lebanon",
-      "Middle East and north Africa",
-      "World news"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Two Palestinian children reportedly killed on Saturday as Israel continues its strikes after latest ceasefire The Palestinian death toll has surpassed 70,000 since the Israel-Gaza war began, Gaza’s health ministry said on Saturday, while a hospital reported Is…"
   }
 ]
