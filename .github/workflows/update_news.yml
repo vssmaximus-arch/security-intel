@@ -2,8 +2,7 @@ name: Update SRO Intelligence News & Reports
 
 on:
   schedule:
-    # Every hour – adjust as needed
-    - cron: "0 * * * *"
+    - cron: "0 * * * *"   # every hour
   workflow_dispatch:
 
 permissions:
@@ -14,15 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Optional: default radius for proximity.json (can be overridden via repo/Org secrets)
-      PROXIMITY_RADIUS_KM: ${{ secrets.PROXIMITY_RADIUS_KM || '50' }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      PROXIMITY_RADIUS_KM: ${{ secrets.PROXIMITY_RADIUS_KM || '50' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0      # IMPORTANT: enables pulling latest changes
+
+      - name: Pull latest changes
+        run: |
+          git fetch origin
+          git pull origin "${GITHUB_REF_NAME}" --rebase
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,35 +35,26 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run news ingest (RSS -> public/data/news.json)
+      - name: Run news ingest
+        run: python scripts/news_agent.py
+
+      - name: Generate proximity alerts + daily reports
+        run: python scripts/generate_reports.py
+
+      - name: Stage updated artifacts
         run: |
-          python scripts/news_agent.py
+          git add public/data/news.json
+          git add public/data/proximity.json
+          git add public/reports/
 
-      - name: Generate proximity + daily HTML reports
+      - name: Commit changes
         run: |
-          python scripts/generate_reports.py
+          git config user.name "sro-intel-bot"
+          git config user.email "sro-intel-bot@users.noreply.github.com"
+          git commit -m "Auto-update: SRO Intel Feed" || echo "No changes to commit"
 
-      - name: Show resulting files (for debugging)
+      - name: Push changes
         run: |
-          ls -R
-          echo "---- news.json ----"
-          test -f public/data/news.json && head -c 2000 public/data/news.json || echo "news.json missing"
-          echo
-          echo "---- proximity.json ----"
-          test -f public/data/proximity.json && head -c 2000 public/data/proximity.json || echo "proximity.json missing"
-
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: update news, proximity alerts & daily reports"
-          file_pattern: |
-            public/data/news.json
-            public/data/proximity.json
-            public/reports/*.html
-          branch: ${{ github.ref_name }}
-          commit_user_name: "sro-intel-bot"
-          commit_user_email: "sro-intel-bot@users.noreply.github.com"
+          git push origin "${GITHUB_REF_NAME}"
