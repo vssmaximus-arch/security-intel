@@ -1,10 +1,111 @@
 [
   {
+    "title": "Putin attacks Europe for unacceptable demands, accuses leaders of hindering Ukraine peace talks – Europe live",
+    "url": "https://www.theguardian.com/world/live/2025/dec/02/ukraine-war-live-trump-peace-deal-witkoff-to-meet-putin",
+    "snippet_raw": "Russian leader says ‘we are ready’ if Europe wants war In parallel to Witkoff’s meeting in Moscow, we will also follow Volodymyr Zelenskyy’s first visit to Ireland. He has arrived in Dublin last night , and has a busy schedule today, paying a brief visit to the country’s new president Catherine Connolly , before meeting with key government figures including the taisoeach, Micheál Martin , and addressing both chambers of the Irish parliament in the afternoon. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T15:28:05+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Russia",
+      "Ukraine",
+      "Trump administration",
+      "Vladimir Putin",
+      "Donald Trump",
+      "Volodymyr Zelenskyy",
+      "Europe",
+      "World news"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Russian leader says ‘we are ready’ if Europe wants war In parallel to Witkoff’s meeting in Moscow, we will also follow Volodymyr Zelenskyy’s first visit to Ireland. He has arrived in Dublin last night , and has a busy schedule today, paying a brief visit to th…"
+  },
+  {
+    "title": "The Philippines Spent Big on Flood Control, but the Water Keeps Rising",
+    "url": "https://www.nytimes.com/2025/12/02/world/asia/phillipines-flood-control-corruption.html",
+    "snippet_raw": "Many Filipinos say floods are worse than ever — and now, the government has admitted that vast sums were embezzled from a program meant to fight the problem.",
+    "source": "www.nytimes.com",
+    "time": "2025-12-02T15:15:01+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Marcos, Ferdinand E",
+      "Marcos, Imee (1955- )",
+      "Duterte, Sara",
+      "Marcos, Ferdinand Jr",
+      "Floods",
+      "Politics and Government",
+      "Corruption (Institutional)",
+      "Bribery and Kickbacks",
+      "Government Contracts and Procurement",
+      "Embezzlement",
+      "Global Warming",
+      "Levees and Dams",
+      "Typhoons",
+      "Cebu (Philippines)",
+      "Manila (Philippines)",
+      "Philippines"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Many Filipinos say floods are worse than ever — and now, the government has admitted that vast sums were embezzled from a program meant to fight the problem."
+  },
+  {
+    "title": "Nigeria's president taps ex-top general to replace defence minister",
+    "url": "https://www.straitstimes.com/world/nigerias-president-taps-ex-top-general-to-replace-defence-minister",
+    "snippet_raw": "ABUJA, Dec 2 - President Bola Tinubu nominated Nigeria's former top general to replace the defence minister, who resigned amid a surge in mass kidnappings and Islamist attacks in the north that has led the president to declare a security emergency.",
+    "source": "www.straitstimes.com",
+    "time": "2025-12-02T15:10:03+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "ABUJA, Dec 2 - President Bola Tinubu nominated Nigeria's former top general to replace the defence minister, who resigned amid a surge in mass kidnappings and Islamist attacks in the north that has led the president to declare a security emergency."
+  },
+  {
+    "title": "Owner of oil tanker damaged near Senegal says it is ceasing all Russian operations",
+    "url": "https://www.straitstimes.com/world/owner-of-oil-tanker-damaged-near-senegal-says-it-is-ceasing-all-russian-operations",
+    "snippet_raw": "LONDON, Dec 2 - Besiktas Shipping, the Turkish owner of an oil tanker that was damaged near Senegal's coast last week after being hit by four external explosions, said on Tuesday that it was ceasing all shipping operations involving Russian interests.",
+    "source": "www.straitstimes.com",
+    "time": "2025-12-02T15:05:12+00:00",
+    "region": "Global",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "LONDON, Dec 2 - Besiktas Shipping, the Turkish owner of an oil tanker that was damaged near Senegal's coast last week after being hit by four external explosions, said on Tuesday that it was ceasing all shipping operations involving Russian interests."
+  },
+  {
+    "title": "Researchers Capture Lazarus APT's Remote-Worker Scheme Live on Camera",
+    "url": "https://thehackernews.com/2025/12/researchers-capture-lazarus-apts-remote.html",
+    "snippet_raw": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intelligence, has uncovered one of North Korea’s most persistent infiltration schemes: a network of remote IT workers tied to Lazarus Group’s Famous Chollima division. For the first time, researchers managed",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T15:02:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intelligence, has uncovered one of North Korea’s most persistent infi…"
+  },
+  {
     "title": "Juan Orlando Hernández, Former President of Honduras, Is Freed From Prison After Trump Pardon",
     "url": "https://www.nytimes.com/2025/12/02/us/politics/hernandez-honduras-trump.html",
     "snippet_raw": "Juan Orlando Hernández was accused of flooding the United States with cocaine and had been sentenced to 45 years in prison.",
     "source": "www.nytimes.com",
-    "time": "2025-12-02T14:49:05+00:00",
+    "time": "2025-12-02T14:52:14+00:00",
     "region": "AMER",
     "severity": 2,
     "lat": null,
@@ -24,6 +125,21 @@
     "snippet": "Juan Orlando Hernández was accused of flooding the United States with cocaine and had been sentenced to 45 years in prison."
   },
   {
+    "title": "Pawan Kalyan's 'Evil Eye' Remark Triggers Firestorm In Telangana, And A Threat",
+    "url": "https://www.ndtv.com/india-news/andhra-pradesh-telangana-konaseema-pawan-kalyans-evil-eye-remark-triggers-firestorm-in-telangana-and-a-threat-9738741#publisher=newsstand",
+    "snippet_raw": "A Telangana minister threatened to halt the screening of Kalyan's films if he did not apologise.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T14:51:51+00:00",
+    "region": "Global",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "A Telangana minister threatened to halt the screening of Kalyan's films if he did not apologise."
+  },
+  {
     "title": "Hong Kong fire will not deter Filipino helpers from working in city: minister",
     "url": "https://www.scmp.com/news/hong-kong/society/article/3334958/hong-kong-fire-will-not-deter-filipino-helpers-working-city-minister?utm_source=rss_feed",
     "snippet_raw": "A deadly Hong Kong blaze that claimed the lives of several domestic helpers will not deter Filipinos from working in the city, the Philippines’ migrant workers minister has said, adding that the city has always been a “safe haven”. Speaking to the Post during a visit to Hong Kong on Tuesday, Hans Leo Cacdac, secretary for the Philippines’ Department of Migrant Workers, said his government would provide financial assistance to affected helpers and support for their children. He also touched on...",
@@ -37,6 +153,21 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "A deadly Hong Kong blaze that claimed the lives of several domestic helpers will not deter Filipinos from working in the city, the Philippines’ migrant workers minister has said, adding that the city has always been a “safe haven”. Speaking to the Post during …"
+  },
+  {
+    "title": "Court Releases Arrested Accused In 1989 Rubaiyya Sayeed Kidnapping",
+    "url": "https://www.ndtv.com/india-news/court-releases-arrested-accused-in-1989-rubaiyya-sayeed-kidnapping-9738643#publisher=newsstand",
+    "snippet_raw": "Shangloo is alleged to be a close confidant of Yasin Malik.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T14:34:05+00:00",
+    "region": "Global",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Shangloo is alleged to be a close confidant of Yasin Malik."
   },
   {
     "title": "Indonesia flash-floods response",
@@ -61,6 +192,21 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Country: Indonesia Source: Oxfam Millions of people have been affected by devastating flash-floods and landslides, across West Sumatra, North Sumatra, and Aceh. Around 700 people have been killed, and these numbers are expected to rise as responders gain acces…"
+  },
+  {
+    "title": "Expired Pak Relief To Flood-Hit Lanka Sparks Outrage As Death Count Rises",
+    "url": "https://www.ndtv.com/world-news/expired-pakistan-aid-to-sri-lanka-sparks-outrage-as-flood-toll-rises-9737279#publisher=newsstand",
+    "snippet_raw": "Cyclone Ditwah led to massive floods in Sri Lanka and parts of south east Asia.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T14:17:35+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Cyclone Ditwah led to massive floods in Sri Lanka and parts of south east Asia."
   },
   {
     "title": "US Homeland Security secretary calls for more travel bans",
@@ -288,21 +434,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "BEIRUT, Dec 2 - Five years after losing her daughter in a devastating chemical explosion at Beirut's port, Nelly El Helou said Pope Leo's silent prayer at the site on Tuesday was enough to renew hopes that those responsible for the blast would be held to accou…"
-  },
-  {
-    "title": "Nigeria's defence minister quits as government faces rising violence",
-    "url": "https://www.straitstimes.com/world/nigerias-defence-minister-quits-as-government-faces-rising-violence",
-    "snippet_raw": "LAGOS, Dec 2 - Nigeria's defence minister has resigned, citing health reasons, President Bola Tinubu's office said, as the West African country faces a surge in mass kidnappings that have put a spotlight on the government's efforts to tackle rising violence.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T13:30:22+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "LAGOS, Dec 2 - Nigeria's defence minister has resigned, citing health reasons, President Bola Tinubu's office said, as the West African country faces a surge in mass kidnappings that have put a spotlight on the government's efforts to tackle rising violence."
   },
   {
     "title": "Plea deal for drug kingpin El Chapo’s son details abduction of cartel boss",
@@ -619,7 +750,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "8",
+      "7",
       "International"
     ],
     "pillar": null,
@@ -699,21 +830,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "About 3.2 million people on Sumatra island have been affected, 2,600 have been injured and 504 are missing The number of people killed by floods and landslides on Indonesia’s Sumatra island rose to 708 on Tuesday, the country’s disaster agency said, with 504 p…"
-  },
-  {
-    "title": "Expired Pakistan Aid To Sri Lanka Sparks Outrage As Flood Toll Rises",
-    "url": "https://www.ndtv.com/world-news/expired-pakistan-aid-to-sri-lanka-sparks-outrage-as-flood-toll-rises-9737279#publisher=newsstand",
-    "snippet_raw": "Cyclone Ditwah led to massive floods in Sri Lanka and parts of south east Asia.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-02T12:08:19+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Cyclone Ditwah led to massive floods in Sri Lanka and parts of south east Asia."
   },
   {
     "title": "Bulgaria ditches budget plan after tens of thousands join protests",
@@ -902,7 +1018,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "13",
+      "14",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -1026,28 +1142,6 @@
     "snippet": "Hong Kong’s property deals slipped slightly in November after two months of gains, government data showed, with analysts warning of a deeper pullback this month as the Christmas holidays along with deferred launches of new homes following the deadly fire in Ta…"
   },
   {
-    "title": "EU issues shocking warning to Trump over 'Putin's next invasion'",
-    "url": "https://www.express.co.uk/news/world/2141107/eu-issues-donald-trump-major",
-    "snippet_raw": "European Commissioner for Justice and Democracy Michael McGrath laid out the one thing the bloc would be unable to accept in any peace negotiation.",
-    "source": "www.express.co.uk",
-    "time": "2025-12-02T10:29:00+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "World",
-      "Donald Trump",
-      "Vladimir Putin",
-      "European Union",
-      "Russia-Ukraine war",
-      "European Union warning"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "European Commissioner for Justice and Democracy Michael McGrath laid out the one thing the bloc would be unable to accept in any peace negotiation."
-  },
-  {
     "title": "Floods in Indonesia, Sri Lanka, Thailand and Vietnam Have Killed Over 1,200. Here’s What to Know.",
     "url": "https://www.nytimes.com/2025/12/01/world/asia/flooding-sri-lanka-indonesia-thailand-vietnam-cyclone-rain.html",
     "snippet_raw": "Unusually destructive storms have killed at least 1,350 people across the region and displaced millions in South and Southeast Asia.",
@@ -1075,32 +1169,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Unusually destructive storms have killed at least 1,350 people across the region and displaced millions in South and Southeast Asia."
-  },
-  {
-    "title": "BMA chair denies using junior doctors’ strikes to progress political career",
-    "url": "https://www.theguardian.com/society/2025/dec/02/bma-chair-tom-dolphin-junior-doctors-strikes-nhs-political-career",
-    "snippet_raw": "Tom Dolphin, who applied to be Labour candidate in 2024, says political career not relevant as he defends strikes The head of the doctors’ union has denied he is pursuing further strike action to progress his own political career after the Labour party overlooked him as a prospective candidate for parliament. The British Medical Association has announced that resident doctors – formerly known as junior doctors – in England will stage another five-day strike from 7am on 17 December until 7am on 22 December. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-12-02T10:07:22+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Doctors",
-      "Industrial action",
-      "Trade unions",
-      "NHS",
-      "Wes Streeting",
-      "Health policy",
-      "Public sector pay",
-      "Politics",
-      "Society",
-      "UK news"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Tom Dolphin, who applied to be Labour candidate in 2024, says political career not relevant as he defends strikes The head of the doctors’ union has denied he is pursuing further strike action to progress his own political career after the Labour party overloo…"
   },
   {
     "title": "Iran President Warns Of Potential 'Evacuation' As Tehran's Taps Run Dry",
@@ -1131,38 +1199,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "As the floods recede in southern Thailand, close to 820,000 households are facing the daunting task of having to clear mud and debris brought in by raging waters that have reached as high as three metres (10 feet) in some places. One man, however, has been spa…"
-  },
-  {
-    "title": "The Philippines Spent Big on Flood Control, but the Water Keeps Rising",
-    "url": "https://www.nytimes.com/2025/12/02/world/asia/phillipines-flood-control-corruption.html",
-    "snippet_raw": "Many Filipinos say floods are worse than ever — and now, the government has admitted that vast sums were embezzled from a program meant to fight the problem.",
-    "source": "www.nytimes.com",
-    "time": "2025-12-02T10:05:10+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Marcos, Ferdinand E",
-      "Marcos, Imee (1955- )",
-      "Duterte, Sara",
-      "Marcos, Ferdinand Jr",
-      "Floods",
-      "Politics and Government",
-      "Corruption (Institutional)",
-      "Bribery and Kickbacks",
-      "Government Contracts and Procurement",
-      "Embezzlement",
-      "Global Warming",
-      "Levees and Dams",
-      "Typhoons",
-      "Cebu (Philippines)",
-      "Manila (Philippines)",
-      "Philippines"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Many Filipinos say floods are worse than ever — and now, the government has admitted that vast sums were embezzled from a program meant to fight the problem."
   },
   {
     "title": "How Deforestation Turbocharged Indonesia's Deadly Floods",
@@ -1474,21 +1510,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "About 82% of this year's mass killings involved a firearm. Since 2006, 3,234 people have died in mass killings and 81% of them were shooting victims."
-  },
-  {
-    "title": "'Rescued My Soul': Hong Kong Firefighters Save Beloved Pets",
-    "url": "https://www.ndtv.com/world-news/rescued-my-soul-hong-kong-firefighters-save-beloved-pets-9734939#publisher=newsstand",
-    "snippet_raw": "The fire burned for more than 40 hours, and during that time Hong Kong social media was flooded with posts from worried pet lovers.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-02T07:51:02+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "The fire burned for more than 40 hours, and during that time Hong Kong social media was flooded with posts from worried pet lovers."
   },
   {
     "title": "How a South Korean e-commerce giant missed mega data leak for 5 months",
@@ -1886,7 +1907,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "14",
+      "13",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -2245,7 +2266,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "23",
+      "22",
       "US"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -2798,21 +2819,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Every president back to Bill Clinton enjoyed full party control of Congress and fantasized about lasting, durable governing dominance. Every president back to Bill Clinton lost it within two years . Why it matters: Nothing captures the volatility of American p…"
-  },
-  {
-    "title": "Pastor and new bride abducted in latest Nigeria attacks",
-    "url": "https://www.bbc.com/news/articles/c79x8285n29o?at_medium=RSS&at_campaign=rss",
-    "snippet_raw": "A church is raided in central Nigeria and a wedding party in the mostly Muslim north.",
-    "source": "www.bbc.com",
-    "time": "2025-12-01T10:42:21+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "A church is raided in central Nigeria and a wedding party in the mostly Muslim north."
   },
   {
     "title": "Trump ‘wouldn’t have wanted’ second strike on Caribbean boat survivors",
@@ -3691,30 +3697,5 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "Two Palestinian children reportedly killed on Saturday as Israel continues its strikes after latest ceasefire The Palestinian death toll has surpassed 70,000 since the Israel-Gaza war began, Gaza’s health ministry said on Saturday, while a hospital reported Is…"
-  },
-  {
-    "title": "Gazans Say Israeli Forces Killed Two Children, Amid Persistent Violence",
-    "url": "https://www.nytimes.com/2025/11/29/world/middleeast/israeli-forces-gaza-children-attack.html",
-    "snippet_raw": "The Israeli military said it had fired on two “suspects” on Saturday who had crossed cease-fire lines in southern Gaza and did not comment on reports that they were young children.",
-    "source": "www.nytimes.com",
-    "time": "2025-11-29T20:05:05+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Israel-Gaza War (2023- )",
-      "Nasser Hospital (Gaza Strip)",
-      "Hamas",
-      "Gaza Strip",
-      "Defense and Military Forces",
-      "Civilian Casualties",
-      "International Relations",
-      "Israel",
-      "Khan Younis (Gaza Strip)"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The Israeli military said it had fired on two “suspects” on Saturday who had crossed cease-fire lines in southern Gaza and did not comment on reports that they were young children."
   }
 ]
