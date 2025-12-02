@@ -1,5 +1,3 @@
-# scripts/news_agent.py
-
 import json
 import os
 import time
@@ -23,18 +21,153 @@ os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
 # ---------- FEEDS ----------
+# All unique RSS/ATOM links from your combined Excel sheet
 
 FEEDS = [
-    # World / business (for strikes, disasters, etc.)
-    "https://feeds.reuters.com/reuters/worldNews",
-    "https://feeds.reuters.com/reuters/businessNews",
-
-    # Core security feeds
-    "https://www.bleepingcomputer.com/feed/",
-    "https://rsshub.app/apnews/security",
-    "https://feeds.feedburner.com/TheHackersNews",
-    "https://krebsonsecurity.com/feed/",
-    "https://www.securityweek.com/feed",
+    'https://apnews.com/apf-topnews&format=atom',
+    'https://apnews.com/hub/world-news?format=atom',
+    'https://feeds.bbci.co.uk/news/world/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/africa/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/asia/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/europe/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/latin_america/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml',
+    'https://feeds.bbci.co.uk/news/uk/rss.xml',
+    'https://feeds.bbci.co.uk/news/business/rss.xml',
+    'https://feeds.bbci.co.uk/news/technology/rss.xml',
+    'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml',
+    'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml',
+    'https://feeds.reuters.com/reuters/worldNews',
+    'https://feeds.reuters.com/reuters/businessNews',
+    'https://feeds.reuters.com/reuters/technologyNews',
+    'https://feeds.reuters.com/reuters/USdomesticNews',
+    'https://feeds.skynews.com/feeds/rss/world.xml',
+    'https://feeds.skynews.com/feeds/rss/uk.xml',
+    'https://feeds.skynews.com/feeds/rss/business.xml',
+    'https://feeds.skynews.com/feeds/rss/technology.xml',
+    'https://www.cnn.com/rss/edition_world.rss',
+    'https://www.cnn.com/rss/edition_africa.rss',
+    'https://www.cnn.com/rss/edition_americas.rss',
+    'https://www.cnn.com/rss/edition_asia.rss',
+    'https://www.cnn.com/rss/edition_europe.rss',
+    'https://www.cnn.com/rss/edition_meast.rss',
+    'https://www.cnn.com/rss/edition_technology.rss',
+    'https://www.cnn.com/rss/edition_business.rss',
+    'https://feeds.feedburner.com/TheHackersNews',
+    'https://www.bleepingcomputer.com/feed/',
+    'https://krebsonsecurity.com/feed/',
+    'https://www.securityweek.com/feed',
+    'https://thehackernews.com/feeds/posts/default',
+    'https://www.darkreading.com/rss.xml',
+    'https://www.zdnet.com/topic/security/rss.xml',
+    'https://www.schneier.com/feed/atom/',
+    'https://www.cisa.gov/cybersecurity-advisories/all.xml',
+    'https://www.cisa.gov/known-exploited-vulnerabilities-catalog.xml',
+    'https://www.ncsc.gov.uk/api/1/services/v1/news-rss-feed.xml',
+    'https://www.europol.europa.eu/media-press/newsroom/news/rss',
+    'https://www.interpol.int/Layouts/Interpol/Rss/News.ashx?lang=en',
+    'https://www.osce.org/rss',
+    'https://reliefweb.int/updates/rss.xml',
+    'https://reliefweb.int/updates/rss.xml?primary_country=14',
+    'https://reliefweb.int/updates/rss.xml?primary_country=107',
+    'https://reliefweb.int/updates/rss.xml?primary_country=244',
+    'https://reliefweb.int/updates/rss.xml?primary_country=42',
+    'https://www.who.int/feeds/entity/csr/don/en/rss.xml',
+    'https://www.ecdc.europa.eu/en/news-events/rss.xml',
+    'https://www.cdc.gov/media/rss.htm',
+    'https://www.ochaopt.org/rss.xml',
+    'https://www.undrr.org/rss.xml',
+    'https://www.un.org/press/en/rss/all.xml',
+    'https://www.imf.org/external/np/spr/rss/eng/rss.aspx?category=Press+Release',
+    'https://www.worldbank.org/en/news/all.feed',
+    'https://www.weforum.org/agenda/feed',
+    'https://www.nato.int/cps/en/natohq/news_rss.htm',
+    'https://home.treasury.gov/news/press-releases/feed',
+    'https://www.fco.gov.uk/en/news/latest-news/?view=PressRss',
+    'https://www.state.gov/rss-feed/',
+    'https://www.state.gov/rss-feed/under-secretary-for-political-affairs/',
+    'https://www.state.gov/rss-feed/secretary-of-state-press-releases/',
+    'https://www.faa.gov/newsroom/all/news?field_news_release_type_target_id=All&newsroom_type=218&field_news_release_topic_target_id=All&created=&combine=&page=0&format=feed&type=rss',
+    'https://www.icao.int/Newsroom/_layouts/15/listfeed.aspx?List=bcc6c6cd-184c-4e22-9285-2a552f9d7d07&View=6f7a9ffb-57f2-4f13-9146-8ef1c9c35e5b',
+    'https://www.imo.org/en/Media/PressBriefings/Pages/rss.aspx',
+    'https://www.noaa.gov/news-rss.xml',
+    'https://www.nhc.noaa.gov/rss_examples.php',
+    'https://www.spc.noaa.gov/products/spcalert.xml',
+    'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom',
+    'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.atom',
+    'https://volcano.si.edu/news/RSS/',
+    'https://feeds.feedburner.com/ndtvnews-world-news',
+    'https://feeds.feedburner.com/ndtvnews-india-news',
+    'https://feeds.hindustantimes.com/HT-World',
+    'https://www.hindustantimes.com/rss/india/rssfeed.xml',
+    'https://timesofindia.indiatimes.com/rssfeeds/296589292.cms',
+    'https://timesofindia.indiatimes.com/rssfeeds/1221656.cms',
+    'https://www.straitstimes.com/news/world/rss.xml',
+    'https://www.straitstimes.com/news/asia/rss.xml',
+    'https://www.scmp.com/rss/91/feed',
+    'https://www.scmp.com/rss/2/feed',
+    'https://www.japantimes.co.jp/feed/',
+    'https://www.abc.net.au/news/feed/51120/rss.xml',
+    'https://www.abc.net.au/news/feed/45910/rss.xml',
+    'https://feeds.abcnews.com/abcnews/internationalheadlines',
+    'https://feeds.abcnews.com/abcnews/usheadlines',
+    'https://www.theguardian.com/world/rss',
+    'https://www.theguardian.com/world/asia/rss',
+    'https://www.theguardian.com/world/middleeast/rss',
+    'https://www.theguardian.com/world/africa/rss',
+    'https://www.theguardian.com/world/americas/rss',
+    'https://www.theguardian.com/world/europe-news/rss',
+    'https://www.theguardian.com/uk-news/rss',
+    'https://www.theguardian.com/business/rss',
+    'https://www.theguardian.com/world/asia-pacific/rss',
+    'https://www.ft.com/world/uk/rss',
+    'https://www.ft.com/world/americas/rss',
+    'https://www.ft.com/world/asia-pacific/rss',
+    'https://www.ft.com/world/europe/rss',
+    'https://www.ft.com/world/mideast/africa/rss',
+    'https://www.ft.com/rss/home/uk',
+    'https://www.ft.com/companies/financials?format=rss',
+    'https://www.economist.com/the-world-this-week/rss.xml',
+    'https://www.economist.com/international/rss.xml',
+    'https://www.economist.com/business/rss.xml',
+    'https://www.economist.com/middle-east-and-africa/rss.xml',
+    'https://www.economist.com/asia/rss.xml',
+    'https://www.economist.com/europe/rss.xml',
+    'https://www.economist.com/united-states/rss.xml',
+    'https://www.economist.com/china/rss.xml',
+    'https://www.rand.org/rss.xml',
+    'https://www.hrw.org/rss/all',
+    'https://www.amnesty.org/en/latest/news/feed/',
+    'https://feeds.acast.com/public/shows/conflict-zone',
+    'https://www.maritime-executive.com/rss/all/security',
+    'https://www.supplychainbrain.com/rss/logistics-and-transportation',
+    'https://www.supplychainbrain.com/rss/air-cargo',
+    'https://globalnews.ca/feed/',
+    'https://www.rferl.org/rss/',
+    'https://www.axios.com/feeds/feed.rss',
+    'https://www.politico.com/rss/politics08.xml',
+    'https://www.politico.com/rss/world-news.xml',
+    'https://www.bloomberg.com/feed/podcast/etf-report.xml',
+    'https://www.bloomberg.com/feed/podcast/benchmark.xml',
+    'https://www.bloomberg.com/politics/feeds/site.xml',
+    'https://feeds.a.dj.com/rss/RSSWorldNews.xml',
+    'https://feeds.a.dj.com/rss/RSSWSJD.xml',
+    'https://feeds.a.dj.com/rss/RSSMarketsMain.xml',
+    'https://www.wsj.com/xml/rss/3_7085.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/World.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/MiddleEast.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/AsiaPacific.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/Europe.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/Africa.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/Americas.xml',
+    'https://www.nytimes.com/services/xml/rss/nyt/Business.xml',
+    'https://feeds.feedburner.com/daily-express-world-news',
+    'https://feeds.feedburner.com/daily-express-uk-news',
+    'https://feeds.feedburner.com/daily-express-finance',
+    'https://rsshub.app/apnews/security',
+    'https://www.gov.uk/government/organisations/foreign-commonwealth-development-office.atom',
+    'https://www.smartraveller.gov.au/rss.xml',
+    'https://www.worldbank.org/en/news/topic/global-economy/feed'
 ]
 
 # ---------- REGIONS ----------
@@ -43,29 +176,25 @@ REGION_KEYWORDS = {
     "AMER": [
         "united states", "u.s.", "usa", "america", "american", "canada",
         "brazil", "mexico", "argentina", "chile", "peru", "colombia",
-        "panama", "caribbean", "houston", "new york", "chicago",
-        "dallas", "atlanta", "silicon valley", "california",
+        "panama", "caribbean"
     ],
     "EMEA": [
         "europe", " eu ", "european", " uk ", "united kingdom", "britain",
         "england", "scotland", "wales", "germany", "france", "spain",
         "italy", "poland", "ireland", "africa", "nigeria", "south africa",
         "kenya", "morocco", "algeria", "tunisia",
-        "middle east", "saudi", "uae", "dubai", "israel", "egypt", "turkey",
-        "netherlands", "amsterdam", "belgium", "brussels",
-        "sweden", "stockholm", "norway", "oslo",
+        "middle east", "saudi", "uae", "dubai", "israel", "egypt", "turkey"
     ],
     "APJC": [
-        "asia", "asian", "india", "new delhi", "mumbai", "bangalore", "bengaluru",
+        "asia", "asian", "india", "new delhi", "mumbai",
         "china", "beijing", "shanghai", "hong kong", "taiwan",
         "japan", "tokyo", "osaka", "singapore", "malaysia",
         "thailand", "philippines", "vietnam", "australia", "sydney",
-        "melbourne", "korea", "seoul", "indonesia",
-        "xiamen", "chengdu", "penang", "hyderabad",
+        "melbourne", "korea", "seoul", "indonesia"
     ],
     "LATAM": [
         "latin america", "latam", "brazil", "mexico", "chile", "peru",
-        "argentina", "colombia", "bogota", "santiago", "buenos aires",
+        "argentina", "colombia", "bogota", "santiago", "buenos aires"
     ],
 }
 
@@ -81,7 +210,7 @@ PILLAR_RULES = [
             "power outage", "blackout", "infrastructure failure",
             "state of emergency", "evacuation", "airport closed",
             "port closed", "port closure", "operations suspended",
-            "shutdown", "lockdown", "civil unrest", "riot", "curfew",
+            "shutdown", "lockdown", "civil unrest", "riot", "curfew"
         ],
     },
     {
@@ -91,10 +220,10 @@ PILLAR_RULES = [
             "kidnapping", "kidnapped", "abduction", "abducted",
             "assassination", "shooting", "stabbing", "armed robbery",
             "gang violence", "terror attack", "terrorist attack",
-            "explosion", "bombing", "mass shooting",
+            "explosion", "bombing",
             "travel advisory", "do not travel", "travel warning",
             "infectious disease", "epidemic", "outbreak",
-            "cholera", "ebola", "covid", "pandemic",
+            "cholera", "ebola", "covid", "pandemic"
         ],
     },
     {
@@ -106,8 +235,7 @@ PILLAR_RULES = [
             "dock workers", "container ship", "shipping delays",
             "cargo theft", "truck hijacking", "warehouse fire",
             "manufacturing plant", "factory fire", "industrial fire",
-            "semiconductor plant", "logistics hub",
-            "port of", "shipping terminal", "rail yard",
+            "semiconductor plant", "logistics hub"
         ],
     },
     {
@@ -118,8 +246,7 @@ PILLAR_RULES = [
             "intrusion", "breach of perimeter", "gate crash",
             "security guard assaulted", "access control failure",
             "security camera failure", "cctv failure",
-            "insider threat", "internal theft", "loss prevention",
-            "data center breach", "datacenter breach",
+            "insider threat", "internal theft", "loss prevention"
         ],
     },
     {
@@ -131,30 +258,10 @@ PILLAR_RULES = [
             "law enforcement raid", "police raid",
             "corruption investigation", "bribery investigation",
             "fraud investigation", "criminal charges",
-            "sec investigation", "regulatory fine", "gdpr fine",
         ],
     },
 ]
 
-# Things that are almost always marketing / fluff, *not* operational risk
-MARKETING_PATTERNS = [
-    "challenges you need to solve",
-    "things you need to know",
-    "webinar", "whitepaper", "ebook",
-    "sponsored", "advertorial",
-    "top 5", "top 10", "best practices",
-    "how to secure", "ultimate guide",
-]
-
-# Strong vendor / critical-infra signals (makes us more likely to keep)
-MAJOR_VENDOR_KEYWORDS = [
-    "dell", "emc", "vmware", "aws", "azure", "microsoft",
-    "google cloud", "oracle", "sap", "salesforce", "cisco",
-    "broadcom", "intel", "hp ", "hewlett packard",
-    "critical infrastructure", "energy grid", "power grid",
-]
-
-# ---------- CLASSIFIERS ----------
 
 def classify_region(text: str) -> str:
     if not text:
@@ -168,7 +275,10 @@ def classify_region(text: str) -> str:
 
 
 def score_pillars(text: str):
-    """Return (best_pillar, type, score). 0 = not SRO-relevant."""
+    """
+    Return (best_pillar, type, score).
+    Score is number of keyword hits; 0 => not relevant.
+    """
     if not text:
         return None, "GENERAL", 0
     t = text.lower()
@@ -200,8 +310,6 @@ def guess_severity(text: str) -> int:
         "earthquake", "hurricane", "typhoon", "evacuate",
         "evacuation", "state of emergency", "kidnapping",
         "terrorist attack", "mass shooting",
-        "zero-day", "0-day", "actively exploited", "kev catalog",
-        "supply chain attack", "supply chain compromise",
     ]
     warning_words = [
         "warning", "alert", "flood", "storm", "malware",
@@ -216,17 +324,6 @@ def guess_severity(text: str) -> int:
     return 1
 
 
-def is_marketing_article(title: str, summary: str) -> bool:
-    t = f"{title} {summary}".lower()
-    return any(p in t for p in MARKETING_PATTERNS)
-
-
-def has_major_vendor_signal(text: str) -> bool:
-    t = text.lower()
-    return any(w in t for w in MAJOR_VENDOR_KEYWORDS)
-
-# ---------- UTIL ----------
-
 def clean_html(html: str) -> str:
     if not html:
         return ""
@@ -236,6 +333,7 @@ def clean_html(html: str) -> str:
 
 
 def entry_timestamp(entry) -> str:
+    dt = None
     if getattr(entry, "published_parsed", None):
         dt = datetime.fromtimestamp(time.mktime(entry.published_parsed), tz=timezone.utc)
     elif getattr(entry, "updated_parsed", None):
@@ -255,7 +353,8 @@ def extract_coords(entry):
         return None, None
     return None, None
 
-# ---------- GEMINI ONE-LINERS ----------
+
+# ---------- GEMINI ONE-LINE SUMMARIES ----------
 
 GEMINI_MODEL = "gemini-1.5-flash"
 
@@ -284,8 +383,7 @@ You are an analyst writing for Dell Technologies' Security & Resiliency Office.
 Write ONE sentence (max 35 words) that:
 - starts with an impact label like "Critical Logistics Warning:", "Security Alert:", or "Travel Risk:"
 - explains WHY this incident matters operationally for a global tech company.
-- avoid generic cyber advice or product marketing.
-- no bullet points.
+Avoid marketing fluff.
 
 Headline: {title}
 Feed snippet: {summary}
@@ -299,14 +397,16 @@ Feed snippet: {summary}
         text = summary or title
         return (text[:260] + "…") if len(text) > 260 else text
 
+
 # ---------- FETCH / FILTER ----------
+
 
 def fetch_feed(url: str):
     print(f"Fetching: {url}")
     parsed = feedparser.parse(url)
     items = []
 
-    for e in parsed.entries[:40]:
+    for e in parsed.entries[:40]:  # cap per feed
         title = getattr(e, "title", "").strip()
         link = getattr(e, "link", "").strip()
         summary_html = getattr(e, "summary", "") or getattr(e, "description", "")
@@ -315,34 +415,21 @@ def fetch_feed(url: str):
         source = urlparse(link or url).netloc or urlparse(url).netloc
         ts = entry_timestamp(e)
 
-        core_text = f"{title} {summary}"
-        core_lower = core_text.lower()
-
-        region = classify_region(core_lower)
-        severity = guess_severity(core_lower)
-        pillar, incident_type, pillar_score = score_pillars(core_lower)
+        core_text = f"{title} {summary}".lower()
+        region = classify_region(core_text)
+        severity = guess_severity(core_text)
+        pillar, incident_type, pillar_score = score_pillars(core_text)
         lat, lon = extract_coords(e)
 
         tags = []
         if getattr(e, "tags", None):
             tags = [t.term for t in e.tags if getattr(t, "term", None)]
 
-        # ---- HARD FILTER LOGIC ----
-        # Kill obvious marketing / opinion content
-        if is_marketing_article(title, summary):
-            continue
-
-        vendor_hit = has_major_vendor_signal(core_lower)
-
-        # Keep if:
-        #   - pillar match (SRO-relevant), OR
-        #   - vendor-related AND severity >= 2, OR
-        #   - severity == 3 AND region != "Global"
-        if not (
-            pillar_score > 0
-            or (vendor_hit and severity >= 2)
-            or (severity == 3 and region != "Global")
-        ):
+        # HARD FILTER:
+        # Keep items that either:
+        #   - match an SRO pillar (pillar_score > 0), OR
+        #   - severity >= 2 AND region != "Global"
+        if pillar_score == 0 and not (severity >= 2 and region != "Global"):
             continue
 
         items.append(
@@ -379,16 +466,14 @@ def main():
         except Exception as exc:
             print(f"[WARN] Failed feed {url}: {exc}")
 
-    # Newest first
     all_items.sort(key=lambda x: x["time"], reverse=True)
-    all_items = all_items[:120]
+    all_items = all_items[:200]  # cap overall
 
     model = init_gemini()
     for art in all_items:
         art["snippet"] = ai_one_liner(model, art["title"], art["snippet_raw"])
 
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
-        # FRONTEND expects an ARRAY
         json.dump(all_items, f, ensure_ascii=False, indent=2)
 
     print(f"Wrote {len(all_items)} filtered items to {NEWS_PATH}")
