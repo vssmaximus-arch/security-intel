@@ -207,27 +207,6 @@
     "snippet": "During a long phone call on Monday, Israeli Prime Minister Benjamin Netanyahu asked President Trump for more support in his push for a pardon from Israel's president, two U.S. officials and one Israeli official said. The big picture: In a conversation that lar…"
   },
   {
-    "title": "U.S. National Guard shooting suspect enters plea in 1st court appearance",
-    "url": "https://globalnews.ca/news/11555708/national-guard-shooting-not-guilty-plea/",
-    "snippet_raw": "Rahmanullah Lakanwal, a 29-year-old Afghan national who was also shot, made his initial court appearance by video from a hospital bed.",
-    "source": "globalnews.ca",
-    "time": "2025-12-02T19:27:24+00:00",
-    "region": "AMER",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Crime",
-      "U.S. News",
-      "National Guard",
-      "National Guard Shooting",
-      "Rahmanullah Lakanwal"
-    ],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Rahmanullah Lakanwal, a 29-year-old Afghan national who was also shot, made his initial court appearance by video from a hospital bed."
-  },
-  {
     "title": "Global heating and other human activity are making Asia’s floods more lethal",
     "url": "https://www.theguardian.com/world/2025/dec/02/global-heating-and-other-human-activity-are-making-asias-floods-more-lethal",
     "snippet_raw": "Much improved response systems are struggling to cope with ever more powerful and destructive storms Death toll from Indonesia floods passes 700 as 1 million evacuated Families stranded on their rooftops. Homes buried by fast-flowing mud. Jagged brown craters scarring lush green hillsides. The scenes are the result of a series of cyclones and storms in a heavy monsoon season that have struck Asia with torrential rains, gutting essential infrastructure and reshaping landscapes. The violent weather has killed at least 1,200 people in the past week and forced a million to flee without knowing whether their homes will still be standing when they go back. Continue reading...",
@@ -1098,7 +1077,7 @@
     "snippet": "About 3.2 million people on Sumatra island have been affected, 2,600 have been injured and 504 are missing The number of people killed by floods and landslides on Indonesia’s Sumatra island rose to 708 on Tuesday, the country’s disaster agency said, with 504 p…"
   },
   {
-    "title": "Hegseth cites 'fog of war' in defending follow-up strike on alleged drug boat",
+    "title": "Hegseth cites 'fog of war' in defence of second US strike on alleged drug boat",
     "url": "https://news.sky.com/story/pope-leo-urges-donald-trump-not-to-try-to-oust-venezuelan-president-by-force-13478264",
     "snippet_raw": "US defence secretary Pete Hegseth has cited the \"fog of war\" in defence of a follow-up strike earlier this year on a boat alleged to be carrying drugs in the Caribbean Sea.",
     "source": "news.sky.com",
@@ -1258,7 +1237,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "14",
+      "13",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -1996,7 +1975,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "5",
+      "4",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -2014,7 +1993,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "13",
+      "16",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -3693,5 +3672,31 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "The Israeli military said it had fired on two “suspects” on Saturday who had crossed cease-fire lines in southern Gaza and did not comment on reports that they were young children."
+  },
+  {
+    "title": "As Cyclone Deaths Pass 150, Sri Lanka Is Overwhelmed by Rescue Demand",
+    "url": "https://www.nytimes.com/2025/11/29/world/asia/sri-lanka-cyclone-ditwah-floods.html",
+    "snippet_raw": "Rescue efforts across the nation of 23 million have been hampered by disruptions in transport and telecommunications.",
+    "source": "www.nytimes.com",
+    "time": "2025-11-29T19:50:58+00:00",
+    "region": "Global",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Cyclones",
+      "Sri Lanka",
+      "Rescues",
+      "Deaths (Fatalities)",
+      "Floods",
+      "Dissanayake, Anura Kumara",
+      "Disasters and Emergencies",
+      "Evacuations and Evacuees",
+      "Drownings",
+      "Landslides and Mudslides"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Rescue efforts across the nation of 23 million have been hampered by disruptions in transport and telecommunications."
   }
 ]
