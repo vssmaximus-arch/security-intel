@@ -1,10 +1,54 @@
 [
   {
+    "title": "Telco Southern Phone fined $2.5m for breaching anti-scam laws",
+    "url": "https://www.abc.net.au/news/2025-12-03/southern-phone-fined-over-for-2m-for-breaching-anti-scam-laws/106091898",
+    "snippet_raw": "The Australian Telecommunications and Media Authority says scammers were able to manipulate the telco's systems to bypass required identity verification processes.",
+    "source": "www.abc.net.au",
+    "time": "2025-12-02T19:00:55+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Scams and Fraud",
+      "Telecommunications Services Industry",
+      "Consumer Protection"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "The Australian Telecommunications and Media Authority says scammers were able to manipulate the telco's systems to bypass required identity verification processes."
+  },
+  {
+    "title": "Hegseth doubles down on Caribbean boat strikes, says military commanders have ‘done the right things’ - US politics live",
+    "url": "https://www.theguardian.com/us-news/live/2025/dec/02/donald-trump-pete-hegseth-boat-venezuela-maduro-tennessee-us-politics-live-news-updates",
+    "snippet_raw": "Defense secretary has been insisting that an admiral gave the order for the second strike on alleged drug boat back in September Trump administration is ‘selling out’ admiral to shield Hegseth over boat strikes, officials say Pete Hegseth told US soldiers in Iraq to ignore legal advice on rules of engagement Joseph Gedeon is a politics breaking news reporter based in Washington The FBI director, Kash Patel , is “in over his head” and leading a “chronically under-performing” agency paralyzed by fear and plummeting morale, according to a scathing 115-page report compiled by a national alliance of retired and active-duty FBI special agents and analysts. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T18:57:54+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Pete Hegseth",
+      "Venezuela",
+      "Donald Trump",
+      "Trump administration",
+      "Tennessee",
+      "US news",
+      "US politics",
+      "World news",
+      "Americas"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Defense secretary has been insisting that an admiral gave the order for the second strike on alleged drug boat back in September Trump administration is ‘selling out’ admiral to shield Hegseth over boat strikes, officials say Pete Hegseth told US soldiers in I…"
+  },
+  {
     "title": "In Photos and Video: Devastating Floods Swamp South Asia",
     "url": "https://www.nytimes.com/2025/12/02/world/asia/floods-indonesia-sri-lanka-thailand-photos.html",
     "snippet_raw": "Images of the destruction caused by storms that have torn through South and Southeast Asia.",
     "source": "www.nytimes.com",
-    "time": "2025-12-02T16:52:28+00:00",
+    "time": "2025-12-02T18:47:34+00:00",
     "region": "APJC",
     "severity": 2,
     "lat": null,
@@ -25,10 +69,10 @@
   {
     "title": "Large Winter Storm Brings Snow and Ice to Northeast and Mid-Atlantic",
     "url": "https://www.nytimes.com/2025/12/02/weather/snow-winter-storm-northeast-ny-nj.html",
-    "snippet_raw": "The major storm dropped a wintry mix of precipitation across the Midwest overnight, creating a treacherous commute for millions of Americans.",
+    "snippet_raw": "Hazardous winter weather was expected through early Wednesday, according to forecasters. The storm had dropped a wintry mix of precipitation across the Midwest overnight.",
     "source": "www.nytimes.com",
-    "time": "2025-12-02T16:41:16+00:00",
-    "region": "AMER",
+    "time": "2025-12-02T18:46:35+00:00",
+    "region": "Global",
     "severity": 2,
     "lat": null,
     "lon": null,
@@ -45,7 +89,316 @@
     ],
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
-    "snippet": "The major storm dropped a wintry mix of precipitation across the Midwest overnight, creating a treacherous commute for millions of Americans."
+    "snippet": "Hazardous winter weather was expected through early Wednesday, according to forecasters. The storm had dropped a wintry mix of precipitation across the Midwest overnight."
+  },
+  {
+    "title": "What is Honduras ex-president accused of and why has Trump pardoned him?",
+    "url": "https://www.bbc.com/news/articles/c9qewln7912o?at_medium=RSS&at_campaign=rss",
+    "snippet_raw": "Juan Orlando Hernández, once called the key figure in a drug trafficking scheme that flooded America with over 400 tonnes of cocaine, walks free after the pardon.",
+    "source": "www.bbc.com",
+    "time": "2025-12-02T18:34:13+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Juan Orlando Hernández, once called the key figure in a drug trafficking scheme that flooded America with over 400 tonnes of cocaine, walks free after the pardon."
+  },
+  {
+    "title": "How a gas cloud killed thousands in world's worst industrial disaster",
+    "url": "https://www.abc.net.au/news/2025-12-03/today-in-history-december-3-bhopal-gas-leak/106093592",
+    "snippet_raw": "It started with a cloud of gas in the dead of night, silently submerging the city in a toxic soup. By morning on December 3, 1984, an Indian city awoke to a nightmare.",
+    "source": "www.abc.net.au",
+    "time": "2025-12-02T18:30:00+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Pollution",
+      "Disasters, Accidents and Emergency Incidents",
+      "History"
+    ],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "It started with a cloud of gas in the dead of night, silently submerging the city in a toxic soup. By morning on December 3, 1984, an Indian city awoke to a nightmare."
+  },
+  {
+    "title": "Flights Of Multiple Airlines Delayed After Check-In Glitch At Many Airports",
+    "url": "https://www.ndtv.com/india-news/flights-of-multiple-airlines-delayed-after-check-in-glitch-at-many-airports-9739568#publisher=newsstand",
+    "snippet_raw": "Air India announced late Tuesday evening that check-in systems at all airports are \"functioning normally\" and its \"flights are operating as per schedule\" after a brief outage that delayed flights across airports.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T18:23:04+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Air India announced late Tuesday evening that check-in systems at all airports are \"functioning normally\" and its \"flights are operating as per schedule\" after a brief outage that delayed flights across airports."
+  },
+  {
+    "title": "Man Released A Day After His Arrest By CBI In 36-Year-Old Kidnapping Case",
+    "url": "https://www.ndtv.com/india-news/man-released-a-day-after-his-arrest-by-cbi-in-36-year-old-rubaiyya-sayeed-kidnapping-case-9739880#publisher=newsstand",
+    "snippet_raw": "Shafat Ahmad Shangloo (File Photo)",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T18:22:00+00:00",
+    "region": "Global",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Shafat Ahmad Shangloo (File Photo)"
+  },
+  {
+    "title": "Hegseth says U.S. has \"only just begun\" sinking alleged drug vessels",
+    "url": "https://www.axios.com/2025/12/02/hegseth-boat-strikes-venezuela-cabinet-meeting",
+    "snippet_raw": "Defense Secretary Pete Hegseth struck a defiant tone Tuesday, telling reporters during a Cabinet meeting that the military has \"only just begun\" sinking \"narco-terrorists\" to \"the bottom of the ocean.\" The big picture: The Trump administration has rallied around Hegseth following a report that the military in September conducted a second strike on an alleged drug vessel near Venezuela to kill any survivors, which legal experts warn could violate the laws of war. The White House said Hegseth authorized a Navy admiral to conduct the strikes, which the administration argues was within his authority and the bounds of the law. Driving the news: \"We've only just begun striking narco-boats and putting narco-terrorists at the bottom of the ocean because they've been poisoning the American people,\" Hegseth said from the president's side. But \"it's hard to find boats to strike right now,\" he said to laughter in the room, adding that \"deterrence has to matter — not arrest and hand over and then do it again.\" State of play: The strikes have killed more than 80 people in the Caribbean and Eastern Pacific. The Washington Post reported last week that Hegseth had given a verbal directive to kill everyone on a boat suspected of carrying drugs, leading Adm. Frank M. Bradley to order a second strike. Hegseth denies the report, but lawmakers have vowed vigorous bipartisan oversight. The New York Times subsequently reported that Hegseth ordered a lethal strike ahead of the Sept. 2 attack but did not specifically address what would happen if a first strike didn't sink the boat and kill those aboard. Between the lines: The Defense Department's Law of War Manual uses shooting shipwrecked survivors as an example of an illegal order that service members are obligated to refuse. The manual also states that those \"who have been incapacitated by wounds, sickness, or shipwreck are in a helpless state, and it would be dishonorable and inhumane to make them the object of attack.\" What they're saying: \" Admiral Mitch Bradley is an American hero, a true professional, and has my 100% support,\" Hegseth wrote in a Monday social media post . \"I stand by him and the combat decisions he has made — on the September 2 mission and all others since.\" Go deeper: Trump allies dismiss reported attacks on Venezuelan boat strike survivors",
+    "source": "www.axios.com",
+    "time": "2025-12-02T18:13:00+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "top"
+    ],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Defense Secretary Pete Hegseth struck a defiant tone Tuesday, telling reporters during a Cabinet meeting that the military has \"only just begun\" sinking \"narco-terrorists\" to \"the bottom of the ocean.\" The big picture: The Trump administration has rallied arou…"
+  },
+  {
+    "title": "Quarter of police forces missing basic policies on sexual offences, says Sarah Everard report",
+    "url": "https://www.theguardian.com/uk-news/2025/dec/02/quarter-of-police-forces-missing-basic-policies-on-sexual-offences-says-sarah-everard-report",
+    "snippet_raw": "Official report says forces in England and Wales yet to implement policies for investigation A quarter of police forces in England and Wales are yet to implement “basic policies for investigating sexual offences”, an official report has found, with women still being failed despite promises of change after the murder of Sarah Everard four years ago. The report by Dame Elish Angiolini follows an inquiry set up after Everard was murdered by a serving police officer, Wayne Couzens, in March 2021. She was abducted off a London street while walking home. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T18:11:51+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Police",
+      "UK news",
+      "Metropolitan police",
+      "Sarah Everard",
+      "Rape and sexual assault",
+      "Women",
+      "London",
+      "England"
+    ],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Official report says forces in England and Wales yet to implement policies for investigation A quarter of police forces in England and Wales are yet to implement “basic policies for investigating sexual offences”, an official report has found, with women still…"
+  },
+  {
+    "title": "Watch: Japan’s PM Sanae Takaichi quotes famous manga and anime ‘Attack on Titan’",
+    "url": "https://timesofindia.indiatimes.com/world/rest-of-world/watch-japans-pm-sanae-takaichi-quotes-famous-manga-and-anime-attack-on-titan/articleshow/125724137.cms",
+    "snippet_raw": "",
+    "source": "timesofindia.indiatimes.com",
+    "time": "2025-12-02T18:05:38+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Watch: Japan’s PM Sanae Takaichi quotes famous manga and anime ‘Attack on Titan’"
+  },
+  {
+    "title": "British women stranded by landslides in Sri Lankan mountains running out of food and water, daughter says",
+    "url": "https://www.theguardian.com/world/2025/dec/02/british-women-stranded-by-landslides-in-sri-lankan-mountains-running-out-of-food-and-water-daughter-says",
+    "snippet_raw": "Friends Melanie Watters and Janine Reid have been trapped in Pussellawa since Thursday Two British women stranded by landslides in Sri Lanka’s tea mountains are running out of food and water, the daughter of one of them has said, as officials reported that the death toll of Cyclone Ditwah has reached 465. Melanie Watters, 54, and her friend Janine Reid, 55, both from London, were being driven through the mountains from Kandy in central Sri Lanka on Thursday when the road in front of them was swamped, sending a bus nearby over a cliff edge. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T18:04:07+00:00",
+    "region": "Global",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Sri Lanka",
+      "Asia Pacific",
+      "South and central Asia",
+      "World news",
+      "Flooding",
+      "Extreme weather"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Friends Melanie Watters and Janine Reid have been trapped in Pussellawa since Thursday Two British women stranded by landslides in Sri Lanka’s tea mountains are running out of food and water, the daughter of one of them has said, as officials reported that the…"
+  },
+  {
+    "title": "Ukraine talks: Putin meets Trump envoys in Russia, sends Europe a warning",
+    "url": "https://www.scmp.com/news/world/russia-central-asia/article/3334966/ukraine-talks-putin-meets-trump-envoys-witkoff-and-kushner-sends-europe-warning?utm_source=rss_feed",
+    "snippet_raw": "Russian President Vladimir Putin met US President Donald Trump’s special envoy Steve Witkoff and son-in-law Jared Kushner in the Kremlin on Tuesday for talks on a possible way to end the deadliest European conflict since World War II. Just before the meeting, Putin warned Europe that it would face swift defeat if it went to war with Russia, and he dismissed European counterproposals on Ukraine as being absolutely unacceptable to Russia. Trump has repeatedly said he wants to end the war but his...",
+    "source": "www.scmp.com",
+    "time": "2025-12-02T17:58:39+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Russian President Vladimir Putin met US President Donald Trump’s special envoy Steve Witkoff and son-in-law Jared Kushner in the Kremlin on Tuesday for talks on a possible way to end the deadliest European conflict since World War II. Just before the meeting, …"
+  },
+  {
+    "title": "Delhi On High Alert Ahead Of Russian President Putin's 2-day India Visit",
+    "url": "https://www.ndtv.com/india-news/delhi-on-high-alert-ahead-of-russian-president-putins-2-day-india-visit-9737650#publisher=newsstand",
+    "snippet_raw": "Putin is scheduled to arrive in Delhi on December 4 for two-day visit.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T17:44:49+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Putin is scheduled to arrive in Delhi on December 4 for two-day visit."
+  },
+  {
+    "title": "Pope Leo urges Trump not to attempt military ousting of Venezuela’s Maduro",
+    "url": "https://www.scmp.com/news/world/americas/article/3334965/pope-leo-urges-trump-admin-not-attempt-military-ousting-venezuelas-maduro?utm_source=rss_feed",
+    "snippet_raw": "Pope Leo urged US President Donald Trump’s administration on Tuesday not to try to oust Venezuelan President Nicolas Maduro using military force. Leo, the first US pope, said it would be better to attempt dialogue or impose economic pressure on Venezuela if Washington wants to pursue change there. The Trump administration has been weighing options to combat what it has portrayed as Maduro’s role in supplying illegal drugs that have killed Americans. The socialist Venezuelan president has denied...",
+    "source": "www.scmp.com",
+    "time": "2025-12-02T17:34:38+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Pope Leo urged US President Donald Trump’s administration on Tuesday not to try to oust Venezuelan President Nicolas Maduro using military force. Leo, the first US pope, said it would be better to attempt dialogue or impose economic pressure on Venezuela if Wa…"
+  },
+  {
+    "title": "OBR chief’s exit may ease pressure on Rachel Reeves but the battle isn’t over",
+    "url": "https://www.theguardian.com/business/2025/dec/02/obr-chiefs-exit-may-ease-pressure-on-rachel-reeves-but-the-battle-isnt-over",
+    "snippet_raw": "With the row deepening over budget leaks, who is most likely to replace Richard Hughes in the increasingly thankless role of chair? Had Richard Hughes not resigned as boss of the Office for Budget Responsibility (OBR) on Monday amid the indignation over the accidental publication of Rachel Reeves’s budget, the Treasury might now be under pressure over the tsunami of leaks that preceded it. The OBR’s David Miles told MPs on Tuesday the leaks had been so widespread and misleading that the watchdog feared its reputation was at stake. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T17:26:45+00:00",
+    "region": "Global",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Office for Budget Responsibility",
+      "Rachel Reeves",
+      "Budget",
+      "Economic policy",
+      "Economic growth (GDP)",
+      "Economics",
+      "Business",
+      "Politics",
+      "UK news"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "With the row deepening over budget leaks, who is most likely to replace Richard Hughes in the increasingly thankless role of chair? Had Richard Hughes not resigned as boss of the Office for Budget Responsibility (OBR) on Monday amid the indignation over the ac…"
+  },
+  {
+    "title": "Putin meets Trump envoys Witkoff and Kushner in Kremlin to discuss Ukraine peace",
+    "url": "https://www.straitstimes.com/world/europe/putin-meets-trump-envoys-witkoff-and-kushner-in-kremlin-to-discuss-ukraine-peace",
+    "snippet_raw": "MOSCOW, Dec 2 - Russian President Vladimir Putin met U.S. President Donald Trump's special envoy Steve Witkoff and son-in-law Jared Kushner in the Kremlin on Tuesday for talks on a possible way to end the deadliest European conflict since World War Two.",
+    "source": "www.straitstimes.com",
+    "time": "2025-12-02T17:25:09+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "MOSCOW, Dec 2 - Russian President Vladimir Putin met U.S. President Donald Trump's special envoy Steve Witkoff and son-in-law Jared Kushner in the Kremlin on Tuesday for talks on a possible way to end the deadliest European conflict since World War Two."
+  },
+  {
+    "title": "Russia \"Ready\" If Europe Wants War: Putin's Big Warning Ahead Of US Talks",
+    "url": "https://www.ndtv.com/world-news/russia-ready-if-europe-wants-war-putins-big-warning-ahead-of-us-talks-9739577#publisher=newsstand",
+    "snippet_raw": "Washington has presented a 28-point draft to end the war in Ukraine.",
+    "source": "www.ndtv.com",
+    "time": "2025-12-02T17:20:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "Washington has presented a 28-point draft to end the war in Ukraine."
+  },
+  {
+    "title": "Vacancies for nurses, support workers tripled since 2016, StatCan finds",
+    "url": "https://globalnews.ca/news/11555671/vacancies-health-care-jobs-tripled/",
+    "snippet_raw": "From 2016 to 2024, the vacancy rate for health-related occupations nearly tripled, increasing from 2.1 per cent to 5.8 per cent, the report said.",
+    "source": "globalnews.ca",
+    "time": "2025-12-02T17:19:25+00:00",
+    "region": "Global",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Canada",
+      "Health",
+      "Healthcare workers",
+      "Statistics Canada"
+    ],
+    "pillar": "Supply Chain / Asset Protection",
+    "type": "SUPPLY CHAIN",
+    "snippet": "From 2016 to 2024, the vacancy rate for health-related occupations nearly tripled, increasing from 2.1 per cent to 5.8 per cent, the report said."
+  },
+  {
+    "title": "Indonesia, Thailand, Malaysia | Severe weather and floods - DG ECHO Daily Map | 02/12/2025",
+    "url": "https://reliefweb.int/map/indonesia/indonesia-thailand-malaysia-severe-weather-and-floods-dg-echo-daily-map-02122025",
+    "snippet_raw": "Countries: Indonesia, Malaysia, Thailand Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations Please refer to the attached Map.",
+    "source": "reliefweb.int",
+    "time": "2025-12-02T17:17:12+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Indonesia",
+      "Malaysia",
+      "Thailand",
+      "European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations",
+      "Map",
+      "Flood",
+      "Severe Local Storm"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Countries: Indonesia, Malaysia, Thailand Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations Please refer to the attached Map."
+  },
+  {
+    "title": "Juan Orlando Hernández, Former President of Honduras, Is Freed From Prison After Trump Pardon",
+    "url": "https://www.nytimes.com/2025/12/02/us/politics/hernandez-honduras-trump.html",
+    "snippet_raw": "Juan Orlando Hernández was accused of flooding the United States with cocaine and had been sentenced to 45 years in prison.",
+    "source": "www.nytimes.com",
+    "time": "2025-12-02T17:13:25+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Hernandez, Juan Orlando",
+      "Trump, Donald J",
+      "Stone, Roger J Jr",
+      "Amnesties, Commutations and Pardons",
+      "United States Politics and Government",
+      "United States International Relations",
+      "Honduras",
+      "Drug Abuse and Traffic"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Juan Orlando Hernández was accused of flooding the United States with cocaine and had been sentenced to 45 years in prison."
   },
   {
     "title": "Mass killings in the U.S. just hit a record low since '06",
@@ -63,41 +416,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "Data: Mass Killing Database ; Chart: Axios Visuals Mass killings in the U.S. so far this year have dropped to their lowest level since researchers began tracking mass homicides in 2006. The big picture: This decline tracks with a broader cooling of violent cri…"
-  },
-  {
-    "title": "Ukraine detains British army veteran on suspicion of spying for Russia",
-    "url": "https://www.ft.com/content/62d972c6-ed55-4632-a4ea-9ca470f27a65",
-    "snippet_raw": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres",
-    "source": "www.ft.com",
-    "time": "2025-12-02T16:36:49+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres"
-  },
-  {
-    "title": "Suspect charged with murder in West End shooting, Winnipeg police say",
-    "url": "https://globalnews.ca/news/11555631/langside-street-homicide-arrest-winnipeg-police/",
-    "snippet_raw": "Melvin Catcheway, 25, was killed Aug. 29 on Langside Street after an altercation with another man, police said.",
-    "source": "globalnews.ca",
-    "time": "2025-12-02T16:21:15+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Crime",
-      "crime in winnipeg",
-      "Winnipeg homicide",
-      "Winnipeg police"
-    ],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Melvin Catcheway, 25, was killed Aug. 29 on Langside Street after an altercation with another man, police said."
   },
   {
     "title": "Former EU top diplomat among three held in fraud investigation",
@@ -167,26 +485,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Country: Indonesia Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file."
-  },
-  {
-    "title": "Ontario may need to throw out millions of dollars in PPE: auditor general",
-    "url": "https://globalnews.ca/news/11555649/ford-government-ppe-oversupply-auditor-general/",
-    "snippet_raw": "During the height of COVID-19, the Ford government signed long-term contracts with Ontario manufacturers for desperately needed masks for health-care workers.",
-    "source": "globalnews.ca",
-    "time": "2025-12-02T16:05:15+00:00",
-    "region": "Global",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Politics",
-      "Ford government",
-      "Ontario politics",
-      "PPE"
-    ],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "During the height of COVID-19, the Ford government signed long-term contracts with Ontario manufacturers for desperately needed masks for health-care workers."
   },
   {
     "title": "Perez Hilton reacts as Brian Harpole breaks silence on strange hand signal claims in Charlie Kirk shooting case",
@@ -296,45 +594,6 @@
     "snippet": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intelligence, has uncovered one of North Korea’s most persistent infi…"
   },
   {
-    "title": "Juan Orlando Hernández, Former President of Honduras, Is Freed From Prison After Trump Pardon",
-    "url": "https://www.nytimes.com/2025/12/02/us/politics/hernandez-honduras-trump.html",
-    "snippet_raw": "Juan Orlando Hernández was accused of flooding the United States with cocaine and had been sentenced to 45 years in prison.",
-    "source": "www.nytimes.com",
-    "time": "2025-12-02T14:52:14+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Hernandez, Juan Orlando",
-      "Trump, Donald J",
-      "Stone, Roger J Jr",
-      "Amnesties, Commutations and Pardons",
-      "United States Politics and Government",
-      "United States International Relations",
-      "Honduras",
-      "Drug Abuse and Traffic"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Juan Orlando Hernández was accused of flooding the United States with cocaine and had been sentenced to 45 years in prison."
-  },
-  {
-    "title": "Pawan Kalyan's 'Evil Eye' Remark Triggers Firestorm In Telangana, And A Threat",
-    "url": "https://www.ndtv.com/india-news/andhra-pradesh-telangana-konaseema-pawan-kalyans-evil-eye-remark-triggers-firestorm-in-telangana-and-a-threat-9738741#publisher=newsstand",
-    "snippet_raw": "A Telangana minister threatened to halt the screening of Kalyan's films if he did not apologise.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-02T14:51:51+00:00",
-    "region": "Global",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "A Telangana minister threatened to halt the screening of Kalyan's films if he did not apologise."
-  },
-  {
     "title": "Hong Kong fire will not deter Filipino helpers from working in city: minister",
     "url": "https://www.scmp.com/news/hong-kong/society/article/3334958/hong-kong-fire-will-not-deter-filipino-helpers-working-city-minister?utm_source=rss_feed",
     "snippet_raw": "A deadly Hong Kong blaze that claimed the lives of several domestic helpers will not deter Filipinos from working in the city, the Philippines’ migrant workers minister has said, adding that the city has always been a “safe haven”. Speaking to the Post during a visit to Hong Kong on Tuesday, Hans Leo Cacdac, secretary for the Philippines’ Department of Migrant Workers, said his government would provide financial assistance to affected helpers and support for their children. He also touched on...",
@@ -348,21 +607,6 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "A deadly Hong Kong blaze that claimed the lives of several domestic helpers will not deter Filipinos from working in the city, the Philippines’ migrant workers minister has said, adding that the city has always been a “safe haven”. Speaking to the Post during …"
-  },
-  {
-    "title": "Court Releases Arrested Accused In 1989 Rubaiyya Sayeed Kidnapping",
-    "url": "https://www.ndtv.com/india-news/court-releases-arrested-accused-in-1989-rubaiyya-sayeed-kidnapping-9738643#publisher=newsstand",
-    "snippet_raw": "Shangloo is alleged to be a close confidant of Yasin Malik.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-02T14:34:05+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Shangloo is alleged to be a close confidant of Yasin Malik."
   },
   {
     "title": "Indonesia flash-floods response",
@@ -448,30 +692,6 @@
     "snippet": "Country: Chad Source: Government of Chad Please refer to the attached file. POINTS SAILLANTS 13 juillet 2025 : Notification du 1er cas suspect ; 24 juillet 2025 : Mise en évidence du Vibrio cholerae O1 Ogawa sur 02 prélèvements à la culture; Nouveaux cas du 24…"
   },
   {
-    "title": "Quarter of police forces missing basic policies on sexual offences, says Sarah Everard report",
-    "url": "https://www.theguardian.com/uk-news/2025/dec/02/quarter-of-police-forces-missing-basic-policies-on-sexual-offences-says-sarah-everard-report",
-    "snippet_raw": "Official report says forces in England and Wales yet to implement policies for investigation A quarter of police forces in England and Wales are yet to implement “basic policies for investigating sexual offences”, an official report has found, with women still being failed despite promises of change after the murder of Sarah Everard four years ago. The report by Dame Elish Angiolini follows an inquiry set up after Everard was murdered by a serving police officer, Wayne Couzens, in March 2021. She was abducted off a London street while walking home. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-12-02T14:10:24+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Police",
-      "UK news",
-      "Metropolitan police",
-      "Sarah Everard",
-      "Rape and sexual assault",
-      "Women",
-      "London",
-      "England"
-    ],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Official report says forces in England and Wales yet to implement policies for investigation A quarter of police forces in England and Wales are yet to implement “basic policies for investigating sexual offences”, an official report has found, with women still…"
-  },
-  {
     "title": "Russian-flagged tanker reports drone attack off Turkey, authorities say",
     "url": "https://www.straitstimes.com/world/europe/russian-flagged-tanker-reports-drone-attack-off-turkey-authorities-say",
     "snippet_raw": "A foreign ministry spokesperson for Ukraine said his country was not involved in the Dec 1 attack.",
@@ -539,21 +759,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The move is expected to revive Versace’s fortunes, after middling post-pandemic performance as part of the US luxury group Capri Holdings."
-  },
-  {
-    "title": "4 Dead In Rain-Related Incidents As Cyclone Ditwah Skirts Tamil Nadu Coast",
-    "url": "https://www.ndtv.com/india-news/4-dead-in-rain-related-incidents-as-cyclone-ditwah-skirts-tamil-nadu-coast-9738166#publisher=newsstand",
-    "snippet_raw": "Four people have died in rain-related incidents in Tamil Nadu as Cyclone Ditwah remained close to state's coast, bring heavy rains.",
-    "source": "www.ndtv.com",
-    "time": "2025-12-02T13:38:52+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Four people have died in rain-related incidents in Tamil Nadu as Cyclone Ditwah remained close to state's coast, bring heavy rains."
   },
   {
     "title": "Iran-Linked Hackers Hits Israeli Sectors with New MuddyViper Backdoor in Targeted Attacks",
@@ -650,7 +855,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "15",
+      "16",
       "International"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -704,21 +909,6 @@
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
     "snippet": "Country: Sri Lanka Source: Data Friendly Space Please refer to the attached file. Sri Lanka is facing one of its worst natural disasters in recent history following Cyclone Ditwah, which made landfall at the end of November 2025 and triggered widespread floodi…"
-  },
-  {
-    "title": "Belgian police raid EU diplomatic service on fraud suspicion",
-    "url": "https://www.straitstimes.com/world/europe/belgian-police-raid-eu-diplomatic-service-on-fraud-suspicion",
-    "snippet_raw": "BRUSSELS, Dec 2 - Belgian police have raided the EU's diplomatic service (EEAS) in Brussels and a training college, the College of Europe in Bruges, as part of a probe into suspected fraud, the European Public Prosecutor's Office said on Tuesday.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T13:15:38+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Compliance & Investigations",
-    "type": "COMPLIANCE",
-    "snippet": "BRUSSELS, Dec 2 - Belgian police have raided the EU's diplomatic service (EEAS) in Brussels and a training college, the College of Europe in Bruges, as part of a probe into suspected fraud, the European Public Prosecutor's Office said on Tuesday."
   },
   {
     "title": "DPRK's 'Contagious Interview' Spawns Malicious Npm Package Factory",
@@ -897,7 +1087,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "20",
+      "21",
       "International"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -915,7 +1105,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "7",
+      "9",
       "International"
     ],
     "pillar": null,
@@ -933,7 +1123,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "13",
+      "14",
       "International"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -1029,45 +1219,49 @@
     "snippet": "Landslides buried homes and crippled rescue and relief efforts, while floodwaters washed ashore dozens of logs."
   },
   {
-    "title": "Afghanistan: Humanitarian Needs and Response Plan 2026 Summary",
-    "url": "https://reliefweb.int/report/afghanistan/afghanistan-humanitarian-needs-and-response-plan-2026-summary",
-    "snippet_raw": "Country: Afghanistan Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached Infographic. Overview In 2026, an estimated 21.9 million people—45 per cent of Afghanistan’s population—will require humanitarian assistance. While this represents a modest 4 per cent decrease from 2025, needs remain among the highest globally in a non-conflict setting. Humanitarian conditions continue to be driven by deep structural vulnerability, worsening food insecurity, and recurrent shocks, including climate-driven drought, large-scale returnee inflows, frequent earthquakes and floods, multiple disease outbreaks, and severe protection risks, especially for women and girls. Food insecurity has deteriorated sharply. In 2026, 17.4 million people are projected to face acute food insecurity, including 5.2 million in IPC Phase 4 (Emergency)—more than double the figure recorded last year. At the same time, drought conditions persist, with 12 provinces severely affected and 3.4 million people already impacted. Under anticipated La Niña conditions, below-average rainfall and above-average temperatures are forecast into early 2026. Protection risks remain acute and are expected to intensify due to the enforcement of existing restrictions on women and girls by the de facto authorities and the introduction of new ones, alongside persistent explosive ordnance contamination, gender-based violence, child labour and early marriage. On average, around 50 people are killed or injured each month by explosive ordnance. Mass cross-border returns further compound needs: more than 2.52 million Afghans returned from Iran and Pakistan in 2025 alone, placing significant pressure on host communities, basic services and livelihoods. In response, humanitarian partners will prioritize 17.5 million people for assistance in 2026—around 80 per cent of those in need—through a coordinated response costing US$1.72 billion. Assistance will focus on life-saving and protective interventions, including food, shelter, healthcare, nutrition, safe water, hygiene, and multi-purpose cash support, prioritizing inter-sector severity 4 areas where life-threatening needs are most acute and intersect.",
-    "source": "reliefweb.int",
-    "time": "2025-12-02T11:56:36+00:00",
+    "title": "Mirion Medical EC2 Software NMIS BioDose",
+    "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-336-01",
+    "snippet_raw": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission Assignment for Critical Resource, Use of Client-Side Authentication, Use of Hard-coded Credentials 2. RISK EVALUATION Successful exploitation of these vulnerabilities could allow an attacker to modify program executables, gain access to sensitive information, gain unauthorized access to the application, and execute arbitrary code. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following Mirion Medical products are affected: EC2 Software NMIS BioDose: Versions prior to 23.0 3.2 VULNERABILITY OVERVIEW 3.2.1 INCORRECT PERMISSION ASSIGNMENT FOR CRITICAL RESOURCE CWE-732 NMIS/BioDose V22.02 and previous versions' installation directory paths by default have insecure file permissions, which in certain deployment scenarios can enable users on client workstations to modify the program executables and libraries. CVE-2025-64642 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.0 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64642 . A base score of 7.1 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:N/UI:N/VC:L/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.2.2 INCORRECT PERMISSION ASSIGNMENT FOR CRITICAL RESOURCE CWE-732 NMIS/BioDose V22.02 and previous version installations where the embedded Microsoft SQLServer Express is used are exposed in the Windows share accessed by clients in networked installs. By default, this directory has insecure directory paths that allow access to the SQL Server database and configuration files, which can contain sensitive data. CVE-2025-64298 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.4 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64298 . A base score of 8.6 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.2.3 USE OF CLIENT-SIDE AUTHENTICATION CWE-603 NMIS/BioDose V22.02 and previous versions rely on a common SQL Server user account to access data in the database. User access in the client application is restricted by a password authentication check in the client software but the underlying database connection always has access. The latest version of NMIS/BioDose introduces an option to use Windows user authentication with the database, which would restrict this database connection. CVE-2025-61940 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L ). A CVSS v4 score has also been calculated for CVE-2025-61940 . A base score of 8.7 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N ). 3.2.4 USE OF HARD-CODED CREDENTIALS CWE-798 NMIS/BioDose software V22.02 and previous versions contain executable binaries with plain text hard-coded passwords. These hard-coded passwords could allow unauthorized access to both the application and database. CVE-2025-64778 has been assigned to this vulnerability. A CVSS v3.1 base score of 7.3 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L ). A CVSS v4 score has also been calculated for CVE-2025-64778 . A base score of 8.4 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N ). 3.2.5 INCORRECT PERMISSION ASSIGNMENT FOR CRITICAL RESOURCE CWE-732 NMIS/BioDose V22.02 and previous versions rely on a Microsoft SQL Server database. The SQL user account 'nmdbuser' and other created accounts by default have the sysadmin role. This can lead to remote code execution through the use of certain built-in stored procedures. CVE-2025-62575 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L ). A CVSS v4 score has also been calculated for CVE-2025-62575 . A base score of 8.7 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Healthcare and Public Health COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Joe Dillon reported these vulnerabilities to Mirion Medical. 4. MITIGATIONS Mirion Medical recommends users update to V23.0 or later. Users with an active support contract should update to the latest version through the software or users can contact Mirion Medical support directly. CISA recommends users take defensive measures to minimize the risk of exploitation of these vulnerabilities, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting these vulnerabilities has been reported to CISA at this time. 5. UPDATE HISTORY December 2, 2025: Initial Publication",
+    "source": "www.cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Site Security / Insider Risk",
+    "type": "PHYSICAL SECURITY",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission Assignment for Critical Resource, Use of Client-Side Authenti…"
+  },
+  {
+    "title": "Industrial Video & Control Longwatch",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
+    "snippet_raw": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATION OF CODE ('CODE INJECTION') 2. RISK EVALUATION Successful exploitation of this vulnerability could allow an unauthenticated attacker to gain remote code execution with elevated privileges. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following versions of Industrial Video & Control Longwatch, a video surveillance and monitoring system, are affected: Longwatch: Versions 6.309 to 6.334 3.2 VULNERABILITY OVERVIEW 3.2.1 IMPROPER CONTROL OF GENERATION OF CODE ('CODE INJECTION') CWE-94 A vulnerability in Longwatch devices allows unauthenticated HTTP GET requests to execute arbitrary code via an exposed endpoint, due to the absence of code signing and execution controls. Exploitation results in SYSTEM-level privileges. CVE-2025-13658 has been assigned to this vulnerability. A CVSS v3.1 base score of 9.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-13658 . A base score of 9.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Energy, Water and Wastewater Systems COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Concerned OT Engineer reported this vulnerability to CISA. 4. MITIGATIONS Industrial Video & Control recommends users running versions 6.309 to 6.334 should upgrade to version 6.335 or later to ensure protection against this vulnerability. For more details, view Industrial Video & Control's advisory . CISA recommends users take defensive measures to minimize the risk of exploitation of this vulnerability, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting this vulnerability has been reported to CISA at this time. 5. UPDATE HISTORY December 2, 2025: Initial Publication",
+    "source": "www.cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Site Security / Insider Risk",
+    "type": "PHYSICAL SECURITY",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATION OF CODE ('CODE INJECTION') 2. RISK EVALUATION Successful …"
+  },
+  {
+    "title": "Iskra iHUB and iHUB Lite",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
+    "snippet_raw": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Function 2. RISK EVALUATION Successful exploitation of this vulnerability could allow a remote attacker to reconfigure devices, update firmware, and manipulate connected systems without any credentials. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following versions of Iskra iHUB and iHUB Lite, a Smart Metering Gateway and Data Concentrator, are affected: iHUB and iHUB Lite: All Versions 3.2 VULNERABILITY OVERVIEW 3.2.1 Missing Authentication for Critical Function CWE-306 The Iskra iHUB and iHUB Lite smart metering gateway exposes its web management interface without requiring authentication, allowing unauthenticated users to access and modify critical device settings. CVE-2025-13510 has been assigned to this vulnerability. A CVSS v3.1 base score of 9.1 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N ). A CVSS v4 score has also been calculated for CVE-2025-13510 . A base score of 9.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Energy COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: Slovenia 3.4 RESEARCHER Souvik Kandar reported this vulnerability to CISA. 4. MITIGATIONS Iskra did not respond to CISA's request for coordination. Contact Iskra using their contact page for more information. CISA recommends users take defensive measures to minimize the risk of exploitation of this vulnerability, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. No known public exploitation specifically targeting this vulnerability has been reported to CISA at this time. 5. UPDATE HISTORY December 2, 2025: Initial Publication",
+    "source": "www.cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
     "region": "Global",
     "severity": 3,
     "lat": null,
     "lon": null,
-    "tags": [
-      "Afghanistan",
-      "UN Office for the Coordination of Humanitarian Affairs",
-      "Coordination",
-      "Education",
-      "Food and Nutrition",
-      "Health",
-      "Protection and Human Rights",
-      "Shelter and Non-Food Items",
-      "Water Sanitation Hygiene",
-      "Infographic"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Country: Afghanistan Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached Infographic. Overview In 2026, an estimated 21.9 million people—45 per cent of Afghanistan’s population—will require humanitarian assistance. While…"
-  },
-  {
-    "title": "EU epidemic vets begin work on swine fever outbreak in Barcelona",
-    "url": "https://www.straitstimes.com/world/europe/eu-epidemic-vets-begin-work-on-swine-fever-outbreak-in-barcelona",
-    "snippet_raw": "The virus is harmless to humans, but spreads rapidly among pigs and wild boar.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T11:40:15+00:00",
-    "region": "Global",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
     "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "The virus is harmless to humans, but spreads rapidly among pigs and wild boar."
+    "pillar": "Site Security / Insider Risk",
+    "type": "PHYSICAL SECURITY",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Function 2. RISK EVALUATION Successful exploitation of this vuln…"
   },
   {
     "title": "SecAlerts Cuts Through the Noise with a Smarter, Faster Way to Track Vulnerabilities",
@@ -1113,21 +1307,6 @@
     "snippet": "Hundreds of police, rangers and military personnel deployed to tackle virus threatening pork export industry Spanish authorities have deployed hundreds of police officers, wildlife rangers and military personnel in an effort to contain an outbreak of highly in…"
   },
   {
-    "title": "Facility services group ISS shares fall 10% after Hong Kong announces fire probe",
-    "url": "https://www.straitstimes.com/asia/facility-services-group-iss-shares-fall-10-after-hong-kong-announces-fire-probe",
-    "snippet_raw": "COPENHAGEN, Dec 2 - Danish facilities management group ISS said on Tuesday it supported Hong Kong's decision to establish a judge-led committee to investigate the cause of the city's deadliest fire in decades, and that the company was cooperating in the probe.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T11:24:59+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "COPENHAGEN, Dec 2 - Danish facilities management group ISS said on Tuesday it supported Hong Kong's decision to establish a judge-led committee to investigate the cause of the city's deadliest fire in decades, and that the company was cooperating in the probe."
-  },
-  {
     "title": "Taiwan opposition blocks US$40 billion defence budget, prompting DPP protests",
     "url": "https://www.scmp.com/news/china/politics/article/3334936/taiwan-opposition-blocks-us40-billion-defence-budget-prompting-protests-ruling-dpp?utm_source=rss_feed",
     "snippet_raw": "Taiwan’s opposition lawmakers have blocked a proposed NT$1.25 trillion (US$40 billion) special defence budget from being placed on the agenda for review this week. The suspension on Tuesday prompted angry protests from the ruling independence-leaning Democratic Progressive Party (DPP), injecting fresh uncertainty into Taiwanese leader William Lai Ching-te’s ambitious military modernisation plan. The legislature’s procedure committee voted down Lai’s government’s request to schedule the bill for...",
@@ -1153,30 +1332,12 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "12",
+      "13",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The latest mass killing in the United States occurred Saturday when three children ages 8, 9 and 14, and an adult were killed in a shooting at a child’s birthday party in California"
-  },
-  {
-    "title": "Northeast prepares for first major snowstorm of season",
-    "url": "https://abcnews.go.com/US/wireStory/northeast-prepares-major-snowstorm-season-128025396",
-    "snippet_raw": "The Northeast is getting ready for its first major snowstorm of the season, just as the Midwest is beginning to escape snow and ice that snarled travel after the Thanksgiving holiday",
-    "source": "abcnews.go.com",
-    "time": "2025-12-02T11:01:31+00:00",
-    "region": "Global",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "24",
-      "US"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "The Northeast is getting ready for its first major snowstorm of the season, just as the Midwest is beginning to escape snow and ice that snarled travel after the Thanksgiving holiday"
   },
   {
     "title": "‘We’re not going anywhere’: how unionization ‘whirlwind’ set stage for historic Starbucks strike",
@@ -1380,7 +1541,7 @@
   {
     "title": "‘Real Steel’: PLA unveils motion-controlled combat robot to 13 countries",
     "url": "https://www.scmp.com/news/china/science/article/3334906/real-steel-pla-unveils-motion-controlled-fight-robot-13-foreign-militaries?utm_source=rss_feed",
-    "snippet_raw": "China’s People’s Liberation Army has shown off a “real steel-style” military robot that mimicked a soldier’s combat moves in real time to defence representatives from 13 countries. Capturing every attack manoeuvre of a person wearing a lightweight motion-sensing device, the motion-controlled robot could precisely match moves with the help of artificial intelligence, according to a report in the official Science and Technology Daily on November 28. In the 2011 American movie Real Steel, a former...",
+    "snippet_raw": "China’s People’s Liberation Army has shown off a “Real Steel-style” military robot that mimicked a soldier’s combat moves in real time to defence representatives from 13 countries. Capturing every attack manoeuvre of a person wearing a lightweight motion-sensing device, the motion-controlled robot could precisely match moves with the help of artificial intelligence, according to a report in the official Science and Technology Daily on November 28. In the 2011 American movie Real Steel, a former...",
     "source": "www.scmp.com",
     "time": "2025-12-02T10:00:20+00:00",
     "region": "AMER",
@@ -1390,7 +1551,7 @@
     "tags": [],
     "pillar": null,
     "type": "GENERAL",
-    "snippet": "China’s People’s Liberation Army has shown off a “real steel-style” military robot that mimicked a soldier’s combat moves in real time to defence representatives from 13 countries. Capturing every attack manoeuvre of a person wearing a lightweight motion-sensi…"
+    "snippet": "China’s People’s Liberation Army has shown off a “Real Steel-style” military robot that mimicked a soldier’s combat moves in real time to defence representatives from 13 countries. Capturing every attack manoeuvre of a person wearing a lightweight motion-sensi…"
   },
   {
     "title": "Trump wields pardons as purest form of power",
@@ -1763,24 +1924,6 @@
     "snippet": "A traumatised Nigerian woman seeking asylum in Britain meets a kindred spirit in Joy Gharoro-Akpojotor’s evocative tale This poignant drama was clearly made on a dinky budget that probably stretched to barely more than crisps and squash on the catering tables.…"
   },
   {
-    "title": "Hong Kong orders independent probe into deadly blaze",
-    "url": "https://www.abc.net.au/news/2025-12-02/hong-kong-leader-orders-probe-into-deadly-fire/106092930",
-    "snippet_raw": "Hong Kong will set up an independent committee to investigate the cause of the city's deadliest fire in decades, including the oversight of the renovations blamed for the disaster.",
-    "source": "www.abc.net.au",
-    "time": "2025-12-02T06:49:04+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Fires",
-      "World Politics"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Hong Kong will set up an independent committee to investigate the cause of the city's deadliest fire in decades, including the oversight of the renovations blamed for the disaster."
-  },
-  {
     "title": "Tuesday briefing: What’s next for the resurgent space race?",
     "url": "https://www.theguardian.com/world/2025/dec/02/tuesday-briefing-space-race-moon-glasgow-first-edition",
     "snippet_raw": "In today’s newsletter: As suppliers get ready to meet policy makers and space agencies at the industry’s largest gathering, a look at the exploration and exploitation of space Good morning. This week Glasgow hosts one of the UK’s largest ever gatherings of the space industry at Space-Comm . With representatives of Nasa, the UK and Scottish governments and the UK space agency among 2,000 space leaders gathering there, it is a chance for people in the commercial supply chain of the space exploration industry to meet policy makers and space agencies. It comes at a crucial moment in the exploration – and exploitation – of space. For almost three decades the International Space Station (ISS) has bound the US and Russia into cooperation and shared interests. That project is nearing its end, and we can expect to see a realignment of missions and goals – which may bring states and scientists into conflict. Politics | Britain’s budget watchdog, the Office for Budget Responsibility, has said the early leak of its budget documents before Rachel Reeves made her speech last week, was the “worst failure” in its 15-year history , as its chair resigned and it emerged a similar leak had happened earlier this year. Health | The World Health Organization has urged countries to make weight loss drugs more accessible and pharmaceutical companies to lower their prices, saying jabs including Mounjaro represent a “new chapter” in the fight against obesity. Ukraine | The coming days may be “pivotal” for talks to end the war in Ukraine , the EU’s top diplomat said, as Volodymyr Zelenskyy met Emmanuel Macron in Paris on Monday and the US envoy Steve Witkoff flew out to meet Vladimir Putin in Moscow on Tuesday. Donald Trump | Donald Trump said he “wouldn’t have wanted” a second strike that the US military reportedly conducted on a boat in the Caribbean that it believed to be ferrying drugs, killing survivors of an initial missile attack . The UN human rights chief, Volker Türk, has urged Washington to investigate, saying there was “strong evidence” of “extrajudicial” killings. Asia-Pacific | Sri Lanka and Indonesia have deployed military personnel to help victims of the torrential floods that have killed 1,100 in four countries in Asia. Heavy cyclones and tropical monsoon rains have hit the region in recent days. Continue reading...",
@@ -1945,30 +2088,12 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "14",
+      "12",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The Trump administration has announced new immigration restrictions following the shooting of two National Guard members by a suspect who is an Afghan national"
-  },
-  {
-    "title": "White House says admiral ordered follow-up strike on alleged drug boat, insists attack was lawful",
-    "url": "https://abcnews.go.com/US/wireStory/white-house-admiral-ordered-follow-strike-alleged-drug-128014230",
-    "snippet_raw": "The White House says a Navy admiral ordered a second strike on an alleged drug boat in the Caribbean Sea and insists the September attack that has come under bipartisan scrutiny was lawful",
-    "source": "abcnews.go.com",
-    "time": "2025-12-02T04:26:40+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "25",
-      "US"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The White House says a Navy admiral ordered a second strike on an alleged drug boat in the Caribbean Sea and insists the September attack that has come under bipartisan scrutiny was lawful"
   },
   {
     "title": "Hong Kong leader orders independent probe into city's deadliest fire in decades",
@@ -1986,6 +2111,21 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "Authorities point to substandard plastic mesh and insulation foam used during renovation works fueling a blaze that quickly spread to seven high-rise towers, claiming 151 lives."
+  },
+  {
+    "title": "Hong Kong man facing murder charge after wife found with knife wounds, burns",
+    "url": "https://www.scmp.com/news/hong-kong/law-and-crime/article/3334853/man-arrested-arson-murder-after-woman-found-injured-hong-kong-flat-dies?utm_source=rss_feed",
+    "snippet_raw": "A man has been arrested after allegedly attacking and killing his wife with a knife and trying to set fire to their home in northwestern Hong Kong. Police said they received a report of a flat fire and a person injured at 6.59am on Tuesday from security guards at On Ting Estate in Tuen Mun. First responders arrived at the flat in Ting Fuk House and put out a fire that covered about 11 sq ft, said Chief Inspector Patty Chong Yuen‑na of Tuen Mun police. The woman, a convenience shop worker, had...",
+    "source": "www.scmp.com",
+    "time": "2025-12-02T04:02:23+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": null,
+    "type": "GENERAL",
+    "snippet": "A man has been arrested after allegedly attacking and killing his wife with a knife and trying to set fire to their home in northwestern Hong Kong. Police said they received a report of a flat fire and a person injured at 6.59am on Tuesday from security guards…"
   },
   {
     "title": "White House defends U.S. attack on boat from Venezuela as lawful",
@@ -2267,21 +2407,6 @@
     "snippet": "Sir Keir Starmer has warned China poses \"real national security threats to the United Kingdom\" - and hit out at Brexit."
   },
   {
-    "title": "National Guard shooting suspect spent weeks isolated in bedroom, case worker's email said",
-    "url": "https://www.bbc.com/news/articles/cj01q55lm76o?at_medium=RSS&at_campaign=rss",
-    "snippet_raw": "Emails from a case worker involved in 2024 with Rahmanullah Lakanwal suggested he suffered with mental health issues.",
-    "source": "www.bbc.com",
-    "time": "2025-12-01T20:09:53+00:00",
-    "region": "Global",
-    "severity": 1,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Regional Security / Duty of Care",
-    "type": "PERSONNEL",
-    "snippet": "Emails from a case worker involved in 2024 with Rahmanullah Lakanwal suggested he suffered with mental health issues."
-  },
-  {
     "title": "Is the US preparing for war with Venezuela?",
     "url": "https://www.bbc.com/news/videos/clyk1g9e144o?at_medium=RSS&at_campaign=rss",
     "snippet_raw": "BBC Verify has tracked US assets in the Caribbean Sea, after military strikes on suspected Venezuelan drug boats.",
@@ -2322,7 +2447,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "23",
+      "25",
       "US"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -2439,9 +2564,9 @@
     "snippet": "Pedro Inzunza Coronel, alias ‘El Pichón’, was killed during an anti-drug operation by the Mexican navy in Sinaloa Mexican authorities have killed one of the country’s top fentanyl traffickers, accused of importing tens of thousands of kilos of the drug into th…"
   },
   {
-    "title": "Trump’s pardon of Honduras’s ex-president shows counter-drug effort is ‘based on lies and hypocrisy’",
+    "title": "Trump move to pardon Honduras’s ex-president shows counter-drug effort is ‘based on lies and hypocrisy’",
     "url": "https://www.theguardian.com/us-news/2025/dec/01/trump-pardon-juan-orlando-hernandez-honduras-former-president",
-    "snippet_raw": "Why has Trump blown up alleged narco boats in the Caribbean and at the same time decided to let a big time trafficker off the hook? Deadly airstrikes and a military buildup: how the US pressure campaign against Venezuela has unfolded in the Caribbean He was a Latin American president accused of colluding with some of the region’s most ruthless narco bosses to flood the United States with cocaine. “[Let’s] stuff the drugs right up the noses of the gringos,” the double-dealing politician once allegedly bragged as he lined his pockets with millions of dollars in bribes and turned his country into what many called a narco-state. Continue reading...",
+    "snippet_raw": "Why has Trump blown up alleged narco boats in the Caribbean and at the same time decided to let a big-time trafficker off the hook? Deadly airstrikes and a military buildup: how the US pressure campaign against Venezuela has unfolded in the Caribbean He was a Latin American president accused of colluding with some of the region’s most ruthless narco bosses to flood the United States with cocaine. “[Let’s] stuff the drugs right up the noses of the gringos,” the double-dealing politician once allegedly bragged as he lined his pockets with millions of dollars in bribes and turned his country into what many called a narco-state. Continue reading...",
     "source": "www.theguardian.com",
     "time": "2025-12-01T18:03:04+00:00",
     "region": "AMER",
@@ -2460,7 +2585,7 @@
     ],
     "pillar": "Resilience / Crisis Management",
     "type": "CRISIS",
-    "snippet": "Why has Trump blown up alleged narco boats in the Caribbean and at the same time decided to let a big time trafficker off the hook? Deadly airstrikes and a military buildup: how the US pressure campaign against Venezuela has unfolded in the Caribbean He was a …"
+    "snippet": "Why has Trump blown up alleged narco boats in the Caribbean and at the same time decided to let a big-time trafficker off the hook? Deadly airstrikes and a military buildup: how the US pressure campaign against Venezuela has unfolded in the Caribbean He was a …"
   },
   {
     "title": "Israeli settlers attack and rob Italian and Canadian volunteers in West Bank",
@@ -2496,7 +2621,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "11",
+      "12",
       "International"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -2792,7 +2917,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "2",
+      "1",
       "International"
     ],
     "pillar": null,
@@ -2993,7 +3118,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "1",
+      "3",
       "International"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -3443,28 +3568,6 @@
     "snippet": "He denies any wrongdoing in three ongoing trials over allegations of bribery, fraud and breach of trust."
   },
   {
-    "title": "Sri Lanka’s capital hit by floods as cyclone death toll nears 200",
-    "url": "https://www.theguardian.com/world/2025/nov/30/sri-lanka-capital-colombo-hit-by-floods-as-cyclone-death-toll-rises",
-    "snippet_raw": "Hundreds of people still missing after heavy rain and mudslides in country’s deadliest natural disaster for years Entire areas of Sri Lanka’s capital are flooded after a powerful cyclone triggered heavy rains and mudslides across the island, with authorities reporting nearly 200 dead and dozens more missing. Officials said the extent of the damage in the country’s worst-affected central region was slowly becoming clear on Sunday as relief workers cleared roads blocked by fallen trees and mudslides. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-11-30T09:28:31+00:00",
-    "region": "Global",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Sri Lanka",
-      "Flooding",
-      "Environment",
-      "South and central Asia",
-      "Extreme weather",
-      "World news"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Hundreds of people still missing after heavy rain and mudslides in country’s deadliest natural disaster for years Entire areas of Sri Lanka’s capital are flooded after a powerful cyclone triggered heavy rains and mudslides across the island, with authorities r…"
-  },
-  {
     "title": "CISA Adds Actively Exploited XSS Bug CVE-2021-26829 in OpenPLC ScadaBR to KEV",
     "url": "https://thehackernews.com/2025/11/cisa-adds-actively-exploited-xss-bug.html",
     "snippet_raw": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) has updated its Known Exploited Vulnerabilities (KEV) catalog to include a security flaw impacting OpenPLC ScadaBR, citing evidence of active exploitation. The vulnerability in question is CVE-2021-26829 (CVSS score: 5.4), a cross-site scripting (XSS) flaw that affects Windows and Linux versions of the software via",
@@ -3493,54 +3596,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "Parents of kidnapped children know where the bandits hide out, but are too scared to inform the authorities."
-  },
-  {
-    "title": "China is bearing down on Taiwan – enabled by Trump’s weakness and vacillation | Simon Tisdall",
-    "url": "https://www.theguardian.com/commentisfree/2025/nov/30/china-donald-trump-xi-jinping-taiwan-trade",
-    "snippet_raw": "The US hasn’t just left Ukraine vulnerable; it is also provoking Xi’s intensifying attitude towards what he considers a renegade province Sheer ignorance, fed by malign intent, historical prejudice and mutual misunderstanding, is often the crucial spark that ignites simmering international conflicts. If Adolf Hitler, remarkably ignorant of the US, had grasped the true extent of American industrial might, would he still have fatefully declared war on Washington in 1941? When the Soviet Union invaded Afghanistan in 1979, it evidently had no idea what it was getting into. Humiliating defeat contributed greatly to its subsequent disintegration. In 1990, Iraq’s Saddam Hussein attacked Kuwait, convinced he had a green light from the White House. In all these cases, stupidity produced disastrous misjudgments that proved fatal. Simon Tisdall is a Guardian foreign affairs commentator Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-11-30T08:00:00+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Taiwan",
-      "China",
-      "US foreign policy",
-      "Japan",
-      "Xi Jinping",
-      "Donald Trump",
-      "US news",
-      "Asia Pacific",
-      "World news"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The US hasn’t just left Ukraine vulnerable; it is also provoking Xi’s intensifying attitude towards what he considers a renegade province Sheer ignorance, fed by malign intent, historical prejudice and mutual misunderstanding, is often the crucial spark that i…"
-  },
-  {
-    "title": "All the president’s millions: how the Trumps are turning the presidency into riches",
-    "url": "https://www.theguardian.com/us-news/ng-interactive/2025/nov/30/all-the-presidents-millions-how-the-trumps-are-turning-the-presidency-into-riches",
-    "snippet_raw": "From Vietnam to the Balkans, Donald Trump’s family has launched a global dealmaking blitz since his re-election A crusading prosecutor in the Balkans comes under pressure to drop a big case. Vietnamese villagers learn they are to be evicted. A convicted crypto kingpin in the Gulf receives a pardon. All have one thing in common: they appear to be connected to the Trump family’s campaign to amass riches around the world. Since Donald Trump’s re-election a year ago, warnings that his use of presidential power to advance personal interests is corroding American democracy have grown ever louder. What is less understood – and perhaps even more dangerous – is the damage this is doing everywhere else. Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-11-30T06:00:03+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Donald Trump",
-      "US news",
-      "Vietnam",
-      "Serbia",
-      "United Arab Emirates",
-      "World news",
-      "Asia Pacific"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "From Vietnam to the Balkans, Donald Trump’s family has launched a global dealmaking blitz since his re-election A crusading prosecutor in the Balkans comes under pressure to drop a big case. Vietnamese villagers learn they are to be evicted. A convicted crypto…"
   },
   {
     "title": "Drinking is a way of life in Ireland - can a warning label change that?",
@@ -3626,96 +3681,5 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "Two young brothers were among the latest killed - reportedly in an Israeli air strike as the Gaza ceasefire remains fragile."
-  },
-  {
-    "title": "Deadly Hong Kong Fire Is a Test of Beijing’s Rule in the City",
-    "url": "https://www.nytimes.com/2025/11/29/world/asia/hong-kong-fire-beijing-john-lee.html",
-    "snippet_raw": "After Beijing reshaped the political order in Hong Kong in its image, the fire has become a test of how well that new system can govern in a crisis.",
-    "source": "www.nytimes.com",
-    "time": "2025-11-29T22:07:48+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Fires and Firefighters",
-      "Hong Kong Apartment Complex Fire (Nov 2025)",
-      "Politics and Government",
-      "Deaths (Fatalities)",
-      "Volunteers and Community Service",
-      "Affordable Housing",
-      "Lee, John (1957- )",
-      "Xi Jinping"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "After Beijing reshaped the political order in Hong Kong in its image, the fire has become a test of how well that new system can govern in a crisis."
-  },
-  {
-    "title": "William pays visit to severely ill children from Gaza",
-    "url": "https://www.bbc.com/news/articles/cd9zq4xn543o?at_medium=RSS&at_campaign=rss",
-    "snippet_raw": "The Prince of Wales visits a number of severely ill children from Gaza being treated by the NHS.",
-    "source": "www.bbc.com",
-    "time": "2025-11-29T22:00:39+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The Prince of Wales visits a number of severely ill children from Gaza being treated by the NHS."
-  },
-  {
-    "title": "Trump Declares Venezuelan Airspace Closed",
-    "url": "https://www.nytimes.com/2025/11/29/us/politics/trump-venezuela-maduro-airspace.html",
-    "snippet_raw": "President Trump said days earlier that the United States could “very soon” expand its campaign of killing people at sea suspected of drug trafficking to attacking Venezuelan territory.",
-    "source": "www.nytimes.com",
-    "time": "2025-11-29T20:58:51+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Venezuela",
-      "Trump, Donald J",
-      "United States International Relations",
-      "United States Defense and Military Forces",
-      "Targeted Killings",
-      "Drug Abuse and Traffic",
-      "Drug Cartels",
-      "Tren de Aragua (Gang)",
-      "Cartel de Los Soles",
-      "Maduro, Nicolas",
-      "Airlines and Airplanes",
-      "Trump Travel Bans",
-      "internal-open-access-from-nl"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "President Trump said days earlier that the United States could “very soon” expand its campaign of killing people at sea suspected of drug trafficking to attacking Venezuelan territory."
-  },
-  {
-    "title": "Russia Bombards Ukraine for Nearly 10 Hours in a Deadly Assault",
-    "url": "https://www.nytimes.com/2025/11/29/world/europe/ukraine-kyiv-missiles.html",
-    "snippet_raw": "The attack came as U.S. officials were expected to hold peace talks with Ukrainian and Russian officials in the coming days.",
-    "source": "www.nytimes.com",
-    "time": "2025-11-29T20:53:40+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Russian Invasion of Ukraine (2022)",
-      "Trump, Donald J",
-      "Zelensky, Volodymyr",
-      "Kyiv (Ukraine)",
-      "Russia",
-      "Ukraine",
-      "internal-open-access-from-nl"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The attack came as U.S. officials were expected to hold peace talks with Ukrainian and Russian officials in the coming days."
   }
 ]
