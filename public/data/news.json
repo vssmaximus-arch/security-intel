@@ -1,5 +1,70 @@
 [
   {
+    "title": "More than 1 million people left homeless by deadly floods in South-East Asia",
+    "url": "https://www.abc.net.au/news/2025-12-03/south-east-asia-flooding-hits-indonesia-north-sumatra-langkat/106093352",
+    "snippet_raw": "More than 1,300 people are dead and 1.2 million displaced following devastating flooding and landslides in South-East Asia.",
+    "source": "www.abc.net.au",
+    "time": "2025-12-02T19:52:52+00:00",
+    "region": "APJC",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Disaster and Emergency Response",
+      "Disasters, Accidents and Emergency Incidents",
+      "Cyclones",
+      "Storms",
+      "Weather"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "More than 1,300 people are dead and 1.2 million displaced following devastating flooding and landslides in South-East Asia."
+  },
+  {
+    "title": "Dicky Bill farm workers scrambling for jobs after sudden shutdown",
+    "url": "https://www.abc.net.au/news/2025-12-03/dicky-bill-salad-farm-palm-backpacker-workers-job-cuts-fallout/105904136",
+    "snippet_raw": "Backpackers and PALM workers in Victoria and Queensland are looking for new jobs following the shock shutdown of Dicky Bill Australia.",
+    "source": "www.abc.net.au",
+    "time": "2025-12-02T19:41:03+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Horticulture Industry",
+      "Agricultural and Farming Practice",
+      "Employment Services"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Backpackers and PALM workers in Victoria and Queensland are looking for new jobs following the shock shutdown of Dicky Bill Australia."
+  },
+  {
+    "title": "Large Winter Storm Brings Snow and Ice to Northeast and Mid-Atlantic",
+    "url": "https://www.nytimes.com/2025/12/02/weather/snow-winter-storm-northeast-ny-nj.html",
+    "snippet_raw": "Hazardous winter weather was expected through early Wednesday, according to forecasters. The storm had dropped a wintry mix of precipitation across the Midwest overnight.",
+    "source": "www.nytimes.com",
+    "time": "2025-12-02T19:33:47+00:00",
+    "region": "Global",
+    "severity": 2,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Snow and Snowstorms",
+      "Weather",
+      "Hochul, Kathleen C",
+      "New England States (US)",
+      "Mid-Atlantic States (US)",
+      "Maine",
+      "Massachusetts",
+      "Pennsylvania",
+      "Rain"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Hazardous winter weather was expected through early Wednesday, according to forecasters. The storm had dropped a wintry mix of precipitation across the Midwest overnight."
+  },
+  {
     "title": "Man charged in National Guard shooting pleads not guilty from hospital bed",
     "url": "https://www.abc.net.au/news/2025-12-03/man-charged-in-national-guard-shooting-pleads-not-guilty/106094586",
     "snippet_raw": "Rahmanullah Lakanwal, 29, has pleaded not guilty to first-degree murder and assault charges.",
@@ -55,31 +120,6 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "Rahmanullah Lakanwal, a 29-year-old Afghan national who was also shot, made his initial court appearance by video from a hospital bed."
-  },
-  {
-    "title": "Large Winter Storm Brings Snow and Ice to Northeast and Mid-Atlantic",
-    "url": "https://www.nytimes.com/2025/12/02/weather/snow-winter-storm-northeast-ny-nj.html",
-    "snippet_raw": "Hazardous winter weather was expected through early Wednesday, according to forecasters. The storm had dropped a wintry mix of precipitation across the Midwest overnight.",
-    "source": "www.nytimes.com",
-    "time": "2025-12-02T19:19:17+00:00",
-    "region": "Global",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Snow and Snowstorms",
-      "Weather",
-      "Hochul, Kathleen C",
-      "New England States (US)",
-      "Mid-Atlantic States (US)",
-      "Maine",
-      "Massachusetts",
-      "Pennsylvania",
-      "Rain"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Hazardous winter weather was expected through early Wednesday, according to forecasters. The storm had dropped a wintry mix of precipitation across the Midwest overnight."
   },
   {
     "title": "Global heating and other human activity are making Asia’s floods more lethal",
@@ -762,7 +802,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "16",
+      "14",
       "International"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -940,7 +980,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "14",
+      "13",
       "International"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -1149,7 +1189,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "13",
+      "12",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -1811,7 +1851,7 @@
     "snippet": "A ruling was due to be made on Dec 4, but the hearing was adjourned to a date to be determined."
   },
   {
-    "title": "Principal stabbed in incident at high school in Melbourne's south-east",
+    "title": "Police question staff member over stabbing of principal at Melbourne school",
     "url": "https://www.abc.net.au/news/2025-12-02/man-stabbed-keysborough-college/106093012",
     "snippet_raw": "The stabbing happened on the school grounds of Keysborough Secondary College about 3pm.",
     "source": "www.abc.net.au",
@@ -1905,7 +1945,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "12",
+      "15",
       "US"
     ],
     "pillar": "Regional Security / Duty of Care",
@@ -2438,29 +2478,12 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "12",
+      "11",
       "International"
     ],
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The recent Ebola outbreak in Congo has been declared over by health officials"
-  },
-  {
-    "title": "Retail giant Coupang data breach impacts 33.7 million customers",
-    "url": "https://www.bleepingcomputer.com/news/security/retail-giant-coupang-suffers-data-breach-impacting-337-million-people/",
-    "snippet_raw": "South Korea's largest retailer, Coupang, has suffered a data breach that exposed the personal information of 33.7 million customers. [...]",
-    "source": "www.bleepingcomputer.com",
-    "time": "2025-12-01T16:29:35+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Security"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "South Korea's largest retailer, Coupang, has suffered a data breach that exposed the personal information of 33.7 million customers. [...]"
   },
   {
     "title": "Sri Lanka Declares ‘Largest’ Disaster as Cyclone Death Toll Rises to 355",
@@ -2717,7 +2740,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "2",
+      "1",
       "International"
     ],
     "pillar": null,
@@ -2918,7 +2941,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "1",
+      "2",
       "International"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -3675,26 +3698,5 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "The agency’s top vaccine regulator proposed broad changes, claiming that a new review linked 10 children’s deaths to the Covid vaccine. But public health experts questioned the findings, wanting to examine the data."
-  },
-  {
-    "title": "Flash floods and landslides cause devastation in Indonesia – video",
-    "url": "https://www.theguardian.com/world/video/2025/nov/29/flash-floods-and-landslides-cause-devastation-in-indonesia-video",
-    "snippet_raw": "Indonesian rescuers in the northern regions of Sumatra raced to find dozens of people still missing after heavy monsoon rains caused flash floods and landslides on Saturday. More than 300 people have died and thousands have been evacuated. Large parts of Indonesia, Malaysia and Thailand have been stricken by cyclone-fuelled torrential rain for a week At least 460 killed in south-east Asia floods and landslides, reports say Continue reading...",
-    "source": "www.theguardian.com",
-    "time": "2025-11-29T16:44:21+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Indonesia",
-      "Flooding",
-      "Extreme weather",
-      "Asia Pacific",
-      "World news"
-    ],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Indonesian rescuers in the northern regions of Sumatra raced to find dozens of people still missing after heavy monsoon rains caused flash floods and landslides on Saturday. More than 300 people have died and thousands have been evacuated. Large parts of Indon…"
   }
 ]
