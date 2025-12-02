@@ -1,10 +1,34 @@
 [
   {
+    "title": "South Sudan: Floods Snapshot (As of 27 November 2025)",
+    "url": "https://reliefweb.int/report/south-sudan/south-sudan-floods-snapshot-27-november-2025",
+    "snippet_raw": "Country: South Sudan Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached Infographic. Flooding has affected more than 1.35 million people across 39 counties in eight states, with nearly 375,600 displaced as of 30 November. Jonglei, Lakes and Unity states are the most affected, accounting for 88 per cent of people impacted. This is the fifth consecutive year of severe flooding, resulting in widespread inundation of homes, farmland and critical infrastructure. The floods have further weakened the already fragile health and education systems, disrupted services and delayed recovery. In Unity State, water levels around Bentiu IDP camps continue to rise due to wind-driven waves and erosion at multiple points, increasing pressure on dykes that protect thousands of people in Bentiu and Rubkona towns. Technical teams are assessing the situation. In Jonglei State, partners report that water levels are decreasing in Fangak County, easing immediate concerns. However, communities are calling for early dyke reinforcement during the dry season to prevent future flooding and improve protection ahead of the next rainy season. According to the latest Floods Predictive Outlook, floodwater is expected to continue receding through November and December, supported by below-average rainfall. River levels are falling across major monitoring points. Residual water will remain in the central Sudd wetlands, but no further expansion is anticipated. As waters recede, some displaced families are returning home, although many houses have been destroyed and basic services remain unavailable. A coordinated humanitarian response is urgently required in return locations. Despite access constraints, partners continue to deliver life-saving assistance to the affected communities. In Unity State, the 17-kilometre dyke extension to protect more than 100,000 people in Bentiu and Rubkona towns has been completed. In Upper Nile State, partners have finished constructing two emergency water treatment systems, providing safe water to nearly 10,000 people in Fashoda and Panyikang counties.",
+    "source": "reliefweb.int",
+    "time": "2025-12-02T11:43:22+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "South Sudan",
+      "UN Office for the Coordination of Humanitarian Affairs",
+      "Agriculture",
+      "Health",
+      "Protection and Human Rights",
+      "Infographic",
+      "Epidemic",
+      "Flood"
+    ],
+    "pillar": "Resilience / Crisis Management",
+    "type": "CRISIS",
+    "snippet": "Country: South Sudan Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached Infographic. Flooding has affected more than 1.35 million people across 39 counties in eight states, with nearly 375,600 displaced as of 30 Novembe…"
+  },
+  {
     "title": "EU epidemic vets begin work on swine fever outbreak in Barcelona",
     "url": "https://www.straitstimes.com/asia/eu-epidemic-vets-begin-work-on-swine-fever-outbreak-in-barcelona",
     "snippet_raw": "MADRID, Dec 2 - A taskforce of EU vets specialising in epidemics began work in Barcelona on Tuesday as Spain seeks to contain an African swine fever outbreak that has forced it to halt some pork exports.",
     "source": "www.straitstimes.com",
-    "time": "2025-12-02T11:30:19+00:00",
+    "time": "2025-12-02T11:40:15+00:00",
     "region": "EMEA",
     "severity": 1,
     "lat": null,
@@ -13,6 +37,21 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "MADRID, Dec 2 - A taskforce of EU vets specialising in epidemics began work in Barcelona on Tuesday as Spain seeks to contain an African swine fever outbreak that has forced it to halt some pork exports."
+  },
+  {
+    "title": "Ukraine detains British army veteran on suspicion of spying for Russia",
+    "url": "https://www.ft.com/content/62d972c6-ed55-4632-a4ea-9ca470f27a65",
+    "snippet_raw": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres",
+    "source": "www.ft.com",
+    "time": "2025-12-02T11:35:05+00:00",
+    "region": "Global",
+    "severity": 3,
+    "lat": null,
+    "lon": null,
+    "tags": [],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Kyiv accuses Ross David Cutmore of helping Moscow plot assassinations and attacks on military training centres"
   },
   {
     "title": "World: Flood and flash flood alerts in the last 24 hours ((European Flood Awareness System - EFAS) (ECHO Daily Flash of 2 December 2025)",
@@ -135,6 +174,34 @@
     "pillar": "Regional Security / Duty of Care",
     "type": "PERSONNEL",
     "snippet": "His departure on health grounds coincides with a spate of mass abductions across the West African state."
+  },
+  {
+    "title": "Spanish swine fever outbreak may be linked to food eaten by boar, say officials",
+    "url": "https://www.theguardian.com/world/2025/dec/02/spanish-swine-fever-outbreak-pork-industry-boar-food",
+    "snippet_raw": "Hundreds of police, rangers and military personnel deployed to tackle virus threatening pork export industry Spanish authorities have deployed hundreds of police officers, wildlife rangers and military personnel in an effort to contain an outbreak of highly infectious African swine fever (ASF) outside Barcelona before it becomes a major threat to the country’s €8.8bn-a-year pork export industry. Officials believe the virus, detected in the municipality of Bellaterra, may have begun to circulate after a wild boar ate contaminated food that had been brought in from outside Spain. Continue reading...",
+    "source": "www.theguardian.com",
+    "time": "2025-12-02T11:26:48+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "lat": null,
+    "lon": null,
+    "tags": [
+      "Spain",
+      "African swine fever",
+      "Europe",
+      "World news",
+      "Farming",
+      "Farm animals",
+      "Animals",
+      "Pork",
+      "Meat",
+      "Meat industry",
+      "Food",
+      "Environment"
+    ],
+    "pillar": "Regional Security / Duty of Care",
+    "type": "PERSONNEL",
+    "snippet": "Hundreds of police, rangers and military personnel deployed to tackle virus threatening pork export industry Spanish authorities have deployed hundreds of police officers, wildlife rangers and military personnel in an effort to contain an outbreak of highly in…"
   },
   {
     "title": "US Homeland Security secretary calls for more travel bans",
@@ -871,29 +938,6 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "The devastating fire in Tai Po is likely to hurt profitability at Hong Kong’s property insurers and could prompt them to review pricing strategies that have led to lower premiums amid fierce competition, according to S&P Global Ratings. “Claim losses from last…"
-  },
-  {
-    "title": "WFP Somalia: A Gender-Smart DRM Toolkit - October 2025",
-    "url": "https://reliefweb.int/report/somalia/wfp-somalia-gender-smart-drm-toolkit-october-2025",
-    "snippet_raw": "Country: Somalia Sources: Government of Somalia, World Food Programme Please refer to the attached file. Developed by WFP with support from the Government of Canada Executive Summary Somalia’s vulnerability to climate shocks is compounded by profound gender inequalities. The 2024 WFP Gender and Disaster Risk Finance Analysis revealed that women and girls, particularly those in female-headed households, experience climate disasters differently and more severely than men. Structural barriers, including limited access to finance, land, and decision-making power, restrict their ability to prepare for, respond to, and recover from crises. This toolkit provides a definitive operational guide for bridging this gap. It translates the imperative for gender equality into actionable steps for integrating gender-smart approaches into Climate and Disaster Risk Finance and Insurance (CDRFI) and Disaster Risk Management (DRM) programming. The guide is built on a simple but powerful three-part framework: • The ‘What’: It clearly defines gender-smart CDRFI and DRM, explaining key concepts like the disaster risk triangle and the gender-responsiveness spectrum. • The ‘Why’: It presents a compelling, evidence-based case for action in the Somali context, drawing on data from demand, supply, and enabling environment perspectives. • The ‘How’: The core of the document provides a phase-by-phase practical guide—from Design and Implementation to Closure—equipping practitioners with checklists, guiding questions, and methodologies for gender analysis, stakeholder engagement, targeting, budgeting, and monitoring and evaluation. By adopting the guidance in this toolkit, government entities, WFP, and partners can ensure that their resilience-building programmes are not only more effective but also fundamentally more equitable, empowering the women of Somalia as central agents of change in building a resilient future.",
-    "source": "reliefweb.int",
-    "time": "2025-12-02T08:59:27+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Somalia",
-      "Government of Somalia",
-      "World Food Programme",
-      "Climate Change and Environment",
-      "Disaster Management",
-      "Gender",
-      "Manual and Guideline"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "Country: Somalia Sources: Government of Somalia, World Food Programme Please refer to the attached file. Developed by WFP with support from the Government of Canada Executive Summary Somalia’s vulnerability to climate shocks is compounded by profound gender in…"
   },
   {
     "title": "Japan’s flu season comes early as new variant spreads",
@@ -1708,21 +1752,6 @@
     "snippet": "Spokeswoman Karoline Leavitt says the Sept. 2 strikes were conducted as “self defense” to protect U.S. interests."
   },
   {
-    "title": "Prices of vegetables in Malaysia may increase if rain persists",
-    "url": "https://www.straitstimes.com/asia/se-asia/prices-of-vegetables-in-malaysia-may-increase-if-rain-persists",
-    "snippet_raw": "Recent flooding in Thailand, Vietnam and Indonesia had begun to push up prices of vegetables.",
-    "source": "www.straitstimes.com",
-    "time": "2025-12-02T02:31:00+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "lat": null,
-    "lon": null,
-    "tags": [],
-    "pillar": "Resilience / Crisis Management",
-    "type": "CRISIS",
-    "snippet": "Recent flooding in Thailand, Vietnam and Indonesia had begun to push up prices of vegetables."
-  },
-  {
     "title": "John Lee stresses need for lawmakers after Tai Po fire as poll to go on",
     "url": "https://www.scmp.com/news/hong-kong/politics/article/3334835/hong-kongs-john-lee-stresses-need-lawmakers-after-tai-po-fire-poll-go?utm_source=rss_feed",
     "snippet_raw": "Hong Kong will hold the Legislative Council election as scheduled on Sunday, the chief executive has announced, arguing that it is important to elect new lawmakers who will be his key partners in launching reforms as the city reels from the deadly fire in Tai Po. City leader John Lee Ka-chiu said on Tuesday that lawmakers were needed to help scrutinise funding and work with the government to review policies to prevent such a tragedy from taking place again. “The partners I need most importantly...",
@@ -2147,7 +2176,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "20",
+      "19",
       "US"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -2616,7 +2645,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "2",
+      "1",
       "International"
     ],
     "pillar": null,
@@ -2872,7 +2901,7 @@
     "lat": null,
     "lon": null,
     "tags": [
-      "1",
+      "2",
       "International"
     ],
     "pillar": "Resilience / Crisis Management",
@@ -3668,30 +3697,5 @@
     "pillar": null,
     "type": "GENERAL",
     "snippet": "Two Palestinian children reportedly killed on Saturday as Israel continues its strikes after latest ceasefire The Palestinian death toll has surpassed 70,000 since the Israel-Gaza war began, Gaza’s health ministry said on Saturday, while a hospital reported Is…"
-  },
-  {
-    "title": "Gazans Say Israeli Forces Killed Two Children, Amid Persistent Violence",
-    "url": "https://www.nytimes.com/2025/11/29/world/middleeast/israeli-forces-gaza-children-attack.html",
-    "snippet_raw": "The Israeli military said it had fired on two “suspects” on Saturday who had crossed cease-fire lines in southern Gaza and did not comment on reports that they were young children.",
-    "source": "www.nytimes.com",
-    "time": "2025-11-29T20:05:05+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "lat": null,
-    "lon": null,
-    "tags": [
-      "Israel-Gaza War (2023- )",
-      "Nasser Hospital (Gaza Strip)",
-      "Hamas",
-      "Gaza Strip",
-      "Defense and Military Forces",
-      "Civilian Casualties",
-      "International Relations",
-      "Israel",
-      "Khan Younis (Gaza Strip)"
-    ],
-    "pillar": null,
-    "type": "GENERAL",
-    "snippet": "The Israeli military said it had fired on two “suspects” on Saturday who had crossed cease-fire lines in southern Gaza and did not comment on reports that they were young children."
   }
 ]
