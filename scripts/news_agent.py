@@ -17,10 +17,8 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# ---------- STRICT SRO CATEGORIZATION & FILTERING ----------
-# Logic: An article MUST hit a keyword in one of these lists to be kept.
-# If it hits a keyword, it gets assigned that Category.
-
+# ---------- SRO CATEGORY DEFINITIONS (Strict Positive Logic) ----------
+# An article MUST match one of these to be kept.
 SRO_FILTERS = {
     "CYBER SECURITY": [
         "ransomware", "data breach", "cyberattack", "scada", "industrial control", 
@@ -113,7 +111,7 @@ def ai_process(model, title, summary, category):
     Detected Category: {category}
     
     Rules:
-    1. STRICTLY EXCLUDE: Politics, Sports, General Crime, Post-event cleanup, Opium/Drugs.
+    1. STRICTLY EXCLUDE: Politics, Sports, General Crime, Post-event cleanup, Historical articles.
     2. INCLUDE ONLY: Active threats to staff, facilities, supply chain, or travel.
     3. Severity: 3 (Life Safety/Critical Ops), 2 (Disruption), 1 (Awareness).
     4. One Liner: Summarize the operational impact in 1 sentence.
