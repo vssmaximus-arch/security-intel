@@ -1,5 +1,45 @@
 [
   {
+    "title": "Afghan Taliban minister says US shooting has nothing to do with his people or government",
+    "url": "https://www.straitstimes.com/asia/afghan-taliban-minister-says-us-shooting-has-nothing-to-do-with-his-people-or-government",
+    "snippet": "KABUL, Dec 3 - The shooting of National Guard members in Washington, D.C., over which an Afghan immigrant has been charged, has nothing to do with Afghanistan's people or its government, Afghan Taliban Foreign Minister Amir Khan Muttaqi said on Wednesday.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T14:35:21",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Philippines\u2019 Marcos to bump up military pay after coup calls",
+    "url": "https://www.straitstimes.com/asia/se-asia/philippines-marcos-to-bump-up-military-pay-after-coup-calls",
+    "snippet": "The move comes as his administration is facing mounting political pressure from a corruption scandal.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T14:25:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Aisuru botnet behind new record-breaking 29.7 Tbps DDoS attack",
+    "url": "https://www.bleepingcomputer.com/news/security/aisuru-botnet-behind-new-record-breaking-297-tbps-ddos-attack/",
+    "snippet": "In just three months, the massive Aisuru botnet launched more than 1,300 distributed denial-of-service attacks, one of them setting a new record with a peak at 29.7 terabits per second. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T14:01:04",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Production halted at Chinese factory making 'childlike' sex dolls",
+    "url": "https://www.bbc.com/news/articles/ckgzqxjzjyqo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The issue is in the spotlight after Shein announced a global ban on the sale of sex dolls with a childlike appearance.",
+    "source": "bbc.com",
+    "time": "2025-12-03T13:46:49",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
     "title": "University of Phoenix discloses data breach after Oracle hack",
     "url": "https://www.bleepingcomputer.com/news/security/university-of-phoenix-discloses-data-breach-after-oracle-hack/",
     "snippet": "The University of Phoenix (UoPX) has joined a growing list of\u00a0U.S. universities\u00a0breached in a Clop data theft campaign targeting vulnerable Oracle E-Business Suite instances in August 2025. [...]",
@@ -30,9 +70,9 @@
     "type": "CRISIS / WEATHER"
   },
   {
-    "title": "South Korea parliament hosts \u2018dark tour\u2019 to revisit martial law sites",
+    "title": "South Korean Parliament hosts \u2018dark tour\u2019 to revisit martial law sites on anniversary",
     "url": "https://www.straitstimes.com/asia/east-asia/south-korea-parliament-hosts-dark-tour-to-revisit-martial-law-sites",
-    "snippet": "The martial law sparked one of the worst political crises in a country seen as a democratic success story.",
+    "snippet": "The martial law crisis was one of the worst political ones in a country seen as a democratic success story.",
     "source": "straitstimes.com",
     "time": "2025-12-03T12:25:30",
     "region": "Global",
@@ -60,16 +100,6 @@
     "type": "CRISIS / WEATHER"
   },
   {
-    "title": "Beijing blamed as Yoon\u2019s martial law bid fuels disinformation in South Korea",
-    "url": "https://www.scmp.com/news/asia/east-asia/article/3335047/how-south-koreas-political-crisis-was-fuelled-anti-china-disinformation-claims?utm_source=rss_feed",
-    "snippet": "Yoon Suk-yeol\u2019s botched attempt to impose martial law last year plunged South Korea into its worst political crisis in decades, providing fertile ground for disinformation to grow.\nA common refrain, posted on right-wing forums, amplified by YouTubers and echoed by lawmakers: China was to blame.\nYoon supporters claimed Beijing had infiltrated protests, funded his impeachment campaign and manipulated online opinion ahead of the June snap election that brought opposition leader Lee Jae-myung to...",
-    "source": "scmp.com",
-    "time": "2025-12-03T10:18:07",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
     "url": "https://www.bleepingcomputer.com/news/security/shai-hulud-20-npm-malware-attack-exposed-up-to-400-000-dev-secrets/",
     "snippet": "The second Shai-Hulud\u00a0attack last week exposed around 400,000 raw secrets after infecting hundreds of packages in the NPM (Node Package Manager) registry and publishing stolen data in 30,000 GitHub repositories. [...]",
@@ -88,16 +118,6 @@
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "University of Pennsylvania confirms new data breach after Oracle hack",
-    "url": "https://www.bleepingcomputer.com/news/security/university-of-pennsylvania-confirms-data-theft-after-oracle-ebs-hack/",
-    "snippet": "\u200bThe University of Pennsylvania (Penn) has confirmed a new data breach after attackers stole documents containing personal information from its Oracle E-Business Suite servers in August. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-02T12:55:59",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
   },
   {
     "title": "Mirion Medical EC2 Software NMIS BioDose",
