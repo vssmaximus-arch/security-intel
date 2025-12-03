@@ -1,5 +1,25 @@
 [
   {
+    "title": "Marquis data breach impacts over 74 US banks, credit unions",
+    "url": "https://www.bleepingcomputer.com/news/security/marquis-data-breach-impacts-over-74-us-banks-credit-unions/",
+    "snippet": "Financial software provider Marquis Software Solutions is warning that it suffered a data breach that impacted dozens of banks and credit unions across the US. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T22:06:07",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Critical flaw in WordPress add-on for Elementor exploited in attacks",
+    "url": "https://www.bleepingcomputer.com/news/security/critical-flaw-in-wordpress-add-on-for-elementor-exploited-in-attacks/",
+    "snippet": "Attackers are exploiting a critical-severity privilege escalation vulnerability (CVE-2025-8489) in the King Addons for Elementor plugin for WordPress, which lets them obtain\u00a0administrative permissions during the registration process. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T21:31:20",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
     "title": "French DIY retail giant Leroy Merlin discloses a data breach",
     "url": "https://www.bleepingcomputer.com/news/security/french-diy-retail-giant-leroy-merlin-discloses-a-data-breach/",
     "snippet": "Leroy Merlin is sending security breach notifications to customers in France, informing them that their personal data was compromised. [...]",
@@ -178,16 +198,6 @@
     "region": "Global",
     "severity": 2,
     "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
-    "url": "https://www.bleepingcomputer.com/news/security/shai-hulud-20-npm-malware-attack-exposed-up-to-400-000-dev-secrets/",
-    "snippet": "The second Shai-Hulud\u00a0attack last week exposed around 400,000 raw secrets after infecting hundreds of packages in the NPM (Node Package Manager) registry and publishing stolen data in 30,000 GitHub repositories. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-02T19:06:20",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
   },
   {
     "title": "Iskra iHUB and iHUB Lite",
