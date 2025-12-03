@@ -6,12 +6,11 @@ const PATHS = {
     PROXIMITY: "public/data/proximity.json"
 };
 
-// FIX: Default Radius strictly 5KM
-let currentRadius = 5; 
+let currentRadius = 5; // Default 5KM
 
-/* --- FULL DELL SITE LIST (VERIFIED OPERATIONS SEP 2025) --- */
+/* --- HARDCODED DELL SITES (Sep 2025 Verified List) --- */
 const HARDCODED_SITES = [
-    /* Americas (AMER) - Active Operational Hubs */
+    // AMER
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
     { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
     { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
@@ -31,7 +30,7 @@ const HARDCODED_SITES = [
     { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
     { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
 
-    /* Europe, Middle East & Africa (EMEA) - Active Operational Hubs */
+    // EMEA
     { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
     { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
     { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
@@ -50,7 +49,7 @@ const HARDCODED_SITES = [
     { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
     { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
 
-    /* Asia Pacific & Japan (APJC) - Active Operational Hubs */
+    // APJC
     { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
     { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
     { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
@@ -68,7 +67,7 @@ const HARDCODED_SITES = [
     { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
 
-/* --- COMPREHENSIVE COUNTRY LIST (ALL WORLD COUNTRIES - 196 ENTRIES) --- */
+/* --- COMPREHENSIVE COUNTRY LIST --- */
 const COUNTRIES = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
@@ -123,11 +122,11 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // SRO RELEVANT FALLBACK
+        // SRO RELEVANT FALLBACK (No sports/fluff)
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics" },
-            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC" },
-            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS", time: new Date().toISOString(), source: "Weather Ops" }
+            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, time: new Date().toISOString(), source: "SRO Logistics" },
+            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, time: new Date().toISOString(), source: "GSOC" },
+            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, time: new Date().toISOString(), source: "Weather Ops" }
         ];
     }
     updateMap('Global');
@@ -175,30 +174,29 @@ function filterNews(region) {
 
     if (!filtered.length) { container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents.</div>`; }
     else {
+        // VISUAL REDESIGN - MATCHING SCREENSHOT EXACTLY
         container.innerHTML = filtered.map(item => {
             const timeStr = safeDate(item.time);
             
-            // REDESIGNED FEED LABELS (As per Screenshot)
+            // Badges
             const sevBadge = item.severity >= 3 
-                ? `<span class="ftag ftag-crit">CRITICAL</span>` 
-                : `<span class="ftag ftag-warn">WARNING</span>`;
+                ? `<span class="badge rounded-0" style="background:#d93025; color:white; font-size:0.7rem; margin-right:5px;">CRITICAL</span>` 
+                : `<span class="badge rounded-0" style="background:#f9ab00; color:white; font-size:0.7rem; margin-right:5px;">WARNING</span>`;
             
-            const typeBadge = `<span class="ftag ftag-cat">${(item.type || 'GENERAL').toUpperCase()}</span>`;
-            const regionText = `<span style="float:right; color:#999; font-weight:700; font-size:0.75rem;">${item.region}</span>`;
-            const barColor = item.severity >= 3 ? "status-bar-crit" : "status-bar-warn";
+            const typeBadge = `<span class="badge rounded-0" style="background:#333; color:white; font-size:0.7rem; margin-right:5px;">${(item.type || 'GENERAL').toUpperCase()}</span>`;
+            const regBadge = `<span class="badge rounded-0" style="background:#555; color:white; font-size:0.7rem;">${(item.region || 'GLOBAL').toUpperCase()}</span>`;
+            
+            const barColor = item.severity >= 3 ? "#d93025" : "#f9ab00";
 
             return `
-            <a href="${item.url||'#'}" target="_blank" class="feed-card">
-                <div class="feed-status-bar ${barColor}"></div>
-                <div class="feed-content">
-                    <div style="margin-bottom:6px;">
-                        ${sevBadge} ${typeBadge} ${regionText}
-                    </div>
-                    <div class="feed-title">${item.title}</div>
-                    <div class="feed-meta">${item.source} • ${timeStr}</div>
-                    <div class="feed-desc">${item.snippet || item.summary}</div>
+            <div class="feed-card" style="border-left: 5px solid ${barColor}; margin-bottom: 12px; background:white; padding:15px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                <div style="margin-bottom:8px;">
+                    ${sevBadge}${typeBadge}${regBadge}
                 </div>
-            </a>`;
+                <div class="feed-title" style="font-size:1rem; font-weight:700; color:#202124; margin-bottom:5px;">${item.title}</div>
+                <div class="feed-meta" style="font-size:0.8rem; color:#666; margin-bottom:8px;">${item.source} • ${timeStr}</div>
+                <div class="feed-desc" style="font-size:0.85rem; color:#333;">${item.snippet || item.summary}</div>
+            </div>`;
         }).join('');
     }
     updateMap(region);
@@ -207,7 +205,32 @@ function filterNews(region) {
 function updateProximityRadius() {
     currentRadius = parseFloat(document.getElementById("proxRadius").value);
     const activeEl = document.querySelector(".nav-item-custom.active");
-    if(activeEl) filterNews(activeEl.innerText.trim());
+    
+    // Refresh the Alert List with new Radius
+    const container = document.getElementById("proximity-alerts-container");
+    const activeRegion = activeEl ? activeEl.innerText.trim() : 'Global';
+    
+    const filtered = PROXIMITY_ALERTS.filter(a => {
+        const regMatch = activeRegion === "Global" || (a.site_region === activeRegion);
+        return regMatch && a.distance_km <= currentRadius;
+    });
+
+    if (!filtered.length) {
+        container.innerHTML = `<div class="p-3 text-center text-muted small">Currently no alerts in proximity to Dell sites.</div>`;
+    } else {
+        container.innerHTML = filtered.map(a => `
+            <div class="alert-row" style="padding:10px 0; border-bottom:1px solid #eee;">
+                <div class="d-flex justify-content-between">
+                    <span style="font-weight:700; color:#d93025; font-size:0.85rem;"><i class="fas fa-exclamation-circle"></i> ${a.type || 'INCIDENT'}</span>
+                    <span style="color:#d93025; font-weight:700; font-size:0.8rem;">${a.distance_km} km</span>
+                </div>
+                <div style="font-size:0.8rem; font-weight:600; color:#555; margin:4px 0;"><i class="far fa-building"></i> ${a.site_name}</div>
+                <div style="font-size:0.75rem; color:#666;">${a.article_title}</div>
+            </div>
+        `).join('');
+    }
+    
+    updateMap(activeRegion);
 }
 
 function populateCountries() {
@@ -238,23 +261,17 @@ function filterTravel() {
 }
 
 function safeDate(iso) {
-    if (!iso) return "Just now";
-    try {
-        const date = new Date(iso);
-        const diff = Math.floor((new Date() - date) / 60000); // minutes
-        if (diff < 60) return `${diff}m ago`;
-        if (diff < 1440) return `${Math.floor(diff/60)}h ago`;
-        return date.toLocaleDateString();
-    } catch(e) { return "Just now"; }
+    try { return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); } catch(e) { return "Just now"; }
 }
 
 function updateClock() {
     const now = new Date();
+    // Correct format: Wed, 03 Dec 2025 | 14:30 UTC
     const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
     
-    document.getElementById("clock-date").innerText = dateStr;
-    document.getElementById("clock-time").innerText = timeStr;
+    document.getElementById("clock-date").innerText = `${dateStr} | ${timeStr} UTC`;
+    document.getElementById("clock-time").innerText = ""; // Cleared as it is merged above
 }
 
 function loadHistory(val) {
