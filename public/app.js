@@ -8,7 +8,7 @@ const PATHS = {
 
 let currentRadius = 5; // Default 5KM
 
-/* --- HARDCODED DELL SITES (SEP 2025) --- */
+/* --- HARDCODED DELL SITES (Full List) --- */
 const HARDCODED_SITES = [
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
     { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.2672, lon: -97.7431 },
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initMap();
     populateCountries();
     
-    // FIX: Start clock immediately
+    // Start Clock Immediately
     updateClock();
     setInterval(updateClock, 1000);
 
@@ -69,7 +69,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     filterNews('Global');
 });
 
-/* --- DATA LOADING --- */
 async function loadAllData() {
     const badge = document.getElementById("status-badge");
     try {
@@ -98,11 +97,11 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // SRO RELEVANT FALLBACK
+        // SRO RELEVANT FALLBACK (Strict Examples Only)
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Logistics Disruption in Panama", snippet: "Protests blocking main highway to port terminals. Delays expected.", region: "LATAM", severity: 3, time: new Date().toISOString(), source: "SRO Alert" },
-            { title: "Cyber Alert: Zero-Day in Industrial Control Systems", snippet: "Critical vulnerability affecting manufacturing SCADA systems identified.", region: "Global", severity: 3, time: new Date().toISOString(), source: "CISA" },
-            { title: "Typhoon Warning: South China Sea", snippet: "Storm path tracking towards coastal manufacturing zones.", region: "APJC", severity: 2, time: new Date().toISOString(), source: "Weather Ops" }
+            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, time: new Date().toISOString(), source: "SRO Logistics" },
+            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, time: new Date().toISOString(), source: "GSOC" },
+            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, time: new Date().toISOString(), source: "Weather Ops" }
         ];
     }
     updateMap('Global');
@@ -201,17 +200,19 @@ function safeDate(iso) {
     try { return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); } catch(e) { return "Just now"; }
 }
 
+function updateClock() {
+    const now = new Date();
+    // Format: Wed, 03 Dec 2025 | 14:30
+    const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+    
+    document.getElementById("clock-date").innerText = dateStr;
+    document.getElementById("clock-time").innerText = timeStr;
+}
+
 function loadHistory(val) {
     if(!val) return;
     document.getElementById("general-news-feed").innerHTML = `<div class="p-4 text-center text-success"><i class="fas fa-check"></i> Archive loaded for ${val}</div>`;
-}
-
-function updateClock() {
-    const now = new Date();
-    const tEl = document.getElementById("clock-time");
-    const dEl = document.getElementById("clock-date");
-    if(tEl) tEl.innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    if(dEl) dEl.innerText = now.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'});
 }
 
 function downloadReport() {
