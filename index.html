@@ -40,6 +40,7 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
+        /* HEADER */
         .header-container {
             background: white;
             padding: 15px 30px;
@@ -76,8 +77,10 @@
         }
         .btn-daily:hover { background-color: #1557b0; }
 
+        /* CONTENT */
         .content-area { padding: 25px; flex: 1; }
 
+        /* MAP */
         .map-wrapper {
             position: relative; 
             border-radius: 12px; 
@@ -89,14 +92,30 @@
         }
         #map { width: 100%; height: 100%; z-index: 1; }
 
+        .leaflet-tooltip.map-tooltip {
+            background-color: #202124; color: #fff; border: none; border-radius: 4px;
+            padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .leaflet-tooltip-top:before { border-top-color: #202124; }
+
+        /* SIDEBAR & CARDS */
         .sidebar-col { display: flex; flex-direction: column; gap: 20px; }
         .side-card {
             background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 18px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
         .card-label { font-size: 0.9rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        /* History & Inputs */
+        .history-input-group { position: relative; }
+        .history-input { width: 100%; padding: 8px 8px 8px 35px; border: 1px solid #dadce0; border-radius: 6px; font-size: 0.9rem; color: #333; }
+        .calendar-icon { position: absolute; left: 10px; top: 10px; color: #5f6368; }
+        .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 6px; font-weight: 500; }
+        
         .travel-select { width: 100%; padding: 8px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 0.9rem; color: #333; }
 
+        /* PROXIMITY */
         .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
         .prox-dell-label { font-size: 0.75rem; font-weight: 700; color: #202124; }
         .prox-main-title { font-size: 1.1rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
@@ -111,8 +130,9 @@
         .alert-type { font-weight: 700; font-size: 0.85rem; color: #d93025; display: flex; align-items: center; gap: 6px; }
         .alert-dist { font-weight: 700; font-size: 0.8rem; color: #5f6368; }
         .alert-site { font-size: 0.8rem; font-weight: 600; color: #202124; margin-bottom: 4px; }
-        .alert-desc { font-size: 0.75rem; color: #666; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .alert-desc { font-size: 0.75rem; color: #666; line-height: 1.3; }
 
+        /* STREAM */
         .stream-section { margin-top: 20px; }
         .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
         .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
@@ -147,6 +167,7 @@
         .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
         .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
 
+        /* MARKERS */
         .marker-pin-dell {
             width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);
@@ -161,12 +182,8 @@
         .marker-incident i { color: white; font-size: 14px; }
         .marker-crit { background: #d93025; }
         .marker-warn { background: #f9ab00; }
-
-        .leaflet-tooltip { 
-            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.75rem; 
-            border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-        }
         
+        /* Modal */
         .modal-content { border-radius: 12px; border:none; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         .modal-header { border-bottom: 1px solid #eee; padding: 20px 25px; }
         .modal-body { padding: 30px; }
@@ -231,6 +248,16 @@
             </div>
 
             <div class="col-lg-3 sidebar-col">
+                
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+                    <div class="history-input-group">
+                        <i class="far fa-calendar-alt calendar-icon"></i>
+                        <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)">
+                    </div>
+                    <div class="sub-text" id="history-status">Pick a date to load archived intelligence.</div>
+                </div>
+
                 <div class="side-card">
                     <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
                     <select class="travel-select" id="countrySelect" onchange="filterTravel()">
@@ -288,6 +315,6 @@
     </div>
 </div>
 
-<script src="public/app.js?v=5"></script>
+<script src="public/app.js?v=6"></script>
 </body>
 </html>
