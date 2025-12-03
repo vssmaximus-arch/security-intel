@@ -1,21 +1,31 @@
 [
   {
+    "title": "Was it a coup or was it a 'sham'? Behind Guinea-Bissau's military takeover",
+    "url": "https://www.bbc.com/news/articles/c1m8nm22785o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The military has taken over but some say the overthrow of the president was not what it seemed.",
+    "source": "bbc.com",
+    "time": "2025-12-03T10:44:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Beijing blamed as Yoon\u2019s martial law bid fuels disinformation in South Korea",
+    "url": "https://www.scmp.com/news/asia/east-asia/article/3335047/how-south-koreas-political-crisis-was-fuelled-anti-china-disinformation-claims?utm_source=rss_feed",
+    "snippet": "Yoon Suk-yeol\u2019s botched attempt to impose martial law last year plunged South Korea into its worst political crisis in decades, providing fertile ground for disinformation to grow.\nA common refrain, posted on right-wing forums, amplified by YouTubers and echoed by lawmakers: China was to blame.\nYoon supporters claimed Beijing had infiltrated protests, funded his impeachment campaign and manipulated online opinion ahead of the June snap election that brought opposition leader Lee Jae-myung to...",
+    "source": "scmp.com",
+    "time": "2025-12-03T10:18:07",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Asia\u2019s floods kill over 1,000, lay bare human cost of climate inaction",
     "url": "https://www.scmp.com/week-asia/health-environment/article/3335052/asias-floods-kill-over-1000-lay-bare-human-cost-climate-inaction?utm_source=rss_feed",
     "snippet": "More than 1,400 people have been killed across South and Southeast Asia in a week of catastrophic floods, exposing how rising global temperatures are amplifying extreme weather, even as international negotiations to phase out fossil fuels stall.\nSuccessive storms, cyclones and relentless rains have triggered catastrophic flash floods and landslides in Indonesia, Sri Lanka, Thailand, Vietnam and Malaysia, overwhelming local authorities already operating at the limits of their capacity.\nWhile...",
     "source": "scmp.com",
     "time": "2025-12-03T09:31:08",
     "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "Indonesia\u2019s cyclone tragedy exposes lethal cost of forest destruction",
-    "url": "https://www.scmp.com/week-asia/health-environment/article/3334963/indonesias-cyclone-tragedy-exposes-lethal-cost-forest-destruction?utm_source=rss_feed",
-    "snippet": "Indonesia is facing renewed calls to curb deforestation and tighten oversight of forest concessions after a rare tropical cyclone tore across Sumatra, unleashing floods and landslides that have killed more than 700 people and left hundreds missing.\nThe disaster has prompted a nationwide debate over whether the tragedy was driven primarily by climate change-fuelled extreme weather or by decades of ecological destruction in a region that has been transformed by plantations, mining and large-scale...",
-    "source": "scmp.com",
-    "time": "2025-12-03T06:30:09",
-    "region": "Global",
     "severity": 2,
     "type": "CRISIS / WEATHER"
   },
@@ -38,16 +48,6 @@
     "region": "Global",
     "severity": 2,
     "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "Was it a coup or was it a 'sham'? Behind Guinea-Bissau's military takeover",
-    "url": "https://www.bbc.com/news/articles/c1m8nm22785o?at_medium=RSS&at_campaign=rss",
-    "snippet": "The military has taken over but some say the overthrow of the president was not what it seemed.",
-    "source": "bbc.com",
-    "time": "2025-12-03T00:07:23",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
