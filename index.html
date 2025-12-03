@@ -7,8 +7,178 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    <link rel="stylesheet" href="style.css"> 
     
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --dell-blue: #0076CE;
+            --bg-dark: #0f1115;
+            --text-dark: #1a1a1a;
+            --text-gray: #5f6368;
+        }
+
+        body { 
+            background-color: var(--bg-dark);
+            font-family: 'Inter', sans-serif; 
+            padding: 20px;
+            color: #333;
+            margin: 0;
+        }
+
+        /* --- Layout --- */
+        .app-container {
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            min-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        /* --- Header --- */
+        .header-container {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            height: 70px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 1.5rem; color: #1a73e8; }
+        .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; line-height: 1; }
+        .logo-text span { color: var(--dell-blue); }
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+
+        .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 8px; display: flex; gap: 4px; }
+        .nav-item-custom {
+            padding: 6px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; color: #5f6368;
+            cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all 0.2s;
+        }
+        .nav-item-custom:hover { background-color: #e8eaed; }
+        .nav-item-custom.active { background-color: #202124; color: #fff; }
+
+        .clock-container { text-align: right; }
+        .clock-date { font-weight: 700; color: #202124; font-size: 0.85rem; }
+        .clock-time { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
+
+        .btn-daily {
+            background-color: #1a73e8; color: white; padding: 8px 16px; border-radius: 6px;
+            font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-daily:hover { background-color: #1557b0; }
+
+        /* --- Content Grid --- */
+        .content-area { padding: 25px; flex: 1; }
+
+        /* --- Map --- */
+        .map-wrapper {
+            position: relative; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            height: 500px; /* CRITICAL FOR MAP VISIBILITY */
+            background: #eef2f6; 
+            border: 1px solid #ddd;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        #map { width: 100%; height: 100%; z-index: 1; }
+
+        /* --- Sidebar & Cards --- */
+        .side-card {
+            background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 18px; margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .card-label { font-size: 0.9rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .travel-select { width: 100%; padding: 8px 12px; border: 1px solid #dadce0; border-radius: 6px; font-size: 0.9rem; color: #333; }
+
+        /* --- Proximity List --- */
+        .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .prox-dell-label { font-size: 0.75rem; font-weight: 700; color: #202124; }
+        .prox-main-title { font-size: 1.1rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+        .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 12px; }
+        .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; text-transform: uppercase; }
+        .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; }
+
+        #proximity-alerts-container { max-height: 350px; overflow-y: auto; padding-right: 4px; }
+        .alert-row { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .alert-row:last-child { border-bottom: none; }
+        .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .alert-type { font-weight: 700; font-size: 0.85rem; color: #d93025; display: flex; align-items: center; gap: 6px; }
+        .alert-dist { font-weight: 700; font-size: 0.8rem; color: #5f6368; }
+        .alert-site { font-size: 0.8rem; font-weight: 600; color: #202124; margin-bottom: 4px; }
+        .alert-desc { font-size: 0.75rem; color: #666; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* --- News Feed --- */
+        .stream-section { margin-top: 20px; }
+        .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+        .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+        .live-dot-blue { color: #1a73e8; font-size: 0.6rem; }
+        .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+
+        .feed-card { 
+            background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 12px; 
+            display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; 
+        }
+        .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .feed-status-bar { width: 6px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
+        .status-bar-info { background-color: #1a73e8; }
+        
+        .feed-content { padding: 14px 18px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+        .ftag { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-type { background: #f1f3f4; color: #5f6368; }
+        .feed-title { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 4px; line-height: 1.4; }
+        .feed-meta { font-size: 0.75rem; color: #999; margin-bottom: 6px; }
+        .feed-desc { font-size: 0.8rem; color: #444; line-height: 1.4; }
+
+        /* --- Critical Banner --- */
+        .critical-alert-bar { 
+            background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; 
+            border-radius: 6px; display: flex; align-items: center; gap: 15px; 
+            margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+        .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
+
+        /* --- Map Markers --- */
+        .marker-pin-dell {
+            width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
+
+        .marker-incident {
+            width: 32px; height: 32px; border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
+        }
+        .marker-incident i { color: white; font-size: 14px; }
+        .marker-crit { background: #d93025; }
+        .marker-warn { background: #f9ab00; }
+
+        .leaflet-tooltip { 
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.75rem; 
+            border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        }
+        
+        /* --- Modal --- */
+        .modal-content { border-radius: 12px; border:none; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { border-bottom: 1px solid #eee; padding: 20px 25px; }
+        .modal-body { padding: 30px; }
+        .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; }
+        .btn-download:hover { background: #1557b0; }
+    </style>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -29,28 +199,28 @@
                 <a class="nav-item-custom" onclick="filterNews('APJC')">APJC</a>
                 <a class="nav-item-custom" onclick="filterNews('LATAM')">LATAM</a>
             </div>
-            <div class="clock-container">
+            <div class="clock-container ms-3">
                 <div class="clock-date" id="clock-date">Loading...</div>
                 <div class="clock-time" id="clock-time">--:--</div>
             </div>
-            <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal">
-                <i class="fas fa-file-alt"></i> Daily Briefings
+            <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+                <i class="fas fa-file-alt"></i> Briefings
             </div>
         </div>
     </div>
 
     <div class="content-area">
-        <div class="row g-4">
-            <div class="col-lg-9">
-                <div class="map-wrapper">
+        <div class="row g-4 h-100">
+            <div class="col-lg-9 d-flex flex-column">
+                <div class="map-wrapper mb-3">
                     <div id="map"></div>
                 </div>
 
-                <div class="stream-section">
+                <div class="stream-section flex-grow-1">
                     <div class="stream-header">
                         <div class="stream-label">
-                            <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream 
-                            <span class="live-box ms-2" id="feed-status-tag" style="background:#e8f0fe; color:#1a73e8;">LIVE FEED</span>
+                            <i class="fas fa-circle live-dot-blue me-2"></i> Real-time Intelligence Stream 
+                            <span class="live-box ms-2">LIVE FEED</span>
                         </div>
                     </div>
                     
@@ -60,7 +230,10 @@
                     </div>
 
                     <div id="general-news-feed">
-                        <div style="text-align:center; padding: 20px; color:#999;">Loading live intelligence...</div>
+                        <div class="text-center p-5 text-muted">
+                            <div class="spinner-border text-primary mb-3" role="status"></div>
+                            <div>Connecting to SRO Intelligence Feed...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -92,7 +265,7 @@
                     </div>
                     
                     <div id="proximity-alerts-container">
-                        <div style="padding:10px; text-align:center; color:#ccc;">Loading...</div>
+                        <div class="text-center p-3 text-muted small">Checking proximity...</div>
                     </div>
                 </div>
             </div>
