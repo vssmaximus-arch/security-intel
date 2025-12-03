@@ -16,23 +16,23 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# --- SRO PILLAR MAPPING (STRICT) ---
-SRO_CATEGORIES = {
-    "RESILIENCE / CRISIS": ["earthquake", "flood", "typhoon", "cyclone", "hurricane", "power outage", "blackout", "grid failure", "disaster", "state of emergency"],
-    "DUTY OF CARE": ["kidnap", "shooting", "active shooter", "terror", "bomb", "hostage", "assassination", "civil unrest", "riot", "epidemic", "outbreak"],
-    "SUPPLY CHAIN": ["port strike", "cargo theft", "supply chain", "logistics disruption", "shipping delay", "manufacturing halt", "factory fire", "semiconductor"],
-    "SITE SECURITY": ["intrusion", "security breach", "unauthorized access", "access control", "video surveillance failure", "insider threat", "perimeter breach"],
-    "COMPLIANCE": ["new regulation", "security law", "data protection law", "sanctions", "law enforcement raid", "corruption investigation"]
-}
+# --- 1. STRICT POSITIVE SELECTION (Must match specific threats) ---
+MUST_MATCH = [
+    "earthquake", "tsunami", "flood", "typhoon", "cyclone", "hurricane", "tornado", "wildfire", "bushfire",
+    "power outage", "blackout", "grid failure", "port closure", "airport closed", "flights cancelled",
+    "terror", "bomb", "suicide", "attack", "gunman", "shooting", "kidnap", "hostage", "assassination", 
+    "riot", "civil unrest", "violent protest", "tear gas", "curfew", "martial law", "coup", "state of emergency",
+    "strike", "port strike", "cargo theft", "supply chain disruption", "factory fire", "manufacturing halt",
+    "ransomware", "data breach", "cyberattack", "scada", "industrial control", "zero-day", "vulnerability"
+]
 
-# --- BLOCKLIST (KILL NOISE) ---
+# --- 2. BLOCKLIST (Kill Noise) ---
 BLOCKLIST = [
-    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", 
-    "celebrity", "entertainment", "movie", "film", "star", "actor", "concert",
-    "residents return", "collect personal items", "cleanup begins", "recovery continues", 
+    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament", 
+    "celebrity", "entertainment", "movie", "film", "star", "concert",
+    "residents return", "collect personal items", "cleanup begins", "recovery continues", "aftermath of",
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
-    "opinion:", "editorial:", "cultivation", "poppy", "drug trade", "opium", 
-    "husband", "wife", "marriage", "divorce", "estate dispute", "MH370", "search for missing"
+    "opinion:", "editorial:", "cultivation", "poppy", "drug trade", "opium", "estate dispute", "MH370"
 ]
 
 FEEDS = [
@@ -59,36 +59,36 @@ def clean_html(html):
     if not html: return ""
     return BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
 
-def get_sro_category(text):
+def is_relevant(text):
     text = text.lower()
-    # 1. Blocklist
+    # 1. Check Blocklist (Fast fail)
     for word in BLOCKLIST:
-        if word in text: return None
-    # 2. Positive Match
-    for cat, keywords in SRO_CATEGORIES.items():
-        for kw in keywords:
-            if kw in text: return cat
-    return None
+        if word in text: return False
+    # 2. Check Positive Match (Must have 1 valid keyword)
+    for keyword in MUST_MATCH:
+        if keyword in text: return True
+    return False
 
-def ai_process(model, title, summary, category):
-    if not model: return True, 2, summary[:200] + "...", category
+def ai_process(model, title, summary):
+    if not model: return True, 2, summary[:200] + "...", "GENERAL"
+    
     prompt = f"""
     Role: Security Analyst for Dell SRO.
     Task: Filter for OPERATIONAL IMPACT.
     Input: "{title} - {summary}"
-    Category: {category}
     Rules:
-    1. REJECT: Politics, Sports, General Crime, Fluff, Post-event cleanup.
-    2. KEEP: Active threats to staff, facilities, supply chain.
-    3. Severity: 3 (Life Safety/Critical), 2 (Disruption), 1 (Awareness).
-    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Impact summary", "category": "{category}"}}
+    1. REJECT (keep=false): Politics, Sports, General Crime, Post-event cleanup, Opium/Drugs.
+    2. KEEP (keep=true): Active threats to staff, facilities, supply chain, or travel.
+    3. Severity: 3 (Life Safety/Critical Ops), 2 (Disruption), 1 (Awareness).
+    4. Category: "CYBER SECURITY", "PHYSICAL SECURITY", "SUPPLY CHAIN", "CRISIS / WEATHER", "HEALTH".
+    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Impact summary", "category": "CATEGORY"}}
     """
     try:
         resp = model.generate_content(prompt)
         data = json.loads(resp.text.strip().replace('```json', '').replace('```', ''))
-        return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary), data.get("category", category)
+        return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary), data.get("category", "GENERAL")
     except:
-        return True, 2, summary, category
+        return True, 2, summary, "GENERAL"
 
 def main():
     all_items = []
@@ -98,18 +98,16 @@ def main():
     for url in FEEDS:
         try:
             f = feedparser.parse(url)
-            for e in f.entries[:20]:
+            for e in f.entries[:15]:
                 title = e.title.strip()
                 if title in seen: continue
                 seen.add(title)
-                
                 raw_summary = clean_html(getattr(e, "summary", ""))
                 full_text = f"{title} {raw_summary}"
                 
-                category = get_sro_category(full_text)
-                if not category: continue # DROP IRRELEVANT
+                if not is_relevant(full_text): continue
 
-                keep, severity, snippet, final_cat = ai_process(model, title, raw_summary, category)
+                keep, severity, snippet, category = ai_process(model, title, raw_summary)
                 if not keep: continue
 
                 ts = datetime.now(timezone.utc).isoformat()
@@ -119,13 +117,13 @@ def main():
                 region = "Global"
                 t_lower = full_text.lower()
                 if any(x in t_lower for x in ["china","asia","india","japan","australia"]): region = "APJC"
-                elif any(x in t_lower for x in ["uk","europe","germany","france"]): region = "EMEA"
+                elif any(x in t_lower for x in ["uk","europe","gaza","israel","russia"]): region = "EMEA"
                 elif any(x in t_lower for x in ["usa","america","canada","brazil"]): region = "AMER"
 
                 all_items.append({
                     "title": title, "url": e.link, "snippet": snippet,
                     "source": urlparse(e.link).netloc.replace("www.", ""),
-                    "time": ts, "region": region, "severity": severity, "type": final_cat
+                    "time": ts, "region": region, "severity": severity, "type": category.upper()
                 })
         except: pass
 
