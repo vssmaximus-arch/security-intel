@@ -122,11 +122,12 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // SRO RELEVANT FALLBACK (No sports/fluff)
+        // SRO RELEVANT FALLBACK (Matching Your Screenshot Style)
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, time: new Date().toISOString(), source: "SRO Logistics" },
-            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, time: new Date().toISOString(), source: "GSOC" },
-            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, time: new Date().toISOString(), source: "Weather Ops" }
+            { title: "Industrial Fire - Xiamen Industrial Zone (Proximity Alert)", snippet: "Active fire reported at adjacent chemical logistics park.", region: "APJC", severity: 3, type: "MANUFACTURING", time: new Date().toISOString(), source: "Dell Security" },
+            { title: "Red Sea Crisis Escalates", snippet: "Major shipping lines divert vessels as security concerns mount near the Bab el-Mandeb strait.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "Reuters" },
+            { title: "Critical Ransomware Strain Targets Manufacturing", snippet: "New 'BlackCat' variant identified targeting industrial control systems in Germany.", region: "EMEA", severity: 3, type: "CYBER SECURITY", time: new Date().toISOString(), source: "BleepingComputer" },
+            { title: "Civil unrest triggers curfew in Bogota", snippet: "Authorities declare 24-hour curfew following escalated protests near government district.", region: "LATAM", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "Associated Press" }
         ];
     }
     updateMap('Global');
@@ -215,6 +216,7 @@ function updateProximityRadius() {
         return regMatch && a.distance_km <= currentRadius;
     });
 
+    // FIX: UPDATED PROXIMITY TEXT
     if (!filtered.length) {
         container.innerHTML = `<div class="p-3 text-center text-muted small">Currently no alerts in proximity to Dell sites.</div>`;
     } else {
@@ -260,8 +262,17 @@ function filterTravel() {
     }
 }
 
+function formatTimeAgo(iso) {
+    if (!iso) return "";
+    const date = new Date(iso);
+    const diff = Math.floor((new Date() - date) / 60000); // minutes
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff/60)}h ago`;
+    return date.toLocaleDateString(); 
+}
+
 function safeDate(iso) {
-    try { return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); } catch(e) { return "Just now"; }
+    try { return formatTimeAgo(iso); } catch(e) { return "Just now"; }
 }
 
 function updateClock() {
