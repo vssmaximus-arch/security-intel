@@ -1,22 +1,16 @@
 /* =========================================================
-   1. CONFIGURATION & STATE
+   CONFIG & STATE
    ========================================================= */
 const PATHS = {
-    NEWS: "data/news.json",
-    PROXIMITY: "data/proximity.json"
+    // Relative to the ROOT index.html
+    NEWS: "public/data/news.json",
+    PROXIMITY: "public/data/proximity.json"
 };
 
 // FIX: Default Radius strictly 5KM
 let currentRadius = 5; 
 
-// STATE
-let GENERAL_NEWS_FEED = [];
-let PROXIMITY_ALERTS = [];
-let map, layerGroup;
-
-/* =========================================================
-   2. DATA: DELL SITES (Hardcoded to ensure map visibility)
-   ========================================================= */
+/* --- FULL DELL SITE LIST (COMPLETE SEP 2025 REGISTER) --- */
 const HARDCODED_SITES = [
     // AMER
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -102,7 +96,7 @@ const HARDCODED_SITES = [
     { name: "Dell Jakarta", country: "ID", region: "APJC", lat: -6.2088, lon: 106.8456 }
 ];
 
-/* --- 3. DATA: FULL COUNTRY LIST (190+ Countries) --- */
+/* --- COMPLETE COUNTRY LIST (ALL WORLD COUNTRIES - 196 ENTRIES) --- */
 const ADVISORIES = {
     "Afghanistan": { level: 4, text: "Do Not Travel due to civil unrest, armed conflict, crime, terrorism, kidnapping, and wrongful detention." },
     "Albania": { level: 1, text: "Exercise Normal Precautions." },
@@ -303,17 +297,18 @@ const ADVISORIES = {
 };
 const COUNTRIES = Object.keys(ADVISORIES).sort();
 
-/* =========================================================
-   3. INITIALIZATION
-   ========================================================= */
+let GENERAL_NEWS_FEED = [];
+let PROXIMITY_ALERTS = [];
+let map, layerGroup;
+
 document.addEventListener("DOMContentLoaded", async () => {
     initMap();
-    startClock();
     populateCountries();
     await loadAllData();
     filterNews('Global');
 });
 
+/* --- DATA LOADING --- */
 async function loadAllData() {
     const badge = document.getElementById("status-badge");
     try {
@@ -323,7 +318,6 @@ async function loadAllData() {
             fetch(`${PATHS.PROXIMITY}?t=${ts}`)
         ]);
 
-        // HANDLE NEWS FEED
         if (newsRes.status === "fulfilled" && newsRes.value.ok) {
             const raw = await newsRes.value.json();
             GENERAL_NEWS_FEED = Array.isArray(raw) ? raw : (raw.articles || []);
@@ -337,7 +331,6 @@ async function loadAllData() {
             throw new Error("News feed fetch failed");
         }
 
-        // HANDLE PROXIMITY
         if (proxRes.status === "fulfilled" && proxRes.value.ok) {
             const rawP = await proxRes.value.json();
             PROXIMITY_ALERTS = rawP.alerts || [];
