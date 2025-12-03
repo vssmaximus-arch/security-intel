@@ -1,5 +1,285 @@
 [
   {
+    "title": "M 6.4 - 121 km E of Yamada, Japan",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000rmep",
+    "snippet": "PAGER - GREEN ShakeMap - IV DYFI? - IV Time 2025-11-09 08:54:36 UTC 2025-11-09 08:54:36 UTC at epicenter Location 39.466\u00b0N 143.363\u00b0E Depth 10.00 km (6.21 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.881574+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 3.5 - 4 km SSW of Vallejo, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75262886",
+    "snippet": "ShakeMap - IV DYFI? - V Time 2025-11-13 20:41:15 UTC 2025-11-13 20:41:15 UTC at epicenter Location 38.082\u00b0N 122.247\u00b0W Depth 8.95 km (5.56 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.768675+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 4.1 - 7 km W of Templeton, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75265261",
+    "snippet": "PAGER - GREEN ShakeMap - V DYFI? - VI Time 2025-11-18 17:54:30 UTC 2025-11-18 17:54:30 UTC at epicenter Location 35.553\u00b0N 120.788\u00b0W Depth 4.92 km (3.06 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.715735+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 5.4 - 14 km SSW of Narsingdi, Bangladesh",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000rpht",
+    "snippet": "PAGER - YELLOW ShakeMap - VI DYFI? - VI Time 2025-11-21 04:38:28 UTC 2025-11-21 04:38:28 UTC at epicenter Location 23.808\u00b0N 90.649\u00b0E Depth 27.00 km (16.78 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.591192+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 4.9 - 10 km NW of Beluga, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025wzudcl",
+    "snippet": "PAGER - GREEN ShakeMap - IV DYFI? - V Time 2025-11-22 15:38:56 UTC 2025-11-22 15:38:56 UTC at epicenter Location 61.195\u00b0N 151.242\u00b0W Depth 61.73 km (38.36 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.531100+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 4.0 - 8 km E of Gilroy, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75269596",
+    "snippet": "PAGER - GREEN ShakeMap - V DYFI? - VI Time 2025-11-26 14:16:42 UTC 2025-11-26 14:16:42 UTC at epicenter Location 36.997\u00b0N 121.476\u00b0W Depth 2.92 km (1.81 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.416821+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 6.6 - 45 km WNW of Sinabang, Indonesia",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000re2g",
+    "snippet": "PAGER - GREEN ShakeMap - VI DYFI? - VII Time 2025-11-27 04:56:26 UTC 2025-11-27 04:56:26 UTC at epicenter Location 2.692\u00b0N 96.027\u00b0E Depth 25.39 km (15.78 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.355174+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 6.0 - 12 km WNW of Susitna, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025xjbvhj",
+    "snippet": "PAGER - GREEN ShakeMap - VI DYFI? - VI Time 2025-11-27 17:11:29 UTC 2025-11-27 17:11:29 UTC at epicenter Location 61.570\u00b0N 150.751\u00b0W Depth 69.43 km (43.14 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.240784+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 4.0 - 5 km S of San Juan Bautista, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75270551",
+    "snippet": "PAGER - GREEN ShakeMap - IV DYFI? - V Time 2025-11-27 20:57:37 UTC 2025-11-27 20:57:37 UTC at epicenter Location 36.799\u00b0N 121.544\u00b0W Depth 8.20 km (5.10 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.171228+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "M 3.3 - 6 km WSW of Kenwood, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75272501",
+    "snippet": "DYFI? - V Time 2025-12-01 06:56:36 UTC 2025-12-01 06:56:36 UTC at epicenter Location 38.385\u00b0N 122.606\u00b0W Depth 4.76 km (2.96 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-03T03:41:12.054646+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Kenya travel advice",
+    "url": "https://www.gov.uk/foreign-travel-advice/kenya",
+    "snippet": "FCDO travel advice for Kenya. Includes safety and security, insurance, entry requirements and legal differences.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.374756+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Corporate report: Wilton Park Executive Agency framework document 2025",
+    "url": "https://www.gov.uk/government/publications/wilton-park-executive-agency-framework-document-2025",
+    "snippet": "The Wilton Park Executive Agency framework document sets out the broad governance framework agreed between Wilton Park and the Foreign, Commonwealth & Development Office.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.330386+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Philippines travel advice",
+    "url": "https://www.gov.uk/foreign-travel-advice/philippines",
+    "snippet": "FCDO travel advice for the Philippines. Includes safety and security, insurance, entry requirements and legal differences.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.288367+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Indonesia travel advice",
+    "url": "https://www.gov.uk/foreign-travel-advice/indonesia",
+    "snippet": "FCDO travel advice for Indonesia. Includes safety and security, insurance, entry requirements and legal differences.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.246181+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Transparency data: List of Foreign, Commonwealth & Development Office posts abroad",
+    "url": "https://www.gov.uk/government/publications/list-of-foreign-office-posts",
+    "snippet": "List of Foreign, Commonwealth & Development Office embassies, high commissions, consulates and other forms of UK representation, by country and territory.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.204171+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Uganda travel advice",
+    "url": "https://www.gov.uk/foreign-travel-advice/uganda",
+    "snippet": "FCDO travel advice for Uganda. Includes safety and security, insurance, entry requirements and legal differences.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.160395+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "UK Statement at the UNHCR Pledging Conference 2025",
+    "url": "https://www.gov.uk/government/speeches/uk-statement-at-the-unhcr-pledging-conference-2025",
+    "snippet": "Statement delivered by the UK's Permanent Representative to the WTO and UN, Kumar Iyer, at the UN Refugee Agency's Pledging Conference.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.115392+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "The United Kingdom reaffirms its commitment to Iraq\u2019s sovereignty, stability and prosperity: UK statement at the UN Security Council",
+    "url": "https://www.gov.uk/government/speeches/the-united-kingdom-reaffirms-its-commitment-to-iraqs-sovereignty-stability-and-prosperity-uk-statement-at-the-un-security-council",
+    "snippet": "Statement by Caroline Quinn, UK Deputy Political Coordinator, at the UN Security Council meeting on Iraq.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.068174+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Policy paper: Third UK\u2013Saudi Arabia aid dialogue: stronger ties and global impact",
+    "url": "https://www.gov.uk/government/publications/third-uk-saudi-arabia-aid-dialogue-stronger-ties-and-global-impact",
+    "snippet": "The UK and Saudi Arabia agree new projects in Yemen and Bangladesh and pledge deeper cooperation on aid delivery, financing and global reforms.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:27.024065+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Foreign Secretary speech on violence against women and girls",
+    "url": "https://www.gov.uk/government/speeches/foreign-secretary-speech-on-violence-against-women-and-girls",
+    "snippet": "Foreign Secretary Yvette Cooper MP delivered a speech to mark the launch of a new international coalition \u2013 All In \u2013 to help end violence against women and girls globally.",
+    "source": "gov.uk",
+    "time": "2025-12-03T03:36:26.977059+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "These Cyber Monday TV deals are still live: Save up to $2,500 off LG, Samsung, Sony, TCL, & more",
+    "url": "https://www.zdnet.com/article/cyber-monday-tv-deals-live-amazon-best-buy-lg-last-chance/",
+    "snippet": "Cyber Monday is over, but if you're in the market for a new TV, lots of deals are still live.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T03:34:33",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Affiliates of nine Japan firms sue U.S. government over Trump tariffs",
+    "url": "https://www.japantimes.co.jp/business/2025/12/03/japan-firms-sue-us-tariffs/",
+    "snippet": "The plaintiffs are seeking full refunds if the U.S. Supreme Court rules in similar lawsuits that reciprocal tariffs and other measures are illegal.",
+    "source": "japantimes.co.jp",
+    "time": "2025-12-03T03:33:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Momentum check: are Filipinos growing tired of anti-corruption protests?",
+    "url": "https://www.scmp.com/week-asia/politics/article/3334979/fatigue-derailing-philippines-fight-against-flood-control-corruption-scandal?utm_source=rss_feed",
+    "snippet": "Thousands of Filipinos have taken to the streets again to protest against the ongoing flood control corruption scandal, yet the markedly smaller crowds compared with the last major demonstration have sparked fears that the movement may be losing momentum.\nPolitical analysts said the low turnout on Sunday reflected a combination of fatigue and disillusionment among activists in the Philippines. They warned that if public mobilisation continued to thin, it could ease the pressure on President...",
+    "source": "scmp.com",
+    "time": "2025-12-03T03:30:16",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Michael and Susan Dell donate nearly $10b to 'Trump accounts'",
+    "url": "https://www.abc.net.au/news/2025-12-03/michael-susan-dell-donate-billions-for-trump-accounts/106096100",
+    "snippet": "Tech billionaires Michael and Susan Dell have pledged $US6.25 billion ($9.5 billion) to new investment accounts for children, known as \"Trump accounts\". Here's how the donation will work.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T03:23:53",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "China Inc goes global",
+    "url": "https://www.scmp.com/economy/china-economy/series/3334991/china-inc-goes-global?utm_source=rss_feed",
+    "snippet": "",
+    "source": "scmp.com",
+    "time": "2025-12-03T03:16:05",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Barnes leads Raptors past Blazers 121-118",
+    "url": "https://globalnews.ca/news/11556849/barnes-leads-raptors-past-blazers-121-118/",
+    "snippet": "Scottie Barnes scored 28 points \u2014 including 13 in the second quarter \u2014 as the Toronto Raptors held off the Portland Trail Blazers 121-118 on Tuesday.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T03:14:35",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "'Ban H-1B visas': Desi MAGA backer Nalin Haley wants corporates to hire 'certain number of Americans' - watch",
+    "url": "https://timesofindia.indiatimes.com/world/us/ban-h-1b-visas-desi-maga-backer-nalin-haley-wants-corporates-to-hire-certain-number-of-americans-watch/articleshow/125732051.cms",
+    "snippet": "Nalin Haley, son of Nikki Haley, criticized the H-1B visa program, arguing it hinders young Americans' job and housing prospects. He urged Republicans to address these concerns, suggesting policies like banning H-1B visas and prioritizing American first-time homebuyers. Haley warned that failing to engage Gen Z could lead them towards socialist ideas.",
+    "source": "timesofindia.indiatimes.com",
+    "time": "2025-12-03T03:11:07",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Government considers offloading retiring Tiger helicopters to Ukraine",
+    "url": "https://www.abc.net.au/news/2025-12-03/government-considers-tiger-helicopters-to-ukraine/106097120",
+    "snippet": "As the United States attempts to broker a peace deal at the Kremlin in Moscow, it is expected a significant funding boost from Canberra to aid Ukraine's war efforts is imminent.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T03:10:08",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Amazon to use Nvidia tech in AI chips, roll out new servers",
     "url": "https://www.scmp.com/tech/big-tech/article/3334985/amazon-use-nvidia-tech-ai-chips-roll-out-new-servers?utm_source=rss_feed",
     "snippet": "Amazon\u2019s AWS cloud computing unit on Tuesday said it will adopt key Nvidia technology in future generations of its artificial intelligence computing chips as the firm ramps up efforts to attract major AI customers to use its services.\nAWS, or Amazon Web Services, said it will adopt a technology called \u201cNVLink Fusion\u201d in a future chip known as Trainium4. It did not specify a release date. The NVLink technology creates speedy connections between different kinds of chips and is one of Nvidia\u2019s...",
@@ -20,9 +300,49 @@
     "type": "GENERAL"
   },
   {
-    "title": "YouTube says it will comply with Australia's teen social media ban",
-    "url": "https://www.straitstimes.com/asia/youtube-says-it-will-comply-with-australias-teen-social-media-ban",
-    "snippet": "SYDNEY, Dec 3 - Google's YouTube shared a \\\"disappointing update\\\" to millions of Australian users and content creators on Wednesday, saying it will comply with a world-first teen social media ban by locking out users aged under 16 from their accounts within days.",
+    "title": "'13-year-old pulled the trigger': Chilling details of public execution of Afghan man; '80,000 watched'",
+    "url": "https://timesofindia.indiatimes.com/world/rest-of-world/13-year-old-pulled-the-trigger-chilling-details-of-public-execution-of-afghan-man-80000-watched/articleshow/125731855.cms",
+    "snippet": "A 13-year-old boy reportedly pulled the trigger in the public execution of a man accused of murdering his family members in Afghanistan's Khost province. Tens of thousands witnessed the event, where Taliban officials placed a weapon in the boy's hands after he refused to pardon the convicted man.",
+    "source": "timesofindia.indiatimes.com",
+    "time": "2025-12-03T03:03:25",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Is DeepSeek's new model the latest blow to proprietary AI?",
+    "url": "https://www.zdnet.com/article/is-deepseeks-new-model-the-latest-blow-to-proprietary-ai/",
+    "snippet": "With impressive benchmark results, the Chinese AI lab's latest open-source release reignites questions about whether expensive models are worth it.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T03:00:36",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "What happened to Lisa Lynn? Decades after her death, questions remain",
+    "url": "https://www.abc.net.au/news/2025-12-03/unravel-huntsman-what-happened-to-lisa-lynn/104591040",
+    "snippet": "Long before Greg Lynn was convicted of murder in Victoria's High Country, his estranged wife died suddenly at home in Mount Macedon. Now, some of those closest to Lisa Lynn are pushing for the coroner to re-examine her death.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T03:00:30",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Police were doubtful of tip that led to Luigi Mangione's arrest",
+    "url": "https://www.bbc.com/news/articles/c39pjgx3801o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Pennsylvania police officer Joseph Detwiler told a Manhattan court that he initially joked about the tip in a text message with his supervisor.",
+    "source": "bbc.com",
+    "time": "2025-12-03T02:55:55",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "YouTube says it will comply with Australia\u2019s teen social media ban",
+    "url": "https://www.straitstimes.com/asia/australianz/youtube-says-it-will-comply-with-australias-teen-social-media-ban",
+    "snippet": "Users aged under 16 from their accounts from Dec 10.",
     "source": "straitstimes.com",
     "time": "2025-12-03T02:55:24",
     "region": "APJC",
@@ -35,6 +355,36 @@
     "snippet": "SEOUL, Dec 3 - South Korean President Lee Jae Myung said on Wednesday there was still work to be done to address the fallout of the failed martial law bid by his predecessor a year ago, and the country needed to ensure the perpetrators were brought to justice.",
     "source": "straitstimes.com",
     "time": "2025-12-03T02:55:14",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Woman pleads guilty to assaulting 3-year-old at childcare centre",
+    "url": "https://www.abc.net.au/news/2025-12-03/bathurst-childcare-worker-pleads-guilty-to-assaulting-3-year-old/106053752",
+    "snippet": "A former childcare worker has pleaded guilty to assaulting a three-year-old in the New South Wales Central West. The 18-year-old woman was sacked by the centre after the incident.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T02:54:32",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "US defence chief says he did not see survivors before follow-up boat strike",
+    "url": "https://www.aljazeera.com/news/2025/12/3/us-defence-chief-says-he-did-not-see-survivors-before-follow-up-boat-strike?traffic_source=rss",
+    "snippet": "US Secretary of Defense Peter Hegseth defends controversial second strike on alleged drug boat in the Caribbean Sea.",
+    "source": "aljazeera.com",
+    "time": "2025-12-03T02:52:21",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Parents ask Manitoba to offer insulin help for younger students in schools",
+    "url": "https://globalnews.ca/news/11556806/parents-ask-manitoba-to-offer-insulin-help-for-younger-students-in-schools/",
+    "snippet": "Some Manitoba parents whose children have Type 1 diabetes are asking the provincial government to help their kids in school.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T02:51:34",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -50,11 +400,21 @@
     "type": "GENERAL"
   },
   {
-    "title": "Pete Hegseth says he \u2018didn\u2019t stick around\u2019 to watch second strike on alleged drug boat as Democrats slam administration over attacks \u2013 live",
-    "url": "https://www.theguardian.com/us-news/live/2025/dec/02/donald-trump-pete-hegseth-boat-venezuela-maduro-tennessee-us-politics-live-news-updates",
-    "snippet": "Defense secretary says he \u2018moved on to my next meeting\u2019 as sensitive military operation was under way; top Democrat calls Hegseth \u2018spineless\u2019 and \u2018a national embarrassment\u2019 White House \u2018selling out\u2019 admiral to shield Hegseth over strikes, officials say Trump threatens strikes on any country he claims makes drugs for US Joseph Gedeon is a politics breaking news reporter based in Washington The FBI director, Kash Patel , is \u201cin over his head\u201d and leading a \u201cchronically under-performing\u201d agency paralyzed by fear and plummeting morale, according to a scathing 115-page report compiled by a national alliance of retired and active-duty FBI special agents and analysts. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-03T02:49:00",
+    "title": "Our favorite Cyber Monday deals are still live: Shop Amazon, Best Buy, Lowe's sales now",
+    "url": "https://www.zdnet.com/article/cyber-monday-deals-2025-amazon-best-buy-hulu-still-live/",
+    "snippet": "Black Friday and Cyber Monday are over, but major retailers are still offering big sales on items from Apple, Samsung, LG, Roku, and more.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T02:50:23",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Safety bureau finds WA pilots were unaware of each other's flight paths",
+    "url": "https://www.abc.net.au/news/2025-12-03/atsb-report-2024-camballin-chopper-crash/106095522",
+    "snippet": "ATSB investigators say the two helicopter pilots that died in a mustering crash in WA's north were unaware of each other's flight paths.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T02:49:50",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -70,12 +430,92 @@
     "type": "GENERAL"
   },
   {
+    "title": "Manitoba premier calls for more public notifications about sex offenders",
+    "url": "https://globalnews.ca/news/11556797/manitoba-premier-calls-for-more-public-notifications-about-sex-offenders/",
+    "snippet": "Manitoba Premier Wab Kinew is asking a provincial committee to take another look at how it notifies the public about convicted sex offenders being released from custody.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T02:44:10",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Trump administration threatens to withhold food assistance from 21 states",
+    "url": "https://www.aljazeera.com/news/2025/12/3/trump-administration-threatens-to-withhold-food-assistance-from-21-states?traffic_source=rss",
+    "snippet": "The threat comes as the federal government seeks to enforce a demand that states turn over data about SNAP recipients.",
+    "source": "aljazeera.com",
+    "time": "2025-12-03T02:41:02",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "South Korea's Lee says martial law cleanup not complete on first anniversary",
+    "url": "https://www.japantimes.co.jp/news/2025/12/03/asia-pacific/politics/south-korea-martial-anniversary/",
+    "snippet": "Former President Yoon Suk Yeol's martial law declaration plunged a country that had been celebrated as a success story of democratic resilience into months of political turmoil.",
+    "source": "japantimes.co.jp",
+    "time": "2025-12-03T02:41:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Amid 'war on drugs', Trump frees right-wing leader jailed for trafficking",
+    "url": "https://www.abc.net.au/news/2025-12-03/donald-trump-pardons-former-honduran-president-drug-trafficking/106095618",
+    "snippet": "Donald Trump says his country is at war with \"narco-terrorists\". But he is freeing the former president of Honduras, who was jailed in the US for overseeing one of the world's worst drug conspiracies.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T02:36:02",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Takaichi\u2019s Taiwan tumult: A closer look at the Japanese leader\u2019s contentious remarks",
+    "url": "https://www.japantimes.co.jp/news/2025/12/03/japan/explainer/explainer-japan-existential-crisis/",
+    "snippet": "The prime minister\u2019s remarks about a Taiwan emergency have caused a diplomatic uproar, sending Japan-China ties to new lows.",
+    "source": "japantimes.co.jp",
+    "time": "2025-12-03T02:32:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Josh Inglis confirmed for second Ashes Test with Travis Head to open",
+    "url": "https://www.abc.net.au/news/2025-12-03/josh-inglis-ashes-brisbane-second-test/106096640",
+    "snippet": "Josh Inglis will play his first Test on home soil after winning the race to replace Usman Khawaja ahead of the second Ashes Test.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T02:30:03",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "U.S. pauses all immigration applications from 19 non-European countries",
+    "url": "https://www.japantimes.co.jp/news/2025/12/03/world/politics/us-immigration-non-european/",
+    "snippet": "The pause applies to people from 19 countries that were already subjected to a partial travel ban in June, placing further restrictions on immigration.",
+    "source": "japantimes.co.jp",
+    "time": "2025-12-03T02:26:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Calgary city council boosts funding for transit and recreation, cuts climate spending",
+    "url": "https://globalnews.ca/news/11555877/calgary-city-council-boosts-funding-transit-recreation-cuts-climate-spending/",
+    "snippet": "According to Calgary's mayor, the property tax increase as it currently stands would cost the typical residential homeowner an additional $3.90 per month.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T02:24:58",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Centrist Nasralla takes slim lead in Honduran presidential election plagued by delays as Trump alleges fraud",
     "url": "https://www.straitstimes.com/asia/centrist-nasralla-takes-slim-lead-in-honduran-presidential-election-plagued-by-delays-as-trump-alleges-fraud",
     "snippet": "TEGUCIGALPA, Dec 2 - Salvador Nasralla, of the centrist Liberal Party, on Tuesday took a razor-thin lead in Honduras' presidential election over Nasry Asfura, the conservative candidate backed by U.S. President Donald Trump,\u00a0 in a vote count plagued by delays and allegations of fraud.",
     "source": "straitstimes.com",
     "time": "2025-12-03T02:20:19",
-    "region": "Global",
+    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -90,17 +530,47 @@
     "type": "GENERAL"
   },
   {
-    "title": "Taiwan looking forward to re-establish ties with Honduras, foreign minister says",
-    "url": "https://www.straitstimes.com/asia/taiwan-looking-forward-to-re-establish-ties-with-honduras-foreign-minister-says",
-    "snippet": "TAIPEI, Dec 3 - Taiwan is looking forward to re-establishing ties with former ally Honduras and has been in touch with both of the presidential candidates who are friendly towards Taipei, Foreign Minister Lin Chia-lung said on Wednesday.",
-    "source": "straitstimes.com",
-    "time": "2025-12-03T02:05:10",
+    "title": "Verizon is giving away a free iPhone, iPad, and Apple Watch for Cyber Monday - how the deal works",
+    "url": "https://www.zdnet.com/article/verizon-is-giving-away-a-free-iphone-ipad-and-apple-watch-for-cyber-monday-how-the-deal-works/",
+    "snippet": "Save over $2,000 on Apple tech on Cyber Monday with this bundle offer from Verizon when you sign up for new lines. Here's what to know.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T02:14:00",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "In greying Japan, killings of parents by elderly children spur soul-searching",
+    "title": "Worker killed in retaining wall collapse remembered as 'amazing father'",
+    "url": "https://www.abc.net.au/news/2025-12-03/father-kimura-dixon-identified-in-brisbane-workplace-tragedy/106096002",
+    "snippet": "Kimura Dixon, 45, was killed and his 19-year-old stepson sustained serious injuries when a retaining wall collapsed at a construction site in Brisbane on Tuesday morning.",
+    "source": "abc.net.au",
+    "time": "2025-12-03T02:12:29",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "From patient to advocate: Cancer survivor launches ApotheCare to support others",
+    "url": "https://globalnews.ca/news/11556305/cancer-survivor-launches-apothecare/",
+    "snippet": "ApotheCare is a new platform is allowing communities to support cancer patients in real, practical ways without putting stress on patients to ask for more help.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T02:11:10",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Taiwan looking forward to re-establish ties with Honduras, foreign minister says",
+    "url": "https://www.straitstimes.com/asia/taiwan-looking-forward-to-re-establish-ties-with-honduras-foreign-minister-says",
+    "snippet": "TAIPEI, Dec 3 - Taiwan is looking forward to re-establishing ties with former ally Honduras and has been in touch with both of the presidential candidates who are friendly towards Taipei, Foreign Minister Lin Chia-lung said on Wednesday.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T02:05:10",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Japan sympathises as 79-year-old kills mother, 100, out of exhaustion",
     "url": "https://www.scmp.com/week-asia/lifestyle-culture/article/3334930/greying-japan-killings-parents-elderly-children-spur-soul-searching?utm_source=rss_feed",
     "snippet": "Masato Watabe made no effort to hide the killing. A little over an hour after he held his hand over his victim\u2019s mouth until she was no longer breathing, he called the emergency services. Taken into custody, 79-year-old Watabe admitted to police that he alone was to blame for her death.\nInstead of blanket condemnation, however, Watabe has attracted sympathy in Japan, which is struggling to come up with solutions to a rapidly ageing population and growing pressure on families to take care of the...",
     "source": "scmp.com",
@@ -110,7 +580,7 @@
     "type": "GENERAL"
   },
   {
-    "title": "Drones on the rise over South China Sea with shift to data-driven strategies",
+    "title": "\u2018Strategic\u2019: why are drones taking off among South China Sea claimant states?",
     "url": "https://www.scmp.com/news/china/diplomacy/article/3334927/drones-are-rise-over-south-china-sea-shift-data-driven-strategies?utm_source=rss_feed",
     "snippet": "Across the strategic waterway of the South China Sea, claimant countries are increasingly relying on long-endurance aerial drones to carry out continuous patrols \u2013 overcoming the geographic and logistical limitations of traditional aircraft and ships.\nThe US Marine Corps last month deployed MQ-9A Reaper drones to the Philippines, at Manila\u2019s request, to \u201csupport Philippine regional maritime security through shared maritime domain awareness\u201d, according the US Marine Corps Forces, Pacific.\nThe...",
     "source": "scmp.com",
@@ -130,11 +600,91 @@
     "type": "GENERAL"
   },
   {
+    "title": "I tried the viral $2,000 exoskeleton that boosts your strength - and it actually works",
+    "url": "https://www.zdnet.com/article/i-tried-the-viral-2000-exoskeleton-that-boosts-your-strength-and-it-actually-works/",
+    "snippet": "I wasn't prepared for the immediate benefits of wearing the Hypershell X Ultra.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T01:57:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Best Cyber Monday tablet deals 2025: I'm tracking 15+ of the top sales still live today",
+    "url": "https://www.zdnet.com/article/cyber-monday-tablet-deals-oneplus-best-buy-amazon-still-live/",
+    "snippet": "These lingering Cyber Monday tablet deals from Apple, Samsung, Microsoft, and more are ending soon.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T01:55:52",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "5 Samsung bloatware apps you should delete ASAP (and likely won't miss)",
+    "url": "https://www.zdnet.com/article/5-samsung-bloatware-apps-you-should-delete-asap-and-likely-wont-miss/",
+    "snippet": "Samsung phones come packed with apps - but some actually worsen the performance. Here are five I'd remove right now.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T01:47:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "I changed 10 settings on my Samsung phone to instantly speed up the performance",
+    "url": "https://www.zdnet.com/article/i-changed-10-settings-on-my-samsung-phone-to-instantly-speed-up-the-performance/",
+    "snippet": "Samsung phones are full of smart features, but most people overlook many of them. Here are a few that make a big impact.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T01:44:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Cyber Monday is over, but you can still shop my favorite deals on Apple, Sony, Bose and more",
+    "url": "https://www.zdnet.com/article/cyber-monday-best-buy-deals-meta-glasses-tvs-apple-watches-still-live/",
+    "snippet": "Cyber Monday has ended, but Best Buy is still selling top tech at a discount. Shop my favorites.",
+    "source": "zdnet.com",
+    "time": "2025-12-03T01:42:55",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "EU pushes to end its dependence on China for rare earths",
+    "url": "https://www.japantimes.co.jp/business/2025/12/03/markets/eu-china-rare-earths/",
+    "snippet": "China, the world's top producer of rare earths, in October announced new controls on the export of the elements.",
+    "source": "japantimes.co.jp",
+    "time": "2025-12-03T01:36:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "The EU is the wrong power player for Ukraine",
+    "url": "https://www.japantimes.co.jp/commentary/2025/12/03/world/europes-wrong-eu-poweplay/",
+    "snippet": "Europe lacks the institutions, resources and political cohesion to defend against Russia and China, leaving NATO, bespoke coalitions and individual nations to fill the gap.",
+    "source": "japantimes.co.jp",
+    "time": "2025-12-03T01:35:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Hong Kong will miss its most popular philosopher",
     "url": "https://www.scmp.com/opinion/hong-kong-opinion/article/3334747/hong-kong-will-miss-its-most-popular-philosopher?utm_source=rss_feed",
     "snippet": "Once, when pop diva Faye Wong was seen reading on a plane, the book reportedly on her lap was the perennial local bestseller Art of Thinking by Lee Tien-ming.\nFood critic, columnist and media personality Benny Li Shun-Yan reportedly said that after learning of her interest, he introduced Wong to Lee, arguably Hong Kong\u2019s most famous philosopher, who passed away last week at the age of 80.\nI remember that some were surprised by Wong\u2019s philosophical interests. Actually, mainland entertainers often...",
     "source": "scmp.com",
     "time": "2025-12-03T01:30:09",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "2nd-degree murder trial begins for man accused of killing Beaumont mom Treasa Oberly",
+    "url": "https://globalnews.ca/news/11556677/kenneth-skelly-murder-trial-beaumont-mom-treasa-oberly/",
+    "snippet": "The second-degree murder trial for Beaumont\u00a0man Kenneth Skelly is underway. He is accused of killing his common-law partner and mother of their son, Treasa Lynn Oberly.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T01:29:58",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -145,7 +695,17 @@
     "snippet": "US president has warmed to Brazil's left-wing leader since imposing 50 percent tariffs on the South American country.",
     "source": "aljazeera.com",
     "time": "2025-12-03T01:20:09",
-    "region": "AMER",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "In Photos and Video: Devastating Floods Swamp Parts of Asia",
+    "url": "https://www.nytimes.com/2025/12/02/world/asia/floods-indonesia-sri-lanka-thailand-photos.html",
+    "snippet": "Images of the destruction caused by storms that have torn through South and Southeast Asia.",
+    "source": "nytimes.com",
+    "time": "2025-12-03T01:19:16",
+    "region": "APJC",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -170,32 +730,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "Residents of block return to fire-hit Hong Kong estate to collect belongings",
-    "url": "https://www.scmp.com/news/hong-kong/society/article/3334969/residents-block-return-fire-ravaged-hong-kong-estate-collect-personal-items?utm_source=rss_feed",
-    "snippet": "This story has been made freely available as a public service to our readers. Please consider supporting SCMP\u2019s journalism by subscribing. Get faster notifications on the latest updates by downloading our app.\nWhat we know so far:\n\n156 people, including a firefighter, confirmed dead\n\n\n79 injured, including 12 firefighters\n\n\nAbout 30 people remain unaccounted for\n\n\nHK$2.3 billion raised for rescue and relief efforts\n\n\nThe eight blocks in Wang Fuk Court had been undergoing renovations since July...",
-    "source": "scmp.com",
-    "time": "2025-12-03T01:04:01",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "A New Chapter in Bilingual Excellence: YK Pao School Hong Kong Appoints its Founding Head",
-    "url": "https://www.scmp.com/presented/news/hong-kong/education/topics/yk-pao-school-hk-appoints-founding-head/article/3334763/new-chapter-bilingual-excellence-yk-pao-school-hong-kong-appoints-its-founding-head?utm_source=rss_feed",
-    "snippet": "[The content of this article has been produced by our advertising partner.]\nHONG KONG \u2013 3 December 2025 \u2013 In a significant milestone in its founding, YK Pao School Hong Kong today announces the appointment of Mrs. Cathy Braithwaite as its Founding Head. This appointment marks the next step in realising a visionary educational project that will weave together the rich tapestry of Chinese heritage with a forward-thinking global perspective.\nScheduled to open its doors in September 2026, this...",
-    "source": "scmp.com",
-    "time": "2025-12-03T01:01:21",
+    "title": "Man faces charges after alleged carjacking in southeast Calgary",
+    "url": "https://globalnews.ca/news/11555146/man-faces-charges-alleged-carjacking-in-se-calgary/",
+    "snippet": "According to police, the incident happened around 5:30 p.m. near the 200 block of Walden Mews SE.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T01:14:48",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Chinese man hides 2 gold bars in chilli sauce jar, sends to \u2018friend\u2019 for investment",
-    "url": "https://www.scmp.com/news/people-culture/trending-china/article/3334362/chinese-man-hides-2-gold-bars-jar-chilli-sauce-sending-friend-investment?utm_source=rss_feed",
-    "snippet": "A Chinese man has caused amusement online after he hid two gold bars inside a jar of chilli sauce and mailed them to another province as part of a scam to fund his stock trading account.\nThe incident recently unfolded in the Jinnan District of Tianjin in northern China when police took down a fraud scheme involving an elderly man.\nLi Ruifang, a police officer from the Shuanglin Police Station, received an anti-fraud alert indicating that an elderly man, surnamed Zhao, might be in contact with...",
-    "source": "scmp.com",
-    "time": "2025-12-03T01:00:10",
-    "region": "APJC",
+    "title": "Franklin the Turtle and Sabrina Carpenter in tiff with Trump administration",
+    "url": "https://www.bbc.com/news/articles/cy7v022n5kyo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Trump administration officials used Carpenter's song and Franklin the Turtle's image in social media posts about deportation and killing drug traffickers.",
+    "source": "bbc.com",
+    "time": "2025-12-03T01:12:53",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -210,11 +760,31 @@
     "type": "GENERAL"
   },
   {
-    "title": "South Korea\u2019s Lee says martial law clean-up not yet complete on first anniversary",
+    "title": "South Korea\u2019s Lee says on martial law anniversary perpetrators must face justice",
     "url": "https://www.straitstimes.com/asia/east-asia/south-koreas-lee-says-martial-law-clean-up-not-yet-complete-on-first-anniversary",
-    "snippet": "The people rose up and stopped the military with their bare hands, Mr Lee said during the anniversary.",
+    "snippet": "The attempt to impose martial law threatened to deal an irreparable setback to the country, he said.",
     "source": "straitstimes.com",
     "time": "2025-12-03T00:50:21",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "\u2018Not doing ourselves any good\u2019: Winnipeg coalition calls out tough-on-crime approach",
+    "url": "https://globalnews.ca/news/11556244/police-accountability-tough-crime-report/",
+    "snippet": "Social Planning Council of Winnipeg director Kate Kehler says a one-size-fits all approach isn't lending itself to functional solutions.",
+    "source": "globalnews.ca",
+    "time": "2025-12-03T00:44:45",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Cyclone catastrophe in Sri Lanka awakens volunteer spirit",
+    "url": "https://www.bbc.com/news/articles/c058n10727po?at_medium=RSS&at_campaign=rss",
+    "snippet": "Fishing boats deliver relief supplies to flooded suburbs as community kitchens churn out food aid.",
+    "source": "bbc.com",
+    "time": "2025-12-03T00:34:05",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -225,34 +795,14 @@
     "snippet": "California Governor Gavin Newsom shared a video of President Trump appearing to nod off during a cabinet meeting, with eyes narrowed and shut while officials briefed him. The White House denied the claims, stating Trump listened attentively throughout the three-hour meeting. This incident follows past reports and Trump's own criticisms of Joe Biden's stamina.",
     "source": "timesofindia.indiatimes.com",
     "time": "2025-12-03T00:31:37",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Beijing woos foreign firms as China seeks bigger role in global shipbuilding supply chain",
-    "url": "https://www.scmp.com/business/china-business/article/3334950/beijing-woos-foreign-firms-china-seeks-bigger-role-global-shipbuilding-supply-chain?utm_source=rss_feed",
-    "snippet": "Beijing is extending an olive branch to overseas companies as it seeks to build a more integrated global supply chain for the shipbuilding industry, in its latest push to project goodwill and support free trade.\nGao Dongsheng, chief economist at the Ministry of Industry and Information Technology (MIIT), said on Tuesday that China was committed to further opening up its shipbuilding sector.\nMainland shipyards, which currently have a capacity to build about 65 million deadweight tonnes of large...",
-    "source": "scmp.com",
-    "time": "2025-12-03T00:30:09",
-    "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Hong Kong man, 87, with dementia found dead 9 days after going missing",
-    "url": "https://www.scmp.com/news/hong-kong/society/article/3334975/hong-kong-man-87-dementia-found-dead-nine-days-after-going-missing?utm_source=rss_feed",
-    "snippet": "An elderly Hong Kong man with dementia who had been missing for nine days was found dead in the countryside by volunteer search teams.\nLeung Woon-yew, 87, a resident of Tai Hing Estate in Tuen Mun, was discovered in a bushy area near the top of Por Lo Shan at 12.40pm on Tuesday by the Voluntary Mount Search Team and Countryside Volunteer Search Team, according to Anson Cheng, founder of the Hong Kong Guardians volunteer rescue group.\nThe groups had joined the search with authorities from the...",
-    "source": "scmp.com",
-    "time": "2025-12-03T00:21:28",
-    "region": "Global",
+    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
   {
     "title": "Australia\u2019s anti-migration populist Pauline Hanson eyes political resurgence",
-    "url": "https://www.straitstimes.com/asia/australias-anti-migration-populist-pauline-hanson-eyes-political-resurgence",
-    "snippet": "SYDNEY, Dec 3 - Australia's flame-haired populist Senator Pauline Hanson and her anti-immigration party have rocketed up opinion polls, nearing a peak seen three decades ago when she first entered politics and pushed conservative parties to harden border policies.",
+    "url": "https://www.straitstimes.com/asia/australianz/australias-anti-migration-populist-pauline-hanson-eyes-political-resurgence",
+    "snippet": "A survey in November showed support for One Nation at 14 per cent nationally, the highest since 1998.",
     "source": "straitstimes.com",
     "time": "2025-12-03T00:20:11",
     "region": "APJC",
@@ -265,7 +815,7 @@
     "snippet": "On Dec 3, 2024, Yoon suspended civilian rule for the first time in more than four decades.",
     "source": "straitstimes.com",
     "time": "2025-12-03T00:10:00",
-    "region": "Global",
+    "region": "APJC",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -280,21 +830,11 @@
     "type": "GENERAL"
   },
   {
-    "title": "Handling of China spying case was \u2018shambolic\u2019, security committee concludes",
-    "url": "https://www.theguardian.com/world/2025/dec/03/uk-china-spying-case-collapse-security-committee-report",
-    "snippet": "Report says \u2018systemic failures\u2019 led to collapse of trial, but found no evidence of UK government interference Parliament\u2019s security committee has criticised prosecutors for pulling their charges against two men accused of spying for Beijing, in a damning report that concluded the handling of the case was \u201cshambolic\u201d. MPs said that a process \u201cbeset by confusion and misaligned expectations\u201d and \u201cinadequate\u201d communication between the government and Crown Prosecution Service (CPS) had contributed to the collapse of the trial, while several \u201copportunities to correct course were missed\u201d. It was \u201cunclear\u201d why the CPS had concluded that a July 2024 ruling concerning a Bulgarian spy ring \u201caltered the legal landscape so significantly\u201d that they had to change their approach. It was \u201csurprised\u201d the CPS had deemed the government\u2019s evidence insufficient to put to a jury when it had set out how China \u201cposed a range of threats to the United Kingdom\u2019s national security\u201d that \u201camounted to a more general active threat\u201d. The government \u201cdid not have sufficiently clear processes for escalating issues where there was a lack of clarity\u201d and \u201cthe level of senior oversight\u201d from cabinet ministers and national security advisers \u201cwas insufficiently robust\u201d. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-03T00:01:47",
-    "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "South Korea proposes special court to address \u2018mockery of judicial process\u2019",
-    "url": "https://www.scmp.com/week-asia/people/article/3334859/south-korea-proposes-separate-court-tackle-martial-law-decree-cases-after-cries-bias?utm_source=rss_feed",
-    "snippet": "A year after former president Yoon Suk-yeol declared martial law, South Korea\u2019s ruling Democratic Party of Korea (DPK) is pushing ahead with a bill to create a separate court dedicated to handling cases linked to the decree, in response to widespread public distrust of what critics describe as a \u201cbiased\u201d judiciary.\nPresident Lee Jae-myung warned on social media ahead of the December 3 anniversary of the decree: \u201cIf we leave hidden acts of insurrection as they are, insurrection will certainly...",
-    "source": "scmp.com",
-    "time": "2025-12-03T00:00:14",
+    "title": "Putin and Witkoff Meet in Russia as U.S. Pushes Ukraine Deal",
+    "url": "https://www.nytimes.com/2025/12/02/world/europe/putin-witkoff-trump-ukraine-meeting.html",
+    "snippet": "The two sides did not reach any specific compromises, an aide to President Vladimir V. Putin said, as the United States pushes a plan to end the war in Ukraine.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T23:42:31",
     "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
@@ -320,26 +860,6 @@
     "type": "GENERAL"
   },
   {
-    "title": "Trump seizes on China \u2018ban\u2019 in Brazil soy trade, but data shows US gains small",
-    "url": "https://www.scmp.com/news/china/diplomacy/article/3334973/trump-seizes-china-ban-brazil-select-soy-trade-data-shows-us-gains-small?utm_source=rss_feed",
-    "snippet": "US President Donald Trump and his administration on Tuesday seized on China\u2019s recent ban on select Brazilian soybean shipments, touting it as proof they had won Beijing back over to US suppliers even though official data shows China has only resumed American purchases modestly.\nAt a lengthy, end-of-year cabinet meeting, US Agriculture Secretary Brooke Rollins said that \u201cjust a couple of days ago, China announced that they were going to halt all purchases from Brazil because they had found some...",
-    "source": "scmp.com",
-    "time": "2025-12-02T23:30:51",
-    "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "The photo that became a symbol for Hong Kong\u2019s deadly fire",
-    "url": "https://www.straitstimes.com/asia/east-asia/the-photo-that-became-a-symbol-for-hong-kongs-deadly-fire",
-    "snippet": "A week after the tragedy, Mr Wong's wife is still unaccounted for and is among the 30 people listed missing.",
-    "source": "straitstimes.com",
-    "time": "2025-12-02T23:30:17",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
     "title": "\u2018No compromise\u2019 on territory after Ukraine talks with US: Russian official",
     "url": "https://www.aljazeera.com/news/2025/12/2/no-compromise-territory-ukraine-talks-us-kremlin?traffic_source=rss",
     "snippet": "Comments come after long meeting between Russian President Vladimir Putin and two senior US officials in Moscow.",
@@ -350,41 +870,11 @@
     "type": "GENERAL"
   },
   {
-    "title": "Family voices new alarm for Hong Kong\u2019s jailed Jimmy Lai",
-    "url": "https://www.straitstimes.com/asia/east-asia/family-voices-new-alarm-for-hong-kongs-jailed-jimmy-lai",
-    "snippet": "He faces at least 15 years in prison \u2013 effectively a death sentence \u2013 on charges of foreign collusion.",
-    "source": "straitstimes.com",
-    "time": "2025-12-02T23:20:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "India, Pakistan trade barbs over aid to cyclone-hit Sri Lanka",
-    "url": "https://www.straitstimes.com/asia/south-asia/india-pakistan-trade-barbs-over-aid-to-cyclone-hit-sri-lanka",
-    "snippet": "India and Pakistan have both extended an airspace ban on the other country\u2019s airlines earlier in 2025.",
-    "source": "straitstimes.com",
-    "time": "2025-12-02T22:40:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
     "title": "Barcelona extend lead at top of La Liga with 3-1 win over Atletico Madrid",
     "url": "https://www.aljazeera.com/sports/2025/12/2/barcelona-extend-lead-at-top-of-la-liga-with-3-1-win-over-atletico-madrid?traffic_source=rss",
     "snippet": "Barca recover from a goal down to win, with strikes from Raphinha, Dani Olmo and Ferran Torres.",
     "source": "aljazeera.com",
     "time": "2025-12-02T22:33:45",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "South Korea court dismisses request to detain former finance minister in martial law probe",
-    "url": "https://www.straitstimes.com/asia/east-asia/south-korea-court-dismisses-request-to-detain-former-finance-minister-in-martial-law-probe-yonhap",
-    "snippet": "The probe of Yoon's martial law declaration has led to the arrest of several former government and military officials.",
-    "source": "straitstimes.com",
-    "time": "2025-12-02T22:15:08",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -400,21 +890,31 @@
     "type": "GENERAL"
   },
   {
+    "title": "Host of birthday party in California mistook gunfire for balloons popping",
+    "url": "https://www.bbc.com/news/articles/c0jezyvj459o?at_medium=RSS&at_campaign=rss",
+    "snippet": "\"They deserve to be in jail. They deserve to go to hell,\" she said of the person who killed four people at the party for her two-year-old.",
+    "source": "bbc.com",
+    "time": "2025-12-02T21:45:43",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Korea arrests suspects selling intimate videos from hacked IP cameras",
     "url": "https://www.bleepingcomputer.com/news/security/korea-arrests-suspects-selling-intimate-videos-from-hacked-ip-cameras/",
     "snippet": "The Korean National Police have arrested four individuals suspected of hacking over 120,000 IP cameras across the country and then selling stolen footage to a foreign adult site. [...]",
     "source": "bleepingcomputer.com",
     "time": "2025-12-02T21:42:48",
-    "region": "Global",
+    "region": "APJC",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Trump calls Somali immigrants \u2018garbage\u2019 as US reportedly targets Minnesota community",
-    "url": "https://www.theguardian.com/us-news/2025/dec/02/trump-somali-immigrants-minnesota",
-    "snippet": "US president\u2019s xenophobic rant comes amid reports of ramped-up deportation efforts in Ilhan Omar\u2019s district US politics live \u2013 latest updates Donald Trump on Tuesday called Somali immigrants \u201cgarbage\u201d and said they should be sent back home in a rant that came as the administration is reportedly increasing immigration enforcement against undocumented Somalis in Minnesota. In a xenophobic rant during a cabinet meeting, Trump went off on Somalis and Ilhan Omar, the congressional representative who is from Somalia and is a US citizen. He said Somalia \u201cstinks\u201d and is \u201cno good for a reason\u201d. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T21:20:30",
+    "title": "Iran's 'MuddyWater' Levels Up With MuddyViper Backdoor",
+    "url": "https://www.darkreading.com/cyberattacks-data-breaches/irans-muddywater-levels-up-muddyviper-backdoor",
+    "snippet": "New Fooder loader and memory-only tactics suggest MuddyWater has evolved from its usual noisy ops to more stealthy espionage operations.",
+    "source": "darkreading.com",
+    "time": "2025-12-02T21:39:21",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -450,22 +950,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "\u2018Antisemite of the Year\u2019: Pro-Israel group slams kids\u2019 YouTuber Ms. Rachel",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/2/antisemite-of-the-year-pro-israel-group-slams-kids-youtuber-ms-rachel?traffic_source=rss",
-    "snippet": "Kids\u2019 Youtuber Rachel Accurso, known as Ms. Rachel, has been nominated for \u2018Antisemite of the Year\u2019 by StopAntisemitism.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T20:43:38",
-    "region": "EMEA",
+    "title": "Maduro Faces His Ultimate Fight as Trump Threatens Military Action in Venezuela",
+    "url": "https://www.nytimes.com/2025/12/02/world/americas/venezuela-nicolas-maduro-trump.html",
+    "snippet": "President Trump\u2019s threat of military action has confronted President Nicol\u00e1s Maduro of Venezuela with the gravest challenge of his crisis-ridden reign.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T20:39:52",
+    "region": "LATAM",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Putin meets with Witkoff, Kushner to discuss Ukraine peace plan",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/2/putin-meets-with-witkoff-kushner-to-discuss-ukraine-peace-plan?traffic_source=rss",
-    "snippet": "Russian President Vladimir Putin met with US envoy Steve Witkoff to discuss the Ukraine peace effort.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T20:41:01",
-    "region": "EMEA",
+    "title": "Watch: Moment snowboarder is rescued from stuck chairlift",
+    "url": "https://www.bbc.com/news/videos/cy84qwzx9j9o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Thirteen other people were also safely lowered to the ground after a power outage hit the Sunburst Ski Area in the US state of Wisconsin.",
+    "source": "bbc.com",
+    "time": "2025-12-02T20:33:11",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -480,11 +980,21 @@
     "type": "GENERAL"
   },
   {
-    "title": "Politician Ayachi Hammami latest arrest in Tunisia opposition crackdown",
-    "url": "https://www.aljazeera.com/news/2025/12/2/politician-ayachi-hammami-latest-arrest-in-tunisia-opposition-crackdown?traffic_source=rss",
-    "snippet": "Tunisia opposition says charges are fabricated, as police enforce a five-year prison sentence.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T20:23:44",
+    "title": "Researchers Use Poetry to Jailbreak AI Models",
+    "url": "https://www.darkreading.com/threat-intelligence/researchers-use-poetry-to-jailbreak-ai-models",
+    "snippet": "When prompts were presented in poetic rather than prose form, attack success rates increased from 8% to 43%, on average \u2014 a fivefold increase.",
+    "source": "darkreading.com",
+    "time": "2025-12-02T20:24:36",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "US defence secretary says he did not see survivors before follow-up strike on drug boat",
+    "url": "https://www.bbc.com/news/articles/ckglx77mplgo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The strike has prompted concerns that US forces may have violated laws governing armed conflict.",
+    "source": "bbc.com",
+    "time": "2025-12-02T20:19:08",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -500,31 +1010,11 @@
     "type": "GENERAL"
   },
   {
-    "title": "Hegseth vows more boat strikes amid accusations he broke the law",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/2/hegseth-vows-more-boat-strikes-amid-accusations-he-broke-the-law?traffic_source=rss",
-    "snippet": "US Secretary of Defense Pete Hegseth is vowing to continue military strikes on vessels in the Caribbean Sea.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T20:11:07",
-    "region": "AMER",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Hasan Piker honored with Trinity College Dublin's Gold Medal of Honorary Patronage",
-    "url": "https://timesofindia.indiatimes.com/world/us-streamers/hasan-piker-honored-with-trinity-college-dublins-gold-medal-of-honorary-patronage/articleshow/125727780.cms",
-    "snippet": "Hasan Piker, known as HasanAbi, will receive Trinity College Dublin's prestigious Gold Medal of Honorary Patronage. The University Philosophical Society recognized his journalistic roots, honest commentary, and ability to dissect news with clarity. This honor highlights the growing influence of online commentators in shaping public discourse and marks a significant milestone in Piker's career.",
-    "source": "timesofindia.indiatimes.com",
-    "time": "2025-12-02T20:06:40",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Rahmanullah Lakanwal pleads not guilty in US National Guard shooting",
-    "url": "https://www.aljazeera.com/news/2025/12/2/rahmanullah-lakanwal-pleads-not-guilty-in-us-national-guard-shooting?traffic_source=rss",
-    "snippet": "Judge orders suspected attacker held without bond after fatal shooting in Washington, DC caused 'sheer terror'.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T19:57:18",
+    "title": "Dell family to seed Trump accounts for kids with $250",
+    "url": "https://www.bbc.com/news/articles/cyvgq184vgqo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The donation will help seed new Trump-branded investment accounts.",
+    "source": "bbc.com",
+    "time": "2025-12-02T20:00:08",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -540,42 +1030,12 @@
     "type": "GENERAL"
   },
   {
-    "title": "Charlie Kirk takes the No. 1 spot on Wikipedia\u2019s most-read pages \u2014 here\u2019s the full top 10",
-    "url": "https://timesofindia.indiatimes.com/etimes/trending/charlie-kirk-takes-the-no-1-spot-on-wikipedias-most-read-pages-heres-the-full-top-10/articleshow/125727423.cms",
-    "snippet": "",
-    "source": "timesofindia.indiatimes.com",
-    "time": "2025-12-02T19:46:34",
+    "title": "Michael Jordan is suing Nascar, accusing it of being an illegal monopoly",
+    "url": "https://www.bbc.com/news/articles/cvgj80pg49go?at_medium=RSS&at_campaign=rss",
+    "snippet": "The NBA hall-of-famer, who co-owns a Nascar team and argues the company is making it hard to turn a profit, attended the first day of the trial.",
+    "source": "bbc.com",
+    "time": "2025-12-02T19:24:03",
     "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "OECD warns tariffs, AI will test resilience of the global economy",
-    "url": "https://www.aljazeera.com/economy/2025/12/2/oecd-warns-tariffs-ai-will-test-resilience-of-the-global-economy?traffic_source=rss",
-    "snippet": "The organisation warns that President Donald Trump has put US fiscal policy on an unsustainable trajectory.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T19:40:37",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Twitch under fire as Asmongold demands Amazon intervention over Nina Lin controversy",
-    "url": "https://timesofindia.indiatimes.com/world/us-streamers/twitch-under-fire-as-asmongold-demands-amazon-intervention-over-nina-lin-controversy/articleshow/125727143.cms",
-    "snippet": "Prominent streamer Asmongold has urged Amazon to take direct control of Twitch following a moderation scandal involving IRL streamer Nina Lin.  Lin's shoplifting incident, coupled with prior policy violations, has sparked outrage over perceived lenient punishments, fueling calls for Amazon's intervention to ensure consistent rule enforcement and restore community trust.",
-    "source": "timesofindia.indiatimes.com",
-    "time": "2025-12-02T19:21:10",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Global heating and other human activity are making Asia\u2019s floods more lethal",
-    "url": "https://www.theguardian.com/world/2025/dec/02/global-heating-and-other-human-activity-are-making-asias-floods-more-lethal",
-    "snippet": "Much improved response systems are struggling to cope with ever more powerful and destructive storms Death toll from Indonesia floods passes 700 as 1 million evacuated Families stranded on their rooftops. Homes buried by fast-flowing mud. Jagged brown craters scarring lush green hillsides. The scenes are the result of a series of cyclones and storms in a heavy monsoon season that have struck Asia with torrential rains, gutting essential infrastructure and reshaping landscapes. The violent weather has killed at least 1,200 people in the past week and forced a million to flee without knowing whether their homes will still be standing when they go back. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T19:19:02",
-    "region": "APJC",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -590,62 +1050,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "'No 'American Dream' when H-1Bs can come': Ex-DOGE advisor hits back at Vivek Ramaswamy",
-    "url": "https://timesofindia.indiatimes.com/world/us/no-american-dream-when-h-1bs-can-come-ex-doge-advisor-hits-back-at-vivek-ramaswamy/articleshow/125724710.cms",
-    "snippet": "",
-    "source": "timesofindia.indiatimes.com",
-    "time": "2025-12-02T18:53:39",
+    "title": "What is Honduras ex-president accused of and why has Trump pardoned him?",
+    "url": "https://www.bbc.com/news/articles/c9qewln7912o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Juan Orlando Hern\u00e1ndez, once called the key figure in a drug trafficking scheme that flooded America with cocaine, walked free after the pardon.",
+    "source": "bbc.com",
+    "time": "2025-12-02T18:34:13",
     "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Trump frees ex-Honduran president from prison as country awaits knife-edge election result",
-    "url": "https://www.theguardian.com/world/2025/dec/02/trump-intervention-honduras-presidential-vote-count-stalls-nasry-asfura",
-    "snippet": "Release of convicted cocaine trafficker Juan Orlando Hern\u00e1ndez is latest US interference in election and comes despite Trump\u2019s apparent \u2018war on drugs\u2019 Analysis: Trump\u2019s pardon of Honduras\u2019s ex-president shows counter-drug effort is \u2018based on lies and hypocrisy\u2019 A former president of Honduras who was convicted of drug trafficking has walked free from a US prison after receiving a pardon from Donald Trump, as the country\u2019s presidential election remained on a knife edge with the US-backed candidate leading by 515 votes. Juan Orlando Hern\u00e1ndez, who was sentenced to 45 years in prison for allegedly creating \u201ca cocaine superhighway to the United States\u201d, was released from a West Virginia prison after Trump\u2019s intervention, Hern\u00e1ndez\u2019s wife confirmed on Tuesday. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T18:31:07",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "No role in renovations, says Danish facility management group amid scrutiny over Hong Kong fire",
-    "url": "https://www.straitstimes.com/asia/east-asia/danish-facilities-group-iss-falls-on-link-to-towers-in-deadly-hong-kong-fire",
-    "snippet": "ISS said its unit had been the property manager for the building complex where at least 156 people died.",
-    "source": "straitstimes.com",
-    "time": "2025-12-02T18:10:14",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Watch: Japan\u2019s PM Sanae Takaichi quotes famous manga and anime \u2018Attack on Titan\u2019",
-    "url": "https://timesofindia.indiatimes.com/world/rest-of-world/watch-japans-pm-sanae-takaichi-quotes-famous-manga-and-anime-attack-on-titan/articleshow/125724137.cms",
-    "snippet": "",
-    "source": "timesofindia.indiatimes.com",
-    "time": "2025-12-02T18:05:38",
+    "title": "India Orders Messaging Apps to Work Only With Active SIM Cards to Prevent Fraud and Misuse",
+    "url": "https://thehackernews.com/2025/12/india-orders-messaging-apps-to-work.html",
+    "snippet": "India's Department of Telecommunications (DoT) has issued directions to app-based communication service providers to ensure that the platforms cannot be used without an active SIM card linked to the user's mobile number.\nTo that end, messaging apps like WhatsApp, Telegram, Snapchat, Arattai, Sharechat, Josh, JioChat, and Signal that use an Indian mobile number for uniquely identifying their",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T17:46:00",
     "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "British women stranded by landslides in Sri Lankan mountains running out of food and water, daughter says",
-    "url": "https://www.theguardian.com/world/2025/dec/02/british-women-stranded-by-landslides-in-sri-lankan-mountains-running-out-of-food-and-water-daughter-says",
-    "snippet": "Friends Melanie Watters and Janine Reid have been trapped in Pussellawa since Thursday Two British women stranded by landslides in Sri Lanka\u2019s tea mountains are running out of food and water, the daughter of one of them has said, as officials reported that the death toll of Cyclone Ditwah has reached 465. Melanie Watters, 54, and her friend Janine Reid, 55, both from London, were being driven through the mountains from Kandy in central Sri Lanka on Thursday when the road in front of them was swamped, sending a bus nearby over a cliff-edge. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T18:04:07",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Nina Lin refuses to say sorry after Target shoplifting clip goes viral while Asmongold urges Twitch to act",
-    "url": "https://timesofindia.indiatimes.com/world/us-streamers/nina-lin-refuses-to-say-sorry-after-target-shoplifting-clip-goes-viral-while-asmongold-urges-twitch-to-act/articleshow/125724104.cms",
-    "snippet": "Twitch streamer Nina Lin faces backlash after a viral video allegedly shows her shoplifting from Target.  Despite widespread accusations, Lin dismissed the incident on stream, claiming no harm was done and urging viewers to calm down.  Fellow streamer Asmongold questioned Twitch's inaction, amplifying the controversy as fans await a platform response.",
-    "source": "timesofindia.indiatimes.com",
-    "time": "2025-12-02T17:27:22",
-    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -655,7 +1075,7 @@
     "snippet": "We look at what is behind the deployment of a large US military force to within striking distance of Venezuela.",
     "source": "bbc.com",
     "time": "2025-12-02T17:06:32",
-    "region": "Global",
+    "region": "LATAM",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -690,22 +1110,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "Publisher condemns \u2018violent\u2019 use of Franklin the Turtle after Hegseth\u2019s boat strike post",
-    "url": "https://www.theguardian.com/us-news/2025/dec/02/pete-hegseth-franklin-the-turtle",
-    "snippet": "US defense secretary posted meme depicting beloved children\u2019s character aiming rocket launcher at set of boats Pete Hegseth told US soldiers in Iraq to ignore legal advice on rules of engagement A post on social media by US defense secretary Pete Hegseth , depicting a beloved children\u2019s character aiming a rocket launcher at a cluster of boats, has elicited condemnation from the book\u2019s Canadian publisher. Hegseth\u2019s post of the mocked cover of a Franklin the Turtle book titled Franklin Targets Narco Terrorists prompted disbelief and outrage. The image shows a smiling anthropomorphic turtle in military helmet and vest, with a US flag on his arm and a drug-laden boat exploding in the background. \u201cFor your Christmas wish list,\u201d Hegseth wrote as the caption. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T16:42:43",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
     "title": "Thousands of rounds of German army ammunition stolen from lorry",
     "url": "https://www.bbc.com/news/articles/c0q5n3x0jn9o?at_medium=RSS&at_campaign=rss",
     "snippet": "The theft reportedly took place after the driver left his truck in an unguarded parking lot overnight.",
     "source": "bbc.com",
     "time": "2025-12-02T16:37:23",
     "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "US Homeland Security secretary calls for more travel bans",
+    "url": "https://www.bbc.com/news/articles/c79x3rwxjryo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Kristi Noem says she will recommend a ban on entry for several countries that she says are \"flooding\" the US with criminal activity.",
+    "source": "bbc.com",
+    "time": "2025-12-02T16:13:08",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -720,21 +1140,31 @@
     "type": "GENERAL"
   },
   {
+    "title": "Thousands Greet Pope Leo as He Prays Near Site of Beirut Port Blast",
+    "url": "https://www.nytimes.com/2025/12/02/world/middleeast/pope-leo-beirut-lebanon.html",
+    "snippet": "A waterfront Mass in the Lebanese capital capped the pope\u2019s three-day visit to the Middle Eastern nation with the largest proportion of Christians.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T15:56:17",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "US Navy admiral ordered second  deadly Venezuela boat strike, White House says",
     "url": "https://www.bbc.com/news/articles/c0r95q9kv1go?at_medium=RSS&at_campaign=rss",
     "snippet": "The strikes, authorised by Defence Secretary Pete Hegseth, have raised fresh legality questions - but the White House says laws have been followed.",
     "source": "bbc.com",
     "time": "2025-12-02T15:38:06",
-    "region": "Global",
+    "region": "LATAM",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Indonesia to investigate alleged illegal gold mining near Komodo Island",
-    "url": "https://www.straitstimes.com/asia/se-asia/indonesia-to-investigate-alleged-illegal-gold-mining-near-komodo-island",
-    "snippet": "Gold mining could pose a threat to the endangered Komodo dragon, the world's largest living lizard.",
-    "source": "straitstimes.com",
-    "time": "2025-12-02T15:25:00",
+    "title": "The Philippines Spent Big on Flood Control, but the Water Keeps Rising",
+    "url": "https://www.nytimes.com/2025/12/02/world/asia/phillipines-flood-control-corruption.html",
+    "snippet": "Many Filipinos say floods are worse than ever \u2014 and now, the government has admitted that vast sums were embezzled from a program meant to fight the problem.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T15:15:01",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -750,12 +1180,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "Zambian-American influencer sentenced to 18 months for hate speech",
-    "url": "https://www.bbc.com/news/articles/cvgqnklqge7o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Known as \"One Boss Lady\",  Ethel Chisono Edwards has become known for her rants about the president.",
-    "source": "bbc.com",
-    "time": "2025-12-02T14:58:51",
-    "region": "AMER",
+    "title": "Researchers Capture Lazarus APT's Remote-Worker Scheme Live on Camera",
+    "url": "https://thehackernews.com/2025/12/researchers-capture-lazarus-apts-remote.html",
+    "snippet": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intelligence, has uncovered one of North Korea\u2019s most persistent infiltration schemes: a network of remote IT workers tied to Lazarus Group\u2019s Famous Chollima division.\nFor the first time, researchers managed",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T15:02:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "GlassWorm Returns with 24 Malicious Extensions Impersonating Popular Developer Tools",
+    "url": "https://thehackernews.com/2025/12/glassworm-returns-with-24-malicious.html",
+    "snippet": "The supply chain campaign known as GlassWorm has once again reared its head, infiltrating both Microsoft Visual Studio Marketplace and Open VSX with 24 extensions impersonating popular developer tools and frameworks like Flutter, React, Tailwind, Vim, and Vue.\nGlassWorm was first documented in October 2025, detailing its use of the Solana blockchain for command-and-control (C2) and harvest npm,",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T15:01:00",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -765,7 +1205,7 @@
     "snippet": "In an unprecedented intelligence operation, security researchers exposed how North Korean IT recruiters target and lure developers into renting their identities for illicit fundraising. [...]",
     "source": "bleepingcomputer.com",
     "time": "2025-12-02T14:57:26",
-    "region": "Global",
+    "region": "APJC",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -790,12 +1230,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "Revealed: Mexico\u2019s industrial boomtown is making goods for the US. Residents say they\u2019re \u2018breathing poison\u2019",
-    "url": "https://www.theguardian.com/us-news/2025/dec/02/monterrey-mexico-air-quality-industrial-pollution",
-    "snippet": "Polluting facilities in Monterrey, which has close ties to the US, are pumping toxic heavy metals into the city\u2019s air and threatening residents\u2019 health Leer en espa\u00f1ol en Quinto Elemento Lab An industrial boom in a US manufacturing hub in Mexico is contributing to a massive air pollution crisis that is threatening residents\u2019 health, according to new research by the Guardian and Quinto Elemento Lab. The polluting facilities in Monterrey include factories that are operated by companies from around the world \u2013 including the US, Europe, Asia and Mexico \u2013 but export largely to the US. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T14:00:34",
-    "region": "APJC",
+    "title": "The Great Disconnect: Unmasking the \u2018Two Separate Conversations\u2019 in Security",
+    "url": "https://www.securityweek.com/the-great-disconnect-unmasking-the-two-separate-conversations-in-security/",
+    "snippet": "When familiar security concepts carry unfamiliar meanings for different audiences, teams talk past each other without even realizing it. This silent disconnect weakens communication, clarity, and outcomes. The post The Great Disconnect: Unmasking the \u2018Two Separate Conversations\u2019 in Security appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-02T14:30:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Malicious npm Package Uses Hidden Prompt and Script to Evade AI Security Tools",
+    "url": "https://thehackernews.com/2025/12/malicious-npm-package-uses-hidden.html",
+    "snippet": "Cybersecurity researchers have disclosed details of an npm package that attempts to influence artificial intelligence (AI)-driven security scanners.\nThe package in question is eslint-plugin-unicorn-ts-2, which masquerades as a TypeScript extension of the popular ESLint plugin. It was uploaded to the registry by a user named \"hamburgerisland\" in February 2024. The package has been downloaded",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T14:17:00",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -805,6 +1255,36 @@
     "snippet": "An ongoing phishing campaign impersonates popular brands, such as Unilever, Disney, MasterCard, LVMH, and Uber, in Calendly-themed lures to steal Google Workspace and Facebook business account credentials. [...]",
     "source": "bleepingcomputer.com",
     "time": "2025-12-02T14:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Indian student who was stabbed to death in UK is named",
+    "url": "https://www.bbc.com/news/articles/czrkvgd6gmjo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Vijay Kumar, 30, died from serious injuries after he was found on Barbourne Road, Worcester.",
+    "source": "bbc.com",
+    "time": "2025-12-02T13:58:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Chrome, Edge Extensions Caught Tracking Users, Creating Backdoors",
+    "url": "https://www.securityweek.com/chrome-edge-extensions-caught-tracking-users-creating-backdoors/",
+    "snippet": "The extensions were seen profiling users, reading cookie data to create unique identifiers, and executing payloads with browser API access. The post Chrome, Edge Extensions Caught Tracking Users, Creating Backdoors appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-02T13:48:47",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Honduran ex-president Juan Orlando Hern\u00e1ndez released from US prison after Trump pardon",
+    "url": "https://www.bbc.com/news/articles/cpvdr8k7xjro?at_medium=RSS&at_campaign=rss",
+    "snippet": "Hern\u00e1ndez was found guilty in March 2024 of conspiring to bring cocaine into the US, and of possessing machine guns.",
+    "source": "bbc.com",
+    "time": "2025-12-02T13:47:34",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -820,22 +1300,22 @@
     "type": "GENERAL"
   },
   {
-    "title": "University of Pennsylvania confirms new data breach after Oracle hack",
-    "url": "https://www.bleepingcomputer.com/news/security/university-of-pennsylvania-confirms-data-theft-after-oracle-ebs-hack/",
-    "snippet": "\u200bThe University of Pennsylvania (Penn) has confirmed a new data breach after attackers stole documents containing personal information from its Oracle E-Business Suite servers in August. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-02T12:55:59",
-    "region": "Global",
+    "title": "UK criticises Gaza aid delays as tents take year to arrive",
+    "url": "https://www.bbc.com/news/articles/cqlk663555no?at_medium=RSS&at_campaign=rss",
+    "snippet": "Foreign Secretary Yvette Cooper said the situation remains \"dire\" as the United Nations warned 1.5 million people are in need of urgent shelter.",
+    "source": "bbc.com",
+    "time": "2025-12-02T13:06:40",
+    "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Death toll from Indonesia floods passes 700 as 1 million evacuated",
-    "url": "https://www.theguardian.com/world/2025/dec/02/indonesia-floods-one-million-people-evacuated-death-toll-rises",
-    "snippet": "About 3.2 million people on Sumatra island have been affected, 2,600 have been injured and 504 are missing The number of people killed by floods and landslides on Indonesia\u2019s Sumatra island rose to 708 on Tuesday, the country\u2019s disaster agency said, with 504 people missing. The toll was a sharp increase from the 604 dead reported by the agency on Monday. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-02T12:19:25",
-    "region": "Global",
+    "title": "Saporo Raises $8 Million for Identity Security Platform",
+    "url": "https://www.securityweek.com/saporo-raises-8-million-for-identity-security-platform/",
+    "snippet": "The Swiss cybersecurity firm will scale its R&D, sales and marketing teams as it pursues expansion across Europe. The post Saporo Raises $8 Million for Identity Security Platform appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-02T12:17:09",
+    "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -850,12 +1330,32 @@
     "type": "GENERAL"
   },
   {
+    "title": "Like Social Media, AI Requires Difficult Choices",
+    "url": "https://www.schneier.com/blog/archives/2025/12/like-social-media-ai-requires-difficult-choices.html",
+    "snippet": "In his 2020 book, \u201c Future Politics , \u201d British barrister Jamie Susskind wrote that the dominant question of the 20th century was \u201cHow much of our collective life should be determined by the state, and what should be left to the market and civil society?\u201d But in the early decades of this century, Susskind suggested that we face a different question: \u201cTo what extent should our lives be directed and controlled by powerful digital systems\u2014and on what terms?\u201d Artificial intelligence (AI) forces us to confront this question. It is a technology that in theory amplifies the power of its users: A manager, marketer, political campaigner, or opinionated internet user can utter a single instruction, and see their message\u2014whatever it is\u2014instantly written, personalized, and propagated via email, text, social, or other channels to thousands of people within their organization, or millions around the world. It also allows us to individualize solicitations for political donations, elaborate a grievance into a well-articulated policy position, or tailor a persuasive argument to an identity group, or even a single person...",
+    "source": "schneier.com",
+    "time": "2025-12-02T12:03:01",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Vulnerability in OpenAI Coding Agent Could Facilitate Attacks on Developers",
+    "url": "https://www.securityweek.com/vulnerability-in-openai-coding-agent-could-facilitate-attacks-on-developers/",
+    "snippet": "The Codex CLI vulnerability tracked as CVE-2025-61260 can be exploited for command execution. The post Vulnerability in OpenAI Coding Agent Could Facilitate Attacks on Developers appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-02T12:02:32",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Mirion Medical EC2 Software NMIS BioDose",
     "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-336-01",
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission Assignment for Critical Resource, Use of Client-Side Authentication, Use of Hard-coded Credentials 2. RISK EVALUATION Successful exploitation of these vulnerabilities could allow an attacker to modify program executables, gain access to sensitive information, gain unauthorized access to the application, and execute arbitrary code. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following Mirion Medical products are affected: EC2 Software NMIS BioDose: Versions prior to 23.0 3.2 VULNERABILITY OVERVIEW 3.2.1 INCORRECT PERMISSION ASSIGNMENT FOR CRITICAL RESOURCE CWE-732 NMIS/BioDose V22.02 and previous versions' installation directory paths by default have insecure file permissions, which in certain deployment scenarios can enable users on client workstations to modify the program executables and libraries. CVE-2025-64642 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.0 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64642 . A base score of 7.1 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:N/UI:N/VC:L/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.2.2 INCORRECT PERMISSION ASSIGNMENT FOR CRITICAL RESOURCE CWE-732 NMIS/BioDose V22.02 and previous version installations where the embedded Microsoft SQLServer Express is used are exposed in the Windows share accessed by clients in networked installs. By default, this directory has insecure directory paths that allow access to the SQL Server database and configuration files, which can contain sensitive data. CVE-2025-64298 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.4 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64298 . A base score of 8.6 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.2.3 USE OF CLIENT-SIDE AUTHENTICATION CWE-603 NMIS/BioDose V22.02 and previous versions rely on a common SQL Server user account to access data in the database. User access in the client application is restricted by a password authentication check in the client software but the underlying database connection always has access. The latest version of NMIS/BioDose introduces an option to use Windows user authentication with the database, which would restrict this database connection. CVE-2025-61940 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L ). A CVSS v4 score has also been calculated for CVE-2025-61940 . A base score of 8.7 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N ). 3.2.4 USE OF HARD-CODED CREDENTIALS CWE-798 NMIS/BioDose software V22.02 and previous versions contain executable binaries with plain text hard-coded passwords. These hard-coded passwords could allow unauthorized access to both the application and database. CVE-2025-64778 has been assigned to this vulnerability. A CVSS v3.1 base score of 7.3 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L ). A CVSS v4 score has also been calculated for CVE-2025-64778 . A base score of 8.4 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N ). 3.2.5 INCORRECT PERMISSION ASSIGNMENT FOR CRITICAL RESOURCE CWE-732 NMIS/BioDose V22.02 and previous versions rely on a Microsoft SQL Server database. The SQL user account 'nmdbuser' and other created accounts by default have the sysadmin role. This can lead to remote code execution through the use of certain built-in stored procedures. CVE-2025-62575 has been assigned to this vulnerability. A CVSS v3.1 base score of 8.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L ). A CVSS v4 score has also been calculated for CVE-2025-62575 . A base score of 8.7 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Healthcare and Public Health COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Joe Dillon reported these vulnerabilities to Mirion Medical. 4. MITIGATIONS Mirion Medical recommends users update to V23.0 or later. Users with an active support contract should update to the latest version through the software or users can contact Mirion Medical support directly. CISA recommends users take defensive measures to minimize the risk of exploitation of these vulnerabilities, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting these vulnerabilities has been reported to CISA at this time. 5. UPDATE HISTORY December 2, 2025: Initial Publication",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00",
-    "region": "Global",
+    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -875,17 +1375,7 @@
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATION OF CODE ('CODE INJECTION') 2. RISK EVALUATION Successful exploitation of this vulnerability could allow an unauthenticated attacker to gain remote code execution with elevated privileges. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following versions of Industrial Video & Control Longwatch, a video surveillance and monitoring system, are affected: Longwatch: Versions 6.309 to 6.334 3.2 VULNERABILITY OVERVIEW 3.2.1 IMPROPER CONTROL OF GENERATION OF CODE ('CODE INJECTION') CWE-94 A vulnerability in Longwatch devices allows unauthenticated HTTP GET requests to execute arbitrary code via an exposed endpoint, due to the absence of code signing and execution controls. Exploitation results in SYSTEM-level privileges. CVE-2025-13658 has been assigned to this vulnerability. A CVSS v3.1 base score of 9.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-13658 . A base score of 9.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Energy, Water and Wastewater Systems COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Concerned OT Engineer reported this vulnerability to CISA. 4. MITIGATIONS Industrial Video & Control recommends users running versions 6.309 to 6.334 should upgrade to version 6.335 or later to ensure protection against this vulnerability. For more details, view Industrial Video & Control's advisory . CISA recommends users take defensive measures to minimize the risk of exploitation of this vulnerability, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting this vulnerability has been reported to CISA at this time. 5. UPDATE HISTORY December 2, 2025: Initial Publication",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "CISA Adds Two Known Exploited Vulnerabilities to Catalog",
-    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-adds-two-known-exploited-vulnerabilities-catalog",
-    "snippet": "CISA has added two new vulnerabilities to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-48572 Android Framework Privilege Escalation Vulnerability CVE-2025-48633 Android Framework Information Disclosure Vulnerability These types of vulnerabilities are a frequent attack vector for malicious cyber actors and pose significant risks to the federal enterprise. Binding Operational Directive (BOD) 22-01: Reducing the Significant Risk of Known Exploited Vulnerabilities established the KEV Catalog as a living list of known Common Vulnerabilities and Exposures (CVEs) that carry significant risk to the federal enterprise. BOD 22-01 requires Federal Civilian Executive Branch (FCEB) agencies to remediate identified vulnerabilities by the due date to protect FCEB networks against active threats. See the BOD 22-01 Fact Sheet for more information. Although BOD 22-01 only applies to FCEB agencies, CISA strongly urges all organizations to reduce their exposure to cyberattacks by prioritizing timely remediation of KEV Catalog vulnerabilities as part of their vulnerability management practice. CISA will continue to add vulnerabilities to the catalog that meet the specified criteria .",
-    "source": "cisa.gov",
-    "time": "2025-12-02T12:00:00",
-    "region": "Global",
+    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -900,11 +1390,51 @@
     "type": "GENERAL"
   },
   {
-    "title": "Windows 11 KB5070311 update fixes File Explorer freezes, search issues",
-    "url": "https://www.bleepingcomputer.com/news/microsoft/windows-11-kb5070311-update-fixes-file-explorer-freezes-search-issues/",
-    "snippet": "\u200b\u200bMicrosoft has released the KB5070311 preview cumulative update for Windows 11 systems, which includes 49 changes, including fixes for File Explorer freezes and search issues. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-02T11:19:31",
+    "title": "SecAlerts Cuts Through the Noise with a Smarter, Faster Way to Track Vulnerabilities",
+    "url": "https://thehackernews.com/2025/12/secalerts-cuts-through-noise-with.html",
+    "snippet": "Vulnerability management is a core component of every cybersecurity strategy. However, businesses often use thousands of software without realising it (when was the last time you checked?), and keeping track of all the vulnerability alerts, notifications, and updates can be a burden on resources and often leads to missed vulnerabilities.\u00a0\nTaking into account that nearly 10% of",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T11:30:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Iranian director given jail sentence while on trip to collect US awards",
+    "url": "https://www.bbc.com/news/articles/c1m8e8l1mp2o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Jafar Panahi gets a one-year sentence in his absence for \"propaganda activities\" against the Iranian system.",
+    "source": "bbc.com",
+    "time": "2025-12-02T10:40:12",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Personal Information of 33.7 Million Stolen From Coupang",
+    "url": "https://www.securityweek.com/personal-information-of-33-7-million-stolen-from-coupang/",
+    "snippet": "Names, addresses, email addresses, and phone numbers were compromised in a five-month-long data breach. The post Personal Information of 33.7 Million Stolen From Coupang appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-02T10:38:59",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Floods in Indonesia, Sri Lanka, Thailand and Vietnam Have Killed Over 1,200. Here\u2019s What to Know.",
+    "url": "https://www.nytimes.com/2025/12/01/world/asia/flooding-sri-lanka-indonesia-thailand-vietnam-cyclone-rain.html",
+    "snippet": "Unusually destructive storms have killed at least 1,350 people across the region and displaced millions in South and Southeast Asia.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T10:10:41",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Marcos vs. Marcos: The New Front in Philippine Politics",
+    "url": "https://www.nytimes.com/2025/12/02/world/asia/bongbong-imee-marcos-feud.html",
+    "snippet": "President Ferdinand R. Marcos Jr. is under fire for an enormous graft scandal that is unfolding under his watch. One prominent voice is his sister Senator Imee Marcos.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T10:03:43",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -920,12 +1450,82 @@
     "type": "GENERAL"
   },
   {
+    "title": "'Hung by my wrists and beaten': Israeli-Russian woman says Iraqi militants tortured her in captivity",
+    "url": "https://www.bbc.com/news/articles/cj69588eewyo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Elizabeth Tsurkov, who was freed in September, tells the BBC that her two years in captivity left her physically and mentally scarred.",
+    "source": "bbc.com",
+    "time": "2025-12-02T09:53:16",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Android Zero-Days Patched in December 2025 Security Update",
+    "url": "https://www.securityweek.com/androids-december-2025-updates-patch-two-zero-days/",
+    "snippet": "Google warns that two out of the 107 vulnerabilities patched in Android this month have been exploited in limited, targeted attacks. The post Android Zero-Days Patched in December 2025 Security Update appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-02T09:36:46",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "China, Evoking World War II, Urges Europe to Take Its Side Against Japan",
+    "url": "https://www.nytimes.com/2025/12/02/world/asia/china-japan-taiwan-europe.html",
+    "snippet": "A diplomatic row with Japan over Taiwan has China turning to Britain and France for support, appealing to their shared history as wartime allies.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T08:29:59",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Chinese and Japanese boats face off near disputed islands as feud worsens",
+    "url": "https://www.bbc.com/news/articles/crk7xjpv8gmo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Each side claims to have fended off an incursion in the disputed waters near Taiwan.",
+    "source": "bbc.com",
+    "time": "2025-12-02T07:26:10",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Trump Alleges Fraud, Without Evidence, in Honduras Election",
+    "url": "https://www.nytimes.com/2025/12/02/world/americas/honduras-presidential-vote-trump.html",
+    "snippet": "Honduras was on edge after tallies showed two candidates separated by about 500 votes. Then President Trump claimed that officials were rigging results.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T07:21:19",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Google Patches 107 Android Flaws, Including Two Framework Bugs Exploited in the Wild",
+    "url": "https://thehackernews.com/2025/12/google-patches-107-android-flaws.html",
+    "snippet": "Google on Monday released monthly security updates for the Android operating system, including two vulnerabilities that it said have been exploited in the wild.\nThe patch addresses a total of 107 security flaws spanning different components, including Framework, System, Kernel, as well as those from Arm, Imagination Technologies, MediaTek, Qualcomm, and Unison.\nThe two high-severity shortcomings",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T07:17:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Death toll in Indonesia floods passes 600",
+    "url": "https://www.bbc.com/news/articles/c4g4enlp6kzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Another 500 people are missing, while thousands more have been injured after a cyclone hit the region.",
+    "source": "bbc.com",
+    "time": "2025-12-02T07:10:41",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Hong Kong leader orders investigation into deadly fire that killed 151",
     "url": "https://www.bbc.com/news/articles/ce8ng18p7v3o?at_medium=RSS&at_campaign=rss",
     "snippet": "The fire is the deadliest the city has seen in more than 70 years.",
     "source": "bbc.com",
     "time": "2025-12-02T05:58:21",
-    "region": "Global",
+    "region": "APJC",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -940,61 +1540,421 @@
     "type": "GENERAL"
   },
   {
-    "title": "Mangione in court as lawyers seek to rule out notebook, gun and other key evidence",
-    "url": "https://www.bbc.com/news/articles/c33mz477p4po?at_medium=RSS&at_campaign=rss",
-    "snippet": "A legal expert explains how the defence could stand to gain even if their longshot bid fails this week.",
+    "title": "Honduras presidential candidates locked in 'technical tie', official says",
+    "url": "https://www.bbc.com/news/articles/cx2dgp8mvmno?at_medium=RSS&at_campaign=rss",
+    "snippet": "Right-wing candidate Nasry Asfura leads former TV host Salvador Nasralla by just 515 votes, according to country's electoral authority.",
     "source": "bbc.com",
-    "time": "2025-12-01T21:56:30",
+    "time": "2025-12-02T05:06:31",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Five South Africans in court over alleged recruitment for Russia\u2019s war in Ukraine",
-    "url": "https://www.theguardian.com/world/2025/dec/01/south-africans-court-alleged-recruitment-russia-war-ukraine",
-    "snippet": "Suspects arrested after tipoff over accusation that 17 South Africans were tricked on to frontlines of the conflict Five South Africans have appeared in court on charges relating to recruitment and fighting for Russia in its war with Ukraine, amid allegations that 17 South Africans had been tricked on to the frontlines of the conflict. A female suspect was arrested on Thursday on her return to South Africa at OR Tambo international airport outside Johannesburg, police said. Three suspects were arrested at the airport on Friday and another on Saturday. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-01T14:43:19",
+    "title": "Australia won't be intimidated by firms over social media ban, minister tells BBC",
+    "url": "https://www.bbc.com/news/articles/cnv2z059745o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Anika Wells says she is ready to help nations which wish to copy Australia's social media ban for under-16s.",
+    "source": "bbc.com",
+    "time": "2025-12-02T02:40:47",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Council removes proposal to rename park named after former president of Israel",
+    "url": "https://www.bbc.com/news/articles/c5yqp2xzv94o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The park is named after Belfast-born and Dublin-raised Chaim Herzog, a former president of Israel.",
+    "source": "bbc.com",
+    "time": "2025-12-01T22:34:10",
     "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Aid cuts have shaken HIV/Aids care to its core \u2013 and will mean millions more infections ahead",
-    "url": "https://www.theguardian.com/global-development/2025/dec/01/global-health-hiv-aids-funding-cuts-infections-prevention",
-    "snippet": "Reports highlight devastating impact of slashed funding, especially in parts of Africa, that could lead to 3.3m new HIV infections by 2030 In Mozambique, a teenage rape victim sought care at a health clinic only to find it closed. In Zimbabwe, Aids-related deaths have risen for the first time in five years. In Ethiopia and the Democratic Republic of the Congo (DRC), patients with suspected HIV went undiagnosed due to test-kit stocks running out. Stories of the devastating impact of US, British and wider European aid cuts on the fight against HIV \u2013 particularly in sub-Saharan Africa \u2013 continue to mount as 2025 comes to an end, and are set out in a series of reports released in the past week. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-12-01T06:00:27",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "African leaders push for recognition of colonial crimes and reparations",
-    "url": "https://www.theguardian.com/world/2025/nov/30/african-leaders-push-for-recognition-of-colonial-crimes-and-reparations",
-    "snippet": "Algerian foreign minister says African countries and peoples continue to pay a heavy price for colonialism African leaders are pushing to have colonial-era crimes recognised, criminalised and addressed through reparations. At a conference in the Algerian capital, Algiers, diplomats and leaders convened to advance an African Union resolution passed at a meeting earlier this year calling for justice and reparations for victims of colonialism. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-11-30T21:40:48",
+    "title": "Drug lord El Chapo's son pleads guilty in US drug trafficking case",
+    "url": "https://www.bbc.com/news/articles/ckgz28zyp8vo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Joaqu\u00edn Guzm\u00e1n L\u00f3pez's guilty plea comes after US prosecutors pledged last May to not pursue the death penalty against him.",
+    "source": "bbc.com",
+    "time": "2025-12-01T22:18:26",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Jacob Zuma\u2019s daughter resigns amid claims South Africans tricked to fight for Russia",
-    "url": "https://www.theguardian.com/world/2025/nov/28/jacob-zuma-daughter-resigns-claims-south-africans-tricked-fight-russia",
-    "snippet": "Duduzile Zuma-Sambudla quits as MP after being accused of recruiting 17 men who are trapped in war-torn Ukraine A daughter of the former South African president Jacob Zuma has resigned as an MP, after being accused of tricking 17 South African men into fighting for Russia in Ukraine by telling them they were travelling to Russia to train as bodyguards for the Zumas\u2019 uMkhonto weSizwe (MK) party. Duduzile Zuma-Sambudla, 43, the most visible and active in politics of her siblings, volunteered to resign and step back from public roles while cooperating with a police investigation and working to bring the men home, the MK chair, Nkosinathi Nhleko, said at a press conference in Durban. Continue reading...",
-    "source": "theguardian.com",
-    "time": "2025-11-28T15:28:33",
+    "title": "Tomiris Unleashes 'Havoc' With New Tools, Tactics",
+    "url": "https://www.darkreading.com/cyberattacks-data-breaches/tomiris-unleashes-havoc-new-tools-tactics",
+    "snippet": "The Russian-speaking group is targeting government and diplomatic entities in CIS member states and Central Asia in its latest cyber-espionage campaign.",
+    "source": "darkreading.com",
+    "time": "2025-12-01T22:06:19",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "CodeRED Emergency Alert Platform Shut Down Following Cyberattack",
+    "url": "https://www.darkreading.com/cyberattacks-data-breaches/codered-emergency-alert-platform-shut-down-cyberattack",
+    "snippet": "The Inc ransomware gang took responsibility for the attack earlier this month and claimed it stole sensitive subscriber data.",
+    "source": "darkreading.com",
+    "time": "2025-12-01T21:24:39",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Is the US preparing for war with Venezuela?",
+    "url": "https://www.bbc.com/news/videos/clyk1g9e144o?at_medium=RSS&at_campaign=rss",
+    "snippet": "BBC Verify has tracked US assets in the Caribbean Sea, after military strikes on suspected Venezuelan drug boats.",
+    "source": "bbc.com",
+    "time": "2025-12-01T20:07:42",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Police Disrupt 'Cryptomixer,' Seize Millions in Crypto",
+    "url": "https://www.darkreading.com/cyberattacks-data-breaches/police-disrupt-cryptomixer-seize-millions-crypto",
+    "snippet": "Multiple European law enforcement agencies recently disrupted Cryptomixer, a service allegedly used by cybercriminals to launder ill-gotten gains from ransomware and other cyber activities.",
+    "source": "darkreading.com",
+    "time": "2025-12-01T20:07:00",
     "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
-    "url": "https://www.cisa.gov/news-events/alerts/2025/11/28/cisa-adds-one-known-exploited-vulnerability-catalog",
-    "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2021-26829 OpenPLC ScadaBR Cross-site Scripting Vulnerability This type of vulnerability is a frequent attack vector for malicious cyber actors and poses significant risks to the federal enterprise. Binding Operational Directive (BOD) 22-01: Reducing the Significant Risk of Known Exploited Vulnerabilities established the KEV Catalog as a living list of known Common Vulnerabilities and Exposures (CVEs) that carry significant risk to the federal enterprise. BOD 22-01 requires Federal Civilian Executive Branch (FCEB) agencies to remediate identified vulnerabilities by the due date to protect FCEB networks against active threats. See the BOD 22-01 Fact Sheet for more information. Although BOD 22-01 only applies to FCEB agencies, CISA strongly urges all organizations to reduce their exposure to cyberattacks by prioritizing timely remediation of KEV Catalog vulnerabilities as part of their vulnerability management practice. CISA will continue to add vulnerabilities to the catalog that meet the specified criteria .",
-    "source": "cisa.gov",
-    "time": "2025-11-28T12:00:00",
+    "title": "Dozens missing as deadly landslide hits two boats in Peru",
+    "url": "https://www.bbc.com/news/articles/cz0n1rm95yxo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Rescue efforts in Peru's central Ucayali region are being hindered by strong currents on the river, one official said.",
+    "source": "bbc.com",
+    "time": "2025-12-01T19:13:10",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Will Australia's social media ban actually work?",
+    "url": "https://www.bbc.com/news/videos/cwyvgq7224go?at_medium=RSS&at_campaign=rss",
+    "snippet": "Australia is banning social media for everyone under the age 16 - here's everything you need to know in 60 seconds.",
+    "source": "bbc.com",
+    "time": "2025-12-01T19:00:30",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "India Orders Phone Makers to Pre-Install Government App to Tackle Telecom Fraud",
+    "url": "https://thehackernews.com/2025/12/india-orders-phone-makers-to-pre.html",
+    "snippet": "India's telecommunications ministry has ordered major mobile device manufacturers to preload a government-backed cybersecurity app named Sanchar Saathi on all new phones within 90 days.\nAccording to a report from Reuters, the app cannot be deleted or disabled from users' devices.\nSanchar Saathi, available on the web and via mobile apps for Android and iOS, allows users to report suspected fraud,",
+    "source": "thehackernews.com",
+    "time": "2025-12-01T17:55:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Facial Recognition\u2019s Trust Problem",
+    "url": "https://www.securityweek.com/facial-recognitions-trust-problem/",
+    "snippet": "Two technologies \u2014 one for public safety, one for controlled entry \u2014 show why trust in facial recognition must be earned, not assumed. The post Facial Recognition\u2019s Trust Problem appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-01T16:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "$29 Million Worth of Bitcoin Seized in Cryptomixer Takedown",
+    "url": "https://www.securityweek.com/29-million-worth-of-bitcoin-seized-in-cryptomixer-takedown/",
+    "snippet": "Cryptomixer was targeted by law enforcement in Operation Olympia for facilitating cybercrime and money laundering. The post $29 Million Worth of Bitcoin Seized in Cryptomixer Takedown appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-01T15:37:35",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "New Albiriox Android Malware Developed by Russian Cybercriminals",
+    "url": "https://www.securityweek.com/new-albiriox-android-malware-developed-by-russian-cybercriminals/",
+    "snippet": "Albiriox is a banking trojan offered under a malware-as-a-service model for $720 per month. The post New Albiriox Android Malware Developed by Russian Cybercriminals appeared first on SecurityWeek .",
+    "source": "securityweek.com",
+    "time": "2025-12-01T14:31:12",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Banning VPNs",
+    "url": "https://www.schneier.com/blog/archives/2025/12/banning-vpns.html",
+    "snippet": "This is crazy. Lawmakers in several US states are contemplating banning VPNs , because\u2026think of the children! As of this writing, Wisconsin lawmakers are escalating their war on privacy by targeting VPNs in the name of \u201cprotecting children\u201d in A.B. 105 / S.B. 130 . It\u2019s an age verification bill that requires all websites distributing material that could conceivably be deemed \u201csexual content\u201d to both implement an age verification system and also to block the access of users connected via VPN. The bill seeks to broadly expand the definition of materials that are \u201charmful to minors\u201d beyond the type of speech that states can prohibit minors from accessing\u00ad potentially encompassing things like depictions and discussions of human anatomy, sexuality, and reproduction...",
+    "source": "schneier.com",
+    "time": "2025-12-01T12:59:47",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Tulip Siddiq MP given jail sentence in Bangladesh after trial in her absence",
+    "url": "https://www.bbc.com/news/articles/c4g9dyd84lwo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The former minister and niece of Bangladesh's ousted former leader, who received a two-year sentence, says the charges are politically motivated.",
+    "source": "bbc.com",
+    "time": "2025-12-01T12:55:22",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "\u26a1 Weekly Recap: Hot CVEs, npm Worm Returns, Firefox RCE, M365 Email Raid & More",
+    "url": "https://thehackernews.com/2025/12/weekly-recap-hot-cves-npm-worm-returns.html",
+    "snippet": "Hackers aren\u2019t kicking down the door anymore. They just use the same tools we use every day \u2014 code packages, cloud accounts, email, chat, phones, and \u201ctrusted\u201d partners \u2014 and turn them against us.\nOne bad download can leak your keys. One weak vendor can expose many customers at once. One guest invite, one link on a phone, one bug in a common tool, and suddenly your mail, chats, repos, and",
+    "source": "thehackernews.com",
+    "time": "2025-12-01T12:47:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Shai-hulud 2.0 Variant Threatens Cloud Ecosystem",
+    "url": "https://www.darkreading.com/cyberattacks-data-breaches/shai-hulud-variant-cloud-ecosystem",
+    "snippet": "The latest attack from the self-replicating npm-package poisoning worm can also steal credentials and secrets from AWS, Google Cloud Platform, and Azure.",
+    "source": "darkreading.com",
+    "time": "2025-12-01T11:10:12",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Outdoor Concerts? Uncovered Hair? Shimmying in Public? Is This Iran?",
+    "url": "https://www.nytimes.com/2025/12/01/world/middleeast/iran-loosening-social-restrictions.html",
+    "snippet": "Young people across Iran have been leading a dramatic change in social mores in recent months. \u201cWe have a fearless young generation that is breaking taboos.\u201d",
+    "source": "nytimes.com",
+    "time": "2025-12-01T10:01:35",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Japanese 'One Piece' singer stopped mid-show after China-Japan feud",
+    "url": "https://www.bbc.com/news/articles/c997n2zlegzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The sudden cancellation of Japanese events in Shanghai have sparked criticism and fanned nationalist sentiment.",
+    "source": "bbc.com",
+    "time": "2025-12-01T08:17:32",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "WW1 toxic compound sprayed on Georgian protesters, BBC evidence suggests",
+    "url": "https://www.bbc.com/news/articles/czrk7g50e1po?at_medium=RSS&at_campaign=rss",
+    "snippet": "Anti-government demonstrators are likely to have been targeted with camite, our investigation finds.",
+    "source": "bbc.com",
+    "time": "2025-12-01T00:19:04",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Greek sheep and goat cull raises fears of feta cheese shortage",
+    "url": "https://www.bbc.com/news/articles/cgex9d0212xo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Livestock is being culled across the country due to an infectious disease outbreak.",
+    "source": "bbc.com",
+    "time": "2025-12-01T00:10:14",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Pope Leo finds his voice on first foreign trip",
+    "url": "https://www.bbc.com/news/articles/cvgrwedyr0eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "We are learning a little more about how Pope Leo intends to carry out his duties, writes Religion Editor Aleem Maqbool.",
+    "source": "bbc.com",
+    "time": "2025-11-30T22:41:04",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Dignitas founder dies by assisted suicide aged 92, group says",
+    "url": "https://www.bbc.com/news/articles/c79x8x82gy4o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Ludwig Minelli founded the group in 1998, which has since helped thousands of people to die.",
+    "source": "bbc.com",
+    "time": "2025-11-30T21:18:34",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Benjamin Netanyahu seeks pardon from Israel's president",
+    "url": "https://www.bbc.com/news/articles/c4gv76r5qpvo?at_medium=RSS&at_campaign=rss",
+    "snippet": "He denies any wrongdoing in three ongoing trials over allegations of bribery, fraud and breach of trust.",
+    "source": "bbc.com",
+    "time": "2025-11-30T11:49:50",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "French farm has \u20ac90,000 worth of snails stolen",
+    "url": "https://www.bbc.com/news/articles/c93wnyxjkxko?at_medium=RSS&at_campaign=rss",
+    "snippet": "The break-in was \"a real blow\", says L'Escargot Des Grands Crus, which was preparing deliveries for the holiday season.",
+    "source": "bbc.com",
+    "time": "2025-11-30T08:45:37",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "The five things that set the 2025 Atlantic hurricane season apart",
+    "url": "https://www.bbc.com/weather/articles/cz68pd38y7vo?at_medium=RSS&at_campaign=rss",
+    "snippet": "2025 was an unusual Atlantic hurricane season. Darren Bett explains what set this season apart from others.",
+    "source": "bbc.com",
+    "time": "2025-11-30T01:12:48",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Why I spend hours painstakingly repairing banknotes",
+    "url": "https://www.bbc.com/news/articles/c5yq6g1gv4jo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Fixing cash is a thriving new business in Gaza after Israel stopped transfers of banknotes and banks were destroyed and looted.",
+    "source": "bbc.com",
+    "time": "2025-11-30T00:04:32",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "More than 70,000 killed in Gaza since Israel offensive began, Hamas-run health ministry says",
+    "url": "https://www.bbc.com/news/articles/c8e97kl240lo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Two young brothers were among the latest killed - reportedly in an Israeli air strike as the Gaza ceasefire remains fragile.",
+    "source": "bbc.com",
+    "time": "2025-11-29T23:16:22",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "William pays visit to severely ill children from Gaza",
+    "url": "https://www.bbc.com/news/articles/cd9zq4xn543o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The Prince of Wales visits a number of severely ill children from Gaza being treated by the NHS.",
+    "source": "bbc.com",
+    "time": "2025-11-29T22:00:39",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Friday Squid Blogging: Flying Neon Squid Found on Israeli Beach",
+    "url": "https://www.schneier.com/blog/archives/2025/11/friday-squid-blogging-flying-neon-squid-found-on-israeli-beach.html",
+    "snippet": "A meter-long flying neon squid ( Ommastrephes bartramii ) was found dead on an Israeli beach. The species is rare in the Mediterranean. As usual, you can also use this squid post to talk about the security stories in the news that I haven\u2019t covered. Blog moderation policy.",
+    "source": "schneier.com",
+    "time": "2025-11-28T20:56:20",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "UN panel hears evidence Israel operating 'de facto policy of torture'",
+    "url": "https://www.bbc.com/news/articles/ckglrdg6kz7o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Rights groups gave harrowing details about conditions in Israeli detention centres. Israel has not responded but has previously denied allegations of torture.",
+    "source": "bbc.com",
+    "time": "2025-11-28T19:40:55",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Cover Story newsletter: What China will dominate next",
+    "url": "https://www.economist.com/the-world-this-week/2025/11/28/cover-story-newsletter-what-china-will-dominate-next",
+    "snippet": "How we chose this week\u2019s image",
+    "source": "economist.com",
+    "time": "2025-11-28T17:30:47",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Prompt Injection Through Poetry",
+    "url": "https://www.schneier.com/blog/archives/2025/11/prompt-injection-through-poetry.html",
+    "snippet": "In a new paper, \u201c Adversarial Poetry as a Universal Single-Turn Jailbreak Mechanism in Large Language Models ,\u201d researchers found that turning LLM prompts into poetry resulted in jailbreaking the models: Abstract : We present evidence that adversarial poetry functions as a universal single-turn jailbreak technique for Large Language Models (LLMs). Across 25 frontier proprietary and open-weight models, curated poetic prompts yielded high attack-success rates (ASR), with some providers exceeding 90%. Mapping prompts to MLCommons and EU CoP risk taxonomies shows that poetic attacks transfer across CBRN, manipulation, cyber-offence, and loss-of-control domains. Converting 1,200 ML-Commons harmful prompts into verse via a standardized meta-prompt produced ASRs up to 18 times higher than their prose baselines. Outputs are evaluated using an ensemble of 3 open-weight LLM judges, whose binary safety assessments were validated on a stratified human-labeled subset. Poetic framing achieved an average jailbreak success rate of 62% for hand-crafted poems and approximately 43% for meta-prompt conversions (compared to non-poetic baselines), substantially outperforming non-poetic baselines and revealing a systematic vulnerability across model families and safety training approaches. These findings demonstrate that stylistic variation alone can circumvent contemporary safety mechanisms, suggesting fundamental limitations in current alignment methods and evaluation protocols...",
+    "source": "schneier.com",
+    "time": "2025-11-28T14:54:38",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Business",
+    "url": "https://www.economist.com/the-world-this-week/2025/11/27/business",
+    "snippet": "",
+    "source": "economist.com",
+    "time": "2025-11-27T14:06:34",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "The weekly cartoon",
+    "url": "https://www.economist.com/the-world-this-week/2025/11/27/the-weekly-cartoon",
+    "snippet": "",
+    "source": "economist.com",
+    "time": "2025-11-27T14:06:34",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Politics",
+    "url": "https://www.economist.com/the-world-this-week/2025/11/27/politics",
+    "snippet": "",
+    "source": "economist.com",
+    "time": "2025-11-27T14:06:34",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Fracking has transformed an Argentine town but what about the nation?",
+    "url": "https://www.bbc.com/news/articles/cewj1e1yk2vo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Argentina hopes that an oil and gas boom can benefit the whole country.",
+    "source": "bbc.com",
+    "time": "2025-11-27T00:02:47",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Meet Rey, the Admin of \u2018Scattered Lapsus$ Hunters\u2019",
+    "url": "https://krebsonsecurity.com/2025/11/meet-rey-the-admin-of-scattered-lapsus-hunters/",
+    "snippet": "A prolific cybercriminal group that calls itself \"Scattered LAPSUS$ Hunters\" made headlines regularly this year by stealing data from and publicly mass extorting dozens of major corporations. But the tables seem to have turned somewhat for \"Rey,\" the moniker chosen by the technical operator and public face of the hacker group: Earlier this week, Rey confirmed his real life identity and agreed to an interview after KrebsOnSecurity tracked him down and contacted his father.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-26T17:22:36",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Digital Fraud at Industrial Scale: 2025 Wasn't Great",
+    "url": "https://www.darkreading.com/cyberattacks-data-breaches/digital-fraud-industrial-scale-2025",
+    "snippet": "Advanced fraud attacks surged 180% in 2025 as cyber scammers used generative AI to churn out flawless IDs, deepfakes, and autonomous bots at levels never before seen.",
+    "source": "darkreading.com",
+    "time": "2025-11-26T17:06:03",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "'Dark LLMs' Aid Petty Criminals, But Underwhelm Technically",
+    "url": "https://www.darkreading.com/threat-intelligence/dark-llms-petty-criminals",
+    "snippet": "As in the wider world, AI is not quite living up to the hype in the cyber underground. But it's definitely helping low-level cybercriminals do competent work.",
+    "source": "darkreading.com",
+    "time": "2025-11-26T16:01:35",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Four Ways AI Is Being Used to Strengthen Democracies Worldwide",
+    "url": "https://www.schneier.com/blog/archives/2025/11/four-ways-ai-is-being-used-to-strengthen-democracies-worldwide.html",
+    "snippet": "Democracy is colliding with the technologies of artificial intelligence. Judging from the audience reaction at the recent World Forum on Democracy in Strasbourg, the general expectation is that democracy will be the worse for it. We have another narrative. Yes, there are risks to democracy from AI, but there are also opportunities. We have just published the book Rewiring Democracy: How AI will Transform Politics, Government, and Citizenship . In it, we take a clear-eyed view of how AI is undermining confidence in our information ecosystem, how the use of biased AI can harm constituents of democracies and how elected officials with authoritarian tendencies can use it to consolidate power. But we also give positive examples of how AI is transforming democratic governance and politics for the better...",
+    "source": "schneier.com",
+    "time": "2025-11-25T12:00:50",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -1015,7 +1975,7 @@
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.8 ATTENTION : Exploitable remotely/low attack complexity Vendor : SiRcom Equipment : SMART Alert (SiSA) Vulnerability : Missing Authentication for Critical Function 2. RISK EVALUATION Successful exploitation of this vulnerability could enable an attacker to remotely activate or manipulate emergency sirens. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following versions of SiRcom SMART Alert (SiSA), a central control system, are affected: SMART Alert (SiSA): Version 3.0.48 3.2 VULNERABILITY OVERVIEW 3.2.1 Missing Authentication for Critical Function CWE-306 SiRcom SMART Alert (SiSA) allows unauthorized access to backend APIs. This allows an unauthenticated attacker to bypass the login screen using browser developer tools, gaining access to restricted parts of the application. CVE-2025-13483 has been assigned to this vulnerability. A CVSS v3.1 base score of 9.1 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-13483 . A base score of 8.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Emergency Services, Government Services and Facilities, Defense Industrial Base COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Souvik Kandar of Microsec (microsec.io) reported this vulnerability to CISA. 4. MITIGATIONS SiRcom did not respond to CISA's request for coordination. Contact SiRcom using their contact page for more information. CISA recommends users take defensive measures to minimize the risk of exploitation of this vulnerability, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting this vulnerability has been reported to CISA at this time. 5. UPDATE HISTORY November 25, 2025: Initial Publication",
     "source": "cisa.gov",
     "time": "2025-11-25T12:00:00",
-    "region": "Global",
+    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -1025,47 +1985,247 @@
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.1 ATTENTION : Exploitable remotely/Low attack complexity Vendor : Opto 22 Equipment : groov View Vulnerability : Exposure of Sensitive Information Through Metadata 2. RISK EVALUATION Successful exploitation of this vulnerability could result in credential exposure, key exposure, and privilege escalation. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following versions of groov View are affected: groov View Server for Windows: Versions R1.0a to R4.5d GRV-EPIC-PR1 Firmware: Versions prior to 4.0.3 GRV-EPIC-PR2 Firmware: Versions prior to 4.0.3 3.2 VULNERABILITY OVERVIEW 3.2.1 Exposure of Sensitive Information Through Metadata CWE-1230 The users endpoint in the groov View API returns a list of all users and associated metadata including their API keys. This endpoint requires an Editor role to access and will display API keys for all users, including Administrators. CVE-2025-13084 has been assigned to this vulnerability. A CVSS v3.1 base score of 7.6 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L ). A CVSS v4 score has also been calculated for CVE-2025-13084 . A base score of 6.1 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:L/VA:L/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Critical Manufacturing COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Nik Tsytsarkin, Ismail Aydemir, and Ryan Hall of Meta reported this vulnerability to CISA. 4. MITIGATIONS Opto 22 has published a patch to address this vulnerability and recommends that users upgrade to groov View Server for Windows Version R4.5e and GRV-EPIC Firmware Version 4.0.3. Additional information is available from Opto 22 here . CISA recommends users take defensive measures to minimize the risk of exploitation of this vulnerability, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. No known public exploitation specifically targeting this vulnerability has been reported to CISA at this time. 5. UPDATE HISTORY November 25, 2025: Initial Publication",
     "source": "cisa.gov",
     "time": "2025-11-25T12:00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Is Your Android TV Streaming Box Part of a Botnet?",
+    "url": "https://krebsonsecurity.com/2025/11/is-your-android-tv-streaming-box-part-of-a-botnet/",
+    "snippet": "On the surface, the Superbox media streaming devices for sale at retailers like BestBuy and Walmart may seem like a steal: They offer unlimited access to more than 2,200 pay-per-view and streaming services like Netflix, ESPN and Hulu, all for a one-time fee of around $400. But security experts warn these TV boxes require intrusive software that forces the user's network to relay Internet traffic for others, traffic that is often tied to cybercrime activity such as advertising fraud and account takeovers.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-24T18:44:52",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Low attack complexity Vendor : Ashlar-Vellum Equipment : Cobalt, Xenon, Argon, Lithium, Cobalt Share Vulnerabilities : Out-of-Bounds Write, Heap-based Buffer Overflow 2. RISK EVALUATION Successful exploitation of these vulnerabilities could allow an attacker to disclose information or execute arbitrary code. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following Ashlar-Vellum products are affected: Cobalt: Versions 12.6.1204.207 and prior Xenon: Versions 12.6.1204.207 and prior Argon: Versions 12.6.1204.207 and prior Lithium: Versions 12.6.1204.207 and prior Cobalt Share: Versions 12.6.1204.207 and prior 3.2 VULNERABILITY OVERVIEW 3.2.1 OUT-OF-BOUNDS WRITE CWE-787 An Out-of-Bounds Write vulnerability is present in Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, and Cobalt Share versions 12.6.1204.207 and prior that could allow an attacker to disclose information or execute arbitrary code. CVE-2025-65084 has been assigned to this vulnerability. A CVSS v3.1 base score of 7.8 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-65084 . A base score of 8.4 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:N/UI:A/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.2.2 HEAP-BASED BUFFER OVERFLOW CWE-122 A Heap-based Buffer Overflow vulnerability is present in Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, and Cobalt Share versions 12.6.1204.207 and prior that could allow an attacker to disclose information or execute arbitrary code. CVE-2025-65085 has been assigned to this vulnerability. A CVSS v3.1 base score of 7.8 has been calculated; the CVSS vector string is ( AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-65085 . A base score of 8.4 has been calculated; the CVSS vector string is ( AV:L/AC:L/AT:N/PR:N/UI:A/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Critical Manufacturing COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Michael Heinzl reported these vulnerabilities to CISA. 4. MITIGATIONS Ashlar-Vellum recommends users update to the following versions: Cobalt: Versions 12.6.1204.208 or higher Xenon: Versions 12.6.1204.208 or higher Argon: Versions 12.6.1204.208 or higher Lithium: Versions 12.6.1204.208 or higher Cobalt Share: Versions 12.6.1204.208 or higher CISA recommends users take defensive measures to minimize the risk of exploitation of these vulnerabilities, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting these vulnerabilities has been reported to CISA at this time. These vulnerabilities are not exploitable remotely. 5. UPDATE HISTORY November 25, 2025: Initial Publication",
-    "source": "cisa.gov",
-    "time": "2025-11-25T12:00:00",
+    "title": "IACR Nullifies Election Because of Lost Decryption Key",
+    "url": "https://www.schneier.com/blog/archives/2025/11/iacr-nullifies-election-because-of-lost-decryption-key.html",
+    "snippet": "The International Association of Cryptologic Research\u2014the academic cryptography association that\u2019s been putting conferences like Crypto (back when \u201ccrypto\u201d meant \u201ccryptography\u201d) and Eurocrypt since the 1980s\u2014had to nullify an online election when trustee Moti Yung lost his decryption key. For this election and in accordance with the bylaws of the IACR, the three members of the IACR 2025 Election Committee acted as independent trustees, each holding a portion of the cryptographic key material required to jointly decrypt the results. This aspect of Helios\u2019 design ensures that no two trustees could collude to determine the outcome of an election or the contents of individual votes on their own: all trustees must provide their decryption shares...",
+    "source": "schneier.com",
+    "time": "2025-11-24T12:03:46",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Zenitel TCIV-3+",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-03",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 10.0 ATTENTION: Exploitable remotely/low attack complexity Vendor: Zenitel Equipment: TCIV-3+ Vulnerabilities: OS Command Injection, Out-of-bounds Write, Cross-site Scripting 2. RISK EVALUATION Successful exploitation of these vulnerabilities could result in arbitrary code execution or cause a denial-of-service condition. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following versions of TCIV-3+ are affected: TCIV-3+: All versions prior to 9.3.3.0 3.2 VULNERABILITY OVERVIEW 3.2.1 IMPROPER NEUTRALIZATION OF SPECIAL ELEMENTS USED IN AN OS COMMAND ('OS COMMAND INJECTION') CWE-78 An OS command injection vulnerability exists due to improper input validation. The application accepts a parameter directly from user input without verifying it is a valid IP address or filtering potentially malicious characters. This could allow an unauthenticated attacker to inject arbitrary commands. CVE-2025-64126 has been assigned to this vulnerability. A CVSS v3 base score of 9.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64126 . A base score of 10.0 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:L/SA:H ). 3.2.2 IMPROPER NEUTRALIZATION OF SPECIAL ELEMENTS USED IN AN OS COMMAND ('OS COMMAND INJECTION') CWE-78 An OS command injection vulnerability exists due to insufficient sanitization of user-supplied input. The application accepts parameters that are later incorporated into OS commands without adequate validation. This could allow an unauthenticated attacker to execute arbitrary commands remotely. CVE-2025-64127 has been assigned to this vulnerability. A CVSS v3 base score of 9.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64127 . A base score of 10.0 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:L/SA:H ). 3.2.3 IMPROPER NEUTRALIZATION OF SPECIAL ELEMENTS USED IN AN OS COMMAND ('OS COMMAND INJECTION') CWE-78 An OS command injection vulnerability exists due to incomplete validation of user-supplied input. Validation fails to enforce sufficient formatting rules, which could permit attackers to append arbitrary data. This could allow an unauthenticated attacker to inject arbitrary commands. CVE-2025-64128 has been assigned to this vulnerability. A CVSS v3 base score of 9.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64128 . A base score of 10.0 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:L/SA:H ). 3.2.4 OUT-OF-BOUNDS WRITE CWE-787 The affected product is vulnerable to an out-of-bounds write vulnerability, which could allow a remote attacker to crash the device. CVE-2025-64129 has been assigned to this vulnerability. A CVSS v3 base score of 7.6 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64129 . A base score of 7.0 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:A/VC:L/VI:L/VA:H/SC:N/SI:N/SA:N ). 3.2.5 IMPROPER NEUTRALIZATION OF INPUT DURING WEB PAGE GENERATION ('CROSS-SITE SCRIPTING') CWE-79 The affected product is vulnerable to a reflected cross-site scripting vulnerability, which could allow a remote attacker to execute arbitrary JavaScript on the victim's browser. CVE-2025-64130 has been assigned to this vulnerability. A CVSS v3 base score of 9.8 has been calculated; the CVSS vector string is ( AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-64130 . A base score of 9.3 has been calculated; the CVSS vector string is ( AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Communications COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: Belgium 3.4 RESEARCHER Nir Tepper and Noam Moshe of Claroty Team82 reported these vulnerabilities to CISA. 4. MITIGATIONS Zenitel recommends users to upgrade to Version 9.3.3.0 or later . CISA recommends users take defensive measures to minimize the risk of exploitation of these vulnerabilities, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the Internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. No known public exploitation specifically targeting these vulnerabilities has been reported to CISA at this time. 5. UPDATE HISTORY November 25, 2025: Initial Publication",
-    "source": "cisa.gov",
-    "time": "2025-11-25T12:00:00",
+    "title": "Cover Story newsletter: Welcome to Anything Goes America",
+    "url": "https://www.economist.com/the-world-this-week/2025/11/24/cover-story-newsletter-welcome-to-anything-goes-america",
+    "snippet": "How we chose this week\u2019s image",
+    "source": "economist.com",
+    "time": "2025-11-24T11:08:56",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Friday Squid Blogging: New \u201cSquid\u201d Sneaker",
+    "url": "https://www.schneier.com/blog/archives/2025/11/friday-squid-blogging-new-squid-sneaker.html",
+    "snippet": "I did not know Adidas sold a sneaker called \u201c Squid .\u201d As usual, you can also use this squid post to talk about the security stories in the news that I haven\u2019t covered. Blog moderation policy.",
+    "source": "schneier.com",
+    "time": "2025-11-21T22:08:09",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Rockwell Automation Arena Simulation",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 7.1 ATTENTION : Exploitable from a local network Vendor : Rockwell Automation Equipment : Arena Simulation Vulnerability : Stack-based Buffer Overflow 2. RISK EVALUATION Successful exploitation of this vulnerability could allow local attackers to execute arbitrary code on affected installations of Arena. 3. TECHNICAL DETAILS 3.1 AFFECTED PRODUCTS The following Rockwell Automation products are affected: Arena Simulation: Version 16.20.10 and prior 3.2 VULNERABILITY OVERVIEW 3.2.1 STACK-BASED BUFFER OVERFLOW CWE-121 Arena suffers from a stack-based buffer overflow vulnerability. The specific flaw exists within the parsing of DOE files. Local attackers are able to exploit this issue to potentially execute arbitrary code on affected installations of Arena. Exploiting the vulnerability requires opening a malicious DOE file. CVE-2025-11918 has been assigned to this vulnerability. A CVSS v3.1 base score of 7.0 has been calculated; the CVSS vector string is ( AV:L/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H ). A CVSS v4 score has also been calculated for CVE-2025-11918 . A base score of 7.1 has been calculated; the CVSS vector string is ( AV:L/AC:H/AT:N/PR:N/UI:A/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N ). 3.3 BACKGROUND CRITICAL INFRASTRUCTURE SECTORS: Critical Manufacturing COUNTRIES/AREAS DEPLOYED: Worldwide COMPANY HEADQUARTERS LOCATION: United States 3.4 RESEARCHER Michael Heinzl reported this vulnerability to CISA. 4. MITIGATIONS Rockwell Automation recommends users upgrade Arena Simulation to version 16.20.11 or later . Users who are unable to upgrade the affected software to a correct version should use Rockwell Automation's security best practices . For more information about this issue, see advisory SD1763 on the Rockwell Automation security page. CISA recommends users take defensive measures to minimize the risk of exploitation of this vulnerability, such as: Minimize network exposure for all control system devices and/or systems, ensuring they are not accessible from the internet . Locate control system networks and remote devices behind firewalls and isolating them from business networks. When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs), recognizing VPNs may have vulnerabilities and should be updated to the most current version available. Also recognize VPN is only as secure as the connected devices. CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures. CISA also provides a section for control systems security recommended practices on the ICS webpage on cisa.gov/ics . Several CISA products detailing cyber defense best practices are available for reading and download, including Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies . CISA encourages organizations to implement recommended cybersecurity strategies for proactive defense of ICS assets . Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at cisa.gov/ics in the technical information paper, ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies . Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents. CISA also recommends users take the following measures to protect themselves from social engineering attacks: Do not click web links or open attachments in unsolicited email messages. Refer to Recognizing and Avoiding Email Scams for more information on avoiding email scams. Refer to Avoiding Social Engineering and Phishing Attacks for more information on social engineering attacks. No known public exploitation specifically targeting this vulnerability has been reported to CISA at this time. This vulnerability is not exploitable remotely. 5. UPDATE HISTORY November 25, 2025: Initial publication",
-    "source": "cisa.gov",
-    "time": "2025-11-25T12:00:00",
+    "title": "More on Rewiring Democracy",
+    "url": "https://www.schneier.com/blog/archives/2025/11/71226.html",
+    "snippet": "It\u2019s been a month since Rewiring Democracy: How AI Will Transform Our Politics, Government, and Citizenship was published. From what we know, sales are good. Some of the book\u2019s forty-three chapters are available online: chapters 2 , 12 , 28 , 34 , 38 , and 41 . We need more reviews\u2014six on Amazon is not enough , and no one has yet posted a viral TikTok review. One review was published in Nature and another on the RSA Conference website , but more would be better. If you\u2019ve read the book, please leave a review somewhere. My coauthor and I have been doing all sort of book events, both online and in person. This ...",
+    "source": "schneier.com",
+    "time": "2025-11-21T19:07:34",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "\u200b\u200bSpyware Allows Cyber Threat Actors to Target Users of Messaging Applications\u200b",
-    "url": "https://www.cisa.gov/news-events/alerts/2025/11/24/spyware-allows-cyber-threat-actors-target-users-messaging-applications",
-    "snippet": "CISA is aware of multiple cyber threat actors actively leveraging commercial spyware to target users of mobile messaging applications (apps). 1 These cyber actors use sophisticated targeting and social engineering techniques to deliver spyware and gain unauthorized access to a victim\u2019s messaging app, facilitating the deployment of additional malicious payloads that can further compromise the victim\u2019s mobile device. These cyber actors use tactics such as: Phishing and malicious device-linking QR codes to compromise victim accounts and link them to actor-controlled devices. Zero-click exploits, 2 which require no direct action from the device user. Impersonation 3 of messaging app platforms, such as Signal and WhatsApp. While current targeting remains opportunistic, evidence suggests these cyber actors focus on high-value individuals, such as current and former high-ranking government, military, and political officials, 4 as well as civil society organizations (CSOs) and individuals across the United States, 5 Middle East, 6 and Europe. 7 CISA strongly encourages messaging app users to review the updated Mobile Communications Best Practice Guidance and Mitigating Cyber Threats with Limited Resources: Guidance for Civil Society for steps to protect mobile communications and messaging apps, as well as mitigations against spyware. Notes 1 Dan Black, \u201cMultiple Russia-Aligned Threat Actors Actively Targeting Signal Messenger,\u201d Google Threat Intelligence (blog), Google, last updated February 19, 2025, https://cloud.google.com/blog/topics/threat-intelligence/russia-targeting-signal-messenger/ . 2 Unit 42, \u201cLANDFALL: New Commercial-Grade Android Spyware in Exploit Chain Targeting Samsung Devices,\u201d Threat Research (blog), Unit 42, Palo Alto Networks, last updated November 7, 2025, https://unit42.paloaltonetworks.com/landfall-is-new-commercial-grade-android-spyware/ ; and Ravie Lakshmanan, \u201cWhatsApp Patches Zero-Click Exploit Targeting iOS and macOS Devices,\u201d The Hacker News, \u00a0August 30, 2025, https://thehackernews.com/2025/08/whatsapp-issues-emergency-update-for.html . 3 Vishnu Pratapagiri, \u201cClayRat: A New Android Spyware Targeting Russia,\u201d Zimperium (blog), Zimperium, October 9, 2025, https://zimperium.com/blog/clayrat-a-new-android-spyware-targeting-russia; Bill Toulas, \u201cAndroid Spyware Campaigns Impersonate Signal and ToTok Messengers,\u201d Bleeping Computer, October 2, 2025, https://www.bleepingcomputer.com/news/security/android-spyware-campaigns-impersonate-signal-and-totok-messengers/ ; and Pierluigi Paganini, \u201cClayRat Campaign Uses Telegram and Phishing Sites to Distribute Android Spyware,\u201d Security Affairs, October 9, 2025, https://securityaffairs.com/183169/malware/clayrat-campaign-uses-telegram-and-phishing-sites-to-distribute-android-spyware.html . 4 Courtney Rozen, \u201cWhatsApp Banned on US House of Representatives Devices, Memo Shows,\u201d Reuters, June 23, 2025, https://www.reuters.com/world/us/whatsapp-banned-us-house-representatives-devices-memo-2025-06-23/ ; and Andrew Solender, \u201cWhatsApp Banned on House Staffers' Devices,\u201d Axios, June 23, 2025, https://www.axios.com/2025/06/23/whatsapp-house-congress-staffers-messaging-app . 5 Suzanne Smalley, \u201cJudge Bars NSO from Targeting WhatsApp Users with Spyware, Reduces Damages in Landmark Case.\u201d The Record, October 20, 2025, https://therecord.media/judge-bars-nso-from-targeting-whatsapp-users-lowers-damages . 6 Suzanne Smalley, \u201cResearchers Uncover Spyware Targeting Messaging App Users in the UAE,\u201d The Record, October 2, 2025, https://therecord.media/researchers-spyware-uae-infections . 7 Paganini, \u201c ClayRat Campaign Uses Telegram and Phishing Sites to Distribute Android Spyware. \u201d",
-    "source": "cisa.gov",
-    "time": "2025-11-24T12:00:00",
+    "title": "Mozilla Says It\u2019s Finally Done With Two-Faced Onerep",
+    "url": "https://krebsonsecurity.com/2025/11/mozilla-says-its-finally-done-with-two-faced-onerep/",
+    "snippet": "In March 2024, Mozilla said it was winding down its collaboration with Onerep -- an identity protection service offered with the Firefox web browser that promises to remove users from hundreds of people-search sites -- after KrebsOnSecurity revealed Onerep's founder had created dozens of people-search services and was continuing to operate at least one of them. Sixteen months later, however, Mozilla is still promoting Onerep. This week, Mozilla announced their partnership with Onerep will officially end next month.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-20T19:06:51",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "The Cloudflare Outage May Be a Security Roadmap",
+    "url": "https://krebsonsecurity.com/2025/11/the-cloudflare-outage-may-be-a-security-roadmap/",
+    "snippet": "An intermittent outage at Cloudflare on Tuesday briefly knocked many of the Internet's top destinations offline. Some affected Cloudflare customers were able to pivot away from the platform temporarily so that visitors could still access their websites. But security experts say doing so may have also triggered an impromptu network penetration test for organizations that have come to rely on Cloudflare to block many types of abusive and malicious traffic.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-19T14:07:03",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Bargain hunters urged to stay alert to cyber scams ahead of holiday shopping season",
+    "url": "https://www.ncsc.gov.uk/news/stay-alert-to-holiday-shopping-cyber-scams",
+    "snippet": "The latest Stop! Think Fraud campaign provides practical advice to help individuals stay secure online",
+    "source": "ncsc.gov.uk",
+    "time": "2025-11-17T10:08:03",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Microsoft Patch Tuesday, November 2025 Edition",
+    "url": "https://krebsonsecurity.com/2025/11/microsoft-patch-tuesday-november-2025-edition/",
+    "snippet": "Microsoft this week pushed security updates to fix more than 60 vulnerabilities in its Windows operating systems and supported software, including at least one zero-day bug that is already being exploited. Microsoft also fixed a glitch that prevented some Windows 10 users from taking advantage of an extra year of security updates, which is nice because the zero-day flaw and other critical weaknesses patched today affect all versions of Windows, including Windows 10.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-16T21:47:14",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Cover Story newsletter: How markets could topple the economy",
+    "url": "https://www.economist.com/the-world-this-week/2025/11/14/cover-story-newsletter-how-markets-could-topple-the-economy",
+    "snippet": "An exclusive look at how we designed our cover",
+    "source": "economist.com",
+    "time": "2025-11-14T18:41:52",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Google Sues to Disrupt Chinese SMS Phishing Triad",
+    "url": "https://krebsonsecurity.com/2025/11/google-sues-to-disrupt-chinese-sms-phishing-triad/",
+    "snippet": "Google is suing more than two dozen unnamed individuals allegedly involved in peddling a popular China-based mobile phishing service that helps scammers impersonate hundreds of trusted brands, blast out text message lures, and convert phished payment card data into mobile wallets from Apple and Google.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-13T14:47:22",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Drilling Down on Uncle Sam\u2019s Proposed TP-Link Ban",
+    "url": "https://krebsonsecurity.com/2025/11/drilling-down-on-uncle-sams-proposed-tp-link-ban/",
+    "snippet": "The U.S. government is reportedly preparing to ban the sale of wireless routers and other networking gear from TP-Link Systems, a tech company that currently enjoys an estimated 50% market share among home users and small businesses. Experts say while the proposed ban may have more to do with TP-Link's ties to China than any specific technical threats, much of the rest of the industry serving this market also sources hardware from China and ships products that are insecure fresh out of the box.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-09T18:14:40",
+    "region": "APJC",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Cloudflare Scrubs Aisuru Botnet from Top Domains List",
+    "url": "https://krebsonsecurity.com/2025/11/cloudflare-scrubs-aisuru-botnet-from-top-domains-list/",
+    "snippet": "For the past week, domains associated with the massive Aisuru botnet have repeatedly usurped Amazon, Apple, Google and Microsoft in Cloudflare's public ranking of the most frequently requested websites. Cloudflare responded by redacting Aisuru domain names from their top websites list. The chief executive at Cloudflare says Aisuru's overlords are using the botnet to boost their malicious domain rankings, while simultaneously attacking the company's domain name system (DNS) service.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-06T02:04:36",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Alleged Jabber Zeus Coder \u2018MrICQ\u2019 in U.S. Custody",
+    "url": "https://krebsonsecurity.com/2025/11/alleged-jabber-zeus-coder-mricq-in-u-s-custody/",
+    "snippet": "A Ukrainian man indicted in 2012 for conspiring with a prolific hacking group to steal tens of millions of dollars from U.S. businesses was arrested in Italy and is now in custody in the United States, KrebsOnSecurity has learned.\n\nSources close to the investigation say Yuriy Igorevich Rybtsov, a 41-year-old from the Russia-controlled city of Donetsk, Ukraine, was previously referenced in U.S. federal charging documents only by his online handle \"MrICQ.\" According to a 13-year-old indictment filed by prosecutors in Nebraska, MrICQ was a developer for a cybercrime group known as \"Jabber Zeus.\"",
+    "source": "krebsonsecurity.com",
+    "time": "2025-11-02T20:37:24",
     "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Groundbreaking cyber advice will help construction firms build strong foundations against online threats",
+    "url": "https://www.ncsc.gov.uk/news/groundbreaking-cyber-advice-will-help-construction-firms-build-strong-foundations-against-online-threats",
+    "snippet": "New guidance, issued by the NCSC and the Chartered Institute of Building, is designed to help small and medium-sized construction businesses.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-30T13:59:40",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Charities offered latest insight into key cyber threats to help keep out attackers",
+    "url": "https://www.ncsc.gov.uk/news/charities-offered-latest-insight-into-key-cyber-threats-to-help-keep-out-attackers",
+    "snippet": "Latest report published by the NCSC outlines key threats facing the UK charity sector.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-29T15:25:42",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Aisuru Botnet Shifts from DDoS to Residential Proxies",
+    "url": "https://krebsonsecurity.com/2025/10/aisuru-botnet-shifts-from-ddos-to-residential-proxies/",
+    "snippet": "Aisuru, the botnet responsible for a series of record-smashing distributed denial-of-service (DDoS) attacks this year, recently was overhauled to support a more low-key, lucrative and sustainable business: Renting hundreds of thousands of infected Internet of Things (IoT) devices to proxy services that help cybercriminals anonymize their traffic. Experts says a glut of proxies from Aisuru and other sources is fueling large-scale data harvesting efforts tied to various artificial intelligence (AI) projects, helping content scrapers evade detection by routing their traffic through residential connections that appear to be regular Internet users.",
+    "source": "krebsonsecurity.com",
+    "time": "2025-10-29T00:51:05",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "UK experiencing four 'nationally significant' cyber attacks every week",
+    "url": "https://www.ncsc.gov.uk/news/uk-experiencing-four-nationally-significant-cyber-attacks-weekly",
+    "snippet": "Latest Annual Review reveals that the cyber threats facing the UK continue to escalate.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-16T13:13:35",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Confirmed compromise of F5 network",
+    "url": "https://www.ncsc.gov.uk/news/confirmed-compromise-f5-network",
+    "snippet": "The NCSC is advising organisations to follow the guidance issued by F5 and to install the latest security updates.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-15T12:50:18",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Small businesses to receive cyber security boost with new toolkit from experts",
+    "url": "https://www.ncsc.gov.uk/news/small-businesses-receive-cyber-security-boost-with-new-toolkit-from-experts",
+    "snippet": "NCSC CEO unveils a new Cyber Action Toolkit at the NCSC\u2019s Annual Review launch with clear message to small businesses that \u2018it is time to act\u2019.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-13T09:52:09",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Active exploitation of vulnerability affecting Oracle E-Business Suite",
+    "url": "https://www.ncsc.gov.uk/news/active-exploitation-vulnerability-affecting-oracle-ebusiness-suite",
+    "snippet": "The NCSC is encouraging UK organisations to take immediate action to mitigate a vulnerability (CVE-2025-61882) affecting Oracle E-Business Suite.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-06T09:30:52",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "NCSC statement following reports of nursery data incident",
+    "url": "https://www.ncsc.gov.uk/news/nursery-data-incident",
+    "snippet": "Statement from the NCSC in response to reports of an incident impacting nurseries.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-09-25T16:21:30",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "NCSC warns of persistent malware campaign targeting Cisco devices",
+    "url": "https://www.ncsc.gov.uk/news/persistent-malicious-targeting-cisco-devices",
+    "snippet": "Latest malware analysis report helps organisations detect and mitigate malicious activity targeting certain Cisco devices.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-09-25T11:55:28",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "NCSC statement: Incident impacting Collins Aerospace",
+    "url": "https://www.ncsc.gov.uk/news/collins-aerospace-incident",
+    "snippet": "Statement from the NCSC regarding the cyber incident affecting  Collins Aerospace.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-09-22T08:05:07",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   }
