@@ -10,6 +10,16 @@
     "type": "GENERAL"
   },
   {
+    "title": "Colombia\u2019s Petro invites Trump to cocaine lab demolition amid attack threat",
+    "url": "https://www.aljazeera.com/news/2025/12/3/colombias-petro-invites-trump-to-cocaine-lab-demolition-amid-attack-threat?traffic_source=rss",
+    "snippet": "Colombian president chides Trump, saying 18,400 cocaine laboratories have been destroyed 'without missiles' fired.",
+    "source": "aljazeera.com",
+    "time": "2025-12-03T03:47:49",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Why the Philippines\u2019 anti-flood control corruption movement could be receding",
     "url": "https://www.scmp.com/week-asia/politics/article/3334979/fatigue-derailing-philippines-fight-against-flood-control-corruption-scandal?utm_source=rss_feed",
     "snippet": "Thousands of Filipinos have taken to the streets again to protest against the ongoing flood control corruption scandal, yet the markedly smaller crowds compared with the last major demonstration have sparked fears that the movement may be losing momentum.\nPolitical analysts said the low turnout on Sunday reflected a combination of fatigue and disillusionment among activists in the Philippines. They warned that if public mobilisation continued to thin, it could ease the pressure on President...",
@@ -30,31 +40,41 @@
     "type": "GENERAL"
   },
   {
-    "title": "South Korea\u2019s Lee says on martial law anniversary perpetrators must face justice",
-    "url": "https://www.straitstimes.com/asia/east-asia/south-koreas-lee-says-martial-law-clean-up-not-yet-complete-on-first-anniversary",
-    "snippet": "The attempt to impose martial law threatened to deal an irreparable setback to the country, he said.",
-    "source": "straitstimes.com",
-    "time": "2025-12-03T00:50:21",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Polarised South Korea marks martial law anniversary",
-    "url": "https://www.straitstimes.com/asia/east-asia/polarised-south-korea-marks-martial-law-anniversary",
-    "snippet": "On Dec 3, 2024, Yoon suspended civilian rule for the first time in more than four decades.",
-    "source": "straitstimes.com",
-    "time": "2025-12-03T00:10:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
     "title": "Barcelona extend lead at top of La Liga with 3-1 win over Atletico Madrid",
     "url": "https://www.aljazeera.com/sports/2025/12/2/barcelona-extend-lead-at-top-of-la-liga-with-3-1-win-over-atletico-madrid?traffic_source=rss",
     "snippet": "Barca recover from a goal down to win, with strikes from Raphinha, Dani Olmo and Ferran Torres.",
     "source": "aljazeera.com",
     "time": "2025-12-02T22:33:45",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
+    "url": "https://www.bleepingcomputer.com/news/security/shai-hulud-20-npm-malware-attack-exposed-up-to-400-000-dev-secrets/",
+    "snippet": "The second Shai-Hulud\u00a0attack last week exposed around 400,000 raw secrets after infecting hundreds of packages in the NPM (Node Package Manager) registry and publishing stolen data in 30,000 GitHub repositories. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-02T19:06:20",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Nigeria grants asylum to Guinea-Bissau presidential candidate after coup",
+    "url": "https://www.bbc.com/news/articles/ce3wq2zznz1o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Nigeria says it is sheltering Fernando Dias in its embassy in Bissau, citing an imminent threat to his life.",
+    "source": "bbc.com",
+    "time": "2025-12-02T16:51:10",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Pope prays at Beirut port blast site on last day of Lebanon visit",
+    "url": "https://www.bbc.com/news/articles/cn41jge1990o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Pope Leo XIV demanded justice for the more than 200 victims of the disaster, at the end of his three-day visit to Lebanon.",
+    "source": "bbc.com",
+    "time": "2025-12-02T16:47:19",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -70,12 +90,42 @@
     "type": "GENERAL"
   },
   {
-    "title": "Bulgaria ditches budget plan after tens of thousands join protests",
-    "url": "https://www.bbc.com/news/articles/cjezwzw088jo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Demonstrators said the plan - the country's first in euros - attempted to hide widespread government corruption.",
-    "source": "bbc.com",
-    "time": "2025-12-02T12:04:00",
-    "region": "AMER",
+    "title": "Cybercrime Goes SaaS: Renting Tools, Access, and Infrastructure",
+    "url": "https://www.bleepingcomputer.com/news/security/cybercrime-goes-saas-renting-tools-access-and-infrastructure/",
+    "snippet": "Cybercrime has fully shifted to a subscription model, with phishing kits, Telegram OTP bots, infostealer logs, and even RATs now rented like SaaS tools. Varonis explains how this \"crime-as-a-service\" economy lowers the barrier to entry and gives low-skill attackers on-demand access to advanced capabilities. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-02T15:10:20",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Google fixes two Android zero days exploited in attacks, 107 flaws",
+    "url": "https://www.bleepingcomputer.com/news/security/google-fixes-two-android-zero-days-exploited-in-attacks-107-flaws/",
+    "snippet": "Google has released the December 2025 Android security bulletin, addressing 107 vulnerabilities, including two flaws actively exploited in targeted attacks. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-02T14:36:44",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "University of Pennsylvania confirms new data breach after Oracle hack",
+    "url": "https://www.bleepingcomputer.com/news/security/university-of-pennsylvania-confirms-data-theft-after-oracle-ebs-hack/",
+    "snippet": "\u200bThe University of Pennsylvania (Penn) has confirmed a new data breach after attackers stole documents containing personal information from its Oracle E-Business Suite servers in August. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-02T12:55:59",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "CISA Releases Five Industrial Control Systems Advisories",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-releases-five-industrial-control-systems-advisories",
+    "snippet": "CISA released five Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-336-01 Industrial Video & Control Longwatch ICSA-25-336-02 Iskra iHUB and iHUB Lite ICSMA-25-336-01 Mirion Medical EC2 Software NMIS BioDose ICSA-25-201-01 Mitsubishi Electric CNC Series (Update A) ICSA-23-157-02 Mitsubishi Electric MELSEC iQ-R Series/iQ-F Series (Update C) CISA encourages users and administrators to review newly released ICS Advisories for technical details and mitigations.",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
     "severity": 2,
     "type": "GENERAL"
   },
@@ -86,6 +136,26 @@
     "source": "bbc.com",
     "time": "2025-12-02T05:19:12",
     "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Charities offered latest insight into key cyber threats to help keep out attackers",
+    "url": "https://www.ncsc.gov.uk/news/charities-offered-latest-insight-into-key-cyber-threats-to-help-keep-out-attackers",
+    "snippet": "Latest report published by the NCSC outlines key threats facing the UK charity sector.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-29T15:25:42",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "UK experiencing four 'nationally significant' cyber attacks every week",
+    "url": "https://www.ncsc.gov.uk/news/uk-experiencing-four-nationally-significant-cyber-attacks-weekly",
+    "snippet": "Latest Annual Review reveals that the cyber threats facing the UK continue to escalate.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-16T13:13:35",
+    "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   }
