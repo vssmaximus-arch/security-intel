@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     startClock();
     populateCountries();
     
+    // Attempt load
     await loadAllData();
     
     // Default view
@@ -42,11 +43,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadAllData() {
     try {
-        // Parallel fetch
+        // Parallel fetch with cache busting
+        const ts = new Date().getTime();
         const [newsRes, proxRes, locRes] = await Promise.allSettled([
-            fetch(PATHS.NEWS, { cache: "no-store" }),
-            fetch(PATHS.PROXIMITY, { cache: "no-store" }),
-            fetch(PATHS.LOCATIONS, { cache: "no-store" })
+            fetch(`${PATHS.NEWS}?t=${ts}`),
+            fetch(`${PATHS.PROXIMITY}?t=${ts}`),
+            fetch(`${PATHS.LOCATIONS}?t=${ts}`)
         ]);
 
         // Handle Locations
@@ -61,6 +63,9 @@ async function loadAllData() {
             const rawNews = await newsRes.value.json();
             // Handle array vs {articles: [...]} structure
             GENERAL_NEWS_FEED = Array.isArray(rawNews) ? rawNews : (rawNews.articles || []);
+        } else {
+            document.getElementById('general-news-feed').innerHTML = 
+                `<div class="alert alert-warning text-center">Live News Feed Unavailable (Check data/news.json)</div>`;
         }
 
         // Handle Proximity
@@ -74,7 +79,7 @@ async function loadAllData() {
     } catch (e) {
         console.error("Data load error:", e);
         document.getElementById('general-news-feed').innerHTML = 
-            `<div class="alert alert-danger">System Error: Could not load intelligence feeds.</div>`;
+            `<div class="alert alert-danger text-center">System Error: Could not load data feeds.</div>`;
     }
 }
 
@@ -83,15 +88,22 @@ async function loadAllData() {
    MAP LOGIC
    ========================================================= */
 function initMap() {
-    map = L.map("map", { zoomControl: false }).setView([20, 0], 2);
+    // Basic init
+    map = L.map("map", { zoomControl: false }).setView([25, 10], 2);
     L.control.zoom({ position: "topleft" }).addTo(map);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
     }).addTo(map);
+    
     layerGroup = L.layerGroup().addTo(map);
+    
+    // Force map resize logic after slight delay (fixes gray box issue)
+    setTimeout(() => { map.invalidateSize(); }, 500);
 }
 
 function updateMap(region) {
+    if (!map) return;
     layerGroup.clearLayers();
 
     // Dell Sites (Blue Pins)
@@ -115,14 +127,13 @@ function updateMap(region) {
     // Proximity Alerts (Red/Amber Incidents)
     const alertIcon = (sev) => L.divIcon({
         className: "custom-pin",
-        html: `<div class="${sev >= 3 ? 'marker-incident-critical' : 'marker-incident-warning'}">
+        html: `<div class="marker-incident ${sev >= 3 ? 'marker-crit' : 'marker-warn'}">
                  <i class="fas fa-exclamation"></i>
                </div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16]
     });
 
-    // Filter alerts by region AND radius
     const visibleAlerts = PROXIMITY_ALERTS.filter(a => {
         const regionMatch = region === "Global" || a.site_region === region;
         const radiusMatch = a.distance_km <= currentRadius;
@@ -164,6 +175,9 @@ function renderGeneralFeed(region) {
     const container = document.getElementById("general-news-feed");
     const banner = document.getElementById("critical-alert-banner");
     
+    // Safety check if data isn't loaded yet
+    if (!GENERAL_NEWS_FEED.length && !MAP_LOCATIONS.length) return; // Keep loading spinner
+
     const filtered = region === "Global" 
         ? GENERAL_NEWS_FEED 
         : GENERAL_NEWS_FEED.filter(i => i.region === region);
@@ -224,7 +238,7 @@ function renderProximityFeed(region) {
     container.innerHTML = filtered.map(a => `
         <div class="alert-row">
             <div class="alert-top">
-                <div class="alert-type"><i class="fas fa-radiation"></i> ${a.type || 'INCIDENT'}</div>
+                <div class="alert-type"><i class="fas fa-exclamation-circle"></i> ${a.type || 'INCIDENT'}</div>
                 <div class="alert-dist text-danger">${a.distance_km}km</div>
             </div>
             <div class="alert-site"><i class="far fa-building"></i> ${a.site_name}</div>
@@ -235,7 +249,8 @@ function renderProximityFeed(region) {
 
 function updateProximityRadius() {
     currentRadius = parseFloat(document.getElementById("proxRadius").value);
-    const activeRegion = document.querySelector(".nav-item-custom.active").innerText;
+    const activeEl = document.querySelector(".nav-item-custom.active");
+    const activeRegion = activeEl ? activeEl.innerText : "Global";
     renderProximityFeed(activeRegion);
     updateMap(activeRegion);
 }
@@ -276,7 +291,7 @@ function filterTravel() {
     let color = adv.level === 4 ? "#d93025" : (adv.level === 3 ? "#e37400" : (adv.level === 2 ? "#f9ab00" : "#1a73e8"));
     
     div.innerHTML = `
-        <div class="advisory-box" style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px;">
+        <div class="advisory-box" style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px; border-radius:6px;">
             <div style="font-weight:800; color:${color}; font-size:0.8rem;">LEVEL ${adv.level} ADVISORY</div>
             <div style="font-size:0.9rem; font-weight:600;">${adv.text}</div>
         </div>
@@ -288,9 +303,9 @@ function filterTravel() {
     );
     const newsDiv = document.getElementById("travel-news");
     if(related.length) {
-        newsDiv.innerHTML = `<div class="small mt-2"><strong>Recent Incidents:</strong><br>${related[0].title}</div>`;
+        newsDiv.innerHTML = `<div class="small mt-2 p-2 bg-light border rounded"><strong>Recent Incident:</strong><br>${related[0].title}</div>`;
     } else {
-        newsDiv.innerHTML = `<div class="small mt-2 text-success"><i class="fas fa-check"></i> No recent security incidents.</div>`;
+        newsDiv.innerHTML = `<div class="small mt-2 text-success"><i class="fas fa-check-circle"></i> No specific incidents logged.</div>`;
     }
 }
 
