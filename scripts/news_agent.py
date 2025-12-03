@@ -17,28 +17,27 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# ---------- SRO POSITIVE SELECTION (Must match one to be included) ----------
-# If the article does not contain one of these words, it is DELETED.
+# ---------- SRO POSITIVE SELECTION (Article MUST match one to be included) ----------
 MUST_HAVE_TERMS = [
     # Crisis / Resilience
-    "earthquake", "magnitude", "tsunami", "volcano", "eruption", "flood", "flash flood", 
+    "earthquake", "tsunami", "volcano", "flood", "flash flood", 
     "typhoon", "cyclone", "hurricane", "tornado", "storm", "wildfire", "bushfire",
     "power outage", "blackout", "grid failure", "port closure", "airport closed", 
-    "flights cancelled", "train derailment", "bridge collapse", "explosion", "blast",
+    "flights cancelled", "explosion", "blast", "derailment", "collapse",
     
     # Security / Duty of Care
-    "terror", "terrorist", "bomb", "suicide", "attack", "gunman", "shooting", "active shooter",
+    "terror", "bomb", "suicide", "attack", "gunman", "shooting", "active shooter",
     "kidnap", "abduction", "hostage", "assassination", "murder", "stabbing",
     "riot", "civil unrest", "violent protest", "clashes", "tear gas", "curfew", 
-    "martial law", "coup", "state of emergency", "evacuation",
+    "martial law", "coup", "state of emergency", "evacuation", "lockdown",
     
     # Supply Chain
-    "strike", "walkout", "labor dispute", "port strike", "customs delay", 
-    "cargo theft", "supply chain", "manufacturing halt", "factory fire",
+    "strike", "walkout", "labor dispute", "port strike", "cargo theft", 
+    "supply chain", "manufacturing halt", "factory fire", "logistics disruption",
     
     # Cyber (Physical Impact focus)
     "ransomware", "data breach", "cyberattack", "scada", "industrial control", 
-    "infrastructure", "telecom outage", "cable cut", "satellite"
+    "infrastructure", "telecom outage", "cable cut", "satellite", "vulnerability"
 ]
 
 # ---------- BLOCKLIST (Kill these instantly) ----------
@@ -49,7 +48,7 @@ BLOCKLIST = [
     "residents return", "collect personal items", "cleanup begins", "recovery continues", 
     "aftermath of", "reopens after", "normalcy returns", "anniversary", "memorial", "search for",
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion", "museum", "art",
-    "opinion:", "editorial:", "review:", "cultivation", "poppy", "drug trade"
+    "opinion:", "editorial:", "review:", "cultivation", "poppy", "drug trade", "estate dispute"
 ]
 
 # ---------- FEEDS (Major Global & Security Only) ----------
@@ -80,15 +79,12 @@ def clean_html(html):
 
 def is_sro_relevant(text):
     text = text.lower()
-    
     # 1. Blocklist (Kill noise)
     for word in BLOCKLIST:
         if word in text: return False
-        
     # 2. Positive Selection (Must contain a threat keyword)
     for keyword in MUST_HAVE_TERMS:
         if keyword in text: return True
-        
     return False
 
 def ai_process(model, title, summary):
@@ -99,18 +95,18 @@ def ai_process(model, title, summary):
     Input: "{title} - {summary}"
     
     Rules:
-    1. EXCLUDE: Politics, Sports, General Crime, Post-event cleanup, Historical articles.
+    1. EXCLUDE: Politics, Sports, General Crime, Post-event cleanup, Historical articles, Opium/Drug cultivation.
     2. INCLUDE: Active threats to staff, facilities, supply chain, or travel.
     3. Severity: 3 (Life Safety/Critical Ops), 2 (Disruption), 1 (Awareness).
     
-    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Impact summary"}}
+    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Impact summary", "category": "CYBER|PHYSICAL|CRISIS|SUPPLY CHAIN"}}
     """
     try:
         resp = model.generate_content(prompt)
         data = json.loads(resp.text.strip().replace('```json', '').replace('```', ''))
-        return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary)
+        return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary), data.get("category", "GENERAL")
     except:
-        return True, 2, summary
+        return True, 2, summary, "GENERAL"
 
 def main():
     print("Running SRO Intel Agent...")
@@ -133,7 +129,7 @@ def main():
                 if not is_sro_relevant(full_text):
                     continue
 
-                keep, severity, snippet = ai_process(model, title, raw_summary)
+                keep, severity, snippet, category = ai_process(model, title, raw_summary)
                 if not keep: continue
 
                 # Normalization
@@ -150,7 +146,7 @@ def main():
                 all_items.append({
                     "title": title, "url": e.link, "snippet": snippet,
                     "source": urlparse(e.link).netloc.replace("www.", ""),
-                    "time": ts, "region": region, "severity": severity, "type": "GENERAL"
+                    "time": ts, "region": region, "severity": severity, "type": category.upper()
                 })
         except Exception as x:
             print(f"Error {url}: {x}")
