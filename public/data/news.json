@@ -1,13 +1,63 @@
 [
   {
-    "title": "Was it a coup or was it a 'sham'? Behind Guinea-Bissau's military takeover",
-    "url": "https://www.bbc.com/news/articles/c1m8nm22785o?at_medium=RSS&at_campaign=rss",
-    "snippet": "The military has taken over but some say the overthrow of the president was not what it seemed.",
-    "source": "bbc.com",
-    "time": "2025-12-03T10:44:00",
+    "title": "University of Phoenix discloses data breach after Oracle hack",
+    "url": "https://www.bleepingcomputer.com/news/security/university-of-phoenix-discloses-data-breach-after-oracle-hack/",
+    "snippet": "The University of Phoenix (UoPX) has joined a growing list of\u00a0U.S. universities\u00a0breached in a Clop data theft campaign targeting vulnerable Oracle E-Business Suite instances in August 2025. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T13:23:10",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Bomb kills three Pakistani police officers close to Afghan border",
+    "url": "https://www.aljazeera.com/news/2025/12/3/bomb-kills-three-pakistani-police-officers-close-to-afghan-border?traffic_source=rss",
+    "snippet": "Blast comes a day after an attack claimed by the Pakistan Taliban, amid surging tensions with Kabul over the group.",
+    "source": "aljazeera.com",
+    "time": "2025-12-03T13:20:40",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Havana in the dark as Cuba\u2019s power grid partially collapses",
+    "url": "https://www.scmp.com/news/world/americas/article/3335097/cuba-faces-blackout-electrical-grid-suffers-partial-collapse-havana-without-power?utm_source=rss_feed",
+    "snippet": "Cuba\u2019s electrical grid suffered a partial collapse early on Wednesday, leaving the capital Havana and much of western Cuba in the dark, according to local media and eyewitness reports.\nState-run media reporter Lazaro Manuel Alonso confirmed that four of the country\u2019s westernmost provinces, from Pinar del Rio to Mayabeque, were without power.\nIt was not immediately clear what had caused the grid failure.\nHavana\u2019s skyline was largely dark before sunrise, with only hospitals and some tourist hotels...",
+    "source": "scmp.com",
+    "time": "2025-12-03T13:03:30",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "South Korea parliament hosts \u2018dark tour\u2019 to revisit martial law sites",
+    "url": "https://www.straitstimes.com/asia/east-asia/south-korea-parliament-hosts-dark-tour-to-revisit-martial-law-sites",
+    "snippet": "The martial law sparked one of the worst political crises in a country seen as a democratic success story.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T12:25:30",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hong Kong family returns to scene of deadly blaze to find 'everything vanished'",
+    "url": "https://www.straitstimes.com/asia/hong-kong-family-returns-to-scene-of-deadly-blaze-to-find-everything-vanished",
+    "snippet": "HONG KONG, Dec 3 - A married couple in their 70s who lost their apartment in a deadly Hong Kong blaze recounted on Wednesday how they were having afternoon tea in a nearby restaurant when their daughter alerted them to a fire at their residential complex.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T12:15:57",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Sri Lankans sift mud to unearth victims 4 days after deadly cyclone",
+    "url": "https://www.straitstimes.com/asia/south-asia/sri-lankans-sift-mud-to-unearth-victims-four-days-after-deadly-cyclone",
+    "snippet": "More than 350 people are still missing in Sri Lanka after Cyclone Ditwah.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T11:30:24",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "Beijing blamed as Yoon\u2019s martial law bid fuels disinformation in South Korea",
@@ -18,36 +68,6 @@
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Asia\u2019s floods kill over 1,000, lay bare human cost of climate inaction",
-    "url": "https://www.scmp.com/week-asia/health-environment/article/3335052/asias-floods-kill-over-1000-lay-bare-human-cost-climate-inaction?utm_source=rss_feed",
-    "snippet": "More than 1,400 people have been killed across South and Southeast Asia in a week of catastrophic floods, exposing how rising global temperatures are amplifying extreme weather, even as international negotiations to phase out fossil fuels stall.\nSuccessive storms, cyclones and relentless rains have triggered catastrophic flash floods and landslides in Indonesia, Sri Lanka, Thailand, Vietnam and Malaysia, overwhelming local authorities already operating at the limits of their capacity.\nWhile...",
-    "source": "scmp.com",
-    "time": "2025-12-03T09:31:08",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "Martial law: Year after South Korea imposed it, where else is it in force?",
-    "url": "https://www.aljazeera.com/news/2025/12/3/martial-law-year-after-south-korea-imposed-it-where-else-is-it-in-force?traffic_source=rss",
-    "snippet": "From Ukraine to Myanmar and Burkina Faso, Al Jazeera examines martial law and its effects on civilians.",
-    "source": "aljazeera.com",
-    "time": "2025-12-03T06:25:18",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Cyclone catastrophe in Sri Lanka awakens volunteer spirit",
-    "url": "https://www.bbc.com/news/articles/c058n10727po?at_medium=RSS&at_campaign=rss",
-    "snippet": "Fishing boats deliver relief supplies to flooded suburbs as community kitchens churn out food aid.",
-    "source": "bbc.com",
-    "time": "2025-12-03T00:34:05",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER"
   },
   {
     "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
