@@ -2,25 +2,23 @@
    CONFIG & STATE
    ========================================================= */
 const PATHS = {
-    NEWS: "data/news.json",
-    PROXIMITY: "data/proximity.json",
-    LOCATIONS: "data/locations.json"
+    // IMPORTANT: Paths must be relative to index.html (Root)
+    NEWS: "public/data/news.json",
+    PROXIMITY: "public/data/proximity.json",
+    LOCATIONS: "public/data/locations.json"
 };
 
-/* FALLBACK DATA: Used if live feeds fail to load */
+/* FALLBACK DATA (Used if live feeds fail) */
 const FALLBACK_DATA = {
     news: [
-        { title: "System Alert: Live Feed Unavailable", snippet: "The dashboard is running in simulation mode because live data files could not be loaded.", region: "Global", severity: 2, type: "SYSTEM", time: new Date().toISOString(), source: "SRO Dashboard" },
-        { title: "Typhoon Warning: Manila Operations", snippet: "Heavy rainfall expected in Metro Manila; transport disruptions likely.", region: "APJC", severity: 2, type: "CRISIS", time: new Date().toISOString(), source: "Simulation" },
-        { title: "Cyber Alert: Ransomware Campaign", snippet: "New variant targeting logistics sector in Europe.", region: "EMEA", severity: 3, type: "CYBER", time: new Date().toISOString(), source: "Simulation" }
+        { title: "System Alert: Live Feed Unavailable", snippet: "The dashboard is running in simulation mode because live data files could not be accessed at " + PATHS.NEWS, region: "Global", severity: 2, type: "SYSTEM", time: new Date().toISOString(), source: "SRO Dashboard" },
+        { title: "Typhoon Warning: Manila Operations", snippet: "Heavy rainfall expected in Metro Manila; transport disruptions likely.", region: "APJC", severity: 2, type: "CRISIS", time: new Date().toISOString(), source: "Simulation" }
     ],
     alerts: [
         { type: "Grid Instability", site_name: "Dell Bangalore", distance_km: 1.5, severity: 2, article_title: "Power outage risks in region" }
     ],
     locations: [
-        { name: "Dell Round Rock HQ", lat: 30.5083, lon: -97.6788, country: "US", region: "AMER" },
-        { name: "Dell Bangalore", lat: 12.9716, lon: 77.5946, country: "IN", region: "APJC" },
-        { name: "Dell Limerick", lat: 52.6638, lon: -8.6267, country: "IE", region: "EMEA" }
+        { name: "Dell Round Rock HQ", lat: 30.5083, lon: -97.6788, country: "US", region: "AMER" }
     ]
 };
 
@@ -31,13 +29,10 @@ let map;
 let layerGroup;
 let currentRadius = 50; // km
 
-// Travel Advisory Mocks
 const ADVISORIES = {
     "Afghanistan": { level: 4, text: "Do Not Travel" },
     "Ukraine": { level: 4, text: "Do Not Travel (Conflict)" },
     "Israel": { level: 3, text: "Reconsider Travel" },
-    "Mexico": { level: 2, text: "Exercise Increased Caution" },
-    "France": { level: 2, text: "Exercise Increased Caution" },
     "USA": { level: 1, text: "Normal Precautions" }
 };
 const COUNTRIES = Object.keys(ADVISORIES).sort();
@@ -50,33 +45,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     initMap();
     startClock();
     populateCountries();
-    
-    // Attempt load
     await loadAllData();
-    
-    // Default view
     filterNews('Global');
 });
 
 async function loadAllData() {
     const badge = document.getElementById("status-badge");
     try {
-        const ts = new Date().getTime(); // Cache busting
+        const ts = new Date().getTime();
         const [newsRes, proxRes, locRes] = await Promise.allSettled([
             fetch(`${PATHS.NEWS}?t=${ts}`),
             fetch(`${PATHS.PROXIMITY}?t=${ts}`),
             fetch(`${PATHS.LOCATIONS}?t=${ts}`)
         ]);
 
-        // --- LOCATIONS ---
+        // Handle Locations
         if (locRes.status === "fulfilled" && locRes.value.ok) {
             MAP_LOCATIONS = await locRes.value.json();
         } else {
-            console.warn("Locations failed. Using fallback.");
+            console.warn("Locations load failed. Using fallback.");
             MAP_LOCATIONS = FALLBACK_DATA.locations;
         }
 
-        // --- NEWS ---
+        // Handle News
         if (newsRes.status === "fulfilled" && newsRes.value.ok) {
             const rawNews = await newsRes.value.json();
             GENERAL_NEWS_FEED = Array.isArray(rawNews) ? rawNews : (rawNews.articles || []);
@@ -84,10 +75,10 @@ async function loadAllData() {
             badge.style.background = "#e8f0fe";
             badge.style.color = "#1a73e8";
         } else {
-            throw new Error("News feed failed");
+            throw new Error("News feed fetch failed");
         }
 
-        // --- PROXIMITY ---
+        // Handle Proximity
         if (proxRes.status === "fulfilled" && proxRes.value.ok) {
             const rawProx = await proxRes.value.json();
             PROXIMITY_ALERTS = rawProx.alerts || [];
@@ -97,7 +88,6 @@ async function loadAllData() {
 
     } catch (e) {
         console.error("Data load error (Simulating):", e);
-        // ACTIVATE SIMULATION MODE
         GENERAL_NEWS_FEED = FALLBACK_DATA.news;
         PROXIMITY_ALERTS = FALLBACK_DATA.alerts;
         if(MAP_LOCATIONS.length === 0) MAP_LOCATIONS = FALLBACK_DATA.locations;
@@ -119,10 +109,7 @@ function initMap() {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap'
     }).addTo(map);
-    
     layerGroup = L.layerGroup().addTo(map);
-    
-    // Fix gray map issue by forcing resize
     setTimeout(() => { map.invalidateSize(); }, 500);
 }
 
@@ -130,7 +117,7 @@ function updateMap(region) {
     if (!map) return;
     layerGroup.clearLayers();
 
-    // Dell Sites (Blue Pins)
+    // Sites
     const siteIcon = L.divIcon({
         className: "custom-pin",
         html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
@@ -138,17 +125,14 @@ function updateMap(region) {
         iconAnchor: [15, 42]
     });
 
-    const visibleSites = region === "Global" 
-        ? MAP_LOCATIONS 
-        : MAP_LOCATIONS.filter(l => l.region === region);
-
+    const visibleSites = region === "Global" ? MAP_LOCATIONS : MAP_LOCATIONS.filter(l => l.region === region);
     visibleSites.forEach(loc => {
         L.marker([loc.lat, loc.lon], { icon: siteIcon })
          .bindTooltip(`<b>${loc.name}</b><br>${loc.country}`)
          .addTo(layerGroup);
     });
 
-    // Proximity Alerts (Red/Amber Incidents)
+    // Alerts
     const alertIcon = (sev) => L.divIcon({
         className: "custom-pin",
         html: `<div class="marker-incident ${sev >= 3 ? 'marker-crit' : 'marker-warn'}">
@@ -170,10 +154,7 @@ function updateMap(region) {
          .addTo(layerGroup);
     });
 
-    // Recenter
-    const centers = {
-        "AMER": [30, -90], "EMEA": [45, 15], "APJC": [20, 110], "LATAM": [-15, -60], "Global": [25, 10]
-    };
+    const centers = { "AMER": [30, -90], "EMEA": [45, 15], "APJC": [20, 110], "LATAM": [-15, -60], "Global": [25, 10] };
     const zoom = region === "Global" ? 2 : 3;
     map.setView(centers[region] || centers["Global"], zoom);
 }
@@ -182,7 +163,6 @@ function updateMap(region) {
 /* =========================================================
    UI & FEED LOGIC
    ========================================================= */
-
 function filterNews(region) {
     document.querySelectorAll(".nav-item-custom").forEach(el => {
         el.classList.toggle("active", el.innerText.trim() === region);
@@ -196,9 +176,7 @@ function renderGeneralFeed(region) {
     const container = document.getElementById("general-news-feed");
     const banner = document.getElementById("critical-alert-banner");
     
-    const filtered = region === "Global" 
-        ? GENERAL_NEWS_FEED 
-        : GENERAL_NEWS_FEED.filter(i => i.region === region);
+    const filtered = region === "Global" ? GENERAL_NEWS_FEED : GENERAL_NEWS_FEED.filter(i => i.region === region);
 
     if (!filtered.length) {
         container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents logged for ${region}.</div>`;
@@ -206,21 +184,18 @@ function renderGeneralFeed(region) {
         return;
     }
 
-    // Top Critical Alert
     const topCrit = filtered.find(i => i.severity >= 3);
     if (topCrit && banner) {
         banner.style.display = 'flex';
-        document.getElementById("headline-alert").innerHTML = 
-            `<strong>CRITICAL:</strong> ${topCrit.title}`;
+        document.getElementById("headline-alert").innerHTML = `<strong>CRITICAL:</strong> ${topCrit.title}`;
     } else if (banner) {
         banner.style.display = 'none';
     }
 
-    // Feed Cards
     container.innerHTML = filtered.map(item => {
         const barColor = item.severity >= 3 ? "status-bar-crit" : "status-bar-warn";
         const badgeClass = item.severity >= 3 ? "ftag-crit" : "ftag-warn";
-        const sevText = item.severity >= 3 ? "CRITICAL" : (item.severity === 2 ? "WARNING" : "INFO");
+        const sevText = item.severity >= 3 ? "CRITICAL" : "WARNING";
         
         return `
         <a href="${item.url || item.link || '#'}" target="_blank" class="feed-card">
@@ -269,18 +244,11 @@ function updateProximityRadius() {
     if(activeEl) filterNews(activeEl.innerText.trim());
 }
 
-
-/* =========================================================
-   HELPERS & SIDEBAR
-   ========================================================= */
-
 function startClock() {
     setInterval(() => {
         const now = new Date();
-        const tEl = document.getElementById("clock-time");
-        const dEl = document.getElementById("clock-date");
-        if(tEl) tEl.innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        if(dEl) dEl.innerText = now.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'});
+        document.getElementById("clock-time").innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        document.getElementById("clock-date").innerText = now.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'});
     }, 1000);
 }
 
@@ -303,8 +271,7 @@ function filterTravel() {
     const c = document.getElementById("countrySelect").value;
     const adv = ADVISORIES[c] || { level: 1, text: "Normal Precautions" };
     const div = document.getElementById("travel-advisories");
-    
-    let color = adv.level === 4 ? "#d93025" : (adv.level === 3 ? "#e37400" : (adv.level === 2 ? "#f9ab00" : "#1a73e8"));
+    let color = adv.level === 4 ? "#d93025" : (adv.level === 3 ? "#e37400" : "#1a73e8");
     
     div.innerHTML = `
         <div style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px; border-radius:6px; margin-bottom:10px;">
@@ -313,10 +280,7 @@ function filterTravel() {
         </div>
     `;
     
-    // Find related news
-    const related = GENERAL_NEWS_FEED.filter(i => 
-        (i.title + (i.snippet||"")).toLowerCase().includes(c.toLowerCase())
-    );
+    const related = GENERAL_NEWS_FEED.filter(i => (i.title + (i.snippet||"")).toLowerCase().includes(c.toLowerCase()));
     const newsDiv = document.getElementById("travel-news");
     if(related.length) {
         newsDiv.innerHTML = `<div class="small p-2 bg-light border rounded"><strong>Recent Incident:</strong><br>${related[0].title}</div>`;
@@ -327,8 +291,6 @@ function filterTravel() {
 
 function downloadReport() {
     const region = document.getElementById("reportRegion").value.toLowerCase();
-    const url = `reports/${region}_latest.html`;
-    const fb = document.getElementById("download-feedback");
-    
-    fb.innerHTML = `<a href="${url}" target="_blank" class="btn btn-sm btn-outline-primary w-100">Open Report <i class="fas fa-external-link-alt"></i></a>`;
+    const url = `public/reports/${region}_latest.html`;
+    window.open(url, '_blank');
 }
