@@ -7,57 +7,7 @@
     "time": "2025-12-03T06:00:10",
     "region": "APJC",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Decades of forest loss hit home: Future cyclones could batter Indonesia harder, analysts warn",
-    "url": "https://www.straitstimes.com/asia/se-asia/decades-of-forest-loss-hit-home-future-cyclones-could-batter-indonesia-harder-analysts-warn",
-    "snippet": "Deadly floods and landslides across Sumatra have become the first major climate test for President Prabowo.",
-    "source": "straitstimes.com",
-    "time": "2025-12-03T04:17:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Colombia\u2019s Petro invites Trump to cocaine lab demolition amid attack threat",
-    "url": "https://www.aljazeera.com/news/2025/12/3/colombias-petro-invites-trump-to-cocaine-lab-demolition-amid-attack-threat?traffic_source=rss",
-    "snippet": "Colombian president chides Trump, saying 18,400 cocaine laboratories have been destroyed 'without missiles' fired.",
-    "source": "aljazeera.com",
-    "time": "2025-12-03T03:47:49",
-    "region": "AMER",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Why the Philippines\u2019 anti-flood control corruption movement could be receding",
-    "url": "https://www.scmp.com/week-asia/politics/article/3334979/fatigue-derailing-philippines-fight-against-flood-control-corruption-scandal?utm_source=rss_feed",
-    "snippet": "Thousands of Filipinos have taken to the streets again to protest against the ongoing flood control corruption scandal, yet the markedly smaller crowds compared with the last major demonstration have sparked fears that the movement may be losing momentum.\nPolitical analysts said the low turnout on Sunday reflected a combination of fatigue and disillusionment among activists in the Philippines. They warned that if public mobilisation continued to thin, it could ease the pressure on President...",
-    "source": "scmp.com",
-    "time": "2025-12-03T03:30:16",
-    "region": "AMER",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "US defence chief says he did not see survivors before follow-up boat strike",
-    "url": "https://www.aljazeera.com/news/2025/12/3/us-defence-chief-says-he-did-not-see-survivors-before-follow-up-boat-strike?traffic_source=rss",
-    "snippet": "US Secretary of Defense Peter Hegseth defends controversial second strike on alleged drug boat in the Caribbean Sea.",
-    "source": "aljazeera.com",
-    "time": "2025-12-03T02:52:21",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Barcelona extend lead at top of La Liga with 3-1 win over Atletico Madrid",
-    "url": "https://www.aljazeera.com/sports/2025/12/2/barcelona-extend-lead-at-top-of-la-liga-with-3-1-win-over-atletico-madrid?traffic_source=rss",
-    "snippet": "Barca recover from a goal down to win, with strikes from Raphinha, Dani Olmo and Ferran Torres.",
-    "source": "aljazeera.com",
-    "time": "2025-12-02T22:33:45",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
@@ -67,7 +17,7 @@
     "time": "2025-12-02T19:06:20",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "Nigeria grants asylum to Guinea-Bissau presidential candidate after coup",
@@ -77,47 +27,7 @@
     "time": "2025-12-02T16:51:10",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Pope prays at Beirut port blast site on last day of Lebanon visit",
-    "url": "https://www.bbc.com/news/articles/cn41jge1990o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Pope Leo XIV demanded justice for the more than 200 victims of the disaster, at the end of his three-day visit to Lebanon.",
-    "source": "bbc.com",
-    "time": "2025-12-02T16:47:19",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "US Navy admiral ordered second  deadly Venezuela boat strike, White House says",
-    "url": "https://www.bbc.com/news/articles/c0r95q9kv1go?at_medium=RSS&at_campaign=rss",
-    "snippet": "The strikes, authorised by Defence Secretary Pete Hegseth, have raised fresh legality questions - but the White House says laws have been followed.",
-    "source": "bbc.com",
-    "time": "2025-12-02T15:38:06",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Cybercrime Goes SaaS: Renting Tools, Access, and Infrastructure",
-    "url": "https://www.bleepingcomputer.com/news/security/cybercrime-goes-saas-renting-tools-access-and-infrastructure/",
-    "snippet": "Cybercrime has fully shifted to a subscription model, with phishing kits, Telegram OTP bots, infostealer logs, and even RATs now rented like SaaS tools. Varonis explains how this \"crime-as-a-service\" economy lowers the barrier to entry and gives low-skill attackers on-demand access to advanced capabilities. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-02T15:10:20",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Google fixes two Android zero days exploited in attacks, 107 flaws",
-    "url": "https://www.bleepingcomputer.com/news/security/google-fixes-two-android-zero-days-exploited-in-attacks-107-flaws/",
-    "snippet": "Google has released the December 2025 Android security bulletin, addressing 107 vulnerabilities, including two flaws actively exploited in targeted attacks. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-02T14:36:44",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "University of Pennsylvania confirms new data breach after Oracle hack",
@@ -127,7 +37,7 @@
     "time": "2025-12-02T12:55:59",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "CISA Releases Five Industrial Control Systems Advisories",
@@ -137,37 +47,7 @@
     "time": "2025-12-02T12:00:00",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Pavarotti statue frozen knee-deep in ice rink strikes wrong note in Italy",
-    "url": "https://www.bbc.com/news/articles/cre3q9edqx8o?at_medium=RSS&at_campaign=rss",
-    "snippet": "The opera legend's widow said the town had made an \"absurd decision\" after it also encouraged skaters to high five the statue.",
-    "source": "bbc.com",
-    "time": "2025-12-02T05:19:12",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Charities offered latest insight into key cyber threats to help keep out attackers",
-    "url": "https://www.ncsc.gov.uk/news/charities-offered-latest-insight-into-key-cyber-threats-to-help-keep-out-attackers",
-    "snippet": "Latest report published by the NCSC outlines key threats facing the UK charity sector.",
-    "source": "ncsc.gov.uk",
-    "time": "2025-10-29T15:25:42",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "UK experiencing four 'nationally significant' cyber attacks every week",
-    "url": "https://www.ncsc.gov.uk/news/uk-experiencing-four-nationally-significant-cyber-attacks-weekly",
-    "snippet": "Latest Annual Review reveals that the cyber threats facing the UK continue to escalate.",
-    "source": "ncsc.gov.uk",
-    "time": "2025-10-16T13:13:35",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "Active exploitation of vulnerability affecting Oracle E-Business Suite",
@@ -177,7 +57,17 @@
     "time": "2025-10-06T09:30:52",
     "region": "EMEA",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "NCSC warns of persistent malware campaign targeting Cisco devices",
+    "url": "https://www.ncsc.gov.uk/news/persistent-malicious-targeting-cisco-devices",
+    "snippet": "Latest malware analysis report helps organisations detect and mitigate malicious activity targeting certain Cisco devices.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-09-25T11:55:28",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
   },
   {
     "title": "Active exploitation of vulnerability affecting Microsoft Office SharePoint Server products in the UK",
@@ -187,6 +77,16 @@
     "time": "2025-07-22T08:44:33",
     "region": "EMEA",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "UK and allies expose Russian intelligence campaign targeting western logistics and technology organisations",
+    "url": "https://www.ncsc.gov.uk/news/uk-partners-expose-russian-intelligence-campaign",
+    "snippet": "Organisations urged to familiarise themselves with the threat and take immediate action to protect themselves.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-05-22T15:23:34",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
   }
 ]
