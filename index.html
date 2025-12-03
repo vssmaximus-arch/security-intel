@@ -41,16 +41,37 @@
         .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
         .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
         .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+        .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
         
         /* ALERTS */
         .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
         .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
         #proximity-alerts-container { max-height: 400px; overflow-y: auto; }
+        .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+        .alert-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .alert-type { font-weight: 700; font-size: 0.9rem; color: #202124; display: flex; gap:8px; align-items:center; }
+        .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
+        .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; margin-bottom: 6px; }
         
         /* FEED */
         .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: flex; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .feed-status-bar { width: 5px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
+        .feed-content { padding: 16px 20px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-type { background: #f1f3f4; color: #5f6368; }
+        .ftag-cat { background: #3c4043; color: white; border-color: #3c4043; } /* Dark Grey for Category */
+        
+        .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
+        .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; }
+        .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
         
         .modal-content { border-radius: 12px; }
         .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
@@ -111,6 +132,7 @@
             </div>
 
             <div class="col-lg-3 sidebar-col">
+                
                 <div class="side-card">
                     <div class="card-label"><i class="fas fa-history"></i> History Search</div>
                     <div class="history-input-group">
@@ -145,6 +167,19 @@
                         Currently no alerts in proximity to Dell sites.
                     </div>
                 </div>
+
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-filter"></i> Risk Category Filter</div>
+                    <select class="category-select" id="categorySelect" onchange="filterCategory(this.value)">
+                        <option value="ALL" selected>All Categories</option>
+                        <option value="CYBER SECURITY">Cyber Security</option>
+                        <option value="SUPPLY CHAIN">Supply Chain</option>
+                        <option value="PHYSICAL SECURITY">Physical Security</option>
+                        <option value="CRISIS / WEATHER">Crisis / Weather</option>
+                        <option value="HEALTH / SAFETY">Health / Safety</option>
+                    </select>
+                </div>
+
             </div>
         </div>
     </div>
