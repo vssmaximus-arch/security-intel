@@ -1,5 +1,15 @@
 [
   {
+    "title": "Israel says remains Hamas handed over on Tuesday are not those of a Gaza hostage",
+    "url": "https://www.straitstimes.com/asia/israel-says-remains-hamas-handed-over-on-tuesday-are-not-those-of-a-gaza-hostage",
+    "snippet": "JERUSALEM, Dec 3 - Israeli forensic services concluded that remains handed over by Hamas on Tuesday were not those of the last two hostages in Gaza, the office of Israel's prime minister said.",
+    "source": "straitstimes.com",
+    "time": "2025-12-03T06:55:08",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Indonesia\u2019s cyclone tragedy exposes lethal cost of forest destruction",
     "url": "https://www.scmp.com/week-asia/health-environment/article/3334963/indonesias-cyclone-tragedy-exposes-lethal-cost-forest-destruction?utm_source=rss_feed",
     "snippet": "Indonesia is facing renewed calls to curb deforestation and tighten oversight of forest concessions after a rare tropical cyclone tore across Sumatra, unleashing floods and landslides that have killed more than 700 people and left hundreds missing.\nThe disaster has prompted a nationwide debate over whether the tragedy was driven primarily by climate change-fuelled extreme weather or by decades of ecological destruction in a region that has been transformed by plantations, mining and large-scale...",
@@ -40,6 +50,16 @@
     "type": "CRISIS / WEATHER"
   },
   {
+    "title": "Was it coup or was it a 'sham'? Behind Guinea-Bissau's military takeover",
+    "url": "https://www.bbc.com/news/articles/c1m8nm22785o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The military has taken over but some say the overthrow of the president was not what it seemed.",
+    "source": "bbc.com",
+    "time": "2025-12-03T00:07:23",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Shai-Hulud 2.0 NPM malware attack exposed up to 400,000 dev secrets",
     "url": "https://www.bleepingcomputer.com/news/security/shai-hulud-20-npm-malware-attack-exposed-up-to-400-000-dev-secrets/",
     "snippet": "The second Shai-Hulud\u00a0attack last week exposed around 400,000 raw secrets after infecting hundreds of packages in the NPM (Node Package Manager) registry and publishing stolen data in 30,000 GitHub repositories. [...]",
@@ -78,26 +98,6 @@
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
-  },
-  {
-    "title": "Death toll in Indonesia floods passes 600",
-    "url": "https://www.bbc.com/news/articles/c4g4enlp6kzo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Another 500 people are missing, while thousands more have been injured after a cyclone hit the region.",
-    "source": "bbc.com",
-    "time": "2025-12-02T07:10:41",
-    "region": "AMER",
-    "severity": 2,
-    "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "Appeals court disqualifies ex-Trump lawyer Alina Habba as New Jersey prosecutor",
-    "url": "https://www.bbc.com/news/articles/cewjg272dq9o?at_medium=RSS&at_campaign=rss",
-    "snippet": "An appeals court disqualified Alina Habba, Trump's former personal attorney, from serving as US Attorney for New Jersey.",
-    "source": "bbc.com",
-    "time": "2025-12-01T19:15:59",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "CISA Releases Six Industrial Control Systems Advisories",
