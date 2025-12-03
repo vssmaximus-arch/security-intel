@@ -122,12 +122,11 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // SRO RELEVANT FALLBACK (Matching Your Screenshot Style)
+        // SRO RELEVANT FALLBACK (Strict Examples Only)
         GENERAL_NEWS_FEED = [
-            { title: "Industrial Fire - Xiamen Industrial Zone (Proximity Alert)", snippet: "Active fire reported at adjacent chemical logistics park.", region: "APJC", severity: 3, type: "MANUFACTURING", time: new Date().toISOString(), source: "Dell Security" },
-            { title: "Red Sea Crisis Escalates", snippet: "Major shipping lines divert vessels as security concerns mount near the Bab el-Mandeb strait.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "Reuters" },
-            { title: "Critical Ransomware Strain Targets Manufacturing", snippet: "New 'BlackCat' variant identified targeting industrial control systems in Germany.", region: "EMEA", severity: 3, type: "CYBER SECURITY", time: new Date().toISOString(), source: "BleepingComputer" },
-            { title: "Civil unrest triggers curfew in Bogota", snippet: "Authorities declare 24-hour curfew following escalated protests near government district.", region: "LATAM", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "Associated Press" }
+            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics" },
+            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC" },
+            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS", time: new Date().toISOString(), source: "Weather Ops" }
         ];
     }
     updateMap('Global');
@@ -179,20 +178,22 @@ function filterNews(region) {
         container.innerHTML = filtered.map(item => {
             const timeStr = safeDate(item.time);
             
-            // Badges
+            // Badges: [CRITICAL] [CATEGORY] [REGION]
             const sevBadge = item.severity >= 3 
                 ? `<span class="badge rounded-0" style="background:#d93025; color:white; font-size:0.7rem; margin-right:5px;">CRITICAL</span>` 
                 : `<span class="badge rounded-0" style="background:#f9ab00; color:white; font-size:0.7rem; margin-right:5px;">WARNING</span>`;
             
-            const typeBadge = `<span class="badge rounded-0" style="background:#333; color:white; font-size:0.7rem; margin-right:5px;">${(item.type || 'GENERAL').toUpperCase()}</span>`;
-            const regBadge = `<span class="badge rounded-0" style="background:#555; color:white; font-size:0.7rem;">${(item.region || 'GLOBAL').toUpperCase()}</span>`;
+            const typeBadge = `<span class="badge rounded-0" style="background:#999; color:white; font-size:0.7rem; margin-right:5px;">${(item.type || 'GENERAL').toUpperCase()}</span>`;
             
+            // Region is text to the right
+            const regionText = `<span style="float:right; color:#999; font-weight:700; font-size:0.75rem;">${item.region}</span>`;
+
             const barColor = item.severity >= 3 ? "#d93025" : "#f9ab00";
 
             return `
             <div class="feed-card" style="border-left: 5px solid ${barColor}; margin-bottom: 12px; background:white; padding:15px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
                 <div style="margin-bottom:8px;">
-                    ${sevBadge}${typeBadge}${regBadge}
+                    ${sevBadge}${typeBadge}${regionText}
                 </div>
                 <div class="feed-title" style="font-size:1rem; font-weight:700; color:#202124; margin-bottom:5px;">${item.title}</div>
                 <div class="feed-meta" style="font-size:0.8rem; color:#666; margin-bottom:8px;">${item.source} • ${timeStr}</div>
@@ -207,7 +208,7 @@ function updateProximityRadius() {
     currentRadius = parseFloat(document.getElementById("proxRadius").value);
     const activeEl = document.querySelector(".nav-item-custom.active");
     
-    // Refresh the Alert List with new Radius
+    // Refresh Alert List
     const container = document.getElementById("proximity-alerts-container");
     const activeRegion = activeEl ? activeEl.innerText.trim() : 'Global';
     
@@ -216,7 +217,7 @@ function updateProximityRadius() {
         return regMatch && a.distance_km <= currentRadius;
     });
 
-    // FIX: UPDATED PROXIMITY TEXT
+    // FIXED TEXT MESSAGE
     if (!filtered.length) {
         container.innerHTML = `<div class="p-3 text-center text-muted small">Currently no alerts in proximity to Dell sites.</div>`;
     } else {
@@ -262,27 +263,18 @@ function filterTravel() {
     }
 }
 
-function formatTimeAgo(iso) {
-    if (!iso) return "";
-    const date = new Date(iso);
-    const diff = Math.floor((new Date() - date) / 60000); // minutes
-    if (diff < 60) return `${diff}m ago`;
-    if (diff < 1440) return `${Math.floor(diff/60)}h ago`;
-    return date.toLocaleDateString(); 
-}
-
 function safeDate(iso) {
-    try { return formatTimeAgo(iso); } catch(e) { return "Just now"; }
+    try { return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); } catch(e) { return "Just now"; }
 }
 
 function updateClock() {
     const now = new Date();
-    // Correct format: Wed, 03 Dec 2025 | 14:30 UTC
-    const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+    // FIXED FORMAT: Thursday, Nov 27, 2025 12:10 PM GMT
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZoneName: 'short' });
     
-    document.getElementById("clock-date").innerText = `${dateStr} | ${timeStr} UTC`;
-    document.getElementById("clock-time").innerText = ""; // Cleared as it is merged above
+    document.getElementById("clock-date").innerText = `${dateStr} ${timeStr}`;
+    document.getElementById("clock-time").innerText = ""; 
 }
 
 function loadHistory(val) {
