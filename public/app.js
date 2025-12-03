@@ -1,15 +1,22 @@
 /* =========================================================
-   CONFIG & STATE
+   1. CONFIGURATION & STATE
    ========================================================= */
 const PATHS = {
-    NEWS: "public/data/news.json",
-    PROXIMITY: "public/data/proximity.json"
+    NEWS: "data/news.json",
+    PROXIMITY: "data/proximity.json"
 };
 
 // FIX: Default Radius strictly 5KM
 let currentRadius = 5; 
 
-/* --- FULL DELL SITE LIST (COMPLETE SEP 2025 REGISTER) --- */
+// STATE
+let GENERAL_NEWS_FEED = [];
+let PROXIMITY_ALERTS = [];
+let map, layerGroup;
+
+/* =========================================================
+   2. DATA: DELL SITES (Hardcoded to ensure map visibility)
+   ========================================================= */
 const HARDCODED_SITES = [
     // AMER
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -95,22 +102,213 @@ const HARDCODED_SITES = [
     { name: "Dell Jakarta", country: "ID", region: "APJC", lat: -6.2088, lon: 106.8456 }
 ];
 
-/* --- COMPLETE COUNTRY LIST (FOR DROPDOWN) --- */
-const COUNTRIES = [
-    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
-];
-
-/* --- ADVISORY LOOKUP (Subset for Levels, Defaults to 1) --- */
+/* --- 3. DATA: FULL COUNTRY LIST (190+ Countries) --- */
 const ADVISORIES = {
-    "Afghanistan": { level: 4, text: "Do Not Travel" }, "Belarus": { level: 4, text: "Do Not Travel" }, "Burkina Faso": { level: 4, text: "Do Not Travel" }, "Haiti": { level: 4, text: "Do Not Travel" }, "Iran": { level: 4, text: "Do Not Travel" }, "Iraq": { level: 4, text: "Do Not Travel" }, "Libya": { level: 4, text: "Do Not Travel" }, "Mali": { level: 4, text: "Do Not Travel" }, "North Korea": { level: 4, text: "Do Not Travel" }, "Russia": { level: 4, text: "Do Not Travel" }, "Somalia": { level: 4, text: "Do Not Travel" }, "South Sudan": { level: 4, text: "Do Not Travel" }, "Sudan": { level: 4, text: "Do Not Travel" }, "Syria": { level: 4, text: "Do Not Travel" }, "Ukraine": { level: 4, text: "Do Not Travel" }, "Venezuela": { level: 4, text: "Do Not Travel" }, "Yemen": { level: 4, text: "Do Not Travel" }, "Israel": { level: 3, text: "Reconsider Travel" }, "Colombia": { level: 3, text: "Reconsider Travel" }, "Nigeria": { level: 3, text: "Reconsider Travel" }, "Pakistan": { level: 3, text: "Reconsider Travel" }, "Saudi Arabia": { level: 3, text: "Reconsider Travel" }, "Mexico": { level: 2, text: "Exercise Increased Caution" }, "France": { level: 2, text: "Exercise Increased Caution" }, "Germany": { level: 2, text: "Exercise Increased Caution" }, "India": { level: 2, text: "Exercise Increased Caution" }, "Turkey": { level: 2, text: "Exercise Increased Caution" }, "United Kingdom": { level: 2, text: "Exercise Increased Caution" }, "China": { level: 3, text: "Reconsider Travel" }, "Myanmar": { level: 4, text: "Do Not Travel" }
+    "Afghanistan": { level: 4, text: "Do Not Travel due to civil unrest, armed conflict, crime, terrorism, kidnapping, and wrongful detention." },
+    "Albania": { level: 1, text: "Exercise Normal Precautions." },
+    "Algeria": { level: 2, text: "Exercise Increased Caution due to terrorism and kidnapping." },
+    "Andorra": { level: 1, text: "Exercise Normal Precautions." },
+    "Angola": { level: 1, text: "Exercise Normal Precautions." },
+    "Antigua and Barbuda": { level: 1, text: "Exercise Normal Precautions." },
+    "Argentina": { level: 1, text: "Exercise Normal Precautions." },
+    "Armenia": { level: 1, text: "Exercise Normal Precautions." },
+    "Australia": { level: 1, text: "Exercise Normal Precautions." },
+    "Austria": { level: 1, text: "Exercise Normal Precautions." },
+    "Azerbaijan": { level: 2, text: "Exercise Increased Caution." },
+    "Bahamas": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Bahrain": { level: 1, text: "Exercise Normal Precautions." },
+    "Bangladesh": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and kidnapping." },
+    "Barbados": { level: 1, text: "Exercise Normal Precautions." },
+    "Belarus": { level: 4, text: "Do Not Travel due to the arbitrary enforcement of laws, the risk of detention, and the buildup of Russian military." },
+    "Belgium": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Belize": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Benin": { level: 1, text: "Exercise Normal Precautions." },
+    "Bhutan": { level: 1, text: "Exercise Normal Precautions." },
+    "Bolivia": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "Bosnia and Herzegovina": { level: 2, text: "Exercise Increased Caution due to terrorism and landmines." },
+    "Botswana": { level: 1, text: "Exercise Normal Precautions." },
+    "Brazil": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Brunei": { level: 1, text: "Exercise Normal Precautions." },
+    "Bulgaria": { level: 1, text: "Normal Precautions" },
+    "Burkina Faso": { level: 4, text: "Do Not Travel due to terrorism, crime, and kidnapping." },
+    "Burundi": { level: 3, text: "Reconsider Travel due to crime, health, and political violence." },
+    "Cabo Verde": { level: 1, text: "Exercise Normal Precautions." },
+    "Cambodia": { level: 1, text: "Exercise Normal Precautions." },
+    "Cameroon": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Canada": { level: 1, text: "Exercise Normal Precautions." },
+    "Central African Republic": { level: 4, text: "Do Not Travel due to crime, civil unrest, kidnapping, and armed conflict." },
+    "Chad": { level: 3, text: "Reconsider Travel due to crime, terrorism, and civil unrest." },
+    "Chile": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "China": { level: 3, text: "Reconsider Travel due to the arbitrary enforcement of local laws." },
+    "Colombia": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
+    "Comoros": { level: 1, text: "Exercise Normal Precautions." },
+    "Congo (DRC)": { level: 3, text: "Reconsider Travel due to crime and civil unrest." },
+    "Congo (Republic)": { level: 1, text: "Exercise Normal Precautions." },
+    "Costa Rica": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Croatia": { level: 1, text: "Exercise Normal Precautions." },
+    "Cuba": { level: 2, text: "Exercise Increased Caution." },
+    "Cyprus": { level: 1, text: "Exercise Normal Precautions." },
+    "Czech Republic": { level: 1, text: "Exercise Normal Precautions." },
+    "Denmark": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Djibouti": { level: 1, text: "Exercise Normal Precautions." },
+    "Dominica": { level: 1, text: "Exercise Normal Precautions." },
+    "Dominican Republic": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "East Timor": { level: 2, text: "Exercise Increased Caution." },
+    "Ecuador": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "Egypt": { level: 3, text: "Reconsider Travel due to terrorism." },
+    "El Salvador": { level: 3, text: "Reconsider Travel due to crime." },
+    "Equatorial Guinea": { level: 1, text: "Exercise Normal Precautions." },
+    "Eritrea": { level: 3, text: "Reconsider Travel." },
+    "Estonia": { level: 1, text: "Exercise Normal Precautions." },
+    "Eswatini": { level: 1, text: "Exercise Normal Precautions." },
+    "Ethiopia": { level: 3, text: "Reconsider Travel due to sporadic conflict, civil unrest, and crime." },
+    "Fiji": { level: 1, text: "Exercise Normal Precautions." },
+    "Finland": { level: 1, text: "Exercise Normal Precautions." },
+    "France": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
+    "Gabon": { level: 1, text: "Exercise Normal Precautions." },
+    "Gambia": { level: 1, text: "Exercise Normal Precautions." },
+    "Georgia": { level: 1, text: "Exercise Normal Precautions." },
+    "Germany": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Ghana": { level: 1, text: "Exercise Normal Precautions." },
+    "Greece": { level: 1, text: "Exercise Normal Precautions." },
+    "Grenada": { level: 1, text: "Exercise Normal Precautions." },
+    "Guatemala": { level: 3, text: "Reconsider Travel due to crime." },
+    "Guinea": { level: 2, text: "Exercise Increased Caution due to civil unrest." },
+    "Guinea-Bissau": { level: 3, text: "Reconsider Travel due to crime and civil unrest." },
+    "Guyana": { level: 3, text: "Reconsider Travel due to crime." },
+    "Haiti": { level: 4, text: "Do Not Travel due to kidnapping, crime, and civil unrest." },
+    "Honduras": { level: 3, text: "Reconsider Travel due to crime and kidnapping." },
+    "Hungary": { level: 1, text: "Exercise Normal Precautions." },
+    "Iceland": { level: 1, text: "Exercise Normal Precautions." },
+    "India": { level: 2, text: "Exercise Increased Caution due to crime and terrorism." },
+    "Indonesia": { level: 2, text: "Exercise Increased Caution due to terrorism and natural disasters." },
+    "Iran": { level: 4, text: "Do Not Travel due to the risk of kidnapping and the arbitrary arrest and detention." },
+    "Iraq": { level: 4, text: "Do Not Travel due to terrorism, kidnapping, armed conflict, and civil unrest." },
+    "Ireland": { level: 1, text: "Exercise Normal Precautions." },
+    "Israel": { level: 3, text: "Reconsider Travel due to terrorism and civil unrest." },
+    "Italy": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Ivory Coast": { level: 1, text: "Exercise Normal Precautions." },
+    "Jamaica": { level: 3, text: "Reconsider Travel due to crime and medical services." },
+    "Japan": { level: 1, text: "Exercise Normal Precautions." },
+    "Jordan": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Kazakhstan": { level: 1, text: "Exercise Normal Precautions." },
+    "Kenya": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and kidnapping." },
+    "Kiribati": { level: 1, text: "Exercise Normal Precautions." },
+    "Korea, North": { level: 4, text: "Do Not Travel due to the serious risk of arrest and long-term detention." },
+    "Korea, South": { level: 1, text: "Exercise Normal Precautions." },
+    "Kosovo": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Kuwait": { level: 1, text: "Exercise Normal Precautions." },
+    "Kyrgyzstan": { level: 1, text: "Exercise Normal Precautions." },
+    "Laos": { level: 1, text: "Exercise Normal Precautions." },
+    "Latvia": { level: 1, text: "Exercise Normal Precautions." },
+    "Lebanon": { level: 4, text: "Do Not Travel due to crime, terrorism, and armed conflict." },
+    "Lesotho": { level: 1, text: "Exercise Normal Precautions." },
+    "Liberia": { level: 1, text: "Exercise Normal Precautions." },
+    "Libya": { level: 4, text: "Do Not Travel due to crime, terrorism, civil unrest, kidnapping, and armed conflict." },
+    "Liechtenstein": { level: 1, text: "Exercise Normal Precautions." },
+    "Lithuania": { level: 1, text: "Exercise Normal Precautions." },
+    "Luxembourg": { level: 1, text: "Exercise Normal Precautions." },
+    "Madagascar": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Malawi": { level: 1, text: "Exercise Normal Precautions." },
+    "Malaysia": { level: 1, text: "Exercise Normal Precautions." },
+    "Maldives": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Mali": { level: 4, text: "Do Not Travel due to crime, terrorism, and kidnapping." },
+    "Malta": { level: 1, text: "Exercise Normal Precautions." },
+    "Marshall Islands": { level: 1, text: "Exercise Normal Precautions." },
+    "Mauritania": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
+    "Mauritius": { level: 1, text: "Exercise Normal Precautions." },
+    "Mexico": { level: 2, text: "Exercise Increased Caution due to widespread crime and kidnapping." },
+    "Micronesia": { level: 1, text: "Exercise Normal Precautions." },
+    "Moldova": { level: 2, text: "Exercise Increased Caution." },
+    "Monaco": { level: 1, text: "Exercise Normal Precautions." },
+    "Mongolia": { level: 1, text: "Exercise Normal Precautions." },
+    "Montenegro": { level: 1, text: "Exercise Normal Precautions." },
+    "Morocco": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Mozambique": { level: 2, text: "Exercise Increased Caution." },
+    "Myanmar": { level: 4, text: "Do Not Travel due to civil unrest, armed conflict, and arbitrary enforcement of laws." },
+    "Namibia": { level: 1, text: "Exercise Normal Precautions." },
+    "Nauru": { level: 1, text: "Exercise Normal Precautions." },
+    "Nepal": { level: 2, text: "Exercise Increased Caution due to potential for political unrest." },
+    "Netherlands": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "New Zealand": { level: 1, text: "Exercise Normal Precautions." },
+    "Nicaragua": { level: 3, text: "Reconsider Travel due to limited healthcare and arbitrary enforcement of laws." },
+    "Niger": { level: 3, text: "Reconsider Travel due to crime, terrorism, and kidnapping." },
+    "Nigeria": { level: 3, text: "Reconsider Travel due to crime, terrorism, civil unrest, kidnapping, and maritime crime." },
+    "North Macedonia": { level: 1, text: "Exercise Normal Precautions." },
+    "Norway": { level: 1, text: "Exercise Normal Precautions." },
+    "Oman": { level: 1, text: "Exercise Normal Precautions." },
+    "Pakistan": { level: 3, text: "Reconsider Travel due to terrorism and sectarian violence." },
+    "Palau": { level: 1, text: "Exercise Normal Precautions." },
+    "Panama": { level: 1, text: "Exercise Normal Precautions." },
+    "Papua New Guinea": { level: 2, text: "Exercise Increased Caution due to crime, civil unrest, and health concerns." },
+    "Paraguay": { level: 1, text: "Exercise Normal Precautions." },
+    "Peru": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "Philippines": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and civil unrest." },
+    "Poland": { level: 1, text: "Exercise Normal Precautions." },
+    "Portugal": { level: 1, text: "Exercise Normal Precautions." },
+    "Qatar": { level: 1, text: "Exercise Normal Precautions." },
+    "Romania": { level: 1, text: "Exercise Normal Precautions." },
+    "Russia": { level: 4, text: "Do Not Travel due to the unpredictable consequences of the unprovoked full-scale invasion of Ukraine." },
+    "Rwanda": { level: 1, text: "Exercise Normal Precautions." },
+    "Saint Kitts and Nevis": { level: 1, text: "Exercise Normal Precautions." },
+    "Saint Lucia": { level: 1, text: "Exercise Normal Precautions." },
+    "Saint Vincent and the Grenadines": { level: 1, text: "Exercise Normal Precautions." },
+    "Samoa": { level: 1, text: "Exercise Normal Precautions." },
+    "San Marino": { level: 1, text: "Exercise Normal Precautions." },
+    "Sao Tome and Principe": { level: 1, text: "Exercise Normal Precautions." },
+    "Saudi Arabia": { level: 3, text: "Reconsider Travel due to the threat of missile and drone attacks." },
+    "Senegal": { level: 1, text: "Exercise Normal Precautions." },
+    "Serbia": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Seychelles": { level: 1, text: "Exercise Normal Precautions." },
+    "Sierra Leone": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "Singapore": { level: 1, text: "Exercise Normal Precautions." },
+    "Slovakia": { level: 1, text: "Exercise Normal Precautions." },
+    "Slovenia": { level: 1, text: "Exercise Normal Precautions." },
+    "Solomon Islands": { level: 1, text: "Exercise Normal Precautions." },
+    "Somalia": { level: 4, text: "Do Not Travel due to crime, terrorism, civil unrest, health issues, kidnapping, and piracy." },
+    "South Africa": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." },
+    "South Sudan": { level: 4, text: "Do Not Travel due to crime, kidnapping, and armed conflict." },
+    "Spain": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
+    "Sri Lanka": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Sudan": { level: 4, text: "Do Not Travel due to armed conflict, civil unrest, crime, terrorism, and kidnapping." },
+    "Suriname": { level: 1, text: "Exercise Normal Precautions." },
+    "Sweden": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Switzerland": { level: 1, text: "Exercise Normal Precautions." },
+    "Syria": { level: 4, text: "Do Not Travel due to terrorism, civil unrest, kidnapping, armed conflict, and risk of unjust detention." },
+    "Taiwan": { level: 1, text: "Exercise Normal Precautions." },
+    "Tajikistan": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Tanzania": { level: 2, text: "Exercise Increased Caution due to crime, terrorism, and targeting of LGBTI persons." },
+    "Thailand": { level: 1, text: "Exercise Normal Precautions." },
+    "Timor-Leste": { level: 2, text: "Exercise Increased Caution." },
+    "Togo": { level: 1, text: "Exercise Normal Precautions." },
+    "Tonga": { level: 1, text: "Exercise Normal Precautions." },
+    "Trinidad and Tobago": { level: 2, text: "Exercise Increased Caution due to crime." },
+    "Tunisia": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "Turkey": { level: 2, text: "Exercise Increased Caution due to terrorism and arbitrary detentions." },
+    "Turkmenistan": { level: 2, text: "Exercise Increased Caution due to arbitrary enforcement of local laws." },
+    "Tuvalu": { level: 1, text: "Exercise Normal Precautions." },
+    "Uganda": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
+    "Ukraine": { level: 4, text: "Do Not Travel due to active armed conflict." },
+    "United Arab Emirates": { level: 1, text: "Exercise Normal Precautions." },
+    "United Kingdom": { level: 2, text: "Exercise Increased Caution due to terrorism." },
+    "United States": { level: 1, text: "Exercise Normal Precautions." },
+    "Uruguay": { level: 1, text: "Exercise Normal Precautions." },
+    "Uzbekistan": { level: 1, text: "Exercise Normal Precautions." },
+    "Vanuatu": { level: 1, text: "Exercise Normal Precautions." },
+    "Venezuela": { level: 4, text: "Do Not Travel due to crime, civil unrest, kidnapping, and the arbitrary enforcement of local laws." },
+    "Vietnam": { level: 1, text: "Exercise Normal Precautions." },
+    "Yemen": { level: 4, text: "Do Not Travel due to terrorism, civil unrest, health risks, kidnapping, armed conflict, and landmines." },
+    "Zambia": { level: 1, text: "Exercise Normal Precautions." },
+    "Zimbabwe": { level: 2, text: "Exercise Increased Caution due to crime and civil unrest." }
 };
+const COUNTRIES = Object.keys(ADVISORIES).sort();
 
-let GENERAL_NEWS_FEED = [];
-let PROXIMITY_ALERTS = [];
-let map, layerGroup;
-
+/* =========================================================
+   3. INITIALIZATION
+   ========================================================= */
 document.addEventListener("DOMContentLoaded", async () => {
     initMap();
+    startClock();
     populateCountries();
     await loadAllData();
     filterNews('Global');
@@ -125,27 +323,34 @@ async function loadAllData() {
             fetch(`${PATHS.PROXIMITY}?t=${ts}`)
         ]);
 
+        // HANDLE NEWS FEED
         if (newsRes.status === "fulfilled" && newsRes.value.ok) {
             const raw = await newsRes.value.json();
             GENERAL_NEWS_FEED = Array.isArray(raw) ? raw : (raw.articles || []);
+            
+            // IF EMPTY FROM BACKEND, USE FALLBACK SO SCREEN ISN'T BLANK
+            if (GENERAL_NEWS_FEED.length === 0) throw new Error("Empty feed");
+
             badge.innerText = "LIVE FEED";
             badge.className = "badge bg-primary text-white";
         } else {
-            throw new Error("News feed failed");
+            throw new Error("News feed fetch failed");
         }
 
+        // HANDLE PROXIMITY
         if (proxRes.status === "fulfilled" && proxRes.value.ok) {
             const rawP = await proxRes.value.json();
             PROXIMITY_ALERTS = rawP.alerts || [];
         }
     } catch (e) {
-        console.warn("Live feed unavailable, using Fallback.");
+        console.warn("Using Fallback Data:", e);
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
-        // SRO RELEVANT FALLBACK DATA (No sports/fluff)
+        
+        // SRO RELEVANT FALLBACK (No sports/fluff)
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Ransomware Attack on Logistics Hub", snippet: "Major shipping partner reports system outage affecting EMEA routes.", region: "EMEA", severity: 3, time: new Date().toISOString(), source: "SRO Alert" },
-            { title: "Typhoon Warning: Taiwan & Philippines", snippet: "Category 4 storm approaching. Manufacturing sites initiating prep.", region: "APJC", severity: 2, time: new Date().toISOString(), source: "Weather Ops" },
+            { title: "Critical: Ransomware Attack on Logistics Hub", snippet: "Major shipping partner reports system outage affecting EMEA routes. Delays expected.", region: "EMEA", severity: 3, time: new Date().toISOString(), source: "SRO Alert" },
+            { title: "Typhoon Warning: Taiwan & Philippines", snippet: "Category 4 storm approaching. Manufacturing sites initiating prep protocols.", region: "APJC", severity: 2, time: new Date().toISOString(), source: "Weather Ops" },
             { title: "Civil Unrest: Bogota Curfew Extended", snippet: "Protests continue near government district. Staff advised to WFH.", region: "LATAM", severity: 2, time: new Date().toISOString(), source: "Security Ops" }
         ];
     }
@@ -153,7 +358,9 @@ async function loadAllData() {
     updateMap('Global');
 }
 
-/* --- MAP --- */
+/* =========================================================
+   4. MAP LOGIC
+   ========================================================= */
 function initMap() {
     map = L.map("map", { zoomControl: false, minZoom: 2, maxBounds: [[-90, -180], [90, 180]] }).setView([20, 0], 2);
     L.control.zoom({ position: "topleft" }).addTo(map);
@@ -189,7 +396,9 @@ function updateMap(region) {
     map.setView(centers[region] || centers["Global"], region === "Global" ? 2 : 3);
 }
 
-/* --- LOGIC --- */
+/* =========================================================
+   5. UI HELPERS
+   ========================================================= */
 function filterNews(region) {
     document.querySelectorAll(".nav-item-custom").forEach(el => el.classList.toggle("active", el.innerText.trim() === region));
     
@@ -198,16 +407,19 @@ function filterNews(region) {
 
     if (!filtered.length) { container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents.</div>`; }
     else {
-        container.innerHTML = filtered.map(item => `
+        container.innerHTML = filtered.map(item => {
+            const timeStr = safeDate(item.time);
+            return `
             <a href="${item.url||'#'}" target="_blank" class="feed-card">
                 <div class="feed-status-bar ${item.severity>=3?'status-bar-crit':'status-bar-warn'}"></div>
                 <div class="feed-content">
                     <div class="feed-tags"><span class="ftag ${item.severity>=3?'ftag-crit':'ftag-warn'}">${item.severity>=3?'CRITICAL':'WARNING'}</span><span class="ftag ftag-type">${item.region}</span></div>
                     <div class="feed-title">${item.title}</div>
-                    <div class="feed-meta">${item.source} • ${new Date(item.time).toLocaleTimeString()}</div>
-                    <div class="feed-desc">${item.snippet || item.summary}</div>
+                    <div class="feed-meta">${item.source} • ${timeStr}</div>
+                    <div class="feed-desc">${item.snippet || item.summary || ''}</div>
                 </div>
-            </a>`).join('');
+            </a>`;
+        }).join('');
     }
     updateMap(region);
 }
@@ -225,21 +437,18 @@ function populateCountries() {
 
 function filterTravel() {
     const c = document.getElementById("countrySelect").value;
-    // Default to Level 1 if not explicitly in Advisory list
-    const adv = ADVISORIES[c] || { level: 1, text: "Exercise Normal Precautions." };
+    const adv = ADVISORIES[c] || { level: 1, text: "Normal Precautions" };
     const div = document.getElementById("travel-advisories");
     const newsDiv = document.getElementById("travel-news");
     
     const color = adv.level === 4 ? "#d93025" : (adv.level === 3 ? "#e37400" : (adv.level === 2 ? "#f9ab00" : "#1a73e8"));
-    const bg = adv.level === 4 ? "#fce8e6" : "#f8f9fa";
     
-    // 1. Show Advisory
-    div.innerHTML = `<div style="border-left: 4px solid ${color}; background:${bg}; padding:10px; border-radius:6px; margin-bottom:10px;">
+    div.innerHTML = `<div style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px; border-radius:6px; margin-bottom:10px;">
         <div style="font-weight:800; color:${color}; font-size:0.8rem;">LEVEL ${adv.level} ADVISORY</div>
         <div style="font-size:0.9rem;">${adv.text}</div>
     </div>`;
 
-    // 2. Show Related News (Restored Feature)
+    // Show Latest Developments (Restored)
     const related = GENERAL_NEWS_FEED.filter(i => (i.title + (i.snippet||"")).toLowerCase().includes(c.toLowerCase()));
     if(related.length) {
         let items = related.slice(0,2).map(n => `<div style="margin-bottom:8px;"><strong>${n.title}</strong><br><span class="text-muted" style="font-size:0.75rem">${n.snippet}</span></div>`).join('');
@@ -247,6 +456,10 @@ function filterTravel() {
     } else {
         newsDiv.innerHTML = `<div class="small text-success mt-2"><i class="fas fa-check-circle"></i> No specific active incidents logged for ${c} in the last 72h.</div>`;
     }
+}
+
+function safeDate(iso) {
+    try { return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); } catch(e) { return "Just now"; }
 }
 
 function loadHistory(val) {
@@ -260,4 +473,10 @@ function startClock() {
         document.getElementById("clock-time").innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         document.getElementById("clock-date").innerText = now.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'});
     }, 1000);
+}
+
+function downloadReport() {
+    const region = document.getElementById("reportRegion").value.toLowerCase();
+    const url = `public/reports/${region}_latest.html`;
+    window.open(url, '_blank');
 }
