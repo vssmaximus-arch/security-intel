@@ -8,7 +8,7 @@ const PATHS = {
 
 let currentRadius = 5; // Default 5KM
 
-/* --- HARDCODED DELL SITES (Full List) --- */
+/* --- HARDCODED DELL SITES (Sep 2025) --- */
 const HARDCODED_SITES = [
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
     { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.2672, lon: -97.7431 },
@@ -43,7 +43,7 @@ const HARDCODED_SITES = [
     { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 }
 ];
 
-/* --- COMPREHENSIVE COUNTRY LIST --- */
+/* --- FULL 196 COUNTRY LIST --- */
 const COUNTRIES = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initMap();
     populateCountries();
     
-    // Start Clock Immediately
+    // FIX: Start clock immediately
     updateClock();
     setInterval(updateClock, 1000);
 
@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     filterNews('Global');
 });
 
+/* --- DATA LOADING --- */
 async function loadAllData() {
     const badge = document.getElementById("status-badge");
     try {
@@ -97,7 +98,7 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // SRO RELEVANT FALLBACK (Strict Examples Only)
+        // SRO RELEVANT FALLBACK
         GENERAL_NEWS_FEED = [
             { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, time: new Date().toISOString(), source: "SRO Logistics" },
             { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, time: new Date().toISOString(), source: "GSOC" },
@@ -109,7 +110,8 @@ async function loadAllData() {
 
 /* --- MAP --- */
 function initMap() {
-    map = L.map("map", { zoomControl: false, minZoom: 2, maxBounds: [[-90, -180], [90, 180]] }).setView([20, 0], 2);
+    // FIX: MinZoom 3 & MaxBounds prevents repeating world
+    map = L.map("map", { zoomControl: false, minZoom: 3, maxBounds: [[-85, -180], [85, 180]] }).setView([20, 0], 3);
     L.control.zoom({ position: "topleft" }).addTo(map);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png", {
         maxZoom: 19, noWrap: true, attribution: '© OpenStreetMap'
@@ -202,7 +204,7 @@ function safeDate(iso) {
 
 function updateClock() {
     const now = new Date();
-    // Format: Wed, 03 Dec 2025 | 14:30
+    // FIX: Correct Format (Wed, 03 Dec 2025 | 14:30 UTC)
     const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
     
