@@ -18,6 +18,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
 # ---------- SRO POSITIVE SELECTION (Must match one to be included) ----------
+# If the article does not contain one of these words, it is DELETED.
 MUST_HAVE_TERMS = [
     # Crisis / Resilience
     "earthquake", "magnitude", "tsunami", "volcano", "eruption", "flood", "flash flood", 
