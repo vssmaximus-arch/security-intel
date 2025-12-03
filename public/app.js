@@ -67,12 +67,10 @@ const HARDCODED_SITES = [
     { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
 
-/* --- COMPREHENSIVE COUNTRY LIST --- */
 const COUNTRIES = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
 
-/* --- ADVISORIES --- */
 const ADVISORIES = {
     "Afghanistan": { level: 4, text: "Do Not Travel" }, "Belarus": { level: 4, text: "Do Not Travel" }, "Burkina Faso": { level: 4, text: "Do Not Travel" }, "Haiti": { level: 4, text: "Do Not Travel" }, "Iran": { level: 4, text: "Do Not Travel" }, "Iraq": { level: 4, text: "Do Not Travel" }, "Libya": { level: 4, text: "Do Not Travel" }, "Mali": { level: 4, text: "Do Not Travel" }, "North Korea": { level: 4, text: "Do Not Travel" }, "Russia": { level: 4, text: "Do Not Travel" }, "Somalia": { level: 4, text: "Do Not Travel" }, "South Sudan": { level: 4, text: "Do Not Travel" }, "Sudan": { level: 4, text: "Do Not Travel" }, "Syria": { level: 4, text: "Do Not Travel" }, "Ukraine": { level: 4, text: "Do Not Travel" }, "Venezuela": { level: 4, text: "Do Not Travel" }, "Yemen": { level: 4, text: "Do Not Travel" }, "Israel": { level: 3, text: "Reconsider Travel" }, "Colombia": { level: 3, text: "Reconsider Travel" }, "Nigeria": { level: 3, text: "Reconsider Travel" }, "Pakistan": { level: 3, text: "Reconsider Travel" }, "Saudi Arabia": { level: 3, text: "Reconsider Travel" }, "China": { level: 3, text: "Reconsider Travel" }, "Mexico": { level: 2, text: "Exercise Increased Caution" }, "India": { level: 2, text: "Exercise Increased Caution" }, "United Kingdom": { level: 2, text: "Exercise Increased Caution" }
 };
@@ -93,7 +91,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     filterNews('Global');
 });
 
-/* --- DATA LOADING --- */
 async function loadAllData() {
     const badge = document.getElementById("status-badge");
     try {
@@ -106,7 +103,9 @@ async function loadAllData() {
         if (newsRes.status === "fulfilled" && newsRes.value.ok) {
             const raw = await newsRes.value.json();
             GENERAL_NEWS_FEED = Array.isArray(raw) ? raw : (raw.articles || []);
+            
             if (GENERAL_NEWS_FEED.length === 0) throw new Error("Empty feed");
+
             badge.innerText = "LIVE FEED";
             badge.className = "badge bg-primary text-white";
         } else {
@@ -122,11 +121,11 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // SRO RELEVANT FALLBACK (Strict Examples Only)
+        // SRO RELEVANT FALLBACK (Strict SRO Categories only)
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics" },
-            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation underway near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC" },
-            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS", time: new Date().toISOString(), source: "Weather Ops" }
+            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics" },
+            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC" },
+            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported.", region: "APJC", severity: 2, type: "CRISIS / WEATHER", time: new Date().toISOString(), source: "Weather Ops" }
         ];
     }
     updateMap('Global');
@@ -134,7 +133,8 @@ async function loadAllData() {
 
 /* --- MAP --- */
 function initMap() {
-    map = L.map("map", { zoomControl: false, minZoom: 2, maxBounds: [[-90, -180], [90, 180]] }).setView([20, 0], 2);
+    // FIX: minZoom 2.5 prevents "infinite world" view
+    map = L.map("map", { zoomControl: false, minZoom: 2.5, maxBounds: [[-90, -180], [90, 180]] }).setView([20, 0], 2.5);
     L.control.zoom({ position: "topleft" }).addTo(map);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png", {
         maxZoom: 19, noWrap: true, attribution: '© OpenStreetMap'
@@ -163,7 +163,7 @@ function updateMap(region) {
     });
 
     const centers = { "AMER": [30, -90], "EMEA": [45, 15], "APJC": [20, 110], "LATAM": [-15, -60], "Global": [25, 10] };
-    map.setView(centers[region] || centers["Global"], region === "Global" ? 2 : 3);
+    map.setView(centers[region] || centers["Global"], region === "Global" ? 2.5 : 3);
 }
 
 /* --- UI HELPERS --- */
@@ -174,26 +174,24 @@ function filterNews(region) {
 
     if (!filtered.length) { container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents.</div>`; }
     else {
-        // VISUAL REDESIGN - MATCHING SCREENSHOT EXACTLY
+        // VISUAL REDESIGN - EXACT MATCH TO SCREENSHOT
         container.innerHTML = filtered.map(item => {
             const timeStr = safeDate(item.time);
             
-            // Badges: [CRITICAL] [CATEGORY] [REGION]
+            // BADGES: [SEVERITY] [CATEGORY] [REGION]
             const sevBadge = item.severity >= 3 
                 ? `<span class="badge rounded-0" style="background:#d93025; color:white; font-size:0.7rem; margin-right:5px;">CRITICAL</span>` 
                 : `<span class="badge rounded-0" style="background:#f9ab00; color:white; font-size:0.7rem; margin-right:5px;">WARNING</span>`;
             
-            const typeBadge = `<span class="badge rounded-0" style="background:#999; color:white; font-size:0.7rem; margin-right:5px;">${(item.type || 'GENERAL').toUpperCase()}</span>`;
+            const typeBadge = `<span class="badge rounded-0" style="background:#333; color:white; font-size:0.7rem; margin-right:5px;">${(item.type || 'GENERAL').toUpperCase()}</span>`;
+            const regBadge = `<span class="badge rounded-0" style="background:#555; color:white; font-size:0.7rem;">${(item.region || 'GLOBAL').toUpperCase()}</span>`;
             
-            // Region is text to the right
-            const regionText = `<span style="float:right; color:#999; font-weight:700; font-size:0.75rem;">${item.region}</span>`;
-
             const barColor = item.severity >= 3 ? "#d93025" : "#f9ab00";
 
             return `
             <div class="feed-card" style="border-left: 5px solid ${barColor}; margin-bottom: 12px; background:white; padding:15px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
                 <div style="margin-bottom:8px;">
-                    ${sevBadge}${typeBadge}${regionText}
+                    ${sevBadge}${typeBadge}${regBadge}
                 </div>
                 <div class="feed-title" style="font-size:1rem; font-weight:700; color:#202124; margin-bottom:5px;">${item.title}</div>
                 <div class="feed-meta" style="font-size:0.8rem; color:#666; margin-bottom:8px;">${item.source} • ${timeStr}</div>
@@ -208,7 +206,7 @@ function updateProximityRadius() {
     currentRadius = parseFloat(document.getElementById("proxRadius").value);
     const activeEl = document.querySelector(".nav-item-custom.active");
     
-    // Refresh Alert List
+    // Refresh List
     const container = document.getElementById("proximity-alerts-container");
     const activeRegion = activeEl ? activeEl.innerText.trim() : 'Global';
     
@@ -217,7 +215,6 @@ function updateProximityRadius() {
         return regMatch && a.distance_km <= currentRadius;
     });
 
-    // FIXED TEXT MESSAGE
     if (!filtered.length) {
         container.innerHTML = `<div class="p-3 text-center text-muted small">Currently no alerts in proximity to Dell sites.</div>`;
     } else {
@@ -269,11 +266,9 @@ function safeDate(iso) {
 
 function updateClock() {
     const now = new Date();
-    // FIXED FORMAT: Thursday, Nov 27, 2025 12:10 PM GMT
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZoneName: 'short' });
-    
-    document.getElementById("clock-date").innerText = `${dateStr} ${timeStr}`;
+    // Format: Thursday, Nov 27, 2025 12:10 PM GMT
+    const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
+    document.getElementById("clock-date").innerText = now.toLocaleString('en-US', options);
     document.getElementById("clock-time").innerText = ""; 
 }
 
