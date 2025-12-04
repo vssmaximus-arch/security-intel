@@ -28,7 +28,7 @@
         /* MAP */
         .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; border:1px solid #e0e0e0; }
         #map { width: 100%; height: 100%; z-index: 1; }
-        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; }
         .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
         .marker-incident { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
         .marker-incident i { color: white; font-size: 14px; }
@@ -41,21 +41,42 @@
         .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
         .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
         .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+        .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
         
         /* ALERTS */
         .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
         .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
         #proximity-alerts-container { max-height: 400px; overflow-y: auto; }
+        .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+        .alert-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .alert-type { font-weight: 700; font-size: 0.9rem; color: #202124; display: flex; gap:8px; align-items:center; }
+        .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
+        .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; margin-bottom: 6px; }
         
         /* FEED */
         .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: flex; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .feed-status-bar { width: 5px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
+        .feed-content { padding: 16px 20px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-type { background: #f1f3f4; color: #5f6368; }
+        .ftag-cat { background: #3c4043; color: white; border-color: #3c4043; } /* Dark Grey for Category */
+        
+        .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
+        .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; }
+        .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
         
         .modal-content { border-radius: 12px; }
         .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
         
-        .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
         .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
         .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
     </style>
@@ -156,12 +177,14 @@
             <div class="modal-header"><h5 class="modal-title">Daily Briefings</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <select class="form-select mb-3" id="reportRegion"><option>Global</option><option>APJC</option></select>
-                <button class="btn-download" onclick="window.open('public/reports/global_latest.html')">Download</button>
+                <!-- call the download function provided by app.js so paths are resolved consistently -->
+                <button class="btn-download" onclick="downloadReport()">Download</button>
             </div>
         </div>
     </div>
 </div>
 
-<script src="public/app.js"></script>
+<!-- app.js sits in the same folder as this public/index.html, so reference it directly -->
+<script src="app.js"></script>
 </body>
 </html>
