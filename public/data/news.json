@@ -1,5 +1,25 @@
 [
   {
+    "title": "Alert sent for Nevada earthquake that did not happen",
+    "url": "https://www.bbc.com/news/articles/cnv21vnyy9lo?at_medium=RSS&at_campaign=rss",
+    "snippet": "An erroneous alert warning of a major Nevada earthquake reached as far as California before being withdrawn.",
+    "source": "bbc.com",
+    "time": "2025-12-04T21:50:38",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "'All Israeli people are with us', say parents of last dead hostage in Gaza",
+    "url": "https://www.bbc.com/news/articles/c4gk7gz3d1eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The body of Ran Gvili, a 24-year-old Israeli police officer, is the last not yet returned by Hamas from Gaza.",
+    "source": "bbc.com",
+    "time": "2025-12-04T21:17:09",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Predator spyware uses new infection vector for zero-click attacks",
     "url": "https://www.bleepingcomputer.com/news/security/predator-spyware-uses-new-infection-vector-for-zero-click-attacks/",
     "snippet": "The Predator spyware from surveillance company Intellexa has been using a zero-click infection mechanism dubbed \"Aladdin\" that compromised specific targets when simply viewing a malicious advertisemen",
@@ -15,6 +35,16 @@
     "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
     "source": "bbc.com",
     "time": "2025-12-04T20:43:43",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Admiral testified Hegseth did not give 'kill them all' order, US lawmakers say",
+    "url": "https://www.bbc.com/news/articles/cwyxjd6pxzro?at_medium=RSS&at_campaign=rss",
+    "snippet": "Admiral Frank Bradley, who gave the order for a second strike on a drug boat, was on Capitol Hill briefing lawmakers about the September incident.",
+    "source": "bbc.com",
+    "time": "2025-12-04T20:26:58",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -61,21 +91,11 @@
   },
   {
     "title": "Sri Lanka cyclone survivors afraid to go home, stuck in relief centres",
-    "url": "https://www.straitstimes.com/asia/sri-lanka-cyclone-survivors-afraid-to-go-home-stuck-in-relief-centres",
-    "snippet": "KOTHMALE, Sri Lanka, Dec 4 - Residents of Kithulbadde village in central Sri Lanka say they have been left in the lurch after last week's deadly cyclone and many are stuck in relief centres as damaged",
+    "url": "https://www.straitstimes.com/asia/south-asia/sri-lanka-cyclone-survivors-afraid-to-go-home-stuck-in-relief-centres",
+    "snippet": "A total of 1,289 houses across the country have been destroyed by Cyclone Ditwah.",
     "source": "straitstimes.com",
     "time": "2025-12-04T17:46:09",
     "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Russia\u2019s Putin found \u2018morally responsible\u2019 for nerve agent death in UK",
-    "url": "https://www.aljazeera.com/news/2025/12/4/russias-putin-found-morally-responsible-for-nerve-agent-death-in-uk?traffic_source=rss",
-    "snippet": "Dawn Sturgess, 44, was unwittingly caught up in an assassination attempt against the former Russian spy Sergei Skripal.",
-    "source": "aljazeera.com",
-    "time": "2025-12-04T17:25:33",
-    "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   },
