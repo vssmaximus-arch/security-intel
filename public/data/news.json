@@ -1,5 +1,65 @@
 [
   {
+    "title": "Nigerian parents left in suspense weeks after kidnappers abduct 300",
+    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/4/nigerian-parents-left-in-suspense-weeks-after-kidnappers-abduct-300?traffic_source=rss",
+    "snippet": "Parents in rural Nigeria still have no idea what has happened to their children weeks after kidnappers abducted 300.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T15:19:59",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Mother recounts escape from landslide amid Indonesia floods",
+    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/4/mother-recounts-escape-from-landslide-amid-indonesia-floods?traffic_source=rss",
+    "snippet": "Indonesian mother Sri Yuni Pardede fled with her baby as landslides struck her community in North Tapanuli.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T15:16:57",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Critical React, Next.js flaw lets hackers execute code on servers",
+    "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
+    "snippet": "A maximum severity vulnerability,\u00a0dubbed 'React2Shell',\u00a0in the React Server Components (RSC) 'Flight' protocol\u00a0allows remote code execution without authentication in React and Next.js applications. [.",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T15:11:54",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "How strong password policies secure OT systems against cyber threats",
+    "url": "https://www.bleepingcomputer.com/news/security/how-strong-password-policies-secure-ot-systems-against-cyber-threats/",
+    "snippet": "OT environments rely on aging systems, shared accounts, and remote access, making weak or reused passwords a major attack vector. Specops Software explains how stronger password policies and continuou",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T15:11:22",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Has the Pentagon really exonerated Pete Hegseth over Signal leaks?",
+    "url": "https://www.aljazeera.com/news/2025/12/4/has-the-pentagon-really-exonerated-pete-hegseth-over-signal-leaks?traffic_source=rss",
+    "snippet": "US defense secretary was accused of putting military personnel in danger when he used messaging app to discuss strikes.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T15:08:23",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Children in Sri Lanka floods have nowhere \u201cto go back to\u201d",
+    "url": "https://www.aljazeera.com/video/quotable/2025/12/4/children-in-sri-lanka-floods-have-nowhere-to-go-back?traffic_source=rss",
+    "snippet": "\u201cThey don't have anywhere to go back to.\"",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T14:44:15",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Indonesia pledges action on companies causing catastrophic Sumatra floods",
     "url": "https://www.straitstimes.com/asia/indonesia-pledges-action-on-companies-causing-catastrophic-sumatra-floods",
     "snippet": "JAKARTA, Dec 4 - Indonesia is investigating companies suspected of clearing forests around flood-hit areas in Sumatra, its forestry minister said on Thursday, acknowledging poor forest management wors",
@@ -180,6 +240,16 @@
     "type": "GENERAL"
   },
   {
+    "title": "Industrial Video & Control Longwatch",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Iskra iHUB and iHUB Lite",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func",
@@ -220,16 +290,6 @@
     "type": "GENERAL"
   },
   {
-    "title": "Industrial Video & Control Longwatch",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI",
-    "source": "cisa.gov",
-    "time": "2025-12-02T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
     "title": "CISA Releases Seven Industrial Control Systems Advisories",
     "url": "https://www.cisa.gov/news-events/alerts/2025/11/25/cisa-releases-seven-industrial-control-systems-advisories",
     "snippet": "CISA released seven Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-329-0",
@@ -263,26 +323,6 @@
     "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-01",
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Low attack complexity Vendor : Ashlar-Vellum Equipment : Cobalt, Xenon, Argon, Lithium, Cobalt Share Vulnerabilities : Out-of-Bounds Write, Heap-",
-    "source": "cisa.gov",
-    "time": "2025-11-25T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Zenitel TCIV-3+",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-03",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 10.0 ATTENTION: Exploitable remotely/low attack complexity Vendor: Zenitel Equipment: TCIV-3+ Vulnerabilities: OS Command Injection, Out-of-bounds Write, Cross-s",
-    "source": "cisa.gov",
-    "time": "2025-11-25T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Rockwell Automation Arena Simulation",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 7.1 ATTENTION : Exploitable from a local network Vendor : Rockwell Automation Equipment : Arena Simulation Vulnerability : Stack-based Buffer Overflow 2. RISK EV",
     "source": "cisa.gov",
     "time": "2025-11-25T12:00:00",
     "region": "Global",
