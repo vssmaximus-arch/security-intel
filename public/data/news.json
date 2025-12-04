@@ -1,5 +1,15 @@
 [
   {
+    "title": "Hackers are exploiting ArrayOS AG VPN flaw to plant webshells",
+    "url": "https://www.bleepingcomputer.com/news/security/hackers-are-exploiting-arrayos-ag-vpn-flaw-to-plant-webshells/",
+    "snippet": "Threat actors have been exploiting a command injection vulnerability in Array AG Series VPN devices to plant webshells and create rogue users. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T23:05:05",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Alert sent for Nevada earthquake that did not happen",
     "url": "https://www.bbc.com/news/articles/cnv21vnyy9lo?at_medium=RSS&at_campaign=rss",
     "snippet": "An erroneous alert warning of a major Nevada earthquake reached as far as California before being withdrawn.",
@@ -10,7 +20,7 @@
     "type": "GENERAL"
   },
   {
-    "title": "'All Israeli people are with us', say parents of last dead hostage in Gaza",
+    "title": "'All Israeli people are with us', parents of last dead hostage in Gaza tell BBC",
     "url": "https://www.bbc.com/news/articles/c4gk7gz3d1eo?at_medium=RSS&at_campaign=rss",
     "snippet": "The body of Ran Gvili, a 24-year-old Israeli police officer, is the last not yet returned by Hamas from Gaza.",
     "source": "bbc.com",
@@ -60,6 +70,16 @@
     "type": "GENERAL"
   },
   {
+    "title": "World: Media Advisory: High-Level Pledging Event for the United Nations Central Emergency Response Fund in 2026",
+    "url": "https://reliefweb.int/report/world/media-advisory-high-level-pledging-event-united-nations-central-emergency-response-fund-2026",
+    "snippet": "Country: World Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. WHO : The UN Office for the Coordination of Humanitarian Affairs (OCHA), co-hosts Irela",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T19:12:25",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Russia blocks FaceTime and Snapchat for alleged use by terrorists",
     "url": "https://www.bleepingcomputer.com/news/security/russia-blocks-facetime-and-snapchat-over-use-in-terrorist-attacks/",
     "snippet": "Russian telecommunications watchdog Roskomnadzor has blocked access to Apple's FaceTime video conferencing platform and the Snapchat instant messaging service, claiming they're being used to coordinat",
@@ -90,6 +110,16 @@
     "type": "GENERAL"
   },
   {
+    "title": "Indonesia: IHCP Situation Report #2 on Floods, Flash Floods, and Landslides in Aceh, North Sumatra, and West Sumatra provinces",
+    "url": "https://reliefweb.int/report/indonesia/indonesia-ihcp-situation-report-2-floods-flash-floods-and-landslides-aceh-north-sumatra-and-west-sumatra-provinces",
+    "snippet": "Country: Indonesia Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file.",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T18:05:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Sri Lanka cyclone survivors afraid to go home, stuck in relief centres",
     "url": "https://www.straitstimes.com/asia/south-asia/sri-lanka-cyclone-survivors-afraid-to-go-home-stuck-in-relief-centres",
     "snippet": "A total of 1,289 houses across the country have been destroyed by Cyclone Ditwah.",
@@ -110,6 +140,16 @@
     "type": "GENERAL"
   },
   {
+    "title": "Albania: UCPM and CEMS activations to wildfires in 2025 - DG ECHO Daily Map | 04/12/2025",
+    "url": "https://reliefweb.int/map/albania/ucpm-and-cems-activations-wildfires-2025-dg-echo-daily-map-04122025",
+    "snippet": "Countries: Albania, Bulgaria, Bosnia and Herzegovina, Cyprus, Spain, Greece, Israel, Montenegro, Portugal, Syrian Arab Republic Source: European Commission's Directorate-General for European Civil Pro",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T16:17:13",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Critical React, Next.js flaw lets hackers execute code on servers",
     "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
     "snippet": "A maximum severity vulnerability,\u00a0dubbed 'React2Shell',\u00a0in the React Server Components (RSC) 'Flight' protocol\u00a0allows remote code execution without authentication in React and Next.js applications. [.",
@@ -126,6 +166,16 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-04T15:11:22",
     "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Plan Indonesia Delivers 23 Tons of Emergency Relief to Support Children and Women Affected by the Sumatra Floods and Landslides",
+    "url": "https://reliefweb.int/report/indonesia/plan-indonesia-delivers-23-tons-emergency-relief-support-children-and-women-affected-sumatra-floods-and-landslides",
+    "snippet": "Country: Indonesia Source: Plan International The severe floods and landslides that struck Aceh, North Sumatra, and West Sumatra have caused a significant humanitarian crisis. As of 3 December 2025, t",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T13:35:55",
+    "region": "AMER",
     "severity": 2,
     "type": "GENERAL"
   },
