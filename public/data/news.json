@@ -1,12 +1,32 @@
 [
   {
-    "title": "Israel identifies body of returned hostage, remains of Israeli officer still in Gaza",
-    "url": "https://www.straitstimes.com/asia/israel-identifies-body-of-returned-hostage-remains-of-israeli-officer-still-in-gaza",
-    "snippet": "Dec 4 - Israel has identified the remains of the hostage it received from Hamas on Wednesday as Thai agricultural worker Sudthisak Rinthalak, the prime minister's office said on Thursday.",
+    "title": "Rapid Needs Assessment (RNA) Rapid Response Mechanism (RRM) - Mahepe and Nquewene - Montepuez District, Cabo Delgado, Mozambique, 28 November 2025 [EN/PT]",
+    "url": "https://reliefweb.int/report/mozambique/rapid-needs-assessment-rna-rapid-response-mechanism-rrm-mahepe-and-nquewene-montepuez-district-cabo-delgado-mozambique-28-november-2025-enpt",
+    "snippet": "Country: Mozambique Source: REACH Initiative Please refer to the attached files. ON 04 SEPTEMBER 2025, movements of non-state armed groups (NSAGs) were reported in Meluco District, particularly in Rav",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T06:09:39",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Rapid Needs Assessment (RNA) Rapid Response Mechanism (RRM) - Sambene - Mecufi District, Cabo Delgado, Mozambique, 25 November 2025 [EN/PT]",
+    "url": "https://reliefweb.int/report/mozambique/rapid-needs-assessment-rna-rapid-response-mechanism-rrm-sambene-mecufi-district-cabo-delgado-mozambique-25-november-2025-enpt",
+    "snippet": "Country: Mozambique Source: REACH Initiative Please refer to the attached files. BETWEEN 10 AND 17 NOVEMBER 2025, recent attacks by non-state armed groups (NSAGs) in Memba district (Nampula Province) ",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T06:06:19",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Indonesia promises action on any mining permit violations as Sumatra floods toll at about 800",
+    "url": "https://www.straitstimes.com/asia/indonesia-promises-action-on-any-mining-permit-violations-as-sumatra-floods-toll-at-about-800",
+    "snippet": "JAKARTA, Dec 4 - Indonesia will revoke mining permits if companies are found to have violated rules on flood-ravaged Sumatra island, the energy minister said as questions intensified\u00a0about the role of",
     "source": "straitstimes.com",
-    "time": "2025-12-04T05:35:32",
-    "region": "EMEA",
-    "severity": 1,
+    "time": "2025-12-04T05:25:45",
+    "region": "Global",
+    "severity": 2,
     "type": "GENERAL"
   },
   {
@@ -15,8 +35,8 @@
     "snippet": "The remains, which Hamas and Palestinian Islamic Jihad say were found in northern Gaza, will be taken to Tel Aviv for forensic tests.",
     "source": "bbc.com",
     "time": "2025-12-04T05:25:21",
-    "region": "EMEA",
-    "severity": 1,
+    "region": "Global",
+    "severity": 2,
     "type": "GENERAL"
   },
   {
@@ -27,7 +47,7 @@
     "time": "2025-12-04T04:10:00",
     "region": "Global",
     "severity": 2,
-    "type": "CRISIS / WEATHER"
+    "type": "GENERAL"
   },
   {
     "title": "\u2018What\u2019s our fault?\u2019: India\u2019s expulsion of Pakistanis still splits families",
@@ -37,7 +57,17 @@
     "time": "2025-12-04T04:03:02",
     "region": "APJC",
     "severity": 2,
-    "type": "SUPPLY CHAIN"
+    "type": "GENERAL"
+  },
+  {
+    "title": "Is Syria safe to return to?",
+    "url": "https://reliefweb.int/report/syrian-arab-republic/syria-safe-return",
+    "snippet": "Country: Syrian Arab Republic Source: Action on Armed Violence By Jennifer Dathan on 3 Dec 2025 Since the fall of Assad almost a year ago now, many countries hosting Syrian refugees have pushed for Sy",
+    "source": "reliefweb.int",
+    "time": "2025-12-04T03:14:24",
+    "region": "AMER",
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "Where floodwaters turned piles of timber into floating battering rams",
@@ -47,7 +77,7 @@
     "time": "2025-12-04T01:30:00",
     "region": "Global",
     "severity": 2,
-    "type": "CRISIS / WEATHER"
+    "type": "GENERAL"
   },
   {
     "title": "Marquis data breach impacts over 74 US banks, credit unions",
@@ -56,8 +86,8 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T22:06:07",
     "region": "Global",
-    "severity": 3,
-    "type": "CYBER SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "Critical flaw in WordPress add-on for Elementor exploited in attacks",
@@ -66,8 +96,8 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T21:31:20",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "French DIY retail giant Leroy Merlin discloses a data breach",
@@ -75,9 +105,9 @@
     "snippet": "Leroy Merlin is sending security breach notifications to customers in France, informing them that their personal data was compromised. [...]",
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T20:52:36",
-    "region": "Global",
-    "severity": 3,
-    "type": "CYBER SECURITY"
+    "region": "EMEA",
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "Freedom Mobile discloses data breach exposing customer data",
@@ -86,8 +116,8 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T20:28:01",
     "region": "AMER",
-    "severity": 3,
-    "type": "CYBER SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "Microsoft \"mitigates\" Windows LNK flaw exploited as zero-day",
@@ -96,8 +126,8 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T16:45:30",
     "region": "Global",
-    "severity": 3,
-    "type": "CYBER SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "Deep dive into DragonForce ransomware and its Scattered Spider connection",
@@ -106,8 +136,8 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T15:05:15",
     "region": "Global",
-    "severity": 3,
-    "type": "CYBER SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "Aisuru botnet behind new record-breaking 29.7 Tbps DDoS attack",
@@ -116,8 +146,8 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T14:01:04",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "University of Phoenix discloses data breach after Oracle hack",
@@ -126,17 +156,17 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T13:23:10",
     "region": "Global",
-    "severity": 3,
-    "type": "CYBER SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
-    "title": "Kenyan MPs accuse British soldiers of decades of sexual abuse",
-    "url": "https://www.bbc.com/news/articles/cvgq5dvygllo?at_medium=RSS&at_campaign=rss",
-    "snippet": "A two-year investigation details disturbing accounts of rape, sexual violence, murders and environmental destruction.",
-    "source": "bbc.com",
-    "time": "2025-12-03T12:58:20",
-    "region": "Global",
-    "severity": 1,
+    "title": "CISA, Australia, and Partners Author Joint Guidance on Securely Integrating Artificial Intelligence in Operational Technology",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-australia-and-partners-author-joint-guidance-securely-integrating-artificial-intelligence",
+    "snippet": "CISA and the\u00a0Australian Signals Directorate\u2019s Australian Cyber Security Centre, in collaboration with federal and international partners, have released new cybersecurity guidance: Principles for the S",
+    "source": "cisa.gov",
+    "time": "2025-12-03T12:00:00",
+    "region": "APJC",
+    "severity": 2,
     "type": "GENERAL"
   },
   {
@@ -146,8 +176,28 @@
     "source": "cisa.gov",
     "time": "2025-12-03T12:00:00",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Iskra iHUB and iHUB Lite",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Mirion Medical EC2 Software NMIS BioDose",
+    "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-336-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission A",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
   },
   {
     "title": "CISA Releases Five Industrial Control Systems Advisories",
@@ -156,7 +206,27 @@
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00",
     "region": "Global",
-    "severity": 1,
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "CISA Adds Two Known Exploited Vulnerabilities to Catalog",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-adds-two-known-exploited-vulnerabilities-catalog",
+    "snippet": "CISA has added two new vulnerabilities to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-48572 Android Framework Privilege Escalation Vulnerabil",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Industrial Video & Control Longwatch",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
+    "severity": 2,
     "type": "GENERAL"
   },
   {
@@ -166,47 +236,57 @@
     "source": "cisa.gov",
     "time": "2025-11-25T12:00:00",
     "region": "Global",
-    "severity": 1,
+    "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Charities offered latest insight into key cyber threats to help keep out attackers",
-    "url": "https://www.ncsc.gov.uk/news/charities-offered-latest-insight-into-key-cyber-threats-to-help-keep-out-attackers",
-    "snippet": "Latest report published by the NCSC outlines key threats facing the UK charity sector.",
-    "source": "ncsc.gov.uk",
-    "time": "2025-10-29T15:25:42",
-    "region": "EMEA",
-    "severity": 3,
-    "type": "CYBER SECURITY"
-  },
-  {
-    "title": "UK experiencing four 'nationally significant' cyber attacks every week",
-    "url": "https://www.ncsc.gov.uk/news/uk-experiencing-four-nationally-significant-cyber-attacks-weekly",
-    "snippet": "Latest Annual Review reveals that the cyber threats facing the UK continue to escalate.",
-    "source": "ncsc.gov.uk",
-    "time": "2025-10-16T13:13:35",
-    "region": "EMEA",
-    "severity": 3,
-    "type": "CYBER SECURITY"
-  },
-  {
-    "title": "Active exploitation of vulnerability affecting Oracle E-Business Suite",
-    "url": "https://www.ncsc.gov.uk/news/active-exploitation-vulnerability-affecting-oracle-ebusiness-suite",
-    "snippet": "The NCSC is encouraging UK organisations to take immediate action to mitigate a vulnerability (CVE-2025-61882) affecting Oracle E-Business Suite.",
-    "source": "ncsc.gov.uk",
-    "time": "2025-10-06T09:30:52",
-    "region": "EMEA",
-    "severity": 1,
+    "title": "SiRcom SMART Alert (SiSA)",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-06",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.8 ATTENTION : Exploitable remotely/low attack complexity Vendor : SiRcom Equipment : SMART Alert (SiSA) Vulnerability : Missing Authentication for Critical Fun",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00",
+    "region": "Global",
+    "severity": 2,
     "type": "GENERAL"
   },
   {
-    "title": "Active exploitation of vulnerability affecting Microsoft Office SharePoint Server products in the UK",
-    "url": "https://www.ncsc.gov.uk/news/active-exploitation-of-vulnerability-affecting-microsoft-office-sharepoint-server-products-in-the-uk",
-    "snippet": "The NCSC is encouraging UK organisations to take immediate action to mitigate a vulnerability (CVE-2025-53770) affecting Microsoft SharePoint Server products.",
-    "source": "ncsc.gov.uk",
-    "time": "2025-07-22T08:44:33",
-    "region": "EMEA",
-    "severity": 1,
+    "title": "Opto 22 groov View",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-04",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.1 ATTENTION : Exploitable remotely/Low attack complexity Vendor : Opto 22 Equipment : groov View Vulnerability : Exposure of Sensitive Information Through Meta",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Low attack complexity Vendor : Ashlar-Vellum Equipment : Cobalt, Xenon, Argon, Lithium, Cobalt Share Vulnerabilities : Out-of-Bounds Write, Heap-",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Zenitel TCIV-3+",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-03",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 10.0 ATTENTION: Exploitable remotely/low attack complexity Vendor: Zenitel Equipment: TCIV-3+ Vulnerabilities: OS Command Injection, Out-of-bounds Write, Cross-s",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Rockwell Automation Arena Simulation",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 7.1 ATTENTION : Exploitable from a local network Vendor : Rockwell Automation Equipment : Arena Simulation Vulnerability : Stack-based Buffer Overflow 2. RISK EV",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00",
+    "region": "Global",
+    "severity": 2,
     "type": "GENERAL"
   }
 ]
