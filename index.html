@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dell SRO | Global Intelligence Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
+        body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
+        .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
+        .header-left { display: flex; align-items: center; gap:12px; }
+        .logo-icon { font-size: 1.6rem; color: #1a73e8; }
+        .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
+        .logo-text span { color: var(--dell-blue); }
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+        .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; }
+        .nav-item-custom.active { background-color: #202124; color: #fff; }
+        .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
+        .content-area { padding: 30px; flex: 1; }
+        
+        /* MAP */
+        .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; border:1px solid #e0e0e0; }
+        #map { width: 100%; height: 100%; z-index: 1; }
+        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; }
+        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+        .marker-incident { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-incident i { color: white; font-size: 14px; }
+        
+        /* SIDEBAR */
+        .sidebar-col { display: flex; flex-direction: column; gap: 24px; }
+        .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .history-input-group { position: relative; }
+        .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+        .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+        .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+        .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
+        
+        /* ALERTS */
+        .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+        .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+        #proximity-alerts-container { max-height: 400px; overflow-y: auto; }
+        .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+        .alert-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .alert-type { font-weight: 700; font-size: 0.9rem; color: #202124; display: flex; gap:8px; align-items:center; }
+        .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
+        .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; margin-bottom: 6px; }
+        
+        /* FEED */
+        .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: flex; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .feed-status-bar { width: 5px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
+        .feed-content { padding: 16px 20px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-type { background: #f1f3f4; color: #5f6368; }
+        .ftag-cat { background: #3c4043; color: white; border-color: #3c4043; } /* Dark Grey for Category */
+        
+        .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
+        .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; }
+        .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+        
+        .modal-content { border-radius: 12px; }
+        .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
+        
+        .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+        .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
+    </style>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header-container">
+        <div class="header-left">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text">SRO <span>INTELLIGENCE</span></div>
+        </div>
+        <div class="header-right">
+            <div class="nav-pills-custom">
+                <a class="nav-item-custom active" onclick="filterNews('Global')">Global</a>
+                <a class="nav-item-custom" onclick="filterNews('AMER')">AMER</a>
+                <a class="nav-item-custom" onclick="filterNews('EMEA')">EMEA</a>
+                <a class="nav-item-custom" onclick="filterNews('APJC')">APJC</a>
+                <a class="nav-item-custom" onclick="filterNews('LATAM')">LATAM</a>
+            </div>
+            <div class="clock-container ms-3">
+                <div class="clock-date" id="clock-date">Loading...</div>
+                <div id="clock-time"></div>
+            </div>
+            <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+                <i class="fas fa-file-alt"></i> Daily Briefings
+            </div>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="row g-4 h-100">
+            <div class="col-lg-9 d-flex flex-column">
+                <div class="map-wrapper mb-3">
+                    <div id="map"></div>
+                </div>
+                <div class="stream-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-bold"><i class="fas fa-circle text-primary me-2" style="font-size:0.6rem"></i> Real-time Intelligence Stream</div>
+                        <div id="status-badge" class="badge bg-light text-secondary">CONNECTING</div>
+                    </div>
+                    
+                    <div id="critical-alert-banner" style="display:none;" class="critical-alert-bar">
+                        <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+                        <div class="alert-content-main" id="headline-alert"></div>
+                    </div>
+
+                    <div id="general-news-feed">Loading...</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 sidebar-col">
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+                    <div class="history-input-group">
+                        <i class="fas fa-calendar-alt calendar-icon"></i>
+                        <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)">
+                    </div>
+                    <div class="small text-muted mt-2">Pick a date to load archived intelligence.</div>
+                </div>
+
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+                    <select class="travel-select" id="countrySelect" onchange="filterTravel()">
+                        <option selected disabled>Select Country...</option>
+                    </select>
+                    <div id="travel-advisories" class="mt-3"></div>
+                    <div id="travel-news" class="mt-2"></div>
+                </div>
+
+                <div class="side-card">
+                    <div class="prox-header-row">
+                        <div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity Alerts</div></div>
+                    </div>
+                    <div class="mt-2 mb-3">
+                        <select id="proxRadius" class="form-select form-select-sm" onchange="updateProximityRadius()">
+                            <option value="5" selected>5 KM (Default)</option>
+                            <option value="10">10 KM</option>
+                            <option value="25">25 KM</option>
+                            <option value="50">50 KM</option>
+                        </select>
+                    </div>
+                    <div id="proximity-alerts-container" class="text-center p-3 text-muted small">
+                        Currently no alerts in proximity to Dell sites.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Daily Briefings</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <select class="form-select mb-3" id="reportRegion"><option>Global</option><option>APJC</option></select>
+                <!-- call the download function provided by app.js so paths are resolved consistently -->
+                <button class="btn-download" onclick="downloadReport()">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- app.js sits in the same folder as this public/index.html, so reference it directly -->
+<script src="public/app.js"></script>
+</body>
+</html>
