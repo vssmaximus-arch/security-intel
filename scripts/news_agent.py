@@ -11,7 +11,9 @@ try:
 except Exception:
     genai = None
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Ensure BASE_DIR is the repository folder containing this script.
+# When the workflow runs `python news_agent.py` from the repo root, __file__ is the file path.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
@@ -25,9 +27,9 @@ SRO_FILTERS = {
 }
 
 BLOCKLIST = [
-    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", 
+    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup",
     "celebrity", "entertainment", "movie", "film", "star", "concert",
-    "residents return", "collect personal items", "cleanup begins", "recovery continues", 
+    "residents return", "collect personal items", "cleanup begins", "recovery continues",
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
     "opinion:", "editorial:", "cultivation", "poppy", "drug trade", "opium", "estate dispute", "MH370"
 ]
@@ -66,7 +68,7 @@ def get_sro_category(text):
     return None
 
 def ai_process(model, title, summary, category):
-    if not model: return True, 2, summary[:200] + "...", category
+    if not model: return True, 2, (summary or "")[:200] + "...", category
     prompt = f"""
     Role: Security Analyst for Dell SRO.
     Task: Filter for OPERATIONAL IMPACT.
@@ -82,7 +84,7 @@ def ai_process(model, title, summary, category):
         resp = model.generate_content(prompt)
         data = json.loads(resp.text.strip().replace('```json', '').replace('```', ''))
         return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary), data.get("category", category)
-    except:
+    except Exception:
         return True, 2, summary, category
 
 def main():
@@ -94,12 +96,12 @@ def main():
         try:
             f = feedparser.parse(url)
             for e in f.entries[:20]:
-                title = e.title.strip()
-                if title in seen: continue
+                title = getattr(e, "title", "").strip()
+                if not title or title in seen: continue
                 seen.add(title)
                 raw_summary = clean_html(getattr(e, "summary", ""))
                 full_text = f"{title} {raw_summary}"
-                
+
                 category = get_sro_category(full_text)
                 if not category: continue
 
@@ -117,15 +119,18 @@ def main():
                 elif any(x in t_lower for x in ["usa","america","canada","brazil"]): region = "AMER"
 
                 all_items.append({
-                    "title": title, "url": e.link, "snippet": snippet,
-                    "source": urlparse(e.link).netloc.replace("www.", ""),
+                    "title": title, "url": getattr(e, "link", "#"), "snippet": snippet,
+                    "source": urlparse(getattr(e, "link", "#")).netloc.replace("www.", ""),
                     "time": ts, "region": region, "severity": severity, "type": final_cat
                 })
-        except: pass
+        except Exception:
+            continue
 
     all_items.sort(key=lambda x: x["time"], reverse=True)
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
         json.dump(all_items, f, indent=2)
+    # Helpful log so you can check the workflow logs where the file was written
+    print(f"Wrote {len(all_items)} articles to {NEWS_PATH}")
 
 if __name__ == "__main__":
     main()
