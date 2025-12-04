@@ -12,31 +12,22 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
         body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
-        
         .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
         .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
         .header-left { display: flex; align-items: center; gap:12px; }
         .logo-icon { font-size: 1.6rem; color: #1a73e8; }
         .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
         .logo-text span { color: var(--dell-blue); }
         .header-right { display: flex; align-items: center; gap: 20px; }
-        
         .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
         .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; }
         .nav-item-custom.active { background-color: #202124; color: #fff; }
-        
         .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
-        
         .content-area { padding: 30px; flex: 1; }
         
         /* MAP */
         .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; border:1px solid #e0e0e0; }
         #map { width: 100%; height: 100%; z-index: 1; }
-        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
-        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
-        .marker-incident { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
-        .marker-incident i { color: white; font-size: 14px; }
         
         /* SIDEBAR */
         .sidebar-col { display: flex; flex-direction: column; gap: 24px; }
@@ -47,6 +38,9 @@
         .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
         .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
         
+        /* CATEGORY FILTER */
+        .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
+
         /* ALERTS */
         .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
@@ -62,14 +56,21 @@
         .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
         .feed-card { 
             background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; 
-            display: block; text-decoration: none; color: inherit; /* LINK STYLING FIX */
+            display: block; text-decoration: none; color: inherit; 
             overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
         }
         .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .feed-content { padding: 16px 20px; width: 100%; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; }
+        
+        /* MARKERS */
+        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+        .marker-incident { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-incident i { color: white; font-size: 14px; }
         
         .modal-content { border-radius: 12px; }
         .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
-        
         .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
         .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
@@ -99,7 +100,7 @@
                 <div id="clock-time"></div>
             </div>
             <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal">
-                <i class="fas fa-file-alt"></i> Daily Briefings
+                <i class="fas fa-file-alt"></i> Briefings
             </div>
         </div>
     </div>
@@ -126,6 +127,7 @@
             </div>
 
             <div class="col-lg-3 sidebar-col">
+                
                 <div class="side-card">
                     <div class="card-label"><i class="fas fa-history"></i> History Search</div>
                     <div class="history-input-group">
@@ -141,7 +143,7 @@
                         <option selected disabled>Select Country...</option>
                     </select>
                     <div id="travel-advisories" class="mt-3"></div>
-                    <div id="travel-news" class="mt-2"></div>
+                    <div id="travel-news" class="mt-2"></div> 
                 </div>
 
                 <div class="side-card">
@@ -156,8 +158,23 @@
                             <option value="50">50 KM</option>
                         </select>
                     </div>
-                    <div id="proximity-alerts-container"></div>
+                    <div id="proximity-alerts-container" class="text-center p-3 text-muted small">
+                        Currently no alerts in proximity to Dell sites.
+                    </div>
                 </div>
+
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-filter"></i> Risk Category Filter</div>
+                    <select class="category-select" id="categorySelect" onchange="filterCategory(this.value)">
+                        <option value="ALL" selected>All Categories</option>
+                        <option value="CYBER SECURITY">Cyber Security</option>
+                        <option value="SUPPLY CHAIN">Supply Chain</option>
+                        <option value="PHYSICAL SECURITY">Physical Security</option>
+                        <option value="CRISIS / WEATHER">Crisis / Weather</option>
+                        <option value="HEALTH / SAFETY">Health / Safety</option>
+                    </select>
+                </div>
+
             </div>
         </div>
     </div>
