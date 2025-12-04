@@ -1,5 +1,25 @@
 [
   {
+    "title": "Suspect arrested in pipe bomb incident on eve of Jan 6, ending years-long manhunt",
+    "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
+    "source": "bbc.com",
+    "time": "2025-12-04T20:43:43",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Israel strikes south Lebanon after first direct talks in decades",
+    "url": "https://www.bbc.com/news/articles/c62n6y9yd70o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The Israeli military says it struck Hezbollah sites, less than 24 hours after Israel and Lebanon sent civilian envoys to meet.",
+    "source": "bbc.com",
+    "time": "2025-12-04T19:47:17",
+    "region": "Global",
+    "severity": 2,
+    "type": "GENERAL"
+  },
+  {
     "title": "Russia blocks FaceTime and Snapchat over use in terrorist attacks",
     "url": "https://www.bleepingcomputer.com/news/security/russia-blocks-facetime-and-snapchat-over-use-in-terrorist-attacks/",
     "snippet": "Russian telecommunications watchdog Roskomnadzor has blocked access to Apple's FaceTime video conferencing platform and the Snapchat instant messaging service, claiming they're being used to coordinat",
@@ -10,9 +30,9 @@
     "type": "GENERAL"
   },
   {
-    "title": "US authorities arrest suspect in 2021 Capitol Hill pipe bombs",
+    "title": "US authorities arrest Brian Cole as suspect in 2021 Capitol Hill pipe bombs",
     "url": "https://www.aljazeera.com/news/2025/12/4/us-authorities-arrest-suspect-in-2021-capitol-hill-pipe-bombs?traffic_source=rss",
-    "snippet": "Arrest of Virginia man potentially ends five-year mystery that highlighted rise of political violence in the US.",
+    "snippet": "The arrest of a Virginia man potentially ends a five-year mystery that highlighted rise of political violence in the US.",
     "source": "aljazeera.com",
     "time": "2025-12-04T18:46:31",
     "region": "Global",
@@ -25,16 +45,6 @@
     "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) warned network defenders of Chinese hackers backdooring VMware vSphere servers with Brickstorm malware. [...]",
     "source": "bleepingcomputer.com",
     "time": "2025-12-04T18:19:55",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Suspect arrested in pipe bomb incident on eve of Jan 6, ending years-long manhunt",
-    "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
-    "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
-    "source": "bbc.com",
-    "time": "2025-12-04T17:53:33",
     "region": "Global",
     "severity": 2,
     "type": "GENERAL"
@@ -70,36 +80,6 @@
     "type": "GENERAL"
   },
   {
-    "title": "Another devastating Israeli strike on Lebanon captured on video",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/4/another-devastating-israeli-strike-on-lebanon-captured-on-video?traffic_source=rss",
-    "snippet": "Video captured an Israeli strike destroying a building in southern Lebanon, this time in al-Majadel.",
-    "source": "aljazeera.com",
-    "time": "2025-12-04T16:19:34",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Israel hits multiple towns in southern Lebanon as attacks intensify",
-    "url": "https://www.aljazeera.com/news/2025/12/4/israel-hits-multiple-towns-in-southern-lebanon-as-strikes-intensify?traffic_source=rss",
-    "snippet": "Strike on Jbaa follows warnings for more attacks as Israel continues daily attacks despite year-old ceasefire.",
-    "source": "aljazeera.com",
-    "time": "2025-12-04T16:06:41",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Nigerian parents left in suspense weeks after kidnappers abduct 300",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/4/nigerian-parents-left-in-suspense-weeks-after-kidnappers-abduct-300?traffic_source=rss",
-    "snippet": "Parents in rural Nigeria still have no idea what has happened to their children weeks after kidnappers abducted 300.",
-    "source": "aljazeera.com",
-    "time": "2025-12-04T15:19:59",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
     "title": "Critical React, Next.js flaw lets hackers execute code on servers",
     "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
     "snippet": "A maximum severity vulnerability,\u00a0dubbed 'React2Shell',\u00a0in the React Server Components (RSC) 'Flight' protocol\u00a0allows remote code execution without authentication in React and Next.js applications. [.",
@@ -126,16 +106,6 @@
     "source": "straitstimes.com",
     "time": "2025-12-04T13:25:41",
     "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "UK Novichok report blames Putin for \u2018reckless\u2019 poisoning of ex-Russian spy",
-    "url": "https://www.scmp.com/news/world/europe/article/3335235/uk-report-blames-putin-reckless-2018-novichok-poisoning-ex-russian-spy-skripal?utm_source=rss_feed",
-    "snippet": "Russian President Vladimir Putin must have ordered the Novichok nerve agent attack on Russian double agent Sergei Skripal in 2018, in a \u201creckless\u201d display of power that led to the death of an innocent",
-    "source": "scmp.com",
-    "time": "2025-12-04T12:53:43",
-    "region": "EMEA",
     "severity": 2,
     "type": "GENERAL"
   },
