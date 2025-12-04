@@ -6,9 +6,10 @@ const PATHS = {
     PROXIMITY: "public/data/proximity.json"
 };
 
-let currentRadius = 5;
+let currentRadius = 5; 
+let currentCategory = 'ALL';
 
-/* --- 1. FULL VERIFIED DELL SITE LIST (SOURCE OF TRUTH) --- */
+/* --- FULL VERIFIED DELL SITES (SEP 2025) --- */
 const HARDCODED_SITES = [
     /* Americas (AMER) */
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -29,7 +30,6 @@ const HARDCODED_SITES = [
     { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
     { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
     { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
-
     /* EMEA */
     { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
     { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
@@ -48,7 +48,6 @@ const HARDCODED_SITES = [
     { name: "Dell Casablanca", country: "MA", region: "EMEA", lat: 33.5731, lon: -7.5898 },
     { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
     { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
-
     /* APJC */
     { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
     { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
@@ -67,11 +66,9 @@ const HARDCODED_SITES = [
     { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
 
-const COUNTRIES = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saudi Arabia", "Senegal", "Serbia", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
+const COUNTRIES = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
-const ADVISORIES = {
-    "Afghanistan": { level: 4, text: "Do Not Travel" }, "Belarus": { level: 4, text: "Do Not Travel" }, "Burkina Faso": { level: 4, text: "Do Not Travel" }, "Haiti": { level: 4, text: "Do Not Travel" }, "Iran": { level: 4, text: "Do Not Travel" }, "Iraq": { level: 4, text: "Do Not Travel" }, "Libya": { level: 4, text: "Do Not Travel" }, "Mali": { level: 4, text: "Do Not Travel" }, "North Korea": { level: 4, text: "Do Not Travel" }, "Russia": { level: 4, text: "Do Not Travel" }, "Somalia": { level: 4, text: "Do Not Travel" }, "South Sudan": { level: 4, text: "Do Not Travel" }, "Sudan": { level: 4, text: "Do Not Travel" }, "Syria": { level: 4, text: "Do Not Travel" }, "Ukraine": { level: 4, text: "Do Not Travel" }, "Venezuela": { level: 4, text: "Do Not Travel" }, "Yemen": { level: 4, text: "Do Not Travel" }, "Israel": { level: 3, text: "Reconsider Travel" }, "Colombia": { level: 3, text: "Reconsider Travel" }, "China": { level: 3, text: "Reconsider Travel" }, "Mexico": { level: 2, text: "Exercise Increased Caution" }, "India": { level: 2, text: "Exercise Increased Caution" }, "United Kingdom": { level: 2, text: "Exercise Increased Caution" }
-};
+const ADVISORIES = { "Afghanistan": { level: 4, text: "Do Not Travel" }, "Belarus": { level: 4, text: "Do Not Travel" }, "Haiti": { level: 4, text: "Do Not Travel" }, "Iran": { level: 4, text: "Do Not Travel" }, "Iraq": { level: 4, text: "Do Not Travel" }, "Libya": { level: 4, text: "Do Not Travel" }, "Mali": { level: 4, text: "Do Not Travel" }, "North Korea": { level: 4, text: "Do Not Travel" }, "Russia": { level: 4, text: "Do Not Travel" }, "Somalia": { level: 4, text: "Do Not Travel" }, "South Sudan": { level: 4, text: "Do Not Travel" }, "Sudan": { level: 4, text: "Do Not Travel" }, "Syria": { level: 4, text: "Do Not Travel" }, "Ukraine": { level: 4, text: "Do Not Travel" }, "Venezuela": { level: 4, text: "Do Not Travel" }, "Yemen": { level: 4, text: "Do Not Travel" }, "Israel": { level: 3, text: "Reconsider Travel" }, "Colombia": { level: 3, text: "Reconsider Travel" }, "China": { level: 3, text: "Reconsider Travel" }, "Mexico": { level: 2, text: "Exercise Increased Caution" }, "India": { level: 2, text: "Exercise Increased Caution" }, "United Kingdom": { level: 2, text: "Exercise Increased Caution" } };
 
 let GENERAL_NEWS_FEED = [];
 let PROXIMITY_ALERTS = [];
@@ -110,19 +107,18 @@ async function loadAllData() {
             PROXIMITY_ALERTS = rawP.alerts || [];
         }
     } catch (e) {
-        console.warn("Live feed unavailable, using Fallback.");
+        console.warn("Using Fallback Data:", e);
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // FALLBACK DATA (Strict SRO)
+        // SRO FALLBACK
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics" },
+            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics" },
             { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC" },
-            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported.", region: "APJC", severity: 2, type: "CRISIS / WEATHER", time: new Date().toISOString(), source: "Weather Ops" },
+            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS / WEATHER", time: new Date().toISOString(), source: "Weather Ops" },
             { title: "Cyber Alert: Manufacturing SCADA Vulnerability", snippet: "Critical zero-day affecting industrial controllers. Patch immediately.", region: "Global", severity: 3, type: "CYBER SECURITY", time: new Date().toISOString(), source: "CISA" }
         ];
         
-        // FALLBACK PROXIMITY (Matches Screenshot)
         PROXIMITY_ALERTS = [
             { article_title: "Active fire reported at adjacent chemical logistics park.", site_name: "Dell Xiamen Mfg", distance_km: 3.2, type: "Industrial Fire", severity: 3, lat: 24.4798, lon: 118.0894 },
             { article_title: "Rolling brownouts affecting Electronic City Phase 1.", site_name: "Dell Bangalore Campus", distance_km: 1.5, type: "Grid Instability", severity: 2, lat: 12.9716, lon: 77.5946 },
@@ -152,22 +148,32 @@ function updateMap(region) {
     });
     const alertIcon = (sev) => L.divIcon({ className: "custom-pin", html: `<div class="marker-incident" style="background:${sev>=3?'#d93025':'#f9ab00'}"><i class="fas fa-exclamation"></i></div>`, iconSize: [32, 32], iconAnchor: [16, 16] });
     PROXIMITY_ALERTS.forEach(a => {
-        if((region === "Global" || a.site_region === region) && a.distance_km <= currentRadius && a.lat) {
-            L.marker([a.lat, a.lon], { icon: alertIcon(a.severity) }).bindTooltip(`<b>${a.type || 'Alert'}</b><br>${a.distance_km}km from ${a.site_name}`).addTo(layerGroup);
+        if ((currentCategory === 'ALL' || (a.type && a.type.toUpperCase().includes(currentCategory))) &&
+            (region === "Global" || a.site_region === region) && a.distance_km <= currentRadius && a.lat) {
+            L.marker([a.lat, a.lon], { icon: alertIcon(a.severity) }).bindTooltip(`<b>${a.type}</b><br>${a.distance_km}km from ${a.site_name}`).addTo(layerGroup);
         }
     });
     const centers = { "AMER": [30, -90], "EMEA": [45, 15], "APJC": [20, 110], "LATAM": [-15, -60], "Global": [25, 10] };
     map.setView(centers[region] || centers["Global"], region === "Global" ? 2.5 : 3);
 }
 
+function filterCategory(category) {
+    currentCategory = category;
+    const activeEl = document.querySelector(".nav-item-custom.active");
+    filterNews(activeEl ? activeEl.innerText.trim() : 'Global'); 
+}
+
 function filterNews(region) {
     document.querySelectorAll(".nav-item-custom").forEach(el => el.classList.toggle("active", el.innerText.trim() === region));
     const container = document.getElementById("general-news-feed");
-    const filtered = region === "Global" ? GENERAL_NEWS_FEED : GENERAL_NEWS_FEED.filter(i => i.region === region);
+    
+    let filtered = region === "Global" ? GENERAL_NEWS_FEED : GENERAL_NEWS_FEED.filter(i => i.region === region);
+    if (currentCategory !== 'ALL') {
+        filtered = filtered.filter(i => i.type && i.type.toUpperCase().includes(currentCategory));
+    }
 
-    if (!filtered.length) { container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents.</div>`; }
+    if (!filtered.length) { container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents matching criteria.</div>`; }
     else {
-        // BADGE REDESIGN
         container.innerHTML = filtered.map(item => {
             const timeStr = safeDate(item.time);
             const sevBadge = item.severity >= 3 
@@ -196,12 +202,16 @@ function updateProximityRadius() {
     const activeRegion = activeEl ? activeEl.innerText.trim() : 'Global';
     const container = document.getElementById("proximity-alerts-container");
     
-    const filtered = PROXIMITY_ALERTS.filter(a => {
+    let filtered = PROXIMITY_ALERTS.filter(a => {
         const regMatch = activeRegion === "Global" || (a.site_region === activeRegion);
-        return regMatch && a.distance_km <= currentRadius;
+        const radMatch = a.distance_km <= currentRadius;
+        return regMatch && radMatch;
     });
 
-    // SIDEBAR VISUAL REDESIGN (MATCHING SCREENSHOT)
+    if (currentCategory !== 'ALL') {
+        filtered = filtered.filter(a => a.type && a.type.toUpperCase().includes(currentCategory.split(' ')[0])); 
+    }
+
     if (!filtered.length) {
         container.innerHTML = `<div class="p-3 text-center text-muted small">Currently no alerts in proximity to Dell sites.</div>`;
     } else {
@@ -209,9 +219,8 @@ function updateProximityRadius() {
             const iconMap = {"Industrial Fire": "fire", "Grid Instability": "bolt", "Flash Flood": "water"};
             const icon = iconMap[a.type] || "exclamation-circle";
             const color = a.severity >= 3 ? "#d93025" : "#f9ab00";
-
             return `
-            <div class="alert-row" style="padding:12px 0; border-bottom:1px solid #eee;">
+            <div class="alert-row" style="padding:10px 0; border-bottom:1px solid #eee;">
                 <div class="d-flex justify-content-between align-items-center">
                     <span style="font-weight:700; color:#202124; font-size:0.85rem;">
                         <i class="fas fa-${icon}" style="color:${color}; margin-right:6px;"></i> ${a.type}
@@ -241,6 +250,15 @@ function filterTravel() {
     const div = document.getElementById("travel-advisories");
     const color = adv.level === 4 ? "#d93025" : (adv.level === 3 ? "#e37400" : (adv.level === 2 ? "#f9ab00" : "#1a73e8"));
     div.innerHTML = `<div style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px; border-radius:6px; margin-bottom:10px;"><div style="font-weight:800; color:${color}; font-size:0.8rem;">LEVEL ${adv.level} ADVISORY</div><div style="font-size:0.9rem;">${adv.text}</div></div>`;
+    
+    const related = GENERAL_NEWS_FEED.filter(i => (i.title + (i.snippet||"")).toLowerCase().includes(c.toLowerCase()));
+    const newsDiv = document.getElementById("travel-news");
+    if(related.length) {
+        let items = related.slice(0,2).map(n => `<div style="margin-bottom:8px;"><strong>${n.title}</strong><br><span class="text-muted" style="font-size:0.75rem">${n.snippet}</span></div>`).join('');
+        newsDiv.innerHTML = `<div class="p-2 bg-light border rounded" style="font-size:0.8rem">${items}</div>`;
+    } else {
+        newsDiv.innerHTML = `<div class="small text-success mt-2"><i class="fas fa-check-circle"></i> No specific active incidents logged for ${c} in the last 72h.</div>`;
+    }
 }
 
 function safeDate(iso) {
@@ -249,8 +267,8 @@ function safeDate(iso) {
 
 function updateClock() {
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZoneName: 'short' });
+    const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
     document.getElementById("clock-date").innerText = `${dateStr} | ${timeStr} UTC`;
     document.getElementById("clock-time").innerText = ""; 
 }
