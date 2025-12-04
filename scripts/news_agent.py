@@ -18,36 +18,39 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# ---------- 1. STRICT POSITIVE KEYWORDS (Must match to be kept) ----------
-# If the news doesn't contain one of these, it is TRASHED.
+# ---------- 1. STRICT POSITIVE SELECTION (Article MUST match one to be kept) ----------
 MUST_HAVE_TERMS = [
-    # Crisis
-    "earthquake", "tsunami", "flood", "typhoon", "cyclone", "hurricane", "tornado", "wildfire", 
-    "power outage", "blackout", "grid failure", "port closure", "airport closed", "flights cancelled",
-    "state of emergency", "evacuation", "derailment", "collapse",
-    # Security
-    "terror", "bomb", "suicide", "attack", "gunman", "shooting", "active shooter", "kidnap", 
-    "hostage", "assassination", "riot", "civil unrest", "violent protest", "tear gas", 
-    "curfew", "martial law", "coup", "security breach", "intrusion",
+    # Crisis / Resilience
+    "earthquake", "tsunami", "volcano", "flood", "flash flood", 
+    "typhoon", "cyclone", "hurricane", "tornado", "storm", "wildfire", "bushfire",
+    "power outage", "blackout", "grid failure", "port closure", "airport closed", 
+    "flights cancelled", "explosion", "blast", "derailment", "collapse",
+    
+    # Security / Duty of Care
+    "terror", "bomb", "suicide", "attack", "gunman", "shooting", "active shooter",
+    "kidnap", "abduction", "hostage", "assassination", "murder", "stabbing",
+    "riot", "civil unrest", "violent protest", "clashes", "tear gas", "curfew", 
+    "martial law", "coup", "state of emergency", "evacuation", "lockdown",
+    
     # Supply Chain
-    "strike", "walkout", "labor dispute", "port strike", "cargo theft", "supply chain disruption", 
-    "shipping delay", "customs halt", "manufacturing stop", "factory fire", "production halt",
-    # Cyber
-    "ransomware", "data breach", "cyberattack", "scada", "industrial control", "zero-day", 
-    "vulnerability", "ddos", "malware", "spyware", "telecom outage", "cable cut"
+    "strike", "walkout", "labor dispute", "port strike", "cargo theft", 
+    "supply chain", "manufacturing halt", "factory fire", "logistics disruption",
+    
+    # Cyber (Physical Impact focus)
+    "ransomware", "data breach", "cyberattack", "scada", "industrial control", 
+    "infrastructure", "telecom outage", "cable cut", "satellite", "vulnerability", "zero-day"
 ]
 
-# ---------- 2. BLOCKLIST (Safety Net) ----------
+# ---------- 2. BLOCKLIST (Kill these instantly) ----------
 BLOCKLIST = [
     "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament", 
-    "olympic", "championship", "medal", "score", "vs", "final", "win", "loss",
+    "olympic", "championship", "medal", "score", "vs",
     "celebrity", "entertainment", "movie", "film", "star", "actor", "actress", "concert",
     "residents return", "collect personal items", "cleanup begins", "recovery continues", 
-    "aftermath of", "reopens after", "normalcy returns", "anniversary", "memorial", 
-    "search for", "found dead", "body found", "investigation into", # Post-event/Minor
+    "aftermath of", "reopens after", "normalcy returns", "anniversary", "memorial", "search for",
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion", "museum", "art",
     "opinion:", "editorial:", "review:", "cultivation", "poppy", "drug trade", "estate dispute",
-    "election results", "polling", "vote count", "campaign", "parliament", "senate"
+    "husband", "wife", "marriage", "divorce", "mh370", "missing flight", "tourism", "tourist"
 ]
 
 # ---------- FEEDS ----------
@@ -55,12 +58,13 @@ FEEDS = [
     'https://feeds.reuters.com/reuters/worldNews',
     'https://feeds.bbci.co.uk/news/world/rss.xml',
     'https://www.aljazeera.com/xml/rss/all.xml',
-    'https://www.bleepingcomputer.com/feed/',
-    'https://www.cisa.gov/cybersecurity-advisories/all.xml',
-    'https://www.supplychainbrain.com/rss/logistics-and-transportation',
-    'https://reliefweb.int/updates/rss.xml',
-    'https://www.scmp.com/rss/91/feed',
-    'https://www.straitstimes.com/news/asia/rss.xml'
+    'https://www.bleepingcomputer.com/feed/', # Cyber
+    'https://www.cisa.gov/cybersecurity-advisories/all.xml', # US Gov Cyber
+    'https://www.ncsc.gov.uk/api/1/services/v1/news-rss-feed.xml', # UK Gov Cyber
+    'https://www.supplychainbrain.com/rss/logistics-and-transportation', # Logistics
+    'https://reliefweb.int/updates/rss.xml', # Humanitarian/Disaster
+    'https://www.scmp.com/rss/91/feed',  # Asia specific
+    'https://www.straitstimes.com/news/asia/rss.xml' # Asia specific
 ]
 
 GEMINI_MODEL = "gemini-1.5-flash"
@@ -74,59 +78,65 @@ def init_gemini():
 def clean_html(html):
     if not html: return ""
     text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
-    return text[:200] + "..." if len(text) > 200 else text # FORCE TRUNCATION
+    # FORCE TRUNCATION TO 200 CHARS
+    return text[:200] + "..." if len(text) > 200 else text
 
-def get_category_and_severity(text):
+def is_sro_relevant(text):
     text = text.lower()
-    
-    # Blocklist check
-    for bad in BLOCKLIST:
-        if bad in text: return None, 0
+    # 1. Blocklist (Kill noise)
+    for word in BLOCKLIST:
+        if word in text: return False
+    # 2. Positive Selection (Must contain a threat keyword)
+    for keyword in MUST_HAVE_TERMS:
+        if keyword in text: return True
+    return False
 
-    # Positive Match check
-    found = False
-    for good in MUST_HAVE_TERMS:
-        if good in text: 
-            found = True
-            break
-    if not found: return None, 0
-
-    # Categorization
-    if any(x in text for x in ["ransomware", "cyber", "hack", "breach", "vulnerability"]):
-        return "CYBER SECURITY", 3
-    if any(x in text for x in ["strike", "cargo", "port", "supply chain", "shipping", "logistics"]):
-        return "SUPPLY CHAIN", 2
-    if any(x in text for x in ["earthquake", "flood", "storm", "typhoon", "hurricane", "outage"]):
-        return "CRISIS / WEATHER", 2
-    if any(x in text for x in ["attack", "shooting", "bomb", "terror", "riot", "unrest", "kidnap"]):
-        return "PHYSICAL SECURITY", 3
+def get_sro_category_severity(text):
+    text = text.lower()
+    # Default
+    cat = "GENERAL"
+    sev = 1
     
-    return "MONITOR", 1 # Default low severity if it passed keyword check but not specific category
+    if any(x in text for x in ["ransomware", "cyber", "hack", "breach"]):
+        cat = "CYBER SECURITY"
+        sev = 3
+    elif any(x in text for x in ["earthquake", "flood", "typhoon", "storm"]):
+        cat = "CRISIS / WEATHER"
+        sev = 2
+    elif any(x in text for x in ["strike", "cargo", "port", "supply chain"]):
+        cat = "SUPPLY CHAIN"
+        sev = 2
+    elif any(x in text for x in ["attack", "shooting", "bomb", "terror", "riot", "unrest"]):
+        cat = "PHYSICAL SECURITY"
+        sev = 3
+        
+    return cat, sev
 
 def ai_process(model, title, summary, current_cat, current_sev):
     if not model: return True, current_sev, summary, current_cat
     
     prompt = f"""
-    Role: Security Analyst.
+    Role: Security Analyst for Dell SRO.
     Task: Filter for OPERATIONAL IMPACT.
     Input: "{title} - {summary}"
     
     Rules:
-    1. DELETE if Sports, Politics, Celebrity, Drugs/Opium, or Post-Event Cleanup.
-    2. KEEP if Active Threat (Fire, Strike, Cyber, Weather).
-    3. REWRITE summary to max 15 words.
-    4. SEVERITY: 3 (Critical/Life Safety), 2 (Warning/Disruption), 1 (Info).
+    1. EXCLUDE: Politics, Sports, General Crime, Post-event cleanup, Historical articles, Drugs/Opium.
+    2. INCLUDE: Active threats to staff, facilities, supply chain, or travel.
+    3. Severity: 3 (Life Safety/Critical Ops), 2 (Warning/Disruption), 1 (Monitor/Info).
+    4. One Liner: Summarize impact in max 15 words.
     
-    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Summary...", "category": "{current_cat}"}}
+    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Impact summary", "category": "{current_cat}"}}
     """
     try:
         resp = model.generate_content(prompt)
         data = json.loads(resp.text.strip().replace('```json', '').replace('```', ''))
-        return data.get("keep", False), data.get("severity", current_sev), data.get("one_liner", summary), data.get("category", current_cat)
+        return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary), data.get("category", current_cat)
     except:
         return True, current_sev, summary, current_cat
 
 def main():
+    print("Running SRO Intel Agent...")
     all_items = []
     seen = set()
     model = init_gemini()
@@ -142,35 +152,41 @@ def main():
                 raw_summary = clean_html(getattr(e, "summary", ""))
                 full_text = f"{title} {raw_summary}"
                 
-                # 1. STRICT KEYWORD FILTER
-                category, severity = get_category_and_severity(full_text)
-                if not category: continue # Drop it
+                # STRICT FILTERING
+                if not is_sro_relevant(full_text):
+                    continue
 
-                # 2. AI REFINEMENT
-                keep, severity, snippet, final_cat = ai_process(model, title, raw_summary, category, severity)
+                # PRE-CALC CATEGORY
+                cat, sev = get_sro_category_severity(full_text)
+
+                # AI REFINEMENT
+                keep, severity, snippet, category = ai_process(model, title, raw_summary, cat, sev)
                 if not keep: continue
 
+                # Normalization
                 ts = datetime.now(timezone.utc).isoformat()
                 if hasattr(e, "published_parsed") and e.published_parsed:
                     ts = datetime(*e.published_parsed[:6]).isoformat()
 
-                # Region Logic
                 region = "Global"
                 t_lower = full_text.lower()
                 if any(x in t_lower for x in ["china","asia","india","japan","australia","thailand","vietnam"]): region = "APJC"
-                elif any(x in t_lower for x in ["uk","europe","germany","france","poland","ireland"]): region = "EMEA"
+                elif any(x in t_lower for x in ["uk","europe","gaza","israel","russia","ukraine","germany"]): region = "EMEA"
                 elif any(x in t_lower for x in ["usa","america","canada","brazil","mexico","colombia"]): region = "AMER"
 
                 all_items.append({
-                    "title": title, "url": e.link, "snippet": snippet[:200], # Hard truncate
+                    "title": title, "url": e.link, 
+                    "snippet": snippet[:200], # Double check truncation
                     "source": urlparse(e.link).netloc.replace("www.", ""),
-                    "time": ts, "region": region, "severity": severity, "type": final_cat
+                    "time": ts, "region": region, "severity": severity, "type": category
                 })
-        except: pass
+        except Exception as x:
+            print(f"Error {url}: {x}")
 
     all_items.sort(key=lambda x: x["time"], reverse=True)
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
         json.dump(all_items, f, indent=2)
+    print(f"Saved {len(all_items)} SRO-relevant articles.")
 
 if __name__ == "__main__":
     main()
