@@ -5,9 +5,9 @@
     "snippet": "Dec 4 - Israel has identified the remains of the hostage it received from Hamas on Wednesday as Thai agricultural worker Sudthisak Rinthalak, the prime minister's office said on Thursday.",
     "source": "straitstimes.com",
     "time": "2025-12-04T05:35:32",
-    "region": "Global",
+    "region": "EMEA",
     "severity": 1,
-    "type": "MONITOR"
+    "type": "GENERAL"
   },
   {
     "title": "Israel identifies hostage remains as Thai national",
@@ -15,9 +15,9 @@
     "snippet": "The remains, which Hamas and Palestinian Islamic Jihad say were found in northern Gaza, will be taken to Tel Aviv for forensic tests.",
     "source": "bbc.com",
     "time": "2025-12-04T05:25:21",
-    "region": "Global",
+    "region": "EMEA",
     "severity": 1,
-    "type": "MONITOR"
+    "type": "GENERAL"
   },
   {
     "title": "\u2018No food\u2019: Indonesians scrounge for supplies after flood disaster",
@@ -67,7 +67,7 @@
     "time": "2025-12-03T21:31:20",
     "region": "Global",
     "severity": 3,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "French DIY retail giant Leroy Merlin discloses a data breach",
@@ -75,7 +75,7 @@
     "snippet": "Leroy Merlin is sending security breach notifications to customers in France, informing them that their personal data was compromised. [...]",
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T20:52:36",
-    "region": "EMEA",
+    "region": "Global",
     "severity": 3,
     "type": "CYBER SECURITY"
   },
@@ -86,6 +86,16 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T20:28:01",
     "region": "AMER",
+    "severity": 3,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft \"mitigates\" Windows LNK flaw exploited as zero-day",
+    "url": "https://www.bleepingcomputer.com/news/microsoft/microsoft-mitigates-windows-lnk-flaw-exploited-as-zero-day/",
+    "snippet": "Microsoft has silently \"mitigated\"\u00a0a high-severity Windows LNK vulnerability exploited by multiple state-backed and cybercrime hacking groups in zero-day attacks. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T16:45:30",
+    "region": "Global",
     "severity": 3,
     "type": "CYBER SECURITY"
   },
@@ -110,6 +120,26 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "University of Phoenix discloses data breach after Oracle hack",
+    "url": "https://www.bleepingcomputer.com/news/security/university-of-phoenix-discloses-data-breach-after-oracle-hack/",
+    "snippet": "The University of Phoenix (UoPX) has joined a growing list of\u00a0U.S. universities\u00a0breached in a Clop data theft campaign targeting vulnerable Oracle E-Business Suite instances in August 2025. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T13:23:10",
+    "region": "Global",
+    "severity": 3,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Kenyan MPs accuse British soldiers of decades of sexual abuse",
+    "url": "https://www.bbc.com/news/articles/cvgq5dvygllo?at_medium=RSS&at_campaign=rss",
+    "snippet": "A two-year investigation details disturbing accounts of rape, sexual violence, murders and environmental destruction.",
+    "source": "bbc.com",
+    "time": "2025-12-03T12:58:20",
+    "region": "Global",
+    "severity": 1,
+    "type": "GENERAL"
+  },
+  {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
     "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-adds-one-known-exploited-vulnerability-catalog",
     "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2021-26828 OpenPLC ScadaBR Unrestricted Upload of File with Da",
@@ -117,7 +147,7 @@
     "time": "2025-12-03T12:00:00",
     "region": "Global",
     "severity": 3,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "CISA Releases Five Industrial Control Systems Advisories",
@@ -127,7 +157,7 @@
     "time": "2025-12-02T12:00:00",
     "region": "Global",
     "severity": 1,
-    "type": "MONITOR"
+    "type": "GENERAL"
   },
   {
     "title": "CISA Releases Seven Industrial Control Systems Advisories",
@@ -137,6 +167,46 @@
     "time": "2025-11-25T12:00:00",
     "region": "Global",
     "severity": 1,
-    "type": "MONITOR"
+    "type": "GENERAL"
+  },
+  {
+    "title": "Charities offered latest insight into key cyber threats to help keep out attackers",
+    "url": "https://www.ncsc.gov.uk/news/charities-offered-latest-insight-into-key-cyber-threats-to-help-keep-out-attackers",
+    "snippet": "Latest report published by the NCSC outlines key threats facing the UK charity sector.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-29T15:25:42",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "UK experiencing four 'nationally significant' cyber attacks every week",
+    "url": "https://www.ncsc.gov.uk/news/uk-experiencing-four-nationally-significant-cyber-attacks-weekly",
+    "snippet": "Latest Annual Review reveals that the cyber threats facing the UK continue to escalate.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-16T13:13:35",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Active exploitation of vulnerability affecting Oracle E-Business Suite",
+    "url": "https://www.ncsc.gov.uk/news/active-exploitation-vulnerability-affecting-oracle-ebusiness-suite",
+    "snippet": "The NCSC is encouraging UK organisations to take immediate action to mitigate a vulnerability (CVE-2025-61882) affecting Oracle E-Business Suite.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-10-06T09:30:52",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "GENERAL"
+  },
+  {
+    "title": "Active exploitation of vulnerability affecting Microsoft Office SharePoint Server products in the UK",
+    "url": "https://www.ncsc.gov.uk/news/active-exploitation-of-vulnerability-affecting-microsoft-office-sharepoint-server-products-in-the-uk",
+    "snippet": "The NCSC is encouraging UK organisations to take immediate action to mitigate a vulnerability (CVE-2025-53770) affecting Microsoft SharePoint Server products.",
+    "source": "ncsc.gov.uk",
+    "time": "2025-07-22T08:44:33",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "GENERAL"
   }
 ]
