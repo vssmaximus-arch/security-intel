@@ -16,7 +16,7 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# STRICT POSITIVE SELECTION
+# --- 1. STRICT SRO CATEGORIES (Must match specific threats) ---
 SRO_FILTERS = {
     "CYBER SECURITY": ["ransomware", "data breach", "cyberattack", "scada", "industrial control", "zero-day", "vulnerability", "ddos", "malware", "system failure"],
     "SUPPLY CHAIN": ["port strike", "cargo theft", "supply chain disruption", "shipping delay", "customs halt", "manufacturing stop", "factory fire", "production halt", "labor dispute"],
@@ -25,10 +25,11 @@ SRO_FILTERS = {
     "HEALTH / SAFETY": ["epidemic", "outbreak", "infectious disease", "quarantine", "travel ban", "radiation", "chemical spill"]
 }
 
+# --- 2. BLOCKLIST (Kill Noise) ---
 BLOCKLIST = [
     "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament", 
     "celebrity", "entertainment", "movie", "film", "star", "concert",
-    "residents return", "collect personal items", "cleanup begins", "recovery continues", 
+    "residents return", "collect personal items", "cleanup begins", "recovery continues", "aftermath of",
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
     "opinion:", "editorial:", "cultivation", "poppy", "drug trade", "opium", "estate dispute", "MH370"
 ]
