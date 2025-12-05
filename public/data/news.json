@@ -1,5 +1,16 @@
 [
   {
+    "title": "FBI warns of virtual kidnapping scams using altered social media photos",
+    "url": "https://www.bleepingcomputer.com/news/security/fbi-warns-of-virtual-kidnapping-ransom-scams-using-altered-social-media-photos/",
+    "snippet": "The FBI warns that criminals are altering images shared on social media and using them as fake proof of life photos in virtual kidnapping ransom scams. [...]...",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-05T16:37:28",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "4522a307bfb128218df1c15d3ebda0f05f0b2ab7"
+  },
+  {
     "title": "India’s wedding parties a major casualty of IndiGo’s flight chaos",
     "url": "https://www.straitstimes.com/asia/south-asia/indias-wedding-parties-a-major-casualty-of-indigos-flight-chaos",
     "snippet": "One couple was forced to attend their own wedding reception virtually....",
@@ -11,7 +22,7 @@
     "_key": "7e207843b7040864f7b2ec702619fc62cb8159bb"
   },
   {
-    "title": "Cloudflare blames today's outage on emergency React2Shell patch",
+    "title": "Cloudflare blames today's outage on React2Shell mitigations",
     "url": "https://www.bleepingcomputer.com/news/security/cloudflare-blames-todays-outage-on-emergency-react2shell-patch/",
     "snippet": "Cloudflare has blamed today's outage on the emergency patching of a critical React remote code execution vulnerability, which is now actively exploited in attacks. [...]...",
     "source": "bleepingcomputer.com",
@@ -19,7 +30,7 @@
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY",
-    "_key": "d80eeb422ec4df0607ac64cd0358179a04e92990"
+    "_key": "12855cbf28469e9efa7a2fd090763e84b882cb6e"
   },
   {
     "title": "German president visits WWII UK bombing site amid unity against Russia",
@@ -218,17 +229,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "ca8b5273e08d47f3c0d59c09faf5ca45d0fa1afa"
-  },
-  {
-    "title": "Critical React, Next.js flaw lets hackers execute code on servers",
-    "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
-    "snippet": "A maximum severity vulnerability, dubbed 'React2Shell', in the React Server Components (RSC) 'Flight' protocol allows remote code execution without authentication in React and Next.js applications. [....",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T15:11:54",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "ba1c2a4be8bdf82290a6e6c7e2b5818f660a6aa7"
   },
   {
     "title": "SolisCloud Monitoring Platform",
