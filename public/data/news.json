@@ -1,5 +1,16 @@
 [
   {
+    "title": "Cloudflare blames today's outage on emergency React2Shell patch",
+    "url": "https://www.bleepingcomputer.com/news/security/cloudflare-blames-todays-outage-on-emergency-react2shell-patch/",
+    "snippet": "Cloudflare has blamed today's outage on the emergency patching of a critical React remote code execution vulnerability, which is now actively exploited in attacks. [...]...",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-05T13:53:26",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "d80eeb422ec4df0607ac64cd0358179a04e92990"
+  },
+  {
     "title": "German president visits WWII UK bombing site amid unity against Russia",
     "url": "https://www.aljazeera.com/news/2025/12/5/german-president-visits-wwii-uk-bombing-site-amid-unity-against-russia?traffic_source=rss",
     "snippet": "President Frank-Walter Steinmeier's visit to UK is the first by a German head of state in 27 years....",
@@ -33,7 +44,7 @@
     "_key": "e87ea060843757f990822816d2cf3fd042e262c3"
   },
   {
-    "title": "React2Shell critical flaw actively exploited in China-linked attacks",
+    "title": "Critical React2Shell flaw actively exploited in China-linked attacks",
     "url": "https://www.bleepingcomputer.com/news/security/react2shell-critical-flaw-actively-exploited-in-china-linked-attacks/",
     "snippet": "Multiple China-linked threat actors began exploiting the React2Shell vulnerability (CVE-2025-55182) affecting React and Next.js just hours after the max-severity issue was disclosed. [...]...",
     "source": "bleepingcomputer.com",
@@ -41,7 +52,7 @@
     "region": "APJC",
     "severity": 2,
     "type": "CYBER SECURITY",
-    "_key": "bc260661a4913a3e3fcea04a20c06d258f8b40e3"
+    "_key": "815a8f673ea757a9497a2aa7b21dd9920ea9575a"
   },
   {
     "title": "Malaysia under pressure to explain police shooting of trio as outcry mounts",
@@ -185,17 +196,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "ca8b5273e08d47f3c0d59c09faf5ca45d0fa1afa"
-  },
-  {
-    "title": "Sri Lanka cyclone survivors afraid to go home, stuck in relief centres",
-    "url": "https://www.straitstimes.com/asia/south-asia/sri-lanka-cyclone-survivors-afraid-to-go-home-stuck-in-relief-centres",
-    "snippet": "A total of 1,289 houses across the country have been destroyed by Cyclone Ditwah....",
-    "source": "straitstimes.com",
-    "time": "2025-12-04T17:46:09",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "9931f24a4b42363764d5a38e72e5f877b691e6c6"
   },
   {
     "title": "Critical React, Next.js flaw lets hackers execute code on servers",
