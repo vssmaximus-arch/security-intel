@@ -1,5 +1,16 @@
 [
   {
+    "title": "React2Shell critical flaw actively exploited in China-linked attacks",
+    "url": "https://www.bleepingcomputer.com/news/security/react2shell-critical-flaw-actively-exploited-in-china-linked-attacks/",
+    "snippet": "Multiple China-linked threat actors began exploiting the React2Shell vulnerability (CVE-2025-55182) affecting React and Next.js just hours after the max-severity issue was disclosed. [...]...",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-05T11:26:07",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "bc260661a4913a3e3fcea04a20c06d258f8b40e3"
+  },
+  {
     "title": "Malaysia under pressure to explain police shooting of trio as outcry mounts",
     "url": "https://www.scmp.com/week-asia/people/article/3335378/malaysia-under-pressure-explain-police-shooting-trio-outcry-mounts?utm_source=rss_feed",
     "snippet": "Malaysia’s government is under mounting pressure to explain the fatal police shooting of three men in the southern state of Melaka, after an audio recording and forensic claims released by the familie...",
@@ -46,7 +57,7 @@
   {
     "title": "Deadly cyclone dents Sri Lanka’s peak tourism season",
     "url": "https://www.straitstimes.com/asia/south-asia/deadly-cyclone-dents-sri-lankas-peak-tourism-season",
-    "snippet": "The cyclone also hit roads, power lines, and telecom networks, alongside significant losses to agriculture....",
+    "snippet": "The cyclone also hit roads, power lines and telecom networks, and caused losses to agriculture....",
     "source": "straitstimes.com",
     "time": "2025-12-05T07:55:56",
     "region": "Global",
@@ -68,7 +79,7 @@
   {
     "title": "Coupang leak outrage morphs into anti-Chinese hatred",
     "url": "https://www.straitstimes.com/asia/east-asia/coupang-leak-outrage-morphs-into-anti-chinese-hatred",
-    "snippet": "Specialists stress that focusing on nationality distracts from the need for accountability and reform....",
+    "snippet": "Security specialists stress that focusing on nationality distracts from the need for accountability and reform....",
     "source": "straitstimes.com",
     "time": "2025-12-05T06:25:00",
     "region": "Global",
@@ -262,17 +273,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "ef9bfaa9e0a905767a7d61983575cad99cfaaf00"
-  },
-  {
-    "title": "French DIY retail giant Leroy Merlin discloses a data breach",
-    "url": "https://www.bleepingcomputer.com/news/security/french-diy-retail-giant-leroy-merlin-discloses-a-data-breach/",
-    "snippet": "Leroy Merlin is sending security breach notifications to customers in France, informing them that their personal data was compromised. [...]...",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-03T20:52:36",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "2b4432826df2f6b76ecb3d64bebae40b55d8eccd"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
