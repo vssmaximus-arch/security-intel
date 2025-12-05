@@ -1,5 +1,27 @@
 [
   {
+    "title": "‘Superbugs’ surge to record levels in South Korea, with infections near 45,000",
+    "url": "https://www.straitstimes.com/asia/east-asia/superbugs-surge-to-record-levels-in-south-korea-with-infections-near-45000",
+    "snippet": "The health authorities say the surge shows how the fight against infectious disease has fundamentally shifted....",
+    "source": "straitstimes.com",
+    "time": "2025-12-05T08:35:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "HEALTH / SAFETY",
+    "_key": "723ac2e97397d2e5b03cc5dfc51f843261bac6da"
+  },
+  {
+    "title": "Deadly cyclone dents Sri Lanka’s peak tourism season",
+    "url": "https://www.straitstimes.com/asia/south-asia/deadly-cyclone-dents-sri-lankas-peak-tourism-season",
+    "snippet": "The cyclone also hit roads, power lines, and telecom networks, alongside significant losses to agriculture....",
+    "source": "straitstimes.com",
+    "time": "2025-12-05T07:55:56",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER",
+    "_key": "bb2e00857c998c8970f087b4e9e6ddca3956d0ff"
+  },
+  {
     "title": "More heavy rain slows Sri Lanka’s recovery after deadly cyclone",
     "url": "https://www.aljazeera.com/news/2025/12/5/more-heavy-rain-slows-sri-lankas-recovery-after-deadly-cyclone?traffic_source=rss",
     "snippet": "President Dissanayake has called rescue and recovery efforts the most difficult in the nation's history....",
@@ -110,17 +132,6 @@
     "_key": "8e71680d9d46df2aaf667a5f80320eb3b1120359"
   },
   {
-    "title": "UNAIDS welcomes new agreement between the United States and Kenya to advance progress to end AIDS and strengthen health systems",
-    "url": "https://reliefweb.int/report/kenya/unaids-welcomes-new-agreement-between-united-states-and-kenya-advance-progress-end-aids-and-strengthen-health-systems",
-    "snippet": "Countries: Kenya, United States of America Source: UNAIDS WASHINGTON/GENEVA, 4 December 2025 —UNAIDS welcomes the signing of a landmark five-year Health Framework for Cooperation between the United St...",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T23:33:05",
-    "region": "AMER",
-    "severity": 2,
-    "type": "HEALTH / SAFETY",
-    "_key": "2b7eac8102bb8ab111ca35e782022667776bcb8e"
-  },
-  {
     "title": "Hackers are exploiting ArrayOS AG VPN flaw to plant webshells",
     "url": "https://www.bleepingcomputer.com/news/security/hackers-are-exploiting-arrayos-ag-vpn-flaw-to-plant-webshells/",
     "snippet": "Threat actors have been exploiting a command injection vulnerability in Array AG Series VPN devices to plant webshells and create rogue users. [...]...",
@@ -165,17 +176,6 @@
     "_key": "61aa4af39da30b27710d6d73d3e22bd5d04e551b"
   },
   {
-    "title": "World: Media Advisory: High-Level Pledging Event for the United Nations Central Emergency Response Fund in 2026",
-    "url": "https://reliefweb.int/report/world/media-advisory-high-level-pledging-event-united-nations-central-emergency-response-fund-2026",
-    "snippet": "Country: World Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. WHO : The UN Office for the Coordination of Humanitarian Affairs (OCHA), co-hosts Irela...",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T19:12:25",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "818b73a175c77508e7616bff835ff2ff0145e5f3"
-  },
-  {
     "title": "Russia blocks FaceTime and Snapchat for alleged use by terrorists",
     "url": "https://www.bleepingcomputer.com/news/security/russia-blocks-facetime-and-snapchat-over-use-in-terrorist-attacks/",
     "snippet": "Russian telecommunications watchdog Roskomnadzor has blocked access to Apple's FaceTime video conferencing platform and the Snapchat instant messaging service, claiming they're being used to coordinat...",
@@ -185,28 +185,6 @@
     "severity": 2,
     "type": "PHYSICAL SECURITY",
     "_key": "a208d257cc111941a56ef4feb2bddded3d2ec45c"
-  },
-  {
-    "title": "Airstrike hits MSF health facility in South Sudan",
-    "url": "https://reliefweb.int/report/south-sudan/airstrike-hits-msf-health-facility-south-sudan",
-    "snippet": "Country: South Sudan Source: Médecins Sans Frontières The strike continues an alarming trend of attacks on health facilities in the country. A Doctors Without Borders/Médecins Sans Frontières (MSF) he...",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T19:03:04",
-    "region": "Global",
-    "severity": 2,
-    "type": "HEALTH / SAFETY",
-    "_key": "b0552391ace29c084226469795d2e86bdc12b86b"
-  },
-  {
-    "title": "Jamaica: IOM Caribbean: Hurricane Melissa - Situation Report No. 12 (03 December 2025)",
-    "url": "https://reliefweb.int/report/jamaica/iom-caribbean-hurricane-melissa-situation-report-no-12-03-december-2025",
-    "snippet": "Countries: Jamaica, Cuba, Haiti Source: International Organization for Migration Please refer to the attached file. HIGHLIGHTS In Jamaica, more than 279,000 people remain displaced and more than 190,0...",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T18:33:08",
-    "region": "AMER",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "0777a4d669428e9e5e1cd8238f030537111967e6"
   },
   {
     "title": "CISA warns of Chinese \"BrickStorm\" malware attacks on VMware servers",
@@ -220,17 +198,6 @@
     "_key": "ca8b5273e08d47f3c0d59c09faf5ca45d0fa1afa"
   },
   {
-    "title": "Indonesia: IHCP Situation Report #2 on Floods, Flash Floods, and Landslides in Aceh, North Sumatra, and West Sumatra provinces",
-    "url": "https://reliefweb.int/report/indonesia/indonesia-ihcp-situation-report-2-floods-flash-floods-and-landslides-aceh-north-sumatra-and-west-sumatra-provinces",
-    "snippet": "Country: Indonesia Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. Highlights • BNPB reported that as of December 4, the death toll had reached 836 in...",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T18:05:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "9d17540e1fa2a01eb239c7e12c6b257df318c7ec"
-  },
-  {
     "title": "Sri Lanka cyclone survivors afraid to go home, stuck in relief centres",
     "url": "https://www.straitstimes.com/asia/south-asia/sri-lanka-cyclone-survivors-afraid-to-go-home-stuck-in-relief-centres",
     "snippet": "A total of 1,289 houses across the country have been destroyed by Cyclone Ditwah....",
@@ -242,17 +209,6 @@
     "_key": "9931f24a4b42363764d5a38e72e5f877b691e6c6"
   },
   {
-    "title": "FBI charges man with planting pipe bombs on eve of January 6, 2021 Capitol riot",
-    "url": "https://www.scmp.com/news/world/united-states-canada/article/3335250/fbi-arrests-suspect-2021-capitol-riot-pipe-bomb-case-after-5-years?utm_source=rss_feed",
-    "snippet": "The FBI arrested a 30-year-old Virginia man and charged him on Thursday with planting a pair of pipe bombs in Washington the night before the January 6, 2021, assault on the US Capitol by supporters o...",
-    "source": "scmp.com",
-    "time": "2025-12-04T16:58:44",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "9d09e83e9774e7ed9fa64c0f30d46fbeafaa9b1d"
-  },
-  {
     "title": "Critical React, Next.js flaw lets hackers execute code on servers",
     "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
     "snippet": "A maximum severity vulnerability, dubbed 'React2Shell', in the React Server Components (RSC) 'Flight' protocol allows remote code execution without authentication in React and Next.js applications. [....",
@@ -262,17 +218,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "ba1c2a4be8bdf82290a6e6c7e2b5818f660a6aa7"
-  },
-  {
-    "title": "Iraq removes Hezbollah and Houthis from asset-freeze list after ‘mistake’",
-    "url": "https://www.scmp.com/news/world/middle-east/article/3335239/iraq-removes-iran-aligned-hezbollah-and-houthis-asset-freeze-list-after-mistake?utm_source=rss_feed",
-    "snippet": "Iraq will remove Lebanon’s Hezbollah and Yemen’s Houthis from an asset-freeze list, officials said on Thursday, after the Iran-aligned groups were mistakenly included in an earlier government publicat...",
-    "source": "scmp.com",
-    "time": "2025-12-04T14:07:43",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "cb323846ff861cf356c18f48e5a810025b5f9db9"
   },
   {
     "title": "SolisCloud Monitoring Platform",
@@ -328,17 +273,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "419c3f7025865a47e4ad2c56fc79949a261cd95c"
-  },
-  {
-    "title": "Magnitude 6.0 earthquake strikes China’s Xinjiang region",
-    "url": "https://www.straitstimes.com/asia/east-asia/magnitude-6-0-earthquake-strikes-chinas-xinjiang-region",
-    "snippet": "The earthquake struck at 3.44pm local time, with the epicentre at a depth of 10km....",
-    "source": "straitstimes.com",
-    "time": "2025-12-04T08:26:41",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "fc8cf1a9ab92108cb50f19da1f0ee443c12f9759"
   },
   {
     "title": "Marquis data breach impacts over 74 US banks, credit unions",
