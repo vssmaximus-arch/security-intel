@@ -77,50 +77,6 @@
     "_key": "b77638e29ec72eb7e5106c8e9ce3b51684080eeb"
   },
   {
-    "title": "Venezuela: Driving Synergy and Complementarity: 2025 CERF and VHF Allocations",
-    "url": "https://reliefweb.int/report/venezuela-bolivarian-republic/driving-synergy-and-complementarity-2025-cerf-and-vhf-allocations",
-    "snippet": "Country: Venezuela (Bolivarian Republic of) Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached Infographic. In response to the severe flooding that affected Ap...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T04:16:30",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "57473f3aefd10786efc4fc4caeba7daf30a9705b"
-  },
-  {
-    "title": "GIEWS Country Brief: Haiti 04-December-2025",
-    "url": "https://reliefweb.int/report/haiti/giews-country-brief-haiti-04-december-2025",
-    "snippet": "Country: Haiti Source: Food and Agriculture Organization of the United Nations Please refer to the attached file. FOOD SECURITY SNAPSHOT About half of analysed population acutely food insecure Cereal ...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T04:05:49",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "c15f2b639d6bad767bebcc309d3be8fdd877d48b"
-  },
-  {
-    "title": "Jamaica: Food Security Monitoring Impact of Hurricane Melissa – One Month On, December 2025",
-    "url": "https://reliefweb.int/report/jamaica/jamaica-food-security-monitoring-impact-hurricane-melissa-one-month-december-2025",
-    "snippet": "Country: Jamaica Sources: Caribbean Community Secretariat, World Food Programme Context Hurricane Melissa made landfall in Jamaica on 28 October 2025 as a Category 5 storm, causing catastrophic damage...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T03:51:46",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "78735c167211ca976e432298ba5d01231a2c2464"
-  },
-  {
-    "title": "Indonesia: Asia floods: Race on to get emergency supplies to cut-off families as some communities use canoes to deliver aid",
-    "url": "https://reliefweb.int/report/indonesia/asia-floods-race-get-emergency-supplies-cut-families-some-communities-use-canoes-deliver-aid",
-    "snippet": "Countries: Indonesia, Sri Lanka Source: Save the Children Save the Children has sent teams to some of the most difficult-to-access areas on Sumatra including Langkat Regency, Aceh Tamiang, Central Tap...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T01:03:11",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "c77630c8bb23b23e77b0ef41a5cb2c84bd409055"
-  },
-  {
     "title": "Suspect arrested in pipe bomb incident on eve of 2021 Capitol riot",
     "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
     "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol....",
@@ -209,6 +165,17 @@
     "_key": "9931f24a4b42363764d5a38e72e5f877b691e6c6"
   },
   {
+    "title": "FBI charges man with planting pipe bombs on eve of January 6, 2021 Capitol riot",
+    "url": "https://www.scmp.com/news/world/united-states-canada/article/3335250/fbi-arrests-suspect-2021-capitol-riot-pipe-bomb-case-after-5-years?utm_source=rss_feed",
+    "snippet": "The FBI arrested a 30-year-old Virginia man and charged him on Thursday with planting a pair of pipe bombs in Washington the night before the January 6, 2021, assault on the US Capitol by supporters o...",
+    "source": "scmp.com",
+    "time": "2025-12-04T16:58:44",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "9d09e83e9774e7ed9fa64c0f30d46fbeafaa9b1d"
+  },
+  {
     "title": "Critical React, Next.js flaw lets hackers execute code on servers",
     "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
     "snippet": "A maximum severity vulnerability, dubbed 'React2Shell', in the React Server Components (RSC) 'Flight' protocol allows remote code execution without authentication in React and Next.js applications. [....",
@@ -218,6 +185,17 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "ba1c2a4be8bdf82290a6e6c7e2b5818f660a6aa7"
+  },
+  {
+    "title": "Iraq removes Hezbollah and Houthis from asset-freeze list after ‘mistake’",
+    "url": "https://www.scmp.com/news/world/middle-east/article/3335239/iraq-removes-iran-aligned-hezbollah-and-houthis-asset-freeze-list-after-mistake?utm_source=rss_feed",
+    "snippet": "Iraq will remove Lebanon’s Hezbollah and Yemen’s Houthis from an asset-freeze list, officials said on Thursday, after the Iran-aligned groups were mistakenly included in an earlier government publicat...",
+    "source": "scmp.com",
+    "time": "2025-12-04T14:07:43",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "cb323846ff861cf356c18f48e5a810025b5f9db9"
   },
   {
     "title": "SolisCloud Monitoring Platform",
@@ -306,17 +284,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "2b4432826df2f6b76ecb3d64bebae40b55d8eccd"
-  },
-  {
-    "title": "Freedom Mobile discloses data breach exposing customer data",
-    "url": "https://www.bleepingcomputer.com/news/security/freedom-mobile-discloses-data-breach-exposing-customer-data/",
-    "snippet": "Freedom Mobile, the fourth-largest wireless carrier in Canada, has disclosed a data breach after attackers hacked into its customer account management platform and stole the personal information of an...",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-03T20:28:01",
-    "region": "AMER",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "ea5dea94b6d43b50d6910b3a4d58f24e50966304"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
