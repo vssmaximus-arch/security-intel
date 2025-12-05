@@ -60,6 +60,33 @@
         .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
         .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; }
         .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+
+        /* Feedback controls on each card */
+        .feed-actions { margin-top: 6px; text-align: right; font-size: 0.7rem; }
+        .feedback-btn-link { border: none; background: none; padding: 0; margin-left: 4px; cursor: pointer; text-decoration: underline; }
+        .feedback-btn-link.not { color: #6c757d; }
+        .feedback-btn-link.crit { color: #d93025; }
+
+        /* Feedback toast (bottom-right) */
+        .feedback-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            background: #202124;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+            z-index: 2000;
+        }
+        .feedback-toast.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
         
         .modal-content { border-radius: 12px; }
         .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
@@ -175,6 +202,9 @@
         </div>
     </div>
 </div>
+
+<!-- Feedback toast -->
+<div id="feedback-toast" class="feedback-toast">Feedback recorded</div>
 
 <div class="modal fade" id="reportModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
