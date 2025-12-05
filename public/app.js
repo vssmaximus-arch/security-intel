@@ -3,11 +3,21 @@
    ========================================================= */
 const PATHS = {
     NEWS: "public/data/news.json",
-    PROXIMITY: "public/data/proximity.json"
+    PROXIMITY: "public/data/proximity.json",
+    // Endpoint to receive feedback (adjust to your backend path)
+    FEEDBACK: "feedback"
 };
 
 let currentRadius = 5;
 let currentCategory = 'ALL';
+
+// Currently displayed feed items (after region/category filters)
+let GENERAL_NEWS_FEED = [];
+let PROXIMITY_ALERTS = [];
+let CURRENT_FEED = [];
+
+let map, layerGroup;
+let feedbackToastTimeout = null;
 
 /* --- FULL VERIFIED DELL SITE LIST (SEP 2025) --- */
 const HARDCODED_SITES = [
@@ -68,12 +78,9 @@ const HARDCODED_SITES = [
     { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
 
-const COUNTRIES = [/* existing list unchanged for brevity */];
-const ADVISORIES = { /* existing object unchanged */ };
+const COUNTRIES = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saudi Arabia", "Senegal", "Serbia", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
-let GENERAL_NEWS_FEED = [];
-let PROXIMITY_ALERTS = [];
-let map, layerGroup;
+const ADVISORIES = { "Afghanistan": { level: 4, text: "Do Not Travel" }, "Belarus": { level: 4, text: "Do Not Travel" }, "Burkina Faso": { level: 4, text: "Do Not Travel" }, "Haiti": { level: 4, text: "Do Not Travel" }, "Iran": { level: 4, text: "Do Not Travel" }, "Iraq": { level: 4, text: "Do Not Travel" }, "Libya": { level: 4, text: "Do Not Travel" }, "Mali": { level: 4, text: "Do Not Travel" }, "North Korea": { level: 4, text: "Do Not Travel" }, "Russia": { level: 4, text: "Do Not Travel" }, "Somalia": { level: 4, text: "Do Not Travel" }, "South Sudan": { level: 4, text: "Do Not Travel" }, "Sudan": { level: 4, text: "Do Not Travel" }, "Syria": { level: 4, text: "Do Not Travel" }, "Ukraine": { level: 4, text: "Do Not Travel" }, "Venezuela": { level: 4, text: "Do Not Travel" }, "Yemen": { level: 4, text: "Do Not Travel" }, "Israel": { level: 3, text: "Reconsider Travel" }, "Colombia": { level: 3, text: "Reconsider Travel" }, "China": { level: 3, text: "Reconsider Travel" }, "Mexico": { level: 2, text: "Exercise Increased Caution" }, "India": { level: 2, text: "Exercise Increased Caution" }, "United Kingdom": { level: 2, text: "Exercise Increased Caution" } };
 
 document.addEventListener("DOMContentLoaded", async () => {
     initMap();
@@ -82,6 +89,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     setInterval(updateClock, 1000);
     await loadAllData();
     filterNews('Global');
+
+    // Global click handler for feedback buttons
+    document.addEventListener("click", globalClickHandler);
 });
 
 async function loadAllData() {
@@ -112,19 +122,18 @@ async function loadAllData() {
         badge.innerText = "SIMULATION MODE";
         badge.className = "badge bg-warning text-dark";
         
-        // FALLBACK DATA (Strict SRO-style)
-        const nowIso = new Date().toISOString();
+        // FALLBACK DATA (Strict SRO)
         GENERAL_NEWS_FEED = [
-            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: nowIso, source: "SRO Logistics", url: "#" },
-            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: nowIso, source: "GSOC", url: "#" },
-            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS / WEATHER", time: nowIso, source: "Weather Ops", url: "#" },
-            { title: "Cyber Alert: Manufacturing SCADA Vulnerability", snippet: "Critical zero-day affecting industrial controllers. Patch immediately.", region: "Global", severity: 3, type: "CYBER SECURITY", time: nowIso, source: "CISA", url: "#" }
+            { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics", url: "#" },
+            { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC", url: "#" },
+            { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS / WEATHER", time: new Date().toISOString(), source: "Weather Ops", url: "#" },
+            { title: "Cyber Alert: Manufacturing SCADA Vulnerability", snippet: "Critical zero-day affecting industrial controllers. Patch immediately.", region: "Global", severity: 3, type: "CYBER SECURITY", time: new Date().toISOString(), source: "CISA", url: "#" }
         ];
         
         PROXIMITY_ALERTS = [
-            { article_title: "Active fire reported at adjacent chemical logistics park.", site_name: "Dell Xiamen Mfg", site_region: "APJC", distance_km: 3.2, type: "Industrial Fire", severity: 3, lat: 24.4798, lon: 118.0894 },
-            { article_title: "Rolling brownouts affecting Electronic City Phase 1.", site_name: "Dell Bangalore", site_region: "APJC", distance_km: 1.5, type: "Grid Instability", severity: 2, lat: 12.9716, lon: 77.5946 },
-            { article_title: "Cumberland River rising rapidly.", site_name: "Dell Nashville Hub", site_region: "AMER", distance_km: 4.8, type: "Flash Flood", severity: 2, lat: 36.1627, lon: -86.7816 }
+            { article_title: "Active fire reported at adjacent chemical logistics park.", site_name: "Dell Xiamen Mfg", distance_km: 3.2, type: "Industrial Fire", severity: 3, lat: 24.4798, lon: 118.0894 },
+            { article_title: "Rolling brownouts affecting Electronic City Phase 1.", site_name: "Dell Bangalore Campus", distance_km: 1.5, type: "Grid Instability", severity: 2, lat: 12.9716, lon: 77.5946 },
+            { article_title: "Cumberland River rising rapidly.", site_name: "Dell Nashville Hub", distance_km: 4.8, type: "Flash Flood", severity: 2, lat: 36.1627, lon: -86.7816 }
         ];
     }
     updateMap('Global');
@@ -143,45 +152,19 @@ function initMap() {
 function updateMap(region) {
     if (!map) return;
     layerGroup.clearLayers();
-
-    const siteIcon = L.divIcon({
-        className: "custom-pin",
-        html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
-        iconSize: [30, 42],
-        iconAnchor: [15, 42]
-    });
-
+    const siteIcon = L.divIcon({ className: "custom-pin", html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>', iconSize: [30, 42], iconAnchor: [15, 42] });
     const visibleSites = region === "Global" ? HARDCODED_SITES : HARDCODED_SITES.filter(l => l.region === region);
     visibleSites.forEach(loc => {
-        L.marker([loc.lat, loc.lon], { icon: siteIcon })
-            .bindTooltip(`<b>${loc.name}</b><br>${loc.country}`)
-            .addTo(layerGroup);
+        L.marker([loc.lat, loc.lon], { icon: siteIcon }).bindTooltip(`<b>${loc.name}</b><br>${loc.country}`).addTo(layerGroup);
     });
-
-    const alertIcon = (sev) => L.divIcon({
-        className: "custom-pin",
-        html: `<div class="marker-incident" style="background:${sev>=3?'#d93025':'#f9ab00'}"><i class="fas fa-exclamation"></i></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-    });
-
+    const alertIcon = (sev) => L.divIcon({ className: "custom-pin", html: `<div class="marker-incident" style="background:${sev>=3?'#d93025':'#f9ab00'}"><i class="fas fa-exclamation"></i></div>`, iconSize: [32, 32], iconAnchor: [16, 16] });
     PROXIMITY_ALERTS.forEach(a => {
         const categoryMatch = currentCategory === 'ALL' || (a.type && a.type.toUpperCase().includes(currentCategory.split(' ')[0]));
-        const regionMatch = region === "Global" || a.site_region === region;
-        if (categoryMatch && regionMatch && a.distance_km <= currentRadius && a.lat) {
-            L.marker([a.lat, a.lon], { icon: alertIcon(a.severity) })
-                .bindTooltip(`<b>${a.type || 'Alert'}</b><br>${a.distance_km}km from ${a.site_name}`)
-                .addTo(layerGroup);
+        if(categoryMatch && (region === "Global" || a.site_region === region) && a.distance_km <= currentRadius && a.lat) {
+            L.marker([a.lat, a.lon], { icon: alertIcon(a.severity) }).bindTooltip(`<b>${a.type || 'Alert'}</b><br>${a.distance_km}km from ${a.site_name}`).addTo(layerGroup);
         }
     });
-
-    const centers = {
-        "AMER": [30, -90],
-        "EMEA": [45, 15],
-        "APJC": [20, 110],
-        "LATAM": [-15, -60],
-        "Global": [25, 10]
-    };
+    const centers = { "AMER": [30, -90], "EMEA": [45, 15], "APJC": [20, 110], "LATAM": [-15, -60], "Global": [25, 10] };
     map.setView(centers[region] || centers["Global"], region === "Global" ? 2.5 : 3);
 }
 
@@ -192,27 +175,27 @@ function filterCategory(category) {
 }
 
 function filterNews(region) {
-    document.querySelectorAll(".nav-item-custom").forEach(el => {
-        el.classList.toggle("active", el.innerText.trim() === region);
-    });
-
+    document.querySelectorAll(".nav-item-custom").forEach(el => el.classList.toggle("active", el.innerText.trim() === region));
     const container = document.getElementById("general-news-feed");
     let filtered = region === "Global" ? GENERAL_NEWS_FEED : GENERAL_NEWS_FEED.filter(i => i.region === region);
-
     if (currentCategory !== 'ALL') {
-        filtered = filtered.filter(i => i.type && i.type.toUpperCase().includes(currentCategory.split(' ')[0]));
+        filtered = filtered.filter(i => i.type && i.type.toUpperCase().includes(currentCategory));
     }
 
-    if (!filtered.length) {
-        container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents matching criteria.</div>`;
+    // Save currently displayed list for feedback
+    CURRENT_FEED = filtered;
+
+    if (!filtered.length) { 
+        container.innerHTML = `<div class="p-4 text-center text-muted">No active incidents matching criteria.</div>`; 
     } else {
-        container.innerHTML = filtered.map(item => {
+        container.innerHTML = filtered.map((item, idx) => {
             const timeStr = safeDate(item.time);
             let sevLabel = "MONITOR";
-            let sevColor = "#6c757d";
+            let sevColor = "#6c757d"; 
             if (item.severity >= 3) { sevLabel = "CRITICAL"; sevColor = "#d93025"; }
-            else if (item.severity === 2) { sevLabel = "WARNING"; sevColor = "#f9ab00"; }
-
+            else if (item.severity === 2) { 
+                sevLabel = "WARNING"; sevColor = "#f9ab00"; 
+            }
             const sevBadge = `<span class="badge rounded-0 me-1" style="background:${sevColor}; color:white; font-size:0.65rem;">${sevLabel}</span>`;
             const typeBadge = `<span class="badge rounded-0 me-1" style="background:#333; color:white; font-size:0.65rem;">${(item.type || 'GENERAL').toUpperCase()}</span>`;
             const regBadge = `<span class="badge rounded-0" style="background:#555; color:white; font-size:0.65rem; float:right;">${(item.region || 'GLOBAL').toUpperCase()}</span>`;
@@ -220,16 +203,25 @@ function filterNews(region) {
             const url = item.url || '#';
 
             return `
-                <a href="${url}" target="_blank" class="feed-card" style="border-left: 5px solid ${barColor}; margin-bottom: 12px; background:white; padding:15px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.05); display:block; text-decoration:none; color:inherit;">
-                    <div style="margin-bottom:6px;">${sevBadge}${typeBadge}${regBadge}</div>
-                    <div class="feed-title" style="font-size:0.95rem; font-weight:700; color:#202124; margin-bottom:5px;">${item.title}</div>
-                    <div class="feed-meta" style="font-size:0.75rem; color:#666; margin-bottom:6px;">${item.source} • ${timeStr}</div>
-                    <div class="feed-desc" style="font-size:0.8rem; color:#333;">${item.snippet || item.summary}</div>
-                </a>`;
+            <a href="${url}" target="_blank" class="feed-card" style="border-left: 5px solid ${barColor}; margin-bottom: 12px; background:white; padding:15px; border-radius:4px; box-shadow:0 2px 5px rgba(0,0,0,0.05); display:block; text-decoration:none; color:inherit;">
+                <div style="margin-bottom:6px;">${sevBadge}${typeBadge}${regBadge}</div>
+                <div class="feed-title" style="font-size:0.95rem; font-weight:700; color:#202124; margin-bottom:5px;">${item.title}</div>
+                <div class="feed-meta" style="font-size:0.75rem; color:#666; margin-bottom:6px;">${item.source} • ${timeStr}</div>
+                <div class="feed-desc" style="font-size:0.8rem; color:#333;">${item.snippet || item.summary}</div>
+                <div class="feed-actions mt-2">
+                    <button type="button" class="btn btn-link btn-sm text-muted p-0 feedback-btn" data-index="${idx}" data-label="NOT_RELEVANT">
+                        Not relevant
+                    </button>
+                    <span class="mx-1 text-muted">·</span>
+                    <button type="button" class="btn btn-link btn-sm text-danger p-0 feedback-btn" data-index="${idx}" data-label="CRITICAL">
+                        Mark critical
+                    </button>
+                </div>
+            </a>`;
         }).join('');
     }
-
-    updateProximityRadius(); // this now handles map update as well
+    updateProximityRadius();
+    updateMap(region);
 }
 
 function updateProximityRadius() {
@@ -237,7 +229,6 @@ function updateProximityRadius() {
     const activeEl = document.querySelector(".nav-item-custom.active");
     const activeRegion = activeEl ? activeEl.innerText.trim() : 'Global';
     const container = document.getElementById("proximity-alerts-container");
-
     let filtered = PROXIMITY_ALERTS.filter(a => {
         const regMatch = activeRegion === "Global" || (a.site_region === activeRegion);
         const radMatch = a.distance_km <= currentRadius;
@@ -245,7 +236,7 @@ function updateProximityRadius() {
     });
 
     if (currentCategory !== 'ALL') {
-        filtered = filtered.filter(a => a.type && a.type.toUpperCase().includes(currentCategory.split(' ')[0]));
+        filtered = filtered.filter(a => a.type && a.type.toUpperCase().includes(currentCategory.split(' ')[0])); 
     }
 
     if (!filtered.length) {
@@ -256,34 +247,28 @@ function updateProximityRadius() {
             const icon = iconMap[a.type] || "exclamation-circle";
             const color = a.severity >= 3 ? "#d93025" : "#f9ab00";
             return `
-                <div class="alert-row" style="padding:10px 0; border-bottom:1px solid #eee;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span style="font-weight:700; color:#202124; font-size:0.85rem;">
-                            <i class="fas fa-${icon}" style="color:${color}; margin-right:6px;"></i> ${a.type}
-                        </span>
-                        <span style="color:${color}; font-weight:700; font-size:0.8rem;">${a.distance_km}km</span>
-                    </div>
-                    <div style="font-size:0.8rem; font-weight:600; color:#555; margin:4px 0 2px 24px;">
-                        <i class="far fa-building"></i> ${a.site_name}
-                    </div>
-                    <div style="font-size:0.75rem; color:#666; margin-left:24px; line-height:1.3;">
-                        ${a.article_title}
-                    </div>
-                </div>`;
+            <div class="alert-row" style="padding:10px 0; border-bottom:1px solid #eee;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span style="font-weight:700; color:#202124; font-size:0.85rem;">
+                        <i class="fas fa-${icon}" style="color:${color}; margin-right:6px;"></i> ${a.type}
+                    </span>
+                    <span style="color:${color}; font-weight:700; font-size:0.8rem;">${a.distance_km}km</span>
+                </div>
+                <div style="font-size:0.8rem; font-weight:600; color:#555; margin:4px 0 2px 24px;">
+                    <i class="far fa-building"></i> ${a.site_name}
+                </div>
+                <div style="font-size:0.75rem; color:#666; margin-left:24px; line-height:1.3;">
+                    ${a.article_title}
+                </div>
+            </div>`;
         }).join('');
     }
-
     updateMap(activeRegion);
 }
 
 function populateCountries() {
     const sel = document.getElementById("countrySelect");
-    COUNTRIES.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c;
-        opt.innerText = c;
-        sel.appendChild(opt);
-    });
+    COUNTRIES.forEach(c => { const opt = document.createElement("option"); opt.value = c; opt.innerText = c; sel.appendChild(opt); });
 }
 
 function filterTravel() {
@@ -292,34 +277,18 @@ function filterTravel() {
     const div = document.getElementById("travel-advisories");
     const newsDiv = document.getElementById("travel-news");
     const color = adv.level === 4 ? "#d93025" : (adv.level === 3 ? "#e37400" : (adv.level === 2 ? "#f9ab00" : "#1a73e8"));
-
-    div.innerHTML = `
-        <div style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px; border-radius:6px; margin-bottom:10px;">
-            <div style="font-weight:800; color:${color}; font-size:0.8rem;">LEVEL ${adv.level} ADVISORY</div>
-            <div style="font-size:0.9rem;">${adv.text}</div>
-        </div>`;
-
+    div.innerHTML = `<div style="border-left: 4px solid ${color}; background:#f8f9fa; padding:10px; border-radius:6px; margin-bottom:10px;"><div style="font-weight:800; color:${color}; font-size:0.8rem;">LEVEL ${adv.level} ADVISORY</div><div style="font-size:0.9rem;">${adv.text}</div></div>`;
     const related = GENERAL_NEWS_FEED.filter(i => (i.title + (i.snippet||"")).toLowerCase().includes(c.toLowerCase()));
-    if (related.length) {
-        let items = related.slice(0,2).map(n =>
-            `<div style="margin-bottom:8px;"><strong>${n.title}</strong><br><span class="text-muted" style="font-size:0.75rem">${n.snippet}</span></div>`
-        ).join('');
-        newsDiv.innerHTML = `
-            <div class="p-2 bg-light border rounded" style="font-size:0.8rem">
-                <div style="font-weight:700; margin-bottom:5px; color:#555;">Recent Developments (72h)</div>
-                ${items}
-            </div>`;
+    if(related.length) {
+        let items = related.slice(0,2).map(n => `<div style="margin-bottom:8px;"><strong>${n.title}</strong><br><span class="text-muted" style="font-size:0.75rem">${n.snippet}</span></div>`).join('');
+        newsDiv.innerHTML = `<div class="p-2 bg-light border rounded" style="font-size:0.8rem"><div style="font-weight:700; margin-bottom:5px; color:#555;">Recent Developments (72h)</div>${items}</div>`;
     } else {
         newsDiv.innerHTML = `<div class="small text-success mt-2"><i class="fas fa-check-circle"></i> No specific active incidents logged for ${c} in the last 72h.</div>`;
     }
 }
 
 function safeDate(iso) {
-    try {
-        return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    } catch(e) {
-        return "Just now";
-    }
+    try { return new Date(iso).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); } catch(e) { return "Just now"; }
 }
 
 function updateClock() {
@@ -327,7 +296,7 @@ function updateClock() {
     const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short' });
     document.getElementById("clock-date").innerText = `${dateStr} | ${timeStr} UTC`;
-    document.getElementById("clock-time").innerText = "";
+    document.getElementById("clock-time").innerText = ""; 
 }
 
 function loadHistory(val) {
@@ -339,4 +308,74 @@ function downloadReport() {
     const region = document.getElementById("reportRegion").value.toLowerCase();
     const url = `public/reports/${region}_latest.html`;
     window.open(url, '_blank');
+}
+
+/* ============================
+   FEEDBACK LOGIC
+   ============================ */
+
+function globalClickHandler(e) {
+    const btn = e.target.closest(".feedback-btn");
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const index = parseInt(btn.dataset.index, 10);
+    const label = btn.dataset.label || "UNKNOWN";
+    if (isNaN(index) || !CURRENT_FEED[index]) return;
+
+    const item = CURRENT_FEED[index];
+    sendFeedback(label, item);
+}
+
+function sendFeedback(label, item) {
+    const payload = {
+        label,
+        title: item.title,
+        url: item.url,
+        source: item.source,
+        region: item.region,
+        type: item.type,
+        severity: item.severity,
+        time_article: item.time,
+        time_marked: new Date().toISOString()
+    };
+
+    try {
+        const body = JSON.stringify(payload);
+        if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: "application/json" });
+            navigator.sendBeacon(PATHS.FEEDBACK, blob);
+        } else {
+            fetch(PATHS.FEEDBACK, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body
+            });
+        }
+    } catch (e) {
+        console.warn("Feedback send failed", e);
+    }
+
+    showFeedbackToast(label);
+}
+
+function showFeedbackToast(label) {
+    const el = document.getElementById("feedback-toast");
+    if (!el) return;
+
+    if (label === "NOT_RELEVANT") {
+        el.textContent = "Marked as not relevant – helps tighten filters.";
+    } else if (label === "CRITICAL") {
+        el.textContent = "Marked as critical – will prioritise similar incidents.";
+    } else {
+        el.textContent = "Feedback recorded.";
+    }
+
+    el.classList.add("show");
+    if (feedbackToastTimeout) clearTimeout(feedbackToastTimeout);
+    feedbackToastTimeout = setTimeout(() => {
+        el.classList.remove("show");
+    }, 2500);
 }
