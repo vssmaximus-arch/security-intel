@@ -47,20 +47,31 @@
         .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
         .feed-status-bar { width: 5px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
         .feed-content { padding: 16px 20px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-type { background: #f1f3f4; color: #5f6368; }
+        .ftag-cat { background: #3c4043; color: white; border-color: #3c4043; }
+        
         .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
         .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; }
         .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; }
+        
+        .modal-content { border-radius: 12px; }
+        .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
+        
+        .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+        .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
+        
         .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
         .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
         .marker-incident { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
         .marker-incident i { color: white; font-size: 14px; }
-        .modal-content { border-radius: 12px; }
-        .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
-        .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
-        .alert-content-main { font-weight: 700; color: #202124; font-size: 0.95rem; }
     </style>
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -160,7 +171,6 @@
                         <option value="HEALTH / SAFETY">Health / Safety</option>
                     </select>
                 </div>
-
             </div>
         </div>
     </div>
@@ -178,6 +188,6 @@
     </div>
 </div>
 
-<script src="{{ '/public/app.js' | relative_url }}"></script>
+<script src="public/app.js"></script>
 </body>
 </html>
