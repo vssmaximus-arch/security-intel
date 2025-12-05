@@ -11,28 +11,43 @@ try:
 except Exception:
     genai = None
 
+# ---------- PATHS ----------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 
-# --- 1. STRICT POSITIVE SELECTION (Must match specific threats) ---
-MUST_MATCH = [
-    "earthquake", "tsunami", "flood", "typhoon", "cyclone", "hurricane", "tornado", "wildfire", "bushfire",
-    "power outage", "blackout", "grid failure", "port closure", "airport closed", "flights cancelled",
-    "terror", "bomb", "suicide", "attack", "gunman", "shooting", "kidnap", "hostage", "assassination", 
-    "riot", "civil unrest", "violent protest", "tear gas", "curfew", "martial law", "coup", "state of emergency",
-    "strike", "port strike", "cargo theft", "supply chain disruption", "factory fire", "manufacturing halt",
-    "ransomware", "data breach", "cyberattack", "scada", "industrial control", "zero-day", "vulnerability"
-]
+# ---------- STRICT SRO CATEGORIES (Positive Logic) ----------
+SRO_FILTERS = {
+    "CYBER SECURITY": [
+        "ransomware", "zero-day", "scada", "industrial control", "critical infrastructure", 
+        "nation-state", "apt group", "data breach", "cyberattack", "vulnerability exploited"
+    ],
+    "SUPPLY CHAIN": [
+        "port strike", "cargo theft", "supply chain disruption", "logistics halt", 
+        "shipping delay", "manufacturing stop", "factory fire", "production halt"
+    ],
+    "CRISIS / WEATHER": [
+        "earthquake", "tsunami", "typhoon", "cyclone", "hurricane", "tornado", 
+        "flash flood", "wildfire", "power outage", "grid failure", "state of emergency"
+    ],
+    "PHYSICAL SECURITY": [
+        "active shooter", "terror", "bomb", "explosion", "kidnap", "hostage", 
+        "assassination", "civil unrest", "violent protest", "riot", "coup", "martial law"
+    ],
+    "HEALTH / SAFETY": [
+        "epidemic", "outbreak", "infectious disease", "quarantine", "travel ban", "radiation"
+    ]
+}
 
-# --- 2. BLOCKLIST (Kill Noise) ---
+# ---------- BLOCKLIST (Noise Killer) ----------
 BLOCKLIST = [
     "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament", 
     "celebrity", "entertainment", "movie", "film", "star", "concert",
-    "residents return", "collect personal items", "cleanup begins", "recovery continues", "aftermath of",
+    "residents return", "collect personal items", "cleanup begins", "recovery continues", 
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
-    "opinion:", "editorial:", "cultivation", "poppy", "drug trade", "opium", "estate dispute", "MH370"
+    "opinion:", "editorial:", "cultivation", "poppy", "drug trade", "estate dispute", "MH370",
+    "software update", "patch released", "feature update", "minor bug", "routine maintenance" 
 ]
 
 FEEDS = [
@@ -59,36 +74,46 @@ def clean_html(html):
     if not html: return ""
     return BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
 
-def is_relevant(text):
+def get_sro_category(text):
     text = text.lower()
-    # 1. Check Blocklist (Fast fail)
+    
+    # 1. Blocklist
     for word in BLOCKLIST:
-        if word in text: return False
-    # 2. Check Positive Match (Must have 1 valid keyword)
-    for keyword in MUST_MATCH:
-        if keyword in text: return True
-    return False
+        if word in text: return None
+        
+    # 2. Categorize
+    for category, keywords in SRO_FILTERS.items():
+        for kw in keywords:
+            if kw in text:
+                # Special Cyber Check: Must be CRITICAL
+                if category == "CYBER SECURITY":
+                    if "patch" in text or "update" in text: continue # Skip routine patches
+                    return category
+                return category
+    return None
 
-def ai_process(model, title, summary):
-    if not model: return True, 2, summary[:200] + "...", "GENERAL"
+def ai_process(model, title, summary, category):
+    if not model: return True, 3, summary[:200] + "...", category
     
     prompt = f"""
     Role: Security Analyst for Dell SRO.
-    Task: Filter for OPERATIONAL IMPACT.
+    Task: Filter for CRITICAL OPERATIONAL IMPACT.
     Input: "{title} - {summary}"
+    Category: {category}
+    
     Rules:
-    1. REJECT (keep=false): Politics, Sports, General Crime, Post-event cleanup, Opium/Drugs.
-    2. KEEP (keep=true): Active threats to staff, facilities, supply chain, or travel.
-    3. Severity: 3 (Life Safety/Critical Ops), 2 (Disruption), 1 (Awareness).
-    4. Category: "CYBER SECURITY", "PHYSICAL SECURITY", "SUPPLY CHAIN", "CRISIS / WEATHER", "HEALTH".
-    Output JSON: {{"keep": true/false, "severity": 1-3, "one_liner": "Impact summary", "category": "CATEGORY"}}
+    1. DISCARD (keep=false): General news, Politics, Sports, Low-impact Cyber (patches/minor bugs).
+    2. KEEP (keep=true): Ransomware, Active Exploits, Physical Threats, Disasters.
+    3. Severity: 3 (Critical), 2 (Warning).
+    
+    Output JSON: {{"keep": true/false, "severity": 2-3, "one_liner": "Impact summary", "category": "{category}"}}
     """
     try:
         resp = model.generate_content(prompt)
         data = json.loads(resp.text.strip().replace('```json', '').replace('```', ''))
-        return data.get("keep", False), data.get("severity", 1), data.get("one_liner", summary), data.get("category", "GENERAL")
+        return data.get("keep", False), data.get("severity", 2), data.get("one_liner", summary), data.get("category", category)
     except:
-        return True, 2, summary, "GENERAL"
+        return True, 2, summary, category
 
 def main():
     all_items = []
@@ -98,16 +123,20 @@ def main():
     for url in FEEDS:
         try:
             f = feedparser.parse(url)
-            for e in f.entries[:15]:
+            for e in f.entries[:20]:
                 title = e.title.strip()
                 if title in seen: continue
                 seen.add(title)
+                
                 raw_summary = clean_html(getattr(e, "summary", ""))
                 full_text = f"{title} {raw_summary}"
                 
-                if not is_relevant(full_text): continue
+                # 1. STRICT CATEGORY CHECK
+                category = get_sro_category(full_text)
+                if not category: continue 
 
-                keep, severity, snippet, category = ai_process(model, title, raw_summary)
+                # 2. AI VERIFICATION
+                keep, severity, snippet, final_cat = ai_process(model, title, raw_summary, category)
                 if not keep: continue
 
                 ts = datetime.now(timezone.utc).isoformat()
@@ -123,7 +152,8 @@ def main():
                 all_items.append({
                     "title": title, "url": e.link, "snippet": snippet[:200],
                     "source": urlparse(e.link).netloc.replace("www.", ""),
-                    "time": ts, "region": region, "severity": severity, "type": category.upper()
+                    "time": ts, "region": region, "severity": severity, 
+                    "type": final_cat.upper() # Ensure UPPERCASE for frontend matching
                 })
         except: pass
 
