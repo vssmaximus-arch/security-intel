@@ -1,1 +1,692 @@
-[]
+[
+  {
+    "title": "November 2025 Patch Tuesday: One Zero-Day and Five Critical Vulnerabilities Among 63 CVEs",
+    "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-november-2025/",
+    "snippet": "November 2025 Patch Tuesday: One Zero-Day and Five Critical Vulnerabilities Among 63 CVEs",
+    "source": "crowdstrike.com",
+    "time": "2025-12-05T04:18:57.072718+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
+    "url": "https://www.crowdstrike.com/en-us/blog/from-vulnerability-management-to-exposure-management-platform-era-has-arrived/",
+    "snippet": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
+    "source": "crowdstrike.com",
+    "time": "2025-12-05T04:18:57.013301+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Sri Lanka confronts staggering cyclone toll and the long road to recovery",
+    "url": "https://asia.nikkei.com/economy/natural-disasters/sri-lanka-confronts-staggering-cyclone-toll-and-the-long-road-to-recovery",
+    "snippet": "Sri Lanka confronts staggering cyclone toll and the long road to recovery",
+    "source": "asia.nikkei.com",
+    "time": "2025-12-05T04:18:31.312434+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Parts of Australia hit by severe heatwave as temperatures pass 40C in NSW and Tasmanian bushfires threaten properties",
+    "url": "https://www.theguardian.com/australia-news/2025/dec/05/parts-of-australia-hit-by-severe-heatwave-as-temperature-surges-past-40c-in-nsw-and-tasmanian-bushfires-threaten-properties",
+    "snippet": "Heatwave warnings in place for parts of New South Wales, the Northern Territory, Queensland and Western Australia Follow our Australia news live blog for latest updates Get our breaking news email , f",
+    "source": "theguardian.com",
+    "time": "2025-12-05T02:46:39+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Green notification for tropical cyclone SIX-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (6756 in Tropical Storm).",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001240",
+    "snippet": "From 05/12/2025 to 05/12/2025, a Tropical Storm (maximum wind speed of 74 km/h) SIX-25 was active in SEPacific. The cyclone affects these countries: [unknown] (vulnerability [unknown]). Estimated popu",
+    "source": "gdacs.org",
+    "time": "2025-12-05T01:50:23+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Amid Russian Sabotage, U.K. Points Finger at Putin Over Novichok Death",
+    "url": "https://www.nytimes.com/2025/12/04/world/europe/putin-novichok-salisbury-skripal-poisoning.html",
+    "snippet": "A British woman died from exposure to a nerve agent because of a botched assassination plot that the Russian leader must have authorized, an official report found.",
+    "source": "nytimes.com",
+    "time": "2025-12-05T01:42:21+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Suspect arrested in pipe bomb incident on eve of 2021 Capitol riot",
+    "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
+    "source": "bbc.com",
+    "time": "2025-12-04T23:48:18+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hackers are exploiting ArrayOS AG VPN flaw to plant webshells",
+    "url": "https://www.bleepingcomputer.com/news/security/hackers-are-exploiting-arrayos-ag-vpn-flaw-to-plant-webshells/",
+    "snippet": "Threat actors have been exploiting a command injection vulnerability in Array AG Series VPN devices to plant webshells and create rogue users. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T23:05:05+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Alert sent for Nevada earthquake that did not happen",
+    "url": "https://www.bbc.com/news/articles/cnv21vnyy9lo?at_medium=RSS&at_campaign=rss",
+    "snippet": "An erroneous alert warning of a major Nevada earthquake reached as far as California before being withdrawn.",
+    "source": "bbc.com",
+    "time": "2025-12-04T21:50:38+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Trump limits work permit access for migrants, after National Guard shooting",
+    "url": "https://www.washingtonpost.com/business/2025/12/04/trump-work-permits-migrants/",
+    "snippet": "Shorter work permit expiration timelines will impact asylum seekers and other migrants in need of humanitarian relief, U.S. Citizenship and Immigration Services said.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-04T21:36:28+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Who was Yasser Abu Shabab, Israel-backed militia leader killed in Gaza?",
+    "url": "https://www.aljazeera.com/features/2025/12/4/who-was-yasser-abu-shabab-israel-backed-militia-leader-killed-in-gaza?traffic_source=rss",
+    "snippet": "Abu Shabab became prominent last year leading an armed group operating in Israeli-controlled areas of Gaza.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T21:19:47+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "'All Israeli people are with us', parents of last dead hostage in Gaza tell BBC",
+    "url": "https://www.bbc.com/news/articles/c4gk7gz3d1eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The body of Ran Gvili, a 24-year-old Israeli police officer, is the last not yet returned by Hamas from Gaza.",
+    "source": "bbc.com",
+    "time": "2025-12-04T21:17:09+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Socomec DIRIS Digiware M series and Easy Config, PDF XChange Editor vulnerabilities",
+    "url": "https://blog.talosintelligence.com/socomec-diris-digiware-m-series-and-easy-config-pdf-xchange-editor-vulnerabilities/",
+    "snippet": "Cisco Talos\u2019 Vulnerability Discovery & Research team recently disclosed an out-of-bounds read vulnerability in PDF XChange Editor, and ten vulnerabilities in Socomec DIRIS Digiware M series and Easy C",
+    "source": "blog.talosintelligence.com",
+    "time": "2025-12-04T20:23:15+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Russia blocks FaceTime and Snapchat for alleged use by terrorists",
+    "url": "https://www.bleepingcomputer.com/news/security/russia-blocks-facetime-and-snapchat-over-use-in-terrorist-attacks/",
+    "snippet": "Russian telecommunications watchdog Roskomnadzor has blocked access to Apple's FaceTime video conferencing platform and the Snapchat instant messaging service, claiming they're being used to coordinat",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T19:12:18+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US authorities arrest suspect in 2021 Washington, DC, pipe bomb case",
+    "url": "https://www.aljazeera.com/news/2025/12/4/us-authorities-arrest-suspect-in-2021-capitol-hill-pipe-bombs?traffic_source=rss",
+    "snippet": "The arrest of a Virginia man potentially ends a five-year mystery that highlighted rise of political violence in the US.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T18:46:31+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "In Goma, skepticism and fear persist as Congo\u2013Rwanda peace deal is finalized in Washington",
+    "url": "http://www.euronews.com/2025/12/04/in-goma-skepticism-and-fear-persist-as-congorwanda-peace-edal-is-finalized-in-washington",
+    "snippet": "On the frontline, both sides accuse each other of violating the cease-fire. The Congolese army says rebels reignited hostilities, while AFC-M23 counters that government forces bombed their positions",
+    "source": "euronews.com",
+    "time": "2025-12-04T18:23:14+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CISA warns of Chinese \"BrickStorm\" malware attacks on VMware servers",
+    "url": "https://www.bleepingcomputer.com/news/security/cisa-warns-of-chinese-brickstorm-malware-attacks-on-vmware-servers/",
+    "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) warned network defenders of Chinese hackers backdooring VMware vSphere servers with Brickstorm malware. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T18:19:55+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Silver Fox Uses Fake Microsoft Teams Installer to Spread ValleyRAT Malware in China",
+    "url": "https://thehackernews.com/2025/12/silver-fox-uses-fake-microsoft-teams.html",
+    "snippet": "The threat actor known as Silver Fox has been spotted orchestrating a false flag operation to mimic a Russian threat group in attacks targeting organizations in China.\nThe search engine optimization (",
+    "source": "thehackernews.com",
+    "time": "2025-12-04T17:25:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Former Venezuelan spy chief says Maduro runs 'narco-terrorist organisation'",
+    "url": "http://www.euronews.com/2025/12/04/former-venezuelan-spy-chief-says-maduro-runs-narco-terrorist-organisation",
+    "snippet": "Hugo Carvajal, former Venezuelan intelligence chief, has accused Nicol\u00e1s Maduro's government of being a \"narco-terrorist organisation\" and offered to cooperate with US authorities.",
+    "source": "euronews.com",
+    "time": "2025-12-04T16:32:46+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Critical React, Next.js flaw lets hackers execute code on servers",
+    "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
+    "snippet": "A maximum severity vulnerability,\u00a0dubbed 'React2Shell',\u00a0in the React Server Components (RSC) 'Flight' protocol\u00a0allows remote code execution without authentication in React and Next.js applications. [.",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-04T15:11:54+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Ruined Rice Fields and Broken Rail Lines: Sri Lanka Counts Cost of Cyclone",
+    "url": "https://www.nytimes.com/2025/12/04/world/asia/sri-lanka-cyclone-flood-damage.html",
+    "snippet": "Officials estimate the damage runs into billions of dollars, a headache for the island nation just recovering from an economic crash.",
+    "source": "nytimes.com",
+    "time": "2025-12-04T15:06:49+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Construction sector shrinks at fastest pace since pandemic, survey suggests",
+    "url": "https://www.bbc.com/news/articles/cx257jx70g5o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Some analysts said the score was a mere fluctuation in the run-up to the Budget.",
+    "source": "bbc.com",
+    "time": "2025-12-04T13:26:39+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "HEALTH / SAFETY"
+  },
+  {
+    "title": "One hostage body left in Gaza, after remains of Thai worker identified",
+    "url": "https://www.washingtonpost.com/world/2025/10/14/hamas-gaza-israel-hostages-killed/",
+    "snippet": "Here\u2019s what to know about hostages and others whose bodies have been returned by Hamas to Israel, and those who remain in Gaza.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-04T12:25:38+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hamas took 251 hostages from Israel into Gaza. Where are they?",
+    "url": "https://www.washingtonpost.com/world/interactive/hamas-hostages-israel-war-gaza/",
+    "snippet": "We\u2019re tracking what happened to the hostages taken by Hamas on Oct. 7, 2023, from Israel.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-04T12:13:25+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "SolisCloud Monitoring Platform",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-06",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : SolisCloud Equipment : Monitoring Platform (Cloud API & Device Control API) Vulnerability : A",
+    "source": "cisa.gov",
+    "time": "2025-12-04T12:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Advantech iView",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-07",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Advantech Equipment : iView Vulnerability : SQL Injection 2. RISK EVALUATION Successful explo",
+    "source": "cisa.gov",
+    "time": "2025-12-04T12:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Sunbird DCIM dcTrack and Power IQ",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-05",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Exploitable remotely/low attack complexity Vendor : Sunbird Equipment : DCIM dcTrack, Power IQ Vulnerabilities : Authentication Bypass Using an A",
+    "source": "cisa.gov",
+    "time": "2025-12-04T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "MAXHUB Pivot",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : MAXHUB Equipment : MAXHUB Pivot Vulnerability : Weak Password Recovery Mechanism for Forgotte",
+    "source": "cisa.gov",
+    "time": "2025-12-04T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Mitsubishi Electric GX Works2",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.8 ATTENTION : Low attack complexity Vendor : Mitsubishi Electric Equipment : GX Works2 Vulnerability : Cleartext Storage of Sensitive Information 2. RISK EVALU",
+    "source": "cisa.gov",
+    "time": "2025-12-04T12:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Israel says Palestinian groups returned body of Thai hostage held in Gaza",
+    "url": "https://www.bbc.com/news/articles/cd6x2j4g3z7o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The remains of agricultural worker Suthisak Rintalak were recovered by Hamas and Palestinian Islamic Jihad in northern Gaza.",
+    "source": "bbc.com",
+    "time": "2025-12-04T11:02:24+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "GoldFactory Hits Southeast Asia with Modified Banking Apps Driving 11,000+ Infections",
+    "url": "https://thehackernews.com/2025/12/goldfactory-hits-southeast-asia-with.html",
+    "snippet": "Cybercriminals associated with a financially motivated group known as GoldFactory have been observed staging a fresh round of attacks targeting mobile users in Indonesia, Thailand, and Vietnam by impe",
+    "source": "thehackernews.com",
+    "time": "2025-12-04T09:27:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.8M, Depth:10km) in China 04/12/2025 07:44 UTC, 2 thousand (in MMI>=VII).",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1513212",
+    "snippet": "On 12/4/2025 7:44:06 AM, an earthquake occurred in China potentially affecting 2 thousand (in MMI>=VII). The earthquake had Magnitude 5.8M, Depth:10km.",
+    "source": "gdacs.org",
+    "time": "2025-12-04T08:00:51+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Record 29.7 Tbps DDoS Attack Linked to AISURU Botnet with up to 4 Million Infected Hosts",
+    "url": "https://thehackernews.com/2025/12/record-297-tbps-ddos-attack-linked-to.html",
+    "snippet": "Cloudflare on Wednesday said it detected and mitigated the largest ever distributed denial-of-service (DDoS) attack that measured at 29.7 terabits per second (Tbps).\nThe activity, the web infrastructu",
+    "source": "thehackernews.com",
+    "time": "2025-12-04T06:52:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Russia bans Roblox over concerns about safety and extremist content",
+    "url": "https://www.bbc.com/news/articles/cn41q11gy58o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Its media agency flagged content linked to terrorism and LGBT issues, which are deemed extremist.",
+    "source": "bbc.com",
+    "time": "2025-12-04T03:36:04+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.5M, Depth:10km) in Pacific-Antarctic Ridge 04/12/2025 03:12 UTC, [unknown].",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1513180",
+    "snippet": "On 12/4/2025 3:12:08 AM, an earthquake occurred in Pacific-Antarctic Ridge potentially affecting [unknown]. The earthquake had Magnitude 5.5M, Depth:10km.",
+    "source": "gdacs.org",
+    "time": "2025-12-04T03:31:42+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Washington 2 December 2025 #1",
+    "url": "https://www.crisisgroup.org/content/washington-2-december-2025-1",
+    "snippet": "Washington 2 December 2025 #1 gnada Thu, 12/04/2025 - 02:54 Washington Thu, 12/04/2025 - 12:00 2 December 2025 Secretary of State Marco Rubio said that the U.S. strikes on Iranian nuclear facilities i",
+    "source": "crisisgroup.org",
+    "time": "2025-12-04T01:54:22+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Five killed in Israeli air strikes on tents near Khan Younis, medics say",
+    "url": "https://www.bbc.com/news/articles/cnv21m0zpjmo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Rescue workers say they recovered bodies from a camp for displaced people. The IDF says it \"struck a Hamas terrorist\".",
+    "source": "bbc.com",
+    "time": "2025-12-03T22:09:36+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Marquis data breach impacts over 74 US banks, credit unions",
+    "url": "https://www.bleepingcomputer.com/news/security/marquis-data-breach-impacts-over-74-us-banks-credit-unions/",
+    "snippet": "Financial software provider Marquis Software Solutions is warning that it suffered a data breach that impacted dozens of banks and credit unions across the US. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T22:06:07+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Critical flaw in WordPress add-on for Elementor exploited in attacks",
+    "url": "https://www.bleepingcomputer.com/news/security/critical-flaw-in-wordpress-add-on-for-elementor-exploited-in-attacks/",
+    "snippet": "Attackers are exploiting a critical-severity privilege escalation vulnerability (CVE-2025-8489) in the King Addons for Elementor plugin for WordPress, which lets them obtain\u00a0administrative permissions",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T21:31:20+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "French DIY retail giant Leroy Merlin discloses a data breach",
+    "url": "https://www.bleepingcomputer.com/news/security/french-diy-retail-giant-leroy-merlin-discloses-a-data-breach/",
+    "snippet": "Leroy Merlin is sending security breach notifications to customers in France, informing them that their personal data was compromised. [...]",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T20:52:36+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Freedom Mobile discloses data breach exposing customer data",
+    "url": "https://www.bleepingcomputer.com/news/security/freedom-mobile-discloses-data-breach-exposing-customer-data/",
+    "snippet": "Freedom Mobile, the fourth-largest wireless carrier in Canada, has disclosed a data breach after attackers hacked into\u00a0its customer account management platform and stole the personal information of an",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-03T20:28:01+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Critical RSC Bugs in React and Next.js Allow Unauthenticated Remote Code Execution",
+    "url": "https://thehackernews.com/2025/12/critical-rsc-bugs-in-react-and-nextjs.html",
+    "snippet": "A maximum-severity security flaw has been disclosed in React Server Components (RSC) that, if successfully exploited, could result in remote code execution.\nThe vulnerability, tracked as CVE-2025-5518",
+    "source": "thehackernews.com",
+    "time": "2025-12-03T18:19:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft Silently Patches Windows LNK Flaw After Years of Active Exploitation",
+    "url": "https://thehackernews.com/2025/12/microsoft-silently-patches-windows-lnk.html",
+    "snippet": "Microsoft has silently plugged a security flaw that has been exploited by several threat actors since 2017 as part of the company's November 2025 Patch Tuesday updates, according to ACROS Security's 0",
+    "source": "thehackernews.com",
+    "time": "2025-12-03T17:46:36+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "WordPress King Addons Flaw Under Active Attack Lets Hackers Make Admin Accounts",
+    "url": "https://thehackernews.com/2025/12/wordpress-king-addons-flaw-under-active.html",
+    "snippet": "A critical security flaw impacting a WordPress plugin known as King Addons for Elementor has come under active exploitation in the wild.\nThe vulnerability, CVE-2025-8489 (CVSS score: 9.8), is a case o",
+    "source": "thehackernews.com",
+    "time": "2025-12-03T17:08:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-adds-one-known-exploited-vulnerability-catalog",
+    "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2021-26828 OpenPLC ScadaBR Unrestricted Upload of File with Da",
+    "source": "cisa.gov",
+    "time": "2025-12-03T12:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "CISA, Australia, and Partners Author Joint Guidance on Securely Integrating Artificial Intelligence in Operational Technology",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-australia-and-partners-author-joint-guidance-securely-integrating-artificial-intelligence",
+    "snippet": "CISA and the\u00a0Australian Signals Directorate\u2019s Australian Cyber Security Centre, in collaboration with federal and international partners, have released new cybersecurity guidance: Principles for the S",
+    "source": "cisa.gov",
+    "time": "2025-12-03T12:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Malicious Rust Crate Delivers OS-Specific Malware to Web3 Developer Systems",
+    "url": "https://thehackernews.com/2025/12/malicious-rust-crate-delivers-os.html",
+    "snippet": "Cybersecurity researchers have discovered a malicious Rust package that's capable of targeting Windows, macOS, and Linux systems, and features malicious functionality to stealthily execute on develope",
+    "source": "thehackernews.com",
+    "time": "2025-12-03T08:39:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.6M, Depth:613.568km) in Fiji 02/12/2025 23:35 UTC, Few people affected in 100km.",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1513012",
+    "snippet": "On 12/2/2025 11:35:28 PM, an earthquake occurred in Fiji potentially affecting Few people affected in 100km. The earthquake had Magnitude 5.6M, Depth:613.568km.",
+    "source": "gdacs.org",
+    "time": "2025-12-02T23:54:12+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Tehran 1 December 2025 #1",
+    "url": "https://www.crisisgroup.org/content/tehran-1-december-2025-1",
+    "snippet": "Tehran 1 December 2025 #1 gnada Wed, 12/03/2025 - 00:20 Tehran Wed, 12/03/2025 - 12:00 1 December 2025 Foreign Minister Abbas Araghchi reiterated that \u201cif the American side shows its readiness for a f",
+    "source": "crisisgroup.org",
+    "time": "2025-12-02T23:20:06+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Severe storms swamp Southeast Asia supply chains, with Colombo hardest hit",
+    "url": "https://joc.com/article/severe-storms-swamp-southeast-asia-supply-chains-with-colombo-hardest-hit-6127049",
+    "snippet": "Ocean carriers and terminal stakeholders at Sri Lanka\u2019s Colombo Port are dealing with operational chaos that resulted from a three-day shutdown caused by Cyclone Ditwah, said to be the strongest storm",
+    "source": "joc.com",
+    "time": "2025-12-02T17:02:15+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Researchers Capture Lazarus APT's Remote-Worker Scheme Live on Camera",
+    "url": "https://thehackernews.com/2025/12/researchers-capture-lazarus-apts-remote.html",
+    "snippet": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intellige",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T15:02:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Industrial Video & Control Longwatch",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Iskra iHUB and iHUB Lite",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Mirion Medical EC2 Software NMIS BioDose",
+    "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-336-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission A",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "CISA Releases Five Industrial Control Systems Advisories",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-releases-five-industrial-control-systems-advisories",
+    "snippet": "CISA released five Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-336-01",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "CISA Adds Two Known Exploited Vulnerabilities to Catalog",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-adds-two-known-exploited-vulnerabilities-catalog",
+    "snippet": "CISA has added two new vulnerabilities to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-48572 Android Framework Privilege Escalation Vulnerabil",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "SecAlerts Cuts Through the Noise with a Smarter, Faster Way to Track Vulnerabilities",
+    "url": "https://thehackernews.com/2025/12/secalerts-cuts-through-noise-with.html",
+    "snippet": "Vulnerability management is a core component of every cybersecurity strategy. However, businesses often use thousands of software without realising it (when was the last time you checked?), and keepin",
+    "source": "thehackernews.com",
+    "time": "2025-12-02T11:30:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Dell ControlVault, Lasso, GL.iNet vulnerabilities",
+    "url": "https://blog.talosintelligence.com/dell-controlvault-lasso-gl-inet-vulnerabilities/",
+    "snippet": "Cisco Talos\u2019 Vulnerability Discovery & Research team recently disclosed five vulnerabilities in Dell ControlVault 3 firmware and its associated Windows software, four vulnerabilities in Entr'ouvert La",
+    "source": "blog.talosintelligence.com",
+    "time": "2025-11-26T18:36:06+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-01",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Low attack complexity Vendor : Ashlar-Vellum Equipment : Cobalt, Xenon, Argon, Lithium, Cobalt Share Vulnerabilities : Out-of-Bounds Write, Heap-",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Zenitel TCIV-3+",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-03",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 10.0 ATTENTION: Exploitable remotely/low attack complexity Vendor: Zenitel Equipment: TCIV-3+ Vulnerabilities: OS Command Injection, Out-of-bounds Write, Cross-s",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Unleashing the Kraken ransomware group",
+    "url": "https://blog.talosintelligence.com/kraken-ransomware-group/",
+    "snippet": "In August 2025, Cisco Talos observed big-game hunting and double extortion attacks carried out by Kraken, a Russian-speaking group that has emerged from the remnants of the HelloKitty ransomware carte",
+    "source": "blog.talosintelligence.com",
+    "time": "2025-11-13T11:00:38+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Remember, remember the fifth of November",
+    "url": "https://blog.talosintelligence.com/remember-remember-the-fifth-of-november/",
+    "snippet": "This edition, Hazel explores the origins of Guy Fawkes Day and how heeding an anonymous warning prevented an assassination.",
+    "source": "blog.talosintelligence.com",
+    "time": "2025-11-06T19:00:14+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "TruffleHog, Fade In and BSAFE Crypto-C vulnerabilities",
+    "url": "https://blog.talosintelligence.com/trufflehog-fade-in-and-bsafe-crypto-c-vulnerabilities/",
+    "snippet": "Cisco Talos\u2019 Vulnerability Discovery & Research team recently disclosed three vulnerabilities in Dell BSAFE, two in Fade In screenwriting software, and one in Trufflehog. The vulnerabilities mentioned",
+    "source": "blog.talosintelligence.com",
+    "time": "2025-11-04T14:26:03+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Dynamic binary instrumentation (DBI) with DynamoRio",
+    "url": "https://blog.talosintelligence.com/dynamic-binary-instrumentation-dbi-with-dynamorio/",
+    "snippet": "Learn how to build your own dynamic binary instrumentation (DBI) tool with open-source DynamoRIO to enable malware analysis, security auditing, reverse engineering, and more.",
+    "source": "blog.talosintelligence.com",
+    "time": "2025-10-30T09:59:32+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Why XSS still matters: MSRC\u2019s perspective on a 25-year-old threat",
+    "url": "https://msrc.microsoft.com/blog/2025/09/why-xss-still-matters-msrcs-perspective-on-a-25-year-old-threat/",
+    "snippet": "Cross-Site Scripting (XSS) has been a known vulnerability class for two decades, yet it continues to surface in modern applications, including those built with the latest frameworks and cloud-native a",
+    "source": "msrc.microsoft.com",
+    "time": "2025-09-04T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Zero Day Quest: Join the largest hacking event with up to $5 million in total bounty awards",
+    "url": "https://msrc.microsoft.com/blog/2025/08/zero-day-quest-join-the-largest-hacking-event-with-up-to-5-million-in-total-bounty-awards/",
+    "snippet": "Last year, we announced the largest hacking event in history: Zero Day Quest, with up to $4 million in bounty awards. The response from the global security community was incredible and helped improve ",
+    "source": "msrc.microsoft.com",
+    "time": "2025-08-04T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Customer guidance for SharePoint vulnerability CVE-2025-53770",
+    "url": "https://msrc.microsoft.com/blog/2025/07/customer-guidance-for-sharepoint-vulnerability-cve-2025-53770/",
+    "snippet": "Revision Change Date 1.0 Information published 07/19/25 2.0 Clarified affected SharePoint product in summary 07/20/25 Added fix availability guidance Provided additional protections guidance regarding",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-19T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Congratulations to the MSRC 2025 Most Valuable Security Researchers!",
+    "url": "https://msrc.microsoft.com/blog/2025/07/congratulations-to-the-msrc-2025-most-valuable-security-researchers/",
+    "snippet": "The Microsoft Researcher Recognition Program offers public thanks and recognition to security researchers who help protect our customers through discovering and sharing security vulnerabilities under ",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-15T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Zero Day Quest 2025: $1.6 million awarded for vulnerability research",
+    "url": "https://msrc.microsoft.com/blog/2025/04/zero-day-quest-2025-1-6-million-awarded-for-vulnerability-research/",
+    "snippet": "This month, the Microsoft Security Response Center recently welcomed some of the world\u2019s most talented security researchers at Microsoft\u2019s Zero Day Quest, the largest live hacking competition of its k",
+    "source": "msrc.microsoft.com",
+    "time": "2025-04-21T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  }
+]
