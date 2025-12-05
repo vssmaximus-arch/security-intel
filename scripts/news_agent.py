@@ -1,15 +1,14 @@
 import json
 import os
-import time
 from datetime import datetime, timezone
 from urllib.parse import urlparse
+
 import feedparser
 from bs4 import BeautifulSoup
-import re
 
 try:
     import google.generativeai as genai
-except Exception:
+except Exception:  # optional dependency
     genai = None
 
 # ---------- PATHS ----------
@@ -21,8 +20,90 @@ NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 # ---------- CONFIGURATION ----------
 GEMINI_MODEL = "gemini-1.5-flash"
 
-# ---------- 1. FULL 113+ FEED LIST ----------
+# ---------- STRICT SRO KEYWORD FILTERS ----------
+# These map directly to your frontend "type" filters.
+SRO_FILTERS = {
+    "CYBER SECURITY": [
+        "ransomware", "data breach", "data leak",
+        "cyberattack", "cyber attack", "cyber-attack",
+        "scada", "industrial control",
+        "zero-day", "zeroday", "zero day",
+        "vulnerability",
+        "ddos", "denial of service",
+        "malware",
+        "system failure", "outage", "service disruption"
+    ],
+    "SUPPLY CHAIN": [
+        "port strike", "ports strike", "dockworkers strike",
+        "cargo theft",
+        "supply chain disruption", "supply-chain disruption",
+        "shipping delay", "shipping disruption",
+        "customs halt", "customs strike",
+        "manufacturing stop", "factory fire",
+        "production halt",
+        "labour dispute", "labor dispute",
+        "truckers strike",
+        "rail strike", "rail shutdown",
+        "airport closed", "airport closure",
+        "airspace closed", "airspace restriction"
+    ],
+    "CRISIS / WEATHER": [
+        "earthquake", "aftershock", "tsunami",
+        "typhoon", "cyclone", "hurricane", "tropical storm",
+        "tornado",
+        "flash flood", "flooding",
+        "wildfire", "bushfire", "forest fire",
+        "power outage", "blackout", "grid failure",
+        "state of emergency",
+        "evacuation order", "evacuate"
+    ],
+    "PHYSICAL SECURITY": [
+        "active shooter", "mass shooting",
+        "terror", "terrorist",
+        "bomb", "bombing", "explosion",
+        "shooting", "gunman",
+        "kidnap", "kidnapping",
+        "hostage",
+        "assassination",
+        "civil unrest", "violent protest",
+        "protesters clash", "clashes with police",
+        "riot", "tear gas",
+        "curfew",
+        "martial law",
+        "coup",
+        "armed group"
+    ],
+    "HEALTH / SAFETY": [
+        "epidemic", "pandemic", "outbreak",
+        "infectious disease",
+        "quarantine",
+        "travel ban",
+        "radiation",
+        "chemical spill", "toxic leak"
+    ],
+}
+
+# ---------- NOISE BLOCKLIST ----------
+BLOCKLIST = [
+    # Sports / entertainment
+    "sport", "football", "soccer", "cricket", "rugby", "tennis", "golf",
+    "league", "cup", "tournament", "olympics", "world cup", "championship",
+    "celebrity", "entertainment", "movie", "film", "star", "concert",
+    "music festival", "grammy", "oscars",
+    # Soft / aftermath
+    "residents return", "collect personal items", "cleanup begins",
+    "recovery continues", "aftermath of",
+    # Junk
+    "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
+    "opinion:", "editorial:", "review:",
+    "cultivation", "poppy", "drug trade", "opium",
+    "estate dispute",
+    "MH370",
+]
+
+# ---------- FEEDS (consolidated ~100+ trusted feeds) ----------
 FEEDS = [
+    # Global / business majors
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
     "https://feeds.reuters.com/reuters/marketsNews",
@@ -45,9 +126,16 @@ FEEDS = [
     "https://www.dw.com/en/top-stories/business/s-1431/rss",
     "https://www.scmp.com/rss/91/feed",
     "https://asia.nikkei.com/rss/feed/nar",
+    "https://www.france24.com/en/rss",
+    "https://www.euronews.com/rss?level=world",
+
+    # Risk / crisis / humanitarian
     "https://www.crisisgroup.org/rss.xml",
     "https://reliefweb.int/updates/rss.xml",
     "https://www.globalsecurity.org/military/world/rss.xml",
+    "https://www.ifrc.org/feeds/all.xml",
+
+    # Supply chain / logistics
     "https://www.freightwaves.com/feed",
     "https://www.joc.com/rss.xml",
     "https://www.supplychaindive.com/feeds/news/",
@@ -60,6 +148,10 @@ FEEDS = [
     "https://www.maritimebulletin.net/feed/",
     "https://www.portoflosangeles.org/rss/news",
     "https://www.portofantwerpbruges.com/en/news/rss",
+    "https://www.mpa.gov.sg/web/rss/rss.xml",
+    "https://www.supplychainbrain.com/rss/logistics-and-transportation",
+
+    # Weather / hazards / earthquakes
     "https://alerts.weather.gov/cap/us.php?x=0",
     "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
     "https://www.jma.go.jp/bosai/feed/rss/warn.xml",
@@ -69,8 +161,13 @@ FEEDS = [
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
     "https://www.gdacs.org/xml/rss.xml",
+    "http://www.bom.gov.au/rss/",
+
+    # Travel & advisories
     "https://travel.state.gov/_res/rss/TAs.xml",
     "https://www.gov.uk/foreign-travel-advice.rss",
+
+    # Cybersecurity (major incident sources)
     "https://www.cisa.gov/cybersecurity-advisories/all.xml",
     "https://www.cisa.gov/cybersecurity-advisories/all.atom",
     "https://www.darkreading.com/rss_simple.asp",
@@ -83,199 +180,241 @@ FEEDS = [
     "https://msrc.microsoft.com/blog/feed",
     "https://www.mandiant.com/resources/rss.xml",
     "https://www.okta.com/blog/index.xml",
+    "https://blog.talosintelligence.com/feed/",
+
+    # Global weather / emergency misc
     "https://www.wmo.int/rss",
     "https://www.weather.gov/rss_page.php",
     "https://www.emergencyemail.org/rss.aspx",
-    "https://www.ifrc.org/feeds/all.xml",
+
+    # Regional / additional
     "https://english.alarabiya.net/.mrss/en.xml",
     "https://www.africanews.com/feed/xml",
     "https://www.latinnews.com/index.php?format=feed&type=rss",
-    "https://www.channelnewsasia.com/api/v1/rss-outbound-feed"
-]
-
-# ---------- 2. BLOCKLIST (Pre-Filter Noise) ----------
-# Used to kill obvious junk before paying for AI processing
-BLOCKLIST = [
-    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament",
-    "celebrity", "entertainment", "movie", "film", "star", "concert",
-    "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
-    "opinion:", "editorial:", "review:", "cultivation", "poppy", "drug trade", "opium", "estate dispute",
-    "husband", "wife", "marriage", "divorce", "dating", "best of", "top 10", "mh370", "search for missing"
+    "https://www.channelnewsasia.com/api/v1/rss-outbound-feed",
+    "https://www.straitstimes.com/news/asia/rss.xml",
 ]
 
 def init_gemini():
     api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key or genai is None: return None
+    if not api_key or genai is None:
+        return None
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(GEMINI_MODEL)
 
-def clean_html(html):
-    if not html: return ""
+def clean_html(html: str) -> str:
+    if not html:
+        return ""
     return BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
 
-def is_obviously_irrelevant(text):
-    """Fast filter to drop obvious noise before calling AI."""
-    text = text.lower()
+def get_sro_category(text: str):
+    """
+    Fast keyword-based pre-classification.
+    Returns one of the SRO categories or None.
+    """
+    t = text.lower()
     for word in BLOCKLIST:
-        if word in text: return True
-    return False
+        if word in t:
+            return None
+    for category, keywords in SRO_FILTERS.items():
+        for kw in keywords:
+            if kw in t:
+                return category
+    return None
 
-def map_region(ai_geo_data, text_fallback):
-    """Maps AI Geo output or fallback text to Dashboard Regions."""
-    # Check if AI gave specific countries
-    text_to_check = ""
-    if isinstance(ai_geo_data, dict):
-        text_to_check = " ".join(ai_geo_data.get("mentioned_countries_or_cities", []))
-    
-    if not text_to_check:
-        text_to_check = text_fallback
+def infer_region(text: str) -> str:
+    """
+    Very simple region inference for dashboard filtering.
+    Returns one of: Global, AMER, EMEA, APJC, LATAM
+    """
+    t = text.lower()
 
-    t = text_to_check.lower()
-    
-    if any(x in t for x in ["china", "asia", "india", "japan", "australia", "thailand", "vietnam", "indonesia", "malaysia", "singapore", "korea", "taiwan", "philippines"]): return "APJC"
-    if any(x in t for x in ["uk", "europe", "germany", "france", "poland", "ireland", "israel", "gaza", "russia", "ukraine", "middle east", "africa", "netherlands", "sweden", "spain", "italy"]): return "EMEA"
-    if any(x in t for x in ["usa", "america", "canada", "brazil", "mexico", "colombia", "argentina", "chile", "peru", "panama"]): return "AMER"
-    
+    # APJC
+    if any(x in t for x in [
+        "china", "beijing", "shanghai",
+        "india", "delhi", "mumbai", "bangalore",
+        "japan", "tokyo", "osaka",
+        "australia", "sydney", "melbourne",
+        "thailand", "vietnam", "indonesia",
+        "malaysia", "singapore",
+        "korea", "south korea", "north korea",
+        "taiwan", "philippines",
+        "new zealand",
+        "bangladesh", "pakistan",
+        "sri lanka", "myanmar",
+        "cambodia", "laos",
+        "nepal", "fiji"
+    ]):
+        return "APJC"
+
+    # LATAM (subset of AMER, but separate tab)
+    if any(x in t for x in [
+        "brazil", "mexico", "colombia", "argentina",
+        "chile", "peru", "panama", "ecuador",
+        "uruguay", "paraguay", "venezuela", "bolivia",
+        "central america", "latin america"
+    ]):
+        return "LATAM"
+
+    # AMER (North America)
+    if any(x in t for x in [
+        "united states", "u.s.", "usa",
+        "america",
+        "canada", "toronto", "vancouver", "montreal",
+        "texas", "california", "new york"
+    ]):
+        return "AMER"
+
+    # EMEA
+    if any(x in t for x in [
+        "uk", "united kingdom", "britain", "england",
+        "europe", "european union", "eu",
+        "germany", "france", "poland", "ireland",
+        "israel", "gaza",
+        "russia", "ukraine",
+        "middle east", "africa",
+        "netherlands", "sweden", "spain", "italy",
+        "saudi arabia", "uae", "dubai",
+        "egypt", "south africa", "nigeria", "kenya"
+    ]):
+        return "EMEA"
+
     return "Global"
 
-def ai_analyze_article(model, title, body, source):
+def ai_process(model, title: str, summary: str, category: str):
     """
-    Uses the strict Security News Classifier persona.
+    Optional Gemini pass to decide keep/drop and refine severity/snippet.
+    If model is None, returns sensible defaults for a kept item.
     """
     if not model:
-        # Fallback if no AI key
-        return None
+        snippet = (summary or title)[:200]
+        return True, 2, snippet, category
 
     prompt = f"""
-    ROLE & GOAL
-    You are a security news classifier for a global technology company (Dell Technologies).
-    Your job:
-    1. Decide if a news article is relevant to:
-       - Physical security (sites, people, events)
-       - Supply chain / logistics security
-       - Major cyber incidents that could affect operations, partners or core IT providers
-    2. Assign it to the correct category.
-    3. Assess severity and how likely it is to matter for corporate security.
-    4. Return a structured JSON object.
+Role: Security Analyst for Dell SRO.
+Task: Filter this news item for OPERATIONAL IMPACT only.
 
-    CATEGORIES:
-    1) PHYSICAL_SECURITY: Protests, riots, terror, war, natural disasters, major crime.
-    2) SUPPLY_CHAIN_SECURITY: Port closures, shipping attacks, rail/truck strikes, airport closures, export bans.
-    3) CYBER_SECURITY_MAJOR: Global outages, ransomware on critical infra, big data breaches.
-    4) NOT_RELEVANT: Politics, sports, opinion, minor incidents.
+INPUT:
+Title: "{title}"
+Summary: "{summary}"
+Preliminary Category: {category}
 
-    INPUT ARTICLE:
-    - Title: {title}
-    - Body: {body[:500]}...
-    - Source: {source}
+Rules:
+1. REJECT (keep=false): Pure politics, generic crime, sports, celebrity, soft business, or post-event clean-up with no ongoing operational risk.
+2. KEEP (keep=true): Anything that poses an active or imminent threat to staff safety, Dell facilities, logistics/supply chain, or major IT/cyber operations.
+3. Severity scale:
+   - 3 = Life safety or major operational impact (e.g. war, major terror, port closure, big cyber outage).
+   - 2 = Significant disruption / credible risk (e.g. large protest, regional weather, notable cyber incident).
+   - 1 = Awareness / monitoring only.
 
-    OUTPUT FORMAT (JSON ONLY):
-    {{
-      "category": "PHYSICAL_SECURITY | SUPPLY_CHAIN_SECURITY | CYBER_SECURITY_MAJOR | NOT_RELEVANT",
-      "likelihood_relevant": integer 0-100,
-      "severity": "LOW | MEDIUM | HIGH | CRITICAL",
-      "primary_reason": "short explanation",
-      "geo_relevance": {{
-        "mentioned_countries_or_cities": ["list", "of", "locations"]
-      }}
-    }}
-    """
-    
+Return ONLY JSON in this schema:
+{{
+  "keep": true or false,
+  "severity": 1 to 3,
+  "one_liner": "Impact-focused summary in one short sentence.",
+  "category": "{category}"
+}}
+"""
     try:
         resp = model.generate_content(prompt)
-        # Clean up potential markdown formatting
-        clean_json = resp.text.strip().replace('```json', '').replace('```', '')
-        return json.loads(clean_json)
-    except Exception as e:
-        print(f"AI Processing Error: {e}")
-        return None
+        text = resp.text or ""
+        clean = text.strip().replace("```json", "").replace("```", "")
+        data = json.loads(clean)
+
+        keep = bool(data.get("keep", False))
+        severity = int(data.get("severity", 2))
+        one_liner = data.get("one_liner") or summary or title
+        final_cat = data.get("category") or category
+
+        if severity < 1 or severity > 3:
+            severity = 2
+
+        return keep, severity, one_liner[:300], final_cat
+    except Exception as exc:
+        print(f"[AI ERROR] {exc}")
+        snippet = (summary or title)[:200]
+        return True, 2, snippet, category
 
 def main():
-    print(f"Starting SRO Intel Ingest on {len(FEEDS)} feeds...")
+    print(f"[news_agent] Starting ingest from {len(FEEDS)} feeds")
     all_items = []
-    seen = set()
+    seen_titles = set()
     model = init_gemini()
 
-    # Limit per feed to keep runtime reasonable, but scan everything
-    CHECK_LIMIT = 3
+    PER_FEED_LIMIT = 20  # adjust if you want more/less per feed
 
     for url in FEEDS:
         try:
-            f = feedparser.parse(url)
-            
-            for e in f.entries[:CHECK_LIMIT]:
-                title = e.title.strip()
-                if title in seen: continue
-                seen.add(title)
-                
-                raw_summary = clean_html(getattr(e, "summary", ""))
+            parsed = feedparser.parse(url)
+            print(f"[news_agent] Scanning: {url} ({len(parsed.entries)} entries)")
+        except Exception as exc:
+            print(f"[news_agent] Feed error for {url}: {exc}")
+            continue
+
+        for entry in parsed.entries[:PER_FEED_LIMIT]:
+            try:
+                title = (getattr(entry, "title", "") or "").strip()
+                if not title:
+                    continue
+
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
+
+                raw_summary = clean_html(getattr(entry, "summary", "")) or ""
                 full_text = f"{title} {raw_summary}"
-                
-                # 1. Fast Blocklist (Save AI tokens)
-                if is_obviously_irrelevant(full_text):
+
+                # 1) Strict keyword pre-filter
+                category = get_sro_category(full_text)
+                if not category:
                     continue
 
-                # 2. AI Analysis
-                analysis = ai_analyze_article(model, title, raw_summary, urlparse(url).netloc)
-                
-                if not analysis: continue
-                
-                # 3. Filtering Decision
-                cat = analysis.get("category", "NOT_RELEVANT")
-                score = analysis.get("likelihood_relevant", 0)
-                
-                # STRICT THRESHOLD: Must be relevant AND > 40% likelihood
-                if cat == "NOT_RELEVANT" or score < 40:
+                # 2) Optional AI refinement
+                keep, severity, snippet, final_cat = ai_process(
+                    model, title, raw_summary, category
+                )
+                if not keep:
                     continue
 
-                # 4. Map AI Output to Dashboard Schema
-                
-                # Severity
-                sev_str = analysis.get("severity", "LOW")
-                severity = 1
-                if sev_str == "MEDIUM": severity = 2
-                if sev_str in ["HIGH", "CRITICAL"]: severity = 3
-
-                # Category Mapping
-                dash_type = "GENERAL"
-                if cat == "PHYSICAL_SECURITY": dash_type = "PHYSICAL SECURITY"
-                if cat == "SUPPLY_CHAIN_SECURITY": dash_type = "SUPPLY CHAIN"
-                if cat == "CYBER_SECURITY_MAJOR": dash_type = "CYBER SECURITY"
-                
-                # Region Mapping
-                geo_data = analysis.get("geo_relevance", {})
-                region = map_region(geo_data, full_text)
-
-                # Timestamp
+                # 3) Timestamp (prefer feed publish time)
                 ts = datetime.now(timezone.utc).isoformat()
-                if hasattr(e, "published_parsed") and e.published_parsed:
-                    ts = datetime(*e.published_parsed[:6]).isoformat()
+                if hasattr(entry, "published_parsed") and entry.published_parsed:
+                    try:
+                        ts = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc).isoformat()
+                    except Exception:
+                        pass
 
+                # 4) Region inference
+                region = infer_region(full_text)
+
+                # 5) Build item for dashboard
                 item = {
                     "title": title,
-                    "url": e.link,
-                    "snippet": analysis.get("primary_reason", raw_summary[:150]), # Use AI summary
-                    "source": urlparse(e.link).netloc.replace("www.", ""),
+                    "url": getattr(entry, "link", ""),
+                    "snippet": snippet,
+                    "source": urlparse(getattr(entry, "link", "")).netloc.replace("www.", ""),
                     "time": ts,
-                    "region": region,
-                    "severity": severity,
-                    "type": dash_type
+                    "region": region,                # Global / AMER / EMEA / APJC / LATAM
+                    "severity": int(severity),      # 1–3
+                    "type": final_cat               # matches frontend filters
                 }
-                
                 all_items.append(item)
-                print(f"[+] KEPT: {title} ({dash_type})")
+                print(f"[news_agent] [+] {final_cat} | {region} | {title}")
 
-        except Exception as x:
-            print(f"Feed Error {url}: {x}")
+            except Exception as exc:
+                print(f"[news_agent] Entry error in {url}: {exc}")
+                continue
 
-    # Sort by time
+    # Sort newest first
     all_items.sort(key=lambda x: x["time"], reverse=True)
-    
-    # Save
-    with open(NEWS_PATH, "w", encoding="utf-8") as f:
-        json.dump(all_items, f, indent=2)
-    
-    print(f"Ingest Complete. Saved {len(all_items)} SRO-relevant articles.")
+
+    # Save to JSON for frontend
+    try:
+        with open(NEWS_PATH, "w", encoding="utf-8") as fh:
+            json.dump(all_items, fh, indent=2)
+        print(f"[news_agent] Ingest complete – saved {len(all_items)} items to {NEWS_PATH}")
+    except Exception as exc:
+        print(f"[news_agent] Failed to write {NEWS_PATH}: {exc}")
 
 if __name__ == "__main__":
     main()
