@@ -1,5 +1,16 @@
 [
   {
+    "title": "India’s wedding parties a major casualty of IndiGo’s flight chaos",
+    "url": "https://www.straitstimes.com/asia/south-asia/indias-wedding-parties-a-major-casualty-of-indigos-flight-chaos",
+    "snippet": "One couple was forced to attend their own wedding reception virtually....",
+    "source": "straitstimes.com",
+    "time": "2025-12-05T14:45:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "7e207843b7040864f7b2ec702619fc62cb8159bb"
+  },
+  {
     "title": "Cloudflare blames today's outage on emergency React2Shell patch",
     "url": "https://www.bleepingcomputer.com/news/security/cloudflare-blames-todays-outage-on-emergency-react2shell-patch/",
     "snippet": "Cloudflare has blamed today's outage on the emergency patching of a critical React remote code execution vulnerability, which is now actively exploited in attacks. [...]...",
@@ -42,6 +53,17 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "e87ea060843757f990822816d2cf3fd042e262c3"
+  },
+  {
+    "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/05/cisa-adds-one-known-exploited-vulnerability-catalog",
+    "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-55182 Meta React Server Components Remote Code Execution ...",
+    "source": "cisa.gov",
+    "time": "2025-12-05T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "3e4b912243e9ac754f0aacd234c274415e4b0973"
   },
   {
     "title": "Critical React2Shell flaw actively exploited in China-linked attacks",
@@ -264,17 +286,6 @@
     "_key": "419c3f7025865a47e4ad2c56fc79949a261cd95c"
   },
   {
-    "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
-    "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-adds-one-known-exploited-vulnerability-catalog",
-    "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2021-26828 OpenPLC ScadaBR Unrestricted Upload of File with Da...",
-    "source": "cisa.gov",
-    "time": "2025-12-03T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "3e4b912243e9ac754f0aacd234c274415e4b0973"
-  },
-  {
     "title": "CISA, Australia, and Partners Author Joint Guidance on Securely Integrating Artificial Intelligence in Operational Technology",
     "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-australia-and-partners-author-joint-guidance-securely-integrating-artificial-intelligence",
     "snippet": "CISA and the Australian Signals Directorate’s Australian Cyber Security Centre, in collaboration with federal and international partners, have released new cybersecurity guidance: Principles for the S...",
@@ -308,6 +319,17 @@
     "_key": "4e0c352e93e312ae529c02fe02bb42c263c8eded"
   },
   {
+    "title": "CISA Releases Five Industrial Control Systems Advisories",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-releases-five-industrial-control-systems-advisories",
+    "snippet": "CISA released five Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-336-01...",
+    "source": "cisa.gov",
+    "time": "2025-12-02T12:00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "e76594cfb211badf82bf9a4c1dd0a33f9680ae27"
+  },
+  {
     "title": "Industrial Video & Control Longwatch",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI...",
@@ -317,17 +339,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "439adf64883c5d2cca87ed0a503802e7bffd1312"
-  },
-  {
-    "title": "Iskra iHUB and iHUB Lite",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func...",
-    "source": "cisa.gov",
-    "time": "2025-12-02T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "58193c7e92fafc47619f62d260d7a82ba127be7b"
   },
   {
     "title": "Mirion Medical EC2 Software NMIS BioDose",
@@ -341,15 +352,15 @@
     "_key": "20df1d9e2b4d1934df239b756d875ad3cf69fb5c"
   },
   {
-    "title": "CISA Releases Five Industrial Control Systems Advisories",
-    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-releases-five-industrial-control-systems-advisories",
-    "snippet": "CISA released five Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-336-01...",
+    "title": "Iskra iHUB and iHUB Lite",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func...",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY",
-    "_key": "e76594cfb211badf82bf9a4c1dd0a33f9680ae27"
+    "_key": "58193c7e92fafc47619f62d260d7a82ba127be7b"
   },
   {
     "title": "CISA Adds Two Known Exploited Vulnerabilities to Catalog",
@@ -449,17 +460,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "12577aa3ff2dce0bf00e7b0becd53b63c9e90aa5"
-  },
-  {
-    "title": "ICAM365 CCTV Camera Multiple Models",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-324-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 7.0 ATTENTION : Low attack complexity Vendor : iCam365 Equipment : P201 and QC021 Vulnerabilities : Missing Authentication for Critical Function 2. RISK EVALUATI...",
-    "source": "cisa.gov",
-    "time": "2025-11-20T12:00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "3dd5d9a433b8a8cd2e9085456e11ec31d70f4a88"
   },
   {
     "title": "CISA Releases Six Industrial Control Systems Advisories",
