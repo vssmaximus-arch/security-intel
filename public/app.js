@@ -11,10 +11,13 @@ const PATHS = {
 let currentRadius = 5;
 let currentCategory = 'ALL';
 
-// Currently displayed feed items (after region/category filters)
+// Feeds
 let GENERAL_NEWS_FEED = [];
 let PROXIMITY_ALERTS = [];
 let CURRENT_FEED = [];
+
+// Items marked as "not relevant" for this browser session
+let HIDDEN_IDS = new Set();
 
 let map, layerGroup;
 let feedbackToastTimeout = null;
@@ -105,8 +108,9 @@ async function loadAllData() {
 
         if (newsRes.status === "fulfilled" && newsRes.value.ok) {
             const raw = await newsRes.value.json();
-            GENERAL_NEWS_FEED = Array.isArray(raw) ? raw : (raw.articles || []);
-            if (GENERAL_NEWS_FEED.length === 0) throw new Error("Empty feed");
+            let arr = Array.isArray(raw) ? raw : (raw.articles || []);
+            if (arr.length === 0) throw new Error("Empty feed");
+            GENERAL_NEWS_FEED = assignIds(arr);
             badge.innerText = "LIVE FEED";
             badge.className = "badge bg-primary text-white";
         } else {
@@ -123,12 +127,13 @@ async function loadAllData() {
         badge.className = "badge bg-warning text-dark";
         
         // FALLBACK DATA (Strict SRO)
-        GENERAL_NEWS_FEED = [
+        const fallback = [
             { title: "Critical: Port Strike in Northern Europe", snippet: "Major logistics disruption at Rotterdam and Hamburg terminals. Cargo delays expected.", region: "EMEA", severity: 3, type: "SUPPLY CHAIN", time: new Date().toISOString(), source: "SRO Logistics", url: "#" },
             { title: "Security Alert: Active Shooter - Downtown Austin", snippet: "Police operation near 6th St. Dell Security advises avoiding area.", region: "AMER", severity: 3, type: "PHYSICAL SECURITY", time: new Date().toISOString(), source: "GSOC", url: "#" },
             { title: "Typhoon Warning: Manila & Luzon", snippet: "Category 3 storm making landfall. Power grid failures reported in metro area.", region: "APJC", severity: 2, type: "CRISIS / WEATHER", time: new Date().toISOString(), source: "Weather Ops", url: "#" },
             { title: "Cyber Alert: Manufacturing SCADA Vulnerability", snippet: "Critical zero-day affecting industrial controllers. Patch immediately.", region: "Global", severity: 3, type: "CYBER SECURITY", time: new Date().toISOString(), source: "CISA", url: "#" }
         ];
+        GENERAL_NEWS_FEED = assignIds(fallback);
         
         PROXIMITY_ALERTS = [
             { article_title: "Active fire reported at adjacent chemical logistics park.", site_name: "Dell Xiamen Mfg", distance_km: 3.2, type: "Industrial Fire", severity: 3, lat: 24.4798, lon: 118.0894 },
@@ -137,6 +142,14 @@ async function loadAllData() {
         ];
     }
     updateMap('Global');
+}
+
+/* Assign a stable _id per item so we can hide specific ones */
+function assignIds(arr) {
+    return arr.map((item, idx) => {
+        if (item._id !== undefined && item._id !== null) return item;
+        return { ...item, _id: idx };
+    });
 }
 
 function initMap() {
@@ -170,19 +183,30 @@ function updateMap(region) {
 
 function filterCategory(category) {
     currentCategory = category;
+    filterNews(getActiveRegion());
+}
+
+function getActiveRegion() {
     const activeEl = document.querySelector(".nav-item-custom.active");
-    filterNews(activeEl ? activeEl.innerText.trim() : 'Global');
+    return activeEl ? activeEl.innerText.trim() : 'Global';
 }
 
 function filterNews(region) {
     document.querySelectorAll(".nav-item-custom").forEach(el => el.classList.toggle("active", el.innerText.trim() === region));
     const container = document.getElementById("general-news-feed");
+
+    // Region filter
     let filtered = region === "Global" ? GENERAL_NEWS_FEED : GENERAL_NEWS_FEED.filter(i => i.region === region);
+
+    // Category filter
     if (currentCategory !== 'ALL') {
         filtered = filtered.filter(i => i.type && i.type.toUpperCase().includes(currentCategory));
     }
 
-    // Save currently displayed list for feedback
+    // Hide items the user has marked "not relevant"
+    filtered = filtered.filter(i => !HIDDEN_IDS.has(i._id));
+
+    // Save currently displayed list for feedback resolution
     CURRENT_FEED = filtered;
 
     if (!filtered.length) { 
@@ -226,8 +250,7 @@ function filterNews(region) {
 
 function updateProximityRadius() {
     currentRadius = parseFloat(document.getElementById("proxRadius").value);
-    const activeEl = document.querySelector(".nav-item-custom.active");
-    const activeRegion = activeEl ? activeEl.innerText.trim() : 'Global';
+    const activeRegion = getActiveRegion();
     const container = document.getElementById("proximity-alerts-container");
     let filtered = PROXIMITY_ALERTS.filter(a => {
         const regMatch = activeRegion === "Global" || (a.site_region === activeRegion);
@@ -327,6 +350,12 @@ function globalClickHandler(e) {
 
     const item = CURRENT_FEED[index];
     sendFeedback(label, item);
+
+    // For "Not relevant", hide immediately from the feed
+    if (label === "NOT_RELEVANT" && item._id !== undefined && item._id !== null) {
+        HIDDEN_IDS.add(item._id);
+        filterNews(getActiveRegion());
+    }
 }
 
 function sendFeedback(label, item) {
@@ -366,9 +395,9 @@ function showFeedbackToast(label) {
     if (!el) return;
 
     if (label === "NOT_RELEVANT") {
-        el.textContent = "Marked as not relevant – helps tighten filters.";
+        el.textContent = "Marked as not relevant – this will help tighten filters.";
     } else if (label === "CRITICAL") {
-        el.textContent = "Marked as critical – will prioritise similar incidents.";
+        el.textContent = "Marked as critical – similar incidents will be prioritised.";
     } else {
         el.textContent = "Feedback recorded.";
     }
