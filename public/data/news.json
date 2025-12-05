@@ -1,20 +1,130 @@
 [
   {
-    "title": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
-    "url": "https://www.crowdstrike.com/en-us/blog/from-vulnerability-management-to-exposure-management-platform-era-has-arrived/",
-    "snippet": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
+    "title": "Defeating BLOCKADE SPIDER: How CrowdStrike Stops Cross-Domain Attacks",
+    "url": "https://www.crowdstrike.com/en-us/blog/defeating-blockade-spider-how-crowdstrike-stops-cross-domain-attacks/",
+    "snippet": "Defeating BLOCKADE SPIDER: How CrowdStrike Stops Cross-Domain Attacks",
     "source": "crowdstrike.com",
-    "time": "2025-12-05T05:53:52.007821+00:00",
+    "time": "2025-12-05T06:48:53.160720+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "CRISIS / WEATHER"
   },
   {
-    "title": "Sri Lanka confronts staggering cyclone toll and the long road to recovery",
-    "url": "https://asia.nikkei.com/economy/natural-disasters/sri-lanka-confronts-staggering-cyclone-toll-and-the-long-road-to-recovery",
-    "snippet": "Sri Lanka confronts staggering cyclone toll and the long road to recovery",
+    "title": "CrowdStrike Research: Security Flaws in DeepSeek-Generated Code Linked to Political Triggers",
+    "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-researchers-identify-hidden-vulnerabilities-ai-coded-software/",
+    "snippet": "CrowdStrike Research: Security Flaws in DeepSeek-Generated Code Linked to Political Triggers",
+    "source": "crowdstrike.com",
+    "time": "2025-12-05T06:48:52.974586+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "CrowdStrike Unveils Real-Time Cloud Detection and Response Innovations",
+    "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-unveils-real-time-cloud-detection-and-response/",
+    "snippet": "CrowdStrike Unveils Real-Time Cloud Detection and Response Innovations",
+    "source": "crowdstrike.com",
+    "time": "2025-12-05T06:48:52.912127+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "CrowdStrike Leverages NVIDIA Nemotron in Amazon Bedrock to Advance Agentic Security",
+    "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-uses-nvidia-nemotron-aws-power-agentic-security/",
+    "snippet": "CrowdStrike Leverages NVIDIA Nemotron in Amazon Bedrock to Advance Agentic Security",
+    "source": "crowdstrike.com",
+    "time": "2025-12-05T06:48:52.710380+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "M 1.7 Explosion - 23 km NNW of Huntington, Oregon",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62216691",
+    "snippet": "Time 2025-12-04 20:38:14 UTC 2025-12-04 20:38:14 UTC at epicenter Location 44.541\u00b0N 117.384\u00b0W Depth -1.18 km (-0.73 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-05T06:48:39.212264+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.4 Explosion - 12 km ENE of Abbotsford, Canada",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62216701",
+    "snippet": "Time 2025-12-04 20:48:33 UTC 2025-12-04 20:48:33 UTC at epicenter Location 49.083\u00b0N 122.089\u00b0W Depth -0.67 km (-0.42 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-05T06:48:39.142100+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.5 Explosion - 18 km ENE of Powers, Oregon",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62216721",
+    "snippet": "Time 2025-12-04 22:45:41 UTC 2025-12-04 22:45:41 UTC at epicenter Location 42.924\u00b0N 123.859\u00b0W Depth -0.62 km (-0.39 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-05T06:48:38.950563+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.2 Explosion - 0 km NW of Amboy, Washington",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62216726",
+    "snippet": "Time 2025-12-04 23:01:06 UTC 2025-12-04 23:01:06 UTC at epicenter Location 45.914\u00b0N 122.452\u00b0W Depth -0.65 km (-0.40 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-05T06:48:38.890873+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.6 Explosion - 3 km E of Sechelt, Canada",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62216736",
+    "snippet": "Time 2025-12-04 23:50:15 UTC 2025-12-04 23:50:15 UTC at epicenter Location 49.475\u00b0N 123.717\u00b0W Depth -0.27 km (-0.17 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-05T06:48:38.685815+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Xi Jinping tells France's Macron that decoupling means disruption",
+    "url": "https://asia.nikkei.com/politics/international-relations/xi-jinping-tells-france-s-macron-that-decoupling-means-disruption",
+    "snippet": "Xi Jinping tells France's Macron that decoupling means disruption",
     "source": "asia.nikkei.com",
-    "time": "2025-12-05T05:53:31.447053+00:00",
+    "time": "2025-12-05T06:48:22.567087+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Indonesia cracks down on illegal mining and forestry after Sumatra floods",
+    "url": "https://asia.nikkei.com/economy/natural-disasters/indonesia-cracks-down-on-illegal-mining-and-forestry-after-sumatra-floods",
+    "snippet": "Indonesia cracks down on illegal mining and forestry after Sumatra floods",
+    "source": "asia.nikkei.com",
+    "time": "2025-12-05T06:48:22.510568+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "China chases economic rally with giant Hainan free trade port",
+    "url": "https://asia.nikkei.com/spotlight/policy-asia/china-chases-economic-rally-with-giant-hainan-free-trade-port",
+    "snippet": "China chases economic rally with giant Hainan free trade port",
+    "source": "asia.nikkei.com",
+    "time": "2025-12-05T06:48:22.319376+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Flooding kills two as Vietnam hit by dozens of landslides",
+    "url": "https://www.channelnewsasia.com/asia/vietnam-floods-kill-two-hit-dozens-landslides-5563296",
+    "snippet": "Flooding kills two as Vietnam hit by dozens of landslides",
+    "source": "channelnewsasia.com",
+    "time": "2025-12-05T06:30:00+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
@@ -30,12 +140,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Deadly Sumatra flooding triggers memories of Indian Ocean tsunami",
-    "url": "https://www.straitstimes.com/asia/se-asia/deadly-sumatra-flooding-triggers-memories-of-indian-ocean-tsunami",
-    "snippet": "NORTH ACEH, Indonesia, Dec 5 - For fisherman Effendi Basyaruddin, the deadly floods and landslides in Indonesia's Aceh province over the past week have triggered traumatic memories of the day 21 years",
-    "source": "straitstimes.com",
-    "time": "2025-12-05T05:15:51+00:00",
-    "region": "APJC",
+    "title": "\u201cThis is war\u201d: Is Trump about to invade Venezuela? \u2013 podcast",
+    "url": "https://www.theguardian.com/politics/audio/2025/dec/05/donald-trump-about-to-invade-venezuela-podcast",
+    "snippet": "Donald Trump has in recent months turned his attention to ousting Venezuela\u2019s leader, Nicol\u00e1s Maduro. But the US president and his secretary of war, Pete Hegseth, are under scrutiny over military strikes on suspected dru",
+    "source": "theguardian.com",
+    "time": "2025-12-05T05:00:38+00:00",
+    "region": "LATAM",
     "severity": 2,
     "type": "CRISIS / WEATHER"
   },
@@ -50,11 +160,61 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Sydney records highest temperature in nearly two years amid heatwave as Tasmanian bushfires threaten homes",
-    "url": "https://www.theguardian.com/australia-news/2025/dec/05/parts-of-australia-hit-by-severe-heatwave-as-temperature-surges-past-40c-in-nsw-and-tasmanian-bushfires-threaten-properties",
-    "snippet": "Heatwave warnings in place for parts of New South Wales, the Northern Territory, Queensland and Western Australia Follow our Australia news live blog for latest updates Get our breaking news email , f",
+    "title": "Deadly Attacks in Gaza Test Cease-Fire as Body of Another Captive Is Returned",
+    "url": "https://www.nytimes.com/2025/12/04/world/middleeast/gaza-strikes-ceasefire.html",
+    "snippet": "Israel launched a military strike after it said Hamas militants attacked its soldiers, the latest clashes in the two months since a truce was signed.",
+    "source": "nytimes.com",
+    "time": "2025-12-05T04:54:31+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Rains hamper Sri Lanka cleanup after deadly floods",
+    "url": "https://www.channelnewsasia.com/asia/sri-lanka-rains-hamper-clean-up-after-deadly-floods-5562401",
+    "snippet": "Rains hamper Sri Lanka cleanup after deadly floods",
+    "source": "channelnewsasia.com",
+    "time": "2025-12-05T04:52:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "US grand jury declines to re-charge New York Attorney General Letitia James",
+    "url": "https://www.aljazeera.com/news/2025/12/5/us-grand-jury-declines-to-re-charge-new-york-attorney-general-letitia-james?traffic_source=rss",
+    "snippet": "James decries Trump's 'weaponisation' of the justice system after second failed attempt to federally prosecute her.",
+    "source": "aljazeera.com",
+    "time": "2025-12-05T04:00:31+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Video shows second strike hit before survivors could flip boat, lawmakers say",
+    "url": "https://www.washingtonpost.com/national-security/2025/12/04/bradley-congress-boat-strikes/",
+    "snippet": "The footage was shown on Capitol Hill, where Adm. Frank M. Bradley, who oversaw a deadly attack on alleged drug smugglers, faced a day of difficult questions about the operation.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-05T02:58:41+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Pentagon announces it has killed four men in another boat strike in Pacific",
+    "url": "https://www.theguardian.com/us-news/2025/dec/04/pentagon-boat-strike-pacific",
+    "snippet": "Strike comes amid congressional turmoil over legality of US attacks on suspected drug smugglers The Pentagon announced on Thursday that the US military had conducted another deadly strike on a boat suspected of carrying ",
     "source": "theguardian.com",
-    "time": "2025-12-05T04:45:52+00:00",
+    "time": "2025-12-05T02:27:10+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "China\u2019s unmanned Moyujian strike helicopter is ready for plateau combat tests",
+    "url": "https://www.scmp.com/news/china/military/article/3335223/chinas-unmanned-moyujian-strike-helicopter-ready-plateau-combat-tests?utm_source=rss_feed",
+    "snippet": "China\u2019s unmanned reconnaissance and strike helicopter tailored for deployment in plateau areas is ready for critical combat testing.\nThe new multipurpose medium-sized helicopter was displayed on November 27 at an air sho",
+    "source": "scmp.com",
+    "time": "2025-12-05T02:00:39+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
@@ -62,17 +222,17 @@
   {
     "title": "Green notification for tropical cyclone SIX-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (6756 in Tropical Storm).",
     "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001240",
-    "snippet": "From 05/12/2025 to 05/12/2025, a Tropical Storm (maximum wind speed of 74 km/h) SIX-25 was active in SEPacific. The cyclone affects these countries: [unknown] (vulnerability [unknown]). Estimated popu",
+    "snippet": "From 05/12/2025 to 05/12/2025, a Tropical Storm (maximum wind speed of 74 km/h) SIX-25 was active in SEPacific. The cyclone affects these countries: [unknown] (vulnerability [unknown]). Estimated population affected by c",
     "source": "gdacs.org",
     "time": "2025-12-05T01:50:23+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "Israel 4 December 2025 #1",
     "url": "https://www.crisisgroup.org/content/israel-4-december-2025-1",
-    "snippet": "Israel 4 December 2025 #1 gnada Fri, 12/05/2025 - 02:48 Israel Fri, 12/05/2025 - 12:00 4 December 2025 An Israeli court indicted a man for allegedly spying for Iran in exchange for cryptocurrency. Aut",
+    "snippet": "Israel 4 December 2025 #1 gnada Fri, 12/05/2025 - 02:48 Israel Fri, 12/05/2025 - 12:00 4 December 2025 An Israeli court indicted a man for allegedly spying for Iran in exchange for cryptocurrency. Authorities warned \u201caga",
     "source": "crisisgroup.org",
     "time": "2025-12-05T01:48:32+00:00",
     "region": "EMEA",
@@ -90,6 +250,26 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Admiral testified Hegseth did not give 'kill them all' order, US lawmakers say",
+    "url": "https://www.bbc.com/news/articles/cwyxjd6pxzro?at_medium=RSS&at_campaign=rss",
+    "snippet": "The admiral who gave the order for a second strike on an alleged drug boat briefed lawmakers about the incident, as the military confirmed another attack.",
+    "source": "bbc.com",
+    "time": "2025-12-05T01:20:07+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "US military kills four in latest strike on boat in the Caribbean",
+    "url": "https://www.aljazeera.com/news/2025/12/5/us-military-kills-four-in-latest-strike-on-boat-in-the-caribbean?traffic_source=rss",
+    "snippet": "Attack comes amid renewed scrutiny of the Trump administration's campaign against alleged drug smugglers.",
+    "source": "aljazeera.com",
+    "time": "2025-12-05T00:00:49+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
     "title": "Suspect arrested in pipe bomb incident on eve of 2021 Capitol riot",
     "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
     "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
@@ -98,16 +278,6 @@
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Hackers are exploiting ArrayOS AG VPN flaw to plant webshells",
-    "url": "https://www.bleepingcomputer.com/news/security/hackers-are-exploiting-arrayos-ag-vpn-flaw-to-plant-webshells/",
-    "snippet": "Threat actors have been exploiting a command injection vulnerability in Array AG Series VPN devices to plant webshells and create rogue users. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T23:05:05+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
   },
   {
     "title": "Alert sent for Nevada earthquake that did not happen",
@@ -130,6 +300,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Not just China: India also a piece of the US opioid puzzle",
+    "url": "https://www.scmp.com/opinion/world-opinion/article/3335067/americas-opioid-crisis-wont-be-solved-without-indias-help?utm_source=rss_feed",
+    "snippet": "Much has been written about China\u2019s alleged role in the US opioid crisis. Chemicals from Chinese suppliers have supposedly been used by Mexican cartels to produce fentanyl, which is then trafficked into the United States",
+    "source": "scmp.com",
+    "time": "2025-12-04T21:30:09+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
     "title": "Who was Yasser Abu Shabab, Israel-backed militia leader killed in Gaza?",
     "url": "https://www.aljazeera.com/features/2025/12/4/who-was-yasser-abu-shabab-israel-backed-militia-leader-killed-in-gaza?traffic_source=rss",
     "snippet": "Abu Shabab became prominent last year leading an armed group operating in Israeli-controlled areas of Gaza.",
@@ -150,19 +330,59 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Socomec DIRIS Digiware M series and Easy Config, PDF XChange Editor vulnerabilities",
-    "url": "https://blog.talosintelligence.com/socomec-diris-digiware-m-series-and-easy-config-pdf-xchange-editor-vulnerabilities/",
-    "snippet": "Cisco Talos\u2019 Vulnerability Discovery & Research team recently disclosed an out-of-bounds read vulnerability in PDF XChange Editor, and ten vulnerabilities in Socomec DIRIS Digiware M series and Easy C",
-    "source": "blog.talosintelligence.com",
-    "time": "2025-12-04T20:23:15+00:00",
+    "title": "Russia blocks Snapchat and restricts Apple\u2019s FaceTime, state officials say",
+    "url": "https://www.theguardian.com/technology/2025/dec/04/russia-snapchat-apple",
+    "snippet": "Latest effort to control communications comes as regulator claims apps being used to \u2018conduct terrorist activities\u2019 Russian authorities blocked access to Snapchat and imposed restrictions on Apple\u2019s video calling service",
+    "source": "theguardian.com",
+    "time": "2025-12-04T20:46:07+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Experts urge release of boat strike video as US admiral denies \u2018kill them all\u2019 order",
+    "url": "https://www.theguardian.com/us-news/2025/dec/04/video-second-boat-strike-military-caribbean",
+    "snippet": "Democrat Jim Himes calls footage \u2018one of the most troubling scenes\u2019 he\u2019s observed in public service Analysis: Killing of survivors sparks outrage \u2013 but entire US \u2018drug boat\u2019 war is legally shaky Top Democratic and Republ",
+    "source": "theguardian.com",
+    "time": "2025-12-04T20:43:53+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "China says it is working \u2018with all parties\u2019 to prevent escalation in Venezuela",
+    "url": "https://www.scmp.com/news/china/article/3335254/china-says-it-working-all-parties-prevent-escalation-venezuela?utm_source=rss_feed",
+    "snippet": "China said on Wednesday that it is working \u201cwith all parties\u201d to prevent a military escalation in the Caribbean as the United States intensifies operations near Venezuela, the latest sign of Beijing\u2019s growing diplomatic ",
+    "source": "scmp.com",
+    "time": "2025-12-04T20:27:12+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Israel strikes south Lebanon after first direct talks in decades",
+    "url": "https://www.bbc.com/news/articles/c62n6y9yd70o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The Israeli military says it struck Hezbollah sites, less than 24 hours after Israel and Lebanon sent civilian envoys to meet.",
+    "source": "bbc.com",
+    "time": "2025-12-04T19:47:17+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Navy deployment marred by friendly fire, lost jets, collision at sea",
+    "url": "https://www.washingtonpost.com/national-security/2025/12/04/navy-investigation-aircraft-carrier-truman-yemen/",
+    "snippet": "The Truman aircraft carrier group conducted airstrikes for 52 days straight. Investigators found that not all of its ships or crews were ready for such intensity.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-04T19:27:49+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "Russia blocks FaceTime and Snapchat for alleged use by terrorists",
     "url": "https://www.bleepingcomputer.com/news/security/russia-blocks-facetime-and-snapchat-over-use-in-terrorist-attacks/",
-    "snippet": "Russian telecommunications watchdog Roskomnadzor has blocked access to Apple's FaceTime video conferencing platform and the Snapchat instant messaging service, claiming they're being used to coordinat",
+    "snippet": "Russian telecommunications watchdog Roskomnadzor has blocked access to Apple's FaceTime video conferencing platform and the Snapchat instant messaging service, claiming they're being used to coordinate terrorist attacks.",
     "source": "bleepingcomputer.com",
     "time": "2025-12-04T19:12:18+00:00",
     "region": "EMEA",
@@ -170,11 +390,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "In Goma, skepticism and fear persist as Congo\u2013Rwanda peace deal is finalized in Washington",
-    "url": "http://www.euronews.com/2025/12/04/in-goma-skepticism-and-fear-persist-as-congorwanda-peace-edal-is-finalized-in-washington",
-    "snippet": "On the frontline, both sides accuse each other of violating the cease-fire. The Congolese army says rebels reignited hostilities, while AFC-M23 counters that government forces bombed their positions",
-    "source": "euronews.com",
-    "time": "2025-12-04T18:23:14+00:00",
+    "title": "US authorities arrest suspect in 2021 Washington, DC, pipe bomb case",
+    "url": "https://www.aljazeera.com/news/2025/12/4/us-authorities-arrest-suspect-in-2021-capitol-hill-pipe-bombs?traffic_source=rss",
+    "snippet": "The arrest of a Virginia man potentially ends a five-year mystery that highlighted rise of political violence in the US.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T18:46:31+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -190,9 +410,19 @@
     "type": "CYBER SECURITY"
   },
   {
+    "title": "Aid Workers Stand Trial for Helping to Smuggle People Into Greece",
+    "url": "https://www.nytimes.com/2025/12/04/world/europe/aid-workers-greece-migration-trial-smuggling.html",
+    "snippet": "The activists provided support to people who sought sanctuary in Greece during Europe\u2019s migration crisis.",
+    "source": "nytimes.com",
+    "time": "2025-12-04T17:55:53+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
     "title": "Silver Fox Uses Fake Microsoft Teams Installer to Spread ValleyRAT Malware in China",
     "url": "https://thehackernews.com/2025/12/silver-fox-uses-fake-microsoft-teams.html",
-    "snippet": "The threat actor known as Silver Fox has been spotted orchestrating a false flag operation to mimic a Russian threat group in attacks targeting organizations in China.\nThe search engine optimization (",
+    "snippet": "The threat actor known as Silver Fox has been spotted orchestrating a false flag operation to mimic a Russian threat group in attacks targeting organizations in China.\nThe search engine optimization (SEO) poisoning campa",
     "source": "thehackernews.com",
     "time": "2025-12-04T17:25:00+00:00",
     "region": "APJC",
@@ -200,24 +430,44 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Former Venezuelan spy chief says Maduro runs 'narco-terrorist organisation'",
-    "url": "http://www.euronews.com/2025/12/04/former-venezuelan-spy-chief-says-maduro-runs-narco-terrorist-organisation",
-    "snippet": "Hugo Carvajal, former Venezuelan intelligence chief, has accused Nicol\u00e1s Maduro's government of being a \"narco-terrorist organisation\" and offered to cooperate with US authorities.",
-    "source": "euronews.com",
-    "time": "2025-12-04T16:32:46+00:00",
-    "region": "LATAM",
+    "title": "Putin and Modi to meet amid politically treacherous times for Russia and India",
+    "url": "https://www.theguardian.com/world/2025/dec/04/putin-and-modi-to-meet-amid-politically-treacherous-times-for-russia-and-india",
+    "snippet": "Delhi visit gives Russian leader a chance to reduce Moscow\u2019s isolation but both countries need each other to negotiate Trump\u2019s US and a powerful China When Vladimir Putin last set foot in India almost exactly four years ",
+    "source": "theguardian.com",
+    "time": "2025-12-04T17:08:10+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "HEALTH / SAFETY"
+  },
+  {
+    "title": "Federica Mogherini resigns from College of Europe amid corruption inquiry",
+    "url": "https://www.theguardian.com/world/2025/dec/04/federica-mogherini-ex-eu-policy-chief-resigns-college-of-europe",
+    "snippet": "Former EU foreign policy chief to also stand down as head of diplomatic academy at centre of investigation The EU\u2019s former foreign policy chief, Federica Mogherini, has resigned from her role as head of the elite College",
+    "source": "theguardian.com",
+    "time": "2025-12-04T17:06:02+00:00",
+    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Critical React, Next.js flaw lets hackers execute code on servers",
-    "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
-    "snippet": "A maximum severity vulnerability,\u00a0dubbed 'React2Shell',\u00a0in the React Server Components (RSC) 'Flight' protocol\u00a0allows remote code execution without authentication in React and Next.js applications. [.",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T15:11:54+00:00",
+    "title": "FBI charges man with planting pipe bombs on eve of January 6, 2021 Capitol riot",
+    "url": "https://www.scmp.com/news/world/united-states-canada/article/3335250/fbi-arrests-suspect-2021-capitol-riot-pipe-bomb-case-after-5-years?utm_source=rss_feed",
+    "snippet": "The FBI arrested a 30-year-old Virginia man and charged him on Thursday with planting a pair of pipe bombs in Washington the night before the January 6, 2021, assault on the US Capitol by supporters of President Donald T",
+    "source": "scmp.com",
+    "time": "2025-12-04T16:58:44+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Tanzanian activist blocked from Instagram after mobilising election protests",
+    "url": "https://www.bbc.com/news/articles/cwyv7ggqpjpo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Meta confirms it removed Mange Kimambi's social media accounts for violating their policy.",
+    "source": "bbc.com",
+    "time": "2025-12-04T16:23:49+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "Ruined Rice Fields and Broken Rail Lines: Sri Lanka Counts Cost of Cyclone",
@@ -230,6 +480,16 @@
     "type": "CRISIS / WEATHER"
   },
   {
+    "title": "Chinese executive named as suspect in Indonesia radioactive contamination probe",
+    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3335242/chinese-executive-named-suspect-indonesian-caesium-137-contamination-case?utm_source=rss_feed",
+    "snippet": "Indonesian authorities on Thursday named a Chinese executive of a metal smelting company as a suspect in a caesium-137 contamination case that resulted in the recall of some exports to the US.\nLin Jingzhang, who is a dir",
+    "source": "scmp.com",
+    "time": "2025-12-04T14:06:31+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "HEALTH / SAFETY"
+  },
+  {
     "title": "Construction sector shrinks at fastest pace since pandemic, survey suggests",
     "url": "https://www.bbc.com/news/articles/cx257jx70g5o?at_medium=RSS&at_campaign=rss",
     "snippet": "Some analysts said the score was a mere fluctuation in the run-up to the Budget.",
@@ -238,6 +498,16 @@
     "region": "Global",
     "severity": 2,
     "type": "HEALTH / SAFETY"
+  },
+  {
+    "title": "Republicans begin to tighten the screws on Hegseth\u2019s Pentagon",
+    "url": "https://www.washingtonpost.com/national-security/2025/12/03/hegseth-boat-strike-republicans/",
+    "snippet": "Adm. Frank M. Bradley is set to meet with lawmakers Thursday to discuss the boat strike he oversaw that killed 11 people, including two who died in a follow-up attack.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-04T13:22:10+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "One hostage body left in Gaza, after remains of Thai worker identified",
@@ -260,69 +530,99 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Killing of survivors sparks outrage \u2013 but entire US \u2018drug boat\u2019 war is legally shaky",
+    "url": "https://www.theguardian.com/us-news/2025/dec/04/venezuela-boat-strikes-legality-hegseth",
+    "snippet": "Pentagon\u2019s Law of War manual clearly prohibits attack, but justification for whole campaign also faces tough questions Graphic depictions of two survivors being killed by a second US military strike on an alleged Venezue",
+    "source": "theguardian.com",
+    "time": "2025-12-04T12:00:21+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Johnson Controls OpenBlue Mobile Web Application for OpenBlue Workplace",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-03",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.5 ATTENTION : Exploitable remotely/low attack complexity Vendor : Johnson Controls Inc. Equipment : OpenBlue Mobile Web Application for OpenBlue Workplace Vulnerability : Direct R",
+    "source": "cisa.gov",
+    "time": "2025-12-04T12:00:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "SolisCloud Monitoring Platform",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-06",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : SolisCloud Equipment : Monitoring Platform (Cloud API & Device Control API) Vulnerability : A",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : SolisCloud Equipment : Monitoring Platform (Cloud API & Device Control API) Vulnerability : Authorization Bypass ",
     "source": "cisa.gov",
     "time": "2025-12-04T12:00:00+00:00",
     "region": "APJC",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Advantech iView",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-07",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Advantech Equipment : iView Vulnerability : SQL Injection 2. RISK EVALUATION Successful explo",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Advantech Equipment : iView Vulnerability : SQL Injection 2. RISK EVALUATION Successful exploitation of this vuln",
     "source": "cisa.gov",
     "time": "2025-12-04T12:00:00+00:00",
     "region": "APJC",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Sunbird DCIM dcTrack and Power IQ",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-05",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Exploitable remotely/low attack complexity Vendor : Sunbird Equipment : DCIM dcTrack, Power IQ Vulnerabilities : Authentication Bypass Using an A",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Exploitable remotely/low attack complexity Vendor : Sunbird Equipment : DCIM dcTrack, Power IQ Vulnerabilities : Authentication Bypass Using an Alternate Path or Cha",
     "source": "cisa.gov",
     "time": "2025-12-04T12:00:00+00:00",
     "region": "AMER",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "MAXHUB Pivot",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : MAXHUB Equipment : MAXHUB Pivot Vulnerability : Weak Password Recovery Mechanism for Forgotte",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : MAXHUB Equipment : MAXHUB Pivot Vulnerability : Weak Password Recovery Mechanism for Forgotten Password 2. RISK E",
     "source": "cisa.gov",
     "time": "2025-12-04T12:00:00+00:00",
     "region": "AMER",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Mitsubishi Electric GX Works2",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.8 ATTENTION : Low attack complexity Vendor : Mitsubishi Electric Equipment : GX Works2 Vulnerability : Cleartext Storage of Sensitive Information 2. RISK EVALU",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.8 ATTENTION : Low attack complexity Vendor : Mitsubishi Electric Equipment : GX Works2 Vulnerability : Cleartext Storage of Sensitive Information 2. RISK EVALUATION Successful exp",
     "source": "cisa.gov",
     "time": "2025-12-04T12:00:00+00:00",
     "region": "APJC",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Israel says Palestinian groups returned body of Thai hostage held in Gaza",
-    "url": "https://www.bbc.com/news/articles/cd6x2j4g3z7o?at_medium=RSS&at_campaign=rss",
-    "snippet": "The remains of agricultural worker Suthisak Rintalak were recovered by Hamas and Palestinian Islamic Jihad in northern Gaza.",
-    "source": "bbc.com",
-    "time": "2025-12-04T11:02:24+00:00",
-    "region": "EMEA",
+    "title": "Cyber scams threaten confidence in India\u2019s outsourcing industry",
+    "url": "https://www.scmp.com/week-asia/economics/article/3335229/indias-back-office-reputation-under-threat-amid-rise-sophisticated-cyber-scams?utm_source=rss_feed",
+    "snippet": "India\u2019s hard-won reputation as the world\u2019s back office, built on trusted call-centre and IT services, is coming under pressure as increasingly sophisticated cyber scam networks emerge within the same digital ecosystem th",
+    "source": "scmp.com",
+    "time": "2025-12-04T11:37:44+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Hamas Returns Body of Last Thai Hostage in Gaza",
+    "url": "https://www.nytimes.com/2025/12/04/world/middleeast/thai-hostage-gaza-hamas-israel.html",
+    "snippet": "The militant group took more than 250 hostages from Israel on Oct. 7, 2023, including 31 from Thailand. The remains of all but one other hostage, an Israeli, have been recovered.",
+    "source": "nytimes.com",
+    "time": "2025-12-04T09:44:04+00:00",
+    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
     "title": "GoldFactory Hits Southeast Asia with Modified Banking Apps Driving 11,000+ Infections",
     "url": "https://thehackernews.com/2025/12/goldfactory-hits-southeast-asia-with.html",
-    "snippet": "Cybercriminals associated with a financially motivated group known as GoldFactory have been observed staging a fresh round of attacks targeting mobile users in Indonesia, Thailand, and Vietnam by impe",
+    "snippet": "Cybercriminals associated with a financially motivated group known as GoldFactory have been observed staging a fresh round of attacks targeting mobile users in Indonesia, Thailand, and Vietnam by impersonating government",
     "source": "thehackernews.com",
     "time": "2025-12-04T09:27:00+00:00",
     "region": "APJC",
@@ -330,19 +630,9 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Green earthquake (Magnitude 5.8M, Depth:10km) in China 04/12/2025 07:44 UTC, 2 thousand (in MMI>=VII).",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1513212",
-    "snippet": "On 12/4/2025 7:44:06 AM, an earthquake occurred in China potentially affecting 2 thousand (in MMI>=VII). The earthquake had Magnitude 5.8M, Depth:10km.",
-    "source": "gdacs.org",
-    "time": "2025-12-04T08:00:51+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "CRISIS / WEATHER"
-  },
-  {
     "title": "Record 29.7 Tbps DDoS Attack Linked to AISURU Botnet with up to 4 Million Infected Hosts",
     "url": "https://thehackernews.com/2025/12/record-297-tbps-ddos-attack-linked-to.html",
-    "snippet": "Cloudflare on Wednesday said it detected and mitigated the largest ever distributed denial-of-service (DDoS) attack that measured at 29.7 terabits per second (Tbps).\nThe activity, the web infrastructu",
+    "snippet": "Cloudflare on Wednesday said it detected and mitigated the largest ever distributed denial-of-service (DDoS) attack that measured at 29.7 terabits per second (Tbps).\nThe activity, the web infrastructure and security comp",
     "source": "thehackernews.com",
     "time": "2025-12-04T06:52:00+00:00",
     "region": "Global",
@@ -360,34 +650,44 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Green earthquake (Magnitude 5.5M, Depth:10km) in Pacific-Antarctic Ridge 04/12/2025 03:12 UTC, [unknown].",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1513180",
-    "snippet": "On 12/4/2025 3:12:08 AM, an earthquake occurred in Pacific-Antarctic Ridge potentially affecting [unknown]. The earthquake had Magnitude 5.5M, Depth:10km.",
-    "source": "gdacs.org",
-    "time": "2025-12-04T03:31:42+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER"
-  },
-  {
     "title": "Washington 2 December 2025 #1",
     "url": "https://www.crisisgroup.org/content/washington-2-december-2025-1",
-    "snippet": "Washington 2 December 2025 #1 gnada Thu, 12/04/2025 - 02:54 Washington Thu, 12/04/2025 - 12:00 2 December 2025 Secretary of State Marco Rubio said that the U.S. strikes on Iranian nuclear facilities i",
+    "snippet": "Washington 2 December 2025 #1 gnada Thu, 12/04/2025 - 02:54 Washington Thu, 12/04/2025 - 12:00 2 December 2025 Secretary of State Marco Rubio said that the U.S. strikes on Iranian nuclear facilities in June were \u201ca great",
     "source": "crisisgroup.org",
     "time": "2025-12-04T01:54:22+00:00",
     "region": "LATAM",
     "severity": 2,
-    "type": "PHYSICAL SECURITY"
+    "type": "CRISIS / WEATHER"
   },
   {
-    "title": "Five killed in Israeli air strikes on tents near Khan Younis, medics say",
-    "url": "https://www.bbc.com/news/articles/cnv21m0zpjmo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Rescue workers say they recovered bodies from a camp for displaced people. The IDF says it \"struck a Hamas terrorist\".",
-    "source": "bbc.com",
-    "time": "2025-12-03T22:09:36+00:00",
+    "title": "Hong Kong warns \u2018external forces\u2019 working to exploit apartment fire, as death toll rises to 159",
+    "url": "https://www.theguardian.com/news/2025/dec/04/hong-kong-fire-death-toll-protective-netting-remove",
+    "snippet": "Police say number of dead may still be revised as \u2018suspected human bones\u2019 found during search require forensic testing Hong Kong and Beijing officials have warned against what they claim are \u201cexternal forces\u201d threatening",
+    "source": "theguardian.com",
+    "time": "2025-12-04T01:20:17+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Storm Floodwaters in Indonesia Turned Logs Into Floating Projectiles",
+    "url": "https://www.nytimes.com/2025/12/03/world/asia/indonesia-sumatra-floods-timber-logs.html",
+    "snippet": "Many logs became forces of destruction in Indonesia last week, in a sign that deforestation compounded the devastation wrought by a cyclone.",
+    "source": "nytimes.com",
+    "time": "2025-12-04T00:29:22+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Gaza: Israeli strike kills five, including two children, says civil defence agency",
+    "url": "https://www.theguardian.com/world/2025/dec/03/gaza-israeli-strike-kills-five-including-two-children-says-civil-defence-agency",
+    "snippet": "Agency says missile struck citizens in Khan Younis, as Israel reports targeting \u2018Hamas terrorist\u2019 after clash with militants An Israeli strike on Palestinian territory has killed five people including two children, Gaza\u2019",
+    "source": "theguardian.com",
+    "time": "2025-12-03T22:46:38+00:00",
     "region": "EMEA",
     "severity": 2,
-    "type": "PHYSICAL SECURITY"
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "Marquis data breach impacts over 74 US banks, credit unions",
@@ -400,14 +700,14 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Critical flaw in WordPress add-on for Elementor exploited in attacks",
-    "url": "https://www.bleepingcomputer.com/news/security/critical-flaw-in-wordpress-add-on-for-elementor-exploited-in-attacks/",
-    "snippet": "Attackers are exploiting a critical-severity privilege escalation vulnerability (CVE-2025-8489) in the King Addons for Elementor plugin for WordPress, which lets them obtain\u00a0administrative permissions",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-03T21:31:20+00:00",
+    "title": "Boil water warning after Kent and Sussex supply failure",
+    "url": "https://www.bbc.com/news/articles/c93n4vp65w1o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The Prime Minister calls Kent water crisis \u201cshocking\u201d as 24,000 homes are warned to boil water.",
+    "source": "bbc.com",
+    "time": "2025-12-03T22:05:18+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "French DIY retail giant Leroy Merlin discloses a data breach",
@@ -422,7 +722,7 @@
   {
     "title": "Freedom Mobile discloses data breach exposing customer data",
     "url": "https://www.bleepingcomputer.com/news/security/freedom-mobile-discloses-data-breach-exposing-customer-data/",
-    "snippet": "Freedom Mobile, the fourth-largest wireless carrier in Canada, has disclosed a data breach after attackers hacked into\u00a0its customer account management platform and stole the personal information of an",
+    "snippet": "Freedom Mobile, the fourth-largest wireless carrier in Canada, has disclosed a data breach after attackers hacked into\u00a0its customer account management platform and stole the personal information of an undisclosed number ",
     "source": "bleepingcomputer.com",
     "time": "2025-12-03T20:28:01+00:00",
     "region": "AMER",
@@ -430,39 +730,19 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Critical RSC Bugs in React and Next.js Allow Unauthenticated Remote Code Execution",
-    "url": "https://thehackernews.com/2025/12/critical-rsc-bugs-in-react-and-nextjs.html",
-    "snippet": "A maximum-severity security flaw has been disclosed in React Server Components (RSC) that, if successfully exploited, could result in remote code execution.\nThe vulnerability, tracked as CVE-2025-5518",
-    "source": "thehackernews.com",
-    "time": "2025-12-03T18:19:00+00:00",
+    "title": "Bubbles are front of mind for speakers at the DealBook Summit.",
+    "url": "https://www.nytimes.com/live/2025/12/03/business/dealbook-summit-news/market-bubbles-artificial-intelligence",
+    "snippet": "Many market analysts have expressed concern about private credit loans, including fears of a future crisis should the market crumble.",
+    "source": "nytimes.com",
+    "time": "2025-12-03T19:35:08+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
-  },
-  {
-    "title": "Microsoft Silently Patches Windows LNK Flaw After Years of Active Exploitation",
-    "url": "https://thehackernews.com/2025/12/microsoft-silently-patches-windows-lnk.html",
-    "snippet": "Microsoft has silently plugged a security flaw that has been exploited by several threat actors since 2017 as part of the company's November 2025 Patch Tuesday updates, according to ACROS Security's 0",
-    "source": "thehackernews.com",
-    "time": "2025-12-03T17:46:36+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
-  },
-  {
-    "title": "WordPress King Addons Flaw Under Active Attack Lets Hackers Make Admin Accounts",
-    "url": "https://thehackernews.com/2025/12/wordpress-king-addons-flaw-under-active.html",
-    "snippet": "A critical security flaw impacting a WordPress plugin known as King Addons for Elementor has come under active exploitation in the wild.\nThe vulnerability, CVE-2025-8489 (CVSS score: 9.8), is a case o",
-    "source": "thehackernews.com",
-    "time": "2025-12-03T17:08:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
     "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-adds-one-known-exploited-vulnerability-catalog",
-    "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2021-26828 OpenPLC ScadaBR Unrestricted Upload of File with Da",
+    "snippet": "CISA has added one new vulnerability to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2021-26828 OpenPLC ScadaBR Unrestricted Upload of File with Dangerous Type Vulnera",
     "source": "cisa.gov",
     "time": "2025-12-03T12:00:00+00:00",
     "region": "Global",
@@ -472,7 +752,7 @@
   {
     "title": "CISA, Australia, and Partners Author Joint Guidance on Securely Integrating Artificial Intelligence in Operational Technology",
     "url": "https://www.cisa.gov/news-events/alerts/2025/12/03/cisa-australia-and-partners-author-joint-guidance-securely-integrating-artificial-intelligence",
-    "snippet": "CISA and the\u00a0Australian Signals Directorate\u2019s Australian Cyber Security Centre, in collaboration with federal and international partners, have released new cybersecurity guidance: Principles for the S",
+    "snippet": "CISA and the\u00a0Australian Signals Directorate\u2019s Australian Cyber Security Centre, in collaboration with federal and international partners, have released new cybersecurity guidance: Principles for the Secure Integration of",
     "source": "cisa.gov",
     "time": "2025-12-03T12:00:00+00:00",
     "region": "APJC",
@@ -480,9 +760,39 @@
     "type": "CYBER SECURITY"
   },
   {
+    "title": "Was it a coup or was it a 'sham'? Behind Guinea-Bissau's military takeover",
+    "url": "https://www.bbc.com/news/articles/c1m8nm22785o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The military has taken over but some say the overthrow of the president was not what it seemed.",
+    "source": "bbc.com",
+    "time": "2025-12-03T10:44:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Inside the Ultra-Orthodox Fight Against Israel\u2019s Draft",
+    "url": "https://www.nytimes.com/video/world/middleeast/100000010510485/israel-draft-idf-ultra-orthodox-jews.html",
+    "snippet": "For the first time in decades, ultra-Orthodox Jews in Israel are being called to serve in the country\u2019s military. The community is furious, with protesters and military-age men openly defying the draft.",
+    "source": "nytimes.com",
+    "time": "2025-12-03T10:13:13+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Family of Colombian man killed in U.S. boat strikes files formal complaint",
+    "url": "https://www.washingtonpost.com/world/2025/12/03/venezuela-colombia-hegseth-boat-strikes-human-rights/",
+    "snippet": "Alejandro Andres Carranza Medina\u2019s family alleges that the Trump administration committed human rights violations in its campaign against suspected drug trafficking.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-03T09:06:30+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
     "title": "Malicious Rust Crate Delivers OS-Specific Malware to Web3 Developer Systems",
     "url": "https://thehackernews.com/2025/12/malicious-rust-crate-delivers-os.html",
-    "snippet": "Cybersecurity researchers have discovered a malicious Rust package that's capable of targeting Windows, macOS, and Linux systems, and features malicious functionality to stealthily execute on develope",
+    "snippet": "Cybersecurity researchers have discovered a malicious Rust package that's capable of targeting Windows, macOS, and Linux systems, and features malicious functionality to stealthily execute on developer machines by masque",
     "source": "thehackernews.com",
     "time": "2025-12-03T08:39:00+00:00",
     "region": "EMEA",
@@ -490,11 +800,81 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Green earthquake (Magnitude 5.6M, Depth:613.568km) in Fiji 02/12/2025 23:35 UTC, Few people affected in 100km.",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1513012",
-    "snippet": "On 12/2/2025 11:35:28 PM, an earthquake occurred in Fiji potentially affecting Few people affected in 100km. The earthquake had Magnitude 5.6M, Depth:613.568km.",
-    "source": "gdacs.org",
-    "time": "2025-12-02T23:54:12+00:00",
+    "title": "Crisis looms in Israel over ultra-Orthodox conscription bill",
+    "url": "https://www.bbc.com/news/articles/cly580gkd9ro?at_medium=RSS&at_campaign=rss",
+    "snippet": "Lawmakers are considering a draft bill to end the exemption granted to ultra-Orthodox men enrolled in full-time religious study.",
+    "source": "bbc.com",
+    "time": "2025-12-03T06:06:49+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Cyclone catastrophe in Sri Lanka awakens volunteer spirit",
+    "url": "https://www.bbc.com/news/articles/c058n10727po?at_medium=RSS&at_campaign=rss",
+    "snippet": "Fishing boats deliver relief supplies to flooded suburbs as community kitchens churn out food aid.",
+    "source": "bbc.com",
+    "time": "2025-12-03T00:34:05+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Reckoning With a New Era of Deadly Floods",
+    "url": "https://www.nytimes.com/2025/12/02/climate/climate-change-floods.html",
+    "snippet": "The floods and landslides that have killed more than 1,350 people in recent weeks are a grim reminder of the risks of a warming planet.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T21:41:56+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Maduro Faces His Ultimate Fight as Trump Threatens Military Action in Venezuela",
+    "url": "https://www.nytimes.com/2025/12/02/world/americas/venezuela-nicolas-maduro-trump.html",
+    "snippet": "President Trump\u2019s threat of military action has confronted President Nicol\u00e1s Maduro of Venezuela with the gravest challenge of his crisis-ridden reign.",
+    "source": "nytimes.com",
+    "time": "2025-12-02T20:39:52+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Premier Alliance adds Cai Mep call amid US import surge from Vietnam",
+    "url": "https://joc.com/article/premier-alliance-adds-cai-mep-call-amid-us-import-surge-from-vietnam-6127112",
+    "snippet": "Ocean Network Express said the East Coast 2 service jointly operated with HMM and Yang Ming will call Cai Mep on eastbound rotations, while dropping a call at China\u2019s Port of Xiamen.",
+    "source": "joc.com",
+    "time": "2025-12-02T20:14:15+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Families on rooftops, homes buried by mud: Asia floods show water is overtaking wind as main threat",
+    "url": "https://www.theguardian.com/world/2025/dec/02/global-heating-and-other-human-activity-are-making-asias-floods-more-lethal",
+    "snippet": "Much improved response systems are struggling to cope with ever more powerful and destructive storms Death toll from Indonesia floods passes 700 as 1 million evacuated Families stranded on their rooftops. Homes buried by",
+    "source": "theguardian.com",
+    "time": "2025-12-02T19:19:02+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "What was Honduras ex-president convicted of and why has Trump pardoned him?",
+    "url": "https://www.bbc.com/news/articles/c9qewln7912o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Juan Orlando Hern\u00e1ndez, once called the key figure in a drug trafficking scheme that flooded America with cocaine, walked free after the pardon.",
+    "source": "bbc.com",
+    "time": "2025-12-02T18:34:13+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "British women stranded by landslides in Sri Lankan mountains running out of food and water, daughter says",
+    "url": "https://www.theguardian.com/world/2025/dec/02/british-women-stranded-by-landslides-in-sri-lankan-mountains-running-out-of-food-and-water-daughter-says",
+    "snippet": "Friends Melanie Watters and Janine Reid have been trapped in Pussellawa since Thursday Two British women stranded by landslides in Sri Lanka\u2019s tea mountains are running out of food and water, the daughter of one of them ",
+    "source": "theguardian.com",
+    "time": "2025-12-02T18:04:07+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
@@ -502,7 +882,7 @@
   {
     "title": "Severe storms swamp Southeast Asia supply chains, with Colombo hardest hit",
     "url": "https://joc.com/article/severe-storms-swamp-southeast-asia-supply-chains-with-colombo-hardest-hit-6127049",
-    "snippet": "Ocean carriers and terminal stakeholders at Sri Lanka\u2019s Colombo Port are dealing with operational chaos that resulted from a three-day shutdown caused by Cyclone Ditwah, said to be the strongest storm",
+    "snippet": "Ocean carriers and terminal stakeholders at Sri Lanka\u2019s Colombo Port are dealing with operational chaos that resulted from a three-day shutdown caused by Cyclone Ditwah, said to be the strongest storm to have struck the ",
     "source": "joc.com",
     "time": "2025-12-02T17:02:15+00:00",
     "region": "APJC",
@@ -510,9 +890,19 @@
     "type": "CRISIS / WEATHER"
   },
   {
+    "title": "FMCSA registry rife with fake CDL schools, industry exec says",
+    "url": "https://www.freightwaves.com/news/fmcsa-registry-rife-with-fake-cdl-schools-industry-exec-says",
+    "snippet": "CDL schools are exploiting federal loopholes and flooding the trucking industry with untrained drivers, industry exec says. The post FMCSA registry rife with fake CDL schools, industry exec says appeared first on Freight",
+    "source": "freightwaves.com",
+    "time": "2025-12-02T15:04:55+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
     "title": "Researchers Capture Lazarus APT's Remote-Worker Scheme Live on Camera",
     "url": "https://thehackernews.com/2025/12/researchers-capture-lazarus-apts-remote.html",
-    "snippet": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intellige",
+    "snippet": "A joint investigation led by Mauro Eldritch, founder of BCA LTD, conducted together with threat-intel initiative NorthScan and ANY.RUN, a solution for interactive malware analysis and threat intelligence, has uncovered o",
     "source": "thehackernews.com",
     "time": "2025-12-02T15:02:00+00:00",
     "region": "APJC",
@@ -520,39 +910,49 @@
     "type": "CYBER SECURITY"
   },
   {
+    "title": "Death toll from Indonesia floods passes 700 as 1 million evacuated",
+    "url": "https://www.theguardian.com/world/2025/dec/02/indonesia-floods-one-million-people-evacuated-death-toll-rises",
+    "snippet": "About 3.2 million people on Sumatra island have been affected, 2,600 have been injured and 504 are missing The number of people killed by floods and landslides on Indonesia\u2019s Sumatra island rose to 708 on Tuesday, the co",
+    "source": "theguardian.com",
+    "time": "2025-12-02T12:19:25+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
     "title": "Industrial Video & Control Longwatch",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATION OF CODE ('CODE IN",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00+00:00",
     "region": "AMER",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Iskra iHUB and iHUB Lite",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Function 2. RISK EVALUAT",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Mirion Medical EC2 Software NMIS BioDose",
     "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-336-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission A",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission Assignment for Critic",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00+00:00",
     "region": "AMER",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "CISA Releases Five Industrial Control Systems Advisories",
     "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-releases-five-industrial-control-systems-advisories",
-    "snippet": "CISA released five Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-336-01",
+    "snippet": "CISA released five Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-336-01 Industrial Video & ",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00+00:00",
     "region": "Global",
@@ -562,7 +962,7 @@
   {
     "title": "CISA Adds Two Known Exploited Vulnerabilities to Catalog",
     "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-adds-two-known-exploited-vulnerabilities-catalog",
-    "snippet": "CISA has added two new vulnerabilities to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-48572 Android Framework Privilege Escalation Vulnerabil",
+    "snippet": "CISA has added two new vulnerabilities to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-48572 Android Framework Privilege Escalation Vulnerability CVE-2025-48633 A",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00+00:00",
     "region": "Global",
@@ -570,99 +970,299 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "SecAlerts Cuts Through the Noise with a Smarter, Faster Way to Track Vulnerabilities",
-    "url": "https://thehackernews.com/2025/12/secalerts-cuts-through-noise-with.html",
-    "snippet": "Vulnerability management is a core component of every cybersecurity strategy. However, businesses often use thousands of software without realising it (when was the last time you checked?), and keepin",
+    "title": "New Albiriox MaaS Malware Targets 400+ Apps for On-Device Fraud and Screen Control",
+    "url": "https://thehackernews.com/2025/12/new-albiriox-maas-malware-targets-400.html",
+    "snippet": "A new Android malware named Albiriox has been advertised under a malware-as-a-service (MaaS) model to offer a \"full spectrum\" of features to facilitate on-device fraud (ODF), screen manipulation, and real-time interactio",
     "source": "thehackernews.com",
-    "time": "2025-12-02T11:30:00+00:00",
+    "time": "2025-12-01T08:45:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Greek sheep and goat cull raises fears of feta cheese shortage",
+    "url": "https://www.bbc.com/news/articles/cgex9d0212xo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Livestock is being culled across the country due to an infectious disease outbreak.",
+    "source": "bbc.com",
+    "time": "2025-12-01T00:10:14+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "HEALTH / SAFETY"
+  },
+  {
+    "title": "CISA Adds Actively Exploited XSS Bug CVE-2021-26829 in OpenPLC ScadaBR to KEV",
+    "url": "https://thehackernews.com/2025/11/cisa-adds-actively-exploited-xss-bug.html",
+    "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) has updated its Known Exploited Vulnerabilities (KEV) catalog to include a security flaw impacting OpenPLC ScadaBR, citing evidence of active exploitation.",
+    "source": "thehackernews.com",
+    "time": "2025-11-30T09:23:00+00:00",
     "region": "AMER",
     "severity": 2,
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Dell ControlVault, Lasso, GL.iNet vulnerabilities",
-    "url": "https://blog.talosintelligence.com/dell-controlvault-lasso-gl-inet-vulnerabilities/",
-    "snippet": "Cisco Talos\u2019 Vulnerability Discovery & Research team recently disclosed five vulnerabilities in Dell ControlVault 3 firmware and its associated Windows software, four vulnerabilities in Entr'ouvert La",
-    "source": "blog.talosintelligence.com",
-    "time": "2025-11-26T18:36:06+00:00",
+    "title": "Neighbourhood businesses hit by series of break-ins",
+    "url": "https://www.bbc.com/news/videos/ceq197j5q3jo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Businesses in Canton tell BBC Wales about how a recent spate of break-ins has affected them.",
+    "source": "bbc.com",
+    "time": "2025-11-29T07:10:55+00:00",
     "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "North Korean Hackers Deploy 197 npm Packages to Spread Updated OtterCookie Malware",
+    "url": "https://thehackernews.com/2025/11/north-korean-hackers-deploy-197-npm.html",
+    "snippet": "The North Korean threat actors behind the Contagious Interview campaign have continued to flood the npm registry with 197 more malicious packages since last month.\nAccording to Socket, these packages have been downloaded",
+    "source": "thehackernews.com",
+    "time": "2025-11-28T16:18:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Bloody Wolf Expands Java-based NetSupport RAT Attacks in Kyrgyzstan and Uzbekistan",
+    "url": "https://thehackernews.com/2025/11/bloody-wolf-expands-java-based.html",
+    "snippet": "The threat actor known as Bloody Wolf has been attributed to a cyber attack campaign that has targeted Kyrgyzstan since at least June 2025 with the goal of delivering NetSupport RAT.\nAs of October 2025, the activity has ",
+    "source": "thehackernews.com",
+    "time": "2025-11-27T18:13:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "ThreatsDay Bulletin: AI Malware, Voice Bot Flaws, Crypto Laundering, IoT Attacks \u2014 and 20 More Stories",
+    "url": "https://thehackernews.com/2025/11/threatsday-bulletin-ai-malware-voice.html",
+    "snippet": "Hackers have been busy again this week. From fake voice calls and AI-powered malware to huge money-laundering busts and new scams, there\u2019s a lot happening in the cyber world.\nCriminals are getting creative \u2014 using smart ",
+    "source": "thehackernews.com",
+    "time": "2025-11-27T10:03:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Qilin Ransomware Turns South Korean MSP Breach Into 28-Victim 'Korean Leaks' Data Heist",
+    "url": "https://thehackernews.com/2025/11/qilin-ransomware-turns-south-korean-msp.html",
+    "snippet": "South Korea's financial sector has been targeted by what has been described as a sophisticated supply chain attack that led to the deployment of Qilin ransomware.\n\"This operation combined the capabilities of a major Rans",
+    "source": "thehackernews.com",
+    "time": "2025-11-26T14:31:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "RomCom Uses SocGholish Fake Update Attacks to Deliver Mythic Agent Malware",
+    "url": "https://thehackernews.com/2025/11/romcom-uses-socgholish-fake-update.html",
+    "snippet": "The threat actors behind a malware family known as RomCom targeted a U.S.-based civil engineering company via a JavaScript loader dubbed SocGholish to deliver the Mythic Agent.\n\"This is the first time that a RomCom paylo",
+    "source": "thehackernews.com",
+    "time": "2025-11-26T08:28:00+00:00",
+    "region": "AMER",
     "severity": 2,
     "type": "CYBER SECURITY"
   },
   {
     "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Low attack complexity Vendor : Ashlar-Vellum Equipment : Cobalt, Xenon, Argon, Lithium, Cobalt Share Vulnerabilities : Out-of-Bounds Write, Heap-",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Low attack complexity Vendor : Ashlar-Vellum Equipment : Cobalt, Xenon, Argon, Lithium, Cobalt Share Vulnerabilities : Out-of-Bounds Write, Heap-based Buffer Overflo",
     "source": "cisa.gov",
     "time": "2025-11-25T12:00:00+00:00",
     "region": "AMER",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Zenitel TCIV-3+",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-03",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 10.0 ATTENTION: Exploitable remotely/low attack complexity Vendor: Zenitel Equipment: TCIV-3+ Vulnerabilities: OS Command Injection, Out-of-bounds Write, Cross-s",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 10.0 ATTENTION: Exploitable remotely/low attack complexity Vendor: Zenitel Equipment: TCIV-3+ Vulnerabilities: OS Command Injection, Out-of-bounds Write, Cross-site Scripting 2. RIS",
     "source": "cisa.gov",
     "time": "2025-11-25T12:00:00+00:00",
     "region": "EMEA",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Unleashing the Kraken ransomware group",
-    "url": "https://blog.talosintelligence.com/kraken-ransomware-group/",
-    "snippet": "In August 2025, Cisco Talos observed big-game hunting and double extortion attacks carried out by Kraken, a Russian-speaking group that has emerged from the remnants of the HelloKitty ransomware carte",
-    "source": "blog.talosintelligence.com",
-    "time": "2025-11-13T11:00:38+00:00",
-    "region": "EMEA",
+    "title": "Rockwell Automation Arena Simulation",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 7.1 ATTENTION : Exploitable from a local network Vendor : Rockwell Automation Equipment : Arena Simulation Vulnerability : Stack-based Buffer Overflow 2. RISK EVALUATION Successful ",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CISA Releases Seven Industrial Control Systems Advisories",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/11/25/cisa-releases-seven-industrial-control-systems-advisories",
+    "snippet": "CISA released seven Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-329-01 Ashlar-Vellum Coba",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Remember, remember the fifth of November",
-    "url": "https://blog.talosintelligence.com/remember-remember-the-fifth-of-november/",
-    "snippet": "This edition, Hazel explores the origins of Guy Fawkes Day and how heeding an anonymous warning prevented an assassination.",
-    "source": "blog.talosintelligence.com",
-    "time": "2025-11-06T19:00:14+00:00",
+    "title": "Opto 22 groov View",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-04",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.1 ATTENTION : Exploitable remotely/Low attack complexity Vendor : Opto 22 Equipment : groov View Vulnerability : Exposure of Sensitive Information Through Metadata 2. RISK EVALUAT",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "SiRcom SMART Alert (SiSA)",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-329-06",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.8 ATTENTION : Exploitable remotely/low attack complexity Vendor : SiRcom Equipment : SMART Alert (SiSA) Vulnerability : Missing Authentication for Critical Function 2. RISK EVALUA",
+    "source": "cisa.gov",
+    "time": "2025-11-25T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "3 SOC Challenges You Need to Solve Before 2026",
+    "url": "https://thehackernews.com/2025/11/3-soc-challenges-you-need-to-solve.html",
+    "snippet": "2026 will mark a pivotal shift in cybersecurity. Threat actors are moving from experimenting with AI to making it their primary weapon, using it to scale attacks, automate reconnaissance, and craft hyper-realistic social",
+    "source": "thehackernews.com",
+    "time": "2025-11-25T11:30:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "TruffleHog, Fade In and BSAFE Crypto-C vulnerabilities",
-    "url": "https://blog.talosintelligence.com/trufflehog-fade-in-and-bsafe-crypto-c-vulnerabilities/",
-    "snippet": "Cisco Talos\u2019 Vulnerability Discovery & Research team recently disclosed three vulnerabilities in Dell BSAFE, two in Fade In screenwriting software, and one in Trufflehog. The vulnerabilities mentioned",
-    "source": "blog.talosintelligence.com",
-    "time": "2025-11-04T14:26:03+00:00",
+    "title": "Hackers Hijack Blender 3D Assets to Deploy StealC V2 Data-Stealing Malware",
+    "url": "https://thehackernews.com/2025/11/hackers-hijack-blender-3d-assets-to.html",
+    "snippet": "Cybersecurity researchers have disclosed details of a new campaign that has leveraged Blender Foundation files to deliver an information stealer known as StealC V2.\n\"This ongoing operation, active for at least six months",
+    "source": "thehackernews.com",
+    "time": "2025-11-25T11:28:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Dynamic binary instrumentation (DBI) with DynamoRio",
-    "url": "https://blog.talosintelligence.com/dynamic-binary-instrumentation-dbi-with-dynamorio/",
-    "snippet": "Learn how to build your own dynamic binary instrumentation (DBI) tool with open-source DynamoRIO to enable malware analysis, security auditing, reverse engineering, and more.",
-    "source": "blog.talosintelligence.com",
-    "time": "2025-10-30T09:59:32+00:00",
+    "title": "CISA Warns of Active Spyware Campaigns Hijacking High-Value Signal and WhatsApp Users",
+    "url": "https://thehackernews.com/2025/11/cisa-warns-of-active-spyware-campaigns.html",
+    "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) on Monday issued an alert warning of bad actors actively leveraging commercial spyware and remote access trojans (RATs) to target users of mobile messaging",
+    "source": "thehackernews.com",
+    "time": "2025-11-25T06:42:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Canada looks for new container gateways for decoupling from US",
+    "url": "https://joc.com/article/canada-looks-for-new-container-gateways-for-decoupling-from-us-6122714",
+    "snippet": "The Carney government outlined preliminary goals for a new logistics infrastructure fund that would help increase Canada\u2019s trade outside of the US.",
+    "source": "joc.com",
+    "time": "2025-11-24T21:20:15+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Green notification for tropical cyclone KOTO-25. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (2.031 million in Tropical Storm).",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001236",
+    "snippet": "From 24/11/2025 to 02/12/2025, a Tropical Depression (maximum wind speed of 148 km/h) KOTO-25 was active in NWPacific. The cyclone affects these countries: Viet Nam, Philippines (vulnerability Medium). Estimated populati",
+    "source": "gdacs.org",
+    "time": "2025-11-24T19:52:20+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "New Fluent Bit Flaws Expose Cloud to RCE and Stealthy Infrastructure Intrusions",
+    "url": "https://thehackernews.com/2025/11/new-fluent-bit-flaws-expose-cloud-to.html",
+    "snippet": "Cybersecurity researchers have discovered five vulnerabilities in Fluent Bit, an open-source and lightweight telemetry agent, that could be chained to compromise and take over cloud infrastructures.\nThe security defects ",
+    "source": "thehackernews.com",
+    "time": "2025-11-24T15:03:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "\u200b\u200bSpyware Allows Cyber Threat Actors to Target Users of Messaging Applications\u200b",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/11/24/spyware-allows-cyber-threat-actors-target-users-messaging-applications",
+    "snippet": "CISA is aware of multiple cyber threat actors actively leveraging commercial spyware to target users of mobile messaging applications (apps). 1 These cyber actors use sophisticated targeting and social engineering techni",
+    "source": "cisa.gov",
+    "time": "2025-11-24T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Machu Picchu hit by a row over tourist buses",
+    "url": "https://www.bbc.com/news/articles/ce8g8wrd61zo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Protests have taken place over the coaches that take visitors up to the world heritage site in Peru.",
+    "source": "bbc.com",
+    "time": "2025-11-24T00:06:53+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "The curious case of why Poundland is struggling during a cost-of-living crisis",
+    "url": "https://www.bbc.com/news/articles/c4gkgxeeyzno?at_medium=RSS&at_campaign=rss",
+    "snippet": "Why - in an age where so many of us are feeling the financial pinch - are some budget shops on UK high streets having such a tough time?",
+    "source": "bbc.com",
+    "time": "2025-11-21T08:03:37+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Emerson Appleton UPSMON-PRO",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-324-06",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Emerson Equipment : Appleton UPSMON-PRO Vulnerability : Stack-based Buffer Overflow 2. RISK EVALUATION Successful",
+    "source": "cisa.gov",
+    "time": "2025-11-20T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "ICAM365 CCTV Camera Multiple Models",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-324-02",
+    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 7.0 ATTENTION : Low attack complexity Vendor : iCam365 Equipment : P201 and QC021 Vulnerabilities : Missing Authentication for Critical Function 2. RISK EVALUATION Successful exploi",
+    "source": "cisa.gov",
+    "time": "2025-11-20T12:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CISA Releases Six Industrial Control Systems Advisories",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/11/20/cisa-releases-six-industrial-control-systems-advisories",
+    "snippet": "CISA released six Industrial Control Systems (ICS) Advisories. These advisories provide timely information about current security issues, vulnerabilities, and exploits surrounding ICS. ICSA-25-324-01 Automated Logic WebC",
+    "source": "cisa.gov",
+    "time": "2025-11-20T12:00:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Why XSS still matters: MSRC\u2019s perspective on a 25-year-old threat",
-    "url": "https://msrc.microsoft.com/blog/2025/09/why-xss-still-matters-msrcs-perspective-on-a-25-year-old-threat/",
-    "snippet": "Cross-Site Scripting (XSS) has been a known vulnerability class for two decades, yet it continues to surface in modern applications, including those built with the latest frameworks and cloud-native a",
+    "title": "How Milei's 'Thatcherite' economics divided his nation - but won over Trump",
+    "url": "https://www.bbc.com/news/articles/c9865l8540eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Ahead of Milei's visit to the White House - amid protests and anger on the streets back at home - Ione Wells unravels the paradox that Argentina's president has created",
+    "source": "bbc.com",
+    "time": "2025-10-14T12:26:40+00:00",
+    "region": "LATAM",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "BlueHat Asia 2025: Closing soon: Submit your papers by September 14, 2025",
+    "url": "https://msrc.microsoft.com/blog/2025/08/bluehat-asia-2025-closing-soon-submit-your-papers-by-september-14-2025/",
+    "snippet": "The next chapter of the Microsoft Security Response Center\u2019s (MSRC) BlueHat security conference is fast approaching. BlueHat Asia 2025 will take place in Bengaluru, India, on November 5 \u2013 6, 2025 and the Call for Papers ",
     "source": "msrc.microsoft.com",
-    "time": "2025-09-04T07:00:00+00:00",
-    "region": "Global",
+    "time": "2025-08-27T07:00:00+00:00",
+    "region": "APJC",
     "severity": 2,
-    "type": "CYBER SECURITY"
+    "type": "SUPPLY CHAIN"
   },
   {
     "title": "Zero Day Quest: Join the largest hacking event with up to $5 million in total bounty awards",
     "url": "https://msrc.microsoft.com/blog/2025/08/zero-day-quest-join-the-largest-hacking-event-with-up-to-5-million-in-total-bounty-awards/",
-    "snippet": "Last year, we announced the largest hacking event in history: Zero Day Quest, with up to $4 million in bounty awards. The response from the global security community was incredible and helped improve ",
+    "snippet": "Last year, we announced the largest hacking event in history: Zero Day Quest, with up to $4 million in bounty awards. The response from the global security community was incredible and helped improve security for our cus",
     "source": "msrc.microsoft.com",
     "time": "2025-08-04T07:00:00+00:00",
     "region": "Global",
@@ -670,31 +1270,451 @@
     "type": "CYBER SECURITY"
   },
   {
-    "title": "Customer guidance for SharePoint vulnerability CVE-2025-53770",
-    "url": "https://msrc.microsoft.com/blog/2025/07/customer-guidance-for-sharepoint-vulnerability-cve-2025-53770/",
-    "snippet": "Revision Change Date 1.0 Information published 07/19/25 2.0 Clarified affected SharePoint product in summary 07/20/25 Added fix availability guidance Provided additional protections guidance regarding",
-    "source": "msrc.microsoft.com",
-    "time": "2025-07-19T07:00:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
-  },
-  {
-    "title": "Congratulations to the MSRC 2025 Most Valuable Security Researchers!",
-    "url": "https://msrc.microsoft.com/blog/2025/07/congratulations-to-the-msrc-2025-most-valuable-security-researchers/",
-    "snippet": "The Microsoft Researcher Recognition Program offers public thanks and recognition to security researchers who help protect our customers through discovering and sharing security vulnerabilities under ",
-    "source": "msrc.microsoft.com",
-    "time": "2025-07-15T07:00:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
-  },
-  {
     "title": "Zero Day Quest 2025: $1.6 million awarded for vulnerability research",
     "url": "https://msrc.microsoft.com/blog/2025/04/zero-day-quest-2025-1-6-million-awarded-for-vulnerability-research/",
-    "snippet": "This month, the Microsoft Security Response Center recently welcomed some of the world\u2019s most talented security researchers at Microsoft\u2019s Zero Day Quest, the largest live hacking competition of its k",
+    "snippet": "This month, the Microsoft Security Response Center recently welcomed some of the world\u2019s most talented security researchers at Microsoft\u2019s Zero Day Quest, the largest live hacking competition of its kind. The inaugural e",
     "source": "msrc.microsoft.com",
     "time": "2025-04-21T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Securing AI and Cloud with the Zero Day Quest",
+    "url": "https://msrc.microsoft.com/blog/2024/11/securing-ai-and-cloud-with-the-zero-day-quest/",
+    "snippet": "Our security teams work around the clock to help protect every person and organization on the planet from security threats. We also know that security is a team sport, and that\u2019s why we also partner with the global secur",
+    "source": "msrc.microsoft.com",
+    "time": "2024-11-19T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Mitigating SSRF Vulnerabilities Impacting Azure Machine Learning",
+    "url": "https://msrc.microsoft.com/blog/2024/06/mitigating-ssrf-vulnerabilities-impacting-azure-machine-learning/",
+    "snippet": "Summary On May 9, 2024, Microsoft successfully addressed multiple vulnerabilities within the Azure Machine Learning (AML) service, which were initially discovered by security research firms Wiz and Tenable. These vulnera",
+    "source": "msrc.microsoft.com",
+    "time": "2024-06-17T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "BlueHat India Call for Papers is Now Open!",
+    "url": "https://msrc.microsoft.com/blog/2024/01/bluehat-india-call-for-papers-is-now-open/",
+    "snippet": "You asked for it and it\u2019s finally here! The inaugural BlueHat India conference will be held May 16-17th, 2024, in Hyderabad, India!\u00a0This intimate conference will bring together a unique blend of security researchers and ",
+    "source": "msrc.microsoft.com",
+    "time": "2024-01-08T08:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Microsoft guidance regarding credentials leaked to GitHub Actions Logs through Azure CLI",
+    "url": "https://msrc.microsoft.com/blog/2023/11/microsoft-guidance-regarding-credentials-leaked-to-github-actions-logs-through-azure-cli/",
+    "snippet": "Summary The Microsoft Security Response Center (MSRC) was made aware of a vulnerability where Azure Command-Line Interface (CLI) could expose sensitive information, including credentials, through GitHub Actions logs. The",
+    "source": "msrc.microsoft.com",
+    "time": "2023-11-14T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft Response to Distributed Denial of Service (DDoS) Attacks against HTTP/2",
+    "url": "https://msrc.microsoft.com/blog/2023/10/microsoft-response-to-distributed-denial-of-service-ddos-attacks-against-http-2/",
+    "snippet": "Summary Beginning in September 2023, Microsoft was notified by industry partners about a newly identified Distributed Denial-of-Service (DDoS) attack technique being used in the wild targeting HTTP/2 protocol. This vulne",
+    "source": "msrc.microsoft.com",
+    "time": "2023-10-10T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft Response to Layer 7 Distributed Denial of Service (DDoS) Attacks",
+    "url": "https://msrc.microsoft.com/blog/2023/06/microsoft-response-to-layer-7-distributed-denial-of-service-ddos-attacks/",
+    "snippet": "Summary Beginning in early June 2023, Microsoft identified surges in traffic against some services that temporarily impacted availability. Microsoft promptly opened an investigation and subsequently began tracking ongoin",
+    "source": "msrc.microsoft.com",
+    "time": "2023-06-16T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Hey Yara, find some vulnerabilities",
+    "url": "https://msrc.microsoft.com/blog/2023/06/hey-yara-find-some-vulnerabilities/",
+    "snippet": "Intro Finding vulnerabilities in software is no easy task by itself.\u00a0Doing this at cloud scale is very challenging to perform manually, and we use tools to help us identify patterns or vulnerability signatures.\u00a0Yara is o",
+    "source": "msrc.microsoft.com",
+    "time": "2023-06-08T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "First steps in CHERIoT Security Research",
+    "url": "https://msrc.microsoft.com/blog/2023/02/first-steps-in-cheriot-security-research/",
+    "snippet": "At Microsoft, we invest a lot of time researching and investigating possibilities in our journey to memory safety. Because the massive majority of existing codebases are written in unsafe programming languages, the task ",
+    "source": "msrc.microsoft.com",
+    "time": "2023-02-28T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hunting for Cobalt Strike: Mining and plotting for fun and profit",
+    "url": "https://msrc.microsoft.com/blog/2022/10/hunting-for-cobalt-strike-mining-and-plotting-for-fun-and-profit/",
+    "snippet": "Introduction Cobalt Strike is a commercial Command and Control framework built by Helpsystems. You can find out more about Cobalt Strike on the MITRE ATT&CK page. But it can also be used by real adversaries. In this post",
+    "source": "msrc.microsoft.com",
+    "time": "2022-10-13T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Customer Guidance for Reported Zero-day Vulnerabilities in Microsoft Exchange Server",
+    "url": "https://msrc.microsoft.com/blog/2022/09/customer-guidance-for-reported-zero-day-vulnerabilities-in-microsoft-exchange-server/",
+    "snippet": "November 8, 2022 update - Microsoft released security updates for CVE-2022-41040 and CVE-2022-41082. We recommend that customers protect their organizations by applying the updates immediately to affected systems. The op",
+    "source": "msrc.microsoft.com",
+    "time": "2022-09-30T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Researcher Spotlight: Hector Peralta\u2019s Evolution from Popcorn Server to the MSRC Leaderboards",
+    "url": "https://msrc.microsoft.com/blog/2022/05/researcher-spotlight-hector-peraltas-evolution-from-popcorn-server-to-the-msrc-leaderboards/",
+    "snippet": "\u201cThe bug bounty literally changed my life. Before this, I had nothing.\u201d\nCoolest thing he purchased : His first vehicle!\nBest gift to give: Buying his nephew gaming accessories.\nFavorite Hacking Companion : His two cats. ",
+    "source": "msrc.microsoft.com",
+    "time": "2022-05-19T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Cyber threat activity in Ukraine: analysis and resources",
+    "url": "https://msrc.microsoft.com/blog/2022/02/analysis-resources-cyber-threat-activity-ukraine/",
+    "snippet": "UPDATE 27 Apr 2022: See Updated malware details and Microsoft security product detections below as discussed in the Special Report: Ukraine.\nUPDATE 02 MAR 2022: See Updated malware details and Microsoft security product ",
+    "source": "msrc.microsoft.com",
+    "time": "2022-02-28T08:00:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "An Armful of CHERIs",
+    "url": "https://msrc.microsoft.com/blog/2022/01/an_armful_of_cheris/",
+    "snippet": "Today, Arm announced that the first silicon supporting the Morello prototype architecture, a research project led by Arm, Microsoft, University of Cambridge and others, is now available on a limited run of demonstration ",
+    "source": "msrc.microsoft.com",
+    "time": "2022-01-20T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "BlueHat is Back!",
+    "url": "https://msrc.microsoft.com/blog/2021/11/bluehat-is-back/",
+    "snippet": "After a short hiatus, BlueHat is coming back with a vengeance! And we\u2019ve got big plans for the entire researcher community.\nBut first, I must apologize. It\u2019s been a while since you have heard from us. We didn\u2019t have Blue",
+    "source": "msrc.microsoft.com",
+    "time": "2021-11-11T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "HEALTH / SAFETY"
+  },
+  {
+    "title": "Coordinated disclosure of vulnerability in Azure Container Instances Service",
+    "url": "https://msrc.microsoft.com/blog/2021/09/coordinated-disclosure-of-vulnerability-in-azure-container-instances-service/",
+    "snippet": "Microsoft recently mitigated a vulnerability reported by a security researcher in the Azure Container Instances (ACI) that could potentially allow a user to access other customers\u2019 information in the ACI service. Our inv",
+    "source": "msrc.microsoft.com",
+    "time": "2021-09-08T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "\u201cBadAlloc\u201d \u2013 Memory allocation vulnerabilities could affect wide range of IoT and OT devices in industrial, medical, and enterprise networks",
+    "url": "https://msrc.microsoft.com/blog/2021/04/badalloc-memory-allocation-vulnerabilities-could-affect-wide-range-of-iot-and-ot-devices-in-industrial-medical-and-enterprise-networks/",
+    "snippet": "Microsoft\u2019s Section 52, the Azure Defender for IoT security research group, recently uncovered a series of critical memory allocation vulnerabilities in IoT and OT devices that adversaries could exploit to bypass securit",
+    "source": "msrc.microsoft.com",
+    "time": "2021-04-29T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft Internal Solorigate Investigation - Final Update",
+    "url": "https://msrc.microsoft.com/blog/2021/02/microsoft-internal-solorigate-investigation-final-update/",
+    "snippet": "We believe the Solorigate incident is an opportunity to work with the community, to share information, strengthen defenses and respond to attacks. We have now completed our internal investigation into the activity of the",
+    "source": "msrc.microsoft.com",
+    "time": "2021-02-18T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Multiple Security Updates Affecting TCP/IP:\u202f CVE-2021-24074, CVE-2021-24094, and CVE-2021-24086",
+    "url": "https://msrc.microsoft.com/blog/2021/02/multiple-security-updates-affecting-tcp-ip/",
+    "snippet": "Today Microsoft released a set of fixes affecting Windows TCP/IP implementation that include two Critical Remote Code Execution (RCE) vulnerabilities (CVE-2021-24074, CVE-2021-24094) and an Important Denial of Service (D",
+    "source": "msrc.microsoft.com",
+    "time": "2021-02-09T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "New and Improved Report Abuse Portal and API!",
+    "url": "https://msrc.microsoft.com/blog/2021/02/new-and-improved-report-abuse-portal-and-api/",
+    "snippet": "The Report Abuse (CERT) Portal and Report Abuse API have played a significant role in MSRC\u2019s response to suspected cyberattacks, privacy issues, and abuse originating from Microsoft Online Services. With the contribution",
+    "source": "msrc.microsoft.com",
+    "time": "2021-02-01T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft Internal Solorigate Investigation Update",
+    "url": "https://msrc.microsoft.com/blog/2020/12/microsoft-internal-solorigate-investigation-update/",
+    "snippet": "As we said in our recent blog, we believe the Solorigate incident is an opportunity to work together in important ways, to share information, strengthen defenses and respond to attacks. Like other SolarWinds customers, w",
+    "source": "msrc.microsoft.com",
+    "time": "2020-12-31T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Nobelium Resource Center - updated March 4, 2021",
+    "url": "https://msrc.microsoft.com/blog/2020/12/december-21st-2020-solorigate-resource-center/",
+    "snippet": "UPDATE: Microsoft continues to work with partners and customers to expand our knowledge of the threat actor behind the nation-state cyberattacks that compromised the supply chain of SolarWinds and impacted multiple other",
+    "source": "msrc.microsoft.com",
+    "time": "2020-12-21T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Customer Guidance on Recent Nation-State Cyber Attacks",
+    "url": "https://msrc.microsoft.com/blog/2020/12/customer-guidance-on-recent-nation-state-cyber-attacks/",
+    "snippet": "Note: we are updating as the investigation continues. Revision history listed at the bottom.\nThis post contains technical details about the methods of the actor we believe was involved in Recent Nation-State Cyber Attack",
+    "source": "msrc.microsoft.com",
+    "time": "2020-12-14T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Machine Learning Security Evasion Competition 2020 Invites Researchers to Defend and Attack",
+    "url": "https://msrc.microsoft.com/blog/2020/06/machine-learning-security-evasion-competition-2020-invites-researchers-to-defend-and-attack/",
+    "snippet": "Machine learning (ML) is an increasingly valuable tool in cyber security as adversaries continually evolve their tactics and techniques to evade detection. As machine learning has advanced and sophisticated ML models hav",
+    "source": "msrc.microsoft.com",
+    "time": "2020-06-01T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Calling for security research in Azure Sphere, now generally available",
+    "url": "https://msrc.microsoft.com/blog/2020/02/calling-for-security-research-in-azure-sphere/",
+    "snippet": "Today, Microsoft released Azure Sphere into General Availability (GA).\nAzure Sphere\u2019s mission is to empower every organization on the planet to connect and create secured and trustworthy IoT devices. Azure Sphere is an e",
+    "source": "msrc.microsoft.com",
+    "time": "2020-02-24T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Customer Guidance for the Dopplepaymer Ransomware",
+    "url": "https://msrc.microsoft.com/blog/2019/11/customer-guidance-for-the-dopplepaymer-ransomware/",
+    "snippet": "Microsoft has been investigating recent attacks by malicious actors using the Dopplepaymerransomware. There is misleading information circulating about Microsoft Teams, along with references to RDP (BlueKeep), as ways in",
+    "source": "msrc.microsoft.com",
+    "time": "2019-11-20T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Time for day 2 of briefings at BlueHat Seattle!",
+    "url": "https://msrc.microsoft.com/blog/2019/10/time-for-day-2-of-briefings-at-bluehat-seattle/",
+    "snippet": "We hope you enjoyed the first day of our BlueHat briefings and the Bytes of BlueHat reception in our glamping tent (complete with toasted marshmallows). Yesterday, we learned a lot about how XboxOne hardware security has",
+    "source": "msrc.microsoft.com",
+    "time": "2019-10-25T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Patch new wormable vulnerabilities in Remote Desktop Services (CVE-2019-1181/1182)",
+    "url": "https://msrc.microsoft.com/blog/2019/08/patch-new-wormable-vulnerabilities-in-remote-desktop-services-cve-2019-1181-1182/",
+    "snippet": "Today Microsoft released a set of fixes for Remote Desktop Services that include two critical Remote Code Execution (RCE) vulnerabilities, CVE-2019-1181 and CVE-2019-1182. Like the previously-fixed \u2018BlueKeep\u2019 vulnerabili",
+    "source": "msrc.microsoft.com",
+    "time": "2019-08-13T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft Announces Top Three Contributing Partners in the Microsoft Active Protections Program (MAPP)",
+    "url": "https://msrc.microsoft.com/blog/2019/08/microsoft-announces-top-three-contributing-partners-in-the-microsoft-active-protections-program-mapp/",
+    "snippet": "Today Microsoft announced the MAPP program Top Vulnerability Contributors, Top Threat Indicator Submitters, and Top Zero-Day Reporting for the period of July 1, 2018 \u2013 June 30, 2019.\nThe Microsoft Active Protections Prog",
+    "source": "msrc.microsoft.com",
+    "time": "2019-08-08T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Announcing 2019 MSRC Most Valuable Security Researchers",
+    "url": "https://msrc.microsoft.com/blog/2019/08/announcing-2019-msrc-most-valuable-security-researchers/",
+    "snippet": "Earlier today we announced MSRC\u2019s 2018-2019 Most Valuable Security Researchers at Black Hat. The following 75 researchers hail from all corners of the world and possess varied experience and skills, yet all of them have ",
+    "source": "msrc.microsoft.com",
+    "time": "2019-08-07T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Corporate IoT - a path to intrusion",
+    "url": "https://msrc.microsoft.com/blog/2019/08/corporate-iot-a-path-to-intrusion/",
+    "snippet": "Several sources estimate that by the year 2020 some 50 billion IoT devices will be deployed worldwide. IoT devices are purposefully designed to connect to a network and many are simply connected to the internet with litt",
+    "source": "msrc.microsoft.com",
+    "time": "2019-08-05T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Microsoft Announces Top Contributing Partners in the Microsoft Active Protections Program (MAPP)",
+    "url": "https://msrc.microsoft.com/blog/2019/07/microsoft-announces-top-contributing-partners-in-the-microsoft-active-protections-program-mapp/",
+    "snippet": "Today we announce the top organizational candidates for Vulnerability Top Contributors, Threat Indicator Top Submitters, and Zero-Day Top Reporting for the period of July 1, 2018 \u2013 June 30, 2019.\nThe Microsoft Active Pro",
+    "source": "msrc.microsoft.com",
+    "time": "2019-07-25T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Inside the MSRC \u2013 Building your own security incident response process",
+    "url": "https://msrc.microsoft.com/blog/2019/07/inside-the-msrc-building-your-own-security-incident-response-process/",
+    "snippet": "This is the third and last in a series of posts that looks at how Microsoft responds to elevated threats to customers through the Microsoft Security Response Center\u2019s (MSRC) Software and Services Incident Response Plan (",
+    "source": "msrc.microsoft.com",
+    "time": "2019-07-01T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "A Reminder to Update Your Systems to Prevent a Worm",
+    "url": "https://msrc.microsoft.com/blog/2019/05/a-reminder-to-update-your-systems-to-prevent-a-worm/",
+    "snippet": "On May 14, Microsoft released fixes for a critical Remote Code Execution vulnerability, CVE-2019-0708, in Remote Desktop Services \u2013 formerly known as Terminal Services \u2013 that affects some older versions of Windows. In ou",
+    "source": "msrc.microsoft.com",
+    "time": "2019-05-31T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Prevent a worm by updating Remote Desktop Services (CVE-2019-0708)",
+    "url": "https://msrc.microsoft.com/blog/2019/05/prevent-a-worm-by-updating-remote-desktop-services-cve-2019-0708/",
+    "snippet": "Today Microsoft released fixes for a critical Remote Code Execution vulnerability, CVE-2019-0708, in Remote Desktop Services \u2013 formerly known as Terminal Services \u2013 that affects some older versions of Windows. The Remote",
+    "source": "msrc.microsoft.com",
+    "time": "2019-05-14T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Should You Send Your Pen Test Report to the MSRC?",
+    "url": "https://msrc.microsoft.com/blog/2018/11/should-you-send-your-pen-test-report-to-the-msrc/",
+    "snippet": "Every day, the Microsoft Security Response Center (MSRC) receives vulnerability reports from security researchers, technology/industry partners, and customers. We want those reports, because they help us make our product",
+    "source": "msrc.microsoft.com",
+    "time": "2018-11-12T08:00:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Update on Petya malware attacks",
+    "url": "https://msrc.microsoft.com/blog/2017/06/update-on-petya-malware-attacks/",
+    "snippet": "As happened recently with WannaCrypt, we again face a malicious attack in the form of ransomware, Petya. In early reports, there was a lot of conflicting information reported on the attacks, including conflation of unrel",
+    "source": "msrc.microsoft.com",
+    "time": "2017-06-28T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Customer Guidance for WannaCrypt attacks",
+    "url": "https://msrc.microsoft.com/blog/2017/05/customer-guidance-for-wannacrypt-attacks/",
+    "snippet": "Microsoft solution available to protect additional products\nToday many of our customers around the world and the critical systems they depend on were victims of malicious \u201cWannaCrypt\u201d software. Seeing businesses and indi",
+    "source": "msrc.microsoft.com",
+    "time": "2017-05-13T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "What makes a good Microsoft Defense Bounty submission?",
+    "url": "https://msrc.microsoft.com/blog/2015/09/what-makes-a-good-microsoft-defense-bounty-submission/",
+    "snippet": "One of Microsoft\u2019s longstanding strategies toward improving software security continues to involve investing in defensive technologies that make it difficult and costly for attackers to exploit vulnerabilities. These sol",
+    "source": "msrc.microsoft.com",
+    "time": "2015-09-08T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "A Call for Better Coordinated Vulnerability Disclosure",
+    "url": "https://msrc.microsoft.com/blog/2015/01/a-call-for-better-coordinated-vulnerability-disclosure/",
+    "snippet": "For years our customers have been in the trenches against cyberattacks in an increasingly complex digital landscape. We\u2019ve been there with you, as have others. And we aren\u2019t going anywhere. Forces often seek to undermine",
+    "source": "msrc.microsoft.com",
+    "time": "2015-01-11T08:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Security Advisory 3010060 released",
+    "url": "https://msrc.microsoft.com/blog/2014/10/security-advisory-3010060-released/",
+    "snippet": "Today, we released Security Advisory 3010060to provide additional protections regarding limited, targeted attacks directed at Microsoft Windows customers. A cyberattacker could cause remote code execution if someone is t",
+    "source": "msrc.microsoft.com",
+    "time": "2014-10-21T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Announcing EMET 5.0",
+    "url": "https://msrc.microsoft.com/blog/2014/07/announcing-emet-5-0/",
+    "snippet": "Today, we are excited to announce the general availability of the Enhanced Mitigation Experience Toolkit (EMET) 5.0. As many of you already know, EMET is a free tool, designed to help customers with their defense in dept",
+    "source": "msrc.microsoft.com",
+    "time": "2014-07-31T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "General Availability for Enhanced Mitigation Experience Toolkit (EMET) 5.0",
+    "url": "https://msrc.microsoft.com/blog/2014/07/general-availability-for-enhanced-mitigation-experience-toolkit-emet-5-0/",
+    "snippet": "Today, we are excited to announce the general availability of Enhanced Mitigation Experience Toolkit (EMET) 5.0. EMET is a free tool, designed to help customers with their defense in depth strategies against cyberattacks",
+    "source": "msrc.microsoft.com",
+    "time": "2014-07-31T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Microsoft releases Security Advisory 2974294",
+    "url": "https://msrc.microsoft.com/blog/2014/06/microsoft-releases-security-advisory-2974294/",
+    "snippet": "Today, we released Security Advisory 2974294 to inform global customers about an update for the Microsoft Malware Protection Engine. This update addresses a privately disclosed issue and fixes a vulnerability that could ",
+    "source": "msrc.microsoft.com",
+    "time": "2014-06-17T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Antimalware Support for Windows XP and the January 2014 Security Bulletin Webcast and Q&A",
+    "url": "https://msrc.microsoft.com/blog/2014/01/antimalware-support-for-windows-xp-and-the-january-2014-security-bulletin-webcast-and-qa/",
+    "snippet": "Today we\u2019re publishing the January 2014 Security Bulletin Webcast Questions & Answers page. We answered 16 questions in total, with the majority of questions focusing on the Dynamics AX bulletin (MS14-004), the update fo",
+    "source": "msrc.microsoft.com",
+    "time": "2014-01-17T08:00:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
