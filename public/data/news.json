@@ -1,13 +1,13 @@
 [
   {
-    "title": "Hackers are exploiting ArrayOS AG VPN flaw to plant webshells",
-    "url": "https://www.bleepingcomputer.com/news/security/hackers-are-exploiting-arrayos-ag-vpn-flaw-to-plant-webshells/",
-    "snippet": "Threat actors have been exploiting a command injection vulnerability in Array AG Series VPN devices to plant webshells and create rogue users. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T23:05:05",
+    "title": "Suspect arrested in pipe bomb incident on eve of 2021 Capitol riot",
+    "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
+    "source": "bbc.com",
+    "time": "2025-12-04T23:48:18",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Alert sent for Nevada earthquake that did not happen",
@@ -17,7 +17,7 @@
     "time": "2025-12-04T21:50:38",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CRISIS / WEATHER"
   },
   {
     "title": "'All Israeli people are with us', parents of last dead hostage in Gaza tell BBC",
@@ -27,57 +27,7 @@
     "time": "2025-12-04T21:17:09",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Predator spyware uses new infection vector for zero-click attacks",
-    "url": "https://www.bleepingcomputer.com/news/security/predator-spyware-uses-new-infection-vector-for-zero-click-attacks/",
-    "snippet": "The Predator spyware from surveillance company Intellexa has been using a zero-click infection mechanism dubbed \"Aladdin\" that compromised specific targets when simply viewing a malicious advertisemen",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T20:47:42",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Suspect arrested in pipe bomb incident on eve of Jan 6, ending years-long manhunt",
-    "url": "https://www.bbc.com/news/articles/c62d8v6jpwzo?at_medium=RSS&at_campaign=rss",
-    "snippet": "The bombs were placed the night before the 6 January riots, and were discovered as rioters began to storm the Capitol.",
-    "source": "bbc.com",
-    "time": "2025-12-04T20:43:43",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Admiral testified Hegseth did not give 'kill them all' order, US lawmakers say",
-    "url": "https://www.bbc.com/news/articles/cwyxjd6pxzro?at_medium=RSS&at_campaign=rss",
-    "snippet": "Admiral Frank Bradley, who gave the order for a second strike on a drug boat, was on Capitol Hill briefing lawmakers about the September incident.",
-    "source": "bbc.com",
-    "time": "2025-12-04T20:26:58",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Israel strikes south Lebanon after first direct talks in decades",
-    "url": "https://www.bbc.com/news/articles/c62n6y9yd70o?at_medium=RSS&at_campaign=rss",
-    "snippet": "The Israeli military says it struck Hezbollah sites, less than 24 hours after Israel and Lebanon sent civilian envoys to meet.",
-    "source": "bbc.com",
-    "time": "2025-12-04T19:47:17",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "World: Media Advisory: High-Level Pledging Event for the United Nations Central Emergency Response Fund in 2026",
-    "url": "https://reliefweb.int/report/world/media-advisory-high-level-pledging-event-united-nations-central-emergency-response-fund-2026",
-    "snippet": "Country: World Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. WHO : The UN Office for the Coordination of Humanitarian Affairs (OCHA), co-hosts Irela",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T19:12:25",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Russia blocks FaceTime and Snapchat for alleged use by terrorists",
@@ -87,7 +37,7 @@
     "time": "2025-12-04T19:12:18",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "US authorities arrest suspect in 2021 Washington, DC, pipe bomb case",
@@ -97,27 +47,7 @@
     "time": "2025-12-04T18:46:31",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "CISA warns of Chinese \"BrickStorm\" malware attacks on VMware servers",
-    "url": "https://www.bleepingcomputer.com/news/security/cisa-warns-of-chinese-brickstorm-malware-attacks-on-vmware-servers/",
-    "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) warned network defenders of Chinese hackers backdooring VMware vSphere servers with Brickstorm malware. [...]",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T18:19:55",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Indonesia: IHCP Situation Report #2 on Floods, Flash Floods, and Landslides in Aceh, North Sumatra, and West Sumatra provinces",
-    "url": "https://reliefweb.int/report/indonesia/indonesia-ihcp-situation-report-2-floods-flash-floods-and-landslides-aceh-north-sumatra-and-west-sumatra-provinces",
-    "snippet": "Country: Indonesia Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file.",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T18:05:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Sri Lanka cyclone survivors afraid to go home, stuck in relief centres",
@@ -127,7 +57,17 @@
     "time": "2025-12-04T17:46:09",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Russia\u2019s Putin found \u2018morally responsible\u2019 for nerve agent death in UK",
+    "url": "https://www.aljazeera.com/news/2025/12/4/russias-putin-found-morally-responsible-for-nerve-agent-death-in-uk?traffic_source=rss",
+    "snippet": "Dawn Sturgess, 44, was unwittingly caught up in an assassination attempt against the former Russian spy Sergei Skripal.",
+    "source": "aljazeera.com",
+    "time": "2025-12-04T17:25:33",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "FBI arrests suspect in 2021 Capitol riot pipe bomb mystery after 5-year hunt",
@@ -137,107 +77,7 @@
     "time": "2025-12-04T16:58:44",
     "region": "AMER",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Albania: UCPM and CEMS activations to wildfires in 2025 - DG ECHO Daily Map | 04/12/2025",
-    "url": "https://reliefweb.int/map/albania/ucpm-and-cems-activations-wildfires-2025-dg-echo-daily-map-04122025",
-    "snippet": "Countries: Albania, Bulgaria, Bosnia and Herzegovina, Cyprus, Spain, Greece, Israel, Montenegro, Portugal, Syrian Arab Republic Source: European Commission's Directorate-General for European Civil Pro",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T16:17:13",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Critical React, Next.js flaw lets hackers execute code on servers",
-    "url": "https://www.bleepingcomputer.com/news/security/critical-react2shell-flaw-in-react-nextjs-lets-hackers-run-javascript-code/",
-    "snippet": "A maximum severity vulnerability,\u00a0dubbed 'React2Shell',\u00a0in the React Server Components (RSC) 'Flight' protocol\u00a0allows remote code execution without authentication in React and Next.js applications. [.",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T15:11:54",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "How strong password policies secure OT systems against cyber threats",
-    "url": "https://www.bleepingcomputer.com/news/security/how-strong-password-policies-secure-ot-systems-against-cyber-threats/",
-    "snippet": "OT environments rely on aging systems, shared accounts, and remote access, making weak or reused passwords a major attack vector. Specops Software explains how stronger password policies and continuou",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T15:11:22",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Plan Indonesia Delivers 23 Tons of Emergency Relief to Support Children and Women Affected by the Sumatra Floods and Landslides",
-    "url": "https://reliefweb.int/report/indonesia/plan-indonesia-delivers-23-tons-emergency-relief-support-children-and-women-affected-sumatra-floods-and-landslides",
-    "snippet": "Country: Indonesia Source: Plan International The severe floods and landslides that struck Aceh, North Sumatra, and West Sumatra have caused a significant humanitarian crisis. As of 3 December 2025, t",
-    "source": "reliefweb.int",
-    "time": "2025-12-04T13:35:55",
-    "region": "AMER",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Indonesia pledges action on companies causing catastrophic Sumatra floods",
-    "url": "https://www.straitstimes.com/asia/indonesia-pledges-action-on-companies-causing-catastrophic-sumatra-floods",
-    "snippet": "JAKARTA, Dec 4 - Indonesia is investigating companies suspected of clearing forests around flood-hit areas in Sumatra, its forestry minister said on Thursday, acknowledging poor forest management wors",
-    "source": "straitstimes.com",
-    "time": "2025-12-04T13:25:41",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "SolisCloud Monitoring Platform",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-06",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : SolisCloud Equipment : Monitoring Platform (Cloud API & Device Control API) Vulnerability : A",
-    "source": "cisa.gov",
-    "time": "2025-12-04T12:00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Advantech iView",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-07",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Advantech Equipment : iView Vulnerability : SQL Injection 2. RISK EVALUATION Successful explo",
-    "source": "cisa.gov",
-    "time": "2025-12-04T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Sunbird DCIM dcTrack and Power IQ",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-05",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.4 ATTENTION : Exploitable remotely/low attack complexity Vendor : Sunbird Equipment : DCIM dcTrack, Power IQ Vulnerabilities : Authentication Bypass Using an A",
-    "source": "cisa.gov",
-    "time": "2025-12-04T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "MAXHUB Pivot",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : MAXHUB Equipment : MAXHUB Pivot Vulnerability : Weak Password Recovery Mechanism for Forgotte",
-    "source": "cisa.gov",
-    "time": "2025-12-04T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Mitsubishi Electric GX Works2",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 6.8 ATTENTION : Low attack complexity Vendor : Mitsubishi Electric Equipment : GX Works2 Vulnerability : Cleartext Storage of Sensitive Information 2. RISK EVALU",
-    "source": "cisa.gov",
-    "time": "2025-12-04T12:00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Israel says Palestinian groups returned body of Thai hostage held in Gaza",
@@ -247,7 +87,17 @@
     "time": "2025-12-04T11:02:24",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Five killed in Israeli air strikes on tents near Khan Younis, medics say",
+    "url": "https://www.bbc.com/news/articles/cnv21m0zpjmo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Rescue workers say they recovered bodies from a camp for displaced people. The IDF says it \"struck a Hamas terrorist\".",
+    "source": "bbc.com",
+    "time": "2025-12-03T22:09:36",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Marquis data breach impacts over 74 US banks, credit unions",
@@ -257,17 +107,7 @@
     "time": "2025-12-03T22:06:07",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Critical flaw in WordPress add-on for Elementor exploited in attacks",
-    "url": "https://www.bleepingcomputer.com/news/security/critical-flaw-in-wordpress-add-on-for-elementor-exploited-in-attacks/",
-    "snippet": "Attackers are exploiting a critical-severity privilege escalation vulnerability (CVE-2025-8489) in the King Addons for Elementor plugin for WordPress, which lets them obtain\u00a0administrative permissions",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-03T21:31:20",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "French DIY retail giant Leroy Merlin discloses a data breach",
@@ -277,7 +117,7 @@
     "time": "2025-12-03T20:52:36",
     "region": "EMEA",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "Freedom Mobile discloses data breach exposing customer data",
@@ -287,7 +127,7 @@
     "time": "2025-12-03T20:28:01",
     "region": "AMER",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
@@ -297,7 +137,7 @@
     "time": "2025-12-03T12:00:00",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "CISA, Australia, and Partners Author Joint Guidance on Securely Integrating Artificial Intelligence in Operational Technology",
@@ -307,36 +147,16 @@
     "time": "2025-12-03T12:00:00",
     "region": "APJC",
     "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   },
   {
-    "title": "Industrial Video & Control Longwatch",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Industrial Video & Control Equipment : Longwatch Vulnerability : IMPROPER CONTROL OF GENERATI",
+    "title": "CISA Adds Two Known Exploited Vulnerabilities to Catalog",
+    "url": "https://www.cisa.gov/news-events/alerts/2025/12/02/cisa-adds-two-known-exploited-vulnerabilities-catalog",
+    "snippet": "CISA has added two new vulnerabilities to its Known Exploited Vulnerabilities (KEV) Catalog , based on evidence of active exploitation. CVE-2025-48572 Android Framework Privilege Escalation Vulnerabil",
     "source": "cisa.gov",
     "time": "2025-12-02T12:00:00",
     "region": "Global",
     "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Iskra iHUB and iHUB Lite",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-336-02",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 9.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : Iskra Equipment : iHUB and iHUB Lite Vulnerability : Missing Authentication for Critical Func",
-    "source": "cisa.gov",
-    "time": "2025-12-02T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
-  },
-  {
-    "title": "Mirion Medical EC2 Software NMIS BioDose",
-    "url": "https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-336-01",
-    "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.7 ATTENTION : Exploitable remotely/low attack complexity Vendor : Mirion Medical Equipment : EC2 Software NMIS BioDose Vulnerabilities : Incorrect Permission A",
-    "source": "cisa.gov",
-    "time": "2025-12-02T12:00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "GENERAL"
+    "type": "CYBER SECURITY"
   }
 ]
