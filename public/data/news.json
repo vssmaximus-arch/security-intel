@@ -1,20 +1,10 @@
 [
   {
-    "title": "November 2025 Patch Tuesday: One Zero-Day and Five Critical Vulnerabilities Among 63 CVEs",
-    "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-november-2025/",
-    "snippet": "November 2025 Patch Tuesday: One Zero-Day and Five Critical Vulnerabilities Among 63 CVEs",
-    "source": "crowdstrike.com",
-    "time": "2025-12-05T04:53:10.372285+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY"
-  },
-  {
     "title": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
     "url": "https://www.crowdstrike.com/en-us/blog/from-vulnerability-management-to-exposure-management-platform-era-has-arrived/",
     "snippet": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
     "source": "crowdstrike.com",
-    "time": "2025-12-05T04:53:10.320839+00:00",
+    "time": "2025-12-05T05:39:05.898526+00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
@@ -24,17 +14,37 @@
     "url": "https://asia.nikkei.com/economy/natural-disasters/sri-lanka-confronts-staggering-cyclone-toll-and-the-long-road-to-recovery",
     "snippet": "Sri Lanka confronts staggering cyclone toll and the long road to recovery",
     "source": "asia.nikkei.com",
-    "time": "2025-12-05T04:52:41.550712+00:00",
+    "time": "2025-12-05T05:38:39.472213+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
   },
   {
-    "title": "Parts of Australia hit by severe heatwave as temperatures pass 40C in NSW and Tasmanian bushfires threaten properties",
+    "title": "Deadly Sumatra flooding triggers memories of Indian Ocean tsunami",
+    "url": "https://www.straitstimes.com/asia/deadly-sumatra-flooding-triggers-memories-of-indian-ocean-tsunami",
+    "snippet": "NORTH ACEH, Indonesia, Dec 5 - For fisherman Effendi Basyaruddin, the deadly floods and landslides in Indonesia's Aceh province over the past week have triggered traumatic memories of the day 21 years",
+    "source": "straitstimes.com",
+    "time": "2025-12-05T05:15:51+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Yemen\u2019s Civil War Could Escalate Again. Here\u2019s What to Know.",
+    "url": "https://www.nytimes.com/2025/12/05/world/middleeast/yemen-separatism.html",
+    "snippet": "An armed group backed by the United Arab Emirates has pushed into the oil-rich province of Hadramout, a move that could reignite conflict in Yemen after years of a stalemate.",
+    "source": "nytimes.com",
+    "time": "2025-12-05T05:00:24+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Sydney records highest temperature in nearly two years amid heatwave as Tasmanian bushfires threaten homes",
     "url": "https://www.theguardian.com/australia-news/2025/dec/05/parts-of-australia-hit-by-severe-heatwave-as-temperature-surges-past-40c-in-nsw-and-tasmanian-bushfires-threaten-properties",
     "snippet": "Heatwave warnings in place for parts of New South Wales, the Northern Territory, Queensland and Western Australia Follow our Australia news live blog for latest updates Get our breaking news email , f",
     "source": "theguardian.com",
-    "time": "2025-12-05T02:46:39+00:00",
+    "time": "2025-12-05T04:45:52+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
@@ -146,16 +156,6 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-04T19:12:18+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "US authorities arrest suspect in 2021 Washington, DC, pipe bomb case",
-    "url": "https://www.aljazeera.com/news/2025/12/4/us-authorities-arrest-suspect-in-2021-capitol-hill-pipe-bombs?traffic_source=rss",
-    "snippet": "The arrest of a Virginia man potentially ends a five-year mystery that highlighted rise of political violence in the US.",
-    "source": "aljazeera.com",
-    "time": "2025-12-04T18:46:31+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
