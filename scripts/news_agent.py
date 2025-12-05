@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 import feedparser
 from bs4 import BeautifulSoup
-import re
 
 try:
     import google.generativeai as genai
@@ -98,7 +97,7 @@ BLOCKLIST = [
     "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament",
     "celebrity", "entertainment", "movie", "film", "star", "concert",
     "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
-    "opinion:", "editorial:", "review:", "cultivation", "poppy", "drug trade", "estate dispute",
+    "opinion:", "editorial:", "review:", "cultivation", "poppy", "drug trade", "opium", "estate dispute",
     "husband", "wife", "marriage", "divorce", "dating", "best of", "top 10"
 ]
 
@@ -119,36 +118,30 @@ def is_obviously_irrelevant(text):
         if word in text: return True
     return False
 
-def map_region(ai_geo_data, text_fallback):
-    """Maps AI Geo output or fallback text to Dashboard Regions."""
-    # If AI returned a list of countries, check them
-    text_to_check = ""
-    if isinstance(ai_geo_data, dict):
-        text_to_check = " ".join(ai_geo_data.get("mentioned_countries_or_cities", []))
-    
-    if not text_to_check:
-        text_to_check = text_fallback
-
-    t = text_to_check.lower()
-    
+def classify_region(text):
+    """Fallback region classifier if AI doesn't provide clear geo data."""
+    t = text.lower()
     if any(x in t for x in ["china", "asia", "india", "japan", "australia", "thailand", "vietnam", "indonesia", "malaysia", "singapore", "korea", "taiwan", "philippines"]): return "APJC"
     if any(x in t for x in ["uk", "europe", "germany", "france", "poland", "ireland", "israel", "gaza", "russia", "ukraine", "middle east", "africa", "netherlands", "sweden", "spain", "italy"]): return "EMEA"
     if any(x in t for x in ["usa", "america", "canada", "brazil", "mexico", "colombia", "argentina", "chile", "peru", "panama"]): return "AMER"
-    
     return "Global"
 
-def ai_analyze_article(model, title, body, source):
+def ai_analyze_article(model, title, body, source, url):
     """
-    Uses the specific Security News Classifier persona.
+    Uses the strict Security News Classifier persona to analyze the article.
     """
     if not model:
         # Fallback if no AI key
-        return None
+        return {
+            "category": "NOT_RELEVANT",
+            "likelihood_relevant": 0,
+            "severity": "LOW",
+            "primary_reason": "AI Unavailable"
+        }
 
     prompt = f"""
     ROLE & GOAL
     You are a security news classifier for a global technology company (Dell Technologies).
-
     Your job:
     1. Decide if a news article is relevant to:
        - Physical security (sites, people, events)
@@ -156,7 +149,7 @@ def ai_analyze_article(model, title, body, source):
        - Major cyber incidents that could affect operations, partners or core IT providers
     2. Assign it to the correct category.
     3. Assess severity and how likely it is to matter for corporate security.
-    4. Return a structured JSON object, and nothing else.
+    4. Return a structured JSON object.
 
     CATEGORIES:
     1) PHYSICAL_SECURITY: Protests, riots, terror, war, natural disasters, major crime.
@@ -166,7 +159,7 @@ def ai_analyze_article(model, title, body, source):
 
     INPUT ARTICLE:
     - Title: {title}
-    - Body: {body[:600]}...
+    - Body: {body[:500]}...
     - Source: {source}
 
     OUTPUT FORMAT (JSON ONLY):
@@ -174,10 +167,8 @@ def ai_analyze_article(model, title, body, source):
       "category": "PHYSICAL_SECURITY | SUPPLY_CHAIN_SECURITY | CYBER_SECURITY_MAJOR | NOT_RELEVANT",
       "likelihood_relevant": integer 0-100,
       "severity": "LOW | MEDIUM | HIGH | CRITICAL",
-      "primary_reason": "short one-sentence explanation focusing on business/security impact",
-      "geo_relevance": {{
-        "mentioned_countries_or_cities": ["list", "of", "locations"]
-      }}
+      "primary_reason": "short explanation",
+      "geo_relevance": "Country or Region mentioned"
     }}
     """
     
@@ -191,18 +182,18 @@ def ai_analyze_article(model, title, body, source):
         return None
 
 def main():
-    print(f"Starting SRO Intel Ingest on {len(FEEDS)} feeds...")
+    print("Starting SRO Intel Ingest (Expanded Feeds)...")
     all_items = []
     seen = set()
     model = init_gemini()
 
-    # Limit to check per feed to keep runtime reasonable (adjust as needed)
-    CHECK_LIMIT = 3
+    # Limit to check per feed to keep runtime reasonable
+    CHECK_LIMIT = 5 
 
     for url in FEEDS:
         try:
             f = feedparser.parse(url)
-            print(f"Scanning: {url}...")
+            print(f"Scanning: {url} ({len(f.entries)} entries)")
             
             for e in f.entries[:CHECK_LIMIT]:
                 title = e.title.strip()
@@ -218,7 +209,7 @@ def main():
                     continue
 
                 # 2. AI Analysis
-                analysis = ai_analyze_article(model, title, raw_summary, url)
+                analysis = ai_analyze_article(model, title, raw_summary, url, e.link)
                 
                 if not analysis: continue
                 
@@ -227,39 +218,35 @@ def main():
                 cat = analysis.get("category", "NOT_RELEVANT")
                 score = analysis.get("likelihood_relevant", 0)
                 
-                if cat == "NOT_RELEVANT" or score < 45:
+                if cat == "NOT_RELEVANT" or score < 40:
                     continue
 
-                # 4. Map AI Output to Dashboard Schema
-                
-                # Map Severity
+                # 4. Map to Dashboard Schema
+                # Map AI Severity string to Integer (1, 2, 3)
                 sev_str = analysis.get("severity", "LOW")
                 severity = 1
-                if sev_str == "MEDIUM": severity = 2
+                if sev_str in ["MEDIUM"]: severity = 2
                 if sev_str in ["HIGH", "CRITICAL"]: severity = 3
 
-                # Map Category to Dashboard Types
+                # Map AI Category to Dashboard Types
                 dash_type = "GENERAL"
                 if cat == "PHYSICAL_SECURITY": dash_type = "PHYSICAL SECURITY"
                 if cat == "SUPPLY_CHAIN_SECURITY": dash_type = "SUPPLY CHAIN"
                 if cat == "CYBER_SECURITY_MAJOR": dash_type = "CYBER SECURITY"
                 
-                # Map Region
-                geo_data = analysis.get("geo_relevance", {})
-                region = map_region(geo_data, full_text)
+                # Region Handling
+                region = classify_region(full_text) # Use fallback first
+                # Ideally we'd parse analysis['geo_relevance'] to refine this
 
                 # Timestamp
                 ts = datetime.now(timezone.utc).isoformat()
                 if hasattr(e, "published_parsed") and e.published_parsed:
                     ts = datetime(*e.published_parsed[:6]).isoformat()
 
-                # Use the AI's "primary_reason" as the snippet for the dashboard
-                snippet = analysis.get("primary_reason", raw_summary[:150])
-
                 item = {
                     "title": title,
                     "url": e.link,
-                    "snippet": snippet,
+                    "snippet": analysis.get("primary_reason", raw_summary[:150]),
                     "source": urlparse(e.link).netloc.replace("www.", ""),
                     "time": ts,
                     "region": region,
@@ -280,7 +267,7 @@ def main():
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
         json.dump(all_items, f, indent=2)
     
-    print(f"Ingest Complete. Saved {len(all_items)} SRO-relevant articles.")
+    print(f"Ingest Complete. Saved {len(all_items)} articles.")
 
 if __name__ == "__main__":
     main()
