@@ -1,5 +1,38 @@
 [
   {
+    "title": "German president visits WWII UK bombing site amid unity against Russia",
+    "url": "https://www.aljazeera.com/news/2025/12/5/german-president-visits-wwii-uk-bombing-site-amid-unity-against-russia?traffic_source=rss",
+    "snippet": "President Frank-Walter Steinmeier's visit to UK is the first by a German head of state in 27 years....",
+    "source": "aljazeera.com",
+    "time": "2025-12-05T13:33:03",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "7d609d6ca5ef3173fa2ac8e4d641119086f1547b"
+  },
+  {
+    "title": "‘If Jesus were born in America now’: church’s nativity challenges ICE policy",
+    "url": "https://www.scmp.com/news/world/united-states-canada/article/3335380/baby-jesus-zip-tied-ice-political-nativity-scene-challenges-trump-immigration-policies?utm_source=rss_feed",
+    "snippet": "Mother Mary wearing a respirator mask to protect herself from tear gas. Baby Jesus with zip-tied hands, wrapped in a thin blanket that looks like aluminium foil. Masked centurions with sunglasses and ...",
+    "source": "scmp.com",
+    "time": "2025-12-05T13:12:08",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "f13bd67f23d01f7a9576b7b7fd8380c888e9be91"
+  },
+  {
+    "title": "Pharma firm Inotiv discloses data breach after ransomware attack",
+    "url": "https://www.bleepingcomputer.com/news/security/pharma-firm-inotiv-discloses-data-breach-after-ransomware-attack/",
+    "snippet": "American pharmaceutical firm Inotiv is notifying thousands of people that they're personal information was stolen in an August 2025 ransomware attack. [...]...",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-05T13:05:52",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "e87ea060843757f990822816d2cf3fd042e262c3"
+  },
+  {
     "title": "React2Shell critical flaw actively exploited in China-linked attacks",
     "url": "https://www.bleepingcomputer.com/news/security/react2shell-critical-flaw-actively-exploited-in-china-linked-attacks/",
     "snippet": "Multiple China-linked threat actors began exploiting the React2Shell vulnerability (CVE-2025-55182) affecting React and Next.js just hours after the max-severity issue was disclosed. [...]...",
@@ -57,24 +90,13 @@
   {
     "title": "Deadly cyclone dents Sri Lanka’s peak tourism season",
     "url": "https://www.straitstimes.com/asia/south-asia/deadly-cyclone-dents-sri-lankas-peak-tourism-season",
-    "snippet": "The cyclone also hit roads, power lines and telecom networks, and caused losses to agriculture....",
+    "snippet": "The cyclone also hit roads, power lines and telecoms networks, and caused losses to agriculture....",
     "source": "straitstimes.com",
     "time": "2025-12-05T07:55:56",
     "region": "Global",
     "severity": 2,
     "type": "CRISIS / WEATHER",
     "_key": "bb2e00857c998c8970f087b4e9e6ddca3956d0ff"
-  },
-  {
-    "title": "More heavy rain slows Sri Lanka’s recovery after deadly cyclone",
-    "url": "https://www.aljazeera.com/news/2025/12/5/more-heavy-rain-slows-sri-lankas-recovery-after-deadly-cyclone?traffic_source=rss",
-    "snippet": "President Dissanayake has called rescue and recovery efforts the most difficult in the nation's history....",
-    "source": "aljazeera.com",
-    "time": "2025-12-05T06:57:46",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "19a97060fe2844a58d46d814063595f654cb4092"
   },
   {
     "title": "Coupang leak outrage morphs into anti-Chinese hatred",
@@ -97,17 +119,6 @@
     "severity": 2,
     "type": "CRISIS / WEATHER",
     "_key": "3fc3cd9e13f95d860ddee535c23a485cdcb664c2"
-  },
-  {
-    "title": "Russia continues tech crackdown by blocking Snapchat, FaceTime access",
-    "url": "https://www.aljazeera.com/news/2025/12/5/russia-continues-tech-crackdown-by-blocking-snapchat-facetime-access?traffic_source=rss",
-    "snippet": "Russian internet regulator Roskomnadzor accused both platforms of being used 'to organise and carry out terrorist acts'....",
-    "source": "aljazeera.com",
-    "time": "2025-12-05T05:26:44",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "eeb0a5bbed28f2bd9804726915933a09e2074d20"
   },
   {
     "title": "Deadly Sumatra flooding triggers memories of Indian Ocean tsunami",
@@ -251,28 +262,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "419c3f7025865a47e4ad2c56fc79949a261cd95c"
-  },
-  {
-    "title": "Marquis data breach impacts over 74 US banks, credit unions",
-    "url": "https://www.bleepingcomputer.com/news/security/marquis-data-breach-impacts-over-74-us-banks-credit-unions/",
-    "snippet": "Financial software provider Marquis Software Solutions is warning that it suffered a data breach that impacted dozens of banks and credit unions across the US. [...]...",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-03T22:06:07",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "1a0b03ba2ca7d15e84dfa56c8be8613101586ac2"
-  },
-  {
-    "title": "Critical flaw in WordPress add-on for Elementor exploited in attacks",
-    "url": "https://www.bleepingcomputer.com/news/security/critical-flaw-in-wordpress-add-on-for-elementor-exploited-in-attacks/",
-    "snippet": "Attackers are exploiting a critical-severity privilege escalation vulnerability (CVE-2025-8489) in the King Addons for Elementor plugin for WordPress, which lets them obtain administrative permissions...",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-03T21:31:20",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "ef9bfaa9e0a905767a7d61983575cad99cfaaf00"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
