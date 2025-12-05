@@ -4,7 +4,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-november-2025/",
     "snippet": "November 2025 Patch Tuesday: One Zero-Day and Five Critical Vulnerabilities Among 63 CVEs",
     "source": "crowdstrike.com",
-    "time": "2025-12-05T04:18:57.072718+00:00",
+    "time": "2025-12-05T04:42:16.059510+00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
@@ -14,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/from-vulnerability-management-to-exposure-management-platform-era-has-arrived/",
     "snippet": "From Vulnerability Management to Exposure Management: The Platform Era Has Arrived",
     "source": "crowdstrike.com",
-    "time": "2025-12-05T04:18:57.013301+00:00",
+    "time": "2025-12-05T04:42:16.013598+00:00",
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
@@ -24,7 +24,7 @@
     "url": "https://asia.nikkei.com/economy/natural-disasters/sri-lanka-confronts-staggering-cyclone-toll-and-the-long-road-to-recovery",
     "snippet": "Sri Lanka confronts staggering cyclone toll and the long road to recovery",
     "source": "asia.nikkei.com",
-    "time": "2025-12-05T04:18:31.312434+00:00",
+    "time": "2025-12-05T04:41:51.756677+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
@@ -48,6 +48,16 @@
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY"
+  },
+  {
+    "title": "Israel 4 December 2025 #1",
+    "url": "https://www.crisisgroup.org/content/israel-4-december-2025-1",
+    "snippet": "Israel 4 December 2025 #1 gnada Fri, 12/05/2025 - 02:48 Israel Fri, 12/05/2025 - 12:00 4 December 2025 An Israeli court indicted a man for allegedly spying for Iran in exchange for cryptocurrency. Aut",
+    "source": "crisisgroup.org",
+    "time": "2025-12-05T01:48:32+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Amid Russian Sabotage, U.K. Points Finger at Putin Over Novichok Death",
@@ -478,16 +488,6 @@
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "Tehran 1 December 2025 #1",
-    "url": "https://www.crisisgroup.org/content/tehran-1-december-2025-1",
-    "snippet": "Tehran 1 December 2025 #1 gnada Wed, 12/03/2025 - 00:20 Tehran Wed, 12/03/2025 - 12:00 1 December 2025 Foreign Minister Abbas Araghchi reiterated that \u201cif the American side shows its readiness for a f",
-    "source": "crisisgroup.org",
-    "time": "2025-12-02T23:20:06+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "Severe storms swamp Southeast Asia supply chains, with Colombo hardest hit",
