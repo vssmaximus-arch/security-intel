@@ -253,17 +253,6 @@
     "_key": "a208d257cc111941a56ef4feb2bddded3d2ec45c"
   },
   {
-    "title": "CISA warns of Chinese \"BrickStorm\" malware attacks on VMware servers",
-    "url": "https://www.bleepingcomputer.com/news/security/cisa-warns-of-chinese-brickstorm-malware-attacks-on-vmware-servers/",
-    "snippet": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) warned network defenders of Chinese hackers backdooring VMware vSphere servers with Brickstorm malware. [...]...",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T18:19:55",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "ca8b5273e08d47f3c0d59c09faf5ca45d0fa1afa"
-  },
-  {
     "title": "SolisCloud Monitoring Platform",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-25-338-06",
     "snippet": "View CSAF 1. EXECUTIVE SUMMARY CVSS v4 8.3 ATTENTION : Exploitable remotely/low attack complexity Vendor : SolisCloud Equipment : Monitoring Platform (Cloud API & Device Control API) Vulnerability : A...",
