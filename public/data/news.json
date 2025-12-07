@@ -2,7 +2,7 @@
   {
     "title": "Benin coup attempt foiled by loyalist troops, interior minister says",
     "url": "https://www.bbc.com/news/articles/c62v7n9wzkyo?at_medium=RSS&at_campaign=rss",
-    "snippet": "A presidential adviser has told the BBC that President Patrice Talon is in a safe location....",
+    "snippet": "A presidential adviser tells the BBC that President Patrice Talon is in a safe location....",
     "source": "bbc.com",
     "time": "2025-12-07T14:11:51",
     "region": "Global",
@@ -66,15 +66,15 @@
     "_key": "f54f258aa7f80481b558486a4560211d37cf0d2f"
   },
   {
-    "title": "Benin coup attempt live: Interior minister says coup attempt thwarted",
+    "title": "Benin coup attempt updates: Interior minister says coup attempt thwarted",
     "url": "https://www.aljazeera.com/news/liveblog/2025/12/7/benin-attempt-coup-live-soldiers-on-state-tv-claim-to-have-toppled-talon?traffic_source=rss",
-    "snippet": "Government officials say situation under control after group of soldiers claimed they had overthrown President Talon....",
+    "snippet": "These were the updates about a coup attempt in Benin on Sunday, December 7, 2025....",
     "source": "aljazeera.com",
     "time": "2025-12-07T09:09:40",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY",
-    "_key": "a917cc6dc29cc7c1b46890f75a8966af0fd0103f"
+    "_key": "2c15ef636f905cb9db88a09b5602bcbd8f893ecf"
   },
   {
     "title": "627 dead in Sri Lanka landslides as rains batter South, Southeast Asia",
@@ -130,17 +130,6 @@
     "severity": 2,
     "type": "CRISIS / WEATHER",
     "_key": "df1c94110ec02c62861834ffbbc0d1cc75950b72"
-  },
-  {
-    "title": "Mass shooting at a South African bar leaves 11 dead, including 3 children",
-    "url": "https://www.scmp.com/news/world/africa/article/3335480/mass-shooting-south-african-bar-leaves-11-dead-including-3-children?utm_source=rss_feed",
-    "snippet": "A mass shooting carried out on Saturday by multiple suspects in an unlicensed bar near the South African capital left at least 11 people dead, police said. The victims included three children aged thr...",
-    "source": "scmp.com",
-    "time": "2025-12-06T16:48:30",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "b5cb367d2e0a4872dcd71995c0466607300e46ad"
   },
   {
     "title": "'We've lost everything': Australia wildfire rips through homes",
@@ -209,6 +198,28 @@
     "_key": "b42fb2ad3e904061389d2a53636007f214a5b207"
   },
   {
+    "title": "Country Brief: Mozambique",
+    "url": "https://reliefweb.int/report/mozambique/country-brief-mozambique",
+    "snippet": "Country: Mozambique Sources: International Finance Corporation, UN High Commissioner for Refugees Please refer to the attached file. Mozambique’s economy grew by approximately 5.4% in 2023, driven mai...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T19:15:50",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "b6dbc63c9a6cc7490c242c0aa7d3069a3c97f4e1"
+  },
+  {
+    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 5 December 2025",
+    "url": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-5-december-2025",
+    "snippet": "Countries: Jamaica, Colombia, Haiti Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. KEY FIGURES 4.2M migrants and refugees require immediate assistanc...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T18:55:39",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER",
+    "_key": "36ebacb216d8c3f97fa78b9e42e62735f38173ca"
+  },
+  {
     "title": "Barts Health NHS discloses data breach after Oracle zero-day hack",
     "url": "https://www.bleepingcomputer.com/news/security/barts-health-nhs-discloses-data-breach-after-oracle-zero-day-hack/",
     "snippet": "Barts Health NHS Trust has announced that Clop ransomware actors have stolen files from a database by exploiting a vulnerability in its Oracle E-business Suite software. [...]...",
@@ -242,6 +253,39 @@
     "_key": "12855cbf28469e9efa7a2fd090763e84b882cb6e"
   },
   {
+    "title": "Attacks on Health Care in Myanmar: 12-25 November 2025",
+    "url": "https://reliefweb.int/report/myanmar/attacks-health-care-myanmar-12-25-november-2025",
+    "snippet": "Country: Myanmar Source: Insecurity Insight Please refer to the attached file. Insecurity Insight identified 1820 incidents of violence against or obstruction of health care in Myanmar since the milit...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:33:44",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "0a607fb7e943dcf687eca99b1b9275e94241b14e"
+  },
+  {
+    "title": "Community-Led Nature Based Solutions in Afghanistan | Concern Worldwide",
+    "url": "https://reliefweb.int/report/afghanistan/community-led-nature-based-solutions-afghanistan-concern-worldwide",
+    "snippet": "Country: Afghanistan Source: Concern Worldwide Please refer to the attached file. This paper explores how community-driven nature-based solutions can simultaneously support watershed restoration, live...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:33:17",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "7bb422590c83f472264b39eff0b9ec84aa1ae0c3"
+  },
+  {
+    "title": "World: Europe faces worst wildfire year on record as fire seasons grow longer and more destructive",
+    "url": "https://reliefweb.int/report/world/europe-faces-worst-wildfire-year-record-fire-seasons-grow-longer-and-more-destructive",
+    "snippet": "Country: World Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations The 2024 forest fires report from the Commission's Joint Research Centre ...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:33:06",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "f119f9701826c48cc7044016c51cd40022d9e704"
+  },
+  {
     "title": "Pharma firm Inotiv discloses data breach after ransomware attack",
     "url": "https://www.bleepingcomputer.com/news/security/pharma-firm-inotiv-discloses-data-breach-after-ransomware-attack/",
     "snippet": "American pharmaceutical firm Inotiv is notifying thousands of people that they're personal information was stolen in an August 2025 ransomware attack. [...]...",
@@ -251,6 +295,17 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "e87ea060843757f990822816d2cf3fd042e262c3"
+  },
+  {
+    "title": "DR Congo: As Ebola in DRC declared over, IFRC calls for investment in community-based surveillance | IFRC",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/ebola-drc-declared-over-ifrc-calls-investment-community-based-surveillance-ifrc",
+    "snippet": "Country: Democratic Republic of the Congo Source: International Federation of Red Cross and Red Crescent Societies Kinshasa/Nairobi/Geneva – 5 December 2025 — Following the Ministry of Health’s declar...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:03:06",
+    "region": "AMER",
+    "severity": 2,
+    "type": "HEALTH / SAFETY",
+    "_key": "7e6cc6c661977fcab909f4b7943fbdf0f99a1dbe"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
