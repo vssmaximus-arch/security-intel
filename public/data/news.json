@@ -2,13 +2,35 @@
   {
     "title": "Benin coup attempt foiled by loyalist troops, interior minister says",
     "url": "https://www.bbc.com/news/articles/c62v7n9wzkyo?at_medium=RSS&at_campaign=rss",
-    "snippet": "A presidential adviser has told the BBC that President Talon is safe and is at the French embassy....",
+    "snippet": "A presidential adviser has told the BBC that President Patrice Talon is in a safe location....",
     "source": "bbc.com",
-    "time": "2025-12-07T13:07:40",
+    "time": "2025-12-07T14:11:51",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY",
     "_key": "79b258229b8e403fccbac24769d352856ede7467"
+  },
+  {
+    "title": "Benin’s gov’t says it thwarted coup attempt after troops declared takeover",
+    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/7/benins-govt-says-it-thwarted-coup-attempt-after-troops-declared-takeover?traffic_source=rss",
+    "snippet": "Soldiers in Benin appeared on state television to say they had toppled President Patrice Talon and taken power....",
+    "source": "aljazeera.com",
+    "time": "2025-12-07T13:31:42",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "d47cfe9f6af87bb8e4c12e6a1f3409bc27263d0a"
+  },
+  {
+    "title": "Benin thwarts coup amid economic growth, rising jihadist violence",
+    "url": "https://www.scmp.com/news/world/africa/article/3335523/benin-thwarts-coup-amid-economic-growth-rising-jihadist-violence?utm_source=rss_feed",
+    "snippet": "Benin’s government on Sunday said that it had thwarted an attempted coup after a group of soldiers announced on state television that they had ousted President Patrice Talon.\nWest Africa has experienc...",
+    "source": "scmp.com",
+    "time": "2025-12-07T13:18:47",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "13412de1a6489630ed8d3b2789caefea00d69ca9"
   },
   {
     "title": "Sudan must expel foreign-backed fighters, justice minister tells Al Jazeera",
@@ -20,6 +42,17 @@
     "severity": 2,
     "type": "PHYSICAL SECURITY",
     "_key": "1e04e84a7fecc15d959b77455c1237a820624b6c"
+  },
+  {
+    "title": "Chernobyl radiation shield 'lost safety function' after drone strike, UN watchdog says",
+    "url": "https://www.bbc.com/news/articles/c98nldr06l2o?at_medium=RSS&at_campaign=rss",
+    "snippet": "The protective shield at the site of the 1986 disaster has lost its main safety function, the IAEA says....",
+    "source": "bbc.com",
+    "time": "2025-12-07T12:09:01",
+    "region": "Global",
+    "severity": 2,
+    "type": "HEALTH / SAFETY",
+    "_key": "22576a9a917958b4de03a79ff922498d4bbc8797"
   },
   {
     "title": "Car bomb outside police station in Mexico’s Michoacan kills at least 3",
@@ -121,17 +154,6 @@
     "_key": "abc2c19f83c8e7126f1a2377dff255a400e0c62d"
   },
   {
-    "title": "Air strike in central Myanmar kills at least 18",
-    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3335474/air-strike-central-myanmar-kills-least-18?utm_source=rss_feed",
-    "snippet": "Eighteen people were killed in an air strike on a town in central Myanmar, according to a local official, a rescue worker and two residents who spoke to Agence France-Presse on Saturday.\nMyanmar has b...",
-    "source": "scmp.com",
-    "time": "2025-12-06T14:30:27",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "ea348786b82433b689608e30cbdd745628533dfd"
-  },
-  {
     "title": "18 killed in central Myanmar air strike",
     "url": "https://www.straitstimes.com/asia/se-asia/18-killed-in-central-myanmar-air-strike",
     "snippet": "Two bombs were dropped on Tabayin township in Sagaing region on the evening of Dec 5....",
@@ -207,17 +229,6 @@
     "severity": 2,
     "type": "PHYSICAL SECURITY",
     "_key": "4522a307bfb128218df1c15d3ebda0f05f0b2ab7"
-  },
-  {
-    "title": "India’s wedding parties a major casualty of IndiGo’s flight chaos",
-    "url": "https://www.straitstimes.com/asia/south-asia/indias-wedding-parties-a-major-casualty-of-indigos-flight-chaos",
-    "snippet": "One couple was forced to attend their own wedding reception virtually....",
-    "source": "straitstimes.com",
-    "time": "2025-12-05T14:45:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "7e207843b7040864f7b2ec702619fc62cb8159bb"
   },
   {
     "title": "Cloudflare blames today's outage on React2Shell mitigations",
