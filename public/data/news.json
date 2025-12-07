@@ -1,5 +1,27 @@
 [
   {
+    "title": "Staff and tourists among 25 killed in Goa nightclub fire",
+    "url": "https://www.bbc.com/news/articles/cdj82d0nd4eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Officials believe a gas canister explosion triggered the fire which tore through the busy nightlife venue....",
+    "source": "bbc.com",
+    "time": "2025-12-07T08:22:36",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "1f688cb6579c691bd721301d8fa0acf247f11f8e"
+  },
+  {
+    "title": "Sumatra cyclone leaves mother-of-four widowed in famed culinary town",
+    "url": "https://www.straitstimes.com/asia/se-asia/sumatra-cyclone-leaves-mother-of-four-widowed-in-gordon-ramsays-famed-culinary-town",
+    "snippet": "Tanah Datar, a regency in West Sumatra, is one of the areas in Indonesia still reeling from the impact of the cyclone....",
+    "source": "straitstimes.com",
+    "time": "2025-12-07T07:45:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER",
+    "_key": "4cf010003231661939ef060bcb4e342c1228d5bb"
+  },
+  {
     "title": "Sri Lanka issues landslide warnings as cyclone toll hits 618",
     "url": "https://www.straitstimes.com/asia/south-asia/sri-lanka-issues-landslide-warnings-as-cyclone-toll-hits-618",
     "snippet": "The warnings were issued as rains lashed areas already devastated by Cyclone Ditwah....",
@@ -9,17 +31,6 @@
     "severity": 2,
     "type": "CRISIS / WEATHER",
     "_key": "65a0e8e8fce5843f29002064a66dedfc4fa50e85"
-  },
-  {
-    "title": "Staff and tourists among 25 killed in Goa nightclub fire",
-    "url": "https://www.bbc.com/news/articles/cdj82d0nd4eo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Officials believe a gas canister explosion triggered the fire which tore through the busy nightlife venue....",
-    "source": "bbc.com",
-    "time": "2025-12-07T04:23:22",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "1f688cb6579c691bd721301d8fa0acf247f11f8e"
   },
   {
     "title": "Hong Kong votes in ‘patriots only’ polls amid anger over deadly fire",
@@ -75,17 +86,6 @@
     "severity": 2,
     "type": "CRISIS / WEATHER",
     "_key": "abc2c19f83c8e7126f1a2377dff255a400e0c62d"
-  },
-  {
-    "title": "South Africa shooting leaves 12 dead, including young child: Police",
-    "url": "https://www.aljazeera.com/news/2025/12/6/south-africa-shooting-leaves-12-dead-including-young-child-police?traffic_source=rss",
-    "snippet": "Police say 25 people were shot at 'illegal' bar in hostel in Pretoria, with three children among the dead....",
-    "source": "aljazeera.com",
-    "time": "2025-12-06T15:38:07",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "0ab14bd8e3dc2872bfb8b824fd9a34d8c235f5a7"
   },
   {
     "title": "Air strike in central Myanmar kills at least 18",
@@ -165,6 +165,28 @@
     "_key": "b42fb2ad3e904061389d2a53636007f214a5b207"
   },
   {
+    "title": "Country Brief: Mozambique",
+    "url": "https://reliefweb.int/report/mozambique/country-brief-mozambique",
+    "snippet": "Country: Mozambique Sources: International Finance Corporation, UN High Commissioner for Refugees Please refer to the attached file. Mozambique’s economy grew by approximately 5.4% in 2023, driven mai...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T19:15:50",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "b6dbc63c9a6cc7490c242c0aa7d3069a3c97f4e1"
+  },
+  {
+    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 5 December 2025",
+    "url": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-5-december-2025",
+    "snippet": "Countries: Jamaica, Colombia, Haiti Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. KEY FIGURES 4.2M migrants and refugees require immediate assistanc...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T18:55:39",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER",
+    "_key": "36ebacb216d8c3f97fa78b9e42e62735f38173ca"
+  },
+  {
     "title": "Barts Health NHS discloses data breach after Oracle zero-day hack",
     "url": "https://www.bleepingcomputer.com/news/security/barts-health-nhs-discloses-data-breach-after-oracle-zero-day-hack/",
     "snippet": "Barts Health NHS Trust has announced that Clop ransomware actors have stolen files from a database by exploiting a vulnerability in its Oracle E-business Suite software. [...]...",
@@ -209,6 +231,39 @@
     "_key": "12855cbf28469e9efa7a2fd090763e84b882cb6e"
   },
   {
+    "title": "Attacks on Health Care in Myanmar: 12-25 November 2025",
+    "url": "https://reliefweb.int/report/myanmar/attacks-health-care-myanmar-12-25-november-2025",
+    "snippet": "Country: Myanmar Source: Insecurity Insight Please refer to the attached file. Insecurity Insight identified 1820 incidents of violence against or obstruction of health care in Myanmar since the milit...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:33:44",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "0a607fb7e943dcf687eca99b1b9275e94241b14e"
+  },
+  {
+    "title": "Community-Led Nature Based Solutions in Afghanistan | Concern Worldwide",
+    "url": "https://reliefweb.int/report/afghanistan/community-led-nature-based-solutions-afghanistan-concern-worldwide",
+    "snippet": "Country: Afghanistan Source: Concern Worldwide Please refer to the attached file. This paper explores how community-driven nature-based solutions can simultaneously support watershed restoration, live...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:33:17",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "7bb422590c83f472264b39eff0b9ec84aa1ae0c3"
+  },
+  {
+    "title": "World: Europe faces worst wildfire year on record as fire seasons grow longer and more destructive",
+    "url": "https://reliefweb.int/report/world/europe-faces-worst-wildfire-year-record-fire-seasons-grow-longer-and-more-destructive",
+    "snippet": "Country: World Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations The 2024 forest fires report from the Commission's Joint Research Centre ...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:33:06",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CYBER SECURITY",
+    "_key": "f119f9701826c48cc7044016c51cd40022d9e704"
+  },
+  {
     "title": "Pharma firm Inotiv discloses data breach after ransomware attack",
     "url": "https://www.bleepingcomputer.com/news/security/pharma-firm-inotiv-discloses-data-breach-after-ransomware-attack/",
     "snippet": "American pharmaceutical firm Inotiv is notifying thousands of people that they're personal information was stolen in an August 2025 ransomware attack. [...]...",
@@ -218,6 +273,28 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "e87ea060843757f990822816d2cf3fd042e262c3"
+  },
+  {
+    "title": "DR Congo: As Ebola in DRC declared over, IFRC calls for investment in community-based surveillance | IFRC",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/ebola-drc-declared-over-ifrc-calls-investment-community-based-surveillance-ifrc",
+    "snippet": "Country: Democratic Republic of the Congo Source: International Federation of Red Cross and Red Crescent Societies Kinshasa/Nairobi/Geneva – 5 December 2025 — Following the Ministry of Health’s declar...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T13:03:06",
+    "region": "AMER",
+    "severity": 2,
+    "type": "HEALTH / SAFETY",
+    "_key": "7e6cc6c661977fcab909f4b7943fbdf0f99a1dbe"
+  },
+  {
+    "title": "South Sudan: Cholera Outbreak Situation Report No. 57",
+    "url": "https://reliefweb.int/report/south-sudan/south-sudan-cholera-outbreak-situation-report-no-57",
+    "snippet": "Country: South Sudan Sources: Health Cluster, World Health Organization Please refer to the attached file. Key Weekly Highlights as of 30 November 2025 • In the past week, 46 new suspected cases and 3...",
+    "source": "reliefweb.int",
+    "time": "2025-12-05T12:46:51",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "HEALTH / SAFETY",
+    "_key": "cfbc581a4ed60b4ed0e960023da8665811bb917b"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
