@@ -1,5 +1,27 @@
 [
   {
+    "title": "Benin coup attempt foiled by loyalist troops, interior minister says",
+    "url": "https://www.bbc.com/news/articles/c62v7n9wzkyo?at_medium=RSS&at_campaign=rss",
+    "snippet": "A presidential adviser has told the BBC that President Talon is safe and is at the French embassy....",
+    "source": "bbc.com",
+    "time": "2025-12-07T13:07:40",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "79b258229b8e403fccbac24769d352856ede7467"
+  },
+  {
+    "title": "Sudan must expel foreign-backed fighters, justice minister tells Al Jazeera",
+    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/7/sudan-must-expel-foreign-backed-fighters-justice-minister-tells-al-jazeera?traffic_source=rss",
+    "snippet": "External support for armed groups and mercenaries is the main obstacle to peace, says Sudan's justice minister....",
+    "source": "aljazeera.com",
+    "time": "2025-12-07T12:47:29",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY",
+    "_key": "1e04e84a7fecc15d959b77455c1237a820624b6c"
+  },
+  {
     "title": "Car bomb outside police station in Mexico’s Michoacan kills at least 3",
     "url": "https://www.aljazeera.com/news/2025/12/7/deadly-car-bomb-outside-police-station-in-mexicos-michoacan?traffic_source=rss",
     "snippet": "At least six people also injured in explosion at a central avenue in Coahuayana....",
@@ -11,37 +33,37 @@
     "_key": "f54f258aa7f80481b558486a4560211d37cf0d2f"
   },
   {
-    "title": "Benin coup attempt live: Soldiers on state TV claim to have toppled Talon",
+    "title": "Benin coup attempt live: Interior minister says coup attempt thwarted",
     "url": "https://www.aljazeera.com/news/liveblog/2025/12/7/benin-attempt-coup-live-soldiers-on-state-tv-claim-to-have-toppled-talon?traffic_source=rss",
-    "snippet": "Group of soldiers announce the removal of President Patrice Talon and all state institutions....",
+    "snippet": "Government officials say situation under control after group of soldiers claimed they had overthrown President Talon....",
     "source": "aljazeera.com",
     "time": "2025-12-07T09:09:40",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY",
-    "_key": "dc81191906e59fef6c4508808010b5c5b3407fe0"
+    "_key": "a917cc6dc29cc7c1b46890f75a8966af0fd0103f"
   },
   {
-    "title": "618 dead in Sri Lanka landslides as rains batter South, Southeast Asia",
+    "title": "627 dead in Sri Lanka landslides as rains batter South, Southeast Asia",
     "url": "https://www.scmp.com/news/asia/south-asia/article/3335503/618-dead-sri-lanka-landslides-rains-batter-south-southeast-asia?utm_source=rss_feed",
-    "snippet": "Sri Lankan authorities issued fresh landslide warnings on Sunday, with rains lashing areas already devastated by a powerful cyclone as the death toll rose to 618.\nA chain of tropical storms and monsoo...",
+    "snippet": "Sri Lankan authorities issued fresh landslide warnings on Sunday, with rains lashing areas already devastated by a powerful cyclone as the death toll rose to 627.\nA chain of tropical storms and monsoo...",
     "source": "scmp.com",
     "time": "2025-12-07T09:05:59",
     "region": "APJC",
     "severity": 2,
     "type": "CRISIS / WEATHER",
-    "_key": "cd91a55e2ed0f0ad897d7f30ae1debc73d4dcfc8"
+    "_key": "a217ace151679667fa4991ac6c813872c994a6a5"
   },
   {
-    "title": "Soldiers claim coup in Benin, as presidency assures army regaining control",
+    "title": "Coup attempt in Benin quelled by loyal armed forces, interior minister says",
     "url": "https://www.aljazeera.com/news/2025/12/7/soldiers-appear-on-benin-state-television-announcing-apparent-coup?traffic_source=rss",
-    "snippet": "President Talon's office states that he is safe and that large part of army 'is still loyalist'....",
+    "snippet": "President Talon's office states that he is safe and that large part of army had remained 'loyalist'....",
     "source": "aljazeera.com",
     "time": "2025-12-07T08:47:27",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY",
-    "_key": "616376f93c9409183c52cce399ad2e2a90c654a8"
+    "_key": "71f666a36171685584566075d5f7d92094469de4"
   },
   {
     "title": "Cyclone Senyar leaves mother-of-four widowed in West Sumatra",
@@ -66,17 +88,6 @@
     "_key": "65a0e8e8fce5843f29002064a66dedfc4fa50e85"
   },
   {
-    "title": "Hong Kong votes in ‘patriots only’ polls amid anger over deadly fire",
-    "url": "https://www.aljazeera.com/news/2025/12/7/hong-kong-votes-in-patriots-only-polls-amid-anger-over-deadly-fire?traffic_source=rss",
-    "snippet": "Hong Kong Chief Executive John Lee urges the public to come out and vote amid expectations of a low turnout....",
-    "source": "aljazeera.com",
-    "time": "2025-12-07T04:17:53",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "0bb204b8bca687119a7ee1bb0c0fd146311d8fc6"
-  },
-  {
     "title": "Australia downgrades wildfire alerts in New South Wales state",
     "url": "https://www.straitstimes.com/asia/australianz/australia-activates-disaster-relief-for-wildfire-hit-new-south-wales-state",
     "snippet": "The wildfires have burnt properties and infrastructure in the country’s most populous state....",
@@ -86,17 +97,6 @@
     "severity": 2,
     "type": "CRISIS / WEATHER",
     "_key": "df1c94110ec02c62861834ffbbc0d1cc75950b72"
-  },
-  {
-    "title": "At least 11 killed in South Africa mass shooting",
-    "url": "https://www.bbc.com/news/articles/cwyvkrkl2jlo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gunmen stormed a hostel near Pretoria and opened fire, killing 11 people including a three-year-old....",
-    "source": "bbc.com",
-    "time": "2025-12-06T20:05:46",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "030deaea4b0671d07cfdb1c78a354757e613e73e"
   },
   {
     "title": "Mass shooting at a South African bar leaves 11 dead, including 3 children",
@@ -130,17 +130,6 @@
     "severity": 2,
     "type": "PHYSICAL SECURITY",
     "_key": "ea348786b82433b689608e30cbdd745628533dfd"
-  },
-  {
-    "title": "‘We’ll bring him home’: Thai family to end long wait for Gaza hostage return",
-    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3335467/thai-family-end-long-wait-gaza-hostage-return-well-bring-him-home?utm_source=rss_feed",
-    "snippet": "Two years after Thai worker Sudthisak Rinthalak was killed by Hamas militants, his family in northeastern Thailand is preparing to welcome his remains home and hold a Buddhist ceremony they believe wi...",
-    "source": "scmp.com",
-    "time": "2025-12-06T13:10:41",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "44362fbf57424a9a29c0e0bcb5cd44b9cdab2c15"
   },
   {
     "title": "18 killed in central Myanmar air strike",
@@ -198,28 +187,6 @@
     "_key": "b42fb2ad3e904061389d2a53636007f214a5b207"
   },
   {
-    "title": "Country Brief: Mozambique",
-    "url": "https://reliefweb.int/report/mozambique/country-brief-mozambique",
-    "snippet": "Country: Mozambique Sources: International Finance Corporation, UN High Commissioner for Refugees Please refer to the attached file. Mozambique’s economy grew by approximately 5.4% in 2023, driven mai...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T19:15:50",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "b6dbc63c9a6cc7490c242c0aa7d3069a3c97f4e1"
-  },
-  {
-    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 5 December 2025",
-    "url": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-5-december-2025",
-    "snippet": "Countries: Jamaica, Colombia, Haiti Source: UN Office for the Coordination of Humanitarian Affairs Please refer to the attached file. KEY FIGURES 4.2M migrants and refugees require immediate assistanc...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T18:55:39",
-    "region": "AMER",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "_key": "36ebacb216d8c3f97fa78b9e42e62735f38173ca"
-  },
-  {
     "title": "Barts Health NHS discloses data breach after Oracle zero-day hack",
     "url": "https://www.bleepingcomputer.com/news/security/barts-health-nhs-discloses-data-breach-after-oracle-zero-day-hack/",
     "snippet": "Barts Health NHS Trust has announced that Clop ransomware actors have stolen files from a database by exploiting a vulnerability in its Oracle E-business Suite software. [...]...",
@@ -264,39 +231,6 @@
     "_key": "12855cbf28469e9efa7a2fd090763e84b882cb6e"
   },
   {
-    "title": "Attacks on Health Care in Myanmar: 12-25 November 2025",
-    "url": "https://reliefweb.int/report/myanmar/attacks-health-care-myanmar-12-25-november-2025",
-    "snippet": "Country: Myanmar Source: Insecurity Insight Please refer to the attached file. Insecurity Insight identified 1820 incidents of violence against or obstruction of health care in Myanmar since the milit...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T13:33:44",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY",
-    "_key": "0a607fb7e943dcf687eca99b1b9275e94241b14e"
-  },
-  {
-    "title": "Community-Led Nature Based Solutions in Afghanistan | Concern Worldwide",
-    "url": "https://reliefweb.int/report/afghanistan/community-led-nature-based-solutions-afghanistan-concern-worldwide",
-    "snippet": "Country: Afghanistan Source: Concern Worldwide Please refer to the attached file. This paper explores how community-driven nature-based solutions can simultaneously support watershed restoration, live...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T13:33:17",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "7bb422590c83f472264b39eff0b9ec84aa1ae0c3"
-  },
-  {
-    "title": "World: Europe faces worst wildfire year on record as fire seasons grow longer and more destructive",
-    "url": "https://reliefweb.int/report/world/europe-faces-worst-wildfire-year-record-fire-seasons-grow-longer-and-more-destructive",
-    "snippet": "Country: World Source: European Commission's Directorate-General for European Civil Protection and Humanitarian Aid Operations The 2024 forest fires report from the Commission's Joint Research Centre ...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T13:33:06",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "f119f9701826c48cc7044016c51cd40022d9e704"
-  },
-  {
     "title": "Pharma firm Inotiv discloses data breach after ransomware attack",
     "url": "https://www.bleepingcomputer.com/news/security/pharma-firm-inotiv-discloses-data-breach-after-ransomware-attack/",
     "snippet": "American pharmaceutical firm Inotiv is notifying thousands of people that they're personal information was stolen in an August 2025 ransomware attack. [...]...",
@@ -306,28 +240,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "e87ea060843757f990822816d2cf3fd042e262c3"
-  },
-  {
-    "title": "DR Congo: As Ebola in DRC declared over, IFRC calls for investment in community-based surveillance | IFRC",
-    "url": "https://reliefweb.int/report/democratic-republic-congo/ebola-drc-declared-over-ifrc-calls-investment-community-based-surveillance-ifrc",
-    "snippet": "Country: Democratic Republic of the Congo Source: International Federation of Red Cross and Red Crescent Societies Kinshasa/Nairobi/Geneva – 5 December 2025 — Following the Ministry of Health’s declar...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T13:03:06",
-    "region": "AMER",
-    "severity": 2,
-    "type": "HEALTH / SAFETY",
-    "_key": "7e6cc6c661977fcab909f4b7943fbdf0f99a1dbe"
-  },
-  {
-    "title": "South Sudan: Cholera Outbreak Situation Report No. 57",
-    "url": "https://reliefweb.int/report/south-sudan/south-sudan-cholera-outbreak-situation-report-no-57",
-    "snippet": "Country: South Sudan Sources: Health Cluster, World Health Organization Please refer to the attached file. Key Weekly Highlights as of 30 November 2025 • In the past week, 46 new suspected cases and 3...",
-    "source": "reliefweb.int",
-    "time": "2025-12-05T12:46:51",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "HEALTH / SAFETY",
-    "_key": "cfbc581a4ed60b4ed0e960023da8665811bb917b"
   },
   {
     "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
