@@ -1,14 +1,14 @@
 [
   {
-    "title": "Benin coup attempt foiled by loyalist troops, interior minister says",
+    "title": "Benin coup thwarted by loyalist troops, president tells nation",
     "url": "https://www.bbc.com/news/articles/c62v7n9wzkyo?at_medium=RSS&at_campaign=rss",
-    "snippet": "A presidential adviser tells the BBC that President Patrice Talon is in a safe location....",
+    "snippet": "President Talon says the situation is \"totally under control\" not long after explosions were heard in Cotonou....",
     "source": "bbc.com",
-    "time": "2025-12-07T19:19:49",
+    "time": "2025-12-07T21:13:32",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY",
-    "_key": "79b258229b8e403fccbac24769d352856ede7467"
+    "_key": "227b7132493d03f90e3321e3b1b94c25f5662696"
   },
   {
     "title": "Hong Kong Legco election’s 31.9% turnout surpasses record low of 2021",
@@ -251,17 +251,6 @@
     "severity": 2,
     "type": "CYBER SECURITY",
     "_key": "815a8f673ea757a9497a2aa7b21dd9920ea9575a"
-  },
-  {
-    "title": "Hackers are exploiting ArrayOS AG VPN flaw to plant webshells",
-    "url": "https://www.bleepingcomputer.com/news/security/hackers-are-exploiting-arrayos-ag-vpn-flaw-to-plant-webshells/",
-    "snippet": "Threat actors have been exploiting a command injection vulnerability in Array AG Series VPN devices to plant webshells and create rogue users. [...]...",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-04T23:05:05",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "_key": "2a154af06377938588bddcd9d1ec99b2f7b82593"
   },
   {
     "title": "SolisCloud Monitoring Platform",
