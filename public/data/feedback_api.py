@@ -4,6 +4,9 @@ Feedback API for SRO Intel - persist feedback and trigger ingest.
 
 This version normalizes the URL and stores the same article key the ingest script
 uses so the ingest will correctly filter items after feedback is added.
+
+Additionally: when feedback is received we immediately prune public/data/news.json
+(for fast UX) and then trigger the full ingest in background (as before).
 """
 import json
 import os
@@ -97,6 +100,68 @@ def _trigger_ingest():
     t.start()
 
 
+def _prune_news_for_feedback(key: str, title: str, url: str, source: str):
+    """
+    Remove items from NEWS_PATH that match the feedback key, normalized url,
+    or have an exact title match (case-insensitive). This runs in background
+    so the feedback endpoint can return quickly.
+    """
+    try:
+        if not os.path.exists(NEWS_PATH):
+            app.logger.debug("news.json not found, skipping prune.")
+            return
+
+        with open(NEWS_PATH, "r", encoding="utf-8") as f:
+            try:
+                items = json.load(f)
+            except Exception:
+                app.logger.exception("Failed to parse existing news.json; skipping prune.")
+                return
+
+        if not isinstance(items, list):
+            app.logger.warning("news.json not list, skipping prune.")
+            return
+
+        norm_url = normalize_url(url) if url else ""
+        removed = 0
+        kept = []
+        for it in items:
+            it_title = (it.get("title") or "").strip()
+            it_source = (it.get("source") or "").strip()
+            it_url_raw = it.get("url") or ""
+            it_url = normalize_url(it_url_raw)
+            it_key = build_article_key(it_title, it_source, it_url)
+
+            match = False
+            # Exact key match (preferred)
+            if key and it_key and key == it_key:
+                match = True
+            # Normalized URL match
+            elif norm_url and it_url and norm_url == it_url:
+                match = True
+            # Title + source fallback (case-insensitive)
+            elif title and it_title and title.strip().lower() == it_title.strip().lower():
+                match = True
+
+            if match:
+                removed += 1
+                app.logger.debug("Pruning news.json matching feedback: %s", it_title)
+            else:
+                kept.append(it)
+
+        if removed:
+            # Write back the pruned list atomically
+            tmp_path = NEWS_PATH + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(kept, f, indent=2, ensure_ascii=False)
+            os.replace(tmp_path, NEWS_PATH)
+            app.logger.info("Pruned %d items from news.json due to feedback.", removed)
+        else:
+            app.logger.debug("No items pruned from news.json for this feedback.")
+    except Exception as e:
+        app.logger.exception("Error pruning news.json: %s", e)
+
+
 @app.route("/feedback", methods=["POST"])
 def feedback():
     try:
@@ -137,6 +202,14 @@ def feedback():
         app.logger.exception("Failed to persist feedback: %s", e)
         return jsonify({"error": "failed to persist feedback"}), 500
 
+    # Prune news.json quickly in background for immediate UX fix
+    try:
+        t = threading.Thread(target=_prune_news_for_feedback, args=(key, title, norm_url, source), daemon=True)
+        t.start()
+    except Exception:
+        app.logger.exception("Failed to start prune thread.")
+
+    # Trigger full ingest in background as before
     _trigger_ingest()
 
     return jsonify({"ok": True, "key": key}), 200
