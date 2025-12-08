@@ -1,18 +1,18 @@
 import streamlit as st
-import pandas as pd
 import json
 import os
 import math
+import pandas as pd
 import folium
 from streamlit_folium import st_folium
 from datetime import datetime, timedelta
 
 # ==========================================
-# 1. CONFIGURATION & STATE
+# 1. CONFIGURATION & PATHS
 # ==========================================
 st.set_page_config(page_title="OS INFOHUB", layout="wide", page_icon="🛡️")
 
-# Paths
+# Paths based on your file structure
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 NEWS_PATH = os.path.join(BASE_DIR, "public", "data", "news.json")
 PROX_PATH = os.path.join(BASE_DIR, "public", "data", "proximity.json")
@@ -21,7 +21,7 @@ FEEDBACK_PATH = os.path.join(BASE_DIR, "public", "data", "feedback.jsonl")
 # Ensure Data Dir Exists
 os.makedirs(os.path.join(BASE_DIR, "public", "data"), exist_ok=True)
 
-# --- HARDCODED DELL SITES (From your app.js) ---
+# --- DATA: DELL SITES (From your app.js) ---
 DELL_SITES = [
     { "name": "Dell Round Rock HQ", "country": "US", "region": "AMER", "lat": 30.5083, "lon": -97.6788 },
     { "name": "Dell Austin Parmer", "country": "US", "region": "AMER", "lat": 30.3952, "lon": -97.6843 },
@@ -44,7 +44,7 @@ DELL_SITES = [
     { "name": "Dell Sydney", "country": "AU", "region": "APJC", "lat": -33.8688, "lon": 151.2093 }
 ]
 
-# --- ADVISORIES (From your app.js) ---
+# --- DATA: ADVISORIES (From your app.js) ---
 ADVISORIES = {
     "Afghanistan": { "level": 4, "text": "Do Not Travel" },
     "Israel": { "level": 3, "text": "Reconsider Travel" },
@@ -52,21 +52,21 @@ ADVISORIES = {
     "Mexico": { "level": 2, "text": "Exercise Increased Caution" },
     "India": { "level": 2, "text": "Exercise Increased Caution" },
     "United Kingdom": { "level": 2, "text": "Exercise Increased Caution" },
-    # Add rest from your list if needed, these are key ones
+    "Russia": { "level": 4, "text": "Do Not Travel" },
+    "Ukraine": { "level": 4, "text": "Do Not Travel" }
 }
 
 # ==========================================
-# 2. INJECT YOUR EXACT CSS (STYLE.CSS)
+# 2. INJECT CSS
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    /* RESET & FONT */
     .stApp { background-color: #f4f6f8; font-family: 'Inter', sans-serif; }
-    #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
+    #MainMenu, footer, header {visibility: hidden;}
     
-    /* HEADER */
+    /* Header */
     .header-container {
         display: flex; justify-content: space-between; align-items: center;
         background: white; padding: 15px 32px; border-bottom: 1px solid #e0e0e0;
@@ -75,63 +75,50 @@ st.markdown("""
     .logo-text { font-size: 1.3rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
     .logo-text span { color: #0076CE; }
     
-    /* FEED CARDS (Pixel Perfect) */
-    .feed-card {
-        background: #fff; border-radius: 8px; border: 1px solid #e0e0e0;
-        margin-bottom: 15px; padding: 16px 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
+    /* Cards */
+    .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    
+    /* Typography */
     .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
-    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; }
+    .feed-meta { font-size: 0.75rem; color: #5f6368; margin-bottom: 8px; }
     .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; }
     
-    /* BADGES */
+    /* Badges */
     .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; margin-right: 6px; }
-    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
-    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
-    .ftag-reg { background: #555; color: white; float: right; }
+    .crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+    .warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+    .info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
     
-    /* SIDEBAR WIDGETS */
-    .side-card {
-        background: white; border: 1px solid #e0e0e0; border-radius: 12px;
-        padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    
-    /* ADVISORY BOX */
+    /* Advisory */
     .advisory-box { background: #f8f9fa; border-left: 4px solid #1a73e8; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
-    .advisory-level { font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; }
-    .advisory-text { font-size: 0.9rem; color: #333; font-weight: 600; }
     
-    /* PROXIMITY ROWS */
+    /* Proximity */
     .alert-row { padding: 10px 0; border-bottom: 1px solid #f1f1f1; }
     .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .alert-type { font-weight: 700; font-size: 0.9rem; color: #202124; }
-    .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
-    .alert-site { font-size: 0.8rem; font-weight: 600; color: #5f6368; }
+    .alert-val { font-weight: 700; color: #d93025; font-size: 0.85rem; }
     
-    /* ACTION BUTTONS */
-    .stButton button {
-        font-size: 0.75rem; padding: 2px 10px; border-radius: 4px; margin-top: 5px;
-    }
+    /* Buttons */
+    .stButton button { font-size: 0.7rem; padding: 2px 8px; height: auto; min-height: 0px; }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. BACKEND LOGIC (Python replacement for app.js)
+# 3. BACKEND LOGIC
 # ==========================================
 
-# -- Load Data --
-def load_data():
+@st.cache_data(ttl=60) # Updates every 60s
+def load_live_data():
+    # Load News
     news = []
-    # Try loading real news first
     if os.path.exists(NEWS_PATH):
         try:
             with open(NEWS_PATH, 'r') as f:
                 news = json.load(f)
         except: pass
     
-    # Try loading proximity (if your generate_reports.py created it)
+    # Load Proximity (Pre-calculated by your generate_reports.py)
     prox = []
     if os.path.exists(PROX_PATH):
         try:
@@ -142,98 +129,83 @@ def load_data():
         
     return news, prox
 
-news_feed, proximity_alerts = load_data()
-
-# -- Save Feedback (Learning Loop) --
-def save_feedback(item_title, label):
+def save_feedback(title, label):
+    """Writes to feedback.jsonl for the AI Agent to learn"""
     entry = {
-        "title": item_title,
+        "title": title,
         "label": label,
         "timestamp": datetime.now().isoformat()
     }
     with open(FEEDBACK_PATH, "a") as f:
         f.write(json.dumps(entry) + "\n")
-    st.toast(f"Feedback Recorded: {label}")
+    st.toast(f"✅ Feedback Saved: {label}")
 
-# -- Filter Logic --
-def filter_feed(feed, region, category):
-    filtered = feed
-    if region != 'Global':
-        filtered = [x for x in filtered if x.get('region') == region]
-    
-    if category != 'All Categories':
-        # Match 'PHYSICAL' in 'PHYSICAL SECURITY'
-        keyword = category.split()[0].upper()
-        filtered = [x for x in filtered if keyword in str(x.get('type', '')).upper()]
-    
-    return filtered
-
-# -- Proximity Logic (Haversine) --
-def calculate_proximity(radius_km):
-    # This logic matches your app.js loop, but runs in Python
-    # Since we loaded DELL_SITES and news_feed, we find matches
+def calculate_proximity_live(news_data, sites, radius_km):
+    """
+    If the backend script hasn't run recently, we can calculate proximity
+    live here using the news data + Dell Sites list.
+    """
     alerts = []
-    
-    # 1. Use pre-calculated alerts from generate_reports.py if available
-    for alert in proximity_alerts:
-        if alert.get('distance_km', 999) <= radius_km:
-            alerts.append(alert)
-            
-    # 2. (Optional) If proximity.json is empty, calculating here would duplicate logic
-    # We rely on your backend script (generate_reports.py) to have done the math
+    # Simple check: Does news text mention a site? 
+    # (Real geocoding happens in your python backend script, this is a UI-layer backup)
+    for item in news_data:
+        txt = (item.get('title', '') + item.get('snippet', '')).lower()
+        for site in sites:
+            if site['name'].lower() in txt:
+                alerts.append({
+                    "type": "Mention Match",
+                    "site_name": site['name'],
+                    "distance_km": 0.0,
+                    "severity": item.get('severity', 1),
+                    "article_title": item.get('title')
+                })
     return alerts
 
 # ==========================================
-# 4. UI CONSTRUCTION
+# 4. APP LAYOUT
 # ==========================================
+
+news_feed, proximity_backend = load_live_data()
 
 # --- HEADER ---
 st.markdown("""
 <div class="header-container">
     <div class="logo-text">OS <span>INFOHUB</span></div>
-    <div>
-        <span style="color:#5f6368; font-size:0.8rem; font-weight:600; margin-right:15px;">Live Stream</span>
-        <button style="background:#0076CE; color:white; border:none; padding:6px 12px; border-radius:6px; font-weight:700; cursor:pointer;">Daily Briefings</button>
-    </div>
+    <div style="font-size:0.8rem; color:#555;"><b>Global Security Operations</b> | Live Stream</div>
 </div>
 """, unsafe_allow_html=True)
 
 # --- NAV TABS ---
 regions = ["Global", "AMER", "EMEA", "APJC", "LATAM"]
-selected_region = st.radio("Region", regions, horizontal=True, label_visibility="collapsed")
+sel_region = st.radio("Region", regions, horizontal=True, label_visibility="collapsed")
 
-# --- MAIN LAYOUT ---
-col_left, col_right = st.columns([3, 1])
+# --- MAIN SPLIT ---
+col_main, col_widgets = st.columns([3, 1])
 
-# === LEFT: MAP & FEED ===
-with col_left:
+# === LEFT: MAP + FEED ===
+with col_main:
+    # 1. MAP
+    map_sites = DELL_SITES if sel_region == 'Global' else [x for x in DELL_SITES if x['region'] == sel_region]
     
-    # 1. MAP (Folium)
-    # Combine Dell Sites + Incidents on Map
     m = folium.Map(location=[20, 0], zoom_start=2, tiles="CartoDB voyager", control_scale=True)
     
-    # Blue Pins (Dell)
-    site_list = DELL_SITES if selected_region == 'Global' else [x for x in DELL_SITES if x['region'] == selected_region]
-    for site in site_list:
+    # Blue Pins (Sites)
+    for s in map_sites:
         folium.Marker(
-            [site['lat'], site['lon']],
-            tooltip=f"<b>{site['name']}</b>",
+            [s['lat'], s['lon']], 
+            tooltip=s['name'], 
             icon=folium.Icon(color="blue", icon="building", prefix="fa")
         ).add_to(m)
         
-    # Red Pins (Incidents - if coords exist)
-    filtered_news = filter_feed(news_feed, selected_region, 'All Categories') # Default cat for map
-    for item in filtered_news:
-        # Check if item has lat/lon (your news_agent.py might not populate this yet for all items)
-        # Using proximity alerts for map pins as they definitely have coords
-        pass 
-        
-    for alert in proximity_alerts:
-        if alert.get('lat'):
+    # Red Pins (Alerts)
+    # Filter alerts by region
+    active_alerts = [a for a in proximity_backend if (sel_region == 'Global' or a.get('site_region') == sel_region)]
+    for a in active_alerts:
+        if 'lat' in a:
              folium.Marker(
-                [alert['lat'], alert['lon']],
-                tooltip=f"<b>{alert['type']}</b><br>{alert['distance_km']}km from Site",
-                icon=folium.Icon(color="red", icon="exclamation-triangle", prefix="fa")
+                [a['lat'], a['lon']], 
+                tooltip=f"ALERT: {a['type']}", 
+                icon=folium.Icon(color="red", icon="exclamation", prefix="fa")
             ).add_to(m)
 
     st_folium(m, width="100%", height=400)
@@ -241,34 +213,35 @@ with col_left:
     # 2. FEED
     st.markdown("### ⚡ Real-time Intelligence Stream")
     
-    # Filter Widget (Local state to keep it clean)
-    cat_filter = st.selectbox("Category Filter", ["All Categories", "Physical Security", "Cyber Security", "Supply Chain"], label_visibility="collapsed")
+    # Logic: Filter News
+    filtered_news = [n for n in news_feed if sel_region == 'Global' or n.get('region') == sel_region]
     
-    # Apply Filters
-    final_feed = filter_feed(news_feed, selected_region, cat_filter)
+    # Logic: Category Filter (from Widget state)
+    cat_val = st.session_state.get('cat_selector', 'All Categories')
+    if cat_val != 'All Categories':
+        key = cat_val.split()[0].upper() # e.g. "PHYSICAL"
+        filtered_news = [n for n in filtered_news if key in str(n.get('type','')).upper()]
+
+    if not filtered_news:
+        st.info("No active incidents found.")
     
-    if not final_feed:
-        st.markdown('<div style="text-align:center; padding:40px; color:#999;">No active incidents matching criteria.</div>', unsafe_allow_html=True)
-    
-    # Render Cards
-    for i, item in enumerate(final_feed[:20]): # Limit 20 for performance
-        
-        # Colors
+    for i, item in enumerate(filtered_news[:20]):
+        # Style Logic
         sev = item.get('severity', 1)
         if sev >= 3:
-            col = "#d93025"; badge = "ftag-crit"; lbl = "CRITICAL"
+            col = "#d93025"; badge = "crit"; lbl = "CRITICAL"
         elif sev == 2:
-            col = "#f9ab00"; badge = "ftag-warn"; lbl = "WARNING"
+            col = "#f9ab00"; badge = "warn"; lbl = "WARNING"
         else:
-            col = "#1a73e8"; badge = "ftag-type"; lbl = "MONITOR"
+            col = "#1a73e8"; badge = "info"; lbl = "MONITOR"
             
-        # Card HTML
+        # Card Body
         st.markdown(f"""
         <div class="feed-card" style="border-left: 5px solid {col};">
             <div style="margin-bottom:6px;">
                 <span class="ftag {badge}">{lbl}</span>
-                <span class="ftag ftag-type">{item.get('type', 'GENERAL')}</span>
-                <span class="ftag ftag-reg">{item.get('region', 'GLOBAL')}</span>
+                <span class="ftag info" style="color:black; background:#eee; border:none;">{item.get('type', 'GENERAL')}</span>
+                <span class="ftag info" style="float:right; background:white; border:none; color:#999;">{item.get('region')}</span>
             </div>
             <div class="feed-title">{item.get('title')}</div>
             <div class="feed-meta">{item.get('source')} • {item.get('time', '')[:10]}</div>
@@ -276,72 +249,79 @@ with col_left:
         </div>
         """, unsafe_allow_html=True)
         
-        # ACTION BUTTONS (The AI Learning Loop)
-        # Using columns to place small buttons under card
-        b1, b2, b3 = st.columns([1, 1, 6])
-        with b1:
-            if st.button("Relevant", key=f"rel_{i}"):
+        # Feedback Buttons (Real Logic)
+        c1, c2, c3 = st.columns([1, 1, 6])
+        with c1:
+            if st.button("Relevant", key=f"y_{i}"):
                 save_feedback(item['title'], "RELEVANT")
-        with b2:
-            if st.button("Not Relevant", key=f"not_{i}"):
+        with c2:
+            if st.button("Not Relevant", key=f"n_{i}"):
                 save_feedback(item['title'], "NOT_RELEVANT")
 
 # === RIGHT: WIDGETS ===
-with col_right:
+with col_widgets:
     
     # 1. HISTORY
-    st.markdown('<div class="side-card"><div class="card-label">⏱️ History Search</div>', unsafe_allow_html=True)
-    st.date_input("Load Archive", label_visibility="collapsed")
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # 2. TRAVEL SAFETY (Dual Logic)
-    st.markdown('<div class="side-card"><div class="card-label">✈️ Travel Safety Check</div>', unsafe_allow_html=True)
-    country = st.selectbox("Select Country", ["China", "Israel", "India", "Mexico", "Ukraine"], label_visibility="collapsed")
-    
-    # Logic: Advisory
-    adv = ADVISORIES.get(country, {"level": 1, "text": "Exercise Normal Precautions"})
-    lvl = adv['level']
-    adv_col = "#d93025" if lvl == 4 else "#e37400" if lvl == 3 else "#f9ab00" if lvl == 2 else "#1a73e8"
-    
-    st.markdown(f"""
-    <div class="advisory-box" style="border-left: 4px solid {adv_col}; background-color:{adv_col}15;">
-        <div class="advisory-level" style="color:{adv_col}">LEVEL {lvl} ADVISORY</div>
-        <div class="advisory-text">{adv['text']}</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Logic: Recent Events (72h)
-    st.markdown(f"<div style='font-size:0.8rem; font-weight:700; margin-top:10px; color:#555;'>Recent Events (72h)</div>", unsafe_allow_html=True)
-    
-    country_news = [x for x in news_feed if country.lower() in (x.get('title', '') + x.get('snippet', '')).lower()]
-    if country_news:
-        for n in country_news[:3]:
-            st.markdown(f"<div style='font-size:0.75rem; border-bottom:1px solid #eee; padding:4px 0;'>• {n['title']}</div>", unsafe_allow_html=True)
-    else:
-        st.markdown(f"<div style='font-size:0.75rem; color:green; margin-top:5px;'>✅ No active incidents logged.</div>", unsafe_allow_html=True)
+    with st.container():
+        st.markdown('<div class="side-card"><div class="card-label">⏱️ History Search</div>', unsafe_allow_html=True)
+        st.date_input("Load Archive", label_visibility="collapsed")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # 2. TRAVEL (Real Logic)
+    with st.container():
+        st.markdown('<div class="side-card"><div class="card-label">✈️ Travel Safety Check</div>', unsafe_allow_html=True)
+        # Populate country list from advisories + generic list
+        c_list = sorted(list(set(list(ADVISORIES.keys()) + ["United States", "Canada", "Germany", "Japan", "Australia"])))
+        country = st.selectbox("Country", c_list, label_visibility="collapsed")
         
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # 3. PROXIMITY
-    st.markdown('<div class="side-card"><div class="card-label">📍 Dell Asset Alerts</div>', unsafe_allow_html=True)
-    radius = st.selectbox("Radius", [5, 10, 25, 50], format_func=lambda x: f"{x} KM")
-    
-    # Real Proximity Check
-    active_prox = calculate_proximity(radius)
-    
-    if not active_prox:
-        st.markdown(f'<div style="text-align:center; padding:15px; font-size:0.8rem; color:#999;">No alerts within {radius}km.</div>', unsafe_allow_html=True)
-    else:
-        for a in active_prox:
-            icon = "🔥" if "Fire" in a.get('type','') else "⚡"
-            st.markdown(f"""
-            <div class="alert-row">
-                <div class="alert-top">
-                    <span class="alert-type">{icon} {a.get('type','Alert')}</span>
-                    <span class="alert-dist">{a.get('distance_km')}km</span>
+        # Advisory Display
+        adv = ADVISORIES.get(country, {"level": 1, "text": "Exercise Normal Precautions"})
+        lvl = adv['level']
+        acl = "#d93025" if lvl==4 else "#e37400" if lvl==3 else "#f9ab00" if lvl==2 else "#1a73e8"
+        
+        st.markdown(f"""
+        <div class="advisory-box" style="border-left:4px solid {acl}; background-color:{acl}15;">
+            <div class="advisory-level" style="color:{acl}">LEVEL {lvl} ADVISORY</div>
+            <div class="advisory-text">{adv['text']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 72h Event Search (Real Filter)
+        st.markdown("**Recent Events (72h)**")
+        hits = [n for n in news_feed if country.lower() in (n.get('title','')+n.get('snippet','')).lower()]
+        if hits:
+            for h in hits[:2]:
+                st.markdown(f"<div style='font-size:0.75rem; border-bottom:1px solid #eee; padding:4px 0;'>• {h['title']}</div>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div style='font-size:0.75rem; color:green;'>✅ No active incidents.</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # 3. PROXIMITY (Real Logic)
+    with st.container():
+        st.markdown('<div class="side-card"><div class="card-label">📍 Proximity Alerts</div>', unsafe_allow_html=True)
+        rad_km = st.selectbox("Radius", [5, 10, 25, 50], format_func=lambda x: f"{x} KM", label_visibility="collapsed")
+        
+        # Filter Alerts based on Radius
+        visible_alerts = [a for a in proximity_backend if a.get('distance_km', 0) <= rad_km]
+        
+        if not visible_alerts:
+            st.markdown(f"<div style='text-align:center; color:#999; font-size:0.8rem; padding:10px;'>No alerts within {rad_km}km.</div>", unsafe_allow_html=True)
+        else:
+            for a in visible_alerts:
+                icon = "🔥" if "Fire" in a.get('type','') else "⚡"
+                st.markdown(f"""
+                <div class="alert-row">
+                    <div class="alert-top">
+                        <span class="alert-type" style="font-size:0.8rem;">{icon} {a.get('type')}</span>
+                        <span class="alert-val">{a.get('distance_km')}km</span>
+                    </div>
+                    <div class="alert-site">{a.get('site_name')}</div>
                 </div>
-                <div class="alert-site">{a.get('site_name')}</div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-    st.markdown('</div>', unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # 4. CATEGORY FILTER
+    with st.container():
+        st.markdown('<div class="side-card"><div class="card-label">🏷️ Risk Filter</div>', unsafe_allow_html=True)
+        st.selectbox("Category", ["All Categories", "Physical Security", "Cyber Security", "Supply Chain"], key='cat_selector', label_visibility="collapsed")
+        st.markdown('</div>', unsafe_allow_html=True)
