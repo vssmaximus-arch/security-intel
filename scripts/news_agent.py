@@ -11,26 +11,32 @@ Labels expected from the dashboard:
   - (optionally "RELEVANT", "MONITOR" later if you add)
 """
 
-import json
-import os
+import os, json
 from datetime import datetime, timezone
 from urllib.parse import urlparse
-
 import feedparser
 from bs4 import BeautifulSoup
 
 try:
     import google.generativeai as genai
-except Exception:
+except:
     genai = None
 
-# ---------- PATHS ----------
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "public", "data")
+# -------------------------------------
+# ABSOLUTE, BULLETPROOF PATHS
+# DO NOT MODIFY
+# -------------------------------------
+ROOT = os.path.dirname(os.path.abspath(__file__))   # scripts/
+ROOT = os.path.abspath(os.path.join(ROOT, ".."))    # repo root
+DATA_DIR = os.path.join(ROOT, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
+
+print("DATA_DIR      =", DATA_DIR)
+print("NEWS_PATH     =", NEWS_PATH)
+print("FEEDBACK_PATH =", FEEDBACK_PATH)
 
 # ---------- CONFIG ----------
 GEMINI_MODEL = "gemini-1.5-flash"
