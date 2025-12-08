@@ -1,6 +1,18 @@
+"""
+SRO Intelligence Ingest + Learning
+----------------------------------
+- Pulls from curated news / alert feeds
+- Uses Gemini for classification
+- Learns from analyst feedback stored in public/data/feedback.jsonl
+
+Labels expected from the dashboard:
+  - "NOT_RELEVANT"  -> hard block, used as negative examples
+  - "CRITICAL"      -> boost / strong positive example
+  - (optionally "RELEVANT", "MONITOR" later if you add)
+"""
+
 import json
 import os
-import hashlib
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -18,184 +30,87 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")  # JSONL with feedback from UI
+FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
 
-# ---------- STRICT SRO CATEGORIES ----------
-SRO_FILTERS = {
-    "CYBER SECURITY": [
-        "ransomware", "data breach", "cyberattack", "scada", "industrial control",
-        "zero-day", "vulnerability", "ddos", "malware", "system failure"
-    ],
-    "SUPPLY CHAIN": [
-        "port strike", "cargo theft", "supply chain disruption", "shipping delay",
-        "customs halt", "manufacturing stop", "factory fire", "production halt",
-        "labor dispute", "truck blockade", "port closure"
-    ],
-    "CRISIS / WEATHER": [
-        "earthquake", "tsunami", "typhoon", "cyclone", "hurricane", "tornado",
-        "flash flood", "flooding", "wildfire", "bushfire", "power outage",
-        "blackout", "grid failure", "state of emergency", "evacuation ordered"
-    ],
-    "PHYSICAL SECURITY": [
-        "active shooter", "terror", "bomb", "explosion", "shooting", "gunman",
-        "kidnap", "kidnapping", "hostage", "assassination", "civil unrest",
-        "violent protest", "riot", "tear gas", "curfew", "martial law", "coup",
-        "armed group", "militant", "insurgent", "car bomb"
-    ],
-    "HEALTH / SAFETY": [
-        "epidemic", "outbreak", "infectious disease", "quarantine", "travel ban",
-        "pandemic", "virus variant", "radiation", "chemical spill", "toxic leak"
-    ]
-}
-
-# ---------- BLOCKLIST (HARD REJECTIONS) ----------
-BLOCKLIST = [
-    # Sports / entertainment / lifestyle noise
-    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league",
-    "cup", "tournament", "olympics", "world cup",
-    "celebrity", "entertainment", "movie", "film", "star", "concert",
-    "royal family", "gossip", "lifestyle", "fashion", "awards show",
-
-    # Post-incident recovery fluff (not operational)
-    "residents return", "collect personal items", "cleanup begins",
-    "recovery continues", "aftermath of", "memorial service",
-
-    # Misc low-value noise
-    "lottery", "horoscope", "poppy cultivation", "drug trade",
-    "opium", "estate dispute", "wedding of", "divorce battle", "MH370"
-]
-
-# ---------- FEEDS ----------
-FEEDS = [
-    # --- 1. GLOBAL BREAKING NEWS ---
-    'http://feeds.reuters.com/reuters/topNews',
-    'http://feeds.reuters.com/reuters/worldNews',
-    'https://apnews.com/apf-topnews',
-    'https://feeds.bbci.co.uk/news/world/rss.xml',
-    'https://www.france24.com/en/rss',
-    'https://www.dw.com/en/top-stories/s-9097/rss.xml',
-    'https://www3.nhk.or.jp/nhkworld/en/news/list.xml',
-    'https://news.un.org/feed/subscribe/en/news/all/rss.xml',
-    'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
-    'http://feeds.washingtonpost.com/rss/world',
-    'https://www.theguardian.com/world/rss',
-    'https://feeds.bloomberg.com/politics/news.xml',
-    'https://www.scmp.com/rss/91/feed',
-    'https://www.cnbc.com/id/100727362/device/rss/rss.html',
-
-    # --- 2. CYBER SECURITY & INFRASTRUCTURE ---
-    'https://www.bleepingcomputer.com/feed/',
-    'https://thehackernews.com/feeds/posts/default',
-    'https://krebsonsecurity.com/feed/',
-    'https://threatpost.com/feed/',
-    'https://www.darkreading.com/rss.xml',
-    'https://www.cisa.gov/uscert/ncas/alerts.xml',
-    'https://www.cisa.gov/uscert/ncas/current-activity.xml',
-    'https://www.ncsc.gov.uk/api/1/services/v1/report-rss-feed.xml',
-    'https://unit42.paloaltonetworks.com/feed/',
-    'https://www.fireeye.com/blog/threat-research/_jcr_content.feed',
-    'https://securelist.com/feed/',
-    'https://www.schneier.com/blog/atom.xml',
-    'https://grahamcluley.com/feed/',
-    'https://www.theregister.com/security/headlines.atom',
-    'https://www.wired.com/feed/category/security/latest/rss',
-    'https://feeds.feedburner.com/securityweek',
-    'https://www.csoonline.com/index.rss',
-    'https://portswigger.net/daily-swig/rss',
-    'https://isc.sans.edu/rssfeed.xml',
-
-    # --- 3. APJC REGION (Asia Pacific, Japan, China) ---
-    'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml',
-    'https://timesofindia.indiatimes.com/rssfeedstopstories.cms',
-    'https://www.hindustantimes.com/rss/topnews/rssfeed.xml',
-    'https://www.japantimes.co.jp/feed',
-    'http://www.koreaherald.com/common/rss_xml.php?ct=101',
-    'https://www.bangkokpost.com/rss/data/topstories.xml',
-    'https://www.straitstimes.com/news/asia/rss.xml',
-    'https://www.thehindu.com/news/national/feeder/default.rss',
-    'https://www.abc.net.au/news/feed/45910/rss.xml',
-    'https://www.smh.com.au/rss/national.xml',
-    'https://www.rnz.co.nz/rss/pacific.xml',
-    'https://www.philstar.com/rss/headlines',
-    'https://vnexpress.net/rss/tin-moi-nhat.rss',
-    'https://www.taipeitimes.com/xml/index.xml',
-    'https://global.chinadaily.com.cn/rss/world_rss.xml',
-    'https://asia.nikkei.com/rss/feed/nar',
-    'https://www.thestar.com.my/rss/editors-choice',
-    'https://jakartaglobe.id/rss',
-    'https://www.dawn.com/feeds/home/',
-    'https://www.colombo-page.com/rss.xml',
-
-    # --- 4. EMEA REGION (Europe, Middle East, Africa) ---
-    'https://www.euronews.com/rss',
-    'https://www.politico.eu/feed/',
-    'https://www.thelocal.de/feeds/rss.php',
-    'https://www.thelocal.fr/feeds/rss.php',
-    'https://www.irishtimes.com/cmlink/news-1.1319192',
-    'https://www.jpost.com/rss/rssfeedsheadlines.aspx',
-    'https://www.arabnews.com/cat/1/rss.xml',
-    'https://www.thenationalnews.com/rss/',
-    'https://allafrica.com/tools/headlines/v2/00/headlines.xml',
-    'https://www.news24.com/news24/rss',
-    'https://www.dailysabah.com/rss/latest',
-    'https://tass.com/rss/v2.xml',
-    'https://www.ukrinform.net/rss',
-    'https://www.telegraph.co.uk/rss.xml',
-    'https://www.independent.co.uk/rss',
-    'https://egyptindependent.com/feed/',
-    'https://punchng.com/feed/',
-    'https://www.standardmedia.co.ke/rss/headlines.php',
-    'https://www.warsawvoice.pl/WVpage/pages/rss/rss.xml',
-    'https://hungarytoday.hu/feed/',
-
-    # --- 5. AMER REGION (Americas) ---
-    'http://feeds.foxnews.com/foxnews/latest',
-    'http://rss.cnn.com/rss/cnn_topstories.rss',
-    'https://www.usatoday.com/feeds/rss/news/nation.cms',
-    'https://globalnews.ca/feed/',
-    'https://www.cbc.ca/cmlink/rss-topstories',
-    'https://mexiconewsdaily.com/feed/',
-    'https://en.mercopress.com/rss',
-    'https://buenosairesherald.com/feed',
-    'https://www.riotimesonline.com/feed/',
-    'https://colombiareports.com/feed/',
-    'https://ticotimes.net/feed',
-    'https://www.plenglish.com/feed/',
-    'https://www.jamaicaobserver.com/feed',
-    'https://www.latimes.com/local/rss2.0.xml',
-    'https://www.texastribune.org/feeds/main/',
-
-    # --- 6. RISKS, DISASTERS & HEALTH ---
-    'https://www.who.int/feeds/entity/csr/don/en/rss.xml',
-    'https://wwwnc.cdc.gov/travel/rss/notices.xml',
-    'https://travel.state.gov/_res/rss/TAs_TWs.xml',
-    'https://www.gov.uk/foreign-travel-advice/rss',
-    'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.atom',
-    'https://gdacs.org/xml/rss.xml',
-    'https://www.tsunami.gov/rss/ptwc_text.xml',
-    'https://www.nhc.noaa.gov/index-at.xml',
-    'https://www.nhc.noaa.gov/index-ep.xml',
-    'https://emergency.copernicus.eu/mapping/list-of-activations/rss',
-
-    # --- 7. INTELLIGENCE & GEOPOLITICS ---
-    'https://www.crisisgroup.org/rss/all',
-    'https://www.rferl.org/rss',
-    'https://www.defensenews.com/arc/outboundfeeds/rss/',
-    'https://www.janes.com/feeds/news',
-    'https://oilprice.com/rss/main',
-    'https://theaviationist.com/feed/',
-    'https://www.maritime-executive.com/rss',
-    'https://gcaptain.com/feed/',
-    'https://intelnews.org/feed/',
-    'https://warontherocks.com/feed/'
-]
-
+# ---------- CONFIG ----------
 GEMINI_MODEL = "gemini-1.5-flash"
 
-# ---------- GEMINI INIT ----------
+# News / alert feeds (keep your existing list here)
+FEEDS = [
+    "https://feeds.reuters.com/reuters/worldNews",
+    "https://feeds.reuters.com/reuters/businessNews",
+    "https://feeds.reuters.com/reuters/marketsNews",
+    "https://feeds.reuters.com/reuters/politicsNews",
+    "https://feeds.reuters.com/reuters/lawNews",
+    "https://apnews.com/apf-news?format=xml",
+    "https://apnews.com/hub/world-news?format=xml",
+    "https://apnews.com/hub/politics?format=xml",
+    "https://www.afp.com/en/news-hub/rss",
+    "https://www.bbc.co.uk/news/world/rss.xml",
+    "https://www.bbc.co.uk/news/business/rss.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+    "https://feeds.washingtonpost.com/rss/world",
+    "https://feeds.washingtonpost.com/rss/business",
+    "https://www.theguardian.com/world/rss",
+    "https://www.theguardian.com/business/rss",
+    "https://www.dw.com/en/top-stories/world/s-1429/rss",
+    "https://www.dw.com/en/top-stories/business/s-1431/rss",
+    "https://www.scmp.com/rss/91/feed",
+    "https://asia.nikkei.com/rss/feed/nar",
+    "https://www.crisisgroup.org/rss.xml",
+    "https://reliefweb.int/updates/rss.xml",
+    "https://www.globalsecurity.org/military/world/rss.xml",
+    "https://www.freightwaves.com/feed",
+    "https://www.joc.com/rss.xml",
+    "https://www.supplychaindive.com/feeds/news/",
+    "https://gcaptain.com/feed/",
+    "https://theloadstar.com/feed/",
+    "https://splash247.com/feed/",
+    "https://www.porttechnology.org/feed/",
+    "https://www.aircargonews.net/feed/",
+    "https://www.maritime-executive.com/rss",
+    "https://www.maritimebulletin.net/feed/",
+    "https://www.portoflosangeles.org/rss/news",
+    "https://www.portofantwerpbruges.com/en/news/rss",
+    # crisis/weather / alerts
+    "https://www.wmo.int/rss",
+    "https://www.weather.gov/rss_page.php",
+    "https://alerts.weather.gov/cap/us.php?x=0",
+    "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+    "https://www.jma.go.jp/bosai/feed/rss/warn.xml",
+    "https://feeds.meteoalarm.org/RSS",
+    "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
+    "https://www.gdacs.org/xml/rss.xml",
+    "https://travel.state.gov/_res/rss/TAs.xml",
+    "https://www.gov.uk/foreign-travel-advice.rss",
+    # cyber
+    "https://www.cisa.gov/cybersecurity-advisories/all.xml",
+    "https://www.darkreading.com/rss_simple.asp",
+    "https://feeds.feedburner.com/TheHackersNews",
+    "https://www.csoonline.com/index.rss",
+    "https://www.scmagazine.com/home/feed/",
+    "https://www.cloudflare.com/rss/",
+    "https://msrc.microsoft.com/blog/feed",
+    "https://www.mandiant.com/resources/rss.xml",
+    "https://www.okta.com/blog/index.xml",
+]
+
+# ---------- HARD BLOCKLIST (pre-AI noise filter) ----------
+BLOCKLIST_WORDS = [
+    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament",
+    "celebrity", "entertainment", "movie", "film", "star", "concert",
+    "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
+    "review:", "opinion:", "editorial:",
+    "tv show", "series finale", "premiere",
+]
+
+# ---------- INIT GEMINI ----------
 def init_gemini():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or genai is None:
+        print("Gemini disabled: GEMINI_API_KEY not set or library missing")
         return None
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(GEMINI_MODEL)
@@ -206,26 +121,61 @@ def clean_html(html: str) -> str:
         return ""
     return BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
 
-def make_article_key(title: str, source: str) -> str:
-    """
-    Stable key so UI feedback can be matched back to new articles.
-    Uses SHA1(title|source) in lowercase.
-    """
-    base = f"{(title or '').strip().lower()}|{(source or '').strip().lower()}"
-    return hashlib.sha1(base.encode("utf-8", "ignore")).hexdigest()
+def is_obviously_irrelevant(text: str) -> bool:
+    """Cheap textual filter before AI to save tokens."""
+    t = text.lower()
+    for w in BLOCKLIST_WORDS:
+        if w in t:
+            return True
+    return False
 
-# ---------- FEEDBACK LOADING ----------
+def build_article_key(title: str, source: str, url: str) -> str:
+    """
+    Must match the logic used on the frontend (app.js).
+    Priority:
+      1) URL if present
+      2) source + title
+    """
+    title = (title or "").strip().lower()
+    source = (source or "").strip().lower()
+    url = (url or "").strip().lower()
+    if url:
+        return f"u:{url}"
+    return f"s:{source}|t:{title}"
+
+def map_region(text: str) -> str:
+    t = text.lower()
+    if any(x in t for x in ["china", "asia", "india", "japan", "australia", "thailand",
+                            "vietnam", "indonesia", "malaysia", "singapore",
+                            "korea", "taiwan", "philippines"]):
+        return "APJC"
+    if any(x in t for x in ["uk", "britain", "england", "europe", "germany", "france",
+                            "poland", "ireland", "israel", "gaza", "russia", "ukraine",
+                            "middle east", "africa", "netherlands", "sweden",
+                            "spain", "italy"]):
+        return "EMEA"
+    if any(x in t for x in ["usa", "united states", "america", "canada", "brazil",
+                            "mexico", "colombia", "argentina", "chile",
+                            "peru", "panama"]):
+        return "AMER"
+    return "Global"
+
+# ---------- FEEDBACK LOADING / PROFILE ----------
 def load_feedback():
     """
     Reads feedback.jsonl and builds:
-      - NEG_KEYS: set of article keys marked NOT_RELEVANT
-      - POS_META: dict key -> meta for CRITICAL (type, severity, region)
+      - block_keys: set of article keys to always skip
+      - boost_keys: set of article keys to boost (CRITICAL)
+      - pos_examples / neg_examples: recent examples for Gemini prompt
     """
-    neg_keys = set()
-    pos_meta = {}
+    block_keys = set()
+    boost_keys = set()
+    pos_examples = []  # CRITICAL
+    neg_examples = []  # NOT_RELEVANT
 
     if not os.path.exists(FEEDBACK_PATH):
-        return neg_keys, pos_meta  # no feedback yet
+        print("No feedback file yet – running with default behaviour.")
+        return block_keys, boost_keys, pos_examples, neg_examples
 
     with open(FEEDBACK_PATH, "r", encoding="utf-8") as f:
         for line in f:
@@ -233,225 +183,259 @@ def load_feedback():
             if not line:
                 continue
             try:
-                rec = json.loads(line)
+                obj = json.loads(line)
             except Exception:
                 continue
 
-            label = str(rec.get("label", "")).upper()
-            title = rec.get("title") or ""
-            source = rec.get("source") or ""
-            key = make_article_key(title, source)
+            label = (obj.get("label") or "").upper()
+            title = obj.get("title") or ""
+            source = obj.get("source") or ""
+            url = obj.get("url") or ""
+
+            key = build_article_key(title, source, url)
             if not key:
                 continue
 
             if label == "NOT_RELEVANT":
-                neg_keys.add(key)
+                block_keys.add(key)
+                neg_examples.append(obj)
             elif label == "CRITICAL":
-                pos_meta[key] = {
-                    "label": "CRITICAL",
-                    "type": rec.get("type"),
-                    "severity": rec.get("severity"),
-                    "region": rec.get("region"),
-                }
+                boost_keys.add(key)
+                pos_examples.append(obj)
+            # you can add more labels later (e.g. "RELEVANT", "MONITOR")
 
-    return neg_keys, pos_meta
+    # keep only the most recent 20 of each for the few-shot prompt
+    pos_examples = pos_examples[-20:]
+    neg_examples = neg_examples[-20:]
 
-# ---------- RULE-BASED CATEGORY ----------
-def get_sro_category(text: str):
-    t = text.lower()
+    print(f"Loaded feedback: {len(block_keys)} NOT_RELEVANT keys, {len(boost_keys)} CRITICAL keys")
+    return block_keys, boost_keys, pos_examples, neg_examples
 
-    # Hard reject on blocklist
-    for word in BLOCKLIST:
-        if word in t:
-            return None
-
-    for category, keywords in SRO_FILTERS.items():
-        for kw in keywords:
-            if kw in t:
-                return category
-    return None
-
-# ---------- AI LAYER ----------
-def ai_process(model, title, summary, category, pos_hint=None):
+def build_feedback_prompt_section(pos_examples, neg_examples) -> str:
     """
-    model   : Gemini model or None
-    title   : Article title
-    summary : Cleaned summary / body
-    category: Initial category from rules (can be None if only kept due to feedback)
-    pos_hint: Optional dict from POS_META for CRITICAL examples (type, severity, region)
+    Converts feedback examples into a compact text block
+    to be injected into the Gemini prompt.
     """
-    # If no Gemini, just keep with default severity and truncated snippet
+    if not pos_examples and not neg_examples:
+        return "No prior feedback – use general security relevance rules only."
+
+    def fmt(ex):
+        lbl = ex.get("label")
+        title = ex.get("title", "")[:160]
+        src = ex.get("source", "")
+        return f"- [{lbl}] {src} – {title}"
+
+    lines = ["Recent analyst feedback from Dell SRO:"]
+
+    if pos_examples:
+        lines.append("\nExamples that leadership CARES ABOUT (keep/high priority):")
+        for ex in pos_examples:
+            lines.append(fmt(ex))
+
+    if neg_examples:
+        lines.append("\nExamples that leadership DOES NOT CARE ABOUT (drop/low value):")
+        for ex in neg_examples:
+            lines.append(fmt(ex))
+
+    lines.append(
+        "\nWhen judging new articles, prefer patterns similar to the positive set "
+        "and avoid patterns similar to the negative set."
+    )
+    return "\n".join(lines)
+
+# ---------- GEMINI CALL ----------
+def ai_analyze_article(model, title, body, source, feedback_text):
+    """
+    Uses Gemini with:
+      - SRO task description
+      - current article
+      - feedback examples (few-shot profile)
+    """
     if not model:
-        final_cat = category or (pos_hint.get("type") if pos_hint else None) or "PHYSICAL SECURITY"
-        return True, int(pos_hint.get("severity", 2) if pos_hint else 2), (summary[:200] + "..."), final_cat
-
-    # Build a small hint line if we have positive feedback history
-    feedback_hint = ""
-    if pos_hint:
-        hint_cat = pos_hint.get("type") or category or "PHYSICAL SECURITY"
-        hist_sev = pos_hint.get("severity", 3)
-        feedback_hint = (
-            f"\nHistorical feedback: This type of story was previously marked CRITICAL "
-            f"for SRO operations (category: {hint_cat}, severity: {hist_sev}). "
-            f"Bias slightly towards KEEP with at least severity 3 if pattern matches."
-        )
+        # fallback – keep everything to avoid losing incidents if AI is down
+        return {
+            "category": "PHYSICAL_SECURITY",  # default bucket
+            "likelihood_relevant": 70,
+            "severity": "MEDIUM",
+            "primary_reason": "Gemini unavailable – default relevance.",
+            "geo_relevance": {"mentioned_countries_or_cities": []},
+        }
 
     prompt = f"""
-    Role: Security Analyst for Dell SRO.
-    Task: Decide if this article has OPERATIONAL impact for Security & Resilience.
+ROLE & GOAL
+You are a security news classifier for Dell Technologies Security & Resiliency (SRO).
 
-    Article:
-    Title: {title}
-    Summary: {summary}
-    Proposed_category_from_rules: {category}
+1) You ONLY keep stories that have operational impact for:
+   - Physical security of people, offices, and facilities
+   - Supply chain and logistics (ports, air/sea/land freight, manufacturing, HVA)
+   - Major cyber incidents that can disrupt operations or key partners
+   - Crisis / weather events that can affect sites or travel
+   - Compliance / investigations that materially impact security operations
 
-   {feedback_hint}
+2) You must REJECT:
+   - General politics without clear operational impact
+   - Sports, entertainment, lifestyle, celebrity, gossip
+   - Local soft features, human-interest stories
+   - Post-event clean-up, anniversary, or "memories" pieces that do not affect operations now
 
-    Rules:
-    1. REJECT (keep=false): elections, general politics, sports, celebrity, lifestyle,
-       post-disaster cleanup (no ongoing disruption), generic crime not affecting
-       corporate operations.
-    2. KEEP (keep=true): anything with clear impact to:
-       - Staff safety, Dell facilities, major cities where Dell has presence
-       - Ports, airports, major logistics hubs, manufacturing zones
-       - National-level crises, travel bans, states of emergency
-       - Major cyber incidents impacting operations, partners, or core IT providers
-    3. Severity:
-       - 3 = Life safety / major operational impact
-       - 2 = Meaningful disruption, monitor closely
-       - 1 = Awareness only
+3) Use the recent analyst feedback to align your decisions with leadership expectations.
 
-    Output JSON ONLY, no text around it:
-    {{
-      "keep": true/false,
-      "severity": 1-3,
-      "one_liner": "Short operational impact summary",
-      "category": "PHYSICAL SECURITY | SUPPLY CHAIN | CYBER SECURITY | CRISIS / WEATHER | HEALTH / SAFETY"
-    }}
-    """
+FEEDBACK PROFILE:
+{feedback_text}
+
+CATEGORIES:
+- PHYSICAL_SECURITY: Protests, riots, terror, war, major crime, kidnapping, violent unrest, active shooter, civil disorder, martial law, coups.
+- SUPPLY_CHAIN_SECURITY: Port/airport closures, shipping disruption, strikes affecting logistics, factory shutdown, cargo theft, customs blockages.
+- CYBER_SECURITY_MAJOR: Outages, ransomware, large data leaks, major vulnerability or incident that can hit Dell, its partners, or critical infrastructure.
+- CRISIS_WEATHER: Earthquakes, typhoons, hurricanes, floods, wildfires, large power outages, grid failure, states of emergency.
+- HEALTH_SAFETY: Epidemics/outbreaks, pandemics, travel bans, major health advisories.
+- NOT_RELEVANT: Everything else.
+
+INPUT ARTICLE:
+- Title: {title}
+- Body: {body[:1200]}
+- Source: {source}
+
+OUTPUT STRICTLY AS JSON:
+{{
+  "category": "PHYSICAL_SECURITY | SUPPLY_CHAIN_SECURITY | CYBER_SECURITY_MAJOR | CRISIS_WEATHER | HEALTH_SAFETY | NOT_RELEVANT",
+  "likelihood_relevant": integer 0-100,
+  "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+  "primary_reason": "One sentence explaining business/security impact in plain language",
+  "geo_relevance": {{
+    "mentioned_countries_or_cities": ["list", "of", "locations or regions (if any)"]
+  }}
+}}
+    """.strip()
 
     try:
         resp = model.generate_content(prompt)
         text = resp.text.strip().replace("```json", "").replace("```", "")
-        data = json.loads(text)
-        keep = bool(data.get("keep", False))
-        severity = int(data.get("severity", 1))
-        one_liner = data.get("one_liner", summary) or summary
-        final_cat = data.get("category") or category or "PHYSICAL SECURITY"
+        return json.loads(text)
+    except Exception as e:
+        print(f"AI Processing Error: {e}")
+        return {
+            "category": "NOT_RELEVANT",
+            "likelihood_relevant": 0,
+            "severity": "LOW",
+            "primary_reason": "AI processing error.",
+            "geo_relevance": {"mentioned_countries_or_cities": []},
+        }
 
-        return keep, severity, one_liner, final_cat
-    except Exception:
-        # Conservative fallback: keep if category exists, medium severity
-        final_cat = category or (pos_hint.get("type") if pos_hint else "PHYSICAL SECURITY")
-        sev = max(int(pos_hint.get("severity", 2)) if pos_hint else 2, 2)
-        return True, sev, (summary[:200] + "..."), final_cat
-
-# ---------- MAIN ----------
+# ---------- MAIN INGEST ----------
 def main():
-    print("=== SRO Intel Ingest (Strict SRO + Feedback) ===")
+    print(f"Starting SRO Intel Ingest on {len(FEEDS)} feeds...")
+
+    model = init_gemini()
+
+    # Load analyst feedback profile
+    block_keys, boost_keys, pos_examples, neg_examples = load_feedback()
+    feedback_text = build_feedback_prompt_section(pos_examples, neg_examples)
 
     all_items = []
     seen_titles = set()
-    model = init_gemini()
 
-    # Load user feedback from UI
-    NEG_KEYS, POS_META = load_feedback()
-    print(f"Loaded feedback: {len(NEG_KEYS)} NOT_RELEVANT, {len(POS_META)} CRITICAL markers")
+    CHECK_LIMIT = 10  # items per feed to inspect; you can increase if needed
 
     for url in FEEDS:
         try:
-            print(f"[FEED] {url}")
             f = feedparser.parse(url)
+            print(f"Scanning: {url} ({len(f.entries)} entries)")
+        except Exception as e:
+            print(f"Feed parse error {url}: {e}")
+            continue
 
-            # No per-feed cap: all entries, filters will do the work
-            for e in f.entries:
-                title = getattr(e, "title", "").strip()
-                if not title:
-                    continue
+        for e in f.entries[:CHECK_LIMIT]:
+            title = getattr(e, "title", "").strip()
+            if not title:
+                continue
 
-                # Deduplicate by title to avoid clutter
-                if title in seen_titles:
-                    continue
-                seen_titles.add(title)
+            # Deduplicate by title
+            if title in seen_titles:
+                continue
+            seen_titles.add(title)
 
-                raw_summary = clean_html(getattr(e, "summary", ""))
-                full_text = f"{title} {raw_summary}"
-                source_host = urlparse(getattr(e, "link", "")).netloc.replace("www.", "")
-                article_key = make_article_key(title, source_host)
+            raw_summary = clean_html(getattr(e, "summary", ""))
+            full_text = f"{title} {raw_summary}"
+            link = getattr(e, "link", "") or ""
+            source_host = urlparse(link).netloc.replace("www.", "") or urlparse(url).netloc.replace("www.", "")
 
-                # 1) Auto drop if previously marked NOT_RELEVANT
-                if article_key in NEG_KEYS:
-                    # Skip immediately – leadership already told us this pattern is noise
-                    continue
+            # Build stable key and apply hard user-block if present
+            key = build_article_key(title, source_host, link)
+            if key in block_keys:
+                print(f"[SKIP-BLOCK] {title}")
+                continue
 
-                # 2) Rule-based category
-                category = get_sro_category(full_text)
+            # Fast lexical blocklist
+            if is_obviously_irrelevant(full_text):
+                continue
 
-                # 3) If rules found nothing AND there's no positive feedback hint, skip
-                pos_hint = POS_META.get(article_key)
-                if not category and not pos_hint:
-                    continue
+            # AI classification
+            analysis = ai_analyze_article(model, title, raw_summary, source_host, feedback_text)
+            cat = analysis.get("category", "NOT_RELEVANT")
+            score = int(analysis.get("likelihood_relevant", 0) or 0)
 
-                # 4) AI pass (with positive feedback hint if exists)
-                keep, severity, snippet, final_cat = ai_process(
-                    model=model,
-                    title=title,
-                    summary=raw_summary,
-                    category=category,
-                    pos_hint=pos_hint
-                )
+            if cat == "NOT_RELEVANT" or score < 45:
+                # borderline calls will naturally be corrected by your feedback over time
+                continue
 
-                if not keep:
-                    continue
+            # Map severity string to numeric
+            sev_str = (analysis.get("severity") or "LOW").upper()
+            severity = 1
+            if sev_str == "MEDIUM":
+                severity = 2
+            elif sev_str in ("HIGH", "CRITICAL"):
+                severity = 3
 
-                # 5) If leadership previously marked as CRITICAL, force severity >= 3
-                if pos_hint and pos_hint.get("label") == "CRITICAL":
-                    if severity < 3:
-                        severity = 3
+            # Apply boost if analysts marked similar item CRITICAL before
+            if key in boost_keys and severity < 3:
+                print(f"[BOOST-CRITICAL] {title}")
+                severity = 3
+                cat = "PHYSICAL_SECURITY" if cat == "NOT_RELEVANT" else cat
 
-                # Timestamp
-                ts = datetime.now(timezone.utc).isoformat()
-                if hasattr(e, "published_parsed") and e.published_parsed:
-                    ts = datetime(*e.published_parsed[:6]).isoformat()
+            # Map category to dashboard type label
+            dash_type = "GENERAL"
+            if cat == "PHYSICAL_SECURITY":
+                dash_type = "PHYSICAL SECURITY"
+            elif cat == "SUPPLY_CHAIN_SECURITY":
+                dash_type = "SUPPLY CHAIN"
+            elif cat == "CYBER_SECURITY_MAJOR":
+                dash_type = "CYBER SECURITY"
+            elif cat == "CRISIS_WEATHER":
+                dash_type = "CRISIS / WEATHER"
+            elif cat == "HEALTH_SAFETY":
+                dash_type = "HEALTH / SAFETY"
 
-                # Region inference (still simple, but aligned with SRO view)
-                region = "Global"
-                t_lower = full_text.lower()
-                if any(x in t_lower for x in ["china", "asia", "india", "japan", "australia",
-                                              "singapore", "malaysia", "philippines", "korea", "indonesia"]):
-                    region = "APJC"
-                elif any(x in t_lower for x in ["uk", "europe", "germany", "france", "poland",
-                                                "ireland", "italy", "spain", "israel", "gaza",
-                                                "middle east", "africa", "russia", "ukraine"]):
-                    region = "EMEA"
-                elif any(x in t_lower for x in ["usa", "united states", "america", "canada",
-                                                "brazil", "mexico", "argentina", "chile", "panama"]):
-                    region = "AMER"
+            # Region mapping
+            region = map_region(full_text)
 
-                # Build dashboard item
-                all_items.append({
-                    "title": title,
-                    "url": getattr(e, "link", ""),
-                    "snippet": snippet,
-                    "source": source_host,
-                    "time": ts,
-                    "region": region,
-                    "severity": severity,
-                    "type": final_cat,
-                    "_key": article_key  # not used on frontend now, but useful for debugging
-                })
+            # Timestamp: prefer feed's published date if present
+            ts = datetime.now(timezone.utc).isoformat()
+            if hasattr(e, "published_parsed") and e.published_parsed:
+                ts = datetime(*e.published_parsed[:6]).replace(tzinfo=timezone.utc).isoformat()
 
-        except Exception as ex:
-            print(f"[ERROR] Feed {url}: {ex}")
+            snippet = analysis.get("primary_reason") or raw_summary[:160]
 
-    # Sort newest first
-    all_items.sort(key=lambda x: x["time"], reverse=True)
+            item = {
+                "title": title,
+                "url": link,
+                "snippet": snippet,
+                "source": source_host,
+                "time": ts,
+                "region": region,
+                "severity": severity,
+                "type": dash_type,
+            }
+            all_items.append(item)
+            print(f"[KEEP] {dash_type} | {region} | {title}")
 
-    # Write to news.json
+    # Sort by severity then time (newest first)
+    all_items.sort(key=lambda x: (x["severity"], x["time"]), reverse=True)
+
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
-        json.dump(all_items, f, indent=2, ensure_ascii=False)
+        json.dump(all_items, f, indent=2)
 
-    print(f"=== Ingest Complete: {len(all_items)} SRO-relevant items saved ===")
+    print(f"Ingest Complete. Saved {len(all_items)} SRO-relevant articles to {NEWS_PATH}.")
 
 if __name__ == "__main__":
     main()
