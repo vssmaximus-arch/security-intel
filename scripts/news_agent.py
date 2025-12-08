@@ -72,7 +72,6 @@ FEEDS = [
     'http://feeds.reuters.com/reuters/worldNews',
     'https://apnews.com/apf-topnews',
     'https://feeds.bbci.co.uk/news/world/rss.xml',
-    'https://www.aljazeera.com/xml/rss/all.xml',
     'https://www.france24.com/en/rss',
     'https://www.dw.com/en/top-stories/s-9097/rss.xml',
     'https://www3.nhk.or.jp/nhkworld/en/news/list.xml',
@@ -104,7 +103,6 @@ FEEDS = [
     'https://www.csoonline.com/index.rss',
     'https://portswigger.net/daily-swig/rss',
     'https://isc.sans.edu/rssfeed.xml',
-    'https://googleprojectzero.blogspot.com/feeds/posts/default',
 
     # --- 3. APJC REGION (Asia Pacific, Japan, China) ---
     'https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml',
