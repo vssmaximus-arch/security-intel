@@ -2,33 +2,27 @@
 """
 Feedback API for SRO Intel - persist feedback and trigger ingest.
 
-Replace/merge into your existing public/data/feedback_api.py.
-
-Endpoints:
- - POST /feedback  JSON payload: { "title","url","source","label","snippet"(optional) }
- - GET  /health
-
-Behavior:
- - Appends a JSON line to public/data/feedback.jsonl
- - Triggers the ingest script in a background subprocess so public/data/news.json is re-generated
+This version normalizes the URL and stores the same article key the ingest script
+uses so the ingest will correctly filter items after feedback is added.
 """
 import json
 import os
 import subprocess
 import threading
 from datetime import datetime, timezone
+from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# Resolve paths relative to repository root (two levels up from this file)
+# Resolve repository paths
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-REPO_ROOT = os.path.dirname(os.path.dirname(THIS_DIR))  # .. (repo)/public/data -> repo root
+REPO_ROOT = os.path.dirname(os.path.dirname(THIS_DIR))
 DATA_DIR = os.path.join(REPO_ROOT, "public", "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-# Candidate ingest script locations (adjust if your ingest script lives elsewhere)
+
 CANDIDATE_INGEST_PATHS = [
     os.path.join(REPO_ROOT, "public", "scripts", "news_ingest.py"),
     os.path.join(REPO_ROOT, "public", "scripts", "ingest.py"),
@@ -39,7 +33,8 @@ CANDIDATE_INGEST_PATHS = [
 VALID_LABELS = {"NOT_RELEVANT", "CRITICAL", "RELEVANT", "MONITOR"}
 
 app = Flask(__name__)
-CORS(app)  # tighten origin in production
+CORS(app)
+
 
 def _find_ingest_script():
     for p in CANDIDATE_INGEST_PATHS:
@@ -47,49 +42,63 @@ def _find_ingest_script():
             return p
     return None
 
+
 INGEST_SCRIPT = _find_ingest_script()
 
+
+def normalize_url(u: str) -> str:
+    """Lowercase, remove UTM/tracking query params, and strip trailing slash."""
+    if not u:
+        return ""
+    try:
+        p = urlparse(u.strip())
+        scheme = (p.scheme or "https").lower()
+        netloc = p.netloc.lower()
+        path = p.path.rstrip("/")  # drop trailing slash
+        # Remove common tracking params (UTM)
+        qs = dict(parse_qsl(p.query, keep_blank_values=True))
+        filtered_qs = {k: v for k, v in qs.items() if not k.lower().startswith("utm_")}
+        query = urlencode(filtered_qs, doseq=True)
+        cleaned = urlunparse((scheme, netloc, path, "", query, ""))
+        return cleaned
+    except Exception:
+        return u.strip().lower()
+
+
+def build_article_key(title: str, source: str, url: str) -> str:
+    title = (title or "").strip().lower()
+    source = (source or "").strip().lower()
+    url = (url or "").strip().lower()
+    if url:
+        return f"u:{url}"
+    return f"s:{source}|t:{title}"
+
+
 def _append_feedback(obj: dict):
-    """
-    Append feedback JSON line to FEEDBACK_PATH. Use append mode; POSIX append of a single write is atomic.
-    """
     line = json.dumps(obj, ensure_ascii=False)
     with open(FEEDBACK_PATH, "a", encoding="utf-8") as f:
         f.write(line + "\n")
 
+
 def _trigger_ingest():
-    """
-    Trigger ingest script in background using subprocess.Popen to avoid blocking.
-    If no ingest script found, log and return.
-    """
     if not INGEST_SCRIPT:
-        app.logger.warning("No ingest script found in candidate paths; skipping ingest trigger.")
+        app.logger.warning("No ingest script found; skipping ingest trigger")
         return
 
     def _run():
         try:
-            # Best-effort: call the script with same python interpreter
             python_exe = os.environ.get("PYTHON_BIN", "python3")
             subprocess.Popen([python_exe, INGEST_SCRIPT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            app.logger.info("Ingest triggered in background: %s", INGEST_SCRIPT)
+            app.logger.info("Ingest triggered: %s", INGEST_SCRIPT)
         except Exception as e:
-            app.logger.exception("Failed to start ingest subprocess: %s", e)
+            app.logger.exception("Failed to start ingest: %s", e)
 
     t = threading.Thread(target=_run, daemon=True)
     t.start()
 
+
 @app.route("/feedback", methods=["POST"])
 def feedback():
-    """
-    Accepts:
-    {
-      "title": "...",
-      "url": "...",
-      "source": "...",
-      "label": "NOT_RELEVANT"|"CRITICAL"|"RELEVANT"|"MONITOR",
-      "snippet": "optional"
-    }
-    """
     try:
         payload = request.get_json(force=True)
     except Exception:
@@ -109,12 +118,16 @@ def feedback():
     if label not in VALID_LABELS:
         return jsonify({"error": f"invalid label. allowed: {', '.join(sorted(VALID_LABELS))}"}), 400
 
+    norm_url = normalize_url(url)
+    key = build_article_key(title, source, norm_url)
+
     fb_obj = {
         "title": title,
-        "url": url,
+        "url": norm_url,
         "source": source,
         "label": label,
         "snippet": snippet,
+        "key": key,
         "ts": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -124,20 +137,22 @@ def feedback():
         app.logger.exception("Failed to persist feedback: %s", e)
         return jsonify({"error": "failed to persist feedback"}), 500
 
-    # Trigger ingest in background so news.json is refreshed
     _trigger_ingest()
 
-    return jsonify({"ok": True}), 200
+    return jsonify({"ok": True, "key": key}), 200
+
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({
-        "ok": True,
-        "feedback_file_exists": os.path.exists(FEEDBACK_PATH),
-        "news_file_exists": os.path.exists(NEWS_PATH),
-        "ingest_script": INGEST_SCRIPT or "not-found"
-    }), 200
+    return jsonify(
+        {
+            "ok": True,
+            "feedback_file_exists": os.path.exists(FEEDBACK_PATH),
+            "news_file_exists": os.path.exists(NEWS_PATH),
+            "ingest_script": INGEST_SCRIPT or "not-found",
+        }
+    ), 200
+
 
 if __name__ == "__main__":
-    # Development server - in prod run via gunicorn/uvicorn etc.
     app.run(host="127.0.0.1", port=5001, debug=False)
