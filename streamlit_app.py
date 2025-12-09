@@ -1,464 +1,458 @@
-# streamlit_app.py
-# OS INFOHUB – Streamlit Edition (Light Mode Fixed)
-
-import os
-import json
-import math
-from datetime import datetime, timedelta
-from collections import Counter
-import re
-
 import streamlit as st
-import pandas as pd
+import json
+import os
+from datetime import datetime
+import hashlib
 import folium
 from streamlit_folium import st_folium
 
-# Optional – only used if you actually set GOOGLE_API_KEY / st.secrets
-try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
-except Exception:
-    GEMINI_AVAILABLE = False
-
-# ============================================================
-# 1. PATHS & BASIC CONFIG
-# ============================================================
-
-st.set_page_config(page_title="OS INFOHUB", layout="wide", page_icon="🛡️")
+# -----------------------------
+# 0. BASIC CONFIG
+# -----------------------------
+st.set_page_config(
+    page_title="OS INFOHUB",
+    layout="wide",
+    page_icon="🛡️",
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
-CONFIG_DIR = os.path.join(BASE_DIR, "config")
-os.makedirs(DATA_DIR, exist_ok=True)
-
-# Corrected Paths based on your structure
 NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-PROXIMITY_PATH = os.path.join(DATA_DIR, "proximity.json")
-LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json") # Locations are in config/
+PROX_PATH = os.path.join(DATA_DIR, "proximity.json")
+LOC_PATH = os.path.join(DATA_DIR, "locations.json")
 FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
 
-# Optional Gemini key
-GEMINI_KEY = os.environ.get("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY", None)
-if GEMINI_AVAILABLE and GEMINI_KEY:
-    genai.configure(api_key=GEMINI_KEY)
-else:
-    GEMINI_AVAILABLE = False
+os.makedirs(DATA_DIR, exist_ok=True)
 
-# Regions used everywhere
-REGIONS = ["Global", "AMER", "EMEA", "APJC", "LATAM"]
+# -----------------------------
+# 1. DATA HELPERS
+# -----------------------------
 
-# ============================================================
-# 2. STYLING (RESTORED LIGHT MODE - OS INFOHUB)
-# ============================================================
+@st.cache_data(ttl=60)
+def load_news():
+    """Load news items produced by news_agent.py and attach a stable ID."""
+    if not os.path.exists(NEWS_PATH):
+        return []
+    try:
+        with open(NEWS_PATH, "r", encoding="utf-8") as f:
+            news = json.load(f)
+    except Exception:
+        news = []
+    # attach a stable id used for hiding
+    for item in news:
+        uid = hashlib.sha256(
+            (item.get("title", "") + item.get("url", "")).encode("utf-8")
+        ).hexdigest()[:16]
+        item["_id"] = uid
+    return news
+
+
+@st.cache_data(ttl=300)
+def load_locations_and_proximity():
+    """Load Dell locations (sites) and precomputed proximity alerts."""
+    # Dell sites
+    sites = []
+    if os.path.exists(LOC_PATH):
+        try:
+            with open(LOC_PATH, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+                # original locations.json structure: {"locations":[{...}]}
+                if isinstance(raw, dict) and "locations" in raw:
+                    sites = raw["locations"]
+                elif isinstance(raw, list):
+                    sites = raw
+        except Exception:
+            sites = []
+
+    # Proximity alerts from backend pipeline
+    proximity = []
+    if os.path.exists(PROX_PATH):
+        try:
+            with open(PROX_PATH, "r", encoding="utf-8") as f:
+                pdata = json.load(f)
+                proximity = pdata.get("alerts", pdata if isinstance(pdata, list) else [])
+        except Exception:
+            proximity = []
+
+    return sites, proximity
+
+
+def append_feedback(entry: dict):
+    """Persist feedback in feedback.jsonl (one JSON object per line)."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    entry = dict(entry)
+    entry["timestamp"] = datetime.utcnow().isoformat() + "Z"
+    with open(FEEDBACK_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+
+
+def push_feedback(item, label: str):
+    """Store feedback and hide this item in the current session."""
+    append_feedback(
+        {
+            "title": item.get("title"),
+            "url": item.get("url"),
+            "source": item.get("source"),
+            "region": item.get("region"),
+            "severity": item.get("severity"),
+            "type": item.get("type"),
+            "label": label,
+        }
+    )
+
+    # hide in current session
+    hidden = st.session_state.setdefault("hidden_ids", set())
+    hidden.add(item["_id"])
+
+
+# -----------------------------
+# 2. THEME / CSS
+# -----------------------------
+
+if "theme" not in st.session_state:
+    st.session_state["theme"] = "light"
+
+# user toggle
+with st.sidebar:
+    st.markdown("### Appearance")
+    theme_choice = st.radio(
+        "Theme",
+        ["Light", "Dark"],
+        index=0 if st.session_state["theme"] == "light" else 1,
+    )
+    st.session_state["theme"] = "light" if theme_choice == "Light" else "dark"
+
+dark = st.session_state["theme"] == "dark"
+
+BACKGROUND = "#06070a" if dark else "#f5f5f5"
+CARD_BG = "#111318" if dark else "#ffffff"
+TEXT_MAIN = "#ffffff" if dark else "#202124"
+TEXT_MUTED = "#9aa0a6" if dark else "#5f6368"
+BORDER = "#202124" if dark else "#e0e0e0"
 
 st.markdown(
-    """
-<style>
-/* Global look - Light Mode */
-.stApp {
-    background-color: #f4f6f8;
-    color: #333;
-    font-family: 'Inter', system-ui, sans-serif;
-}
-
-/* Kill default header/footer */
-#MainMenu, header, footer {visibility: hidden;}
-
-/* Header strip */
-.os-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 16px 32px;
-    margin: -60px -20px 20px -20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.os-logo {
-    font-size: 1.3rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    color: #202124;
-}
-.os-logo span {
-    color: #0076CE; /* Dell Blue */
-}
-.os-sub {
-    font-size: 0.8rem;
-    color: #5f6368;
-    font-weight: 600;
-}
-
-/* Region tabs */
-.os-region-tabs {
-    margin-bottom: 15px;
-}
-.os-region-pill {
-    display: inline-block;
-    padding: 7px 18px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.8rem;
-    color: #5f6368;
-    cursor: pointer;
-    text-transform: uppercase;
-    margin-right: 5px;
-    background-color: #f1f3f4;
-}
-.os-region-pill.active {
-    background-color: #202124;
-    color: #fff;
-}
-
-/* Cards */
-.os-card {
-    background: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 16px 20px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
-}
-.os-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-.os-card-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #202124;
-    margin-bottom: 6px;
-}
-.os-card-meta {
-    font-size: 0.75rem;
-    color: #5f6368;
-    margin-bottom: 8px;
-}
-.os-card-body {
-    font-size: 0.85rem;
-    color: #3c4043;
-    line-height: 1.5;
-}
-
-/* Feed badges */
-.os-tag {
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    border: 1px solid #eee;
-    margin-right: 6px;
-}
-.os-tag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
-.os-tag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
-.os-tag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
-.os-tag-type { background: #f1f3f4; color: #5f6368; }
-.os-tag-region { float: right; color: #9aa0a6; border: none; }
-
-/* Side cards */
-.os-side-card {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e0e0e0;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-}
-.os-side-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #202124;
-    margin-bottom: 12px;
-}
-
-/* Proximity rows */
-.os-alert-row {
-    padding: 10px 0;
-    border-bottom: 1px solid #f1f1f1;
-}
-.os-alert-top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-}
-.os-alert-site {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #5f6368;
-}
-
-/* Advisory Box */
-.advisory-box { background: #f8f9fa; border-left: 4px solid #1a73e8; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
-.advisory-level { font-weight: 800; font-size: 0.8rem; color: #1a73e8; margin-bottom: 4px; }
-.advisory-text { font-size: 0.9rem; color: #333; font-weight: 600; }
-
-/* Buttons */
-.stButton>button {
-    font-size: 0.7rem;
-    padding: 2px 10px;
-    height: auto;
-    border-radius: 4px;
-}
-</style>
-""",
+    f"""
+    <style>
+    .stApp {{
+        background-color: {BACKGROUND};
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }}
+    .os-header {{
+        display:flex;
+        justify-content: space-between;
+        align-items:center;
+        padding:10px 24px 6px 24px;
+        border-bottom:1px solid {BORDER};
+        background: {CARD_BG};
+    }}
+    .os-logo {{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        font-weight:800;
+        letter-spacing:-0.02em;
+        color:{TEXT_MAIN};
+    }}
+    .os-logo-icon {{
+        width:22px;
+        height:22px;
+        border-radius:999px;
+        background:#0076ce;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:white;
+        font-size:13px;
+        font-weight:900;
+    }}
+    .os-chip {{
+        font-size:0.75rem;
+        padding:2px 8px;
+        border-radius:999px;
+        border:1px solid {BORDER};
+        color:{TEXT_MUTED};
+    }}
+    .os-card {{
+        background:{CARD_BG};
+        color:{TEXT_MAIN};
+        border-radius:8px;
+        border:1px solid {BORDER};
+        padding:12px 16px;
+        margin-bottom:8px;
+    }}
+    .os-card-title {{
+        font-size:0.95rem;
+        font-weight:700;
+        margin-bottom:4px;
+    }}
+    .os-card-meta {{
+        font-size:0.75rem;
+        color:{TEXT_MUTED};
+        margin-bottom:6px;
+    }}
+    .os-card-snippet {{
+        font-size:0.8rem;
+        line-height:1.4;
+    }}
+    .os-tag {{
+        font-size:0.7rem;
+        font-weight:700;
+        display:inline-block;
+        padding:2px 6px;
+        border-radius:4px;
+        margin-right:4px;
+        text-transform:uppercase;
+    }}
+    .os-tag-warning {{
+        background:#fef3c3;
+        color:#8d5a00;
+    }}
+    .os-tag-critical {{
+        background:#fce8e6;
+        color:#b3261e;
+    }}
+    .os-tag-info {{
+        background:#e8f0fe;
+        color:#1a73e8;
+    }}
+    .os-link a {{
+        color:{TEXT_MAIN};
+        text-decoration:none;
+    }}
+    .os-link a:hover {{
+        text-decoration:underline;
+    }}
+    </style>
+    """,
     unsafe_allow_html=True,
 )
 
-# ============================================================
-# 3. DATA LOADERS
-# ============================================================
+# -----------------------------
+# 3. HEADER
+# -----------------------------
 
-@st.cache_data(ttl=120)
-def load_news():
-    if not os.path.exists(NEWS_PATH): return []
-    try:
-        with open(NEWS_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, dict) and "articles" in data: data = data["articles"]
-        return data
-    except Exception: return []
+st.markdown(
+    """
+    <div class="os-header">
+        <div class="os-logo">
+            <div class="os-logo-icon">OS</div>
+            <div>OS <span style="color:#4c8bf5;">INFOHUB</span></div>
+        </div>
+        <div style="font-size:0.8rem; color:#9aa0a6;">
+            Global Security Operations · Live Stream
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-@st.cache_data(ttl=300)
-def load_locations():
-    if not os.path.exists(LOCATIONS_PATH): return []
-    try:
-        with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception: return []
+# -----------------------------
+# 4. MAIN LAYOUT
+# -----------------------------
 
-@st.cache_data(ttl=60)
-def load_proximity():
-    if not os.path.exists(PROXIMITY_PATH): return []
-    try:
-        with open(PROXIMITY_PATH, "r", encoding="utf-8") as f:
-            obj = json.load(f)
-        return obj.get("alerts", [])
-    except Exception: return []
+news_items = load_news()
+sites, proximity_alerts = load_locations_and_proximity()
 
-@st.cache_data(ttl=60)
-def load_feedback_counters():
-    good = Counter(); bad = Counter()
-    if not os.path.exists(FEEDBACK_PATH): return good, bad
-    try:
-        with open(FEEDBACK_PATH, "r", encoding="utf-8") as f:
-            for line in f:
-                if not line.strip(): continue
-                try:
-                    obj = json.loads(line)
-                    label = obj.get("label")
-                    text = (obj.get("title", "") + " " + obj.get("snippet", "")).lower()
-                    tokens = [t for t in re.findall(r"[a-z]{3,}", text)]
-                    target = good if label == "RELEVANT" else bad if label == "NOT_RELEVANT" else None
-                    if target: 
-                        for t in tokens: target[t] += 1
-                except: continue
-    except: pass
-    return good, bad
+regions = ["Global", "AMER", "EMEA", "APJC", "LATAM"]
+tab_main, tab_briefs = st.tabs(
+    ["Real-time Intelligence Stream", "Briefings & Reports"]
+)
 
-# ============================================================
-# 4. RELEVANCE SCORING / "AI AGENT"
-# ============================================================
+with tab_main:
+    top_col1, top_col2 = st.columns([3, 1])
 
-def score_articles(raw_news):
-    # Simplified scoring for UI responsiveness
-    good_terms, bad_terms = load_feedback_counters()
-    if not raw_news: return []
-    
-    scored = []
-    for art in raw_news:
-        # Pass through existing severity if available
-        art["os_score"] = 0.5 
-        # Boost if severity high
-        if art.get("severity", 1) >= 3: art["os_score"] = 0.9
-        scored.append(art)
-    return scored
+    # LEFT: region, map, stream
+    with top_col1:
+        # region selector
+        sel_region = st.radio(
+            "Region", regions, horizontal=True, label_visibility="collapsed"
+        )
 
-def write_feedback(article, label):
-    entry = {
-        "label": label,
-        "title": article.get("title"),
-        "snippet": article.get("snippet"),
-        "url": article.get("url"),
-        "time_marked": datetime.utcnow().isoformat() + "Z",
-    }
-    try:
-        with open(FEEDBACK_PATH, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry) + "\n")
-        load_feedback_counters.clear()
-        st.toast(f"✅ Feedback saved: {label}")
-    except Exception:
-        st.toast("Failed to write feedback", icon="⚠️")
+        # filter sites by region
+        if sel_region == "Global":
+            map_sites = sites
+        else:
+            map_sites = [s for s in sites if s.get("region") == sel_region]
 
-# ============================================================
-# 5. UI LAYOUT
-# ============================================================
+        # map
+        m = folium.Map(
+            location=[20, 0],
+            zoom_start=2,
+            tiles="CartoDB positron",
+            min_zoom=1,
+            max_bounds=True,
+        )
 
-news_raw = load_news()
-locations = load_locations()
-proximity_alerts = load_proximity()
-news_scored = score_articles(news_raw)
-
-# ---- HEADER ----
-now = datetime.utcnow()
-clock_str = now.strftime("%A %d %b %Y | %H:%M UTC")
-
-st.markdown(f"""
-<div class="os-header">
-  <div class="os-logo">OS <span>INFOHUB</span></div>
-  <div class="os-sub">{clock_str}</div>
-</div>
-""", unsafe_allow_html=True)
-
-# ---- REGION SELECTION ----
-sel_region = st.radio("Region", REGIONS, horizontal=True, label_visibility="collapsed")
-
-# ---- MAIN COLUMNS ----
-col_main, col_side = st.columns([3, 1])
-
-# === LEFT: MAP + STREAM ===
-with col_main:
-    # 1. MAP
-    map_sites = locations if sel_region == "Global" else [s for s in locations if s.get("region") == sel_region]
-    center = [20, 0]
-    if map_sites:
-        avg_lat = sum(s["lat"] for s in map_sites) / len(map_sites)
-        avg_lon = sum(s["lon"] for s in map_sites) / len(map_sites)
-        center = [avg_lat, avg_lon]
-
-    m = folium.Map(location=center, zoom_start=2 if sel_region=="Global" else 3, tiles="CartoDB voyager", control_scale=True)
-
-    # Blue Pins (Sites)
-    for s in map_sites:
-        folium.Marker(
-            [s["lat"], s["lon"]],
-            tooltip=f"{s.get('name')}",
-            icon=folium.Icon(color="blue", icon="building", prefix="fa"),
-        ).add_to(m)
-
-    # Red Pins (Alerts)
-    for a in proximity_alerts:
-        if sel_region != "Global" and a.get("site_region") != sel_region: continue
-        if "lat" in a:
-            color = "red" if a.get("severity", 1) >= 3 else "orange"
+        # Dell sites (blue)
+        for s in map_sites:
+            lat, lon = s.get("lat"), s.get("lon")
+            if lat is None or lon is None:
+                continue
+            tooltip = s.get("name", "Site")
             folium.Marker(
-                [a["lat"], a["lon"]],
-                tooltip=f"ALERT: {a.get('type')}",
-                icon=folium.Icon(color=color, icon="exclamation-triangle", prefix="fa"),
+                [lat, lon],
+                tooltip=tooltip,
+                icon=folium.Icon(color="blue", icon="building", prefix="fa"),
             ).add_to(m)
 
-    st_folium(m, width="100%", height=400)
+        # Proximity alerts (red)
+        for alert in proximity_alerts:
+            lat, lon = alert.get("lat"), alert.get("lon")
+            if lat is None or lon is None:
+                continue
+            if sel_region != "Global" and alert.get("site_region") != sel_region:
+                continue
+            folium.Marker(
+                [lat, lon],
+                tooltip=alert.get("type", "Alert"),
+                icon=folium.Icon(color="red", icon="exclamation", prefix="fa"),
+            ).add_to(m)
 
-    # 2. STREAM
-    st.markdown("### ⚡ Real-time Intelligence Stream")
-    
-    # Filter
-    cat_val = st.session_state.get("risk_category", "All Categories")
-    display_feed = [n for n in news_scored if sel_region == "Global" or n.get("region") == sel_region]
-    
-    if cat_val != "All Categories":
-        key = cat_val.split()[0].upper()
-        display_feed = [n for n in display_feed if key in str(n.get("type", "")).upper()]
+        st_folium(m, width="100%", height=360)
 
-    if not display_feed:
-        st.info("No active incidents matching criteria.")
-    
-    for idx, item in enumerate(display_feed[:50]):
-        sev = item.get("severity", 1)
-        if sev >= 3:
-            col_style = "#d93025"; badge_cls = "os-tag-crit"; lbl = "CRITICAL"
-        elif sev == 2:
-            col_style = "#f9ab00"; badge_cls = "os-tag-warn"; lbl = "WARNING"
+        # stream title
+        st.markdown("### ⚡ Real-time Intelligence Stream")
+
+        # risk category filter
+        cat = st.selectbox(
+            "Risk category",
+            ["All categories", "Physical Security", "Cyber Security", "Supply Chain"],
+            key="cat_selector",
+        )
+
+        # apply filters
+        hidden_ids = st.session_state.get("hidden_ids", set())
+
+        def visible(item):
+            if item.get("_id") in hidden_ids:
+                return False
+            if sel_region != "Global" and item.get("region") != sel_region:
+                return False
+            if cat != "All categories":
+                key = cat.split()[0].upper()
+                itype = str(item.get("type", "")).upper()
+                if key not in itype:
+                    return False
+            return True
+
+        filtered = [n for n in news_items if visible(n)]
+
+        if not filtered:
+            st.info("No active incidents after applying current filters.")
         else:
-            col_style = "#1a73e8"; badge_cls = "os-tag-info"; lbl = "MONITOR"
+            for item in filtered:
+                sev = int(item.get("severity", 1) or 1)
+                if sev >= 3:
+                    sev_tag = "CRITICAL"
+                    sev_cls = "os-tag-critical"
+                elif sev == 2:
+                    sev_tag = "WARNING"
+                    sev_cls = "os-tag-warning"
+                else:
+                    sev_tag = "MONITOR"
+                    sev_cls = "os-tag-info"
 
-        st.markdown(f"""
-        <div class="os-card" style="border-left: 5px solid {col_style};">
-          <div style="margin-bottom:4px;">
-            <span class="os-tag {badge_cls}">{lbl}</span>
-            <span class="os-tag os-tag-type">{item.get('type', 'GENERAL')}</span>
-            <span class="os-tag os-tag-region">{item.get('region', 'GLOBAL')}</span>
-          </div>
-          <div class="os-card-title">{item.get('title')}</div>
-          <div class="os-card-meta">{item.get('source')} • {item.get('time', '')[:16]}</div>
-          <div class="os-card-body">{item.get('snippet', '')}</div>
-        </div>
-        """, unsafe_allow_html=True)
+                itype = item.get("type", "GENERAL")
+                region_label = item.get("region", "GLOBAL")
+                url = item.get("url") or "#"
+                src = item.get("source", "")
+                time_str = item.get("time", "")[:19].replace("T", " ")
 
-        c1, c2, _ = st.columns([1, 1, 6])
-        with c1:
-            if st.button("Relevant", key=f"y_{idx}"): write_feedback(item, "RELEVANT")
-        with c2:
-            if st.button("Not Relevant", key=f"n_{idx}"): write_feedback(item, "NOT_RELEVANT")
-
-# === RIGHT: WIDGETS ===
-with col_side:
-    # HISTORY
-    with st.container():
-        st.markdown('<div class="os-side-card"><div class="os-side-title">⏱ History Search</div>', unsafe_allow_html=True)
-        st.date_input("Select Date", label_visibility="collapsed")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # TRAVEL
-    with st.container():
-        st.markdown('<div class="os-side-card"><div class="os-side-title">✈ Travel Safety Check</div>', unsafe_allow_html=True)
-        
-        # Hardcoded Advisory List (from your app.js)
-        advisories = {
-            "Afghanistan": 4, "Russia": 4, "Ukraine": 4, "Israel": 3, "China": 3, "Mexico": 2, "India": 2
-        }
-        
-        # Merge locations countries
-        all_countries = sorted(list(set([s.get("country") for s in locations] + list(advisories.keys()))))
-        country = st.selectbox("Country", all_countries, label_visibility="collapsed")
-        
-        lvl = advisories.get(country, 1)
-        acl = "#ea4335" if lvl==4 else "#fbbc04" if lvl==3 else "#f9ab00" if lvl==2 else "#1a73e8"
-        txt = "Do Not Travel" if lvl==4 else "Reconsider Travel" if lvl==3 else "Exercise Caution" if lvl==2 else "Normal Precautions"
-        
-        st.markdown(f"""
-        <div class="advisory-box" style="border-left-color:{acl}; background-color:{acl}15;">
-            <div class="advisory-level" style="color:{acl}">LEVEL {lvl} ADVISORY</div>
-            <div class="advisory-text">{txt}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 72h Check
-        st.markdown("<div style='font-size:0.75rem; font-weight:700; margin-top:10px; color:#555;'>Recent Events (72h)</div>", unsafe_allow_html=True)
-        hits = [n for n in news_raw if country.lower() in (n.get('title','')+n.get('snippet','')).lower()]
-        if hits:
-            for h in hits[:2]:
-                st.markdown(f"<div style='font-size:0.7rem; border-bottom:1px solid #eee; padding:3px 0;'>• {h['title']}</div>", unsafe_allow_html=True)
-        else:
-            st.markdown("<div style='font-size:0.7rem; color:green;'>✅ No active incidents.</div>", unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # PROXIMITY
-    with st.container():
-        st.markdown('<div class="os-side-card"><div class="os-side-title">📍 Proximity Alerts</div>', unsafe_allow_html=True)
-        rad = st.selectbox("Radius", [5, 10, 25, 50], format_func=lambda x: f"{x} KM", label_visibility="collapsed")
-        
-        visible = [a for a in proximity_alerts if a.get("distance_km", 999) <= rad]
-        if not visible:
-            st.markdown(f"<div style='text-align:center; color:#999; font-size:0.75rem;'>No alerts within {rad}km.</div>", unsafe_allow_html=True)
-        else:
-            for a in visible[:5]:
-                col = "#ea4335" if a.get("severity", 1) >= 3 else "#fbbc04"
-                st.markdown(f"""
-                <div class="os-alert-row">
-                    <div class="os-alert-top">
-                        <span style="color:{col}; font-weight:700;">{a.get('type')}</span>
-                        <span style="color:{col}; font-weight:700;">{a.get('distance_km')}km</span>
+                st.markdown(
+                    f"""
+                    <div class="os-card">
+                        <div style="margin-bottom:4px;">
+                            <span class="os-tag {sev_cls}">{sev_tag}</span>
+                            <span class="os-tag os-tag-info" style="background:transparent; border:1px solid {BORDER}; color:{TEXT_MUTED};">{itype}</span>
+                            <span style="float:right; font-size:0.7rem; color:{TEXT_MUTED}; text-transform:uppercase;">{region_label}</span>
+                        </div>
+                        <div class="os-card-title os-link">
+                            <a href="{url}" target="_blank" rel="noopener noreferrer">{item.get("title","(no title)")}</a>
+                        </div>
+                        <div class="os-card-meta">
+                            {src} · {time_str}
+                        </div>
+                        <div class="os-card-snippet">
+                            {item.get("snippet","")}
+                        </div>
                     </div>
-                    <div class="os-alert-site">{a.get('site_name')}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-    # FILTER
-    with st.container():
-        st.markdown('<div class="os-side-card"><div class="os-side-title">🏷 Risk Category</div>', unsafe_allow_html=True)
-        st.selectbox("Category", ["All Categories", "Physical Security", "Cyber Security", "Supply Chain"], key="risk_category", label_visibility="collapsed")
-        st.markdown('</div>', unsafe_allow_html=True)
+                b1, b2, _ = st.columns([1, 1, 6])
+                with b1:
+                    if st.button("Relevant", key=f"rel_{item['_id']}"):
+                        push_feedback(item, "RELEVANT")
+                        st.experimental_rerun()
+                with b2:
+                    if st.button("Not relevant", key=f"nrel_{item['_id']}"):
+                        push_feedback(item, "NOT_RELEVANT")
+                        st.experimental_rerun()
+
+    # RIGHT: history, travel, proximity panel
+    with top_col2:
+        # History search – UI only, archive is backend responsibility
+        with st.expander("🕒 History Search", expanded=True):
+            st.date_input("Select date")
+
+        # Travel safety
+        with st.expander("✈️ Travel Safety Check", expanded=True):
+            # minimal advisory set; extend as needed
+            ADVISORIES = {
+                "Australia": (2, "Exercise increased caution."),
+                "Brazil": (3, "Reconsider travel."),
+                "Canada": (1, "Exercise normal precautions."),
+                "China": (3, "Reconsider travel."),
+                "France": (1, "Exercise normal precautions."),
+                "Germany": (1, "Exercise normal precautions."),
+                "India": (2, "Exercise increased caution."),
+                "Ireland": (1, "Exercise normal precautions."),
+                "Italy": (1, "Exercise normal precautions."),
+                "Japan": (1, "Exercise normal precautions."),
+                "Mexico": (2, "Exercise increased caution."),
+                "South Africa": (2, "Exercise increased caution."),
+                "United Kingdom": (1, "Exercise normal precautions."),
+                "United States": (1, "Exercise normal precautions."),
+            }
+            countries = sorted(ADVISORIES.keys())
+            country = st.selectbox("Country", countries)
+            lvl, txt = ADVISORIES[country]
+            level_color = (
+                "#b3261e"
+                if lvl >= 4
+                else "#c85b11"
+                if lvl == 3
+                else "#e3a008"
+                if lvl == 2
+                else "#1a73e8"
+            )
+            st.markdown(
+                f"""
+                <div style="border-left:4px solid {level_color}; padding:8px 10px; background:{CARD_BG}; margin-top:6px; border-radius:4px;">
+                    <div style="font-size:0.8rem; font-weight:600; color:{level_color};">LEVEL {lvl} ADVISORY</div>
+                    <div style="font-size:0.8rem; margin-top:2px;">{txt}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        # Proximity alerts sidebar view
+        with st.expander("📍 Proximity Alerts", expanded=True):
+            radius = st.select_slider("Radius (km)", [5, 10, 25, 50], value=5)
+            near = [a for a in proximity_alerts if a.get("distance_km", 9999) <= radius]
+            if not near:
+                st.write(f"No alerts within {radius}km of Dell sites.")
+            else:
+                for a in near:
+                    st.markdown(
+                        f"- **{a.get('type','Alert')}** — {a.get('site_name','Unknown site')} (`{a.get('distance_km','?')} km`)"
+                    )
+
+with tab_briefs:
+    st.markdown("### 📄 Briefings & Reports")
+    st.write(
+        "This tab is reserved for daily / weekly / monthly briefings generated from the same news "
+        "pipeline. Once your report-generation script is wired to drop files (e.g. JSON or Markdown) "
+        "into `public/data/reports/`, we can render them here as cards or downloadable PDFs."
+    )
