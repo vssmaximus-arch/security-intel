@@ -33,18 +33,37 @@ def load_news():
     """Load news items produced by news_agent.py and attach a stable ID."""
     if not os.path.exists(NEWS_PATH):
         return []
+
     try:
         with open(NEWS_PATH, "r", encoding="utf-8") as f:
-            news = json.load(f)
+            raw = json.load(f)
     except Exception:
+        raw = []
+
+    # Accept common shapes: list, or dict containing the list
+    if isinstance(raw, dict):
+        news = raw.get("items") or raw.get("news") or []
+    elif isinstance(raw, list):
+        news = raw
+    else:
         news = []
-    # attach a stable id used for hiding
+
+    sanitized = []
     for item in news:
+        if not isinstance(item, dict):
+            continue
         uid = hashlib.sha256(
             (item.get("title", "") + item.get("url", "")).encode("utf-8")
         ).hexdigest()[:16]
-        item["_id"] = uid
-    return news
+        item = {
+            **item,
+            "_id": uid,
+            "title": item.get("title", "(no title)"),
+            "snippet": item.get("snippet", ""),
+        }
+        sanitized.append(item)
+
+    return sanitized
 
 
 @st.cache_data(ttl=300)
@@ -103,6 +122,20 @@ def push_feedback(item, label: str):
     # hide in current session
     hidden = st.session_state.setdefault("hidden_ids", set())
     hidden.add(item["_id"])
+
+
+def _coerce_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _coerce_severity(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 1
 
 
 # -----------------------------
@@ -285,7 +318,7 @@ with tab_main:
 
         # Dell sites (blue)
         for s in map_sites:
-            lat, lon = s.get("lat"), s.get("lon")
+            lat, lon = _coerce_float(s.get("lat")), _coerce_float(s.get("lon"))
             if lat is None or lon is None:
                 continue
             tooltip = s.get("name", "Site")
@@ -297,7 +330,7 @@ with tab_main:
 
         # Proximity alerts (red)
         for alert in proximity_alerts:
-            lat, lon = alert.get("lat"), alert.get("lon")
+            lat, lon = _coerce_float(alert.get("lat")), _coerce_float(alert.get("lon"))
             if lat is None or lon is None:
                 continue
             if sel_region != "Global" and alert.get("site_region") != sel_region:
@@ -308,7 +341,7 @@ with tab_main:
                 icon=folium.Icon(color="red", icon="exclamation", prefix="fa"),
             ).add_to(m)
 
-        st_folium(m, width="100%", height=360)
+        st_folium(m, height=360, use_container_width=True)
 
         # stream title
         st.markdown("### ⚡ Real-time Intelligence Stream")
@@ -341,7 +374,7 @@ with tab_main:
             st.info("No active incidents after applying current filters.")
         else:
             for item in filtered:
-                sev = int(item.get("severity", 1) or 1)
+                sev = _coerce_severity(item.get("severity", 1))
                 if sev >= 3:
                     sev_tag = "CRITICAL"
                     sev_cls = "os-tag-critical"
