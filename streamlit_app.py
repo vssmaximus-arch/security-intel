@@ -19,8 +19,7 @@ except Exception as e:
     st.error(f"Failed to configure Google Generative AI: {e}. Please ensure your API key is correct.")
 
 # --- STYLE OVERRIDES ---
-# Assuming /content/style.css contains more comprehensive dark theme styling.
-# Merging common Streamlit customization with a custom dark theme.
+# Merging common Streamlit customization with a custom dark theme based on the existing /content/streamlit_app.py and general dark theme aesthetics.
 st.markdown("""
 <style>
     /* General App Styling */
@@ -39,7 +38,8 @@ st.markdown("""
     h2, h3, h4, h5, h6 {
         color: #00bcd4; /* Cyan for subheaders */
     }
-    .st-emotion-cache-zt5ig8 { /* Streamlit's header element, might vary */
+    /* Targeting Streamlit's internal header components for consistent styling */
+    .st-emotion-cache-zt5ig8 {
         color: #00bcd4;
     }
 
@@ -90,28 +90,29 @@ st.markdown("""
     }
 
     /* Sidebar Styling */
-    .st-emotion-cache-vk33i4 { /* Target Streamlit sidebar container */
-        background-color: #1a1a2e; /* Same as app background */
+    /* Specific targeting for Streamlit's sidebar container and elements */
+    .st-emotion-cache-vk33i4 {
+        background-color: #1a1a2e;
         border-right: 1px solid #3a3a6e;
     }
-    .st-emotion-cache-1lcbm6a { /* Sidebar header */
+    .st-emotion-cache-1lcbm6a {
         color: #00bcd4;
     }
-    .st-emotion-cache-1gxk71f { /* Sidebar elements like selectbox/multiselect */
+    .st-emotion-cache-1gxk71f {
         background-color: #2c2c54;
         border-radius: 5px;
         border: 1px solid #3a3a6e;
         color: #e0e0e0;
     }
-    .st-emotion-cache-1gxk71f > div > label > div > p { /* Selectbox/Multiselect labels */
+    .st-emotion-cache-1gxk71f > div > label > div > p {
         color: #e0e0e0;
     }
-    .st-emotion-cache-1gxk71f .st-emotion-cache-l9bibb { /* Selectbox dropdown icon */
+    .st-emotion-cache-1gxk71f .st-emotion-cache-l9bibb {
         color: #00bcd4;
     }
 
     /* Button Styling */
-    .st-emotion-cache-tvzdfc { /* Refresh button */
+    .st-emotion-cache-tvzdfc {
         background-color: #00bcd4;
         color: black;
         border-radius: 5px;
@@ -125,14 +126,14 @@ st.markdown("""
     }
 
     /* Other elements */
-    .st-emotion-cache-p5m047 { /* st.info container */
+    .st-emotion-cache-p5m047 {
         background-color: #2c2c54;
         border-left: 5px solid #2196f3;
         border-radius: 8px;
         padding: 10px;
         color: #e0e0e0;
     }
-    .st-emotion-cache-1wmy9hv p { /* text in st.info */
+    .st-emotion-cache-1wmy9hv p {
         color: #e0e0e0;
     }
 
@@ -183,18 +184,18 @@ def ai_security_agent():
 
         Example Output format:
         [
-            {
+            {{
                 "title": "Severe weather disrupts European logistics",
                 "risk": "HIGH",
                 "type": "Logistics",
                 "description": "Heavy snow and ice across Europe are causing significant delays in shipping and transportation, potentially impacting Dell's supply chain and timely product delivery."
-            },
-            {
+            }},
+            {{
                 "title": "New ransomware variant targets manufacturing sector",
                 "risk": "CRITICAL",
                 "type": "Cyber",
                 "description": "A sophisticated ransomware strain is actively exploiting vulnerabilities in industrial control systems, posing an immediate threat to Dell's manufacturing operations and data integrity."
-            }
+            }}
         ]
 
         Here are the news items:
@@ -283,10 +284,10 @@ with col_feed:
         description = alert.get('description', 'No detailed description available.')
 
         st.markdown(f"""
-        <div class="{color_class}">
-            <strong style="color:white;">[{alert['risk']}] {alert['type']}</strong><br>
-            <span style="font-size:1.1em; font-weight:bold;">{alert['title']}</span><br>
-            <span style="font-size:0.9em; color:#a0a0a0;">{description}</span>
+        <div class=\"{color_class}\">
+            <strong style=\"color:white;\">[{alert['risk']}] {alert['type']}</strong><br>
+            <span style=\"font-size:1.1em; font-weight:bold;\">{alert['title']}</span><br>
+            <span style=\"font-size:0.9em; color:#a0a0a0;\">{description}</span>
         </div>
         """, unsafe_allow_html=True)
 
