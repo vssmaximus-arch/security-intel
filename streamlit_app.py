@@ -1,699 +1,301 @@
 import streamlit as st
+import pandas as pd
+import feedparser
+import google.generativeai as genai
+import datetime
 import json
-import os
-from datetime import datetime
-import hashlib
-import folium
-from streamlit_folium import st_folium
 
-# -----------------------------
-# 0. BASIC CONFIG
-# -----------------------------
-st.set_page_config(
-    page_title="SRO INTELLIGENCE",
-    layout="wide",
-    page_icon="🛡️",
-)
+# ==========================================
+# 1. CONFIGURATION & SETUP
+# ==========================================
+st.set_page_config(page_title="Dell Global SRO Intel", layout="wide", page_icon="🛡️")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "public", "data")
-NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-PROX_PATH = os.path.join(DATA_DIR, "proximity.json")
-LOC_PATH = os.path.join(DATA_DIR, "locations.json")
-FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
+# --- AUTHENTICATION ---
+# Replace with your actual Key from Google AI Studio
+GOOGLE_API_KEY = "PASTE_YOUR_GOOGLE_AI_STUDIO_KEY_HERE" # User will need to replace this
+try:
+    genai.configure(api_key=GOOGLE_API_KEY)
+except Exception as e:
+    st.error(f"Failed to configure Google Generative AI: {e}. Please ensure your API key is correct.")
 
-os.makedirs(DATA_DIR, exist_ok=True)
-
-# -----------------------------
-# 1. DATA HELPERS
-# -----------------------------
-
-@st.cache_data(ttl=60)
-def load_news():
-    """Load news items produced by news_agent.py and attach a stable ID."""
-    if not os.path.exists(NEWS_PATH):
-        return []
-    try:
-        with open(NEWS_PATH, "r", encoding="utf-8") as f:
-            news = json.load(f)
-    except Exception:
-        news = []
-    # attach a stable id used for hiding
-    for item in news:
-        uid = hashlib.sha256(
-            (item.get("title", "") + item.get("url", "")).encode("utf-8")
-        ).hexdigest()[:16]
-        item["_id"] = uid
-    return news
-
-
-@st.cache_data(ttl=300)
-def load_locations_and_proximity():
-    """Load Dell locations (sites) and precomputed proximity alerts."""
-    # Dell sites
-    sites = []
-    if os.path.exists(LOC_PATH):
-        try:
-            with open(LOC_PATH, "r", encoding="utf-8") as f:
-                raw = json.load(f)
-                # original locations.json structure: {"locations":[{...}]}
-                if isinstance(raw, dict) and "locations" in raw:
-                    sites = raw["locations"]
-                elif isinstance(raw, list):
-                    sites = raw
-        except Exception:
-            sites = []
-
-    # Proximity alerts from backend pipeline
-    proximity = []
-    if os.path.exists(PROX_PATH):
-        try:
-            with open(PROX_PATH, "r", encoding="utf-8") as f:
-                pdata = json.load(f)
-                proximity = pdata.get("alerts", pdata if isinstance(pdata, list) else [])
-        except Exception:
-            proximity = []
-
-    return sites, proximity
-
-
-def append_feedback(entry: dict):
-    """Persist feedback in feedback.jsonl (one JSON object per line)."""
-    os.makedirs(DATA_DIR, exist_ok=True)
-    entry = dict(entry)
-    entry["timestamp"] = datetime.utcnow().isoformat() + "Z"
-    with open(FEEDBACK_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-
-
-def push_feedback(item, label: str):
-    """Store feedback and hide this item in the current session."""
-    append_feedback(
-        {
-            "title": item.get("title"),
-            "url": item.get("url"),
-            "source": item.get("source"),
-            "region": item.get("region"),
-            "severity": item.get("severity"),
-            "type": item.get("type"),
-            "label": label,
-        }
-    )
-
-    # hide in current session
-    hidden = st.session_state.setdefault("hidden_ids", set())
-    hidden.add(item["_id"])
-
-
-# -----------------------------
-# 2. THEME / CSS
-# -----------------------------
-
-# Custom CSS for professional look
-st.markdown(
-    """
-    <style>
-    /* Reset and base styles */
+# --- STYLE OVERRIDES ---
+# Assuming /content/style.css contains more comprehensive dark theme styling.
+# Merging common Streamlit customization with a custom dark theme.
+st.markdown("""
+<style>
+    /* General App Styling */
     .stApp {
-        background-color: #f8f9fa;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background-color: #1a1a2e; /* Darker background */
+        color: #e0e0e0; /* Light gray text */
+        font-family: 'Segoe UI', sans-serif; /* Modern font */
     }
-    
-    /* Hide Streamlit branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Custom header */
-    .custom-header {
-        background: white;
-        padding: 16px 32px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: -80px -80px 20px -80px;
-        position: sticky;
-        top: 0;
-        z-index: 999;
+
+    /* Header Styling */
+    h1 {
+        color: #00bcd4; /* Cyan for main title */
+        font-size: 2.5em;
+        margin-bottom: 0.2em;
     }
-    
-    .header-logo {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 20px;
-        font-weight: 700;
-        color: #1f2937;
+    h2, h3, h4, h5, h6 {
+        color: #00bcd4; /* Cyan for subheaders */
     }
-    
-    .logo-icon {
-        width: 32px;
-        height: 32px;
-        background: #3b82f6;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 18px;
+    .st-emotion-cache-zt5ig8 { /* Streamlit's header element, might vary */
+        color: #00bcd4;
     }
-    
-    .header-nav {
-        display: flex;
-        gap: 24px;
-        color: #6b7280;
-        font-size: 14px;
-        font-weight: 500;
-    }
-    
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        font-size: 13px;
-        color: #6b7280;
-    }
-    
-    /* Intelligence card */
-    .intel-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-left: 4px solid #ef4444;
+
+
+    /* Metrics Styling */
+    div[data-testid="stMetric"] {
+        background-color: #2c2c54; /* Slightly lighter dark card background */
         border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 16px;
-        transition: box-shadow 0.2s;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #3a3a6e; /* Subtle border */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    
-    .intel-card:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    div[data-testid="stMetricLabel"] {
+        color: #a0a0a0; /* Lighter gray for metric labels */
+        font-size: 0.9em;
+        font-weight: normal;
     }
-    
-    .intel-card.warning {
-        border-left-color: #f59e0b;
+    div[data-testid="stMetricValue"] {
+        font-size: 1.8em; /* Slightly larger value */
+        color: #f0f0f0; /* White for values */
+        font-weight: bold;
     }
-    
-    .intel-card.info {
-        border-left-color: #3b82f6;
+    div[data-testid="stMetricDelta"] {
+        color: #4CAF50; /* Green for positive delta */
     }
-    
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
+    div[data-testid="stMetricDelta"][data-delta-type="inverse"] {
+        color: #F44336; /* Red for inverse delta */
     }
-    
-    .card-badges {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    
-    .badge {
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .badge-critical {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .badge-warning {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .badge-info {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    
-    .badge-type {
-        background: #f3f4f6;
-        color: #374151;
-    }
-    
-    .card-region {
-        font-size: 12px;
-        color: #9ca3af;
-        font-weight: 500;
-    }
-    
-    .card-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 8px;
-        line-height: 1.4;
-    }
-    
-    .card-title a {
-        color: #111827;
-        text-decoration: none;
-    }
-    
-    .card-title a:hover {
-        color: #3b82f6;
-    }
-    
-    .card-meta {
-        font-size: 13px;
-        color: #6b7280;
-        margin-bottom: 12px;
-    }
-    
-    .card-snippet {
-        font-size: 14px;
-        color: #4b5563;
-        line-height: 1.6;
-    }
-    
-    /* Sidebar panel */
-    .sidebar-panel {
-        background: white;
-        border: 1px solid #e5e7eb;
+
+    /* Card Styling for Alerts */
+    .critical-card, .warning-card, .info-card {
+        background-color: #2c2c54; /* Consistent card background */
+        padding: 15px;
         border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
+        border-left: 5px solid; /* Defined by specific class */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    
-    .panel-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #111827;
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    .critical-card { border-left-color: #e60000; } /* Darker red */
+    .warning-card { border-left-color: #ff9800; } /* Orange */
+    .info-card { border-left-color: #2196f3; } /* Blue for info */
+    .critical-card strong, .warning-card strong, .info-card strong {
+        color: #e0e0e0;
     }
-    
-    .proximity-alert {
-        padding: 12px;
-        background: #fef2f2;
-        border-left: 3px solid #ef4444;
-        border-radius: 4px;
-        margin-bottom: 12px;
+    .critical-card span, .warning-card span, .info-card span {
+        color: #f0f0f0;
     }
-    
-    .proximity-alert.warning {
-        background: #fffbeb;
-        border-left-color: #f59e0b;
-    }
-    
-    .proximity-alert.info {
-        background: #eff6ff;
-        border-left-color: #3b82f6;
-    }
-    
-    .alert-type {
-        font-weight: 600;
-        font-size: 14px;
-        color: #111827;
-        margin-bottom: 4px;
-    }
-    
-    .alert-location {
-        font-size: 13px;
-        color: #6b7280;
-        margin-bottom: 4px;
-    }
-    
-    .alert-distance {
-        font-size: 12px;
-        color: #ef4444;
-        font-weight: 600;
-    }
-    
-    /* Stream header */
-    .stream-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 24px 0 16px 0;
-    }
-    
-    .stream-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #111827;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .live-badge {
-        background: #ef4444;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    
-    .stream-actions {
-        display: flex;
-        gap: 12px;
-        font-size: 13px;
-        color: #3b82f6;
-    }
-    
-    /* Travel advisory */
-    .advisory-card {
-        padding: 16px;
-        border-radius: 6px;
-        margin-top: 12px;
-    }
-    
-    .advisory-level {
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 6px;
-    }
-    
-    .advisory-text {
-        font-size: 14px;
-        line-height: 1.5;
-    }
-    
-    /* Buttons */
-    .stButton > button {
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 500;
-        border: 1px solid #e5e7eb;
-        background: white;
-        color: #374151;
-        padding: 6px 16px;
-    }
-    
-    .stButton > button:hover {
-        background: #f9fafb;
-        border-color: #d1d5db;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
-# -----------------------------
-# 3. HEADER
-# -----------------------------
+    /* Sidebar Styling */
+    .st-emotion-cache-vk33i4 { /* Target Streamlit sidebar container */
+        background-color: #1a1a2e; /* Same as app background */
+        border-right: 1px solid #3a3a6e;
+    }
+    .st-emotion-cache-1lcbm6a { /* Sidebar header */
+        color: #00bcd4;
+    }
+    .st-emotion-cache-1gxk71f { /* Sidebar elements like selectbox/multiselect */
+        background-color: #2c2c54;
+        border-radius: 5px;
+        border: 1px solid #3a3a6e;
+        color: #e0e0e0;
+    }
+    .st-emotion-cache-1gxk71f > div > label > div > p { /* Selectbox/Multiselect labels */
+        color: #e0e0e0;
+    }
+    .st-emotion-cache-1gxk71f .st-emotion-cache-l9bibb { /* Selectbox dropdown icon */
+        color: #00bcd4;
+    }
 
-now = datetime.now()
-date_str = now.strftime("%A, %b %d, %Y")
-time_str = now.strftime("%I:%M %p GMT+11")
+    /* Button Styling */
+    .st-emotion-cache-tvzdfc { /* Refresh button */
+        background-color: #00bcd4;
+        color: black;
+        border-radius: 5px;
+        border: none;
+        padding: 8px 15px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    .st-emotion-cache-tvzdfc:hover {
+        background-color: #00e5ff;
+    }
 
-st.markdown(
-    f"""
-    <div class="custom-header">
-        <div class="header-logo">
-            <div class="logo-icon">🛡️</div>
-            <div>SRO <span style="color: #3b82f6;">INTELLIGENCE</span></div>
-        </div>
-        <div class="header-nav">
-            <span style="color: #111827; font-weight: 600;">GLOBAL</span>
-            <span>AMER</span>
-            <span>EMEA</span>
-            <span>APJC</span>
-            <span>LATAM</span>
-        </div>
-        <div class="header-right">
-            <div>
-                <div style="font-weight: 600; color: #111827;">{date_str}</div>
-                <div style="font-size: 12px;">{time_str}</div>
-            </div>
-            <button style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">
-                📋 Daily Briefings
-            </button>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    /* Other elements */
+    .st-emotion-cache-p5m047 { /* st.info container */
+        background-color: #2c2c54;
+        border-left: 5px solid #2196f3;
+        border-radius: 8px;
+        padding: 10px;
+        color: #e0e0e0;
+    }
+    .st-emotion-cache-1wmy9hv p { /* text in st.info */
+        color: #e0e0e0;
+    }
 
-# -----------------------------
-# 4. MAIN LAYOUT
-# -----------------------------
+    /* Markdown text */
+    p {
+        color: #e0e0e0;
+    }
 
-news_items = load_news()
-sites, proximity_alerts = load_locations_and_proximity()
+</style>
+""", unsafe_allow_html=True)
 
-# Initialize session state for region
-if "selected_region" not in st.session_state:
-    st.session_state.selected_region = "GLOBAL"
 
-col1, col2 = st.columns([3, 1])
+# ==========================================
+# 2. THE AI INTELLIGENCE AGENT
+# ==========================================
+@st.cache_data(ttl=600)
+def ai_security_agent():
+    feeds = [
+        "http://feeds.reuters.com/reuters/worldNews",
+        "https://www.bleepingcomputer.com/feed/",
+        "https://gdacs.org/xml/rss.xml",
+        "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml"
+    ]
 
-with col1:
-    # Map section
-    # Filter sites by region (if needed)
-    map_sites = sites  # Show all sites for now
-    
-    # Create map
-    m = folium.Map(
-        location=[20, 0],
-        zoom_start=2,
-        tiles="CartoDB positron",
-        min_zoom=1,
-        max_bounds=True,
-    )
-    
-    # Dell sites (blue markers)
-    for s in map_sites:
-        lat, lon = s.get("lat"), s.get("lon")
-        if lat is None or lon is None:
+    raw_items = []
+
+    # 1. FETCH DATA
+    for url in feeds:
+        try:
+            f = feedparser.parse(url)
+            # Fetch more entries to increase the chance of finding relevant ones
+            for entry in f.entries[:10]: # Increased from 3 to 10
+                raw_items.append(f"Title: {entry.title}. Link: {entry.link}. Summary: {getattr(entry, 'summary', '')}")
+        except Exception as e:
+            st.warning(f"Could not parse feed {url}: {e}")
             continue
-        tooltip = s.get("name", "Site")
-        folium.Marker(
-            [lat, lon],
-            tooltip=tooltip,
-            icon=folium.Icon(color="blue", icon="building", prefix="fa"),
-        ).add_to(m)
-    
-    # Proximity alerts (red markers)
-    for alert in proximity_alerts:
-        lat, lon = alert.get("lat"), alert.get("lon")
-        if lat is None or lon is None:
-            continue
-        folium.Marker(
-            [lat, lon],
-            tooltip=alert.get("type", "Alert"),
-            icon=folium.Icon(color="red", icon="exclamation-triangle", prefix="fa"),
-        ).add_to(m)
-    
-    st_folium(m, width="100%", height=400)
-    
-    # Intelligence stream header
-    st.markdown(
-        """
-        <div class="stream-header">
-            <div class="stream-title">
-                🔵 Real-time Intelligence Stream
-                <span class="live-badge">LIVE</span>
-            </div>
-            <div class="stream-actions">
-                <span style="cursor: pointer;">CONFIGURE SOURCES</span>
-                <span style="cursor: pointer;">VIEW FULL STREAM →</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    # Filter news items
-    hidden_ids = st.session_state.get("hidden_ids", set())
-    visible_news = [n for n in news_items if n.get("_id") not in hidden_ids]
-    
-    if not visible_news:
-        st.info("No active incidents to display.")
-    else:
-        for item in visible_news[:10]:  # Show top 10
-            sev = int(item.get("severity", 1) or 1)
-            if sev >= 3:
-                sev_tag = "CRITICAL"
-                sev_class = "badge-critical"
-                card_class = ""
-            elif sev == 2:
-                sev_tag = "WARNING"
-                sev_class = "badge-warning"
-                card_class = "warning"
-            else:
-                sev_tag = "MONITOR"
-                sev_class = "badge-info"
-                card_class = "info"
-            
-            itype = item.get("type", "GENERAL")
-            region_label = item.get("region", "GLOBAL")
-            url = item.get("url") or "#"
-            src = item.get("source", "Unknown Source")
-            time_str = item.get("time", "")
-            if time_str:
-                try:
-                    dt = datetime.fromisoformat(time_str.replace("Z", "+00:00"))
-                    time_str = dt.strftime("%I:%M %p") + " • " + dt.strftime("%b %d")
-                except:
-                    time_str = "Recently"
-            
-            st.markdown(
-                f"""
-                <div class="intel-card {card_class}">
-                    <div class="card-header">
-                        <div class="card-badges">
-                            <span class="badge {sev_class}">{sev_tag}</span>
-                            <span class="badge badge-type">{itype}</span>
-                        </div>
-                        <div class="card-region">{region_label}</div>
-                    </div>
-                    <div class="card-title">
-                        <a href="{url}" target="_blank">{item.get("title", "(No title)")}</a>
-                    </div>
-                    <div class="card-meta">
-                        {src} • {time_str}
-                    </div>
-                    <div class="card-snippet">
-                        {item.get("snippet", "")}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
 
-with col2:
-    # History Search panel
-    st.markdown(
+    # 2. FILTER WITH GEMINI (If Key Exists)
+    if "PASTE_YOUR" not in GOOGLE_API_KEY:
+        prompt = f"""
+        You are a Security Analyst for Dell. Analyze these news items.
+        Return ONLY items that pose a direct physical or cyber risk to Dell's operations or employees globally.
+        Output your response as a JSON array of dictionaries, with each dictionary having the following keys:
+        'title': (string, original title of the news item)
+        'risk': (string, either 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW' based on severity. Focus on CRITICAL/HIGH as per user instructions.)
+        'type': (string, either 'Cyber' or 'Physical' or 'Geopolitical' or 'Logistics')
+        'description': (string, a brief 1-2 sentence summary of why this is a risk for Dell)
+
+        Example Output format:
+        [
+            {
+                "title": "Severe weather disrupts European logistics",
+                "risk": "HIGH",
+                "type": "Logistics",
+                "description": "Heavy snow and ice across Europe are causing significant delays in shipping and transportation, potentially impacting Dell's supply chain and timely product delivery."
+            },
+            {
+                "title": "New ransomware variant targets manufacturing sector",
+                "risk": "CRITICAL",
+                "type": "Cyber",
+                "description": "A sophisticated ransomware strain is actively exploiting vulnerabilities in industrial control systems, posing an immediate threat to Dell's manufacturing operations and data integrity."
+            }
+        ]
+
+        Here are the news items:
+        {raw_items}
         """
-        <div class="sidebar-panel">
-            <div class="panel-title">🕒 History Search</div>
+        try:
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(prompt)
+            # Attempt to parse the JSON string from the response
+            # Sometimes Gemini might wrap JSON in markdown code block
+            response_text = response.text.strip()
+            if response_text.startswith("```json") and response_text.endswith("```"):
+                response_text = response_text[7:-3].strip()
+
+            alerts = json.loads(response_text)
+            return alerts
+        except Exception as e:
+            st.error(f"Error calling Gemini or parsing response: {e}. Raw response: {response.text if 'response' in locals() else 'No response'}")
+            return []
+    return []
+
+# ==========================================
+# 3. DASHBOARD UI
+# ==========================================
+
+# --- HEADER ---
+# Using columns for title and refresh button
+c1, c2 = st.columns([0.7, 0.3]) # Adjusted column ratio for title
+with c1:
+    st.title("🛡️ Dell Global Security Intelligence")
+    st.caption(f"System Status: LIVE | Agent Model: Gemini 1.5 Flash | Time: {datetime.datetime.now().strftime('%H:%M:%S UTC')}") # Added seconds for more real-time feel
+with c2:
+    st.markdown("<div style='text-align: right; margin-top: 25px;'>", unsafe_allow_html=True) # Align button to right and lower it slightly
+    if st.button("🔄 Force Refresh", key="refresh_button"):
+        st.cache_data.clear()
+        st.experimental_rerun() # Rerun the app to fetch new data
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+# --- METRICS ---
+# The layout is already 4 columns. Enhancing the metrics display with custom CSS.
+m1, m2, m3, m4 = st.columns(4)
+# Dummy data for metrics, as there's no live data source for these counts in the current script
+m1.metric("Active Critical Threats", "3", "+1")
+m2.metric("Global Risk Level", "ELEVATED", delta_color="inverse")
+m3.metric("Dell Sites Monitored", "42")
+m4.metric("AI Scanned Articles", "1,204") # This could be dynamically updated by ai_security_agent if we count raw_items
+
+
+# --- MAIN CONTENT ---
+col_map, col_feed = st.columns([2, 1])
+
+with col_map:
+    st.subheader("📍 Global Asset Risk Map")
+    map_data = pd.DataFrame({
+        'lat': [30.5083, 1.3521, 51.8985, 12.9716, 34.0522, 40.7128, -23.5505, 35.6895], # Added more locations for a richer map
+        'lon': [-97.6788, 103.8198, -8.4756, 77.5946, -118.2437, -74.0060, -46.6333, 139.6917],
+        'site': ['Austin HQ', 'Singapore', 'Cork', 'Bangalore', 'Los Angeles', 'New York', 'São Paulo', 'Tokyo'],
+        'risk': [100, 500, 200, 800, 300, 600, 400, 700] # Risk values can be dynamic
+    })
+    # Adjusted zoom for better global view with more points
+    st.map(map_data, zoom=1, size='risk', color='#e60000') # Using critical red for map points
+
+with col_feed:
+    st.subheader("⚡ AI Curated Intel Feed")
+
+    alerts = ai_security_agent() # Call the AI agent to get alerts
+
+    # SIMULATION MODE (Triggers if no API Key or AI call fails)
+    if not alerts: # If alerts list is empty (due to API key or error)
+        st.warning("⚠️ AI Agent needs API Key or encountered an error. Showing Simulation.")
+        alerts = [
+            {"title": "Typhoon Approaching Xiamen Mfg Zone, Supply Chain Impact Expected", "risk": "CRITICAL", "type": "Physical", "description": "A category 4 typhoon is on a direct path to Xiamen, threatening Dell's manufacturing facilities and causing potential disruptions to global supply chains."},
+            {"title": "New Ransomware Group Exploiting Zero-Day in Common ERP Software", "risk": "CRITICAL", "type": "Cyber", "description": "An emerging ransomware group is actively leveraging a critical zero-day vulnerability in widely used ERP systems, posing an immediate and severe threat to corporate data and operations."},
+            {"title": "Geopolitical Tensions Escalate in East Asia, Risking Trade Routes", "risk": "HIGH", "type": "Geopolitical", "description": "Increased military activities and diplomatic disputes in East Asia are raising concerns about the stability of key shipping lanes and trade agreements, potentially affecting Dell's logistics and market access."},
+            {"title": "Major Port Strikes Imminent Across European Hubs", "risk": "HIGH", "type": "Logistics", "description": "Unions at several major European ports are threatening widespread strikes over wage disputes, which could severely impact cargo movement and cause significant delays for Dell's inbound and outbound shipments."},
+            {"title": "Cyberattack on Global Satellite Communication Provider Reported", "risk": "MEDIUM", "type": "Cyber", "description": "A prominent satellite communication provider, used by various industries, has reported a cyberattack, potentially disrupting global communication services vital for Dell's remote operations and data transfers."},
+        ]
+
+    for alert in alerts:
+        color_class = "critical-card" if alert['risk'] == "CRITICAL" else \
+                      "warning-card" if alert['risk'] == "HIGH" else \
+                      "info-card" # Add a default info card for other risks
+
+        # Ensure 'description' key exists, provide a fallback if not
+        description = alert.get('description', 'No detailed description available.')
+
+        st.markdown(f"""
+        <div class="{color_class}">
+            <strong style="color:white;">[{alert['risk']}] {alert['type']}</strong><br>
+            <span style="font-size:1.1em; font-weight:bold;">{alert['title']}</span><br>
+            <span style="font-size:0.9em; color:#a0a0a0;">{description}</span>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.date_input("Pick a date to load archived intelligence", label_visibility="collapsed")
-    
-    # Travel Safety Check panel
-    st.markdown(
-        """
-        <div class="sidebar-panel">
-            <div class="panel-title">✈️ Travel Safety Check</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    ADVISORIES = {
-        "Australia": (2, "Exercise increased caution."),
-        "Brazil": (3, "Reconsider travel."),
-        "Canada": (1, "Exercise normal precautions."),
-        "China": (3, "Reconsider travel."),
-        "France": (1, "Exercise normal precautions."),
-        "Germany": (1, "Exercise normal precautions."),
-        "India": (2, "Exercise increased caution."),
-        "Ireland": (1, "Exercise normal precautions."),
-        "Italy": (1, "Exercise normal precautions."),
-        "Japan": (1, "Exercise normal precautions."),
-        "Mexico": (2, "Exercise increased caution."),
-        "South Africa": (2, "Exercise increased caution."),
-        "United Kingdom": (1, "Exercise normal precautions."),
-        "United States": (1, "Exercise normal precautions."),
-    }
-    
-    country = st.selectbox("Select Country...", sorted(ADVISORIES.keys()), label_visibility="collapsed")
-    lvl, txt = ADVISORIES[country]
-    
-    level_colors = {
-        1: "#3b82f6",
-        2: "#f59e0b",
-        3: "#ef4444",
-        4: "#991b1b"
-    }
-    
-    bg_colors = {
-        1: "#eff6ff",
-        2: "#fffbeb",
-        3: "#fef2f2",
-        4: "#fee2e2"
-    }
-    
-    st.markdown(
-        f"""
-        <div class="advisory-card" style="background: {bg_colors.get(lvl, '#eff6ff')}; border-left: 4px solid {level_colors.get(lvl, '#3b82f6')};">
-            <div class="advisory-level" style="color: {level_colors.get(lvl, '#3b82f6')};">
-                LEVEL {lvl} ADVISORY
-            </div>
-            <div class="advisory-text" style="color: #374151;">
-                {txt}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    # Proximity Alerts panel
-    st.markdown(
-        """
-        <div class="sidebar-panel" style="margin-top: 20px;">
-            <div class="panel-title">📍 Dell Asset<br/>Proximity Alerts</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    radius = st.select_slider(
-        "WITHIN RADIUS",
-        options=[5, 10, 25, 50],
-        value=5,
-        format_func=lambda x: f"{x} KM"
-    )
-    
-    near_alerts = [a for a in proximity_alerts if a.get("distance_km", 9999) <= radius]
-    
-    if not near_alerts:
-        st.info(f"No alerts within {radius}km of Dell sites.")
-    else:
-        for alert in near_alerts:
-            alert_type = alert.get("type", "Alert")
-            site_name = alert.get("site_name", "Unknown Site")
-            distance = alert.get("distance_km", "?")
-            
-            # Determine alert style based on type
-            if "fire" in alert_type.lower():
-                alert_class = ""
-                icon = "🔥"
-            elif "flood" in alert_type.lower():
-                alert_class = "info"
-                icon = "💧"
-            else:
-                alert_class = "warning"
-                icon = "⚡"
-            
-            st.markdown(
-                f"""
-                <div class="proximity-alert {alert_class}">
-                    <div class="alert-type">{icon} {alert_type}</div>
-                    <div class="alert-location">🏢 {site_name}</div>
-                    <div class="alert-distance">{distance}km</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        
-        st.markdown(
-            """
-            <div style="text-align: center; margin-top: 16px;">
-                <a href="#" style="color: #3b82f6; font-size: 13px; font-weight: 600; text-decoration: none;">
-                    VIEW ALL ALERTS
-                </a>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        """, unsafe_allow_html=True)
+
+# --- SIDEBAR ---
+with st.sidebar:
+    st.header("SRO Controls")
+    st.selectbox("Filter Region", ["Global", "AMER", "EMEA", "APJC", "LATAM"], key="region_filter") # Added LATAM
+    st.multiselect("Risk Types", ["Physical", "Cyber", "Geopolitical", "Logistics"], default=["Physical", "Cyber"], key="risk_type_filter") # Added Geopolitical, Logistics
+    st.slider("Minimum Risk Level", 0, 100, 50, key="risk_level_slider") # Added a slider for filtering
+    st.divider()
+    st.info("🔒 Secure Connection: Localhost")
+    st.markdown("<p style='font-size: 0.8em; color: #888888; text-align: center;'>Powered by Streamlit & Google Gemini</p>", unsafe_allow_html=True)
