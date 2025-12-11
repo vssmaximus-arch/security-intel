@@ -15,10 +15,10 @@ st.set_page_config(
 # --------------------------------------------------------------------------
 # 1a. AUTO-REFRESH (LIVE CLOCK)
 # --------------------------------------------------------------------------
-st_autorefresh(interval=1000, key="live_clock_refresh_v2")
+st_autorefresh(interval=1000, key="live_clock_refresh_v3")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (THEME OVERRIDE & HARD LAYOUT FIX)
+# 2. CSS STYLING
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -28,23 +28,20 @@ st.markdown(
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* --- 1. THEME OVERRIDE (Force Blue) --- */
 :root {
-    --primary-color: #1a73e8 !important; /* Dell Blue */
-    --background-color: #0f1115;
-    --secondary-background-color: #ffffff;
-    --text-color: #202124;
-    --font: 'Inter', sans-serif;
+    --primary-color: #1a73e8 !important;
+    --dell-blue: #0076CE;
+    --bg-dark: #0f1115;
 }
 
-/* 2. RESET & BACKGROUND */
+/* APP BACKGROUND */
 .stApp {
-    background-color: #0f1115;
+    background-color: var(--bg-dark);
     font-family: 'Inter', sans-serif;
 }
 [data-testid="stAppViewContainer"] { padding: 0; }
 
-/* 3. MAIN WHITE CARD */
+/* MAIN WHITE CARD */
 div.block-container {
     background-color: #fff;
     border-radius: 24px;
@@ -57,7 +54,7 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* 4. HEADER CONTAINER (Flexbox Wrapper) */
+/* HEADER STRIP (uses .header-marker) */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
     padding: 0 32px !important;
@@ -65,26 +62,23 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     background: white;
     display: flex;
     align-items: center;
-    justify-content: space-between;
 }
 
-/* 5. LOGO STYLING */
+/* LOGO */
 .logo-container { display: flex; align-items: center; gap: 12px; height: 100%; }
 .logo-icon { font-size: 1.6rem; color: #1a73e8; }
 .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
-.logo-text span { color: #0076CE; }
+.logo-text span { color: var(--dell-blue); }
 
-/* 6. PILLS / TABS (Force Blue & Right Align) */
+/* REGION PILLS (NO POSITIONING HACKS – JUST STYLE) */
 div[data-testid="stPills"] {
     background-color: #f1f3f4 !important;
-    padding: 4px;
-    border-radius: 10px;
-    display: flex;
-    gap: 4px;
-    justify-content: center;
+    padding: 4px !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    gap: 0;
+    border: none !important;
 }
-
-/* Default Tab State */
 div[data-testid="stPills"] button {
     background-color: transparent !important;
     border: none !important;
@@ -97,35 +91,31 @@ div[data-testid="stPills"] button {
     height: auto !important;
     line-height: 1 !important;
 }
-
-/* ACTIVE Tab State (The Red Fix) */
 div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #1a73e8 !important; /* Force Blue Background */
-    color: #ffffff !important; /* Force White Text */
-    border-radius: 8px !important;
-}
-/* Double-check selector for internal elements */
-div[data-testid="stPills"] button[aria-selected="true"] * {
+    background-color: #1a73e8 !important;   /* your blue active style */
     color: #ffffff !important;
+    box-shadow: none !important;
 }
-
-/* Hover State */
 div[data-testid="stPills"] button:hover {
-    background-color: rgba(26, 115, 232, 0.1) !important;
     color: #1a73e8 !important;
+    background-color: rgba(26,115,232,0.1) !important;
 }
 
-/* 7. CLOCK */
+/* CLOCK */
 .clock-container { 
-    display: flex; flex-direction: column; 
-    font-size: 0.8rem; text-align: right; 
-    justify-content: center; height: 100%; line-height: 1.3;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    text-align: right;
+    justify-content: center;
+    height: 100%;
+    line-height: 1.3;
     white-space: nowrap;
 }
 .clock-date { font-weight: 700; color: #202124; }
-#clock-time { font-weight: 500; color: #5f6368; }
+#clock-time, .clock-time { font-weight: 500; color: #5f6368; }
 
-/* 8. BUTTON */
+/* DAILY BRIEFINGS BUTTON */
 div.stButton > button {
     background-color: #1a73e8 !important;
     color: white !important;
@@ -138,84 +128,104 @@ div.stButton > button {
 }
 div.stButton > button:hover {
     background-color: #1557b0 !important;
+    color: white !important;
 }
 
-/* Hide UI Chrome */
+/* CONTENT + SIDEBAR GENERAL (unchanged) */
+.content-area { padding: 30px; }
+.map-wrapper {
+    background: #eef2f6;
+    border-radius: 16px;
+    height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    border: 1px solid #e0e0e0;
+}
+div[data-testid="stVerticalBlock"]:has(div.card-marker) {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.card-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #202124;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Hide Streamlit chrome */
 #MainMenu, footer, header {visibility: hidden;}
-div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { display: none; }
+div[data-testid="stDateInput"] label,
+div[data-testid="stSelectbox"] label { display: none; }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-# ---------------- DATA ----------------
-COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
-
-# ---------------- HEADER ----------------
+# --------------------------------------------------------------------------
+# 3. HEADER LAYOUT: LOGO | (TABS + CLOCK) | BUTTON
+# --------------------------------------------------------------------------
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
-    
-    # LAYOUT STRATEGY: 
-    # [Logo (2)] ....... Spacer (6) ....... [Tabs (3)] [Clock (1.5)] [Button (1.5)]
-    # We allocate a huge '6' column in the middle to FORCE spacing.
-    
-    col_logo, col_spacer, col_tabs, col_clock, col_btn = st.columns([2, 5, 4, 1.8, 1.5], vertical_alignment="center", gap="small")
-    
+
+    # Three main zones on the header row
+    col_logo, col_mid, col_btn = st.columns([2, 7, 3], vertical_alignment="center")
+
+    # LEFT: Logo
     with col_logo:
-        st.markdown("""
+        st.markdown(
+            """
             <div class="logo-container">
                 <i class="fas fa-shield-alt logo-icon"></i>
                 <div class="logo-text">OS <span>INFOHUB</span></div>
             </div>
-        """, unsafe_allow_html=True)
-
-    with col_spacer:
-        st.write("") # Acts as the spring
-
-    with col_tabs:
-        # TABS (Interactive)
-        # We wrap it in a div that aligns right
-        st.markdown('<div style="display:flex; justify-content: flex-end; width:100%;">', unsafe_allow_html=True)
-        selected_region = st.pills(
-            "Region",
-            options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-            default="Global",
-            label_visibility="collapsed",
-            key="region_selector"
+            """,
+            unsafe_allow_html=True,
         )
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    with col_clock:
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-        date_str = now.strftime("%A, %d %b %Y")
-        time_str = now.strftime("%H:%M:%S GMT+11 UTC")
-        
-        st.markdown(f"""
-            <div class="clock-container">
-                <div class="clock-date" id="clock-date">{date_str}</div>
-                <div id="clock-time">{time_str}</div>
-            </div>
-            <script>
-                function updateClock() {{
-                    var now = new Date();
-                    var dateEl = document.getElementById('clock-date');
-                    var timeEl = document.getElementById('clock-time');
-                    if(timeEl) {{
-                        var h = String(now.getHours()).padStart(2, '0');
-                        var m = String(now.getMinutes()).padStart(2, '0');
-                        var s = String(now.getSeconds()).padStart(2, '0');
-                        var offset = -now.getTimezoneOffset();
-                        var sign = offset >= 0 ? '+' : '-';
-                        var hrs = String(Math.floor(Math.abs(offset)/60));
-                        timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
-                    }}
-                }}
-                setInterval(updateClock, 1000);
-            </script>
-        """, unsafe_allow_html=True)
+    # MIDDLE: TABS directly next to CLOCK
+    with col_mid:
+        mid_tabs, mid_clock = st.columns([3.5, 2.5], vertical_alignment="center")
 
+        with mid_tabs:
+            selected_region = st.pills(
+                "Region",
+                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+                default="Global",
+                label_visibility="collapsed",
+                key="region_selector",
+            )
+
+        with mid_clock:
+            now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+            date_str = now.strftime("%A, %d %b %Y")
+            time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+
+            st.markdown(
+                f"""
+                <div class="clock-container">
+                    <div class="clock-date">{date_str}</div>
+                    <div class="clock-time">{time_str}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    # RIGHT: Button
     with col_btn:
         st.button("📄 Daily Briefings", use_container_width=True)
 
-# ---------------- CONTENT ----------------
+# --------------------------------------------------------------------------
+# 4. CONTENT
+# --------------------------------------------------------------------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
 main_col, side_col = st.columns([9, 3], gap="large")
@@ -225,34 +235,66 @@ with main_col:
     st.info(f"📍 MAP VIEW: Showing data for {selected_region.upper()}")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("""
-        <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    st.markdown(
+        """
+        <div style="margin-top: 25px; display: flex; justify-content: space-between;
+                    align-items: center; margin-bottom: 15px;">
             <div style="font-weight: 700; font-size: 1rem;">
                 <i class="fas fa-circle text-primary me-2" style="font-size: 0.6rem;"></i>
                 Real-time Intelligence Stream
             </div>
-            <span class="badge bg-light text-secondary" style="border: 1px solid #eee;">LIVE FEED</span>
+            <span class="badge bg-light text-secondary" style="border: 1px solid #eee;">
+                LIVE FEED
+            </span>
         </div>
-    """, unsafe_allow_html=True)
-    
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.info(f"waiting for news feed... (Filter: {selected_region})")
 
 with side_col:
+    COUNTRIES = [
+        "Select Country...",
+        "United States",
+        "India",
+        "China",
+        "United Kingdom",
+        "Germany",
+        "Japan",
+        "Brazil",
+        "Australia",
+        "France",
+        "Canada",
+    ]
+
+    # History
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-label"><i class="fas fa-history"></i> History Search</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="card-label"><i class="fas fa-history"></i> History Search</div>',
+            unsafe_allow_html=True,
+        )
         st.date_input("Date", label_visibility="collapsed")
         st.caption("Pick a date to load archived intelligence.")
 
+    # Travel
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>',
+            unsafe_allow_html=True,
+        )
         st.selectbox("Country", COUNTRIES, label_visibility="collapsed")
-    
+
+    # Proximity
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>',
+            unsafe_allow_html=True,
+        )
         st.selectbox("Radius", ["5 KM", "10 KM", "25 KM"], label_visibility="collapsed")
         st.caption("Currently no alerts in proximity.")
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
