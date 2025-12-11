@@ -12,166 +12,204 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (THE "WHITE CARD" FIX)
+# 2. CSS - STRICT REPLICATION OF YOUR HTML STYLE
 # --------------------------------------------------------------------------
 st.markdown("""
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Import Inter Font */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-        /* 1. APP BACKGROUND -> STRICT DARK */
+        /* ------------------------------------------------------- */
+        /* 1. BODY BACKGROUND (Dark per HTML)                      */
+        /* ------------------------------------------------------- */
         .stApp {
-            background-color: #0f1115;
+            background-color: #0f1115; /* --bg-dark */
             font-family: 'Inter', sans-serif;
+            padding: 20px;
         }
 
-        /* 2. HEADER CARD CONTAINER */
-        /* This locates the container holding our 'header-anchor' and turns it WHITE */
-        div[data-testid="stVerticalBlock"]:has(div#header-anchor) {
+        /* ------------------------------------------------------- */
+        /* 2. APP CONTAINER (The White Card)                       */
+        /* ------------------------------------------------------- */
+        /* We style the main Streamlit block to look like .app-container */
+        div.block-container {
             background-color: #ffffff;
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
-            margin-top: -40px; /* Pull to top */
-            margin-bottom: 30px;
+            border-radius: 24px;
+            padding: 0px !important; /* Reset default padding */
+            max-width: 98% !important;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #e0e0e0;
+            overflow: hidden; /* To clip the corners */
+            margin-top: 20px; /* Space from top */
         }
 
-        /* 3. TEXT COLORS INSIDE HEADER */
-        /* Force text inside the white card to be DARK */
-        div[data-testid="stVerticalBlock"]:has(div#header-anchor) p,
-        div[data-testid="stVerticalBlock"]:has(div#header-anchor) span,
-        div[data-testid="stVerticalBlock"]:has(div#header-anchor) div {
-            color: #202124 !important;
-        }
-
-        /* 4. LOGO STYLING */
-        .logo-container {
+        /* ------------------------------------------------------- */
+        /* 3. HEADER CONTAINER (.header-container)                 */
+        /* ------------------------------------------------------- */
+        /* This targets the top row of the white card */
+        .header-wrapper {
+            padding: 15px 32px;
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-        .logo-icon {
-            font-size: 26px;
-            color: #0076CE !important;
-        }
-        .logo-text {
-            font-size: 24px;
-            font-weight: 800;
-            color: #202124 !important;
-            letter-spacing: -0.5px;
-            line-height: 1;
-        }
-        .logo-span {
-            color: #0076CE !important;
+            justify-content: space-between;
+            border-bottom: 1px solid #f0f0f0;
+            height: 80px;
+            background-color: #fff;
         }
 
-        /* 5. REGION PILLS (Tabs) STYLING */
+        /* LOGO STYLE */
+        .logo-container {
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .logo-icon { 
+            font-size: 1.6rem; 
+            color: #1a73e8; 
+        }
+        .logo-text { 
+            font-size: 1.2rem; 
+            font-weight: 800; 
+            color: #202124; 
+            letter-spacing: -0.5px; 
+            line-height: 1;
+        }
+        .logo-span { 
+            color: #0076CE; /* --dell-blue */
+        }
+
+        /* ------------------------------------------------------- */
+        /* 4. COMPONENT STYLING (Pills, Buttons, Text)             */
+        /* ------------------------------------------------------- */
+        
+        /* Region Pills (Replicating .nav-pills-custom) */
         div[data-testid="stPills"] {
-            background-color: #f1f3f4 !important; /* Light Grey Bar */
-            border-radius: 8px;
-            padding: 5px;
-            gap: 5px;
+            background-color: #f1f3f4;
+            padding: 4px;
+            border-radius: 10px;
+            gap: 2px;
         }
         div[data-testid="stPills"] button {
             background-color: transparent;
-            border: none;
-            color: #5f6368 !important; /* Grey Text */
+            color: #5f6368 !important;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 0.8rem;
             text-transform: uppercase;
+            border: none;
+            padding: 7px 18px;
         }
         div[data-testid="stPills"] button[aria-selected="true"] {
-            background-color: #ffffff !important; /* White Active Pill */
-            color: #0076CE !important; /* Blue Active Text */
-            font-weight: 800;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #202124 !important; /* Active Black */
+            color: #fff !important;
+            border-radius: 8px;
         }
 
-        /* 6. BUTTON (Daily Briefings) */
+        /* Daily Briefings Button (Replicating .btn-daily) */
         div.stButton > button {
-            background-color: #1a73e8;
+            background-color: #1a73e8; /* Blue */
             color: white !important;
-            border: none;
-            border-radius: 6px;
+            padding: 9px 18px;
+            border-radius: 8px;
             font-weight: 600;
-            box-shadow: none;
+            font-size: 0.85rem;
+            border: none;
+            height: auto;
         }
         div.stButton > button:hover {
             background-color: #1557b0;
         }
 
-        /* 7. DATE TEXT */
-        .date-text {
+        /* Clock Text */
+        .clock-text {
+            font-size: 0.9rem;
+            color: #5f6368;
+            font-weight: 600;
             text-align: right;
-            font-weight: 500;
-            font-size: 15px;
-            color: #444 !important;
             white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            height: 100%;
         }
 
-        /* HIDE DEFAULT STREAMLIT UI elements */
+        /* Hide Default UI */
         #MainMenu, footer, header {visibility: hidden;}
+        
+        /* Padding for Content Area (Below Header) */
+        .content-padding {
+            padding: 30px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# 3. HEADER LAYOUT (THE WHITE CARD)
+# 3. HEADER LAYOUT (Inside the White Card)
 # --------------------------------------------------------------------------
+
+# We use columns to replicate the "header-left" and "header-right" flexbox behavior
+# This container mimics the .header-container div
 with st.container():
-    # ANCHOR: This invisible div is what the CSS looks for to turn the background WHITE
-    st.markdown('<div id="header-anchor"></div>', unsafe_allow_html=True)
+    # Grid: Logo | Spacer | Pills | Clock | Button
+    col_logo, col_space, col_pills, col_clock, col_btn = st.columns([2, 1, 4, 2.5, 1.5])
 
-    # Grid: Logo(2.2) | Spacer(0.8) | Pills(4) | Date(3.5) | Button(1.5)
-    col1, col2, col3, col4, col5 = st.columns([2.2, 0.8, 4, 3.5, 1.5], gap="small")
-
-    with col1:
+    # --- LEFT SIDE: LOGO ---
+    with col_logo:
         st.markdown("""
-            <div class="logo-container">
+            <div class="logo-container" style="padding-left: 20px; padding-top: 15px;">
                 <i class="fas fa-shield-alt logo-icon"></i>
                 <div class="logo-text">OS <span class="logo-span">INFOHUB</span></div>
             </div>
         """, unsafe_allow_html=True)
 
-    with col2:
-        st.write("") # Spacer
+    # --- CENTER: SPACER ---
+    with col_space:
+        st.write("")
 
-    with col3:
-        # Region Selection
+    # --- RIGHT SIDE: CONTROLS ---
+    with col_pills:
+        st.markdown('<div style="padding-top: 12px;">', unsafe_allow_html=True)
         selected_region = st.pills(
             "Region",
-            options=["GLOBAL", "AMER", "EMEA", "APJC", "LATAM"],
-            default="GLOBAL",
+            options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+            default="Global",
             label_visibility="collapsed"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    with col4:
-        # Date Display (GMT+11 for Sydney)
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-        date_str = now.strftime("%A, %d %b %Y")
-        time_str = now.strftime("%H:%M GMT+11 UTC")
-        
-        st.markdown(f'<div class="date-text">{date_str} | {time_str}</div>', unsafe_allow_html=True)
+    with col_clock:
+        # Static Time Placeholder (mimicking JavaScript clock)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        date_str = now.strftime("%a, %d %b %Y")
+        time_str = now.strftime("%H:%M UTC")
+        st.markdown(f"""
+            <div style="padding-top: 20px;" class="clock-text">
+                {date_str} | {time_str}
+            </div>
+        """, unsafe_allow_html=True)
 
-    with col5:
+    with col_btn:
+        st.markdown('<div style="padding-top: 12px; padding-right: 20px;">', unsafe_allow_html=True)
         st.button("📄 Daily Briefings", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Visual Border Bottom (Replicating header-container border)
+    st.markdown('<div style="height:1px; background-color:#f0f0f0; margin-top:15px; width:100%;"></div>', unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# 4. MAIN CONTENT (DARK BACKGROUND)
+# 4. CONTENT AREA (White Background continues)
 # --------------------------------------------------------------------------
-st.markdown("<br>", unsafe_allow_html=True)
+# This replicates the <div class="content-area"> from your HTML
 
-main_col, side_col = st.columns([3, 1], gap="medium")
+with st.container():
+    st.markdown('<div class="content-padding">', unsafe_allow_html=True)
+    
+    # Layout: Map (Left 9) vs Sidebar (Right 3)
+    main_col, side_col = st.columns([3, 1], gap="large")
 
-with main_col:
-    # This info box will show on the DARK background, proving the header is separate.
-    with st.container():
-        st.info(f"Checking region: **{selected_region}**")
+    with main_col:
+        st.info("PLACEHOLDER: Map Wrapper (index.html line 105)")
+        st.info("PLACEHOLDER: Real-time Intelligence Stream (index.html line 109)")
 
-with side_col:
-    with st.container():
-        st.warning("Sidebar: Proximity Alerts")
+    with side_col:
+        st.warning("PLACEHOLDER: History Search (index.html line 124)")
+        st.warning("PLACEHOLDER: Travel Safety (index.html line 131)")
+        st.warning("PLACEHOLDER: Proximity Alerts (index.html line 139)")
+        st.warning("PLACEHOLDER: Risk Category (index.html line 155)")
+        
+    st.markdown('</div>', unsafe_allow_html=True)
