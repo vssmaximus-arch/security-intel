@@ -18,7 +18,7 @@ st.set_page_config(
 st_autorefresh(interval=1000, key="live_clock_refresh_v5")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (FORCE RIGHT ALIGNMENT)
+# 2. CSS STYLING (EXACT HTML REPLICATION)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -50,7 +50,7 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* 3. HEADER CONTAINER */
+/* 3. HEADER LAYOUT (Flexbox like HTML) */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
     padding: 0 32px !important;
@@ -58,29 +58,37 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     background: white;
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Logo Left, Controls Right */
+    gap: 20px;
 }
 
 /* 4. COMPONENT STYLING */
 
 /* Logo */
-.logo-container { display: flex; align-items: center; gap: 12px; height: 100%; }
+.logo-container { display: flex; align-items: center; gap: 12px; height: 100%; min-width: 200px; }
 .logo-icon { font-size: 1.6rem; color: #1a73e8; }
 .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
 .logo-text span { color: var(--dell-blue); }
 
-/* --- PILLS (REGION SELECTOR) - allow left placement next to clock --- */
+/* --- RIGHT CONTROLS WRAPPER --- */
+/* We target the container holding Tabs+Clock+Button */
+div[data-testid="stHorizontalBlock"]:has(div.controls-marker) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px; /* Space between Tabs, Clock, Button */
+    width: 100%;
+}
+
+/* --- TABS (PILLS) --- */
 div[data-testid="stPills"] {
     background-color: #f1f3f4 !important;
     padding: 4px !important;
     border-radius: 10px !important;
     display: flex !important;
-    justify-content: flex-start !important; /* allow pills to sit next to clock */
-    gap: 6px !important;
-    margin-right: 0 !important;
-    margin-left: 0 !important;
+    gap: 2px !important;
 }
 
-/* Pill Buttons (Inactive) */
 div[data-testid="stPills"] button {
     background-color: transparent !important;
     border: none !important;
@@ -88,19 +96,17 @@ div[data-testid="stPills"] button {
     font-weight: 700 !important;
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
-    padding: 6px 12px !important;
-    min-height: 0px !important;
+    padding: 6px 14px !important;
     height: auto !important;
     line-height: 1 !important;
+    min-height: 0px !important;
 }
 
-/* Pill Buttons (Active) - BLUE */
+/* ACTIVE TAB -> BLUE (From HTML Logic) */
 div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #1a73e8 !important;
+    background-color: #202124 !important; /* MATCHING YOUR HTML: .nav-item-custom.active { background-color: #202124; } */
     color: #ffffff !important;
-    box-shadow: none !important;
 }
-/* Force internal text color */
 div[data-testid="stPills"] button[aria-selected="true"] p {
     color: #ffffff !important;
 }
@@ -111,12 +117,12 @@ div[data-testid="stPills"] button[aria-selected="true"] p {
     font-size: 0.8rem; text-align: right; 
     justify-content: center; height: 100%; line-height: 1.3;
     white-space: nowrap;
-    padding-left: 10px; /* Separation from tabs */
+    min-width: 120px;
 }
 .clock-date { font-weight: 700; color: #202124; }
 #clock-time { font-weight: 500; color: #5f6368; }
 
-/* Button */
+/* Daily Button */
 div.stButton > button {
     background-color: #1a73e8 !important;
     color: white !important;
@@ -124,8 +130,11 @@ div.stButton > button {
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.85rem;
-    padding: 9px 15px;
+    padding: 8px 16px;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 div.stButton > button:hover {
     background-color: #1557b0 !important;
@@ -140,15 +149,16 @@ div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { dis
 # ---------------- DATA ----------------
 COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
 
-# ---------------- HEADER ----------------
+# ---------------- HEADER (Replicated Structure) ----------------
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
-
-    # New header layout:
-    # [Logo 2.5] [Spacer 5] [Region + Clock 4] [Button 1.5]
-    col1, col2, col3, col4 = st.columns([2.5, 5, 4, 1.5], vertical_alignment="center", gap="small")
-
-    with col1:
+    
+    # 2 MAIN COLUMNS: [Logo (Left)] [Controls (Right)]
+    # This structure exactly mirrors <div class="header-left"> and <div class="header-right">
+    head_left, head_right = st.columns([1, 3], vertical_alignment="center")
+    
+    # --- HEADER LEFT ---
+    with head_left:
         st.markdown("""
             <div class="logo-container">
                 <i class="fas fa-shield-alt logo-icon"></i>
@@ -156,15 +166,17 @@ with st.container():
             </div>
         """, unsafe_allow_html=True)
 
-    with col2:
-        st.write("")  # Elastic spacer
-
-    with col3:
-        # Create two subcolumns inside column 3 to hold the region pills and the clock side-by-side
-        sub_left, sub_right = st.columns([3, 2], gap="small")
-
-        with sub_left:
-            # TABS (Now placed left side of the clock)
+    # --- HEADER RIGHT ---
+    with head_right:
+        # We create a sub-container for the right controls to apply the flex-gap
+        st.markdown('<div class="controls-marker"></div>', unsafe_allow_html=True)
+        
+        # Grid inside Right: [Tabs (Auto)] [Clock (Fit)] [Button (Fit)]
+        # We use a specific ratio to mimic the flex behavior
+        c_tabs, c_clock, c_btn = st.columns([6, 3, 2], vertical_alignment="center")
+        
+        with c_tabs:
+            # Pushed to right via CSS justify-content: flex-end
             selected_region = st.pills(
                 "Region",
                 options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
@@ -173,18 +185,15 @@ with st.container():
                 key="region_selector"
             )
 
-        with sub_right:
-            # CLOCK (placed directly to the right of the region pills)
+        with c_clock:
             now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
             date_str = now.strftime("%A, %d %b %Y")
             time_str = now.strftime("%H:%M:%S GMT+11 UTC")
-
+            
             st.markdown(f"""
-                <div style="display:flex; justify-content:flex-end;">
-                    <div class="clock-container">
-                        <div class="clock-date" id="clock-date">{date_str}</div>
-                        <div id="clock-time">{time_str}</div>
-                    </div>
+                <div class="clock-container">
+                    <div class="clock-date" id="clock-date">{date_str}</div>
+                    <div id="clock-time">{time_str}</div>
                 </div>
                 <script>
                     function updateClock() {{
@@ -200,17 +209,13 @@ with st.container():
                             var hrs = String(Math.floor(Math.abs(offset)/60));
                             timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
                         }}
-                        if(dateEl) {{
-                            var opts = {{ weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' }};
-                            dateEl.innerText = new Intl.DateTimeFormat('en-US', opts).format(now);
-                        }}
                     }}
                     setInterval(updateClock, 1000);
                 </script>
             """, unsafe_allow_html=True)
 
-    with col4:
-        st.button("📄 Daily Briefings", use_container_width=True)
+        with c_btn:
+            st.button("📄 Daily Briefings", use_container_width=True)
 
 # ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
@@ -218,10 +223,12 @@ st.markdown('<div class="content-area">', unsafe_allow_html=True)
 main_col, side_col = st.columns([9, 3], gap="large")
 
 with main_col:
+    # MAP
     st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
     st.info(f"📍 MAP VIEW: Showing data for {selected_region.upper()}")
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # STREAM HEADER
     st.markdown("""
         <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div style="font-weight: 700; font-size: 1rem;">
@@ -231,21 +238,25 @@ with main_col:
             <span class="badge bg-light text-secondary" style="border: 1px solid #eee;">LIVE FEED</span>
         </div>
     """, unsafe_allow_html=True)
-
+    
+    # STREAM CONTENT
     st.info(f"waiting for news feed... (Filter: {selected_region})")
 
 with side_col:
+    # CARD 1: HISTORY
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-history"></i> History Search</div>', unsafe_allow_html=True)
         st.date_input("Date", label_visibility="collapsed")
         st.caption("Pick a date to load archived intelligence.")
 
+    # CARD 2: TRAVEL
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>', unsafe_allow_html=True)
         st.selectbox("Country", COUNTRIES, label_visibility="collapsed")
-
+    
+    # CARD 3: PROXIMITY
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>', unsafe_allow_html=True)
