@@ -18,7 +18,7 @@ st.set_page_config(
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (FLEXBOX LAYOUT & BLUE TABS)
+# 2. CSS STYLING (THE "NUCLEAR" FIX)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -50,7 +50,7 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* 3. HEADER CONTAINER - FLEXBOX FIX */
+/* 3. HEADER CONTAINER */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
     padding: 0 32px !important;
@@ -58,7 +58,6 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     background: white;
     display: flex;
     align-items: center;
-    justify-content: space-between;
 }
 
 /* 4. COMPONENT STYLING */
@@ -70,73 +69,70 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
 .logo-text span { color: var(--dell-blue); }
 
 /* --- PILLS (REGION SELECTOR) --- */
-/* Hide default pills container */
 div[data-testid="stPills"] {
-    display: none !important;
-}
-
-/* Custom tabs styling */
-.custom-tabs {
+    background-color: #f1f3f4;
+    padding: 4px;
+    border-radius: 10px;
     display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-right: 16px;
+    justify-content: center;
+    gap: 2px;
 }
 
-.custom-tab {
-    padding: 8px 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-    text-decoration: none;
-    white-space: nowrap;
+/* Pill Buttons (Inactive) */
+div[data-testid="stPills"] button {
+    background-color: transparent !important;
+    border: none !important;
+    color: #5f6368 !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase !important;
+    padding: 7px 18px !important;
+    border-radius: 8px !important;
+    line-height: 1 !important;
+    min-height: 0px !important;
+    height: auto !important;
 }
 
-.custom-tab.active {
-    background-color: #1f2937;
-    color: white;
+/* Pill Buttons (Active/Selected) - NUCLEAR BLUE OVERRIDE */
+div[data-testid="stPills"] button[aria-selected="true"] {
+    background-color: #1a73e8 !important; /* DELL BLUE */
+    color: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+/* Force internal text color for active pill */
+div[data-testid="stPills"] button[aria-selected="true"] p {
+    color: #ffffff !important;
 }
 
-.custom-tab.inactive {
-    background-color: transparent;
-    color: #1a73e8;
-}
-
-.custom-tab.inactive:hover {
-    background-color: rgba(26, 115, 232, 0.08);
+/* Hover State */
+div[data-testid="stPills"] button:hover {
+    color: #1a73e8 !important;
+    background-color: rgba(26, 115, 232, 0.1) !important;
 }
 
 /* Clock */
 .clock-container { 
-    display: flex; 
-    flex-direction: column; 
-    font-size: 0.85rem; 
-    text-align: right; 
-    justify-content: center; 
-    height: 100%; 
-    line-height: 1.3;
-    margin-right: 20px;
+    display: flex; flex-direction: column; 
+    font-size: 0.85rem; text-align: right; 
+    justify-content: center; height: 100%; line-height: 1.3;
 }
 .clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
 #clock-time { font-weight: 500; color: #5f6368; white-space: nowrap; }
 
 /* Daily Button */
 div.stButton > button {
-    background-color: #1a73e8 !important;
+    background-color: #1a73e8;
     color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
-    padding: 9px 20px !important;
-    white-space: nowrap !important;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 9px 20px;
+    white-space: nowrap;
 }
 div.stButton > button:hover {
-    background-color: #1557b0 !important;
+    background-color: #1557b0;
     color: white !important;
 }
 
@@ -164,17 +160,16 @@ div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { dis
 # ---------------- DATA ----------------
 COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
 
-# Initialize session state for selected region
-if 'selected_region' not in st.session_state:
-    st.session_state.selected_region = 'GLOBAL'
-
 # ---------------- HEADER ----------------
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
     
-    col_logo, col_spacer, col_right_group = st.columns([2, 4, 6], vertical_alignment="center")
+    # TWO MAIN COLUMNS: [Logo (2)] | [Controls (10)]
+    # This ensures the Logo is fixed left, and everything else is in one block on the right.
+    head_cols = st.columns([2, 10], vertical_alignment="center")
     
-    with col_logo:
+    # 1. LOGO
+    with head_cols[0]:
         st.markdown("""
             <div class="logo-container">
                 <i class="fas fa-shield-alt logo-icon"></i>
@@ -182,66 +177,27 @@ with st.container():
             </div>
         """, unsafe_allow_html=True)
 
-    with col_spacer:
-        st.write("")
-
-    with col_right_group:
-        c_tabs, c_clock, c_btn = st.columns([4, 2, 1.5], vertical_alignment="center", gap="small")
+    # 2. CONTROLS (Nested Columns)
+    with head_cols[1]:
+        # Inside the Right block, we use [Spacer, Tabs, Clock, Button]
+        # Spacer takes up all available slack to push everything RIGHT.
+        right_cols = st.columns([3, 4, 2, 1.5], vertical_alignment="center", gap="small")
         
-        with c_tabs:
-            # Custom tabs HTML
-            regions = ['GLOBAL', 'AMER', 'EMEA', 'APJC', 'LATAM']
-            tabs_html = '<div class="custom-tabs">'
-            
-            for region in regions:
-                active_class = 'active' if st.session_state.selected_region == region else 'inactive'
-                tabs_html += f'<div class="custom-tab {active_class}" id="tab-{region}">{region}</div>'
-            
-            tabs_html += '</div>'
-            
-            # Add JavaScript to handle clicks
-            tabs_html += """
-            <script>
-                document.querySelectorAll('.custom-tab').forEach(tab => {
-                    tab.addEventListener('click', function() {
-                        const region = this.id.replace('tab-', '');
-                        
-                        // Update active state visually
-                        document.querySelectorAll('.custom-tab').forEach(t => {
-                            t.classList.remove('active');
-                            t.classList.add('inactive');
-                        });
-                        this.classList.remove('inactive');
-                        this.classList.add('active');
-                        
-                        // Trigger Streamlit rerun with new region
-                        window.parent.postMessage({
-                            type: 'streamlit:setComponentValue',
-                            key: 'region_selector',
-                            value: region
-                        }, '*');
-                    });
-                });
-            </script>
-            """
-            
-            st.markdown(tabs_html, unsafe_allow_html=True)
-            
-            # Hidden widget to capture the selection
-            selected_region = st.selectbox(
+        with right_cols[0]:
+            st.write("") # Spacer
+
+        with right_cols[1]:
+            # TABS
+            selected_region = st.pills(
                 "Region",
-                options=regions,
-                index=regions.index(st.session_state.selected_region),
+                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+                default="Global",
                 label_visibility="collapsed",
-                key="region_selector_hidden"
+                key="region_selector"
             )
-            
-            # Update session state if changed
-            if selected_region != st.session_state.selected_region:
-                st.session_state.selected_region = selected_region
-                st.rerun()
-            
-        with c_clock:
+
+        with right_cols[2]:
+            # CLOCK
             now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
             date_str = now.strftime("%A, %d %b %Y")
             time_str = now.strftime("%H:%M:%S GMT+11 UTC")
@@ -254,6 +210,7 @@ with st.container():
                 <script>
                     function updateClock() {{
                         var now = new Date();
+                        var dateEl = document.getElementById('clock-date');
                         var timeEl = document.getElementById('clock-time');
                         if(timeEl) {{
                             var h = String(now.getHours()).padStart(2, '0');
@@ -268,8 +225,9 @@ with st.container():
                     setInterval(updateClock, 1000);
                 </script>
             """, unsafe_allow_html=True)
-            
-        with c_btn:
+
+        with right_cols[3]:
+            # BUTTON
             st.button("📄 Daily Briefings", use_container_width=True)
 
 # ---------------- CONTENT ----------------
@@ -280,7 +238,7 @@ main_col, side_col = st.columns([9, 3], gap="large")
 with main_col:
     # MAP
     st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
-    st.info(f"📍 MAP VIEW: Showing data for {st.session_state.selected_region}")
+    st.info(f"📍 MAP VIEW: Showing data for {selected_region.upper()}")
     st.markdown('</div>', unsafe_allow_html=True)
 
     # STREAM HEADER
@@ -295,7 +253,7 @@ with main_col:
     """, unsafe_allow_html=True)
     
     # STREAM CONTENT
-    st.info(f"waiting for news feed... (Filter: {st.session_state.selected_region})")
+    st.info(f"waiting for news feed... (Filter: {selected_region})")
 
 with side_col:
     # CARD 1: HISTORY
