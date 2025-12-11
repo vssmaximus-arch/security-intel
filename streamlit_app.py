@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (LOCKED - EXACT MATCH TO YOUR "CHATGPT FIXED" VERSION)
+# 2. CSS STYLING (LOCKED)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -163,9 +163,9 @@ div.block-container {
     unsafe_allow_html=True,
 )
 
-# ---------------- HEADER (FIXED CLOCK LOGIC) ----------------
-# 1. We generate the initial time in Python so it is NEVER empty on load.
-now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11))) # Default to GMT+11
+# ---------------- HEADER (ROBUST CLOCK) ----------------
+# Initial Python time to prevent flicker on load
+now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
 date_str = now.strftime("%A, %d %b %Y")
 time_str = now.strftime("%H:%M GMT+11 UTC")
 
@@ -196,43 +196,45 @@ st.markdown(
 </div>
 
 <script>
-    // 2. This Script takes over immediately to keep time ticking
-    function startClock() {{
-        function update() {{
-            const now = new Date();
-            const dateEl = document.getElementById('clock-date');
-            const timeEl = document.getElementById('clock-time');
+    (function() {{
+        // Run immediately and then every second
+        function updateClock() {{
+            // We search for elements EVERY TIME to handle Streamlit re-renders
+            var dateEl = document.getElementById('clock-date');
+            var timeEl = document.getElementById('clock-time');
             
-            if (!dateEl || !timeEl) return; // Safety check
+            if (!dateEl || !timeEl) return;
 
-            // Date Format: "Thursday, 11 Dec 2025"
-            const dateOptions = {{ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }};
-            const dateStr = now.toLocaleDateString('en-GB', dateOptions);
+            var now = new Date();
+            
+            // Format Date
+            var dateOptions = {{ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }};
+            var dateStr = now.toLocaleDateString('en-GB', dateOptions);
 
-            // Time Format: "17:30 GMT+X UTC"
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
+            // Format Time
+            var h = String(now.getHours()).padStart(2, '0');
+            var m = String(now.getMinutes()).padStart(2, '0');
+            var s = String(now.getSeconds()).padStart(2, '0');
             
-            // Calculate timezone (e.g. GMT+11)
-            const offset = -now.getTimezoneOffset();
-            const sign = offset >= 0 ? '+' : '-';
-            const hoursOffset = String(Math.floor(Math.abs(offset) / 60));
-            const tzString = 'GMT' + sign + hoursOffset;
-            
+            // Timezone Logic
+            var offset = -now.getTimezoneOffset();
+            var sign = offset >= 0 ? '+' : '-';
+            var hoursOffset = String(Math.floor(Math.abs(offset) / 60));
+            var tzString = 'GMT' + sign + hoursOffset;
+
             dateEl.innerText = dateStr;
-            timeEl.innerText = `${{h}}:${{m}} ${{tzString}} UTC`;
+            timeEl.innerText = h + ':' + m + ':' + s + ' ' + tzString + ' UTC';
         }}
-        
-        setInterval(update, 1000);
-        update();
-    }}
-    startClock();
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    }})();
 </script>
 """,
     unsafe_allow_html=True,
 )
 
-# ---------------- CONTENT (LOCKED) ----------------
+# ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
 left_col, right_col = st.columns([9, 3], gap="large")
