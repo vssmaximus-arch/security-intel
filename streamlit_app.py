@@ -15,7 +15,7 @@ st.set_page_config(
 # --------------------------------------------------------------------------
 # 1a. AUTO-REFRESH (LIVE CLOCK)
 # --------------------------------------------------------------------------
-st_autorefresh(interval=1000, key="live_clock_refresh_v4")
+st_autorefresh(interval=1000, key="live_clock_refresh_v5")
 
 # --------------------------------------------------------------------------
 # 2. CSS STYLING (FORCE RIGHT ALIGNMENT)
@@ -68,16 +68,16 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
 .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
 .logo-text span { color: var(--dell-blue); }
 
-/* --- PILLS (REGION SELECTOR) - FORCED RIGHT --- */
+/* --- PILLS (REGION SELECTOR) - allow left placement next to clock --- */
 div[data-testid="stPills"] {
     background-color: #f1f3f4 !important;
     padding: 4px !important;
     border-radius: 10px !important;
     display: flex !important;
-    justify-content: flex-end !important; /* Force content to right side of column */
-    gap: 2px !important;
+    justify-content: flex-start !important; /* allow pills to sit next to clock */
+    gap: 6px !important;
     margin-right: 0 !important;
-    margin-left: auto !important; /* CSS trick to push block right */
+    margin-left: 0 !important;
 }
 
 /* Pill Buttons (Inactive) */
@@ -86,9 +86,9 @@ div[data-testid="stPills"] button {
     border: none !important;
     color: #5f6368 !important;
     font-weight: 700 !important;
-    font-size: 0.7rem !important; /* Slightly smaller to fit tight */
+    font-size: 0.75rem !important;
     text-transform: uppercase !important;
-    padding: 6px 14px !important;
+    padding: 6px 12px !important;
     min-height: 0px !important;
     height: auto !important;
     line-height: 1 !important;
@@ -143,12 +143,11 @@ COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kin
 # ---------------- HEADER ----------------
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
-    
-    # NEW LAYOUT RATIOS: [Logo 2.5] [Spacer 6] [Tabs 3.2] [Clock 1.8] [Button 1.5]
-    # The '6' Spacer is massive, pushing the '3.2' Tabs column hard to the right.
-    # The '3.2' is tight, so the tabs have no room to float left.
-    col1, col2, col3, col4, col5 = st.columns([2.5, 6, 3.2, 1.8, 1.5], vertical_alignment="center", gap="small")
-    
+
+    # New header layout:
+    # [Logo 2.5] [Spacer 5] [Region + Clock 4] [Button 1.5]
+    col1, col2, col3, col4 = st.columns([2.5, 5, 4, 1.5], vertical_alignment="center", gap="small")
+
     with col1:
         st.markdown("""
             <div class="logo-container">
@@ -158,49 +157,59 @@ with st.container():
         """, unsafe_allow_html=True)
 
     with col2:
-        st.write("") # Elastic Spacer
+        st.write("")  # Elastic spacer
 
     with col3:
-        # TABS (Squeezed into column 3)
-        selected_region = st.pills(
-            "Region",
-            options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-            default="Global",
-            label_visibility="collapsed",
-            key="region_selector"
-        )
+        # Create two subcolumns inside column 3 to hold the region pills and the clock side-by-side
+        sub_left, sub_right = st.columns([3, 2], gap="small")
+
+        with sub_left:
+            # TABS (Now placed left side of the clock)
+            selected_region = st.pills(
+                "Region",
+                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+                default="Global",
+                label_visibility="collapsed",
+                key="region_selector"
+            )
+
+        with sub_right:
+            # CLOCK (placed directly to the right of the region pills)
+            now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+            date_str = now.strftime("%A, %d %b %Y")
+            time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+
+            st.markdown(f"""
+                <div style="display:flex; justify-content:flex-end;">
+                    <div class="clock-container">
+                        <div class="clock-date" id="clock-date">{date_str}</div>
+                        <div id="clock-time">{time_str}</div>
+                    </div>
+                </div>
+                <script>
+                    function updateClock() {{
+                        var now = new Date();
+                        var dateEl = document.getElementById('clock-date');
+                        var timeEl = document.getElementById('clock-time');
+                        if(timeEl) {{
+                            var h = String(now.getHours()).padStart(2, '0');
+                            var m = String(now.getMinutes()).padStart(2, '0');
+                            var s = String(now.getSeconds()).padStart(2, '0');
+                            var offset = -now.getTimezoneOffset();
+                            var sign = offset >= 0 ? '+' : '-';
+                            var hrs = String(Math.floor(Math.abs(offset)/60));
+                            timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
+                        }}
+                        if(dateEl) {{
+                            var opts = {{ weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' }};
+                            dateEl.innerText = new Intl.DateTimeFormat('en-US', opts).format(now);
+                        }}
+                    }}
+                    setInterval(updateClock, 1000);
+                </script>
+            """, unsafe_allow_html=True)
 
     with col4:
-        # CLOCK
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-        date_str = now.strftime("%A, %d %b %Y")
-        time_str = now.strftime("%H:%M:%S GMT+11 UTC")
-        
-        st.markdown(f"""
-            <div class="clock-container">
-                <div class="clock-date" id="clock-date">{date_str}</div>
-                <div id="clock-time">{time_str}</div>
-            </div>
-            <script>
-                function updateClock() {{
-                    var now = new Date();
-                    var dateEl = document.getElementById('clock-date');
-                    var timeEl = document.getElementById('clock-time');
-                    if(timeEl) {{
-                        var h = String(now.getHours()).padStart(2, '0');
-                        var m = String(now.getMinutes()).padStart(2, '0');
-                        var s = String(now.getSeconds()).padStart(2, '0');
-                        var offset = -now.getTimezoneOffset();
-                        var sign = offset >= 0 ? '+' : '-';
-                        var hrs = String(Math.floor(Math.abs(offset)/60));
-                        timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
-                    }}
-                }}
-                setInterval(updateClock, 1000);
-            </script>
-        """, unsafe_allow_html=True)
-
-    with col5:
         st.button("📄 Daily Briefings", use_container_width=True)
 
 # ---------------- CONTENT ----------------
@@ -222,7 +231,7 @@ with main_col:
             <span class="badge bg-light text-secondary" style="border: 1px solid #eee;">LIVE FEED</span>
         </div>
     """, unsafe_allow_html=True)
-    
+
     st.info(f"waiting for news feed... (Filter: {selected_region})")
 
 with side_col:
@@ -236,7 +245,7 @@ with side_col:
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>', unsafe_allow_html=True)
         st.selectbox("Country", COUNTRIES, label_visibility="collapsed")
-    
+
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>', unsafe_allow_html=True)
