@@ -2,7 +2,7 @@ import streamlit as st
 import datetime
 
 # --------------------------------------------------------------------------
-# 1. PAGE CONFIG
+# 1. PAGE CONFIGURATION
 # --------------------------------------------------------------------------
 st.set_page_config(
     page_title="Dell OS | InfoHub",
@@ -12,241 +12,232 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------------
-# 2. GLOBAL CSS (DIRECTLY MIRRORING ORIGINAL INDEX.HTML)
+# 2. CSS – MATCH GITHUB PAGES STYLE
 # --------------------------------------------------------------------------
-st.markdown("""
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+st.markdown(
+    """
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --dell-blue: #0076CE;
-    --bg-dark: #0f1115;
+    --os-blue: #0076CE;
+    --os-dark-bg: #0f1115;
 }
 
-/* Streamlit shell */
+/* STREAMLIT SHELL */
 .stApp {
-    background-color: var(--bg-dark);
+    background-color: var(--os-dark-bg);
     font-family: 'Inter', sans-serif;
 }
 
-/* Remove Streamlit’s white card look; we’ll use .app-container instead */
+/* MAIN WHITE CARD */
 div.block-container {
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 24px !important;
-    max-width: 100% !important;
-}
-
-/* Main white card (from original) */
-.app-container {
-    background-color: #fff;
+    background-color: #ffffff;
     border-radius: 24px;
-    min-height: 92vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    max-width: 98% !important;
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 24px !important;
+    margin-top: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* HEADER (EXACT CLASSES FROM ORIGINAL SITE) */
-.header-container {
-    padding: 15px 32px;
+/* TOP HEADER BAR – ALWAYS FIRST THING INSIDE THE CARD */
+.os-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 12px 32px 10px 32px;
     border-bottom: 1px solid #f0f0f0;
-    height: 70px;
 }
 
-.header-left {
+/* LEFT: LOGO */
+.os-header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-.logo-icon {
-    font-size: 1.6rem;
+.os-logo-icon {
+    font-size: 1.5rem;
     color: #1a73e8;
 }
 
-.logo-text {
-    font-size: 1.2rem;
+.os-logo-text {
+    font-size: 1.25rem;
     font-weight: 800;
     color: #202124;
     letter-spacing: -0.5px;
+    white-space: nowrap;
 }
 
-.logo-text span {
-    color: var(--dell-blue);
+.os-logo-text span {
+    color: var(--os-blue);
 }
 
-.header-right {
+/* RIGHT SIDE GROUP: PILLS + CLOCK + BUTTON */
+.os-header-right {
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
-/* NAV PILLS */
-.nav-pills-custom {
+/* REGION PILLS (STATIC BUT VISUALLY MATCHED) */
+.os-pills {
+    display: inline-flex;
     background-color: #f1f3f4;
-    padding: 4px;
     border-radius: 10px;
-    display: flex;
+    padding: 4px;
     gap: 2px;
 }
 
-.nav-item-custom {
+.os-pill {
     padding: 7px 18px;
     border-radius: 8px;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
     color: #5f6368;
     cursor: pointer;
-    text-decoration: none;
-    text-transform: uppercase;
+    user-select: none;
 }
 
-.nav-item-custom.active {
+.os-pill.active {
     background-color: #202124;
-    color: #fff;
+    color: #ffffff;
 }
 
-/* Clock */
-.clock-container {
+/* DATE / TIME */
+.os-clock {
     display: flex;
     flex-direction: column;
     font-size: 0.85rem;
     text-align: right;
+    white-space: nowrap;
 }
 
-.clock-date {
+.os-clock-date {
     font-weight: 600;
     color: #202124;
-    white-space: nowrap;
 }
 
-.clock-time {
+.os-clock-time {
     font-weight: 500;
     color: #5f6368;
-    white-space: nowrap;
 }
 
-/* Daily Briefings button */
-.btn-daily {
+/* DAILY BRIEFINGS BUTTON */
+.os-header-btn {
     background-color: #1a73e8;
-    color: white;
-    padding: 9px 18px;
+    color: #ffffff;
+    padding: 8px 18px;
     border-radius: 8px;
+    border: none;
     font-weight: 600;
     font-size: 0.85rem;
-    cursor: pointer;
     display: flex;
-    gap: 8px;
     align-items: center;
-    border: none;
+    gap: 8px;
+    cursor: pointer;
 }
 
-/* Content area layout */
-.content-area {
-    padding: 30px;
-    flex: 1;
+.os-header-btn:hover {
+    background-color: #1557b0;
 }
 
-/* Map + sidebar placeholders just so layout feels similar */
-.map-wrapper {
-    position: relative;
+/* CONTENT AREA PADDING (BELOW HEADER) */
+.os-content {
+    padding: 20px 32px 0 32px;
+}
+
+/* SIMPLE CARDS FOR PLACEHOLDER LAYOUT */
+.os-map-placeholder {
     border-radius: 16px;
-    overflow: hidden;
-    height: 520px;
+    border: 1px solid #e0e0e0;
     background: #eef2f6;
-    border: 1px solid #e0e0e0;
+    padding: 16px;
+    height: 480px;
 }
 
-.sidebar-col {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-.side-card {
-    background: white;
-    border: 1px solid #e0e0e0;
+.os-side-card {
+    background: #ffffff;
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    border: 1px solid #e0e0e0;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
 }
 
-/* Hide Streamlit menu/footer */
-#MainMenu, footer, header {visibility: hidden;}
+/* HIDE STREAMLIT CHROME */
+#MainMenu, footer, header { visibility: hidden; }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # --------------------------------------------------------------------------
-# 3. APP WRAPPER (MIRROR .app-container)
+# 3. HEADER BAR (PIXEL-CLOSE TO ORIGINAL)
 # --------------------------------------------------------------------------
-st.markdown('<div class="app-container">', unsafe_allow_html=True)
-
-# --------------------------------------------------------------------------
-# 4. HEADER (MIRROR ORIGINAL HTML STRUCTURE)
-# --------------------------------------------------------------------------
-# Build the clock text in Python (instead of JS)
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
 date_str = now.strftime("%A, %d %b %Y")
 time_str = now.strftime("%H:%M GMT+11 UTC")
 
 st.markdown(
     f"""
-    <div class="header-container">
-        <div class="header-left">
-            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-            <div class="logo-text">OS <span>INFOHUB</span></div>
+<div class="os-header">
+    <div class="os-header-left">
+        <div class="os-logo-icon">
+            <i class="fas fa-shield-alt"></i>
         </div>
-        <div class="header-right">
-            <div class="nav-pills-custom">
-                <a class="nav-item-custom active">Global</a>
-                <a class="nav-item-custom">AMER</a>
-                <a class="nav-item-custom">EMEA</a>
-                <a class="nav-item-custom">APJC</a>
-                <a class="nav-item-custom">LATAM</a>
-            </div>
-            <div class="clock-container">
-                <div class="clock-date">{date_str}</div>
-                <div class="clock-time">{time_str}</div>
-            </div>
-            <button class="btn-daily">
-                <i class="fas fa-file-alt"></i>
-                Daily Briefings
-            </button>
+        <div class="os-logo-text">
+            OS <span>INFOHUB</span>
         </div>
     </div>
-    """,
+
+    <div class="os-header-right">
+        <div class="os-pills">
+            <div class="os-pill active">GLOBAL</div>
+            <div class="os-pill">AMER</div>
+            <div class="os-pill">EMEA</div>
+            <div class="os-pill">APJC</div>
+            <div class="os-pill">LATAM</div>
+        </div>
+
+        <div class="os-clock">
+            <div class="os-clock-date">{date_str}</div>
+            <div class="os-clock-time">{time_str}</div>
+        </div>
+
+        <button class="os-header-btn">
+            <i class="fas fa-file-alt"></i>
+            Daily Briefings
+        </button>
+    </div>
+</div>
+""",
     unsafe_allow_html=True,
 )
 
 # --------------------------------------------------------------------------
-# 5. CONTENT AREA (USE STREAMLIT INSIDE .content-area)
+# 4. CONTENT AREA (INSIDE SAME WHITE CARD)
 # --------------------------------------------------------------------------
-st.markdown('<div class="content-area">', unsafe_allow_html=True)
+st.markdown('<div class="os-content">', unsafe_allow_html=True)
 
-left_col, right_col = st.columns([3, 1], gap="large")
+main_col, side_col = st.columns([3, 1], gap="large")
 
-with left_col:
-    st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
-    st.info("MAP PLACEHOLDER")
+with main_col:
+    st.markdown('<div class="os-map-placeholder">', unsafe_allow_html=True)
+    st.write("MAP PLACEHOLDER")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with right_col:
-    st.markdown('<div class="sidebar-col">', unsafe_allow_html=True)
+with side_col:
+    st.markdown('<div class="os-side-card"><b>History Search</b></div>', unsafe_allow_html=True)
+    st.markdown('<div class="os-side-card"><b>Travel Safety Check</b></div>', unsafe_allow_html=True)
+    st.markdown('<div class="os-side-card"><b>Proximity Alerts</b></div>', unsafe_allow_html=True)
+    st.markdown('<div class="os-side-card"><b>Risk Category Filter</b></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="side-card">History Search</div>', unsafe_allow_html=True)
-    st.markdown('<div class="side-card">Travel Safety Check</div>', unsafe_allow_html=True)
-    st.markdown('<div class="side-card">Proximity Alerts</div>', unsafe_allow_html=True)
-    st.markdown('<div class="side-card">Risk Category Filter</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)  # close .content-area
-st.markdown('</div>', unsafe_allow_html=True)  # close .app-container
+st.markdown('</div>', unsafe_allow_html=True)  # close .os-content
