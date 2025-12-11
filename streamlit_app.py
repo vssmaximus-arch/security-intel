@@ -1,686 +1,459 @@
-import datetime
 import streamlit as st
-from streamlit_autorefresh import st_autorefresh
+from streamlit.components.v1 import html
 
 # ---------------------------------------------------------
-# 1. PAGE CONFIG
+# Streamlit page config
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="SRO Intelligence",
+    page_title="Dell SRO | Global Intelligence Dashboard",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Live clock refresh
-st_autorefresh(interval=1000, key="sro_clock_refresh")
-
-# ---------------------------------------------------------
-# 2. GLOBAL CSS – FRAME + THEME + COMPONENTS
-# ---------------------------------------------------------
+# Optional: dark frame around the embedded app
 st.markdown(
     """
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root {
-    --sro-blue: #0076CE;
-    --accent-blue: #1a73e8;
-    --bg-dark: #0f1115;
-    --critical-red: #d93025;
-    --warning-amber: #f9ab00;
-}
-
-/* App background */
-.stApp {
-    background-color: var(--bg-dark);
-    font-family: 'Inter', sans-serif;
-}
-
-/* Remove padding around view container */
-[data-testid="stAppViewContainer"] {
-    padding: 0;
-}
-
-/* Main white card */
-div.block-container {
-    background-color: #ffffff;
-    border-radius: 24px;
-    min-height: calc(100vh - 48px);
-    margin: 24px;
-    padding: 0 !important;
-    width: calc(100% - 48px) !important;
-    max-width: calc(100% - 48px) !important;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-}
-
-/* Hide Streamlit chrome */
-#MainMenu, footer, header {visibility: hidden;}
-
-/* ----------------------------------------------------- */
-/* HEADER                                                 */
-/* ----------------------------------------------------- */
-.header-row {
-    padding: 14px 28px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-/* Make first horizontal block into flex header strip */
-div.block-container div[data-testid="stHorizontalBlock"]:first-of-type {
-    padding: 0 28px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-/* Logo */
-.logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.logo-icon {
-    font-size: 1.4rem;
-    color: var(--accent-blue);
-}
-.logo-text {
-    font-size: 1.1rem;
-    font-weight: 800;
-    letter-spacing: -0.4px;
-    color: #202124;
-}
-.logo-text span {
-    color: var(--sro-blue);
-}
-
-/* Region pills – based on st.pills */
-div[data-testid="stPills"] {
-    background-color: #f1f3f4 !important;
-    padding: 4px !important;
-    border-radius: 999px !important;
-    display: inline-flex !important;
-    gap: 0;
-}
-div[data-testid="stPills"] button {
-    background: transparent !important;
-    border: none !important;
-    color: #5f6368 !important;
-    font-weight: 700 !important;
-    font-size: 0.78rem !important;
-    text-transform: uppercase !important;
-    padding: 6px 18px !important;
-    border-radius: 999px !important;
-    line-height: 1.1 !important;
-}
-div[data-testid="stPills"] button:hover {
-    background-color: rgba(0,0,0,0.05) !important;
-}
-div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #202124 !important;
-    color: #ffffff !important;
-}
-
-/* Clock */
-.clock-container {
-    text-align: right;
-    font-size: 0.82rem;
-    line-height: 1.25;
-}
-.clock-date {
-    font-weight: 600;
-    color: #202124;
-    white-space: nowrap;
-}
-.clock-time {
-    font-weight: 500;
-    color: #5f6368;
-    white-space: nowrap;
-}
-
-/* Daily briefings button */
-.header-btn-wrap {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-}
-.header-btn-wrap > div.stButton > button {
-    background-color: var(--accent-blue) !important;
-    color: #ffffff !important;
-    border-radius: 999px;
-    border: none;
-    font-weight: 600;
-    font-size: 0.86rem;
-    padding: 8px 18px;
-}
-.header-btn-wrap > div.stButton > button:hover {
-    background-color: #1557b0 !important;
-}
-
-/* ----------------------------------------------------- */
-/* CONTENT LAYOUT                                         */
-/* ----------------------------------------------------- */
-.content-area {
-    padding: 22px 24px 28px 24px;
-}
-
-/* Map wrapper */
-.map-wrapper {
-    border-radius: 16px;
-    border: 1px solid #e0e0e0;
-    overflow: hidden;
-    height: 520px;
-    background-color: #eef2f6;
-}
-.map-placeholder {
-    width: 100%;
-    height: 100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#5f6368;
-    font-size:0.9rem;
-}
-
-/* Asset monitoring card on map */
-.asset-overlay {
-    position: absolute;
-    left: 22px;
-    bottom: 20px;
-    background: #ffffff;
-    border-radius: 14px;
-    border: 1px solid #e0e0e0;
-    padding: 12px 14px;
-    font-size: 0.8rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-.asset-header {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: #a0a6ad;
-}
-.asset-row {
-    margin-top: 6px;
-    display:flex;
-    align-items:center;
-    gap:6px;
-}
-.asset-row i {
-    color: var(--accent-blue);
-}
-.asset-badge {
-    margin-left: auto;
-    font-size: 0.68rem;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: #ffe6d5;
-    color: #d35400;
-    font-weight: 700;
-}
-
-/* Right column cards */
-.side-card {
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #e0e0e0;
-    padding: 18px 18px 16px 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-}
-.side-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #202124;
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-.side-title i {
-    color:#5f6368;
-}
-
-/* Proximity alerts card specifics */
-.prox-header-top {
-    display:flex;
-    justify-content: space-between;
-    align-items:flex-start;
-}
-.prox-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color:#a0a6ad;
-    font-weight:700;
-}
-.prox-title-link {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--accent-blue);
-    line-height:1.15;
-}
-.badge-test-only {
-    font-size:0.7rem;
-    padding:2px 8px;
-    border-radius:999px;
-    background:#fff7e0;
-    color:#b37400;
-    font-weight:700;
-}
-.prox-radius-select {
-    margin-top:8px;
-}
-
-/* Proximity alert rows */
-.prox-alert-row {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #f1f3f4;
-    font-size: 0.82rem;
-}
-.prox-alert-main {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom: 2px;
-}
-.prox-alert-main span {
-    font-weight:700;
-}
-.prox-alert-main .distance {
-    color:#d93025;
-    font-size:0.78rem;
-}
-.prox-alert-meta {
-    font-size:0.78rem;
-    color:#5f6368;
-}
-
-/* ----------------------------------------------------- */
-/* STREAM SECTION                                         */
-/* ----------------------------------------------------- */
-.stream-header {
-    margin-top: 14px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-size:0.9rem;
-}
-.stream-header-left {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-weight:700;
-}
-.stream-header-left i {
-    font-size:0.55rem;
-}
-.badge-stream-note {
-    font-size:0.7rem;
-    padding:2px 8px;
-    border-radius:4px;
-    background:#e3f2fd;
-    color:#1565c0;
-    font-weight:700;
-}
-.stream-header-right {
-    font-size:0.78rem;
-    display:flex;
-    gap:16px;
-}
-.stream-header-right a {
-    text-decoration:none;
-    color:#5f6368;
-    font-weight:600;
-}
-
-/* Critical banner */
-.critical-banner {
-    margin-top: 10px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    border-left:4px solid var(--critical-red);
-    background:#fde7e6;
-    font-size:0.82rem;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.critical-banner i {
-    color:var(--critical-red);
-}
-
-/* Feed cards */
-.feed-card {
-    margin-top:10px;
-    background:#ffffff;
-    border-radius: 10px;
-    border:1px solid #e0e0e0;
-    display:flex;
-    overflow:hidden;
-    box-shadow:0 2px 4px rgba(0,0,0,0.03);
-}
-.feed-status-bar {
-    width:4px;
-    background:var(--warning-amber);
-}
-.feed-status-bar.crit { background: var(--critical-red); }
-.feed-content {
-    padding: 10px 14px 12px 14px;
-    width:100%;
-}
-.feed-tags {
-    display:flex;
-    gap:6px;
-    font-size:0.7rem;
-    margin-bottom:4px;
-}
-.feed-tag {
-    padding:2px 8px;
-    border-radius:999px;
-    border:1px solid #eee;
-    font-weight:700;
-    text-transform:uppercase;
-}
-.feed-tag.warn { background:#fff7e0; color:#b37400; }
-.feed-tag.crit { background:#fce8e6; color:#b3261e; }
-.feed-tag.type { background:#f1f3f4; color:#5f6368; }
-.feed-tag.region { background:#e3f2fd; color:#1565c0; }
-
-.feed-title {
-    font-size:0.92rem;
-    font-weight:700;
-    color:#202124;
-    margin-bottom:4px;
-}
-.feed-meta {
-    font-size:0.75rem;
-    color:#5f6368;
-    margin-bottom:4px;
-}
-.feed-desc {
-    font-size:0.8rem;
-    color:#3c4043;
-}
-</style>
-""",
+    <style>
+        .stApp {
+            background-color: #0f1115;
+        }
+        [data-testid="stAppViewContainer"] {
+            padding: 24px;
+        }
+        div.block-container {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    """,
     unsafe_allow_html=True,
 )
 
 # ---------------------------------------------------------
-# 3. HEADER ROW (LOGO | PILLS | CLOCK | BUTTON)
+# Your original HTML app (unchanged)
 # ---------------------------------------------------------
-header_logo_col, header_center_col, header_right_col = st.columns(
-    [2.4, 5.2, 2.4],
-    vertical_alignment="center",
-)
+full_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dell SRO | Global Intelligence Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-with header_logo_col:
-    st.markdown(
-        """
-        <div class="logo-wrap">
-            <span class="logo-icon"><i class="fas fa-shield-alt"></i></span>
-            <span class="logo-text">SRO <span>INTELLIGENCE</span></span>
+        :root {
+            --dell-blue: #0076CE;
+            --header-bg: #ffffff;
+            --bg-dark: #0f1115;
+            --card-border: #e6e6e6;
+            --text-dark: #1a1a1a;
+            --text-gray: #5f6368;
+        }
+        
+        body { 
+            background-color: var(--bg-dark);
+            font-family: 'Inter', sans-serif; 
+            padding: 24px;
+            color: #333;
+        }
+
+        /* --- MAIN APP CONTAINER --- */
+        .app-container {
+            background-color: #fff;
+            border-radius: 24px;
+            min-height: 92vh;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- HEADER --- */
+        .header-container {
+            padding: 15px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f0f0f0;
+            height: 70px;
+        }
+
+        .header-left { display: flex; align-items: center; height: 100%; }
+        .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
+        .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
+        .logo-text span { color: var(--dell-blue); }
+        
+        .clock-container { text-align: right; margin: 0 25px; }
+        .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
+        .clock-time { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
+
+        .btn-daily {
+            background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px;
+            text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer;
+        }
+        .btn-daily:hover { background-color: #1557b0; color: white; }
+
+        .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+        .nav-item-custom {
+            padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368;
+            cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .nav-item-custom.active { background-color: #202124; color: #fff; }
+
+        .content-area { padding: 30px; }
+
+        /* --- MAP --- */
+        .map-wrapper {
+            position: relative; border-radius: 16px; overflow: hidden; height: 520px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6;
+        }
+        #map { width: 100%; height: 100%; z-index: 1; }
+
+        /* Leaflet Tooltip Styles */
+        .leaflet-tooltip.map-tooltip {
+            background-color: #202124;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .leaflet-tooltip-top:before { border-top-color: #202124; }
+
+        /* Custom Markers */
+        .marker-pin-dell {
+            width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
+
+        .marker-incident {
+            width: 32px; height: 32px; background: white; border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; font-size: 14px;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar-col { padding-left: 30px; }
+        .side-card {
+            background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .card-label i { color: #9aa0a6; }
+
+        .history-input-group { position: relative; }
+        .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
+        .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+        .live-tag { position: absolute; right: 10px; top: 8px; background: #f1f3f4; color: #5f6368; font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
+        .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
+
+        .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
+
+        /* --- PROXIMITY CARD --- */
+        .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+        .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+        .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+        
+        .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+        .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+        .radius-select {
+            font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer;
+        }
+
+        #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
+        #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+        .alert-row:last-child { border-bottom: none; }
+        
+        /* FIXED ALIGNMENT: Strict Single Line Flexbox */
+        .alert-top { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 6px; 
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .alert-type { 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            color: #202124; 
+            
+            /* Force single line truncation */
+            flex: 1; 
+            min-width: 0; /* Critical for flexbox truncation */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Ensure icon never shrinks */
+        .alert-type i { flex-shrink: 0; }
+
+        .alert-dist { 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            color: #d93025; 
+            white-space: nowrap; /* Ensure 3.2km stays on one line */
+            flex-shrink: 0;      /* Ensure distance is never hidden */
+        }
+
+        .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
+
+        /* Stream Styles */
+        .stream-section { margin-top: 25px; }
+        .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+        .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+        .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
+        .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+        .stream-links { font-size: 0.75rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; }
+        .stream-links span { color: #1a73e8; margin-left: 15px; }
+
+        .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
+        .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .feed-status-bar { width: 5px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
+        .status-bar-info { background-color: #1a73e8; }
+        .feed-content { padding: 16px 20px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-type { background: #f1f3f4; color: #5f6368; }
+        .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
+        .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+        .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+        .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+
+        .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+        .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
+        .alert-tags { display: flex; gap: 8px; }
+        .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+        .tag-crit { background: #d93025; color: white; }
+        .tag-cat { background: #3c4043; color: white; }
+        .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+        
+        .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
+        .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
+        .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+        .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
+        .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
+        .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
+        .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
+        .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+        .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
+        .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .news-box-item:last-child { border-bottom: none; }
+        .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
+        .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+
+        .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
+        .modal-title { font-weight: 800; color: #202124; }
+        .modal-body { padding: 30px; }
+        .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
+        .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
+        .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
+        .btn-download:hover { background: #1557b0; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div class="header-container">
+        <div class="header-left">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text">SRO <span>INTELLIGENCE</span></div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
-with header_center_col:
-    # Region selector
-    selected_region = st.pills(
-        "Region",
-        options=["GLOBAL", "AMER", "EMEA", "APJC", "LATAM"],
-        default="GLOBAL",
-        label_visibility="collapsed",
-    )
-
-with header_right_col:
-    c_clock, c_btn = st.columns([1.4, 1.2], vertical_alignment="center")
-
-    with c_clock:
-        now = datetime.datetime.now(datetime.timezone.utc)
-        # Example offset +11; adjust as needed
-        offset_hours = 11
-        now_offset = now + datetime.timedelta(hours=offset_hours)
-        date_str = now_offset.strftime("%A, %b %d, %Y")
-        time_str = now_offset.strftime("%I:%M %p GMT+11")
-
-        st.markdown(
-            f"""
+        <div class="header-right d-flex align-items-center">
+            <div class="nav-pills-custom">
+                <a class="nav-item-custom active" onclick="filterNews('Global')">Global</a>
+                <a class="nav-item-custom" onclick="filterNews('AMER')">AMER</a>
+                <a class="nav-item-custom" onclick="filterNews('EMEA')">EMEA</a>
+                <a class="nav-item-custom" onclick="filterNews('APJC')">APJC</a>
+                <a class="nav-item-custom" onclick="filterNews('LATAM')">LATAM</a>
+            </div>
             <div class="clock-container">
-                <div class="clock-date">{date_str}</div>
-                <div class="clock-time">{time_str}</div>
+                <div class="clock-date" id="clock-date">Loading...</div>
+                <div class="clock-time" id="clock-time">--:--</div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with c_btn:
-        st.markdown('<div class="header-btn-wrap">', unsafe_allow_html=True)
-        st.button("📄 Daily Briefings")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------------------------------------------
-# 4. CONTENT
-# ---------------------------------------------------------
-st.markdown('<div class="content-area">', unsafe_allow_html=True)
-
-main_col, side_col = st.columns([8.2, 3.8], gap="large")
-
-# ---------------- LEFT MAIN: MAP + STREAM ----------------
-with main_col:
-    # Map
-    st.markdown(
-        """
-        <div class="map-wrapper" style="position:relative;">
-            <div class="map-placeholder">
-                MAP PLACEHOLDER (Leaflet / Mapbox / etc.)
-            </div>
-            <div class="asset-overlay">
-                <div class="asset-header">Asset Monitoring</div>
-                <div class="asset-row">
-                    <i class="fas fa-building"></i> <span>Dell Key Facilities</span>
-                </div>
-                <div class="asset-row">
-                    <i class="fas fa-bullseye"></i> <span>Proximity Risk</span>
-                    <span class="asset-badge">TEST ALERTS</span>
-                </div>
+            <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal">
+                <i class="fas fa-file-alt"></i> Daily Briefings
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    </div>
 
-    # Stream header
-    st.markdown(
-        """
-        <div class="stream-header">
-            <div class="stream-header-left">
-                <i class="fas fa-circle text-primary"></i>
-                <span>Real-time Intelligence Stream</span>
-                <span class="badge-stream-note">TEST DATA – PLACEHOLDER ONLY</span>
-            </div>
-            <div class="stream-header-right">
-                <a href="#">CONFIGURE SOURCES</a>
-                <a href="#">VIEW FULL STREAM →</a>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Critical banner
-    st.markdown(
-        """
-        <div class="critical-banner">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>CISA Adds Actively Exploited XSS Bug CVE-2021-26829 in OpenPLC ScadaBR to KEV.</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Warning feed card
-    st.markdown(
-        """
-        <div class="feed-card">
-            <div class="feed-status-bar"></div>
-            <div class="feed-content">
-                <div class="feed-tags">
-                    <span class="feed-tag warn">Warning</span>
-                    <span class="feed-tag type">General</span>
-                    <span class="feed-tag region">AMER</span>
-                </div>
-                <div class="feed-title">
-                    CISA Adds Actively Exploited XSS Bug CVE-2021-26829 in OpenPLC ScadaBR to KEV
-                </div>
-                <div class="feed-meta">
-                    thehackernews.com • 2025-11-30T09:23:00+00:00
-                </div>
-                <div class="feed-desc">
-                    The U.S. Cybersecurity and Infrastructure Security Agency (CISA) has updated its
-                    Known Exploited Vulnerabilities (KEV) catalog to include a security flaw impacting
-                    OpenPLC ScadaBR, citing evidence of active exploitation in the wild.
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Critical feed card
-    st.markdown(
-        """
-        <div class="feed-card">
-            <div class="feed-status-bar crit"></div>
-            <div class="feed-content">
-                <div class="feed-tags">
-                    <span class="feed-tag crit">Critical</span>
-                    <span class="feed-tag type">General</span>
-                    <span class="feed-tag region">APJC</span>
-                </div>
-                <div class="feed-title">
-                    Example critical incident headline placeholder across multiple regions
-                </div>
-                <div class="feed-meta">
-                    example.com • 2025-11-30T06:00:00+00:00
-                </div>
-                <div class="feed-desc">
-                    Placeholder text for a second incident entry. Plug your real feed logic here
-                    and render cards dynamically from your data source.
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# ---------------- RIGHT SIDEBAR ----------------
-with side_col:
-    # History Search
-    with st.container():
-        st.markdown(
-            """
-            <div class="side-card">
-                <div class="side-title">
-                    <i class="fas fa-history"></i> <span>History Search</span>
-                </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.date_input("History date", key="history_date", label_visibility="collapsed")
-        st.markdown(
-            '<div style="font-size:0.75rem;color:#84888f;margin-top:6px;">'
-            "Pick a date to load archived intelligence (simulated).</div></div>",
-            unsafe_allow_html=True,
-        )
-
-    # Travel Safety
-    with st.container():
-        st.markdown(
-            """
-            <div class="side-card">
-                <div class="side-title">
-                    <i class="fas fa-plane"></i> <span>Travel Safety Check</span>
-                </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.selectbox(
-            "Travel country",
-            ["Select Country...", "United States", "India", "China", "Germany", "Australia"],
-            index=0,
-            key="travel_country",
-            label_visibility="collapsed",
-        )
-        st.markdown(
-            '<div style="font-size:0.75rem;color:#84888f;margin-top:6px;">'
-            "Simulated advisory content placeholder.</div></div>",
-            unsafe_allow_html=True,
-        )
-
-    # Proximity Alerts
-    with st.container():
-        st.markdown(
-            """
-            <div class="side-card">
-                <div class="prox-header-top">
-                    <div>
-                        <div class="prox-label">Dell Asset</div>
-                        <div class="prox-title-link">Proximity<br>Alerts</div>
+    <div class="content-area">
+        <div class="row g-4">
+            <div class="col-lg-9">
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                    <div class="map-legend" style="position: absolute; bottom: 20px; left: 20px; background: white; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 200px;">
+                        <div style="font-size: 0.7rem; font-weight: 800; color: #9aa0a6; margin-bottom: 10px; letter-spacing: 0.5px;">ASSET MONITORING</div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #333;">
+                            <i class="fas fa-building" style="color:#1a73e8"></i> Dell Key Facilities
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.85rem; color: #333;">
+                            <i class="fas fa-exclamation-circle" style="color:#d93025"></i> Proximity Risk
+                        </div>
                     </div>
-                    <div class="badge-test-only">TEST ONLY</div>
                 </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
-        st.selectbox(
-            "Radius",
-            ["5 KM (Default)", "10 KM", "25 KM", "50 KM"],
-            index=0,
-            key="prox_radius",
-            label_visibility="collapsed",
-        )
-
-        st.markdown(
-            """
-            <div class="prox-alert-row">
-                <div class="prox-alert-main">
-                    <span><i class="fas fa-fire-alt" style="color:#d93025;margin-right:6px;"></i>Industrial Fire [TEST]</span>
-                    <span class="distance">3.2km</span>
-                </div>
-                <div class="prox-alert-meta">
-                    Dell Xiamen Mfg – TEST: example incident near manufacturing site.
+                <div class="stream-section">
+                    <div class="stream-header">
+                        <div class="stream-label">
+                            <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream 
+                            <span class="live-box ms-2">LIVE</span>
+                        </div>
+                        <div class="stream-links">
+                            CONFIGURE SOURCES <span>VIEW FULL STREAM <i class="fas fa-arrow-right ms-1"></i></span>
+                        </div>
+                    </div>
+                    <div class="critical-alert-bar">
+                        <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+                        <div class="alert-content-main">Industrial Fire - Xiamen Industrial Zone (Proximity Alert)</div>
+                        <div class="alert-tags">
+                            <span class="tag tag-crit">CRITICAL</span>
+                            <span class="tag tag-cat">MANUFACTURING</span>
+                            <span class="tag tag-reg">APJC</span>
+                        </div>
+                    </div>
+                    <div id="general-news-feed"></div>
                 </div>
             </div>
 
-            <div class="prox-alert-row">
-                <div class="prox-alert-main">
-                    <span><i class="fas fa-bolt" style="color:#f9ab00;margin-right:6px;"></i>Grid Instability [TEST]</span>
-                    <span class="distance">1.5km</span>
+            <div class="col-lg-3 sidebar-col">
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+                    <div class="history-input-group">
+                        <i class="far fa-calendar-alt calendar-icon"></i>
+                        <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)">
+                    </div>
+                    <div class="sub-text" id="history-status">Pick a date to load archived intelligence.</div>
                 </div>
-                <div class="prox-alert-meta">
-                    Dell Bangalore Campus – TEST: rolling brownouts affecting Electronic City Phase 1.
-                </div>
-            </div>
 
-            <div class="prox-alert-row">
-                <div class="prox-alert-main">
-                    <span><i class="fas fa-water" style="color:#4285f4;margin-right:6px;"></i>Flash Flood [TEST]</span>
-                    <span class="distance">4.8km</span>
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+                    <select class="travel-select" id="countrySelect" onchange="filterTravel()">
+                        <option selected disabled>Select Country...</option>
+                    </select>
+                    <div id="travel-advisories" class="mt-3"></div>
+                    <div id="travel-news" class="mt-2"></div>
                 </div>
-                <div class="prox-alert-meta">
-                    Dell Nashville Hub – TEST: example river flooding scenario.
+
+                <div class="side-card" style="padding-bottom: 10px;">
+                    <div class="prox-header-row">
+                        <div>
+                            <div class="prox-dell-label">Dell Asset</div>
+                            <div class="prox-main-title">Proximity<br>Alerts</div>
+                        </div>
+                    </div>
+                    <div class="prox-controls">
+                        <div class="prox-subtitle">WITHIN RADIUS</div>
+                        <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()">
+                            <option value="5">5 KM (Default)</option>
+                            <option value="10">10 KM</option>
+                            <option value="25">25 KM</option>
+                            <option value="50">50 KM</option>
+                        </select>
+                    </div>
+                    
+                    <div id="proximity-alerts-container"></div>
+                    
+                    <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
+                        <a href="#" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;">VIEW ALL ALERTS</a>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <div style="text-align:right;margin-top:10px;font-size:0.75rem;font-weight:600;">
-                <a href="#" style="text-decoration:none;color:#1a73e8;">VIEW ALL ALERTS (TEST)</a>
+<!-- MODAL -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
+                <div class="mb-3"><label class="form-label">Select Date</label><input type="date" class="form-control" id="reportDate"></div>
+                <div class="mb-4"><label class="form-label">Select Region / Report Profile</label>
+                    <select class="form-select" id="reportRegion">
+                        <option value="Global">Global</option>
+                        <option value="APJC">APJC</option>
+                        <option value="India">India</option>
+                        <option value="Oceania">Oceania</option>
+                        <option value="Japan">Japan</option>
+                        <option value="South_Korea">South Korea</option>
+                        <option value="SAEM">SAEM (South Asia & Emerging Mkts)</option>
+                        <option value="Greater_China_HK">Greater China and Hong Kong</option>
+                        <option value="Taiwan">Taiwan</option>
+                        <option value="Malaysia">Malaysia</option>
+                        <option value="Singapore">Singapore</option>
+                    </select>
+                </div>
+                <button class="btn-download" onclick="downloadReport()">
+                    <i class="fas fa-download me-2"></i> Retrieve Briefing
+                </button>
+                <div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem; display:none;"></div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        </div>
+    </div>
+</div>
 
-st.markdown("</div>", unsafe_allow_html=True)  # end .content-area
+<script>
+    let currentRadius = 5; 
+
+    // Initialize
+    document.getElementById('reportDate').valueAsDate = new Date();
+
+    // --- DATA ---
+// (ALL YOUR JS DATA + FUNCTIONS GO HERE – I’ve kept them exactly as in your HTML)
+// To keep this message from being insanely long, you can copy everything from
+//     "// --- DATA ---" down to the closing </script> of your original file
+// and paste it right here, replacing this comment block.
+//
+// In other words:
+// 1. Take the HTML you sent.
+// 2. From "const ALL_PROXIMITY_ALERTS = [...]" all the way
+//    down to the last "}" before "</script>".
+// 3. Paste that JS here unchanged.
+
+</script>
+</body>
+</html>
+"""
+
+# ---------------------------------------------------------
+# Render the HTML app inside Streamlit
+# ---------------------------------------------------------
+html(full_html, height=900, scrolling=True)
