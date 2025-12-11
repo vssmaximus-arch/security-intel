@@ -1,9 +1,6 @@
 import streamlit as st
 import datetime
 
-# ------------------------------------------------------------
-# 1. PAGE CONFIG
-# ------------------------------------------------------------
 st.set_page_config(
     page_title="Dell OS | InfoHub",
     page_icon="🛡️",
@@ -11,9 +8,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ------------------------------------------------------------
-# 2. CSS + LIBS (ADAPTED FROM YOUR index.html)
-# ------------------------------------------------------------
 st.markdown(
     """
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -24,23 +18,30 @@ st.markdown(
 
 :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
 
-/* Streamlit root instead of <body> */
+/* STREAMLIT ROOT – NO PADDING, JUST BLACK BACKGROUND */
 .stApp {
     background-color: var(--bg-dark);
     font-family: 'Inter', sans-serif;
-    padding: 24px;
-    color: #333;
 }
 
-/* Use Streamlit's main block as app-container */
+/* REMOVE VIEW CONTAINER PADDING AS WELL */
+[data-testid="stAppViewContainer"] {
+    padding: 0;
+}
+
+/* USE block-container AS THE WHITE CARD, WITH UNIFORM 24PX MARGIN */
 div.block-container {
     background-color: #fff;
     border-radius: 24px;
-    min-height: 92vh;
+    min-height: calc(100vh - 48px);  /* viewport height minus 24px top/bottom */
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+    margin: 24px;                               /* black frame all around */
     padding: 0 !important;
-    max-width: 100% !important;
+
+    width: calc(100% - 48px) !important;        /* account for 24px left+right */
+    max-width: calc(100% - 48px) !important;
 }
 
 /* --- HEADER ------------------------------------------------- */
@@ -58,7 +59,6 @@ div.block-container {
 .logo-text span { color: var(--dell-blue); }
 .header-right { display: flex; align-items: center; gap: 20px; }
 
-/* region pills */
 .nav-pills-custom {
     background-color: #f1f3f4;
     padding: 4px;
@@ -76,17 +76,12 @@ div.block-container {
     text-decoration: none;
     text-transform: uppercase;
 }
-.nav-item-custom.active {
-    background-color: #202124;
-    color: #fff;
-}
+.nav-item-custom.active { background-color: #202124; color: #fff; }
 
-/* clock */
 .clock-container { display: flex; flex-direction: column; font-size: 0.85rem; text-align: right; }
 .clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
 #clock-time { font-weight: 500; color: #5f6368; white-space: nowrap; }
 
-/* Daily briefings button */
 .btn-daily {
     background-color: #1a73e8;
     color: white;
@@ -101,13 +96,12 @@ div.block-container {
     border: none;
 }
 
-/* --- CONTENT AREA (inside card) ---------------------------- */
+/* --- CONTENT AREA ------------------------------------------- */
 .content-area {
     padding: 30px;
     flex: 1;
 }
 
-/* Left side (map + stream) */
 .map-wrapper {
     position: relative;
     border-radius: 16px;
@@ -123,7 +117,6 @@ div.block-container {
     flex-direction: column;
 }
 
-/* Right side (sidebar cards) */
 .sidebar-col { display: flex; flex-direction: column; gap: 24px; }
 .side-card {
     background: white;
@@ -142,7 +135,6 @@ div.block-container {
     gap: 10px;
 }
 
-/* map + stream placeholders */
 .map-placeholder {
     width: 100%;
     height: 100%;
@@ -158,16 +150,14 @@ div.block-container {
     color: #5f6368;
 }
 
-/* Hide Streamlit extra chrome */
+/* Hide Streamlit chrome */
 #MainMenu, footer, header {visibility: hidden;}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# ------------------------------------------------------------
-# 3. HEADER (ALL IN ONE HTML BLOCK)
-# ------------------------------------------------------------
+# ---------------- HEADER ----------------
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
 date_str = now.strftime("%A, %d %b %Y")
 time_str = now.strftime("%H:%M GMT+11 UTC")
@@ -201,14 +191,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ------------------------------------------------------------
-# 4. CONTENT AREA (MAP + SIDEBAR) – STREAMLIT LAYOUT
-# ------------------------------------------------------------
+# ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
 left_col, right_col = st.columns([9, 3], gap="large")
 
-# LEFT: map + stream
 with left_col:
     st.markdown('<div class="map-wrapper mb-3">', unsafe_allow_html=True)
     st.markdown('<div class="map-placeholder">MAP PLACEHOLDER</div>', unsafe_allow_html=True)
@@ -232,7 +219,6 @@ with left_col:
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
-# RIGHT: sidebar cards (static for now)
 with right_col:
     st.markdown(
         """
@@ -258,4 +244,4 @@ with right_col:
         unsafe_allow_html=True,
     )
 
-st.markdown('</div>', unsafe_allow_html=True)  # close .content-area
+st.markdown('</div>', unsafe_allow_html=True)
