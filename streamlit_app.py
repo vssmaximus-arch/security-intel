@@ -18,7 +18,7 @@ st.set_page_config(
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (LOCKED, FIXED ALIGNMENT & BLUE TABS)
+# 2. CSS STYLING (FLEXBOX LAYOUT & BLUE TABS)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -50,7 +50,8 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* 3. HEADER CONTAINER */
+/* 3. HEADER CONTAINER - FLEXBOX FIX */
+/* This targets the container holding our header columns */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
     padding: 0 32px !important;
@@ -58,6 +59,7 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     background: white;
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Pushes Logo Left, Controls Right */
 }
 
 /* 4. COMPONENT STYLING */
@@ -69,14 +71,14 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
 .logo-text span { color: var(--dell-blue); }
 
 /* --- PILLS (REGION SELECTOR) --- */
+/* Force pills to be right-aligned */
 div[data-testid="stPills"] {
     background-color: #f1f3f4;
     padding: 4px;
     border-radius: 10px;
     display: flex;
-    justify-content: flex-end; /* Push right */
     gap: 2px;
-    margin-right: 0 !important;
+    margin-right: 20px !important; /* Space between pills and clock */
 }
 
 /* Pill Buttons (Inactive) */
@@ -94,9 +96,9 @@ div[data-testid="stPills"] button {
     height: auto !important;
 }
 
-/* Pill Buttons (Active/Selected) - FIXED: LIGHT BLUE */
+/* Pill Buttons (Active/Selected) - FIXED: BLUE */
 div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #1a73e8 !important; /* ACTION BLUE */
+    background-color: #1a73e8 !important; /* Dell Blue */
     color: #ffffff !important;
     box-shadow: none !important;
     border: none !important;
@@ -113,6 +115,7 @@ div[data-testid="stPills"] button:hover {
     display: flex; flex-direction: column; 
     font-size: 0.85rem; text-align: right; 
     justify-content: center; height: 100%; line-height: 1.3;
+    margin-right: 20px;
 }
 .clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
 #clock-time { font-weight: 500; color: #5f6368; white-space: nowrap; }
@@ -161,12 +164,14 @@ COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kin
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
     
-    # GRID: [Logo 2] [Spacer 5] [Tabs 4] [Clock 2] [Button 1.5]
-    # The '5' Spacer pushes everything hard to the right. 
-    # '4' for tabs gives them enough space to not wrap.
-    col1, col2, col3, col4, col5 = st.columns([2, 5, 4, 2, 1.5], vertical_alignment="center", gap="small")
+    # FLEXBOX LAYOUT STRATEGY
+    # Col 1: Logo (Takes small space)
+    # Col 2: Spacer (Takes maximum space to push right)
+    # Col 3: Right Group (Holds Tabs + Clock + Button)
     
-    with col1:
+    col_logo, col_spacer, col_right_group = st.columns([2, 4, 6], vertical_alignment="center")
+    
+    with col_logo:
         st.markdown("""
             <div class="logo-container">
                 <i class="fas fa-shield-alt logo-icon"></i>
@@ -174,51 +179,53 @@ with st.container():
             </div>
         """, unsafe_allow_html=True)
 
-    with col2:
-        st.write("") # Spacer
+    with col_spacer:
+        st.write("") # Acts as the flex-grow spacer
 
-    with col3:
-        # REGION SELECTOR (BLUE TABS)
-        selected_region = st.pills(
-            "Region",
-            options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-            default="Global",
-            label_visibility="collapsed",
-            key="region_selector"
-        )
-
-    with col4:
-        # CLOCK (Next to Tabs)
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-        date_str = now.strftime("%A, %d %b %Y")
-        time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+    with col_right_group:
+        # Nested columns to group Tabs + Clock + Button TIGHTLY
+        c_tabs, c_clock, c_btn = st.columns([3.5, 1.8, 1.5], vertical_alignment="center", gap="small")
         
-        st.markdown(f"""
-            <div class="clock-container">
-                <div class="clock-date" id="clock-date">{date_str}</div>
-                <div id="clock-time">{time_str}</div>
-            </div>
-            <script>
-                function updateClock() {{
-                    var now = new Date();
-                    var dateEl = document.getElementById('clock-date');
-                    var timeEl = document.getElementById('clock-time');
-                    if(timeEl) {{
-                        var h = String(now.getHours()).padStart(2, '0');
-                        var m = String(now.getMinutes()).padStart(2, '0');
-                        var s = String(now.getSeconds()).padStart(2, '0');
-                        var offset = -now.getTimezoneOffset();
-                        var sign = offset >= 0 ? '+' : '-';
-                        var hrs = String(Math.floor(Math.abs(offset)/60));
-                        timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
+        with c_tabs:
+            selected_region = st.pills(
+                "Region",
+                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+                default="Global",
+                label_visibility="collapsed",
+                key="region_selector"
+            )
+            
+        with c_clock:
+            now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+            date_str = now.strftime("%A, %d %b %Y")
+            time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+            
+            st.markdown(f"""
+                <div class="clock-container">
+                    <div class="clock-date" id="clock-date">{date_str}</div>
+                    <div id="clock-time">{time_str}</div>
+                </div>
+                <script>
+                    function updateClock() {{
+                        var now = new Date();
+                        var dateEl = document.getElementById('clock-date');
+                        var timeEl = document.getElementById('clock-time');
+                        if(timeEl) {{
+                            var h = String(now.getHours()).padStart(2, '0');
+                            var m = String(now.getMinutes()).padStart(2, '0');
+                            var s = String(now.getSeconds()).padStart(2, '0');
+                            var offset = -now.getTimezoneOffset();
+                            var sign = offset >= 0 ? '+' : '-';
+                            var hrs = String(Math.floor(Math.abs(offset)/60));
+                            timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
+                        }}
                     }}
-                }}
-                setInterval(updateClock, 1000);
-            </script>
-        """, unsafe_allow_html=True)
-
-    with col5:
-        st.button("📄 Daily Briefings", use_container_width=True)
+                    setInterval(updateClock, 1000);
+                </script>
+            """, unsafe_allow_html=True)
+            
+        with c_btn:
+            st.button("📄 Daily Briefings", use_container_width=True)
 
 # ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
