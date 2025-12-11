@@ -1,5 +1,6 @@
-import streamlit as st
 import datetime
+import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 
 # --------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION
@@ -10,6 +11,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# --------------------------------------------------------------------------
+# 1a. AUTO-REFRESH (LIVE CLOCK)
+# --------------------------------------------------------------------------
+# Rerun the app every 1000 ms so the clock updates
+st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
 # 2. CSS STYLING (LOCKED)
@@ -163,11 +170,11 @@ div.block-container {
     unsafe_allow_html=True,
 )
 
-# ---------------- HEADER (ROBUST CLOCK) ----------------
-# Initial Python time to prevent flicker on load
+# ---------------- HEADER (LIVE CLOCK) ----------------
+# Always recomputed on each autorefresh
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
 date_str = now.strftime("%A, %d %b %Y")
-time_str = now.strftime("%H:%M GMT+11 UTC")
+time_str = now.strftime("%H:%M:%S GMT+11 UTC")
 
 st.markdown(
     f"""
@@ -194,42 +201,6 @@ st.markdown(
         </div>
     </div>
 </div>
-
-<script>
-    (function() {{
-        // Run immediately and then every second
-        function updateClock() {{
-            // We search for elements EVERY TIME to handle Streamlit re-renders
-            var dateEl = document.getElementById('clock-date');
-            var timeEl = document.getElementById('clock-time');
-            
-            if (!dateEl || !timeEl) return;
-
-            var now = new Date();
-            
-            // Format Date
-            var dateOptions = {{ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }};
-            var dateStr = now.toLocaleDateString('en-GB', dateOptions);
-
-            // Format Time
-            var h = String(now.getHours()).padStart(2, '0');
-            var m = String(now.getMinutes()).padStart(2, '0');
-            var s = String(now.getSeconds()).padStart(2, '0');
-            
-            // Timezone Logic
-            var offset = -now.getTimezoneOffset();
-            var sign = offset >= 0 ? '+' : '-';
-            var hoursOffset = String(Math.floor(Math.abs(offset) / 60));
-            var tzString = 'GMT' + sign + hoursOffset;
-
-            dateEl.innerText = dateStr;
-            timeEl.innerText = h + ':' + m + ':' + s + ' ' + tzString + ' UTC';
-        }}
-
-        setInterval(updateClock, 1000);
-        updateClock();
-    }})();
-</script>
 """,
     unsafe_allow_html=True,
 )
