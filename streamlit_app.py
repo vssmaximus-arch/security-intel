@@ -18,7 +18,7 @@ st.set_page_config(
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (LOCKED & PRECISE)
+# 2. CSS STYLING (LOCKED, FIXED ALIGNMENT & BLUE TABS)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -74,13 +74,12 @@ div[data-testid="stPills"] {
     padding: 4px;
     border-radius: 10px;
     display: flex;
-    justify-content: flex-end; /* Push buttons to right inside the column */
-    width: fit-content;
-    margin-left: auto; /* Force alignment to right */
+    justify-content: flex-end; /* Push right */
     gap: 2px;
+    margin-right: 0 !important;
 }
 
-/* Pill Buttons */
+/* Pill Buttons (Inactive) */
 div[data-testid="stPills"] button {
     background-color: transparent !important;
     border: none !important;
@@ -95,17 +94,17 @@ div[data-testid="stPills"] button {
     height: auto !important;
 }
 
-/* Active State */
+/* Pill Buttons (Active/Selected) - FIXED: LIGHT BLUE */
 div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #202124 !important;
+    background-color: #1a73e8 !important; /* ACTION BLUE */
     color: #ffffff !important;
     box-shadow: none !important;
 }
 
 /* Hover State */
 div[data-testid="stPills"] button:hover {
-    color: #202124 !important;
-    background-color: rgba(0,0,0,0.05) !important;
+    color: #1a73e8 !important;
+    background-color: rgba(26, 115, 232, 0.1) !important;
 }
 
 /* Clock */
@@ -161,9 +160,10 @@ COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kin
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
     
-    # GRID: [Logo 2] [Spacer 6] [Tabs 3] [Clock 1.5] [Button 1.5]
-    # The '6' spacer is critical - it pushes Tabs/Clock/Button to the far right.
-    col1, col2, col3, col4, col5 = st.columns([2, 6, 3, 1.5, 1.5], vertical_alignment="center")
+    # GRID: [Logo 2.5] [Spacer 5.5] [Tabs 3] [Clock 2] [Button 1.5]
+    # The '5.5' Spacer pushes everything hard to the right. 
+    # '3' for tabs keeps them compact so they sit next to the clock.
+    col1, col2, col3, col4, col5 = st.columns([2.5, 5.5, 3, 2, 1.5], vertical_alignment="center", gap="small")
     
     with col1:
         st.markdown("""
@@ -174,10 +174,10 @@ with st.container():
         """, unsafe_allow_html=True)
 
     with col2:
-        st.write("") # Elastic Spacer
+        st.write("") # Spacer
 
     with col3:
-        # TABS (Pushed right by CSS 'margin-left: auto')
+        # REGION SELECTOR (BLUE TABS)
         selected_region = st.pills(
             "Region",
             options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
