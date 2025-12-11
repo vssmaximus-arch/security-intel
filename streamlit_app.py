@@ -18,7 +18,7 @@ st.set_page_config(
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (LOCKED & PRECISE)
+# 2. CSS STYLING (LOCKED & FIXED)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -53,7 +53,7 @@ div.block-container {
 /* 3. HEADER CONTAINER */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
-    padding: 0px 32px !important; /* Adjusted padding for alignment */
+    padding: 0 32px !important;
     height: 80px;
     background: white;
     display: flex;
@@ -68,45 +68,42 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
 .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
 .logo-text span { color: var(--dell-blue); }
 
-/* --- PILLS (REGION SELECTOR) --- */
-/* Matches .nav-pills-custom */
+/* --- FIXED PILLS CSS --- */
 div[data-testid="stPills"] {
     background-color: #f1f3f4;
     padding: 4px;
     border-radius: 10px;
     display: inline-flex;
     gap: 2px;
-    flex-wrap: nowrap;
+    justify-content: flex-end; /* Push pills to right */
 }
 
-/* Pill Buttons */
+/* Pill Buttons (Inactive) */
 div[data-testid="stPills"] button {
-    background-color: transparent;
-    border: none;
-    color: #5f6368;
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    padding: 7px 18px;
-    border-radius: 8px;
-    line-height: 1;
-    white-space: nowrap;
-    height: auto;
-    min-height: 0px;
+    background-color: transparent !important;
+    border: none !important;
+    color: #5f6368 !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase !important;
+    padding: 7px 18px !important;
+    border-radius: 8px !important;
+    line-height: 1 !important;
+    min-height: 0px !important;
+    height: auto !important;
 }
 
-/* Active State - Strong Selector */
+/* Pill Buttons (Active/Selected) - FORCED BLACK */
 div[data-testid="stPills"] button[aria-selected="true"] {
     background-color: #202124 !important;
     color: #ffffff !important;
-    box-shadow: none;
-    border: none;
+    box-shadow: none !important;
 }
 
 /* Hover State */
 div[data-testid="stPills"] button:hover {
-    color: #202124;
-    background-color: rgba(0,0,0,0.05);
+    color: #202124 !important;
+    background-color: rgba(0,0,0,0.05) !important;
 }
 
 /* Clock */
@@ -121,7 +118,7 @@ div[data-testid="stPills"] button:hover {
 /* Daily Button */
 div.stButton > button {
     background-color: #1a73e8;
-    color: white;
+    color: white !important;
     border: none;
     border-radius: 8px;
     font-weight: 600;
@@ -131,7 +128,7 @@ div.stButton > button {
 }
 div.stButton > button:hover {
     background-color: #1557b0;
-    color: white;
+    color: white !important;
 }
 
 /* 5. SIDEBAR & CONTENT */
@@ -162,11 +159,12 @@ COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kin
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
     
-    # ADJUSTED LAYOUT: [Logo 2.5] [Spacer 2.5] [Pills 3.5] [Clock 2] [Button 1.5]
-    # This big "Spacer" in column 2 pushes the Pills/Clock/Button group to the right.
-    col1, col2, col3, col4, col5 = st.columns([2.5, 2.5, 3.5, 2, 1.5], vertical_alignment="center")
+    # NEW GRID: [Logo Area (3)] | [Right Aligned Group (9)]
+    # This ensures the logo stays left, and everything else pushes right.
+    main_header_cols = st.columns([3, 9], vertical_alignment="center")
     
-    with col1:
+    # 1. LOGO (LEFT)
+    with main_header_cols[0]:
         st.markdown("""
             <div class="logo-container">
                 <i class="fas fa-shield-alt logo-icon"></i>
@@ -174,51 +172,58 @@ with st.container():
             </div>
         """, unsafe_allow_html=True)
 
-    with col2:
-        st.write("") # SPACER to separate Logo from Right Group
-
-    with col3:
-        # Region Selector (Now pushed closer to right)
-        selected_region = st.pills(
-            "Region",
-            options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-            default="Global",
-            label_visibility="collapsed",
-            key="region_selector"
-        )
-
-    with col4:
-        # Live Clock
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-        date_str = now.strftime("%A, %d %b %Y")
-        time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+    # 2. RIGHT GROUP (Pills + Clock + Button)
+    with main_header_cols[1]:
+        # Nested columns to pack them tight to the right
+        # We use a blank column [0] to push the rest to the right edge
+        sub_cols = st.columns([2, 4, 3, 2], vertical_alignment="center")
         
-        st.markdown(f"""
-            <div class="clock-container">
-                <div class="clock-date" id="clock-date">{date_str}</div>
-                <div id="clock-time">{time_str}</div>
-            </div>
-            <script>
-                function updateClock() {{
-                    var now = new Date();
-                    var dateEl = document.getElementById('clock-date');
-                    var timeEl = document.getElementById('clock-time');
-                    if(timeEl) {{
-                        var h = String(now.getHours()).padStart(2, '0');
-                        var m = String(now.getMinutes()).padStart(2, '0');
-                        var s = String(now.getSeconds()).padStart(2, '0');
-                        var offset = -now.getTimezoneOffset();
-                        var sign = offset >= 0 ? '+' : '-';
-                        var hrs = String(Math.floor(Math.abs(offset)/60));
-                        timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
-                    }}
-                }}
-                setInterval(updateClock, 1000);
-            </script>
-        """, unsafe_allow_html=True)
+        with sub_cols[0]:
+             st.write("") # Elastic spacer
 
-    with col5:
-        st.button("📄 Daily Briefings", use_container_width=True)
+        with sub_cols[1]:
+            # REGION SELECTOR
+            selected_region = st.pills(
+                "Region",
+                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+                default="Global",
+                label_visibility="collapsed",
+                key="region_selector"
+            )
+
+        with sub_cols[2]:
+            # CLOCK
+            now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+            date_str = now.strftime("%A, %d %b %Y")
+            time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+            
+            st.markdown(f"""
+                <div class="clock-container">
+                    <div class="clock-date" id="clock-date">{date_str}</div>
+                    <div id="clock-time">{time_str}</div>
+                </div>
+                <script>
+                    function updateClock() {{
+                        var now = new Date();
+                        var dateEl = document.getElementById('clock-date');
+                        var timeEl = document.getElementById('clock-time');
+                        if(timeEl) {{
+                            var h = String(now.getHours()).padStart(2, '0');
+                            var m = String(now.getMinutes()).padStart(2, '0');
+                            var s = String(now.getSeconds()).padStart(2, '0');
+                            var offset = -now.getTimezoneOffset();
+                            var sign = offset >= 0 ? '+' : '-';
+                            var hrs = String(Math.floor(Math.abs(offset)/60));
+                            timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
+                        }}
+                    }}
+                    setInterval(updateClock, 1000);
+                </script>
+            """, unsafe_allow_html=True)
+
+        with sub_cols[3]:
+            # BUTTON
+            st.button("📄 Daily Briefings", use_container_width=True)
 
 # ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
