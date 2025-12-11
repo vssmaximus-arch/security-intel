@@ -15,10 +15,11 @@ st.set_page_config(
 # --------------------------------------------------------------------------
 # 1a. AUTO-REFRESH (LIVE CLOCK)
 # --------------------------------------------------------------------------
+# Rerun the app every second so the clock updates
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (LOCKED & TUNED FOR TABS)
+# 2. CSS STYLING – MATCHES ORIGINAL LAYOUT
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -30,238 +31,258 @@ st.markdown(
 
 :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
 
-/* 1. RESET */
+/* STREAMLIT ROOT – NO PADDING, JUST BLACK BACKGROUND */
 .stApp {
     background-color: var(--bg-dark);
     font-family: 'Inter', sans-serif;
 }
-[data-testid="stAppViewContainer"] { padding: 0; }
 
-/* 2. MAIN WHITE CARD */
+/* REMOVE VIEW CONTAINER PADDING */
+[data-testid="stAppViewContainer"] {
+    padding: 0;
+}
+
+/* MAIN WHITE CARD (APP CONTAINER) */
 div.block-container {
     background-color: #fff;
     border-radius: 24px;
-    min-height: calc(100vh - 48px);
+    min-height: calc(100vh - 48px);  /* viewport height minus 24px top/bottom */
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    margin: 24px;
+
+    margin: 24px;                               /* black frame all around */
     padding: 0 !important;
-    width: calc(100% - 48px) !important;
+
+    width: calc(100% - 48px) !important;        /* account for 24px left+right */
     max-width: calc(100% - 48px) !important;
 }
 
-/* 3. HEADER CONTAINER */
-/* Target the container holding the columns */
-div[data-testid="stVerticalBlock"]:has(div.header-marker) {
+/* HEADER BAR – EXACT LAYOUT */
+.header-container {
+    padding: 15px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     border-bottom: 1px solid #f0f0f0;
-    padding: 15px 32px !important;
-    background: white;
+    height: 70px;
 }
-
-/* 4. COMPONENT STYLING */
-
-/* Logo */
-.logo-container { display: flex; align-items: center; gap: 12px; height: 40px; }
+.header-left { display: flex; align-items: center; gap: 12px; }
 .logo-icon { font-size: 1.6rem; color: #1a73e8; }
-.logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
+.logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
 .logo-text span { color: var(--dell-blue); }
+.header-right { display: flex; align-items: center; gap: 20px; }
 
-/* --- CRITICAL FIX: REGION TABS (st.pills) --- */
-/* This mimics .nav-pills-custom exactly */
-div[data-testid="stPills"] {
+/* NAV PILLS (STATIC, VISUAL MATCH) */
+.nav-pills-custom {
     background-color: #f1f3f4;
     padding: 4px;
     border-radius: 10px;
-    display: inline-flex;
+    display: flex;
     gap: 2px;
-    justify-content: center;
-    width: fit-content;
-    margin: auto; /* Centers it in the column */
 }
-
-/* The buttons inside */
-div[data-testid="stPills"] button {
-    background-color: transparent;
-    border: none;
-    color: #5f6368;
+.nav-item-custom {
+    padding: 7px 18px;
+    border-radius: 8px;
     font-weight: 700;
     font-size: 0.8rem;
+    color: #5f6368;
+    cursor: pointer;
+    text-decoration: none;
     text-transform: uppercase;
-    padding: 7px 18px; /* Matches HTML padding */
-    border-radius: 8px;
-    line-height: 1;
-    min-height: 0px;
-    height: auto;
+}
+.nav-item-custom.active {
+    background-color: #202124;
+    color: #fff;
 }
 
-/* Active State (Black bg, White text) */
-div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #202124 !important;
-    color: #ffffff !important;
-    box-shadow: none;
+/* CLOCK */
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    text-align: right;
 }
-
-/* Hover State */
-div[data-testid="stPills"] button:hover {
+.clock-date {
+    font-weight: 600;
     color: #202124;
-    background-color: rgba(0,0,0,0.05);
+    white-space: nowrap;
+}
+.clock-time {
+    font-weight: 500;
+    color: #5f6368;
+    white-space: nowrap;
 }
 
-/* Clock */
-.clock-container { 
-    display: flex; flex-direction: column; 
-    font-size: 0.85rem; text-align: right; 
-    justify-content: center; height: 100%; 
-}
-.clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
-#clock-time { font-weight: 500; color: #5f6368; white-space: nowrap; }
-
-/* Daily Button */
-div.stButton > button {
+/* DAILY BRIEFINGS BUTTON */
+.btn-daily {
     background-color: #1a73e8;
     color: white;
-    border: none;
+    padding: 9px 18px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.85rem;
-    padding: 9px 18px;
-    margin-top: 2px;
-}
-div.stButton > button:hover {
-    background-color: #1557b0;
-    color: white;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border: none;
 }
 
-/* 5. SIDEBAR & CONTENT */
-.content-area { padding: 30px; }
-.map-wrapper { background: #eef2f6; border-radius: 16px; height: 520px; display: flex; align-items: center; justify-content: center; color: #888; border: 1px solid #e0e0e0; }
+/* CONTENT AREA */
+.content-area {
+    padding: 30px;
+    flex: 1;
+}
 
-/* Sidebar Cards */
-div[data-testid="stVerticalBlock"]:has(div.card-marker) {
+/* MAP + STREAM */
+.map-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 520px;
+    background: #eef2f6;
+    border: 1px solid #e0e0e0;
+}
+.map-placeholder {
+    width: 100%;
+    height: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#5f6368;
+    font-size:0.9rem;
+}
+
+.stream-section {
+    margin-top: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.stream-placeholder {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #5f6368;
+}
+
+/* SIDEBAR CARDS */
+.sidebar-col { display: flex; flex-direction: column; gap: 24px; }
+.side-card {
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 24px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
-.card-label { font-size: 0.95rem; font-weight: 700; color: #202124; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.card-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #202124;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-/* Hide UI */
+/* Hide Streamlit chrome */
 #MainMenu, footer, header {visibility: hidden;}
-div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { display: none; }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-# ---------------- DATA ----------------
-COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
+# --------------------------------------------------------------------------
+# 3. HEADER WITH LIVE CLOCK (NO JS)
+# --------------------------------------------------------------------------
+# Recomputed on every autorefresh
+now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+date_str = now.strftime("%A, %d %b %Y")
+time_str = now.strftime("%H:%M:%S GMT+11 UTC")
 
-# ---------------- HEADER ----------------
-# We use a container to rebuild the header structure
-with st.container():
-    st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
-    
-    # Columns: Logo(2) | Spacer(3) | Pills(3) | Clock(2.5) | Button(1.5)
-    # This alignment pushes the tabs to the center-right, just like your screenshot
-    col1, col2, col3, col4, col5 = st.columns([2, 3, 3, 2.5, 1.5], vertical_alignment="center")
-    
-    with col1:
-        st.markdown("""
-            <div class="logo-container">
-                <i class="fas fa-shield-alt logo-icon"></i>
-                <div class="logo-text">OS <span>INFOHUB</span></div>
-            </div>
-        """, unsafe_allow_html=True)
+st.markdown(
+    f"""
+<div class="header-container">
+    <div class="header-left">
+        <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="logo-text">OS <span>INFOHUB</span></div>
+    </div>
+    <div class="header-right">
+        <div class="nav-pills-custom">
+            <a class="nav-item-custom active">Global</a>
+            <a class="nav-item-custom">AMER</a>
+            <a class="nav-item-custom">EMEA</a>
+            <a class="nav-item-custom">APJC</a>
+            <a class="nav-item-custom">LATAM</a>
+        </div>
+        <div class="clock-container ms-3">
+            <div class="clock-date">{date_str}</div>
+            <div class="clock-time">{time_str}</div>
+        </div>
+        <div class="btn-daily ms-3">
+            <i class="fas fa-file-alt"></i>
+            Daily Briefings
+        </div>
+    </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
-    with col2:
-        st.write("") # Spacer
-
-    with col3:
-        # THE INTERACTIVE REGION SELECTOR
-        selected_region = st.pills(
-            "Region",
-            options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-            default="Global",
-            label_visibility="collapsed"
-        )
-
-    with col4:
-        # Live Clock
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-        date_str = now.strftime("%A, %d %b %Y")
-        time_str = now.strftime("%H:%M:%S GMT+11 UTC")
-        
-        st.markdown(f"""
-            <div class="clock-container">
-                <div class="clock-date" id="clock-date">{date_str}</div>
-                <div id="clock-time">{time_str}</div>
-            </div>
-            <script>
-                function updateClock() {{
-                    var now = new Date();
-                    var dateEl = document.getElementById('clock-date');
-                    var timeEl = document.getElementById('clock-time');
-                    if(timeEl) {{
-                        var h = String(now.getHours()).padStart(2, '0');
-                        var m = String(now.getMinutes()).padStart(2, '0');
-                        var s = String(now.getSeconds()).padStart(2, '0');
-                        var offset = -now.getTimezoneOffset();
-                        var sign = offset >= 0 ? '+' : '-';
-                        var hrs = String(Math.floor(Math.abs(offset)/60));
-                        timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
-                    }}
-                }}
-                setInterval(updateClock, 1000);
-            </script>
-        """, unsafe_allow_html=True)
-
-    with col5:
-        st.button("📄 Daily Briefings")
-
-# ---------------- CONTENT ----------------
+# --------------------------------------------------------------------------
+# 4. CONTENT AREA (MAP + SIDEBAR)
+# --------------------------------------------------------------------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
-main_col, side_col = st.columns([9, 3], gap="large")
+left_col, right_col = st.columns([9, 3], gap="large")
 
-with main_col:
-    # MAP
-    st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
-    st.info(f"📍 MAP VIEW: Showing data for {selected_region.upper()}")
+with left_col:
+    # Map wrapper
+    st.markdown('<div class="map-wrapper mb-3">', unsafe_allow_html=True)
+    st.markdown('<div class="map-placeholder">MAP PLACEHOLDER</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # STREAM HEADER
-    st.markdown("""
-        <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <div style="font-weight: 700; font-size: 1rem;">
-                <i class="fas fa-circle text-primary me-2" style="font-size: 0.6rem;"></i>
-                Real-time Intelligence Stream
+    # Stream header + placeholder (visual match)
+    st.markdown(
+        """
+        <div class="stream-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="fw-bold">
+                    <i class="fas fa-circle text-primary me-2" style="font-size:0.6rem"></i>
+                    Real-time Intelligence Stream
+                </div>
+                <div class="badge bg-light text-secondary">CONNECTING</div>
             </div>
-            <span class="badge bg-light text-secondary" style="border: 1px solid #eee;">LIVE FEED</span>
+            <div class="stream-placeholder">
+                Stream placeholder – plug your feed here.
+            </div>
         </div>
-    """, unsafe_allow_html=True)
-    
-    # STREAM CONTENT
-    st.info(f"waiting for news feed... (Filter: {selected_region})")
+        """,
+        unsafe_allow_html=True,
+    )
 
-with side_col:
-    # CARD 1: HISTORY
-    with st.container():
-        st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-label"><i class="fas fa-history"></i> History Search</div>', unsafe_allow_html=True)
-        st.date_input("Date", label_visibility="collapsed")
-        st.caption("Pick a date to load archived intelligence.")
+with right_col:
+    st.markdown(
+        """
+        <div class="sidebar-col">
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+                <div class="small text-muted">Streamlit version – hook your date picker here.</div>
+            </div>
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+                <div class="small text-muted">Travel card placeholder.</div>
+            </div>
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>
+                <div class="small text-muted">Proximity alerts placeholder.</div>
+            </div>
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-filter"></i> Risk Category Filter</div>
+                <div class="small text-muted">Risk filter placeholder.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # CARD 2: TRAVEL
-    with st.container():
-        st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>', unsafe_allow_html=True)
-        st.selectbox("Country", COUNTRIES, label_visibility="collapsed")
-    
-    # CARD 3: PROXIMITY
-    with st.container():
-        st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>', unsafe_allow_html=True)
-        st.selectbox("Radius", ["5 KM", "10 KM", "25 KM"], label_visibility="collapsed")
-        st.caption("Currently no alerts in proximity.")
-
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)  # close .content-area
