@@ -13,12 +13,17 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------------
-# 1a. AUTO-REFRESH (LIVE CLOCK)
+# 1a. AUTO-REFRESH & STATE MANAGEMENT
 # --------------------------------------------------------------------------
-st_autorefresh(interval=1000, key="live_clock_refresh_v5")
+st_autorefresh(interval=1000, key="live_clock_refresh_v6")
+
+# READ THE URL PARAMETER (This handles the tab clicks)
+# Default to "Global" if no param is set
+query_params = st.query_params
+selected_region = query_params.get("region", "Global")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING (EXACT HTML REPLICATION)
+# 2. CSS STYLING (THEME & LAYOUT RESET)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -50,172 +55,107 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* 3. HEADER LAYOUT (Flexbox like HTML) */
-div[data-testid="stVerticalBlock"]:has(div.header-marker) {
-    border-bottom: 1px solid #f0f0f0;
-    padding: 0 32px !important;
-    height: 80px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Logo Left, Controls Right */
-    gap: 20px;
-}
-
-/* 4. COMPONENT STYLING */
-
-/* Logo */
-.logo-container { display: flex; align-items: center; gap: 12px; height: 100%; min-width: 200px; }
-.logo-icon { font-size: 1.6rem; color: #1a73e8; }
-.logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
-.logo-text span { color: var(--dell-blue); }
-
-/* --- RIGHT CONTROLS WRAPPER --- */
-/* We target the container holding Tabs+Clock+Button */
-div[data-testid="stHorizontalBlock"]:has(div.controls-marker) {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px; /* Space between Tabs, Clock, Button */
-    width: 100%;
-}
-
-/* --- TABS (PILLS) --- */
-div[data-testid="stPills"] {
-    background-color: #f1f3f4 !important;
-    padding: 4px !important;
-    border-radius: 10px !important;
-    display: flex !important;
-    gap: 2px !important;
-}
-
-div[data-testid="stPills"] button {
-    background-color: transparent !important;
-    border: none !important;
-    color: #5f6368 !important;
-    font-weight: 700 !important;
-    font-size: 0.75rem !important;
-    text-transform: uppercase !important;
-    padding: 6px 14px !important;
-    height: auto !important;
-    line-height: 1 !important;
-    min-height: 0px !important;
-}
-
-/* ACTIVE TAB -> BLUE (From HTML Logic) */
-div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #202124 !important; /* MATCHING YOUR HTML: .nav-item-custom.active { background-color: #202124; } */
-    color: #ffffff !important;
-}
-div[data-testid="stPills"] button[aria-selected="true"] p {
-    color: #ffffff !important;
-}
-
-/* Clock */
-.clock-container { 
-    display: flex; flex-direction: column; 
-    font-size: 0.8rem; text-align: right; 
-    justify-content: center; height: 100%; line-height: 1.3;
-    white-space: nowrap;
-    min-width: 120px;
-}
-.clock-date { font-weight: 700; color: #202124; }
-#clock-time { font-weight: 500; color: #5f6368; }
-
-/* Daily Button */
-div.stButton > button {
-    background-color: #1a73e8 !important;
-    color: white !important;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 8px 16px;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-div.stButton > button:hover {
-    background-color: #1557b0 !important;
-}
-
-/* Hide UI */
+/* 3. HIDE STREAMLIT CHROME */
 #MainMenu, footer, header {visibility: hidden;}
 div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { display: none; }
+
+/* 4. CONTENT AREA PADDING */
+.content-area { padding: 30px; }
+
+/* 5. SIDEBAR CARDS */
+div[data-testid="stVerticalBlock"]:has(div.card-marker) {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.card-label { font-size: 0.95rem; font-weight: 700; color: #202124; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------- DATA ----------------
 COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
 
-# ---------------- HEADER (Replicated Structure) ----------------
-with st.container():
-    st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
+# ---------------- HEADER (PURE HTML INJECTION) ----------------
+# We calculate time in Python for the initial render, JS takes over
+now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+date_str = now.strftime("%A, %d %b %Y")
+time_str = now.strftime("%H:%M:%S GMT+11 UTC")
+
+# Helper to generate the Nav HTML with the correct 'active' class based on Python state
+def nav_link(name):
+    is_active = "active" if selected_region == name else ""
+    # target="_self" is CRITICAL to make it reload the page with new param
+    return f'<a href="?region={name}" target="_self" class="nav-item-custom {is_active}">{name}</a>'
+
+html_header = f"""
+<style>
+    /* YOUR EXACT HEADER CSS */
+    .header-container {{ padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; background: white; }}
+    .header-left {{ display: flex; align-items: center; gap:12px; }}
+    .logo-icon {{ font-size: 1.6rem; color: #1a73e8; }}
+    .logo-text {{ font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; }}
+    .logo-text span {{ color: #0076CE; }}
+    .header-right {{ display: flex; align-items: center; gap: 20px; }}
     
-    # 2 MAIN COLUMNS: [Logo (Left)] [Controls (Right)]
-    # This structure exactly mirrors <div class="header-left"> and <div class="header-right">
-    head_left, head_right = st.columns([1, 3], vertical_alignment="center")
+    .nav-pills-custom {{ background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }}
+    .nav-item-custom {{ padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all 0.2s; }}
+    .nav-item-custom:hover {{ color: #202124; text-decoration: none; }}
+    .nav-item-custom.active {{ background-color: #202124; color: #fff; }}
     
-    # --- HEADER LEFT ---
-    with head_left:
-        st.markdown("""
-            <div class="logo-container">
-                <i class="fas fa-shield-alt logo-icon"></i>
-                <div class="logo-text">OS <span>INFOHUB</span></div>
-            </div>
-        """, unsafe_allow_html=True)
+    .clock-container {{ text-align: right; line-height: 1.2; font-size: 0.85rem; }}
+    .clock-date {{ font-weight: 700; color: #202124; }}
+    .clock-time {{ font-weight: 500; color: #5f6368; }}
+    
+    .btn-daily {{ background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; text-decoration: none; }}
+    .btn-daily:hover {{ background-color: #1557b0; color: white; }}
+</style>
 
-    # --- HEADER RIGHT ---
-    with head_right:
-        # We create a sub-container for the right controls to apply the flex-gap
-        st.markdown('<div class="controls-marker"></div>', unsafe_allow_html=True)
-        
-        # Grid inside Right: [Tabs (Auto)] [Clock (Fit)] [Button (Fit)]
-        # We use a specific ratio to mimic the flex behavior
-        c_tabs, c_clock, c_btn = st.columns([6, 3, 2], vertical_alignment="center")
-        
-        with c_tabs:
-            # Pushed to right via CSS justify-content: flex-end
-            selected_region = st.pills(
-                "Region",
-                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-                default="Global",
-                label_visibility="collapsed",
-                key="region_selector"
-            )
+<div class="header-container">
+    <div class="header-left">
+        <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="logo-text">OS <span>INFOHUB</span></div>
+    </div>
+    <div class="header-right">
+        <div class="nav-pills-custom">
+            {nav_link("Global")}
+            {nav_link("AMER")}
+            {nav_link("EMEA")}
+            {nav_link("APJC")}
+            {nav_link("LATAM")}
+        </div>
+        <div class="clock-container">
+            <div class="clock-date" id="clock-date">{date_str}</div>
+            <div class="clock-time" id="clock-time">{time_str}</div>
+        </div>
+        <a href="#" class="btn-daily">
+            <i class="fas fa-file-alt"></i> Daily Briefings
+        </a>
+    </div>
+</div>
 
-        with c_clock:
-            now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-            date_str = now.strftime("%A, %d %b %Y")
-            time_str = now.strftime("%H:%M:%S GMT+11 UTC")
-            
-            st.markdown(f"""
-                <div class="clock-container">
-                    <div class="clock-date" id="clock-date">{date_str}</div>
-                    <div id="clock-time">{time_str}</div>
-                </div>
-                <script>
-                    function updateClock() {{
-                        var now = new Date();
-                        var dateEl = document.getElementById('clock-date');
-                        var timeEl = document.getElementById('clock-time');
-                        if(timeEl) {{
-                            var h = String(now.getHours()).padStart(2, '0');
-                            var m = String(now.getMinutes()).padStart(2, '0');
-                            var s = String(now.getSeconds()).padStart(2, '0');
-                            var offset = -now.getTimezoneOffset();
-                            var sign = offset >= 0 ? '+' : '-';
-                            var hrs = String(Math.floor(Math.abs(offset)/60));
-                            timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
-                        }}
-                    }}
-                    setInterval(updateClock, 1000);
-                </script>
-            """, unsafe_allow_html=True)
+<script>
+    function updateClock() {{
+        var now = new Date();
+        var dateEl = document.getElementById('clock-date');
+        var timeEl = document.getElementById('clock-time');
+        if(timeEl && dateEl) {{
+            var h = String(now.getHours()).padStart(2, '0');
+            var m = String(now.getMinutes()).padStart(2, '0');
+            var s = String(now.getSeconds()).padStart(2, '0');
+            var offset = -now.getTimezoneOffset();
+            var sign = offset >= 0 ? '+' : '-';
+            var hrs = String(Math.floor(Math.abs(offset)/60));
+            timeEl.innerText = h + ':' + m + ':' + s + ' GMT' + sign + hrs + ' UTC';
+        }}
+    }}
+    setInterval(updateClock, 1000);
+</script>
+"""
 
-        with c_btn:
-            st.button("📄 Daily Briefings", use_container_width=True)
+st.markdown(html_header, unsafe_allow_html=True)
 
 # ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
