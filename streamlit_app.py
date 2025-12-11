@@ -81,34 +81,33 @@ div.block-container div[data-testid="stHorizontalBlock"]:first-of-type > div[dat
 .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
 .logo-text span { color: var(--dell-blue); }
 
-/* STREAMLIT PILLS styled like original nav */
-[data-testid="stPills"] {
+/* --- REGION PILLS: ORIGINAL STYLE (DO NOT MOVE, JUST STYLE) --- */
+div[data-testid="stPills"] {
     background-color: #f1f3f4;
-    padding: 4px;
-    border-radius: 10px;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 0px;
     display: inline-flex;
-    gap: 4px;
-    border: none;
 }
-[data-testid="stPills"] button {
+div[data-testid="stPills"] button {
+    background-color: transparent;
     border: none;
-    background: transparent;
     color: #5f6368 !important;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    padding: 7px 18px;
-    border-radius: 8px;
-    transition: all 0.15s ease-in-out;
+    padding: 0.4rem 1rem;
+    min-height: 0px;
+    height: auto;
     line-height: 1.2;
 }
-[data-testid="stPills"] button:hover {
+div[data-testid="stPills"] button:hover {
     background-color: rgba(0,0,0,0.05);
 }
-[data-testid="stPills"] button[aria-selected="true"] {
+div[data-testid="stPills"] button[aria-selected="true"] {
     background-color: #202124 !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    color: #fff !important;
+    border-radius: 6px;
 }
 
 /* Clock */
@@ -320,3 +319,4 @@ with right_col:
     )
 
 st.markdown("</div>", unsafe_allow_html=True)  # close .content-area
+::contentReference[oaicite:0]{index=0}
