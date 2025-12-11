@@ -18,7 +18,7 @@ st.set_page_config(
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING
+# 2. CSS STYLING (LOCKED & TUNED FOR TABS)
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -30,7 +30,7 @@ st.markdown(
 
 :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
 
-/* 1. RESET STREAMLIT DEFAULTS */
+/* 1. RESET */
 .stApp {
     background-color: var(--bg-dark);
     font-family: 'Inter', sans-serif;
@@ -50,70 +50,73 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* 3. HEADER CONTAINER STYLING */
-/* We target the container that holds the columns via a marker class */
+/* 3. HEADER CONTAINER */
+/* Target the container holding the columns */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
-    padding: 12px 32px !important;
-    display: flex;
-    align-items: center;
+    padding: 15px 32px !important;
     background: white;
 }
 
 /* 4. COMPONENT STYLING */
 
 /* Logo */
-.logo-container { display: flex; align-items: center; gap: 12px; height: 100%; }
+.logo-container { display: flex; align-items: center; gap: 12px; height: 40px; }
 .logo-icon { font-size: 1.6rem; color: #1a73e8; }
-.logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; }
+.logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin: 0; line-height: 1; }
 .logo-text span { color: var(--dell-blue); }
 
-/* --- CUSTOM PILLS (Region Selector) --- */
-/* This targets the st.pills widget to look like your gray bar */
-[data-testid="stPills"] {
+/* --- CRITICAL FIX: REGION TABS (st.pills) --- */
+/* This mimics .nav-pills-custom exactly */
+div[data-testid="stPills"] {
     background-color: #f1f3f4;
     padding: 4px;
     border-radius: 10px;
     display: inline-flex;
-    gap: 4px;
-    border: none;
+    gap: 2px;
+    justify-content: center;
+    width: fit-content;
+    margin: auto; /* Centers it in the column */
 }
 
-/* Individual Pill Buttons */
-[data-testid="stPills"] button {
+/* The buttons inside */
+div[data-testid="stPills"] button {
+    background-color: transparent;
     border: none;
-    background: transparent;
     color: #5f6368;
     font-weight: 700;
     font-size: 0.8rem;
     text-transform: uppercase;
-    padding: 6px 18px;
+    padding: 7px 18px; /* Matches HTML padding */
     border-radius: 8px;
-    transition: all 0.2s;
-    line-height: 1.2;
+    line-height: 1;
+    min-height: 0px;
+    height: auto;
 }
 
-/* Hover Effect */
-[data-testid="stPills"] button:hover {
-    background-color: rgba(0,0,0,0.05);
-    color: #202124;
-    border: none;
-}
-
-/* Active/Selected State */
-[data-testid="stPills"] button[aria-selected="true"] {
+/* Active State (Black bg, White text) */
+div[data-testid="stPills"] button[aria-selected="true"] {
     background-color: #202124 !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    border: none;
+    box-shadow: none;
+}
+
+/* Hover State */
+div[data-testid="stPills"] button:hover {
+    color: #202124;
+    background-color: rgba(0,0,0,0.05);
 }
 
 /* Clock */
-.clock-container { display: flex; flex-direction: column; font-size: 0.85rem; text-align: right; justify-content: center; height: 100%; }
+.clock-container { 
+    display: flex; flex-direction: column; 
+    font-size: 0.85rem; text-align: right; 
+    justify-content: center; height: 100%; 
+}
 .clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
 #clock-time { font-weight: 500; color: #5f6368; white-space: nowrap; }
 
-/* Daily Briefing Button */
+/* Daily Button */
 div.stButton > button {
     background-color: #1a73e8;
     color: white;
@@ -121,7 +124,8 @@ div.stButton > button {
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.85rem;
-    padding: 8px 20px;
+    padding: 9px 18px;
+    margin-top: 2px;
 }
 div.stButton > button:hover {
     background-color: #1557b0;
@@ -143,7 +147,7 @@ div[data-testid="stVerticalBlock"]:has(div.card-marker) {
 }
 .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 
-/* Hide standard UI */
+/* Hide UI */
 #MainMenu, footer, header {visibility: hidden;}
 div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { display: none; }
 </style>
@@ -153,13 +157,13 @@ div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { dis
 COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
 
 # ---------------- HEADER ----------------
-# We use a container with a 'header-marker' class to trigger the CSS styling above
+# We use a container to rebuild the header structure
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
     
-    # Grid: Logo(2.5) | Spacer(0.5) | Pills(4) | Clock(2) | Button(1.5)
-    # vertical_alignment="center" ensures everything lines up perfectly
-    col1, col2, col3, col4, col5 = st.columns([2.5, 0.5, 4.5, 2, 1.5], vertical_alignment="center")
+    # Columns: Logo(2) | Spacer(3) | Pills(3) | Clock(2.5) | Button(1.5)
+    # This alignment pushes the tabs to the center-right, just like your screenshot
+    col1, col2, col3, col4, col5 = st.columns([2, 3, 3, 2.5, 1.5], vertical_alignment="center")
     
     with col1:
         st.markdown("""
@@ -168,13 +172,12 @@ with st.container():
                 <div class="logo-text">OS <span>INFOHUB</span></div>
             </div>
         """, unsafe_allow_html=True)
-        
+
     with col2:
         st.write("") # Spacer
 
     with col3:
-        # FUNCTIONAL REGION TABS
-        # This replaces the static HTML. The value is stored in 'selected_region'
+        # THE INTERACTIVE REGION SELECTOR
         selected_region = st.pills(
             "Region",
             options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
@@ -183,7 +186,7 @@ with st.container():
         )
 
     with col4:
-        # Live Clock (HTML/JS)
+        # Live Clock
         now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
         date_str = now.strftime("%A, %d %b %Y")
         time_str = now.strftime("%H:%M:%S GMT+11 UTC")
@@ -218,16 +221,15 @@ with st.container():
 # ---------------- CONTENT ----------------
 st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
-# Main Grid: Map/Stream (9) | Sidebar (3)
 main_col, side_col = st.columns([9, 3], gap="large")
 
 with main_col:
-    # 1. MAP
+    # MAP
     st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
     st.info(f"📍 MAP VIEW: Showing data for {selected_region.upper()}")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # 2. STREAM HEADER
+    # STREAM HEADER
     st.markdown("""
         <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <div style="font-weight: 700; font-size: 1rem;">
@@ -238,24 +240,24 @@ with main_col:
         </div>
     """, unsafe_allow_html=True)
     
-    # 3. STREAM CONTENT (Placeholder)
+    # STREAM CONTENT
     st.info(f"waiting for news feed... (Filter: {selected_region})")
 
 with side_col:
-    # SIDEBAR CARD 1
+    # CARD 1: HISTORY
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-history"></i> History Search</div>', unsafe_allow_html=True)
         st.date_input("Date", label_visibility="collapsed")
         st.caption("Pick a date to load archived intelligence.")
 
-    # SIDEBAR CARD 2
+    # CARD 2: TRAVEL
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>', unsafe_allow_html=True)
         st.selectbox("Country", COUNTRIES, label_visibility="collapsed")
     
-    # SIDEBAR CARD 3
+    # CARD 3: PROXIMITY
     with st.container():
         st.markdown('<div class="card-marker"></div>', unsafe_allow_html=True)
         st.markdown('<div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>', unsafe_allow_html=True)
