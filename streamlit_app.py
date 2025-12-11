@@ -1,243 +1,261 @@
 import streamlit as st
 import datetime
 
-# --------------------------------------------------------------------------
-# 1. PAGE CONFIGURATION
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------
+# 1. PAGE CONFIG
+# ------------------------------------------------------------
 st.set_page_config(
     page_title="Dell OS | InfoHub",
     page_icon="🛡️",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
 )
 
-# --------------------------------------------------------------------------
-# 2. CSS – MATCH GITHUB PAGES STYLE
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------
+# 2. CSS + LIBS (ADAPTED FROM YOUR index.html)
+# ------------------------------------------------------------
 st.markdown(
     """
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-:root {
-    --os-blue: #0076CE;
-    --os-dark-bg: #0f1115;
-}
+:root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
 
-/* STREAMLIT SHELL */
+/* Streamlit root instead of <body> */
 .stApp {
-    background-color: var(--os-dark-bg);
+    background-color: var(--bg-dark);
     font-family: 'Inter', sans-serif;
+    padding: 24px;
+    color: #333;
 }
 
-/* MAIN WHITE CARD */
+/* Use Streamlit's main block as app-container */
 div.block-container {
-    background-color: #ffffff;
+    background-color: #fff;
     border-radius: 24px;
-    max-width: 98% !important;
-    padding-top: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-bottom: 24px !important;
-    margin-top: 16px;
+    min-height: 92vh;
+    overflow: hidden;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    padding: 0 !important;
+    max-width: 100% !important;
 }
 
-/* TOP HEADER BAR – ALWAYS FIRST THING INSIDE THE CARD */
-.os-header {
+/* --- HEADER ------------------------------------------------- */
+.header-container {
+    padding: 15px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 32px 10px 32px;
     border-bottom: 1px solid #f0f0f0;
+    height: 70px;
+}
+.header-left { display: flex; align-items: center; gap:12px; }
+.logo-icon { font-size: 1.6rem; color: #1a73e8; }
+.logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
+.logo-text span { color: var(--dell-blue); }
+.header-right { display: flex; align-items: center; gap: 20px; }
+
+/* region pills */
+.nav-pills-custom {
+    background-color: #f1f3f4;
+    padding: 4px;
+    border-radius: 10px;
+    display: flex;
+    gap: 2px;
+}
+.nav-item-custom {
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #5f6368;
+    cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+.nav-item-custom.active {
+    background-color: #202124;
+    color: #fff;
 }
 
-/* LEFT: LOGO */
-.os-header-left {
+/* clock */
+.clock-container { display: flex; flex-direction: column; font-size: 0.85rem; text-align: right; }
+.clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
+#clock-time { font-weight: 500; color: #5f6368; white-space: nowrap; }
+
+/* Daily briefings button */
+.btn-daily {
+    background-color: #1a73e8;
+    color: white;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    gap:8px;
+    align-items: center;
+    border: none;
+}
+
+/* --- CONTENT AREA (inside card) ---------------------------- */
+.content-area {
+    padding: 30px;
+    flex: 1;
+}
+
+/* Left side (map + stream) */
+.map-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 520px;
+    background: #eef2f6;
+    border:1px solid #e0e0e0;
+}
+.stream-section {
+    margin-top: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Right side (sidebar cards) */
+.sidebar-col { display: flex; flex-direction: column; gap: 24px; }
+.side-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.card-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #202124;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.os-logo-icon {
-    font-size: 1.5rem;
-    color: #1a73e8;
+/* map + stream placeholders */
+.map-placeholder {
+    width: 100%;
+    height: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#5f6368;
+    font-size:0.9rem;
 }
-
-.os-logo-text {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #202124;
-    letter-spacing: -0.5px;
-    white-space: nowrap;
-}
-
-.os-logo-text span {
-    color: var(--os-blue);
-}
-
-/* RIGHT SIDE GROUP: PILLS + CLOCK + BUTTON */
-.os-header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-/* REGION PILLS (STATIC BUT VISUALLY MATCHED) */
-.os-pills {
-    display: inline-flex;
-    background-color: #f1f3f4;
-    border-radius: 10px;
-    padding: 4px;
-    gap: 2px;
-}
-
-.os-pill {
-    padding: 7px 18px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    color: #5f6368;
-    cursor: pointer;
-    user-select: none;
-}
-
-.os-pill.active {
-    background-color: #202124;
-    color: #ffffff;
-}
-
-/* DATE / TIME */
-.os-clock {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.85rem;
-    text-align: right;
-    white-space: nowrap;
-}
-
-.os-clock-date {
-    font-weight: 600;
-    color: #202124;
-}
-
-.os-clock-time {
-    font-weight: 500;
-    color: #5f6368;
-}
-
-/* DAILY BRIEFINGS BUTTON */
-.os-header-btn {
-    background-color: #1a73e8;
-    color: #ffffff;
-    padding: 8px 18px;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-}
-
-.os-header-btn:hover {
-    background-color: #1557b0;
-}
-
-/* CONTENT AREA PADDING (BELOW HEADER) */
-.os-content {
-    padding: 20px 32px 0 32px;
-}
-
-/* SIMPLE CARDS FOR PLACEHOLDER LAYOUT */
-.os-map-placeholder {
-    border-radius: 16px;
-    border: 1px solid #e0e0e0;
-    background: #eef2f6;
-    padding: 16px;
-    height: 480px;
-}
-
-.os-side-card {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e0e0e0;
-    padding: 16px;
-    margin-bottom: 16px;
+.stream-placeholder {
+    margin-top: 10px;
     font-size: 0.9rem;
+    color: #5f6368;
 }
 
-/* HIDE STREAMLIT CHROME */
-#MainMenu, footer, header { visibility: hidden; }
+/* Hide Streamlit extra chrome */
+#MainMenu, footer, header {visibility: hidden;}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# --------------------------------------------------------------------------
-# 3. HEADER BAR (PIXEL-CLOSE TO ORIGINAL)
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------
+# 3. HEADER (ALL IN ONE HTML BLOCK)
+# ------------------------------------------------------------
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
 date_str = now.strftime("%A, %d %b %Y")
 time_str = now.strftime("%H:%M GMT+11 UTC")
 
 st.markdown(
     f"""
-<div class="os-header">
-    <div class="os-header-left">
-        <div class="os-logo-icon">
-            <i class="fas fa-shield-alt"></i>
-        </div>
-        <div class="os-logo-text">
-            OS <span>INFOHUB</span>
-        </div>
+<div class="header-container">
+    <div class="header-left">
+        <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="logo-text">OS <span>INFOHUB</span></div>
     </div>
-
-    <div class="os-header-right">
-        <div class="os-pills">
-            <div class="os-pill active">GLOBAL</div>
-            <div class="os-pill">AMER</div>
-            <div class="os-pill">EMEA</div>
-            <div class="os-pill">APJC</div>
-            <div class="os-pill">LATAM</div>
+    <div class="header-right">
+        <div class="nav-pills-custom">
+            <a class="nav-item-custom active">Global</a>
+            <a class="nav-item-custom">AMER</a>
+            <a class="nav-item-custom">EMEA</a>
+            <a class="nav-item-custom">APJC</a>
+            <a class="nav-item-custom">LATAM</a>
         </div>
-
-        <div class="os-clock">
-            <div class="os-clock-date">{date_str}</div>
-            <div class="os-clock-time">{time_str}</div>
+        <div class="clock-container ms-3">
+            <div class="clock-date">{date_str}</div>
+            <div id="clock-time">{time_str}</div>
         </div>
-
-        <button class="os-header-btn">
+        <div class="btn-daily ms-3">
             <i class="fas fa-file-alt"></i>
             Daily Briefings
-        </button>
+        </div>
     </div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-# --------------------------------------------------------------------------
-# 4. CONTENT AREA (INSIDE SAME WHITE CARD)
-# --------------------------------------------------------------------------
-st.markdown('<div class="os-content">', unsafe_allow_html=True)
+# ------------------------------------------------------------
+# 4. CONTENT AREA (MAP + SIDEBAR) – STREAMLIT LAYOUT
+# ------------------------------------------------------------
+st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
-main_col, side_col = st.columns([3, 1], gap="large")
+left_col, right_col = st.columns([9, 3], gap="large")
 
-with main_col:
-    st.markdown('<div class="os-map-placeholder">', unsafe_allow_html=True)
-    st.write("MAP PLACEHOLDER")
+# LEFT: map + stream
+with left_col:
+    st.markdown('<div class="map-wrapper mb-3">', unsafe_allow_html=True)
+    st.markdown('<div class="map-placeholder">MAP PLACEHOLDER</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-with side_col:
-    st.markdown('<div class="os-side-card"><b>History Search</b></div>', unsafe_allow_html=True)
-    st.markdown('<div class="os-side-card"><b>Travel Safety Check</b></div>', unsafe_allow_html=True)
-    st.markdown('<div class="os-side-card"><b>Proximity Alerts</b></div>', unsafe_allow_html=True)
-    st.markdown('<div class="os-side-card"><b>Risk Category Filter</b></div>', unsafe_allow_html=True)
+    st.markdown('<div class="stream-section">', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="fw-bold">
+                <i class="fas fa-circle text-primary me-2" style="font-size:0.6rem"></i>
+                Real-time Intelligence Stream
+            </div>
+            <div class="badge bg-light text-secondary">CONNECTING</div>
+        </div>
+        <div class="stream-placeholder">
+            Stream placeholder – plug your feed here.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('</div>', unsafe_allow_html=True)  # close .os-content
+# RIGHT: sidebar cards (static for now)
+with right_col:
+    st.markdown(
+        """
+        <div class="sidebar-col">
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+                <div class="small text-muted">Streamlit version – hook your date picker here.</div>
+            </div>
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+                <div class="small text-muted">Travel card placeholder.</div>
+            </div>
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-bullseye"></i> Proximity Alerts</div>
+                <div class="small text-muted">Proximity alerts placeholder.</div>
+            </div>
+            <div class="side-card">
+                <div class="card-label"><i class="fas fa-filter"></i> Risk Category Filter</div>
+                <div class="small text-muted">Risk filter placeholder.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+st.markdown('</div>', unsafe_allow_html=True)  # close .content-area
