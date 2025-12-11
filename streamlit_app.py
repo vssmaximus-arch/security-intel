@@ -99,6 +99,7 @@ div[data-testid="stPills"] button[aria-selected="true"] {
     background-color: #1a73e8 !important; /* ACTION BLUE */
     color: #ffffff !important;
     box-shadow: none !important;
+    border: none !important;
 }
 
 /* Hover State */
@@ -160,10 +161,10 @@ COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kin
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
     
-    # GRID: [Logo 2.5] [Spacer 5.5] [Tabs 3] [Clock 2] [Button 1.5]
-    # The '5.5' Spacer pushes everything hard to the right. 
-    # '3' for tabs keeps them compact so they sit next to the clock.
-    col1, col2, col3, col4, col5 = st.columns([2.5, 5.5, 3, 2, 1.5], vertical_alignment="center", gap="small")
+    # GRID: [Logo 2] [Spacer 5] [Tabs 4] [Clock 2] [Button 1.5]
+    # The '5' Spacer pushes everything hard to the right. 
+    # '4' for tabs gives them enough space to not wrap.
+    col1, col2, col3, col4, col5 = st.columns([2, 5, 4, 2, 1.5], vertical_alignment="center", gap="small")
     
     with col1:
         st.markdown("""
