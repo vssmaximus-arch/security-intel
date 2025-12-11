@@ -2,7 +2,7 @@ import streamlit as st
 import datetime
 
 # --------------------------------------------------------------------------
-# 1. PAGE CONFIGURATION
+# 1. PAGE CONFIG
 # --------------------------------------------------------------------------
 st.set_page_config(
     page_title="Dell OS | InfoHub",
@@ -12,205 +12,241 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------------------------
-# 2. CSS
+# 2. GLOBAL CSS (DIRECTLY MIRRORING ORIGINAL INDEX.HTML)
 # --------------------------------------------------------------------------
 st.markdown("""
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-        /* BODY */
-        .stApp {
-            background-color: #0f1115;
-            font-family: 'Inter', sans-serif;
-        }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-        /* MAIN WHITE CARD */
-        div.block-container {
-            background-color: #ffffff;
-            border-radius: 24px;
-            max-width: 98% !important;
-            padding-top: 0 !important;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            padding-bottom: 3rem !important;
-            margin-top: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+:root {
+    --dell-blue: #0076CE;
+    --bg-dark: #0f1115;
+}
 
-        /* TOP HEADER STRIP */
-        .os-header {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto; /* logo | pills | date | button */
-            align-items: center;
-            column-gap: 16px;
-            padding: 10px 32px 8px 32px;
-            border-bottom: 1px solid #e0e0e0;
-            border-radius: 24px 24px 0 0;
-            background: #ffffff;
-        }
+/* Streamlit shell */
+.stApp {
+    background-color: var(--bg-dark);
+    font-family: 'Inter', sans-serif;
+}
 
-        /* Streamlit puts columns as children divs; align them */
-        .os-header > div[data-testid="column"] {
-            display: flex;
-            align-items: center;
-        }
+/* Remove Streamlit’s white card look; we’ll use .app-container instead */
+div.block-container {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 24px !important;
+    max-width: 100% !important;
+}
 
-        /* LOGO */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            height: 40px;
-        }
-        .logo-icon {
-            font-size: 1.4rem;
-            color: #1a73e8;
-        }
-        .logo-text {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #202124;
-            letter-spacing: -0.5px;
-            line-height: 1;
-            white-space: nowrap;
-        }
-        .logo-span {
-            color: #0076CE;
-        }
+/* Main white card (from original) */
+.app-container {
+    background-color: #fff;
+    border-radius: 24px;
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
 
-        /* NAV PILLS */
-        .os-header-nav {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end; /* pushes pills toward the right, like screenshot */
-        }
-        div[data-testid="stPills"] {
-            background-color: #f1f3f4;
-            border-radius: 8px;
-            padding: 3px;
-            gap: 0px;
-            display: inline-flex;
-        }
-        div[data-testid="stPills"] button {
-            background-color: transparent;
-            border: none;
-            color: #5f6368 !important;
-            font-weight: 700;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            padding: 0.35rem 1rem;
-            min-height: 0px;
-            height: auto;
-            line-height: 1.2;
-        }
-        div[data-testid="stPills"] button[aria-selected="true"] {
-            background-color: #202124 !important;
-            color: #fff !important;
-            border-radius: 6px;
-        }
+/* HEADER (EXACT CLASSES FROM ORIGINAL SITE) */
+.header-container {
+    padding: 15px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+    height: 70px;
+}
 
-        /* DATE/TIME */
-        .header-date {
-            text-align: right;
-            color: #202124;
-            font-weight: 600;
-            font-size: 0.85rem;
-            white-space: nowrap;
-        }
-        .header-time {
-            color: #5f6368;
-            font-weight: 500;
-            margin-left: 8px;
-        }
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        /* DAILY BRIEFINGS BUTTON */
-        .header-btn-wrap {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-        }
-        .header-btn-wrap > div.stButton > button {
-            background-color: #1a73e8;
-            color: white !important;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            border: none;
-            padding: 0.45rem 1.3rem;
-            min-height: 0;
-        }
-        .header-btn-wrap > div.stButton > button:hover {
-            background-color: #1557b0;
-        }
+.logo-icon {
+    font-size: 1.6rem;
+    color: #1a73e8;
+}
 
-        /* HIDE STREAMLIT CHROME */
-        #MainMenu, footer, header {visibility: hidden;}
-    </style>
+.logo-text {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #202124;
+    letter-spacing: -0.5px;
+}
+
+.logo-text span {
+    color: var(--dell-blue);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* NAV PILLS */
+.nav-pills-custom {
+    background-color: #f1f3f4;
+    padding: 4px;
+    border-radius: 10px;
+    display: flex;
+    gap: 2px;
+}
+
+.nav-item-custom {
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #5f6368;
+    cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.nav-item-custom.active {
+    background-color: #202124;
+    color: #fff;
+}
+
+/* Clock */
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    text-align: right;
+}
+
+.clock-date {
+    font-weight: 600;
+    color: #202124;
+    white-space: nowrap;
+}
+
+.clock-time {
+    font-weight: 500;
+    color: #5f6368;
+    white-space: nowrap;
+}
+
+/* Daily Briefings button */
+.btn-daily {
+    background-color: #1a73e8;
+    color: white;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border: none;
+}
+
+/* Content area layout */
+.content-area {
+    padding: 30px;
+    flex: 1;
+}
+
+/* Map + sidebar placeholders just so layout feels similar */
+.map-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 520px;
+    background: #eef2f6;
+    border: 1px solid #e0e0e0;
+}
+
+.sidebar-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.side-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+/* Hide Streamlit menu/footer */
+#MainMenu, footer, header {visibility: hidden;}
+</style>
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# 3. HEADER LAYOUT
+# 3. APP WRAPPER (MIRROR .app-container)
 # --------------------------------------------------------------------------
-st.markdown('<div class="os-header">', unsafe_allow_html=True)
+st.markdown('<div class="app-container">', unsafe_allow_html=True)
 
-# create 4 columns INSIDE our custom header div
-col_logo, col_pills, col_date, col_btn = st.columns([2, 3, 2.5, 1.5])
+# --------------------------------------------------------------------------
+# 4. HEADER (MIRROR ORIGINAL HTML STRUCTURE)
+# --------------------------------------------------------------------------
+# Build the clock text in Python (instead of JS)
+now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
+date_str = now.strftime("%A, %d %b %Y")
+time_str = now.strftime("%H:%M GMT+11 UTC")
 
-# LOGO (left)
-with col_logo:
-    st.markdown("""
-        <div class="logo-container">
-            <i class="fas fa-shield-alt logo-icon"></i>
-            <div class="logo-text">OS <span class="logo-span">INFOHUB</span></div>
+st.markdown(
+    f"""
+    <div class="header-container">
+        <div class="header-left">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text">OS <span>INFOHUB</span></div>
         </div>
-    """, unsafe_allow_html=True)
-
-# PILLS (right side of center area)
-with col_pills:
-    st.markdown('<div class="os-header-nav">', unsafe_allow_html=True)
-    selected_region = st.pills(
-        "Region",
-        options=["GLOBAL", "AMER", "EMEA", "APJC", "LATAM"],
-        default="GLOBAL",
-        label_visibility="collapsed"
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# DATE/TIME (GMT+11)
-with col_date:
-    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
-    date_str = now.strftime("%A, %d %b %Y")
-    time_str = now.strftime("%H:%M GMT+11 UTC")
-
-    st.markdown(
-        f"""
-        <div class="header-date">
-            {date_str}<span class="header-time"> | {time_str}</span>
+        <div class="header-right">
+            <div class="nav-pills-custom">
+                <a class="nav-item-custom active">Global</a>
+                <a class="nav-item-custom">AMER</a>
+                <a class="nav-item-custom">EMEA</a>
+                <a class="nav-item-custom">APJC</a>
+                <a class="nav-item-custom">LATAM</a>
+            </div>
+            <div class="clock-container">
+                <div class="clock-date">{date_str}</div>
+                <div class="clock-time">{time_str}</div>
+            </div>
+            <button class="btn-daily">
+                <i class="fas fa-file-alt"></i>
+                Daily Briefings
+            </button>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# DAILY BRIEFINGS BUTTON (far right)
-with col_btn:
-    st.markdown('<div class="header-btn-wrap">', unsafe_allow_html=True)
-    st.button("Daily Briefings")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)  # close .os-header
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # --------------------------------------------------------------------------
-# 4. CONTENT WRAPPER
+# 5. CONTENT AREA (USE STREAMLIT INSIDE .content-area)
 # --------------------------------------------------------------------------
-st.markdown('<div style="padding: 20px 32px;">', unsafe_allow_html=True)
+st.markdown('<div class="content-area">', unsafe_allow_html=True)
 
-main_col, side_col = st.columns([3, 1], gap="large")
+left_col, right_col = st.columns([3, 1], gap="large")
 
-with main_col:
+with left_col:
+    st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
     st.info("MAP PLACEHOLDER")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with side_col:
-    st.warning("SIDEBAR PLACEHOLDER")
+with right_col:
+    st.markdown('<div class="sidebar-col">', unsafe_allow_html=True)
 
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="side-card">History Search</div>', unsafe_allow_html=True)
+    st.markdown('<div class="side-card">Travel Safety Check</div>', unsafe_allow_html=True)
+    st.markdown('<div class="side-card">Proximity Alerts</div>', unsafe_allow_html=True)
+    st.markdown('<div class="side-card">Risk Category Filter</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)  # close .content-area
+st.markdown('</div>', unsafe_allow_html=True)  # close .app-container
