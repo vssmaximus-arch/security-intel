@@ -51,7 +51,6 @@ div.block-container {
 }
 
 /* 3. HEADER CONTAINER - FLEXBOX FIX */
-/* This targets the container holding our header columns */
 div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     border-bottom: 1px solid #f0f0f0;
     padding: 0 32px !important;
@@ -59,7 +58,7 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
     background: white;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Pushes Logo Left, Controls Right */
+    justify-content: space-between;
 }
 
 /* 4. COMPONENT STYLING */
@@ -71,50 +70,55 @@ div[data-testid="stVerticalBlock"]:has(div.header-marker) {
 .logo-text span { color: var(--dell-blue); }
 
 /* --- PILLS (REGION SELECTOR) --- */
-/* Force pills to be right-aligned */
+/* Hide default pills container */
 div[data-testid="stPills"] {
-    background-color: #f1f3f4;
-    padding: 4px;
-    border-radius: 10px;
+    display: none !important;
+}
+
+/* Custom tabs styling */
+.custom-tabs {
     display: flex;
-    gap: 2px;
-    margin-right: 20px !important; /* Space between pills and clock */
+    gap: 8px;
+    align-items: center;
+    margin-right: 16px;
 }
 
-/* Pill Buttons (Inactive) */
-div[data-testid="stPills"] button {
-    background-color: transparent !important;
-    border: none !important;
-    color: #5f6368 !important;
-    font-weight: 700 !important;
-    font-size: 0.8rem !important;
-    text-transform: uppercase !important;
-    padding: 7px 18px !important;
-    border-radius: 8px !important;
-    line-height: 1 !important;
-    min-height: 0px !important;
-    height: auto !important;
+.custom-tab {
+    padding: 8px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
-/* Pill Buttons (Active/Selected) - FIXED: BLUE */
-div[data-testid="stPills"] button[aria-selected="true"] {
-    background-color: #1a73e8 !important; /* Dell Blue */
-    color: #ffffff !important;
-    box-shadow: none !important;
-    border: none !important;
+.custom-tab.active {
+    background-color: #1f2937;
+    color: white;
 }
 
-/* Hover State */
-div[data-testid="stPills"] button:hover {
-    color: #1a73e8 !important;
-    background-color: rgba(26, 115, 232, 0.1) !important;
+.custom-tab.inactive {
+    background-color: transparent;
+    color: #1a73e8;
+}
+
+.custom-tab.inactive:hover {
+    background-color: rgba(26, 115, 232, 0.08);
 }
 
 /* Clock */
 .clock-container { 
-    display: flex; flex-direction: column; 
-    font-size: 0.85rem; text-align: right; 
-    justify-content: center; height: 100%; line-height: 1.3;
+    display: flex; 
+    flex-direction: column; 
+    font-size: 0.85rem; 
+    text-align: right; 
+    justify-content: center; 
+    height: 100%; 
+    line-height: 1.3;
     margin-right: 20px;
 }
 .clock-date { font-weight: 600; color: #202124; white-space: nowrap; }
@@ -122,17 +126,17 @@ div[data-testid="stPills"] button:hover {
 
 /* Daily Button */
 div.stButton > button {
-    background-color: #1a73e8;
+    background-color: #1a73e8 !important;
     color: white !important;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 9px 20px;
-    white-space: nowrap;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    padding: 9px 20px !important;
+    white-space: nowrap !important;
 }
 div.stButton > button:hover {
-    background-color: #1557b0;
+    background-color: #1557b0 !important;
     color: white !important;
 }
 
@@ -160,14 +164,13 @@ div[data-testid="stDateInput"] label, div[data-testid="stSelectbox"] label { dis
 # ---------------- DATA ----------------
 COUNTRIES = ["Select Country...", "United States", "India", "China", "United Kingdom", "Germany", "Japan", "Brazil", "Australia", "France", "Canada"]
 
+# Initialize session state for selected region
+if 'selected_region' not in st.session_state:
+    st.session_state.selected_region = 'GLOBAL'
+
 # ---------------- HEADER ----------------
 with st.container():
     st.markdown('<div class="header-marker"></div>', unsafe_allow_html=True)
-    
-    # FLEXBOX LAYOUT STRATEGY
-    # Col 1: Logo (Takes small space)
-    # Col 2: Spacer (Takes maximum space to push right)
-    # Col 3: Right Group (Holds Tabs + Clock + Button)
     
     col_logo, col_spacer, col_right_group = st.columns([2, 4, 6], vertical_alignment="center")
     
@@ -180,20 +183,63 @@ with st.container():
         """, unsafe_allow_html=True)
 
     with col_spacer:
-        st.write("") # Acts as the flex-grow spacer
+        st.write("")
 
     with col_right_group:
-        # Nested columns to group Tabs + Clock + Button TIGHTLY
-        c_tabs, c_clock, c_btn = st.columns([3.5, 1.8, 1.5], vertical_alignment="center", gap="small")
+        c_tabs, c_clock, c_btn = st.columns([4, 2, 1.5], vertical_alignment="center", gap="small")
         
         with c_tabs:
-            selected_region = st.pills(
+            # Custom tabs HTML
+            regions = ['GLOBAL', 'AMER', 'EMEA', 'APJC', 'LATAM']
+            tabs_html = '<div class="custom-tabs">'
+            
+            for region in regions:
+                active_class = 'active' if st.session_state.selected_region == region else 'inactive'
+                tabs_html += f'<div class="custom-tab {active_class}" id="tab-{region}">{region}</div>'
+            
+            tabs_html += '</div>'
+            
+            # Add JavaScript to handle clicks
+            tabs_html += """
+            <script>
+                document.querySelectorAll('.custom-tab').forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const region = this.id.replace('tab-', '');
+                        
+                        // Update active state visually
+                        document.querySelectorAll('.custom-tab').forEach(t => {
+                            t.classList.remove('active');
+                            t.classList.add('inactive');
+                        });
+                        this.classList.remove('inactive');
+                        this.classList.add('active');
+                        
+                        // Trigger Streamlit rerun with new region
+                        window.parent.postMessage({
+                            type: 'streamlit:setComponentValue',
+                            key: 'region_selector',
+                            value: region
+                        }, '*');
+                    });
+                });
+            </script>
+            """
+            
+            st.markdown(tabs_html, unsafe_allow_html=True)
+            
+            # Hidden widget to capture the selection
+            selected_region = st.selectbox(
                 "Region",
-                options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
-                default="Global",
+                options=regions,
+                index=regions.index(st.session_state.selected_region),
                 label_visibility="collapsed",
-                key="region_selector"
+                key="region_selector_hidden"
             )
+            
+            # Update session state if changed
+            if selected_region != st.session_state.selected_region:
+                st.session_state.selected_region = selected_region
+                st.rerun()
             
         with c_clock:
             now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
@@ -208,7 +254,6 @@ with st.container():
                 <script>
                     function updateClock() {{
                         var now = new Date();
-                        var dateEl = document.getElementById('clock-date');
                         var timeEl = document.getElementById('clock-time');
                         if(timeEl) {{
                             var h = String(now.getHours()).padStart(2, '0');
@@ -235,7 +280,7 @@ main_col, side_col = st.columns([9, 3], gap="large")
 with main_col:
     # MAP
     st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
-    st.info(f"📍 MAP VIEW: Showing data for {selected_region.upper()}")
+    st.info(f"📍 MAP VIEW: Showing data for {st.session_state.selected_region}")
     st.markdown('</div>', unsafe_allow_html=True)
 
     # STREAM HEADER
@@ -250,7 +295,7 @@ with main_col:
     """, unsafe_allow_html=True)
     
     # STREAM CONTENT
-    st.info(f"waiting for news feed... (Filter: {selected_region})")
+    st.info(f"waiting for news feed... (Filter: {st.session_state.selected_region})")
 
 with side_col:
     # CARD 1: HISTORY
