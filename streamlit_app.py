@@ -15,11 +15,11 @@ st.set_page_config(
 # --------------------------------------------------------------------------
 # 1a. AUTO-REFRESH (LIVE CLOCK)
 # --------------------------------------------------------------------------
-# Rerun the app every second so the clock updates
+# Rerun once per second so the clock (and anything else time-based) updates
 st_autorefresh(interval=1000, key="live_clock_refresh")
 
 # --------------------------------------------------------------------------
-# 2. CSS STYLING – MATCHES ORIGINAL LAYOUT
+# 2. CSS STYLING
 # --------------------------------------------------------------------------
 st.markdown(
     """
@@ -57,45 +57,61 @@ div.block-container {
     max-width: calc(100% - 48px) !important;
 }
 
-/* HEADER BAR – EXACT LAYOUT */
-.header-container {
+/* ------------------------------------------------------------------ */
+/* HEADER ROW (FIRST HORIZONTAL BLOCK) */
+/* ------------------------------------------------------------------ */
+div.block-container div[data-testid="stHorizontalBlock"]:first-of-type {
     padding: 15px 32px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Make header columns vertically centred */
+div.block-container div[data-testid="stHorizontalBlock"]:first-of-type > div[data-testid="column"] {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #f0f0f0;
-    height: 70px;
 }
-.header-left { display: flex; align-items: center; gap: 12px; }
+
+/* Logo */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 .logo-icon { font-size: 1.6rem; color: #1a73e8; }
 .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
 .logo-text span { color: var(--dell-blue); }
-.header-right { display: flex; align-items: center; gap: 20px; }
 
-/* NAV PILLS (STATIC, VISUAL MATCH) */
-.nav-pills-custom {
+/* STREAMLIT PILLS styled like original nav */
+[data-testid="stPills"] {
     background-color: #f1f3f4;
     padding: 4px;
     border-radius: 10px;
-    display: flex;
-    gap: 2px;
+    display: inline-flex;
+    gap: 4px;
+    border: none;
 }
-.nav-item-custom {
-    padding: 7px 18px;
-    border-radius: 8px;
+[data-testid="stPills"] button {
+    border: none;
+    background: transparent;
+    color: #5f6368 !important;
     font-weight: 700;
     font-size: 0.8rem;
-    color: #5f6368;
-    cursor: pointer;
-    text-decoration: none;
     text-transform: uppercase;
+    padding: 7px 18px;
+    border-radius: 8px;
+    transition: all 0.15s ease-in-out;
+    line-height: 1.2;
 }
-.nav-item-custom.active {
-    background-color: #202124;
-    color: #fff;
+[data-testid="stPills"] button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+[data-testid="stPills"] button[aria-selected="true"] {
+    background-color: #202124 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* CLOCK */
+/* Clock */
 .clock-container {
     display: flex;
     flex-direction: column;
@@ -113,19 +129,23 @@ div.block-container {
     white-space: nowrap;
 }
 
-/* DAILY BRIEFINGS BUTTON */
-.btn-daily {
+/* Daily Briefings button */
+.header-btn-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+.header-btn-wrap > div.stButton > button {
     background-color: #1a73e8;
-    color: white;
+    color: white !important;
     padding: 9px 18px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.85rem;
-    cursor: pointer;
-    display: flex;
-    gap: 8px;
-    align-items: center;
     border: none;
+}
+.header-btn-wrap > div.stButton > button:hover {
+    background-color: #1557b0;
 }
 
 /* CONTENT AREA */
@@ -192,41 +212,52 @@ div.block-container {
 )
 
 # --------------------------------------------------------------------------
-# 3. HEADER WITH LIVE CLOCK (NO JS)
+# 3. HEADER ROW (LOGO + PILLS + CLOCK + BUTTON)
 # --------------------------------------------------------------------------
-# Recomputed on every autorefresh
+col_logo, col_pills, col_clock, col_button = st.columns(
+    [2.5, 4.0, 2.0, 1.5],
+    vertical_alignment="center",
+)
+
+with col_logo:
+    st.markdown(
+        """
+        <div class="logo-container">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <div class="logo-text">OS <span>INFOHUB</span></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with col_pills:
+    selected_region = st.pills(
+        "Region",
+        options=["Global", "AMER", "EMEA", "APJC", "LATAM"],
+        default="Global",
+        label_visibility="collapsed",
+    )
+
+# Live clock (recomputed each autorefresh)
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=11)))
 date_str = now.strftime("%A, %d %b %Y")
 time_str = now.strftime("%H:%M:%S GMT+11 UTC")
 
-st.markdown(
-    f"""
-<div class="header-container">
-    <div class="header-left">
-        <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-        <div class="logo-text">OS <span>INFOHUB</span></div>
-    </div>
-    <div class="header-right">
-        <div class="nav-pills-custom">
-            <a class="nav-item-custom active">Global</a>
-            <a class="nav-item-custom">AMER</a>
-            <a class="nav-item-custom">EMEA</a>
-            <a class="nav-item-custom">APJC</a>
-            <a class="nav-item-custom">LATAM</a>
-        </div>
-        <div class="clock-container ms-3">
+with col_clock:
+    st.markdown(
+        f"""
+        <div class="clock-container">
             <div class="clock-date">{date_str}</div>
             <div class="clock-time">{time_str}</div>
         </div>
-        <div class="btn-daily ms-3">
-            <i class="fas fa-file-alt"></i>
-            Daily Briefings
-        </div>
-    </div>
-</div>
-""",
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
+
+with col_button:
+    st.markdown('<div class="header-btn-wrap">', unsafe_allow_html=True)
+    st.button("📄 Daily Briefings")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
 # 4. CONTENT AREA (MAP + SIDEBAR)
@@ -238,12 +269,15 @@ left_col, right_col = st.columns([9, 3], gap="large")
 with left_col:
     # Map wrapper
     st.markdown('<div class="map-wrapper mb-3">', unsafe_allow_html=True)
-    st.markdown('<div class="map-placeholder">MAP PLACEHOLDER</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Stream header + placeholder (visual match)
     st.markdown(
-        """
+        f'<div class="map-placeholder">MAP PLACEHOLDER – {selected_region.upper()}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Stream header + placeholder
+    st.markdown(
+        f"""
         <div class="stream-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="fw-bold">
@@ -253,7 +287,7 @@ with left_col:
                 <div class="badge bg-light text-secondary">CONNECTING</div>
             </div>
             <div class="stream-placeholder">
-                Stream placeholder – plug your feed here.
+                Stream placeholder – filter: <b>{selected_region}</b>.
             </div>
         </div>
         """,
@@ -285,4 +319,4 @@ with right_col:
         unsafe_allow_html=True,
     )
 
-st.markdown('</div>', unsafe_allow_html=True)  # close .content-area
+st.markdown("</div>", unsafe_allow_html=True)  # close .content-area
