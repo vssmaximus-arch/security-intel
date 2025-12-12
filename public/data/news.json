@@ -4,7 +4,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/falcon-data-protection-for-cloud-extends-dspm-into-runtime/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314551+00:00",
+    "time": "2025-12-12T23:34:44.128840+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -14,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-unveils-real-time-cloud-detection-and-response/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314520+00:00",
+    "time": "2025-12-12T23:34:44.128810+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/transform-aws-security-operations-with-falcon-next-gen-siem/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314487+00:00",
+    "time": "2025-12-12T23:34:44.128778+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-uses-nvidia-nemotron-aws-power-agentic-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314455+00:00",
+    "time": "2025-12-12T23:34:44.128746+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/indirect-prompt-injection-attacks-hidden-ai-risks/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314418+00:00",
+    "time": "2025-12-12T23:34:44.128712+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/warp-panda-cloud-threats/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314383+00:00",
+    "time": "2025-12-12T23:34:44.128678+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/falcon-shield-evolves-ai-agent-visibility/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314351+00:00",
+    "time": "2025-12-12T23:34:44.128648+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-december-2025/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314311+00:00",
+    "time": "2025-12-12T23:34:44.128611+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +84,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-achieves-100-percent-2025-mitre-attack-enterprise-evaluation/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314267+00:00",
+    "time": "2025-12-12T23:34:44.128569+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,37 +94,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-leakage-ai-plumbing-problem/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-12T22:42:09.314211+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.1 - 6 km NNW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75278871",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.273342+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 4.8 - 91 km E of Barcelona, Philippines",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000ruix",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.273064+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.2 - 9 km NW of Fayette, Utah",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uu80124856",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.272778+00:00",
+    "time": "2025-12-12T23:34:44.128513+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -134,7 +104,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62209477",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.272495+00:00",
+    "time": "2025-12-12T23:34:39.386240+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -144,7 +114,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75278876",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.272219+00:00",
+    "time": "2025-12-12T23:34:39.385946+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -154,7 +124,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2025ykwnjm",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.271915+00:00",
+    "time": "2025-12-12T23:34:39.385670+00:00",
     "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -164,7 +134,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ykxkcp",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.271629+00:00",
+    "time": "2025-12-12T23:34:39.385385+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -174,7 +144,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ykxpdu",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.271336+00:00",
+    "time": "2025-12-12T23:34:39.385076+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -184,7 +154,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ykztjl",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.271046+00:00",
+    "time": "2025-12-12T23:34:39.384788+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -194,7 +164,37 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41350648",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-12T22:42:03.270722+00:00",
+    "time": "2025-12-12T23:34:39.384507+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.7 - 20 km NE of Manley Hot Springs, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ylayle",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-12T23:34:39.384212+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 2.2 - 25 km WNW of Susitna, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ylbpxz",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-12T23:34:39.383900+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 3.8 - 8 km W of Templeton, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75278896",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-12T23:34:39.383585+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -204,7 +204,7 @@
     "url": "https://asia.nikkei.com/business/technology/artificial-intelligence/japan-central-asia-to-partner-on-ai-mining-tech-at-maiden-summit",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161633+00:00",
+    "time": "2025-12-12T23:34:26.695056+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -214,7 +214,7 @@
     "url": "https://asia.nikkei.com/economy/china-s-consumers-hunt-for-bargains-after-subsidy-fueled-demand-fizzles",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161604+00:00",
+    "time": "2025-12-12T23:34:26.695028+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +224,7 @@
     "url": "https://asia.nikkei.com/politics/china-politburo-member-misses-key-meeting-raising-purge-speculation",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161577+00:00",
+    "time": "2025-12-12T23:34:26.695000+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +234,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/thailand-cambodia-conflict/trump-says-thailand-and-cambodia-agree-to-stop-shooting",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161550+00:00",
+    "time": "2025-12-12T23:34:26.694972+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +244,7 @@
     "url": "https://asia.nikkei.com/business/markets/commodities/global-nuclear-power-revival-puts-upward-pressure-on-uranium-prices",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161522+00:00",
+    "time": "2025-12-12T23:34:26.694944+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +254,7 @@
     "url": "https://asia.nikkei.com/business/media-entertainment/disney-openai-deal-pressures-japanese-players-to-adapt-to-new-era",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161488+00:00",
+    "time": "2025-12-12T23:34:26.694909+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/tech/semiconductors/japan-chip-prototyping-hub-in-hokkaido-to-go-online-in-fiscal-2029",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161458+00:00",
+    "time": "2025-12-12T23:34:26.694879+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +274,7 @@
     "url": "https://asia.nikkei.com/spotlight/big-in-asia/from-temples-to-tiktok-inside-malaysia-s-evolving-world-of-spiritual-healing",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161426+00:00",
+    "time": "2025-12-12T23:34:26.694847+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +284,7 @@
     "url": "https://asia.nikkei.com/spotlight/cybersecurity/japan-to-toughen-cybersecurity-rules-for-solar-power-systems",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161390+00:00",
+    "time": "2025-12-12T23:34:26.694812+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,7 +294,77 @@
     "url": "https://asia.nikkei.com/business/markets/bonds/boj-monetary-policy-should-be-a-factor-in-jgb-offering-plans-market-players",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-12T22:41:47.161346+00:00",
+    "time": "2025-12-12T23:34:26.694766+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Apple fixes two zero-day flaws exploited in 'sophisticated' attacks",
+    "url": "https://www.bleepingcomputer.com/news/security/apple-fixes-two-zero-day-flaws-exploited-in-sophisticated-attacks/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bleepingcomputer.com",
+    "time": "2025-12-12T23:23:25+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US forces stormed cargo ship travelling from China to Iran: Report",
+    "url": "https://www.aljazeera.com/news/2025/12/12/us-forces-stormed-cargo-ship-travelling-from-china-to-iran-report?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2025-12-12T23:03:09+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "King Charles says cancer treatment to be reduced, calls it ‘personal blessing’",
+    "url": "https://www.washingtonpost.com/world/2025/12/12/king-charles-cancer-treatment-reduced/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-12T22:57:02+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump Says Leaders of Thailand and Cambodia Agree to Cease-Fire",
+    "url": "https://www.nytimes.com/2025/12/12/world/asia/thailand-cambodia-trump-call.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2025-12-12T22:54:39+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How Ukraine Has Responded to Trump’s Peace Plan and Russia’s Demands for Territory",
+    "url": "https://www.nytimes.com/2025/12/12/world/europe/ukraine-trump-peace-plan-counterproposal.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2025-12-12T22:48:28+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UN General Assembly adopts resolution demanding Israel allow aid into Gaza",
+    "url": "https://www.aljazeera.com/news/2025/12/12/un-general-assembly-adopts-resolution-demanding-israel-allow-aid-into-gaza?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2025-12-12T22:41:11+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Tunisia sentences opposition leader Abir Moussi to 12 years in jail",
+    "url": "https://www.aljazeera.com/news/2025/12/12/tunisia-sentences-opposition-leader-abir-moussi-to-12-years-in?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2025-12-12T22:36:57+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -316,6 +386,16 @@
     "source": "nytimes.com",
     "time": "2025-12-12T22:34:03+00:00",
     "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump lifts sanctions on Brazilian judge targeted over Bolsonaro case",
+    "url": "https://www.washingtonpost.com/national-security/2025/12/12/brazil-sanctions-lifted-trump-moraes-bolsonaro/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "washingtonpost.com",
+    "time": "2025-12-12T22:27:03+00:00",
+    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -410,6 +490,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Jamaica: Latinoamérica y El Caribe Resumen de Situación Semanal al 12 de diciembre 2025",
+    "url": "https://reliefweb.int/report/jamaica/latinoamerica-y-el-caribe-resumen-de-situacion-semanal-al-12-de-diciembre-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T21:23:09+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "King Charles shares ‘good news’ that his cancer treatments can be reduced",
     "url": "https://www.scmp.com/news/world/europe/article/3336299/king-charles-shares-good-news-his-cancer-treatments-can-be-reduced?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
@@ -420,12 +510,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "How Ukraine Has Responded to Trump’s Peace Plan and Russia’s Demands for Territory",
-    "url": "https://www.nytimes.com/2025/12/12/world/europe/ukraine-trump-peace-plan-counterproposal.html",
+    "title": "Jamaica: Latin America & The Caribbean Weekly Situation Update as of 12 December 2025",
+    "url": "https://reliefweb.int/report/jamaica/latin-america-caribbean-weekly-situation-update-12-december-2025",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2025-12-12T21:14:13+00:00",
-    "region": "EMEA",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T21:13:26+00:00",
+    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -670,16 +760,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump Says Leaders of Thailand and Cambodia Agree to Cease-Fire",
-    "url": "https://www.nytimes.com/2025/12/12/world/asia/thailand-cambodia-trump-call.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2025-12-12T19:13:52+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Why do 27 states want to change Europe’s human rights convention?",
     "url": "https://www.aljazeera.com/video/inside-story/2025/12/12/why-do-27-states-want-to-change-europes-human-rights-convention?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -695,26 +775,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "washingtonpost.com",
     "time": "2025-12-12T19:11:06+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Were South Africans lured into fighting for Russia’s Ukraine war?",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/12/were-south-africans-lured-into-fighting-for-russias-ukraine-war?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2025-12-12T19:06:29+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Zelenskyy visits frontlines as Ukraine retakes parts of Kupiansk",
-    "url": "https://www.aljazeera.com/video/newsfeed/2025/12/12/zelenskyy-visits-frontlines-as-ukraine-retakes-parts-of-kupiansk?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2025-12-12T19:05:27+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -745,16 +805,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
     "time": "2025-12-12T18:39:11+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Eurovision winner Nemo returns trophy in protest over Israel’s inclusion",
-    "url": "https://www.aljazeera.com/news/2025/12/12/eurovision-winner-nemo-returns-trophy-in-protest-over-israels?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2025-12-12T18:37:53+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -846,6 +896,16 @@
     "source": "joc.com",
     "time": "2025-12-12T17:35:47+00:00",
     "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Nota metodológica - Cálculo Personas en Necesidad (PiN) Salud 2026, Colombia",
+    "url": "https://reliefweb.int/report/colombia/nota-metodologica-calculo-personas-en-necesidad-pin-salud-2026-colombia",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T17:31:46+00:00",
+    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1010,16 +1070,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "EU targets China’s Shein and Temu with new fees on low-value parcels",
-    "url": "https://www.scmp.com/news/china/article/3336292/eu-targets-chinas-shein-and-temu-new-fees-low-value-parcels?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2025-12-12T16:13:51+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Demand, capacity “don’t stack up” on U.S. container trades",
     "url": "https://www.freightwaves.com/news/demand-capacity-dont-stack-up-on-u-s-container-trades",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1140,6 +1190,26 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "DR Congo: RD Congo : Situation humanitaire dans la province du Ituri Rapport de situation #11, 12 décembre 2025",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/rd-congo-situation-humanitaire-dans-la-province-du-ituri-rapport-de-situation-11-12-decembre-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T14:46:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "WFP Tajikistan Country Brief, November 2025",
+    "url": "https://reliefweb.int/report/tajikistan/wfp-tajikistan-country-brief-november-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T14:43:47+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Truckload market faces lackluster Q4 outlook, improvement in 2026",
     "url": "https://www.supplychaindive.com/news/rxo-curve-q4-2025-truckload-market-outlook/807757/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1170,11 +1240,31 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "DR Congo: RD Congo - Ituri - Djugu : Evaluation Rapide Multisectorielle (ERM) 11 décembre 2025",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/rd-congo-ituri-djugu-evaluation-rapide-multisectorielle-erm-11-decembre-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T13:55:36+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Burberry names chief operating and supply chain officer",
     "url": "https://www.supplychaindive.com/news/burberry-names-chief-operating-and-supply-chain-officer/807735/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "supplychaindive.com",
     "time": "2025-12-12T13:52:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "DR Congo: RD Congo : Flash update #1 - Situation humanitaire dans la province du Sud-Kivu, 12 décembre 2025",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/rd-congo-flash-update-1-situation-humanitaire-dans-la-province-du-sud-kivu-12-decembre-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T13:46:32+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1230,6 +1320,26 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "World | Temperature anomalies in November 2025 - DG ECHO Daily Map | 12/12/2025",
+    "url": "https://reliefweb.int/map/world/world-temperature-anomalies-november-2025-dg-echo-daily-map-12122025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T13:17:14+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "WFP Sri Lanka Emergency Response Situation Report, 11 December",
+    "url": "https://reliefweb.int/report/sri-lanka/wfp-sri-lanka-emergency-response-situation-report-11-december",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T13:15:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Questions About Larry Ellison’s Financing Pledge for Paramount’s Bid for Warner Bros.",
     "url": "https://www.nytimes.com/2025/12/12/business/dealbook/ellison-paramount-oracle-warner-bros-financing.html",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1256,6 +1366,16 @@
     "source": "theguardian.com",
     "time": "2025-12-12T13:00:04+00:00",
     "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "WFP Sri Lanka Emergency Response Situation Report, 10 December",
+    "url": "https://reliefweb.int/report/sri-lanka/wfp-sri-lanka-emergency-response-situation-report-10-december",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-12T12:57:08+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1690,16 +1810,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "White House signals campaign to seize more oil tankers near Venezuela",
-    "url": "https://www.washingtonpost.com/world/2025/12/11/trump-administration-seize-more-tankers/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "washingtonpost.com",
-    "time": "2025-12-12T04:50:08+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Element Shipmanagement enters dry",
     "url": "https://splash247.com/element-shipmanagement-enters-dry/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1830,16 +1940,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Hackers exploit Gladinet CentreStack cryptographic flaw in RCE attacks",
-    "url": "https://www.bleepingcomputer.com/news/security/hackers-exploit-gladinet-centrestack-cryptographic-flaw-in-rce-attacks/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bleepingcomputer.com",
-    "time": "2025-12-11T21:49:10+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Washington 10 December 2025 #1",
     "url": "https://www.crisisgroup.org/content/washington-10-december-2025-1",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1905,16 +2005,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "joc.com",
     "time": "2025-12-11T20:38:15+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "U.S. seizes ‘very large’ oil tanker off Venezuelan coast, Trump says",
-    "url": "https://www.washingtonpost.com/world/2025/12/10/venezuela-oil-tanker-seizure/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "washingtonpost.com",
-    "time": "2025-12-11T20:14:51+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -2255,6 +2345,106 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theguardian.com",
     "time": "2025-12-09T19:28:43+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Why XSS still matters: MSRC’s perspective on a 25-year-old threat",
+    "url": "https://msrc.microsoft.com/blog/2025/09/why-xss-still-matters-msrcs-perspective-on-a-25-year-old-threat/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-09-04T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "BlueHat Asia 2025: Closing soon: Submit your papers by September 14, 2025",
+    "url": "https://msrc.microsoft.com/blog/2025/08/bluehat-asia-2025-closing-soon-submit-your-papers-by-september-14-2025/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-08-27T07:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "postMessaged and Compromised",
+    "url": "https://msrc.microsoft.com/blog/2025/08/postmessaged-and-compromised/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-08-25T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Microsoft Bounty Program year in review: $17 million in rewards",
+    "url": "https://msrc.microsoft.com/blog/2025/08/microsoft-bounty-program-year-in-review-17-million-in-rewards/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-08-05T07:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Zero Day Quest: Join the largest hacking event with up to $5 million in total bounty awards",
+    "url": "https://msrc.microsoft.com/blog/2025/08/zero-day-quest-join-the-largest-hacking-event-with-up-to-5-million-in-total-bounty-awards/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-08-04T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": ".NET Bounty Program now offers up to $40,000 in awards",
+    "url": "https://msrc.microsoft.com/blog/2025/07/net-bounty-program-now-offers-up-to-40000-in-awards/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-31T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How Microsoft defends against indirect prompt injection attacks",
+    "url": "https://msrc.microsoft.com/blog/2025/07/how-microsoft-defends-against-indirect-prompt-injection-attacks/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-29T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Customer guidance for SharePoint vulnerability CVE-2025-53770",
+    "url": "https://msrc.microsoft.com/blog/2025/07/customer-guidance-for-sharepoint-vulnerability-cve-2025-53770/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-19T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Congratulations to the MSRC 2025 Most Valuable Security Researchers!",
+    "url": "https://msrc.microsoft.com/blog/2025/07/congratulations-to-the-msrc-2025-most-valuable-security-researchers/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-15T07:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Congratulations to the top MSRC 2025 Q2 security researchers!",
+    "url": "https://msrc.microsoft.com/blog/2025/07/congratulations-to-the-top-msrc-2025-q2-security-researchers/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "msrc.microsoft.com",
+    "time": "2025-07-07T07:00:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
