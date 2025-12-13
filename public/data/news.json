@@ -4,7 +4,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-unveils-real-time-cloud-detection-and-response/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321667+00:00",
+    "time": "2025-12-13T22:40:01.160596+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -14,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/transform-aws-security-operations-with-falcon-next-gen-siem/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321635+00:00",
+    "time": "2025-12-13T22:40:01.160569+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-uses-nvidia-nemotron-aws-power-agentic-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321603+00:00",
+    "time": "2025-12-13T22:40:01.160541+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/indirect-prompt-injection-attacks-hidden-ai-risks/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321567+00:00",
+    "time": "2025-12-13T22:40:01.160508+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/warp-panda-cloud-threats/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321531+00:00",
+    "time": "2025-12-13T22:40:01.160480+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/falcon-shield-evolves-ai-agent-visibility/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321480+00:00",
+    "time": "2025-12-13T22:40:01.160455+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-december-2025/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321442+00:00",
+    "time": "2025-12-13T22:40:01.160422+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-achieves-100-percent-2025-mitre-attack-enterprise-evaluation/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321400+00:00",
+    "time": "2025-12-13T22:40:01.160386+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +84,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-leakage-ai-plumbing-problem/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321353+00:00",
+    "time": "2025-12-13T22:40:01.160345+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,97 +94,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/built-for-scale-powered-by-ai-innovation-driving-falcon-exposure-management/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-13T21:31:50.321305+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.6 - 55 km S of Whites City, New Mexico",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2025ymqftt",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.761660+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.1 - 16 km SSW of Olancha, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41351088",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.761231+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.8 - 53 km E of Denali National Park, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ymqtgr",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.760963+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.7 - 25 km S of Westbrook, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2025ymrchx",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.760690+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 4.9 - 123 km WSW of Gorontalo, Indonesia",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000rupw",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.760396+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 2.5 - 58 km S of Whites City, New Mexico",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2025ymstvw",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.760124+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.5 - 63 km WNW of Toyah, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2025ymsxwr",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.759845+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.4 - 10 km NE of San Martin, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75279281",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.759560+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.5 - 6 km SSW of Ojai, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41351104",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.759261+00:00",
+    "time": "2025-12-13T22:40:01.160304+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -194,18 +104,98 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62209592",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-13T21:31:45.758956+00:00",
+    "time": "2025-12-13T22:39:54.897967+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Footloose in Perth, the gateway to Western Australia",
-    "url": "https://asia.nikkei.com/life-arts/life/destinations/footloose-in-perth-the-gateway-to-western-australia",
+    "title": "M 2.0 - 10 km NE of Pāhala, Hawaii",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74852007",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366407+00:00",
-    "region": "APJC",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.897727+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 2.7 - 10 km S of Ojai, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41351120",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.897468+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 2.9 - 4 km ESE of San Ramon, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75279301",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.897139+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 2.0 - 9 km S of Ojai, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41351128",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.896671+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.6 - 69 km ESE of Cantwell, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2025ymuwdd",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.896429+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 2.2 - 4 km SE of San Ramon, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75279321",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.896183+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.8 - 6 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75279326",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.895847+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.4 - 5 km WNW of Cobb, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75279331",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.895579+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.6 - 17 km NW of Westmorland, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41351144",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-13T22:39:54.895309+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -214,7 +204,7 @@
     "url": "https://asia.nikkei.com/video/video-japan-s-year-in-politics-2025",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366380+00:00",
+    "time": "2025-12-13T22:39:38.262538+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +214,7 @@
     "url": "https://asia.nikkei.com/business/education/singapore-university-promotes-responsible-content-among-young-creators",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366353+00:00",
+    "time": "2025-12-13T22:39:38.262516+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +224,7 @@
     "url": "https://asia.nikkei.com/politics/turbulent-thailand/thailand-s-anutin-plays-military-nationalism-card-to-boost-election-hopes",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366322+00:00",
+    "time": "2025-12-13T22:39:38.262492+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +234,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/china-s-intensifying-pressure-on-japan-overshadows-grassroots-activities",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366292+00:00",
+    "time": "2025-12-13T22:39:38.262467+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +244,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/thailand-cambodia-conflict/trump-fails-in-renewed-bid-to-end-thai-cambodian-border-clashes",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366259+00:00",
+    "time": "2025-12-13T22:39:38.262444+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +254,7 @@
     "url": "https://asia.nikkei.com/business/business-deals/nippon-life-seeks-to-buy-medical-data-firm-in-m-a-milestone",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366224+00:00",
+    "time": "2025-12-13T22:39:38.262413+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/automobiles/honda-eyes-us-made-ridgeline-trucks-passport-suvs-for-import-to-japan",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366187+00:00",
+    "time": "2025-12-13T22:39:38.262382+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +274,7 @@
     "url": "https://asia.nikkei.com/business/companies/china-shipbuilding-megadeal-follows-us-port-fee-truce",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366152+00:00",
+    "time": "2025-12-13T22:39:38.262354+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,8 +284,68 @@
     "url": "https://asia.nikkei.com/opinion/how-the-us-learned-to-stop-worrying-and-accept-north-korea-s-bomb",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-13T21:31:30.366111+00:00",
+    "time": "2025-12-13T22:39:38.262329+00:00",
     "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Japan tourism worries widen 1 month after China warning",
+    "url": "https://asia.nikkei.com/business/travel-leisure/japan-tourism-worries-widen-1-month-after-china-warning",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2025-12-13T22:39:38.262284+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "3 Americans Killed in ISIS Attack in Syria, Trump Says, Vowing to Retaliate",
+    "url": "https://www.nytimes.com/2025/12/13/world/middleeast/us-forces-attacked-syria.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2025-12-13T22:09:32+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hundreds join Tommy Robinson’s far-right rally in London: ‘Make Christmas Great Again’",
+    "url": "https://www.scmp.com/news/world/europe/article/3336359/hundreds-join-tommy-robinsons-far-right-rally-london-make-christmas-great-again?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2025-12-13T22:07:12+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Three Americans killed by IS gunman in Syria, US military says",
+    "url": "https://www.bbc.com/news/articles/c9d9vpxjp2go?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2025-12-13T21:42:05+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "6 UN peacekeepers killed in Sudan drone strike blamed on RSF paramilitary group",
+    "url": "https://www.scmp.com/news/world/africa/article/3336358/6-un-peacekeepers-killed-sudan-drone-strike?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2025-12-13T21:38:57+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Drone strike on UN facility in war-torn Sudan leaves six peacekeepers dead",
+    "url": "https://www.theguardian.com/world/2025/dec/13/drone-strike-on-un-facility-in-war-torn-sudan-leaves-six-peacekeepers-dead",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theguardian.com",
+    "time": "2025-12-13T21:35:30+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -305,16 +355,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
     "time": "2025-12-13T21:30:08+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "3 Americans Killed in ISIS Attack in Syria, Trump Says, Vowing to Retaliate",
-    "url": "https://www.nytimes.com/2025/12/13/world/middleeast/us-forces-attacked-syria.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2025-12-13T21:24:34+00:00",
     "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -400,7 +440,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Israel kills senior Hamas commander in Gaza, challenging fragile truce",
+    "title": "Israel says it has killed Hamas leader in Gaza, challenging fragile truce",
     "url": "https://www.washingtonpost.com/world/2025/12/13/raed-saad-hamas-killed/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "washingtonpost.com",
@@ -416,16 +456,6 @@
     "source": "nytimes.com",
     "time": "2025-12-13T19:41:16+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Three Americans killed by IS gunman in Syria, US military says",
-    "url": "https://www.bbc.com/news/articles/c9d9vpxjp2go?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2025-12-13T19:32:51+00:00",
-    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -460,7 +490,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Bangladesh says six peacekeepers killed in attack on UN base in Abyei",
+    "title": "UN chief condemns ‘horrific’ drone attack in Sudan as 6 peacekeepers killed",
     "url": "https://www.aljazeera.com/news/2025/12/13/bangladesh-peacekeepers-killed-attack-un-base-abyei-sudan?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "aljazeera.com",
@@ -710,32 +740,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Hong Kong launches professional services platform for mainland Chinese companies",
-    "url": "https://www.scmp.com/news/hong-kong/hong-kong-economy/article/3336347/hong-kong-launches-professional-services-platform-mainland-chinese-companies?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2025-12-13T14:30:08+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Why the huge bidding war over Warner Bros?",
     "url": "https://www.aljazeera.com/video/the-listening-post/2025/12/13/why-the-huge-bidding-war-over-warner-bros?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "aljazeera.com",
     "time": "2025-12-13T14:18:14+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "How an American family’s wartime bond with China is bringing the countries together",
-    "url": "https://www.scmp.com/news/china/diplomacy/article/3336246/how-american-familys-wartime-bond-china-bringing-countries-together?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2025-12-13T14:00:09+00:00",
-    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -2335,16 +2345,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theguardian.com",
     "time": "2025-12-10T15:06:28+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Burkina Faso releases 11 Nigerian troops after ‘unauthorised’ plane landing",
-    "url": "https://www.theguardian.com/world/2025/dec/10/burkina-faso-releases-nigerian-troops-unauthorised-emergency-landing",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theguardian.com",
-    "time": "2025-12-10T12:51:08+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
