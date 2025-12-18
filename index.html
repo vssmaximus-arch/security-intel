@@ -1,461 +1,559 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dell OS | InfoHub</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+console.log("--- V100 FINAL FULL CODE ---");
+
+/**
+ * OSINFOHUB – EDGE INTEL BRAIN (V100)
+ * Stack: Cloudflare Workers + KV + Groq + Resend
+ *
+ * STATUS: 🟢 LIVE & COMPLETE
+ * - DATA: 100% Full City List (Restored).
+ * - DATA: 100% Full Source List.
+ * - ENGINE: Stable V97 Logic (JSON Scrubber + 8b Model).
+ * - EMAIL: Pro Format.
+ */
+
+// --- CONFIGURATION ---
+const BATCH_SIZE = 6; 
+const EMAIL_THRESHOLD = 3; 
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,secret",
+};
+
+// --- EMAIL SETTINGS ---
+const EMAIL_FROM = "OSINT Alerts <onboarding@resend.dev>";
+const ADMIN_EMAIL = "vssmaximus@gmail.com";
+
+// --- MASTER FEED LIST ---
+const SOURCES = [
+  // --- INDIA STRATEGIC ---
+  "https://news.google.com/rss/search?q=India+security+safety&hl=en-IN&gl=IN&ceid=IN:en",
+  "https://www.indiatoday.in/rss/home",
+  "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml",
+  "https://www.thehindu.com/news/national/feeder/default.rss",
+  "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+
+  // --- STRATEGIC & GOVT ---
+  "https://www.osac.gov/Content/RSS/Alerts",
+  "https://www.gov.uk/government/organisations/foreign-commonwealth-development-office.atom",
+  
+  // --- APJC ---
+  "https://www.straitstimes.com/news/singapore/rss.xml",
+  "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml",
+  "https://e.vnexpress.net/rss/news.rss",
+  "https://www.inquirer.net/fullfeed",
+  "https://www.bangkokpost.com/rss/data/topstories.xml",
+  "https://www.rnz.co.nz/rss/news.xml",
+  "https://news.google.com/rss/search?q=New+Zealand+Security&hl=en-NZ&gl=NZ&ceid=NZ:en",
+  "https://www.abc.net.au/news/feed/45910/rss.xml",
+  "https://www.japantimes.co.jp/feed",
+  "https://www.scmp.com/rss/91/feed",
+  "http://www.koreaherald.com/rss/rss_1.xml",
+  "https://focustaiwan.tw/rss/news",
+
+  // --- AMER / EMEA ---
+  "https://globalnews.ca/feed/",
+  "https://mexiconewsdaily.com/feed/",
+  "https://en.mercopress.com/rss",
+  "https://www.riotimesonline.com/feed/",
+  "https://www.theguardian.com/world/rss",
+  "https://www.france24.com/en/rss",
+  "https://rss.dw.com/rdf/rss-en-all",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+
+  // --- LOGISTICS ---
+  "https://www.freightwaves.com/feed",
+  "https://www.supplychaindive.com/feeds/news/",
+  "https://gcaptain.com/feed/",
+  "https://www.porttechnology.org/feed/",
+  "https://www.logisticsmgmt.com/rss/Logistics_Mgmt",
+  "https://newsroom.fmglobal.com/rss/supply-chain",
+
+  // --- CYBER ---
+  "https://www.cisa.gov/cybersecurity-advisories/all.xml",
+  "https://therecord.media/feed",
+  "https://www.theregister.com/security/headlines.atom",
+  "https://www.gdacs.org/Content/feeds/all.xml",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom"
+];
+
+// --- NOISE BLOCKER ---
+const IGNORE_REGEX = /sport|hockey|soccer|football|cricket|tennis|nfl|nba|f1|champions league|celebrity|movie|gossip|arts|culture|review|recipe|festivals|concert|fashion|royal|lifestyle|horoscope|bowler|wicket|batsman|ipl|innings|match/i;
+
+// --- FALLBACK REGEX ---
+const RISK_REGEX = /shooting|gunman|active shooter|attack|terror|hostage|kidnap|bomb|explosion|riot|protest|unrest|coup|cartel|siege|killed|dead|injured|death|fatal|earthquake|tsunami|flood|cyclone|typhoon|hurricane|tornado|volcano|ransomware|data breach|cyber|malware|outage|blackout|grid failure|strike|port closed|airport closed|cargo|supply chain|logistics|embargo|pandemic|outbreak|quarantine|fire|arrest|crash|derailment|warning|alert|crisis|emergency|risk|threat|security|disruption|delay|police|military|conflict|tension|border|jail|court|crime|law|sentence|blockade|sanction|tariff|trade war/i;
+
+// --- SMART PACK DEFINITIONS ---
+const SMART_PACKS = {
+  PHYSICAL: {
+    include: ["active shooter", "shots fired", "shooting", "gunman", "armed suspect", "armed attack", "stabbing", "hostage", "kidnap", "bomb", "ied", "explosion", "terror", "militant", "extremist", "assassination", "ambush", "riot", "looting", "arson", "civil unrest", "violent protest", "clashes", "lockdown", "evacuation", "curfew", "martial law", "manhunt", "swat", "navy", "army", "military", "defense", "carrier", "warship"],
+    boosters: ["mass casualty", "multiple dead", "fatalities", "injured", "school", "campus", "mall", "airport", "metro", "station"]
+  },
+  CYBER: {
+    include: ["ransomware", "data breach", "security breach", "compromised", "malware", "trojan", "botnet", "phishing", "zero-day", "exploit", "backdoor", "ddos", "cyber attack", "hacker", "leak"],
+    boosters: ["operations halted", "systems offline", "critical infrastructure", "data leaked", "production outage"]
+  },
+  INFRASTRUCTURE: {
+    include: ["power outage", "blackout", "grid failure", "load shedding", "water outage", "telecom", "internet outage", "cloud outage", "data center", "service disruption", "smog", "pollution", "visibility"],
+    boosters: ["nationwide", "critical services", "emergency services", "indefinite"]
+  },
+  DISASTER: {
+    include: ["earthquake", "tsunami", "volcano", "cyclone", "typhoon", "hurricane", "tornado", "storm", "flood", "wildfire", "bushfire", "landslide", "blizzard", "quake", "magnitude"],
+    boosters: ["evacuation", "destroyed", "damaged", "warning"]
+  },
+  LOGISTICS: {
+    include: ["port closed", "airport closed", "flight cancellations", "shipping delays", "congestion", "vessel collision", "derailment", "train crash", "bridge collapse", "road closure", "border closure", "strike", "work stoppage", "embargo", "sanctions", "blockade", "tariff", "trade war"],
+    boosters: ["indefinite", "halted", "shutdown", "disruption"]
+  }
+};
+
+// --- CITY LOOKUP (FULL RESTORED) ---
+const CITY_COORDS = {
+  "round rock": { lat: 30.5083, lng: -97.6788 },
+  "austin": { lat: 30.2672, lng: -97.7431 },
+  "hopkinton": { lat: 42.2287, lng: -71.5226 },
+  "franklin": { lat: 42.0834, lng: -71.3967 },
+  "apex": { lat: 35.7327, lng: -78.8503 },
+  "eden prairie": { lat: 44.8617, lng: -93.4168 },
+  "draper": { lat: 40.5240, lng: -111.8950 },
+  "nashville": { lat: 36.1627, lng: -86.7816 },
+  "oklahoma city": { lat: 35.4676, lng: -97.5164 },
+  "santa clara": { lat: 37.3541, lng: -121.9552 },
+  "mclean": { lat: 38.9295, lng: -77.2268 },
+  "el paso": { lat: 31.8385, lng: -106.5278 },
+  "new york": { lat: 40.7128, lng: -74.0060 },
+  "san francisco": { lat: 37.7749, lng: -122.4194 },
+  "bangalore": { lat: 12.9716, lng: 77.5946 },
+  "bengaluru": { lat: 12.9716, lng: 77.5946 },
+  "delhi": { lat: 28.6139, lng: 77.2090 },
+  "mumbai": { lat: 19.0760, lng: 72.8777 },
+  "hyderabad": { lat: 17.3850, lng: 78.4867 },
+  "chennai": { lat: 13.0827, lng: 80.2707 },
+  "pune": { lat: 18.5204, lng: 73.8567 },
+  "gurugram": { lat: 28.4595, lng: 77.0266 },
+  "noida": { lat: 28.5355, lng: 77.3910 },
+  "london": { lat: 51.5074, lng: -0.1278 },
+  "bracknell": { lat: 51.4160, lng: -0.7540 },
+  "dublin": { lat: 53.3498, lng: -6.2603 },
+  "limerick": { lat: 52.6638, lng: -8.6267 },
+  "cork": { lat: 51.8985, lng: -8.4756 },
+  "glasgow": { lat: 55.8642, lng: -4.2518 },
+  "paris": { lat: 48.8566, lng: 2.3522 },
+  "montpellier": { lat: 43.6108, lng: 3.8767 },
+  "frankfurt": { lat: 50.1109, lng: 8.6821 },
+  "halle": { lat: 51.4820, lng: 11.9700 },
+  "amsterdam": { lat: 52.3676, lng: 4.9041 },
+  "lodz": { lat: 51.7285, lng: 19.4967 },
+  "casablanca": { lat: 33.5731, lng: -7.5898 },
+  "cairo": { lat: 30.0444, lng: 31.2357 },
+  "dubai": { lat: 25.2048, lng: 55.2708 },
+  "tel aviv": { lat: 32.0853, lng: 34.7818 },
+  "herzliya": { lat: 32.1644, lng: 34.7961 },
+  "haifa": { lat: 32.7940, lng: 34.9896 },
+  "singapore": { lat: 1.3521, lng: 103.8198 },
+  "sydney": { lat: -33.8688, lng: 151.2093 },
+  "melbourne": { lat: -37.8136, lng: 144.9631 },
+  "auckland": { lat: -36.8485, lng: 174.7633 },
+  "wellington": { lat: -41.2865, lng: 174.7762 },
+  "tokyo": { lat: 35.6762, lng: 139.6503 },
+  "kawasaki": { lat: 35.5300, lng: 139.6960 },
+  "taipei": { lat: 25.0330, lng: 121.5654 },
+  "shanghai": { lat: 31.2304, lng: 121.4737 },
+  "beijing": { lat: 39.9042, lng: 116.4074 },
+  "chengdu": { lat: 30.5728, lng: 104.0668 },
+  "xiamen": { lat: 24.4798, lng: 118.0894 },
+  "penang": { lat: 5.4164, lng: 100.3327 },
+  "cyberjaya": { lat: 2.9213, lng: 101.6559 },
+  "panama city": { lat: 8.9824, lng: -79.5199 },
+  "mexico city": { lat: 19.4326, lng: -99.1332 },
+  "sao paulo": { lat: -23.5505, lng: -46.6333 },
+  "hortolandia": { lat: -22.8583, lng: -47.2208 },
+  "porto alegre": { lat: -30.0346, lng: -51.2177 }
+};
+
+// --- SCORING ENGINE ---
+function calculateSmartScore(text) {
+  let score = 0;
+  let matches = [];
+  const lowerText = text.toLowerCase();
+  for (const [pack, data] of Object.entries(SMART_PACKS)) {
+    for (const word of data.include) {
+      if (lowerText.includes(word)) {
+        score += 1;
+        matches.push(pack);
+      }
+    }
+    for (const word of data.boosters) {
+      if (lowerText.includes(word)) {
+        score += 3;
+      }
+    }
+  }
+  return { score, matches: [...new Set(matches)] };
+}
+
+// --- SELF-HEALING URL SANITIZER ---
+function cleanUrl(url) {
+    let clean = url.trim();
+    if (clean.startsWith("[")) {
+        const match = clean.match(/\((https?:\/\/[^\)]+)\)/);
+        if (match) return match[1];
+        const match2 = clean.match(/\[(https?:\/\/[^\]]+)\]/);
+        if (match2) return match2[1];
+    }
+    return clean;
+}
+
+export default {
+  async fetch(req, env, ctx) {
+    if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+    const url = new URL(req.url);
+
+    if (url.pathname === "/api/incidents") {
+      const data = await env.INTEL_KV.get("incidents");
+      return new Response(data || "[]", { headers: { ...CORS, "Content-Type": "application/json" } });
+    }
+
+    if (url.pathname === "/api/ingest" && req.method === "POST") {
+      const secret = req.headers.get("secret");
+      if (!secret || secret !== env.INGEST_SECRET) {
+        return new Response("Unauthorized", { status: 403, headers: CORS });
+      }
+      ctx.waitUntil(runIngestion(env));
+      return new Response("Ingestion triggered", { headers: CORS });
+    }
+    return new Response("osinfohub online", { headers: CORS });
+  },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runIngestion(env));
+  },
+};
+
+async function runIngestion(env) {
+  console.log("--- V100 FINAL FULL CODE ACTIVE ---");
+  let totalItems = 0;
+  let regexHits = 0;
+  let aiSuccess = 0;
+
+  if (!env.GROQ_API_KEY) {
+    console.log("CRITICAL ERROR: GROQ_API_KEY is missing.");
+    return;
+  }
+
+  const existing = (await env.INTEL_KV.get("incidents", { type: "json" })) || [];
+  const seen = new Set(existing.map((i) => i.id));
+  const fresh = [];
+
+  const shuffled = [...SOURCES].sort(() => 0.5 - Math.random());
+  const batch = shuffled.slice(0, BATCH_SIZE);
+
+  for (const rawSrc of batch) {
+    const src = cleanUrl(rawSrc); // SANITIZE
+    console.log(`Checking: ${src}`);
     
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        :root { --dell-blue: #0076CE; --bg-dark: #0f1115; --card-bg: #1a1f2e; --text-main: #e2e8f0; --border: #2d3748; }
-        
-        body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 20px; color: var(--text-main); }
-        .app-container { max-width: 1800px; margin: 0 auto; }
-        
-        /* HEADER */
-        .header-container { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
-        .logo-text { font-size: 1.5rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-        .logo-text span { color: var(--dell-blue); }
-        
-        .nav-pills-custom { background-color: #1a1f2e; padding: 4px; border-radius: 8px; display: inline-flex; gap: 2px; border: 1px solid var(--border); }
-        .nav-item-custom { padding: 6px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; cursor: pointer; text-transform: uppercase; transition: 0.2s; text-decoration: none; }
-        .nav-item-custom:hover { color: #fff; }
-        .nav-item-custom.active { background-color: var(--dell-blue); color: #fff; }
+    // Safety check for valid URL format
+    try { new URL(src); } catch(e) { console.log(`Skipping Bad URL: ${src}`); continue; }
 
-        .btn-daily { background-color: #1a73e8; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-daily:hover { background-color: #1557b0; }
-
-        /* MAP */
-        .map-wrapper { height: 500px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 25px; position: relative; z-index: 1; }
-        #map { width: 100%; height: 100%; }
-        
-        /* FEED */
-        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .feed-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; padding: 0; overflow: hidden; transition: transform 0.2s; position: relative; text-decoration: none; display: block; color: inherit; }
-        .feed-card:hover { transform: translateY(-2px); border-color: var(--dell-blue); }
-        
-        .sev-bar { width: 5px; position: absolute; top: 0; bottom: 0; left: 0; }
-        .sev-5 { background-color: #ef4444; } /* Critical */
-        .sev-4 { background-color: #f97316; } /* High */
-        .sev-3 { background-color: #eab308; } /* Medium */
-        .sev-2 { background-color: #3b82f6; } /* Low */
-        .sev-1 { background-color: #64748b; } /* Info */
-        
-        .card-body { padding: 15px 15px 15px 20px; }
-        .meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        
-        .chip { padding: 2px 8px; border-radius: 4px; color: #000; letter-spacing: 0.5px; }
-        .chip-loc { background: #2d3748; color: #fff; }
-        
-        h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 8px 0; line-height: 1.4; color: #fff; }
-        .summary { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; border-left: 2px solid #4a5568; padding-left: 12px; margin-bottom: 10px; }
-        
-        .footer-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 10px; }
-        .source-link { color: var(--dell-blue); font-weight: 600; }
-
-        .loading { text-align: center; padding: 60px; color: #64748b; font-weight: 500; letter-spacing: 1px; }
-        
-        /* SIDEBAR */
-        .sidebar-card { background: #151921; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .sidebar-title { color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; font-weight: 700; margin-bottom: 15px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        
-        .form-select, .form-control { background-color: #0f1115; border: 1px solid var(--border); color: #fff; font-size: 0.9rem; }
-        .form-select:focus, .form-control:focus { background-color: #0f1115; color: #fff; border-color: var(--dell-blue); box-shadow: none; }
-        
-        .modal-content { background-color: #1a1f2e; color: #fff; border: 1px solid var(--border); }
-        .modal-header { border-bottom: 1px solid var(--border); }
-        .btn-close { filter: invert(1); }
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    <div class="header-container">
-        <div class="logo-text"><i class="fas fa-shield-alt"></i> DELL <span>OS INFOHUB</span></div>
-        <div class="d-flex align-items-center gap-4">
-            <div class="nav-pills-custom">
-                <a class="nav-item-custom active" onclick="app.filter('ALL', this)">Global</a>
-                <a class="nav-item-custom" onclick="app.filter('AMER', this)">AMER</a>
-                <a class="nav-item-custom" onclick="app.filter('EMEA', this)">EMEA</a>
-                <a class="nav-item-custom" onclick="app.filter('APJC', this)">APJC</a>
-            </div>
-            
-            <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal">
-                <i class="fas fa-file-alt"></i> Daily Briefings
-            </div>
-
-            <div class="text-end">
-                <div id="clock" style="font-weight:700; font-size:1rem; color:#fff;">--:--</div>
-                <div style="font-size:0.75rem; color:#94a3b8;">V102 LIVE</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-lg-9">
-            <div class="map-wrapper">
-                <div id="map"></div>
-            </div>
-            
-            <div class="feed-header">
-                <div style="font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">
-                    <i class="fas fa-circle text-success me-2" style="font-size:0.6rem;"></i> Live Intelligence Stream
-                </div>
-                <span class="badge bg-secondary" id="feed-count">WAITING FOR DATA...</span>
-            </div>
-            
-            <div id="feed-container">
-                <div class="loading"><i class="fas fa-satellite-dish fa-spin me-2"></i> CONNECTING TO V102 WORKER...</div>
-            </div>
-        </div>
-
-        <div class="col-lg-3">
-            
-            <div class="sidebar-card">
-                <div class="sidebar-title"><i class="fas fa-history"></i> History Search</div>
-                <input type="date" class="form-control" id="history-date" onchange="app.filterByDate(this.value)">
-                <div class="mt-2 text-muted" style="font-size:0.75rem;">Select a date to filter active incidents.</div>
-            </div>
-
-            <div class="sidebar-card">
-                <div class="sidebar-title"><i class="fas fa-plane"></i> Travel Safety Check</div>
-                <select class="form-select" id="countrySelect" onchange="app.filterByCountry(this.value)">
-                    <option value="ALL">Select Country...</option>
-                </select>
-                <div id="travel-status" class="mt-3" style="font-size:0.85rem; color:#cbd5e1;"></div>
-            </div>
-
-            <div class="sidebar-card">
-                <div class="sidebar-title"><i class="fas fa-filter"></i> Risk Category</div>
-                <select class="form-select" onchange="app.filterCat(this.value)">
-                    <option value="ALL">All Categories</option>
-                    <option value="PHYSICAL">Physical Security</option>
-                    <option value="CYBER">Cyber Security</option>
-                    <option value="INFRASTRUCTURE">Infrastructure</option>
-                    <option value="DISASTER">Natural Disaster</option>
-                    <option value="LOGISTICS">Logistics/Supply Chain</option>
-                </select>
-            </div>
-
-            <div class="sidebar-card">
-                <div class="sidebar-title"><i class="fas fa-crosshairs"></i> Proximity Alerts</div>
-                <select id="proxRadius" class="form-select mb-3" onchange="app.updateProximity()">
-                    <option value="50" selected>50 KM Range</option>
-                    <option value="100">100 KM Range</option>
-                    <option value="500">500 KM Range</option>
-                </select>
-                <div id="proximity-container">
-                    <div class="text-center p-3 text-muted small">No immediate threats near assets.</div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Daily Intelligence Briefing</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Download the latest automated intelligence summary.</p>
-                <select class="form-select mb-3" id="reportRegion">
-                    <option value="global">Global Summary</option>
-                    <option value="apjc">APJC Region</option>
-                    <option value="emea">EMEA Region</option>
-                    <option value="amer">AMER Region</option>
-                </select>
-                <button class="btn btn-primary w-100" onclick="alert('Report Generation is linked to Python script. Please confirm Python backend is active.')">Download Report</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // --- V102 CONFIGURATION ---
-    const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; 
-
-    // --- FULL ASSET LIST ---
-    const ASSETS = {
-        "round rock": { lat: 30.5083, lng: -97.6788 },
-        "austin": { lat: 30.2672, lng: -97.7431 },
-        "hopkinton": { lat: 42.2287, lng: -71.5226 },
-        "franklin": { lat: 42.0834, lng: -71.3967 },
-        "apex": { lat: 35.7327, lng: -78.8503 },
-        "eden prairie": { lat: 44.8617, lng: -93.4168 },
-        "draper": { lat: 40.5240, lng: -111.8950 },
-        "nashville": { lat: 36.1627, lng: -86.7816 },
-        "oklahoma city": { lat: 35.4676, lng: -97.5164 },
-        "santa clara": { lat: 37.3541, lng: -121.9552 },
-        "mclean": { lat: 38.9295, lng: -77.2268 },
-        "el paso": { lat: 31.8385, lng: -106.5278 },
-        "new york": { lat: 40.7128, lng: -74.0060 },
-        "san francisco": { lat: 37.7749, lng: -122.4194 },
-        "bangalore": { lat: 12.9716, lng: 77.5946 },
-        "bengaluru": { lat: 12.9716, lng: 77.5946 },
-        "delhi": { lat: 28.6139, lng: 77.2090 },
-        "mumbai": { lat: 19.0760, lng: 72.8777 },
-        "hyderabad": { lat: 17.3850, lng: 78.4867 },
-        "chennai": { lat: 13.0827, lng: 80.2707 },
-        "pune": { lat: 18.5204, lng: 73.8567 },
-        "gurugram": { lat: 28.4595, lng: 77.0266 },
-        "noida": { lat: 28.5355, lng: 77.3910 },
-        "london": { lat: 51.5074, lng: -0.1278 },
-        "bracknell": { lat: 51.4160, lng: -0.7540 },
-        "dublin": { lat: 53.3498, lng: -6.2603 },
-        "limerick": { lat: 52.6638, lng: -8.6267 },
-        "cork": { lat: 51.8985, lng: -8.4756 },
-        "glasgow": { lat: 55.8642, lng: -4.2518 },
-        "paris": { lat: 48.8566, lng: 2.3522 },
-        "montpellier": { lat: 43.6108, lng: 3.8767 },
-        "frankfurt": { lat: 50.1109, lng: 8.6821 },
-        "halle": { lat: 51.4820, lng: 11.9700 },
-        "amsterdam": { lat: 52.3676, lng: 4.9041 },
-        "lodz": { lat: 51.7285, lng: 19.4967 },
-        "casablanca": { lat: 33.5731, lng: -7.5898 },
-        "cairo": { lat: 30.0444, lng: 31.2357 },
-        "dubai": { lat: 25.2048, lng: 55.2708 },
-        "tel aviv": { lat: 32.0853, lng: 34.7818 },
-        "herzliya": { lat: 32.1644, lng: 34.7961 },
-        "haifa": { lat: 32.7940, lng: 34.9896 },
-        "singapore": { lat: 1.3521, lng: 103.8198 },
-        "sydney": { lat: -33.8688, lng: 151.2093 },
-        "melbourne": { lat: -37.8136, lng: 144.9631 },
-        "auckland": { lat: -36.8485, lng: 174.7633 },
-        "wellington": { lat: -41.2865, lng: 174.7762 },
-        "tokyo": { lat: 35.6762, lng: 139.6503 },
-        "kawasaki": { lat: 35.5300, lng: 139.6960 },
-        "taipei": { lat: 25.0330, lng: 121.5654 },
-        "shanghai": { lat: 31.2304, lng: 121.4737 },
-        "beijing": { lat: 39.9042, lng: 116.4074 },
-        "chengdu": { lat: 30.5728, lng: 104.0668 },
-        "xiamen": { lat: 24.4798, lng: 118.0894 },
-        "penang": { lat: 5.4164, lng: 100.3327 },
-        "cyberjaya": { lat: 2.9213, lng: 101.6559 },
-        "panama city": { lat: 8.9824, lng: -79.5199 },
-        "mexico city": { lat: 19.4326, lng: -99.1332 },
-        "sao paulo": { lat: -23.5505, lng: -46.6333 },
-        "hortolandia": { lat: -22.8583, lng: -47.2208 },
-        "porto alegre": { lat: -30.0346, lng: -51.2177 }
-    };
-
-    const app = {
-        data: [],
-        map: null,
-        markers: [],
-        assetMarkers: [],
-        currentRegion: 'ALL',
-        currentCategory: 'ALL',
-        filterDate: null,
-        filterCountry: 'ALL',
-
-        init: function() {
-            this.initMap();
-            this.startClock();
-            this.fetchData();
-            setInterval(() => this.fetchData(), 60000); // Auto-refresh 1 min
+    try {
+      const resp = await fetch(src, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         },
+      });
 
-        initMap: function() {
-            this.map = L.map('map', { zoomControl: false }).setView([20, 0], 2);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO'
-            }).addTo(this.map);
+      if (!resp.ok) {
+        console.log(`Error ${resp.status} fetching ${src}`);
+        continue;
+      }
 
-            // PLOT ASSETS (BLUE DOTS)
-            for (const [name, coords] of Object.entries(ASSETS)) {
-                const m = L.circleMarker([coords.lat, coords.lng], {
-                    radius: 5, color: '#1a73e8', fillColor: '#1a73e8', fillOpacity: 0.9, weight: 2
-                }).addTo(this.map).bindPopup(`<b style="color:#1a73e8">DELL ASSET</b><br>${name.toUpperCase()}`);
-                this.assetMarkers.push({name, marker: m, lat: coords.lat, lng: coords.lng});
-            }
-        },
+      const xml = await resp.text();
+      // BRUTE FORCE PARSER
+      const items = parseUniversal(xml).slice(0, 5);
+      console.log(`> Found ${items.length} items.`);
 
-        startClock: function() {
-            const update = () => {
-                const now = new Date();
-                document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            };
-            update();
-            setInterval(update, 1000);
-        },
-
-        fetchData: async function() {
-            try {
-                const res = await fetch(`${WORKER_URL}/api/incidents`);
-                if (!res.ok) throw new Error("Network response was not ok");
-                this.data = await res.json();
-                this.populateCountries();
-                this.render();
-                this.updateProximity();
-            } catch (error) {
-                console.error("Fetch error:", error);
-                document.getElementById('feed-container').innerHTML = `<div class="loading text-danger">Connection Failed. Check Worker URL.</div>`;
-            }
-        },
-
-        populateCountries: function() {
-            const select = document.getElementById('countrySelect');
-            const countries = [...new Set(this.data.map(i => i.country).filter(c => c && c !== 'GLOBAL'))].sort();
-            select.innerHTML = '<option value="ALL">Select Country...</option>';
-            countries.forEach(c => {
-                select.innerHTML += `<option value="${c}">${c}</option>`;
-            });
-        },
-
-        render: function() {
-            const container = document.getElementById('feed-container');
-            container.innerHTML = '';
-            
-            // CLEAR INCIDENT MARKERS
-            this.markers.forEach(m => this.map.removeLayer(m));
-            this.markers = [];
-
-            // FILTER LOGIC
-            let filtered = this.data.filter(item => {
-                const regionMatch = this.currentRegion === 'ALL' || item.region === this.currentRegion;
-                const catMatch = this.currentCategory === 'ALL' || (item.category && item.category.includes(this.currentCategory));
-                
-                // DATE FILTER
-                let dateMatch = true;
-                if (this.filterDate) {
-                    const itemDate = new Date(item.time).toISOString().split('T')[0];
-                    dateMatch = itemDate === this.filterDate;
-                }
-
-                // COUNTRY FILTER
-                const countryMatch = this.filterCountry === 'ALL' || item.country === this.filterCountry;
-
-                return regionMatch && catMatch && dateMatch && countryMatch;
-            });
-
-            // SORT (Newest First)
-            filtered.sort((a, b) => new Date(b.time) - new Date(a.time));
-            document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading">No active threats matching criteria.</div>';
-                return;
-            }
-
-            filtered.forEach(item => {
-                // UI LOGIC
-                const sevClass = item.severity >= 4 ? 'sev-5' : (item.severity === 3 ? 'sev-4' : 'sev-2');
-                const sevColor = item.severity >= 4 ? '#ef4444' : (item.severity === 3 ? '#f9ab00' : '#3b82f6');
-                
-                const loc = (item.location || "UNKNOWN").toUpperCase();
-                const country = (item.country || "GLOBAL").toUpperCase();
-                const category = (item.category || "GENERAL").toUpperCase();
-                const summary = item.summary || "No summary available.";
-
-                // CARD HTML
-                const html = `
-                    <a href="${item.link}" target="_blank" class="feed-card">
-                        <div class="sev-bar ${sevClass}"></div>
-                        <div class="card-body">
-                            <div class="meta-row">
-                                <span class="chip" style="background:${sevColor}; color:#fff;">SEV ${item.severity}</span>
-                                <span class="chip chip-loc">${country}</span>
-                                <span class="chip" style="background:#4a5568; color:#fff;">${category}</span>
-                            </div>
-                            <h3>${item.title}</h3>
-                            <div class="summary">${summary}</div>
-                            <div class="footer-row">
-                                <span><i class="far fa-clock"></i> ${new Date(item.time).toLocaleString()} • ${loc}</span>
-                                <span class="source-link">READ SOURCE <i class="fas fa-external-link-alt"></i></span>
-                            </div>
-                        </div>
-                    </a>
-                `;
-                container.innerHTML += html;
-
-                // MAP PIN
-                if(item.lat && item.lng && item.lat !== 0) {
-                    const marker = L.circleMarker([item.lat, item.lng], {
-                        radius: 8, fillColor: sevColor, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
-                    }).bindPopup(`<b>${country}: ${loc}</b><br>${item.title}`);
-                    
-                    marker.addTo(this.map);
-                    this.markers.push(marker);
-                }
-            });
-        },
-
-        filter: function(reg, el) {
-            this.currentRegion = reg;
-            document.querySelectorAll('.nav-item-custom').forEach(nav => nav.classList.remove('active'));
-            el.classList.add('active');
-            this.render();
-        },
-
-        filterCat: function(cat) {
-            this.currentCategory = cat;
-            this.render();
-        },
-
-        filterByDate: function(date) {
-            this.filterDate = date;
-            this.render();
-        },
-
-        filterByCountry: function(country) {
-            this.filterCountry = country;
-            this.render();
-        },
+      for (const item of items) {
+        totalItems++;
+        const id = stableId(item.link || item.title);
         
-        updateProximity: function() {
-            const range = parseInt(document.getElementById('proxRadius').value);
-            const container = document.getElementById('proximity-alerts-container');
-            container.innerHTML = '';
-            
-            let threatsFound = 0;
-
-            this.data.forEach(incident => {
-                if(!incident.lat || !incident.lng) return;
-                
-                this.assetMarkers.forEach(asset => {
-                    const dist = this.haversine(incident.lat, incident.lng, asset.lat, asset.lng);
-                    if(dist <= range) {
-                        threatsFound++;
-                        const color = incident.severity >= 4 ? '#ef4444' : '#f9ab00';
-                        container.innerHTML += `
-                        <div class="p-2 mb-2 border rounded" style="border-left: 4px solid ${color} !important; background:#1a1f2e; border:1px solid #2d3748;">
-                            <div class="fw-bold text-white" style="font-size:0.8rem;">${incident.title}</div>
-                            <div class="d-flex justify-content-between mt-1" style="font-size:0.75rem; color:#94a3b8;">
-                                <span>Near: <b>${asset.name.toUpperCase()}</b></span>
-                                <span class="text-danger fw-bold">${Math.round(dist)} km</span>
-                            </div>
-                        </div>`;
-                    }
-                });
-            });
-
-            if(threatsFound === 0) {
-                container.innerHTML = `<div class="text-center p-3 text-muted small">No threats within ${range}km of assets.</div>`;
-            }
-        },
-
-        haversine: function(lat1, lon1, lat2, lon2) {
-            const R = 6371; 
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+        if (seen.has(id)) {
+            continue; 
         }
-    };
+        seen.add(id);
 
-    // START APP
-    app.init();
-</script>
-</body>
-</html>
+        const text = `${item.title} ${item.summary}`.trim();
+        
+        // 1. NOISE BLOCKER
+        if (IGNORE_REGEX.test(text)) continue;
+
+        // 2. INDIA/DELL FORCE BYPASS
+        const lowerSrc = src.toLowerCase();
+        const isIndia = lowerSrc.includes("india") || lowerSrc.includes("ndtv") || lowerSrc.includes("hindu") || lowerSrc.includes("google") || /dell|bangalore|bengaluru|mumbai|hyderabad/i.test(text);
+
+        // 3. SMART FILTER SCORING
+        const smartData = calculateSmartScore(text);
+        const smartPass = smartData.score >= 1;
+        const riskPass = RISK_REGEX.test(text);
+
+        // 4. DECISION
+        const shouldAnalyze = isIndia || smartPass || riskPass;
+
+        if (!shouldAnalyze) {
+           console.log(`[Filter Debug] Skipped: ${item.title.slice(0,40)}`);
+           continue; 
+        }
+        
+        regexHits++;
+        console.log(`AI Analyzing: ${item.title}`);
+        
+        // 1s DELAY (Speedy but safe)
+        await new Promise(r => setTimeout(r, 1000));
+
+        let ai = await callGroq(env.GROQ_API_KEY, text);
+        if (!ai) {
+            await new Promise(r => setTimeout(r, 1000));
+            ai = await callGroq(env.GROQ_API_KEY, text);
+        }
+        
+        if (!ai || typeof ai !== "object") {
+             console.log(`> AI Skipped (Failed).`);
+             continue;
+        }
+        
+        const schemaOk = 
+          typeof ai.summary === "string" &&
+          typeof ai.category === "string" &&
+          Number.isFinite(parseInt(ai.severity, 10));
+
+        if (!schemaOk) {
+          console.log("> AI JSON missing fields");
+          continue;
+        }
+
+        aiSuccess++;
+
+        const coords = resolveCoords(ai.location, item);
+        const prox = proximity(coords.lat, coords.lng);
+
+        // --- N/A FIXER ---
+        let cleanCountry = (ai.country || "GLOBAL").toUpperCase();
+        if (cleanCountry === "N/A" || cleanCountry === "NONE" || cleanCountry === "UNKNOWN") cleanCountry = "GLOBAL";
+        
+        let cleanLocation = (ai.location || "UNKNOWN").toUpperCase();
+        if (cleanLocation === "N/A" || cleanLocation === "NONE") cleanLocation = "UNKNOWN";
+
+        const incident = {
+          id,
+          title: item.title,
+          link: item.link || "",
+          summary: ai.summary || item.summary || "",
+          category: ai.category || "UNKNOWN",
+          severity: clampInt(ai.severity, 1, 5),
+          region: normalizeRegion(ai.region),
+          country: cleanCountry,
+          location: cleanLocation,
+          lat: coords.lat,
+          lng: coords.lng,
+          nearest_site: prox.site,
+          distance_km: prox.dist,
+          time: new Date().toISOString(),
+          source: src,
+          smart_score: smartData.score,
+          smart_packs: smartData.matches,
+          india_priority: !!isIndia,
+        };
+
+        fresh.push(incident);
+
+        console.log(`> Incident Sev: ${incident.severity}`);
+        if (incident.severity >= EMAIL_THRESHOLD) {
+          console.log(">>> TRIGGERING SRO ALERT");
+          await sendEmail(env, incident);
+        }
+      }
+    } catch (e) {
+      console.log(`Loop Error: ${e.message}`);
+    }
+  }
+
+  console.log(`STATS totalItems=${totalItems} regexHits=${regexHits} aiSuccess=${aiSuccess} freshSaved=${fresh.length}`);
+
+  if (fresh.length) {
+    const merged = [...fresh, ...existing].slice(0, 200);
+    await env.INTEL_KV.put("incidents", JSON.stringify(merged));
+  }
+}
+
+// --- AI BRAIN (8B MODEL + SCRUBBER) ---
+async function callGroq(apiKey, text) {
+  if (!apiKey) return null;
+
+  const payload = {
+    model: "llama-3.1-8b-instant", // USE 8B INSTANT FOR STABILITY
+    temperature: 0,
+    max_tokens: 300,
+    response_format: { type: "json_object" }, // FORCE JSON
+    messages: [
+      {
+        role: "system",
+        content: `You are an SRO Analyst. Scoring: 5=Active Attack/Disaster, 4=Riot/Coup/GridDown, 3=Protest/Arrest/TravelWarning, 1-2=History/Politics/General. 
+        
+        Generate a concise, 3-sentence summary suitable for a security briefing.
+        
+        JSON Only: { 
+          "summary":"3-4 sentences summarizing the threat and impact", 
+          "category":"PHYSICAL|CYBER|WEATHER|SUPPLY|HEALTH", 
+          "severity":1-5, 
+          "region":"APJC|EMEA|AMER|GLOBAL", 
+          "country":"Country Name", 
+          "location":"City Name" 
+        }`,
+      },
+      {
+        role: "user",
+        content: `Input:\n${text.slice(0, 700)}`,
+      },
+    ],
+  };
+
+  try {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!resp.ok) {
+        const err = await resp.text();
+        console.log(`GROQ Error: ${err.slice(0,100)}`);
+        return null;
+    }
+    
+    const j = await resp.json();
+    let content = j.choices[0].message.content;
+
+    // --- JSON SCRUBBER (FIX) ---
+    const jsonStart = content.indexOf('{');
+    const jsonEnd = content.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+        content = content.substring(jsonStart, jsonEnd + 1);
+    }
+
+    return JSON.parse(content);
+  } catch (e) {
+    console.log("GROQ Exception:", e.message);
+    return null;
+  }
+}
+
+// --- BRUTE FORCE PARSER ---
+function parseUniversal(xml) {
+  const items = [];
+  const rssItems = xml.match(/<item(?:[\s\S]*?)>([\s\S]*?)<\/item>/gi) || [];
+  for (const block of rssItems) extract(block);
+  const atomEntries = xml.match(/<entry(?:[\s\S]*?)>([\s\S]*?)<\/entry>/gi) || [];
+  for (const block of atomEntries) extract(block);
+
+  if (items.length === 0) {
+      const titles = xml.match(/<title>([^<]+)<\/title>/gi) || [];
+      const links = xml.match(/<link>([^<]+)<\/link>/gi) || [];
+      for(let i=0; i<Math.min(titles.length, 10); i++) {
+          const t = decodeHtml(titles[i].replace(/<\/?title>/g, ""));
+          const l = links[i] ? links[i].replace(/<\/?link>/g, "") : "";
+          if (t && t.length > 10) items.push({ title: t, link: l, summary: t });
+      }
+  }
+
+  function extract(blob) {
+    const title = decodeHtml(((blob.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "")).replace(/<!\[CDATA\[(.*?)\]\]>/g, "$1").trim();
+    // LINK SCRUBBER: Removes CDATA from the link too
+    let link = (blob.match(/<link[^>]+href=["'](.*?)["']/i) || blob.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1] || "";
+    link = link.replace(/<!\[CDATA\[(.*?)\]\]>/g, "$1").trim();
+    
+    const summary = decodeHtml(((blob.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1] || (blob.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i) || [])[1] || "").replace(/<[^>]+>/g, " ").trim());
+    const lat = (blob.match(/<geo:lat[^>]*>(.*?)<\/geo:lat>/i) || [])[1];
+    const lng = (blob.match(/<geo:long[^>]*>(.*?)<\/geo:long>/i) || [])[1];
+    if (title) items.push({ title, link, summary, lat, lng });
+  }
+  return items;
+}
+
+function resolveCoords(locationStr, item) {
+  if (item.lat && item.lng) return { lat: parseFloat(item.lat), lng: parseFloat(item.lng) };
+  if (!locationStr) return { lat: 0, lng: 0 };
+  const key = locationStr.toLowerCase().split(",")[0].trim();
+  return CITY_COORDS[key] || { lat: 0, lng: 0 };
+}
+
+function proximity(lat, lng) {
+  if (!lat || !lng) return { dist: 9999, site: null };
+  let bestDist = 9999;
+  let bestSite = null;
+  for (const name of Object.keys(CITY_COORDS)) {
+    const s = CITY_COORDS[name];
+    const d = haversine(lat, lng, s.lat, s.lng);
+    if (d < bestDist) { bestDist = d; bestSite = name; }
+  }
+  return { dist: Math.round(bestDist), site: bestSite };
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371; const toRad = (x) => (x * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1); const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// --- INDUSTRY STANDARD EMAIL SENDER ---
+async function sendEmail(env, inc) {
+  if (!env.RESEND_API_KEY) return;
+  const to = ADMIN_EMAIL;
+  
+  const emoji = inc.severity === 5 ? "🚨 CRITICAL" : "⚠️ ALERT";
+  const subject = `${emoji} [${(inc.country || "GLOBAL").toUpperCase()}] ${(inc.location || "UNKNOWN").toUpperCase()} - ${inc.category}: ${inc.title.slice(0, 60)}...`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.5;">
+      <h2 style="color: #d32f2f; margin-top: 0;">${subject}</h2>
+      
+      <p style="font-size: 14px;"><b>Executive Summary:</b><br>${inc.summary}</p>
+      
+      <hr style="border: 0; border-top: 1px solid #eee;">
+      
+      <p style="background-color: #fff3cd; padding: 10px; font-size: 13px; border-left: 4px solid #ffc107;">
+        <b>Strategic Context:</b> This event requires monitoring for potential impact to personnel safety, asset security, or supply chain continuity in the <b>${inc.region}</b> region.
+      </p>
+      
+      <p><b>Location:</b> ${inc.location}, ${inc.country} (Dist: ${inc.distance_km}km to nearest Dell Site)</p>
+      <p><b>Source:</b> <a href="${inc.link}" style="color: #1976d2;">Read Full Article</a></p>
+      
+      <p style="font-size: 10px; color: #888; margin-top: 20px;">
+        Severity: ${inc.severity}/5 | ID: ${inc.id} | Auto-Generated by OSInfoHub
+      </p>
+    </div>
+  `;
+
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        from: EMAIL_FROM, 
+        to: [to], 
+        subject: subject, 
+        html: html 
+      }),
+    });
+    console.log(`✅ EMAIL SENT: ${subject}`);
+  } catch (e) {
+    console.log("[Email Error]", String(e));
+  }
+}
+
+function stableId(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i); return String(h); }
+function normalizeRegion(r) { const x = String(r || "").toUpperCase().trim(); return (["APJC","EMEA","AMER"].includes(x)) ? x : "GLOBAL"; }
+function clampInt(v, min, max) { const n = parseInt(v, 10); return (!Number.isFinite(n)) ? min : Math.max(min, Math.min(max, n)); }
+function decodeHtml(s) { return String(s || "").replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", '"').replaceAll("&#039;", "'"); }
+function escapeHtml(s) { return String(s || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
