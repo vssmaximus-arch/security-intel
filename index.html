@@ -1,886 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dell SRO | Global Intelligence Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dell SRO | Global Intelligence Dashboard</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
+        body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
+        .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
+        .header-left { display: flex; align-items: center; height: 100%; }
+        .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
+        .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
+        .logo-text span { color: var(--dell-blue); }
+        .clock-container { text-align: right; margin: 0 25px; }
+        .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
+        .clock-time { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
+        .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; }
+        .btn-daily:hover { background-color: #1557b0; color: white; }
+        .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+        .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-item-custom.active { background-color: #202124; color: #fff; }
+        .content-area { padding: 30px; }
+        .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
+        #map { width: 100%; height: 100%; z-index: 1; }
+        .sidebar-col { padding-left: 30px; }
+        .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .history-input { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+        .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #fff; }
+        .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+        #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
+        .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .feed-status-bar { width: 5px; flex-shrink: 0; }
+        .status-bar-crit { background-color: #d93025; }
+        .status-bar-warn { background-color: #f9ab00; }
+        .status-bar-info { background-color: #1a73e8; }
+        .feed-content { padding: 16px 20px; width: 100%; }
+        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+        .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+        .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+        .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+        .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
+        .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+        .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+        .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
+        .loading { text-align: center; padding: 60px; color: #64748b; font-weight: 500; letter-spacing: 1px; }
+    </style>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-    :root {
-      --dell-blue: #0076CE;
-      --bg-dark: #0f1115;
-    }
-
-    body {
-      background-color: var(--bg-dark);
-      font-family: 'Inter', sans-serif;
-      padding: 24px;
-      color: #333;
-    }
-
-    .app-container {
-      background-color: #fff;
-      border-radius: 24px;
-      min-height: 92vh;
-      padding: 0;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    .header-container {
-      padding: 15px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #f0f0f0;
-      height: 70px;
-    }
-
-    .header-left { display: flex; align-items: center; height: 100%; }
-    .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
-    .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
-    .logo-text span { color: var(--dell-blue); }
-
-    .clock-container { text-align: right; margin: 0 25px; }
-    .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
-    .clock-time { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
-
-    .btn-daily {
-      background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px;
-      text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
-      box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer;
-    }
-    .btn-daily:hover { background-color: #1557b0; color: white; }
-
-    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
-    .nav-item-custom {
-      padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368;
-      cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .nav-item-custom.active { background-color: #202124; color: #fff; }
-
-    .content-area { padding: 30px; }
-
-    .map-wrapper {
-      position: relative; border-radius: 16px; overflow: hidden; height: 520px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6;
-    }
-    #map { width: 100%; height: 100%; z-index: 1; }
-
-    .leaflet-tooltip.map-tooltip {
-      background-color: #202124;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .leaflet-tooltip-top:before { border-top-color: #202124; }
-
-    .marker-pin-dell {
-      width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-      display: flex; justify-content: center; align-items: center;
-    }
-    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
-
-    .sidebar-col { padding-left: 30px; }
-    .side-card {
-      background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-    .card-label i { color: #9aa0a6; }
-
-    .history-input-group { position: relative; }
-    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
-    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
-    .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
-
-    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
-
-    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
-    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
-    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
-
-    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
-    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
-    .radius-select {
-      font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer;
-    }
-
-    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
-    #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
-    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-    #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-    #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-
-    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
-    .alert-row:last-child { border-bottom: none; }
-    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
-    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
-    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
-
-    .stream-section { margin-top: 25px; }
-    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
-    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
-    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
-    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
-
-    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
-    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .feed-status-bar { width: 5px; flex-shrink: 0; }
-    .status-bar-crit { background-color: #d93025; }   /* Sev 4-5 */
-    .status-bar-warn { background-color: #f9ab00; }   /* Sev 3 */
-    .status-bar-info { background-color: #1a73e8; }   /* Sev 1-2 */
-
-    .feed-content { padding: 16px 20px; width: 100%; }
-    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
-    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
-    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
-    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
-    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
-    .ftag-type { background: #f1f3f4; color: #5f6368; }
-    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
-
-    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
-    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
-    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
-    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
-
-    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
-    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
-    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
-    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-    .tag-crit { background: #d93025; color: white; }
-    .tag-cat { background: #3c4043; color: white; }
-    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
-
-    .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
-    .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
-    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
-    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
-
-    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
-    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
-    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
-
-    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
-    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
-    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
-    .news-box-item:last-child { border-bottom: none; }
-    .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
-    .news-box-summary { font-size: 0.75rem; color: #5f6368; }
-
-    .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
-    .modal-title { font-weight: 800; color: #202124; }
-    .modal-body { padding: 30px; }
-    .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
-    .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
-    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
-    .btn-download:hover { background: #1557b0; }
-  </style>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
 <div class="app-container">
-  <div class="header-container">
-    <div class="header-left">
-      <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-      <div class="logo-text">SRO <span>INTELLIGENCE</span></div>
+    <div class="header-container">
+        <div class="header-left">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text">SRO <span>INTELLIGENCE</span></div>
+        </div>
+
+        <div class="header-right d-flex align-items-center">
+            <div class="nav-pills-custom">
+                <a class="nav-item-custom active" onclick="app.filterNews('Global', this)">Global</a>
+                <a class="nav-item-custom" onclick="app.filterNews('AMER', this)">AMER</a>
+                <a class="nav-item-custom" onclick="app.filterNews('EMEA', this)">EMEA</a>
+                <a class="nav-item-custom" onclick="app.filterNews('APJC', this)">APJC</a>
+                <a class="nav-item-custom" onclick="app.filterNews('LATAM', this)">LATAM</a>
+            </div>
+
+            <div class="clock-container">
+                <div class="clock-date" id="clock-date">Loading...</div>
+                <div class="clock-time" id="clock-time">--:--</div>
+            </div>
+
+            <div class="btn-daily" onclick="app.fetchData()">
+                <i class="fas fa-rotate"></i> Refresh
+            </div>
+
+            <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;">
+                <i class="fas fa-file-alt"></i> Daily Briefings
+            </div>
+        </div>
     </div>
 
-    <div class="header-right d-flex align-items-center">
-      <div class="nav-pills-custom">
-        <a class="nav-item-custom active" onclick="filterNews('Global')">Global</a>
-        <a class="nav-item-custom" onclick="filterNews('AMER')">AMER</a>
-        <a class="nav-item-custom" onclick="filterNews('EMEA')">EMEA</a>
-        <a class="nav-item-custom" onclick="filterNews('APJC')">APJC</a>
-        <a class="nav-item-custom" onclick="filterNews('LATAM')">LATAM</a>
-      </div>
+    <div class="content-area">
+        <div class="row g-4">
+            <div class="col-lg-9">
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                </div>
 
-      <div class="clock-container">
-        <div class="clock-date" id="clock-date">Loading...</div>
-        <div class="clock-time" id="clock-time">--:--</div>
-      </div>
+                <div class="stream-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-bold"><i class="fas fa-circle text-primary me-2"></i> Real-time Intelligence Stream</div>
+                        <div class="badge bg-secondary" id="feed-count">0 ITEMS</div>
+                    </div>
+                    <div id="general-news-feed">
+                        <div class="loading">Connecting to Secure Worker...</div>
+                    </div>
+                </div>
+            </div>
 
-      <div class="btn-daily" onclick="manualRefresh()">
-        <i class="fas fa-rotate"></i> Refresh
-      </div>
+            <div class="col-lg-3 sidebar-col">
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+                    <input type="date" class="history-input" id="history-picker" onchange="app.filterByDate(this.value)" />
+                    <div class="sub-text mt-2 text-muted small">Pick a date to load archived intelligence.</div>
+                </div>
 
-      <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;">
-        <i class="fas fa-file-alt"></i> Daily Briefings
-      </div>
+                <div class="side-card">
+                    <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+                    <select class="travel-select" id="countrySelect" onchange="app.filterTravel(this.value)">
+                        <option selected disabled>Select Country...</option>
+                    </select>
+                    <div id="travel-advisories" class="mt-3"></div>
+                </div>
+
+                <div class="side-card">
+                    <div class="card-label">Proximity Alerts (Dell Assets)</div>
+                    <select id="proxRadius" class="form-select mb-2" onchange="app.updateProximity()">
+                        <option value="50" selected>50 KM</option>
+                        <option value="100">100 KM</option>
+                        <option value="500">500 KM</option>
+                    </select>
+                    <div id="proximity-alerts-container"></div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <div class="content-area">
-    <div class="row g-4">
-      <div class="col-lg-9">
-        <div class="map-wrapper">
-          <div id="map"></div>
-        </div>
-
-        <div class="stream-section">
-          <div class="stream-header">
-            <div class="stream-label">
-              <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
-              <span class="live-box ms-2" id="feed-status-label">Connecting…</span>
-            </div>
-            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed">
-              VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span>
-            </div>
-          </div>
-
-          <div class="critical-alert-bar">
-            <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
-            <div class="alert-content-main" id="headline-alert">Loading headline…</div>
-            <div class="alert-tags">
-              <span class="tag tag-crit" id="headline-sev">SEV?</span>
-              <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-              <span class="tag tag-reg" id="headline-reg">REGION</span>
-            </div>
-          </div>
-
-          <div id="general-news-feed">
-            <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-3 sidebar-col">
-        <div class="side-card">
-          <div class="card-label"><i class="fas fa-history"></i> History Search</div>
-          <div class="history-input-group">
-            <i class="far fa-calendar-alt calendar-icon"></i>
-            <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" />
-          </div>
-          <div class="sub-text" id="history-status">Pick a date to load archived intelligence (simulated).</div>
-        </div>
-
-        <div class="side-card">
-          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-          <select class="travel-select" id="countrySelect" onchange="filterTravel()">
-            <option selected disabled>Select Country...</option>
-          </select>
-          <div id="travel-advisories" class="mt-3"></div>
-          <div id="travel-news" class="mt-2"></div>
-        </div>
-
-        <div class="side-card" style="padding-bottom: 10px;">
-          <div class="prox-header-row">
-            <div>
-              <div class="prox-dell-label">Dell Asset</div>
-              <div class="prox-main-title">Proximity<br/>Alerts</div>
-            </div>
-          </div>
-          <div class="prox-controls">
-            <div class="prox-subtitle">WITHIN RADIUS</div>
-            <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()">
-              <option value="5">5 KM</option>
-              <option value="10">10 KM</option>
-              <option value="25">25 KM</option>
-              <option value="50" selected>50 KM</option>
-              <option value="100">100 KM</option>
-              <option value="500">500 KM</option>
-            </select>
-          </div>
-
-          <div id="proximity-alerts-container"></div>
-
-          <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
-            <a href="#" onclick="manualRefresh();return false;" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;">REFRESH ALERTS</a>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
 </div>
 
-<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Select Date</label>
-          <input type="date" class="form-control" id="reportDate" />
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Daily Intelligence Briefings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <select class="form-select mb-3"><option>Global</option><option>APJC</option></select>
+                <button class="btn btn-primary w-100" onclick="alert('PDF Reporting requires Python backend. This is a V100 Frontend Demo.')">Download Report</button>
+            </div>
         </div>
-        <div class="mb-4">
-          <label class="form-label">Select Region / Report Profile</label>
-          <select class="form-select" id="reportRegion">
-            <option value="Global">Global</option>
-            <option value="APJC">APJC</option>
-            <option value="India">India</option>
-            <option value="Oceania">Oceania</option>
-            <option value="Japan">Japan</option>
-            <option value="South_Korea">South_Korea</option>
-            <option value="SAEM">SAEM</option>
-            <option value="Greater_China_HK">Greater_China_HK</option>
-            <option value="Taiwan">Taiwan</option>
-            <option value="Malaysia">Malaysia</option>
-            <option value="Singapore">Singapore</option>
-          </select>
-        </div>
-        <button class="btn-download" onclick="downloadReport()">
-          <i class="fas fa-download me-2"></i> Retrieve Briefing
-        </button>
-        <div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem; display:none;"></div>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
-/* ===========================
-   CONFIG
-   =========================== */
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // <-- your Worker
-const AUTO_REFRESH_MS = 60_000;
-
-/* ===========================
-   DATA STATE
-   =========================== */
-let INCIDENTS = [];
-let FEED_IS_LIVE = false;
-let currentRadius = 50;
-
-let map;
-let layerGroup;
-let incidentLayerGroup;
-
-/* ===========================
-   STATIC DELL ASSETS (for map + proximity)
-   Keep your existing list; you can expand later.
-   =========================== */
-const ASSETS = {
-  "round rock": { lat: 30.5083, lng: -97.6788, region: "AMER" },
-  "austin": { lat: 30.2672, lng: -97.7431, region: "AMER" },
-  "hopkinton": { lat: 42.2287, lng: -71.5226, region: "AMER" },
-  "nashville": { lat: 36.1627, lng: -86.7816, region: "AMER" },
-  "oklahoma city": { lat: 35.4676, lng: -97.5164, region: "AMER" },
-  "santa clara": { lat: 37.3541, lng: -121.9552, region: "AMER" },
-  "mexico city": { lat: 19.4326, lng: -99.1332, region: "LATAM" },
-  "sao paulo": { lat: -23.5505, lng: -46.6333, region: "LATAM" },
-  "hortolandia": { lat: -22.8583, lng: -47.2208, region: "LATAM" },
-  "porto alegre": { lat: -30.0346, lng: -51.2177, region: "LATAM" },
-  "london": { lat: 51.5074, lng: -0.1278, region: "EMEA" },
-  "bracknell": { lat: 51.4160, lng: -0.7540, region: "EMEA" },
-  "dublin": { lat: 53.3498, lng: -6.2603, region: "EMEA" },
-  "limerick": { lat: 52.6638, lng: -8.6267, region: "EMEA" },
-  "cork": { lat: 51.8985, lng: -8.4756, region: "EMEA" },
-  "paris": { lat: 48.8566, lng: 2.3522, region: "EMEA" },
-  "frankfurt": { lat: 50.1109, lng: 8.6821, region: "EMEA" },
-  "amsterdam": { lat: 52.3676, lng: 4.9041, region: "EMEA" },
-  "dubai": { lat: 25.2048, lng: 55.2708, region: "EMEA" },
-  "bangalore": { lat: 12.9716, lng: 77.5946, region: "APJC" },
-  "hyderabad": { lat: 17.3850, lng: 78.4867, region: "APJC" },
-  "gurugram": { lat: 28.4595, lng: 77.0266, region: "APJC" },
-  "singapore": { lat: 1.3521, lng: 103.8198, region: "APJC" },
-  "penang": { lat: 5.4164, lng: 100.3327, region: "APJC" },
-  "cyberjaya": { lat: 2.9213, lng: 101.6559, region: "APJC" },
-  "tokyo": { lat: 35.6762, lng: 139.6503, region: "APJC" },
-  "taipei": { lat: 25.0330, lng: 121.5654, region: "APJC" },
-  "shanghai": { lat: 31.2304, lng: 121.4737, region: "APJC" },
-  "beijing": { lat: 39.9042, lng: 116.4074, region: "APJC" }
-};
-
-/* ===========================
-   TRAVEL ADVISORIES (same idea as your original)
-   =========================== */
-const MOCK_ADVISORIES = {
-  "Afghanistan": { level: 4, text: "Do Not Travel due to civil unrest, armed conflict, crime, terrorism, kidnapping, and wrongful detention." },
-  "Haiti": { level: 4, text: "Do Not Travel due to kidnapping, crime, and civil unrest." },
-  "Russia": { level: 4, text: "Do Not Travel due to consequences of war and security risks." },
-  "Ukraine": { level: 4, text: "Do Not Travel due to active armed conflict." },
-  "Colombia": { level: 3, text: "Reconsider Travel due to crime and terrorism." },
-  "Nigeria": { level: 3, text: "Reconsider Travel due to crime, terrorism, civil unrest, and kidnapping." },
-  "Israel": { level: 3, text: "Reconsider Travel due to terrorism and civil unrest." },
-  "France": { level: 2, text: "Exercise Increased Caution due to terrorism and civil unrest." },
-  "Germany": { level: 2, text: "Exercise Increased Caution due to terrorism." },
-  "India": { level: 2, text: "Exercise Increased Caution due to crime and terrorism." },
-  "Mexico": { level: 2, text: "Exercise Increased Caution due to crime and kidnapping." },
-  "United Kingdom": { level: 1, text: "Exercise Normal Precautions." },
-  "United States": { level: 1, text: "Exercise Normal Precautions." },
-  "Singapore": { level: 1, text: "Exercise Normal Precautions." },
-  "Japan": { level: 1, text: "Exercise Normal Precautions." }
-};
-const COUNTRIES = Object.keys(MOCK_ADVISORIES).sort();
-
-/* ===========================
-   INIT
-   =========================== */
-document.addEventListener("DOMContentLoaded", async () => {
-  initMap();
-  startClock();
-  populateCountries();
-  await loadFromWorker();         // initial fetch
-  filterNews("Global");           // initial render
-  setInterval(async () => {
-    await loadFromWorker(true);
-    const active = document.querySelector(".nav-item-custom.active");
-    filterNews(active ? active.innerText.trim() : "Global");
-  }, AUTO_REFRESH_MS);
-});
-
-/* ===========================
-   CLOCK
-   =========================== */
-function startClock() {
-  const tick = () => {
-    const now = new Date();
-    const timeOptions = { hour: "2-digit", minute: "2-digit", timeZoneName: "short" };
-    const dateOptions = { weekday: "long", year: "numeric", month: "short", day: "numeric" };
-    document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", dateOptions);
-    document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US", timeOptions);
-  };
-  tick();
-  setInterval(tick, 1000);
-}
-
-/* ===========================
-   MAP
-   =========================== */
-function initMap() {
-  map = L.map("map", {
-    zoomControl: false,
-    attributionControl: false,
-    minZoom: 2,
-    maxBounds: [[-90, -180], [90, 180]]
-  }).setView([25, 10], 2);
-
-  L.control.zoom({ position: "topleft" }).addTo(map);
-
-  L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png",
-    { maxZoom: 19, noWrap: true }
-  ).addTo(map);
-
-  layerGroup = L.layerGroup().addTo(map);
-  incidentLayerGroup = L.layerGroup().addTo(map);
-
-  renderAssetsOnMap("Global");
-}
-
-function renderAssetsOnMap(region) {
-  layerGroup.clearLayers();
-
-  const dellIcon = L.divIcon({
-    className: "custom-pin",
-    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
-    iconSize: [30, 42],
-    iconAnchor: [15, 42]
-  });
-
-  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
-  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
-
-  filtered.forEach(a => {
-    const m = L.marker([a.lat, a.lng], { icon: dellIcon }).addTo(layerGroup);
-    m.bindTooltip(`<b>${a.name.toUpperCase()}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
-  });
-
-  if (region === "AMER") map.setView([30, -90], 3);
-  else if (region === "EMEA") map.setView([45, 15], 3);
-  else if (region === "APJC") map.setView([20, 110], 3);
-  else if (region === "LATAM") map.setView([-15, -60], 3);
-  else map.setView([25, 10], 2);
-}
-
-function renderIncidentsOnMap(region, incidents) {
-  incidentLayerGroup.clearLayers();
-
-  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
-
-  filtered.forEach(i => {
-    if (!i.lat || !i.lng || Number(i.lat) === 0 || Number(i.lng) === 0) return;
-
-    const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
-
-    const marker = L.circleMarker([i.lat, i.lng], {
-      radius: 8,
-      fillColor: color,
-      color: "#fff",
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.85
-    });
-
-    marker.bindPopup(`<b>${escapeHtml(i.country || "GLOBAL")} • ${escapeHtml(i.location || "UNKNOWN")}</b><br/>${escapeHtml(i.title || "")}`);
-    marker.addTo(incidentLayerGroup);
-  });
-}
-
-/* ===========================
-   WORKER FETCH
-   =========================== */
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById("feed-status-label");
-  if (!silent) label.textContent = "Refreshing…";
-
-  try {
-    const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : [];
-    INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
-
-    // newest first
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
-
-    FEED_IS_LIVE = true;
-    label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch (e) {
-    FEED_IS_LIVE = false;
-    if (!silent) label.textContent = "OFFLINE • Worker unreachable";
-    // keep last good INCIDENTS in memory so UI doesn’t blank out
-  }
-}
-
-function normaliseWorkerIncident(item) {
-  if (!item) return null;
-
-  const title = item.title || "";
-  if (!title) return null;
-
-  const region = (item.region || "GLOBAL").toUpperCase();
-  const severity = Number(item.severity || 1) || 1;
-
-  return {
-    id: item.id || (title + "|" + (item.link||"")),
-    title,
-    summary: item.summary || "",
-    category: (item.category || "UNKNOWN").toUpperCase(),
-    severity,
-    region: (region === "GLOBAL") ? "Global" : region,
-    country: (item.country || "GLOBAL"),
-    location: (item.location || "UNKNOWN"),
-    link: item.link || item.url || "#",
-    source: item.source || "",
-    time: item.time || new Date().toISOString(),
-    lat: Number(item.lat || 0),
-    lng: Number(item.lng || 0)
-  };
-}
-
-/* ===========================
-   FEED RENDER
-   =========================== */
-function filterNews(region) {
-  document.querySelectorAll(".nav-item-custom").forEach(el => {
-    el.classList.remove("active");
-    if (el.innerText.trim() === region) el.classList.add("active");
-  });
-
-  renderAssetsOnMap(region);
-  renderGeneralFeed(region);
-  renderIncidentsOnMap(region, INCIDENTS);
-  renderProximityAlerts(region);
-  updateHeadline(region);
-}
-
-function renderGeneralFeed(region) {
-  const container = document.getElementById("general-news-feed");
-  if (!container) return;
-
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-
-  if (!data || data.length === 0) {
-    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
-    return;
-  }
-
-  let html = "";
-  data.forEach(i => {
-    const sev = Number(i.severity || 1);
-    const barClass = sev >= 4 ? "status-bar-crit" : (sev === 3 ? "status-bar-warn" : "status-bar-info");
-    const badgeClass = sev >= 4 ? "ftag-crit" : (sev === 3 ? "ftag-warn" : "ftag-info");
-
-    const when = safeTime(i.time);
-    const src = i.source ? shortHost(i.source) : "Source";
-
-    html += `
-      <a href="${escapeAttr(i.link)}" target="_blank" class="feed-card">
-        <div class="feed-status-bar ${barClass}"></div>
-        <div class="feed-content">
-          <div class="feed-tags">
-            <span class="ftag ${badgeClass}">SEV ${sev}</span>
-            <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
-            <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
-            <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
-          </div>
-          <div class="feed-title">${escapeHtml(i.title)}</div>
-          <div class="feed-meta">${escapeHtml(src)} • ${escapeHtml(when)}</div>
-          <div class="feed-desc">${escapeHtml(i.summary || "No summary available.")}</div>
-        </div>
-      </a>`;
-  });
-
-  container.innerHTML = html;
-}
-
-function updateHeadline(region) {
-  const el = document.getElementById("headline-alert");
-  const sevEl = document.getElementById("headline-sev");
-  const catEl = document.getElementById("headline-cat");
-  const regEl = document.getElementById("headline-reg");
-
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  if (!data || data.length === 0) {
-    el.textContent = "No headline available.";
-    sevEl.textContent = "SEV?";
-    catEl.textContent = "CATEGORY";
-    regEl.textContent = region.toUpperCase();
-    return;
-  }
-
-  const top = data[0];
-  el.textContent = top.title;
-  sevEl.textContent = "SEV " + (top.severity || 1);
-  catEl.textContent = top.category || "UNKNOWN";
-  regEl.textContent = (top.region || "Global").toUpperCase();
-}
-
-/* ===========================
-   PROXIMITY ALERTS (REAL, from Worker incidents)
-   =========================== */
-function updateProximityRadius() {
-  const radiusSelect = document.getElementById("proxRadius");
-  currentRadius = parseFloat(radiusSelect.value || "50");
-  const active = document.querySelector(".nav-item-custom.active");
-  const region = active ? active.innerText.trim() : "Global";
-  renderProximityAlerts(region);
-}
-
-function renderProximityAlerts(region) {
-  const container = document.getElementById("proximity-alerts-container");
-  if (!container) return;
-
-  const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-
-  // build “threat near asset” list
-  const alerts = [];
-  for (const inc of incidents) {
-    if (!inc.lat || !inc.lng) continue;
-
-    for (const [name, a] of Object.entries(ASSETS)) {
-      // match region loosely: still allow Global to show all
-      const dist = haversineKm(inc.lat, inc.lng, a.lat, a.lng);
-      if (dist <= currentRadius) {
-        alerts.push({ inc, assetName: name, dist });
-      }
-    }
-  }
-
-  // sort by closest distance first, then severity desc
-  alerts.sort((x,y) => (x.dist - y.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
-
-  if (alerts.length === 0) {
-    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No incidents within ${currentRadius}km of assets.</div>`;
-    return;
-  }
-
-  const maxShow = 25;
-  let html = "";
-  alerts.slice(0, maxShow).forEach(a => {
-    const sev = Number(a.inc.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
-    const title = a.inc.title || "Incident";
-    const desc = a.inc.summary || "";
-
-    html += `
-      <div class="alert-row">
-        <div class="alert-top">
-          <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>
-            ${escapeHtml(title)}
-          </div>
-          <div class="alert-dist" style="color:${color}">${Math.round(a.dist)}km</div>
-        </div>
-        <div class="alert-site">
-          <i class="far fa-building"></i> Near: <b>${escapeHtml(a.assetName.toUpperCase())}</b>
-        </div>
-        <div class="alert-desc">${escapeHtml(desc)}</div>
-      </div>`;
-  });
-
-  container.innerHTML = html;
-}
-
-/* ===========================
-   TRAVEL SAFETY
-   =========================== */
-function populateCountries() {
-  const sel = document.getElementById("countrySelect");
-  if (!sel) return;
-  COUNTRIES.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.innerText = c;
-    sel.appendChild(opt);
-  });
-}
-
-function filterTravel() {
-  const country = document.getElementById("countrySelect").value;
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!country || !advContainer || !newsContainer) return;
-
-  let advisory = MOCK_ADVISORIES[country] || { level: 1, text: "Exercise Normal Precautions." };
-
-  let advColor = "#002a86";
-  let advBg = "#e8f0fe";
-  let advBorder = "#d2e3fc";
-  let levelText = "LEVEL 1";
-
-  if (advisory.level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-  else if (advisory.level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-  else if (advisory.level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
-
-  advContainer.innerHTML = `
-    <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
-      <div class="advisory-header">
-        <span class="advisory-label">OFFICIAL ADVISORY (SIMULATED)</span>
-        <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
-      </div>
-      <div class="advisory-text">${escapeHtml(advisory.text)}</div>
-    </div>`;
-
-  // show incidents where country matches either country field or title/summary mention
-  const related = INCIDENTS.filter(i => {
-    const c = String(i.country || "").toLowerCase();
-    const t = (i.title || "").toLowerCase();
-    const s = (i.summary || "").toLowerCase();
-    const needle = country.toLowerCase();
-    return c.includes(needle) || t.includes(needle) || s.includes(needle);
-  }).slice(0, 5);
-
-  if (related.length > 0) {
-    let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS (FEED)</div>`;
-    related.forEach(n => {
-      newsHtml += `
-        <div class="news-box-item">
-          <div class="news-box-title">${escapeHtml(n.title)}</div>
-          <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
-        </div>`;
-    });
-    newsHtml += `</div>`;
-    newsContainer.innerHTML = newsHtml;
-  } else {
-    newsContainer.innerHTML = `
-      <div class="safe-box">
-        <i class="fas fa-check-circle safe-icon"></i>
-        <div class="safe-text">
-          No incidents matched for ${escapeHtml(country)} in the current feed.
-        </div>
-      </div>`;
-  }
-}
-
-/* ===========================
-   HISTORY SEARCH (SIMULATED)
-   =========================== */
-function loadHistory(dateStr) {
-  if (!dateStr) return;
-  const statusDiv = document.getElementById("history-status");
-  if (!statusDiv) return;
-
-  statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading (simulated)…';
-  setTimeout(() => {
-    statusDiv.innerHTML = `<span class="text-success"><i class="fas fa-check"></i> Archive loaded for ${escapeHtml(dateStr)} [SIMULATED]</span>`;
-  }, 800);
-}
-
-/* ===========================
-   DAILY BRIEFINGS (STATIC PATHS)
-   =========================== */
-function downloadReport() {
-  const region = document.getElementById("reportRegion").value;
-  const feedback = document.getElementById("download-feedback");
-  if (!feedback) return;
-
-  feedback.style.display = "block";
-  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving…';
-
-  // Keep your existing convention if you have it hosted somewhere.
-  // If you don’t, this will open a 404 (expected).
-  const url = `public/reports/${region.toLowerCase()}_latest.html`;
-
-  setTimeout(() => {
-    window.open(url, "_blank");
-    feedback.innerHTML = '<div class="alert alert-info mt-2 text-start" style="font-size:0.8rem"><strong>Note:</strong> if a 404 appears, the briefing file has not been generated yet.</div>';
-  }, 600);
-}
-
-/* ===========================
-   MANUAL REFRESH
-   =========================== */
-async function manualRefresh() {
-  await loadFromWorker();
-  const active = document.querySelector(".nav-item-custom.active");
-  filterNews(active ? active.innerText.trim() : "Global");
-}
-
-/* ===========================
-   HELPERS
-   =========================== */
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
-
-function shortHost(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source"; }
-}
-
-function safeTime(iso) {
-  try {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return "Recently";
-    return d.toLocaleString();
-  } catch { return "Recently"; }
-}
-
-function escapeHtml(s) {
-  return String(s || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-function escapeAttr(s) {
-  // basic attribute escaping
-  return escapeHtml(s).replaceAll("`", "&#096;");
-}
+    // --- V102 WORKER URL ---
+    const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
+
+    // --- FULL ASSET LIST (INJECTED) ---
+    const ASSETS = {
+        "round rock": { lat: 30.5083, lng: -97.6788, region: "AMER" }, "austin": { lat: 30.2672, lng: -97.7431, region: "AMER" },
+        "hopkinton": { lat: 42.2287, lng: -71.5226, region: "AMER" }, "franklin": { lat: 42.0834, lng: -71.3967, region: "AMER" },
+        "apex": { lat: 35.7327, lng: -78.8503, region: "AMER" }, "eden prairie": { lat: 44.8617, lng: -93.4168, region: "AMER" },
+        "draper": { lat: 40.5240, lng: -111.8950, region: "AMER" }, "nashville": { lat: 36.1627, lng: -86.7816, region: "AMER" },
+        "oklahoma city": { lat: 35.4676, lng: -97.5164, region: "AMER" }, "santa clara": { lat: 37.3541, lng: -121.9552, region: "AMER" },
+        "mclean": { lat: 38.9295, lng: -77.2268, region: "AMER" }, "el paso": { lat: 31.8385, lng: -106.5278, region: "AMER" },
+        "new york": { lat: 40.7128, lng: -74.0060, region: "AMER" }, "san francisco": { lat: 37.7749, lng: -122.4194, region: "AMER" },
+        "bangalore": { lat: 12.9716, lng: 77.5946, region: "APJC" }, "bengaluru": { lat: 12.9716, lng: 77.5946, region: "APJC" },
+        "delhi": { lat: 28.6139, lng: 77.2090, region: "APJC" }, "mumbai": { lat: 19.0760, lng: 72.8777, region: "APJC" },
+        "hyderabad": { lat: 17.3850, lng: 78.4867, region: "APJC" }, "chennai": { lat: 13.0827, lng: 80.2707, region: "APJC" },
+        "pune": { lat: 18.5204, lng: 73.8567, region: "APJC" }, "gurugram": { lat: 28.4595, lng: 77.0266, region: "APJC" },
+        "noida": { lat: 28.5355, lng: 77.3910, region: "APJC" }, "london": { lat: 51.5074, lng: -0.1278, region: "EMEA" },
+        "bracknell": { lat: 51.4160, lng: -0.7540, region: "EMEA" }, "dublin": { lat: 53.3498, lng: -6.2603, region: "EMEA" },
+        "limerick": { lat: 52.6638, lng: -8.6267, region: "EMEA" }, "cork": { lat: 51.8985, lng: -8.4756, region: "EMEA" },
+        "glasgow": { lat: 55.8642, lng: -4.2518, region: "EMEA" }, "paris": { lat: 48.8566, lng: 2.3522, region: "EMEA" },
+        "montpellier": { lat: 43.6108, lng: 3.8767, region: "EMEA" }, "frankfurt": { lat: 50.1109, lng: 8.6821, region: "EMEA" },
+        "halle": { lat: 51.4820, lng: 11.9700, region: "EMEA" }, "amsterdam": { lat: 52.3676, lng: 4.9041, region: "EMEA" },
+        "lodz": { lat: 51.7285, lng: 19.4967, region: "EMEA" }, "casablanca": { lat: 33.5731, lng: -7.5898, region: "EMEA" },
+        "cairo": { lat: 30.0444, lng: 31.2357, region: "EMEA" }, "dubai": { lat: 25.2048, lng: 55.2708, region: "EMEA" },
+        "tel aviv": { lat: 32.0853, lng: 34.7818, region: "EMEA" }, "herzliya": { lat: 32.1644, lng: 34.7961, region: "EMEA" },
+        "haifa": { lat: 32.7940, lng: 34.9896, region: "EMEA" }, "singapore": { lat: 1.3521, lng: 103.8198, region: "APJC" },
+        "sydney": { lat: -33.8688, lng: 151.2093, region: "APJC" }, "melbourne": { lat: -37.8136, lng: 144.9631, region: "APJC" },
+        "auckland": { lat: -36.8485, lng: 174.7633, region: "APJC" }, "wellington": { lat: -41.2865, lng: 174.7762, region: "APJC" },
+        "tokyo": { lat: 35.6762, lng: 139.6503, region: "APJC" }, "kawasaki": { lat: 35.5300, lng: 139.6960, region: "APJC" },
+        "taipei": { lat: 25.0330, lng: 121.5654, region: "APJC" }, "shanghai": { lat: 31.2304, lng: 121.4737, region: "APJC" },
+        "beijing": { lat: 39.9042, lng: 116.4074, region: "APJC" }, "chengdu": { lat: 30.5728, lng: 104.0668, region: "APJC" },
+        "xiamen": { lat: 24.4798, lng: 118.0894, region: "APJC" }, "penang": { lat: 5.4164, lng: 100.3327, region: "APJC" },
+        "cyberjaya": { lat: 2.9213, lng: 101.6559, region: "APJC" }, "panama city": { lat: 8.9824, lng: -79.5199, region: "LATAM" },
+        "mexico city": { lat: 19.4326, lng: -99.1332, region: "LATAM" }, "sao paulo": { lat: -23.5505, lng: -46.6333, region: "LATAM" },
+        "hortolandia": { lat: -22.8583, lng: -47.2208, region: "LATAM" }, "porto alegre": { lat: -30.0346, lng: -51.2177, region: "LATAM" }
+    };
+
+    const app = {
+        data: [],
+        map: null,
+        markers: [],
+        currentRegion: 'Global',
+        filterDate: null,
+
+        init: function() {
+            this.initMap();
+            this.startClock();
+            this.fetchData();
+        },
+
+        initMap: function() {
+            this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }).addTo(this.map);
+
+            for (const [name, data] of Object.entries(ASSETS)) {
+                const icon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+                L.marker([data.lat, data.lng], {icon}).addTo(this.map).bindPopup(`<b>DELL ASSET</b><br>${name.toUpperCase()}`);
+            }
+        },
+
+        fetchData: async function() {
+            try {
+                const res = await fetch(`${WORKER_URL}/api/incidents`);
+                this.data = await res.json();
+                this.populateCountries();
+                this.filterNews('Global');
+            } catch(e) {
+                document.getElementById('general-news-feed').innerHTML = `<div class="loading text-danger">Connection Failed. Check API.</div>`;
+            }
+        },
+
+        render: function(items) {
+            const container = document.getElementById('general-news-feed');
+            container.innerHTML = '';
+            
+            // Clear Incidents
+            this.markers.forEach(m => this.map.removeLayer(m));
+            this.markers = [];
+
+            // Sort
+            items.sort((a,b) => new Date(b.time) - new Date(a.time));
+            document.getElementById('feed-count').innerText = `${items.length} ITEMS`;
+
+            if(items.length === 0) {
+                container.innerHTML = `<div class="loading">No incidents found for this selection.</div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const sevColor = item.severity >= 4 ? '#d93025' : (item.severity === 3 ? '#f9ab00' : '#1a73e8');
+                const sevClass = item.severity >= 4 ? 'status-bar-crit' : (item.severity === 3 ? 'status-bar-warn' : 'status-bar-info');
+                const badgeClass = item.severity >= 4 ? 'ftag-crit' : (item.severity === 3 ? 'ftag-warn' : 'ftag-info');
+                
+                const loc = (item.location || "UNKNOWN").toUpperCase();
+                const country = (item.country || "GLOBAL").toUpperCase();
+                const cat = (item.category || "GENERAL").toUpperCase();
+
+                const html = `
+                    <a href="${item.link}" target="_blank" class="feed-card">
+                        <div class="feed-status-bar ${sevClass}"></div>
+                        <div class="feed-content">
+                            <div class="feed-tags">
+                                <span class="ftag ${badgeClass}">SEV ${item.severity}</span>
+                                <span class="ftag ftag-loc">${country}</span>
+                                <span class="ftag ftag-type">${cat}</span>
+                            </div>
+                            <div class="feed-title">${item.title}</div>
+                            <div class="feed-desc">${item.summary || "No details."}</div>
+                            <div class="feed-meta">
+                                <span><i class="far fa-clock"></i> ${new Date(item.time).toLocaleTimeString()} • ${loc}</span>
+                                <span class="feed-source-link">READ SOURCE <i class="fas fa-external-link-alt"></i></span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                container.innerHTML += html;
+
+                if(item.lat && item.lng) {
+                    const m = L.circleMarker([item.lat, item.lng], {
+                        radius: 8, fillColor: sevColor, color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8
+                    }).bindPopup(`<b>${item.title}</b><br>${country}`).addTo(this.map);
+                    this.markers.push(m);
+                }
+            });
+            this.updateProximity();
+        },
+
+        filterNews: function(region, el) {
+            this.currentRegion = region;
+            if(el) {
+                document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+            
+            let filtered = this.data.filter(i => {
+                const rMatch = region === 'Global' || i.region === region || region === 'ALL';
+                let dMatch = true;
+                if(this.filterDate) dMatch = new Date(i.time).toISOString().split('T')[0] === this.filterDate;
+                return rMatch && dMatch;
+            });
+            this.render(filtered);
+        },
+
+        filterByDate: function(date) {
+            this.filterDate = date;
+            this.filterNews(this.currentRegion);
+        },
+
+        populateCountries: function() {
+            const select = document.getElementById('countrySelect');
+            const countries = [...new Set(this.data.map(i => i.country).filter(c => c && c !== 'GLOBAL'))].sort();
+            countries.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+        },
+
+        filterTravel: function(c) {
+             const country = document.getElementById('countrySelect').value;
+             const div = document.getElementById('travel-advisories');
+             const threats = this.data.filter(i => i.country === country);
+             
+             if(threats.length > 0) {
+                 div.innerHTML = `<div class="alert alert-danger p-2 small"><strong>${threats.length} Active Threats</strong> in ${country}</div>`;
+             } else {
+                 div.innerHTML = `<div class="alert alert-success p-2 small"><strong>No Active Threats</strong> in ${country}</div>`;
+             }
+        },
+
+        updateProximity: function() {
+            const range = parseInt(document.getElementById('proxRadius').value);
+            const container = document.getElementById('proximity-alerts-container');
+            container.innerHTML = '';
+            let found = false;
+
+            this.data.forEach(inc => {
+                if(!inc.lat) return;
+                for(const [name, asset] of Object.entries(ASSETS)) {
+                    const dist = this.haversine(inc.lat, inc.lng, asset.lat, asset.lng);
+                    if(dist <= range) {
+                        found = true;
+                        const color = inc.severity >= 4 ? '#d93025' : '#f9ab00';
+                        container.innerHTML += `
+                            <div class="alert-row">
+                                <div class="alert-top">
+                                    <span style="color:${color}; font-weight:700; font-size:0.75rem;">${inc.category}</span>
+                                    <span class="badge bg-danger">${Math.round(dist)} KM</span>
+                                </div>
+                                <div style="font-size:0.8rem;">${inc.title}</div>
+                                <div style="font-size:0.7rem; color:#64748b;">NEAR: ${name.toUpperCase()}</div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+            if(!found) container.innerHTML = `<div class="text-center p-3 text-muted small">No active threats within ${range}km.</div>`;
+        },
+
+        haversine: function(lat1, lon1, lat2, lon2) {
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        },
+
+        startClock: function() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+                document.getElementById('clock-date').innerText = now.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+            }, 1000);
+        }
+    };
+
+    app.init();
 </script>
 </body>
 </html>
