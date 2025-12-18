@@ -10,185 +10,154 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root { --dell-blue: #0076CE; --bg-dark: #0f1115; --card-bg: #1a1f2e; --text-main: #e2e8f0; --border: #2d3748; }
         
-        :root { 
-            --dell-blue: #0076CE; 
-            --bg-dark: #0f1115; 
-            --card-bg: #1a1f2e; 
-            --text-main: #e2e8f0; 
-            --border: #2d3748; 
-        }
-        
-        body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: var(--text-main); }
-        .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 20px; color: var(--text-main); }
+        .app-container { max-width: 1800px; margin: 0 auto; }
         
         /* HEADER */
-        .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
-        .header-left { display: flex; align-items: center; gap:12px; }
-        .logo-icon { font-size: 1.6rem; color: #1a73e8; }
-        .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
+        .logo-text { font-size: 1.5rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
         .logo-text span { color: var(--dell-blue); }
-        .header-right { display: flex; align-items: center; gap: 20px; }
+        .nav-pills-custom { background-color: #1a1f2e; padding: 4px; border-radius: 8px; display: inline-flex; gap: 2px; border: 1px solid var(--border); }
+        .nav-item-custom { padding: 6px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; cursor: pointer; text-transform: uppercase; transition: 0.2s; text-decoration: none; }
+        .nav-item-custom:hover { color: #fff; }
+        .nav-item-custom.active { background-color: var(--dell-blue); color: #fff; }
+
+        .btn-daily { background-color: #1a73e8; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-daily:hover { background-color: #1557b0; }
+
+        /* MAP */
+        .map-wrapper { height: 500px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 25px; position: relative; z-index: 1; }
+        #map { width: 100%; height: 100%; }
         
-        /* NAV PILLS */
-        .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
-        .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: 0.2s; }
-        .nav-item-custom.active, .nav-item-custom:hover { background-color: #202124; color: #fff; }
-        
-        .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
-        
-        /* LAYOUT */
-        .content-area { padding: 30px; flex: 1; }
-        .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; border:1px solid #e0e0e0; }
-        #map { width: 100%; height: 100%; z-index: 1; }
-        
-        /* SIDEBAR CARDS */
-        .sidebar-col { display: flex; flex-direction: column; gap: 24px; }
-        .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-        
-        .history-input-group { position: relative; }
-        .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
-        .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
-        
-        .travel-select, .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
-        .category-select { background-color: #f8f9fa; font-weight: 600; color: #333; }
-        
-        /* PROXIMITY ALERTS */
-        .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
-        .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
-        #proximity-alerts-container { max-height: 400px; overflow-y: auto; }
-        .alert-row { padding: 10px; border-bottom: 1px solid #f1f1f1; background: #fff; margin-bottom: 5px; border-radius: 6px; }
-        .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
-        
-        /* FEED SECTION */
-        .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        /* FEED */
         .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .feed-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; padding: 0; overflow: hidden; transition: transform 0.2s; position: relative; text-decoration: none; display: block; color: inherit; }
+        .feed-card:hover { transform: translateY(-2px); border-color: var(--dell-blue); }
         
-        .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s; }
-        .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-color: var(--dell-blue); }
+        .sev-bar { width: 5px; position: absolute; top: 0; bottom: 0; left: 0; }
+        .sev-5 { background-color: #ef4444; } /* Critical */
+        .sev-4 { background-color: #f97316; } /* High */
+        .sev-3 { background-color: #eab308; } /* Medium */
+        .sev-2 { background-color: #3b82f6; } /* Low */
+        .sev-1 { background-color: #64748b; } /* Info */
         
-        .feed-status-bar { width: 5px; flex-shrink: 0; }
-        .status-bar-crit { background-color: #d93025; }
-        .status-bar-warn { background-color: #f9ab00; }
-        .status-bar-info { background-color: #1a73e8; }
+        .card-body { padding: 15px 15px 15px 20px; }
+        .meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         
-        .feed-content { padding: 16px 20px; width: 100%; }
-        .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-        .ftag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
-        .ftag-loc { background: #202124; color: white; }
+        .chip { padding: 2px 8px; border-radius: 4px; color: #000; letter-spacing: 0.5px; }
+        .chip-loc { background: #2d3748; color: #fff; }
         
-        .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; }
-        .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
-        .feed-meta { font-size: 0.75rem; color: #5f6368; margin-top: 10px; display: flex; justify-content: space-between; }
+        h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 8px 0; line-height: 1.4; color: #fff; }
+        .summary { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; border-left: 2px solid #4a5568; padding-left: 12px; margin-bottom: 10px; }
         
-        .loading { text-align: center; padding: 60px; color: #64748b; font-weight: 500; }
+        .footer-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 10px; }
+        .source-link { color: var(--dell-blue); font-weight: 600; }
+
+        .loading { text-align: center; padding: 60px; color: #64748b; font-weight: 500; letter-spacing: 1px; }
         
-        /* Map Markers */
+        /* SIDEBAR */
+        .sidebar-card { background: #151921; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .sidebar-title { color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; font-weight: 700; margin-bottom: 15px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+        
+        .form-select, .form-control { background-color: #0f1115; border: 1px solid var(--border); color: #fff; font-size: 0.9rem; }
+        .form-select:focus, .form-control:focus { background-color: #0f1115; color: #fff; border-color: var(--dell-blue); box-shadow: none; }
+        
+        .modal-content { background-color: #1a1f2e; color: #fff; border: 1px solid var(--border); }
+        .modal-header { border-bottom: 1px solid var(--border); }
+        .btn-close { filter: invert(1); }
+
+        /* CUSTOM MAP MARKERS */
         .custom-div-icon { background: transparent; border: none; }
-        .dell-marker { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
-        .dell-marker i { transform: rotate(45deg); color: white; font-size: 14px; }
-        
-        /* Toast & Modal */
-        .feedback-toast { position: fixed; bottom: 20px; right: 30px; background: #202124; color: #fff; padding: 8px 14px; border-radius: 6px; opacity: 0; transition: opacity 0.2s; }
-        .modal-content { border-radius: 12px; }
-        .btn-download { width: 100%; background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 700; margin-top: 10px; }
+        .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+        .marker-incident { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        .marker-incident i { color: white; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header-container">
-        <div class="header-left">
-            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-            <div class="logo-text">OS <span>INFOHUB</span></div>
-        </div>
-        <div class="header-right">
+        <div class="logo-text"><i class="fas fa-shield-alt"></i> DELL <span>OS INFOHUB</span></div>
+        <div class="d-flex align-items-center gap-4">
             <div class="nav-pills-custom">
-                <a class="nav-item-custom active" onclick="app.filterByRegion('Global', this)">Global</a>
-                <a class="nav-item-custom" onclick="app.filterByRegion('AMER', this)">AMER</a>
-                <a class="nav-item-custom" onclick="app.filterByRegion('EMEA', this)">EMEA</a>
-                <a class="nav-item-custom" onclick="app.filterByRegion('APJC', this)">APJC</a>
-                <a class="nav-item-custom" onclick="app.filterByRegion('LATAM', this)">LATAM</a>
+                <a class="nav-item-custom active" onclick="app.filter('ALL', this)">Global</a>
+                <a class="nav-item-custom" onclick="app.filter('AMER', this)">AMER</a>
+                <a class="nav-item-custom" onclick="app.filter('EMEA', this)">EMEA</a>
+                <a class="nav-item-custom" onclick="app.filter('APJC', this)">APJC</a>
             </div>
-            <div class="ms-3 text-end" style="font-size:0.85rem; line-height:1.2;">
-                <div id="clock-date" style="font-weight:700; color:#202124;">Loading...</div>
-                <div id="clock-time" style="color:#5f6368;"></div>
-            </div>
-            <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+            
+            <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal">
                 <i class="fas fa-file-alt"></i> Daily Briefings
+            </div>
+
+            <div class="text-end">
+                <div id="clock" style="font-weight:700; font-size:1rem; color:#fff;">--:--</div>
+                <div style="font-size:0.75rem; color:#94a3b8;">V102 LIVE</div>
             </div>
         </div>
     </div>
 
-    <div class="content-area">
-        <div class="row g-4 h-100">
-            <div class="col-lg-9 d-flex flex-column">
-                <div class="map-wrapper mb-3">
-                    <div id="map"></div>
+    <div class="row g-4">
+        <div class="col-lg-9">
+            <div class="map-wrapper">
+                <div id="map"></div>
+            </div>
+            
+            <div class="feed-header">
+                <div style="font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">
+                    <i class="fas fa-circle text-success me-2" style="font-size:0.6rem;"></i> Live Intelligence Stream
                 </div>
-                <div class="stream-section">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="fw-bold text-uppercase text-secondary" style="font-size:0.85rem; letter-spacing:1px;">
-                            <i class="fas fa-circle text-primary me-2" style="font-size:0.6rem"></i> Real-time Intelligence Stream
-                        </div>
-                        <div id="status-badge" class="badge bg-light text-secondary">LIVE</div>
-                    </div>
-                    
-                    <div id="general-news-feed">
-                        <div class="loading">Connecting to Secure Worker...</div>
-                    </div>
+                <span class="badge bg-secondary" id="feed-count">WAITING FOR DATA...</span>
+            </div>
+            
+            <div id="feed-container">
+                <div class="loading"><i class="fas fa-satellite-dish fa-spin me-2"></i> CONNECTING TO V102 WORKER...</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            
+            <div class="sidebar-card">
+                <div class="sidebar-title"><i class="fas fa-history"></i> History Search</div>
+                <input type="date" class="form-control" id="history-date" onchange="app.filterByDate(this.value)">
+                <div class="mt-2 text-muted" style="font-size:0.75rem;">Select a date to filter active incidents.</div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-title"><i class="fas fa-plane"></i> Travel Safety Check</div>
+                <select class="form-select" id="countrySelect" onchange="app.checkTravel(this.value)">
+                    <option selected disabled>Select Country...</option>
+                </select>
+                <div id="travel-advisories" class="mt-3"></div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-title"><i class="fas fa-filter"></i> Risk Category</div>
+                <select class="form-select" onchange="app.filterCat(this.value)">
+                    <option value="ALL">All Categories</option>
+                    <option value="PHYSICAL">Physical Security</option>
+                    <option value="CYBER">Cyber Security</option>
+                    <option value="INFRASTRUCTURE">Infrastructure</option>
+                    <option value="DISASTER">Natural Disaster</option>
+                    <option value="LOGISTICS">Logistics/Supply Chain</option>
+                </select>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-title"><i class="fas fa-crosshairs"></i> Proximity Alerts</div>
+                <select id="proxRadius" class="form-select mb-3" onchange="app.updateProximity()">
+                    <option value="50" selected>50 KM (Default)</option>
+                    <option value="100">100 KM</option>
+                    <option value="500">500 KM</option>
+                </select>
+                <div id="proximity-alerts-container">
+                    <div class="text-center p-3 text-muted small">Scanning assets...</div>
                 </div>
             </div>
 
-            <div class="col-lg-3 sidebar-col">
-                <div class="side-card">
-                    <div class="card-label"><i class="fas fa-history"></i> History Search</div>
-                    <div class="history-input-group">
-                        <i class="fas fa-calendar-alt calendar-icon"></i>
-                        <input type="date" class="history-input" id="history-picker" onchange="app.filterByDate(this.value)">
-                    </div>
-                    <div class="small text-muted mt-2">Pick a date to load archived intelligence.</div>
-                </div>
-
-                <div class="side-card">
-                    <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-                    <select class="travel-select" id="countrySelect" onchange="app.checkTravel(this.value)">
-                        <option selected disabled>Select Country...</option>
-                    </select>
-                    <div id="travel-advisories" class="mt-3"></div>
-                </div>
-
-                <div class="side-card">
-                    <div class="prox-header-row">
-                        <div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity Alerts</div></div>
-                    </div>
-                    <div class="mt-2 mb-3">
-                        <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
-                            <option value="50" selected>50 KM (Default)</option>
-                            <option value="100">100 KM</option>
-                            <option value="500">500 KM</option>
-                        </select>
-                    </div>
-                    <div id="proximity-alerts-container">
-                        <div class="text-center p-3 text-muted small">Scanning assets...</div>
-                    </div>
-                </div>
-
-                <div class="side-card">
-                    <div class="card-label"><i class="fas fa-filter"></i> Risk Category Filter</div>
-                    <select class="category-select" id="categorySelect" onchange="app.filterByCategory(this.value)">
-                        <option value="ALL" selected>All Categories</option>
-                        <option value="CYBER">Cyber Security</option>
-                        <option value="SUPPLY CHAIN">Supply Chain</option>
-                        <option value="PHYSICAL">Physical Security</option>
-                        <option value="DISASTER">Crisis / Weather</option>
-                        <option value="LOGISTICS">Logistics</option>
-                    </select>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -196,10 +165,19 @@
 <div class="modal fade" id="reportModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Daily Briefings</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header">
+                <h5 class="modal-title">Daily Intelligence Briefing</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
             <div class="modal-body">
-                <select class="form-select mb-3" id="reportRegion"><option>Global</option><option>APJC</option></select>
-                <button class="btn-download" onclick="alert('PDF Report generation is connected to the Python backend. Please ensure the backend is active.')">Download</button>
+                <p>Download the latest automated intelligence summary.</p>
+                <select class="form-select mb-3" id="reportRegion">
+                    <option value="global">Global Summary</option>
+                    <option value="apjc">APJC Region</option>
+                    <option value="emea">EMEA Region</option>
+                    <option value="amer">AMER Region</option>
+                </select>
+                <button class="btn btn-primary w-100" onclick="alert('Report Generation is linked to Python script. Please confirm Python backend is active.')">Download Report</button>
             </div>
         </div>
     </div>
@@ -207,43 +185,72 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    // --- WORKER CONNECTION ---
-    const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
+    // --- V102 CONFIGURATION ---
+    const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; 
 
-    // --- FULL ASSET LIST (INJECTED) ---
+    // --- FULL ASSET LIST ---
     const ASSETS = {
-        "round rock": { lat: 30.5083, lng: -97.6788 }, "austin": { lat: 30.2672, lng: -97.7431 },
-        "hopkinton": { lat: 42.2287, lng: -71.5226 }, "franklin": { lat: 42.0834, lng: -71.3967 },
-        "apex": { lat: 35.7327, lng: -78.8503 }, "eden prairie": { lat: 44.8617, lng: -93.4168 },
-        "draper": { lat: 40.5240, lng: -111.8950 }, "nashville": { lat: 36.1627, lng: -86.7816 },
-        "oklahoma city": { lat: 35.4676, lng: -97.5164 }, "santa clara": { lat: 37.3541, lng: -121.9552 },
-        "mclean": { lat: 38.9295, lng: -77.2268 }, "el paso": { lat: 31.8385, lng: -106.5278 },
-        "new york": { lat: 40.7128, lng: -74.0060 }, "san francisco": { lat: 37.7749, lng: -122.4194 },
-        "bangalore": { lat: 12.9716, lng: 77.5946 }, "bengaluru": { lat: 12.9716, lng: 77.5946 },
-        "delhi": { lat: 28.6139, lng: 77.2090 }, "mumbai": { lat: 19.0760, lng: 72.8777 },
-        "hyderabad": { lat: 17.3850, lng: 78.4867 }, "chennai": { lat: 13.0827, lng: 80.2707 },
-        "pune": { lat: 18.5204, lng: 73.8567 }, "gurugram": { lat: 28.4595, lng: 77.0266 },
-        "noida": { lat: 28.5355, lng: 77.3910 }, "london": { lat: 51.5074, lng: -0.1278 },
-        "bracknell": { lat: 51.4160, lng: -0.7540 }, "dublin": { lat: 53.3498, lng: -6.2603 },
-        "limerick": { lat: 52.6638, lng: -8.6267 }, "cork": { lat: 51.8985, lng: -8.4756 },
-        "glasgow": { lat: 55.8642, lng: -4.2518 }, "paris": { lat: 48.8566, lng: 2.3522 },
-        "montpellier": { lat: 43.6108, lng: 3.8767 }, "frankfurt": { lat: 50.1109, lng: 8.6821 },
-        "halle": { lat: 51.4820, lng: 11.9700 }, "amsterdam": { lat: 52.3676, lng: 4.9041 },
-        "lodz": { lat: 51.7285, lng: 19.4967 }, "casablanca": { lat: 33.5731, lng: -7.5898 },
-        "cairo": { lat: 30.0444, lng: 31.2357 }, "dubai": { lat: 25.2048, lng: 55.2708 },
-        "tel aviv": { lat: 32.0853, lng: 34.7818 }, "herzliya": { lat: 32.1644, lng: 34.7961 },
-        "haifa": { lat: 32.7940, lng: 34.9896 }, "singapore": { lat: 1.3521, lng: 103.8198 },
-        "sydney": { lat: -33.8688, lng: 151.2093 }, "melbourne": { lat: -37.8136, lng: 144.9631 },
-        "auckland": { lat: -36.8485, lng: 174.7633 }, "wellington": { lat: -41.2865, lng: 174.7762 },
-        "tokyo": { lat: 35.6762, lng: 139.6503 }, "kawasaki": { lat: 35.5300, lng: 139.6960 },
-        "taipei": { lat: 25.0330, lng: 121.5654 }, "shanghai": { lat: 31.2304, lng: 121.4737 },
-        "beijing": { lat: 39.9042, lng: 116.4074 }, "chengdu": { lat: 30.5728, lng: 104.0668 },
-        "xiamen": { lat: 24.4798, lng: 118.0894 }, "penang": { lat: 5.4164, lng: 100.3327 },
-        "cyberjaya": { lat: 2.9213, lng: 101.6559 }, "panama city": { lat: 8.9824, lng: -79.5199 },
-        "mexico city": { lat: 19.4326, lng: -99.1332 }, "sao paulo": { lat: -23.5505, lng: -46.6333 },
-        "hortolandia": { lat: -22.8583, lng: -47.2208 }, "porto alegre": { lat: -30.0346, lng: -51.2177 }
+        "round rock": { lat: 30.5083, lng: -97.6788 },
+        "austin": { lat: 30.2672, lng: -97.7431 },
+        "hopkinton": { lat: 42.2287, lng: -71.5226 },
+        "franklin": { lat: 42.0834, lng: -71.3967 },
+        "apex": { lat: 35.7327, lng: -78.8503 },
+        "eden prairie": { lat: 44.8617, lng: -93.4168 },
+        "draper": { lat: 40.5240, lng: -111.8950 },
+        "nashville": { lat: 36.1627, lng: -86.7816 },
+        "oklahoma city": { lat: 35.4676, lng: -97.5164 },
+        "santa clara": { lat: 37.3541, lng: -121.9552 },
+        "mclean": { lat: 38.9295, lng: -77.2268 },
+        "el paso": { lat: 31.8385, lng: -106.5278 },
+        "new york": { lat: 40.7128, lng: -74.0060 },
+        "san francisco": { lat: 37.7749, lng: -122.4194 },
+        "bangalore": { lat: 12.9716, lng: 77.5946 },
+        "bengaluru": { lat: 12.9716, lng: 77.5946 },
+        "delhi": { lat: 28.6139, lng: 77.2090 },
+        "mumbai": { lat: 19.0760, lng: 72.8777 },
+        "hyderabad": { lat: 17.3850, lng: 78.4867 },
+        "chennai": { lat: 13.0827, lng: 80.2707 },
+        "pune": { lat: 18.5204, lng: 73.8567 },
+        "gurugram": { lat: 28.4595, lng: 77.0266 },
+        "noida": { lat: 28.5355, lng: 77.3910 },
+        "london": { lat: 51.5074, lng: -0.1278 },
+        "bracknell": { lat: 51.4160, lng: -0.7540 },
+        "dublin": { lat: 53.3498, lng: -6.2603 },
+        "limerick": { lat: 52.6638, lng: -8.6267 },
+        "cork": { lat: 51.8985, lng: -8.4756 },
+        "glasgow": { lat: 55.8642, lng: -4.2518 },
+        "paris": { lat: 48.8566, lng: 2.3522 },
+        "montpellier": { lat: 43.6108, lng: 3.8767 },
+        "frankfurt": { lat: 50.1109, lng: 8.6821 },
+        "halle": { lat: 51.4820, lng: 11.9700 },
+        "amsterdam": { lat: 52.3676, lng: 4.9041 },
+        "lodz": { lat: 51.7285, lng: 19.4967 },
+        "casablanca": { lat: 33.5731, lng: -7.5898 },
+        "cairo": { lat: 30.0444, lng: 31.2357 },
+        "dubai": { lat: 25.2048, lng: 55.2708 },
+        "tel aviv": { lat: 32.0853, lng: 34.7818 },
+        "herzliya": { lat: 32.1644, lng: 34.7961 },
+        "haifa": { lat: 32.7940, lng: 34.9896 },
+        "singapore": { lat: 1.3521, lng: 103.8198 },
+        "sydney": { lat: -33.8688, lng: 151.2093 },
+        "melbourne": { lat: -37.8136, lng: 144.9631 },
+        "auckland": { lat: -36.8485, lng: 174.7633 },
+        "wellington": { lat: -41.2865, lng: 174.7762 },
+        "tokyo": { lat: 35.6762, lng: 139.6503 },
+        "kawasaki": { lat: 35.5300, lng: 139.6960 },
+        "taipei": { lat: 25.0330, lng: 121.5654 },
+        "shanghai": { lat: 31.2304, lng: 121.4737 },
+        "beijing": { lat: 39.9042, lng: 116.4074 },
+        "chengdu": { lat: 30.5728, lng: 104.0668 },
+        "xiamen": { lat: 24.4798, lng: 118.0894 },
+        "penang": { lat: 5.4164, lng: 100.3327 },
+        "cyberjaya": { lat: 2.9213, lng: 101.6559 },
+        "panama city": { lat: 8.9824, lng: -79.5199 },
+        "mexico city": { lat: 19.4326, lng: -99.1332 },
+        "sao paulo": { lat: -23.5505, lng: -46.6333 },
+        "hortolandia": { lat: -22.8583, lng: -47.2208 },
+        "porto alegre": { lat: -30.0346, lng: -51.2177 }
     };
 
     const app = {
@@ -274,7 +281,7 @@
             for (const [name, coords] of Object.entries(ASSETS)) {
                 const icon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: `<div class="dell-marker"><i class="fas fa-building"></i></div>`,
+                    html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`,
                     iconSize: [30, 30],
                     iconAnchor: [15, 15]
                 });
@@ -315,7 +322,7 @@
                 return r && c && d;
             }).sort((a,b) => new Date(b.time) - new Date(a.time));
 
-            document.getElementById('status-badge').innerText = `${filtered.length} ACTIVE`;
+            document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
 
             if(filtered.length === 0) {
                 container.innerHTML = `<div class="loading">No active threats matching criteria.</div>`;
@@ -352,21 +359,21 @@
 
                 if(item.lat && item.lng && item.lat !== 0) {
                     const m = L.circleMarker([item.lat, item.lng], {
-                        radius: 8, fillColor: sevColor, color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.8
+                        radius: 8, fillColor: sevColor, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
                     }).addTo(this.map).bindPopup(`<b>${item.title}</b><br>${country}`);
                     this.markers.push(m);
                 }
             });
         },
 
-        filterByRegion: function(reg, el) {
+        filter: function(reg, el) {
             this.currentRegion = reg;
             document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
             this.render();
         },
 
-        filterByCategory: function(cat) { this.currentCategory = cat; this.render(); },
+        filterCat: function(cat) { this.currentCategory = cat; this.render(); },
         filterByDate: function(d) { this.filterDate = d; this.render(); },
 
         populateCountries: function() {
