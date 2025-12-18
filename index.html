@@ -263,7 +263,9 @@
                 const rMatch = this.currentRegion === 'Global' || i.region === this.currentRegion || this.currentRegion === 'ALL';
                 const cMatch = this.currentCategory === 'ALL' || (i.category && i.category.includes(this.currentCategory));
                 let dMatch = true;
-                if(this.filterDate) dMatch = new Date(i.time).toISOString().split('T')[0] === this.filterDate;
+                if(this.filterDate) {
+                    dMatch = new Date(i.time).toISOString().split('T')[0] === this.filterDate;
+                }
                 return rMatch && cMatch && dMatch;
             }).sort((a,b) => new Date(b.time) - new Date(a.time));
 
