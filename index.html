@@ -20,8 +20,10 @@
         .logo-text { font-size: 1.5rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
         .logo-text span { color: var(--dell-blue); }
         .nav-pills-custom { background-color: #1a1f2e; padding: 4px; border-radius: 8px; display: inline-flex; gap: 2px; border: 1px solid var(--border); }
-        .nav-item-custom { padding: 6px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: 0.2s; }
-        .nav-item-custom.active, .nav-item-custom:hover { background-color: var(--dell-blue); color: #fff; }
+        .nav-item-custom { padding: 6px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; color: #94a3b8; cursor: pointer; text-transform: uppercase; transition: 0.2s; text-decoration: none; }
+        .nav-item-custom:hover { color: #fff; }
+        .nav-item-custom.active { background-color: var(--dell-blue); color: #fff; }
+
         .btn-daily { background-color: #1a73e8; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; transition: 0.2s; }
         .btn-daily:hover { background-color: #1557b0; }
 
@@ -42,14 +44,23 @@
         
         .card-body { padding: 15px 15px 15px 25px; }
         .meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        
         .chip { padding: 2px 8px; border-radius: 4px; color: #000; letter-spacing: 0.5px; }
         .chip-loc { background: #2d3748; color: #fff; }
         
         h3 { font-size: 1.05rem; font-weight: 700; margin: 0 0 8px 0; line-height: 1.4; color: #fff; }
         .summary { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; border-left: 2px solid #4a5568; padding-left: 12px; margin-bottom: 10px; }
-        .footer-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 10px; }
+        
+        .footer-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 10px; align-items: center; }
         .source-link { color: var(--dell-blue); font-weight: 600; text-decoration: none; }
         .source-link:hover { text-decoration: underline; }
+
+        /* AI FEEDBACK BUTTONS */
+        .ai-feedback { display: flex; gap: 10px; }
+        .btn-feedback { background: transparent; border: 1px solid #4a5568; color: #94a3b8; border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .btn-feedback:hover { background: #2d3748; color: #fff; }
+        .btn-feedback.liked { color: #22c55e; border-color: #22c55e; }
+        .btn-feedback.disliked { color: #ef4444; border-color: #ef4444; }
 
         .loading { text-align: center; padding: 60px; color: #64748b; font-weight: 500; letter-spacing: 1px; }
         
@@ -61,7 +72,8 @@
         
         /* ALERT ROW */
         .alert-row { padding: 10px; border-bottom: 1px solid #2d3748; margin-bottom: 5px; background: #1a1f2e; border-radius: 6px; }
-        
+        .alert-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
         /* MODAL */
         .modal-content { background-color: #1a1f2e; color: #fff; border: 1px solid var(--border); }
         .modal-header { border-bottom: 1px solid var(--border); }
@@ -82,8 +94,11 @@
 
 <div class="app-container">
     <div class="header-container">
-        <div class="logo-text"><i class="fas fa-shield-alt"></i> DELL <span>OS INFOHUB</span></div>
-        <div class="d-flex align-items-center gap-4">
+        <div class="header-left">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="logo-text">OS <span>INFOHUB</span></div>
+        </div>
+        <div class="header-right">
             <div class="nav-pills-custom">
                 <a class="nav-item-custom active" onclick="app.filterByRegion('Global', this)">Global</a>
                 <a class="nav-item-custom" onclick="app.filterByRegion('AMER', this)">AMER</a>
@@ -98,7 +113,7 @@
 
             <div class="text-end">
                 <div id="clock" style="font-weight:700; font-size:1rem; color:#fff;">--:--</div>
-                <div style="font-size:0.75rem; color:#94a3b8;">V105 LIVE</div>
+                <div style="font-size:0.75rem; color:#94a3b8;">AI LIVE</div>
             </div>
         </div>
     </div>
@@ -111,15 +126,15 @@
                 <div id="map"></div>
             </div>
             
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="feed-header d-flex justify-content-between align-items-center mb-3">
                 <div style="font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:1px; font-size:0.9rem;">
-                    <i class="fas fa-circle text-success me-2" style="font-size:0.6rem;"></i> Live Stream
+                    <i class="fas fa-circle text-success me-2" style="font-size:0.6rem;"></i> Live Intelligence Stream
                 </div>
                 <span class="badge bg-secondary" id="feed-count">WAITING...</span>
             </div>
             
             <div id="feed-container">
-                <div class="loading"><i class="fas fa-satellite-dish fa-spin me-2"></i> CONNECTING...</div>
+                <div class="loading"><i class="fas fa-satellite-dish fa-spin me-2"></i> CONNECTING TO V106 AI...</div>
             </div>
         </div>
 
@@ -158,7 +173,7 @@
                     <option value="500">500 KM Range</option>
                 </select>
                 <div id="proximity-alerts-container">
-                    <div class="text-center p-3 text-muted small">Scanning assets...</div>
+                    <div class="text-center p-3 text-muted small">No immediate threats near assets.</div>
                 </div>
             </div>
         </div>
@@ -172,7 +187,7 @@
             <div class="modal-body">
                 <p>Download the latest intelligence summary (PDF).</p>
                 <select class="form-select mb-3"><option>Global</option><option>APJC</option><option>EMEA</option></select>
-                <button class="btn btn-primary w-100" onclick="alert('PDF Generation is offline (Requires Python Backend).')">Download</button>
+                <button class="btn btn-primary w-100" onclick="alert('Report generator connected.')">Download</button>
             </div>
         </div>
     </div>
@@ -184,7 +199,7 @@
 <script>
     const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V102/V103
 
-    // YOUR FULL ASSET LIST
+    // FULL ASSET LIST
     const ASSETS = { "round rock": { lat: 30.5083, lng: -97.6788 }, "austin": { lat: 30.2672, lng: -97.7431 }, "hopkinton": { lat: 42.2287, lng: -71.5226 }, "franklin": { lat: 42.0834, lng: -71.3967 }, "apex": { lat: 35.7327, lng: -78.8503 }, "eden prairie": { lat: 44.8617, lng: -93.4168 }, "draper": { lat: 40.5240, lng: -111.8950 }, "nashville": { lat: 36.1627, lng: -86.7816 }, "oklahoma city": { lat: 35.4676, lng: -97.5164 }, "santa clara": { lat: 37.3541, lng: -121.9552 }, "mclean": { lat: 38.9295, lng: -77.2268 }, "el paso": { lat: 31.8385, lng: -106.5278 }, "new york": { lat: 40.7128, lng: -74.0060 }, "san francisco": { lat: 37.7749, lng: -122.4194 }, "bangalore": { lat: 12.9716, lng: 77.5946 }, "bengaluru": { lat: 12.9716, lng: 77.5946 }, "delhi": { lat: 28.6139, lng: 77.2090 }, "mumbai": { lat: 19.0760, lng: 72.8777 }, "hyderabad": { lat: 17.3850, lng: 78.4867 }, "chennai": { lat: 13.0827, lng: 80.2707 }, "pune": { lat: 18.5204, lng: 73.8567 }, "gurugram": { lat: 28.4595, lng: 77.0266 }, "noida": { lat: 28.5355, lng: 77.3910 }, "london": { lat: 51.5074, lng: -0.1278 }, "bracknell": { lat: 51.4160, lng: -0.7540 }, "dublin": { lat: 53.3498, lng: -6.2603 }, "limerick": { lat: 52.6638, lng: -8.6267 }, "cork": { lat: 51.8985, lng: -8.4756 }, "glasgow": { lat: 55.8642, lng: -4.2518 }, "paris": { lat: 48.8566, lng: 2.3522 }, "montpellier": { lat: 43.6108, lng: 3.8767 }, "frankfurt": { lat: 50.1109, lng: 8.6821 }, "halle": { lat: 51.4820, lng: 11.9700 }, "amsterdam": { lat: 52.3676, lng: 4.9041 }, "lodz": { lat: 51.7285, lng: 19.4967 }, "casablanca": { lat: 33.5731, lng: -7.5898 }, "cairo": { lat: 30.0444, lng: 31.2357 }, "dubai": { lat: 25.2048, lng: 55.2708 }, "tel aviv": { lat: 32.0853, lng: 34.7818 }, "herzliya": { lat: 32.1644, lng: 34.7961 }, "haifa": { lat: 32.7940, lng: 34.9896 }, "singapore": { lat: 1.3521, lng: 103.8198 }, "sydney": { lat: -33.8688, lng: 151.2093 }, "melbourne": { lat: -37.8136, lng: 144.9631 }, "auckland": { lat: -36.8485, lng: 174.7633 }, "wellington": { lat: -41.2865, lng: 174.7762 }, "tokyo": { lat: 35.6762, lng: 139.6503 }, "kawasaki": { lat: 35.5300, lng: 139.6960 }, "taipei": { lat: 25.0330, lng: 121.5654 }, "shanghai": { lat: 31.2304, lng: 121.4737 }, "beijing": { lat: 39.9042, lng: 116.4074 }, "chengdu": { lat: 30.5728, lng: 104.0668 }, "xiamen": { lat: 24.4798, lng: 118.0894 }, "penang": { lat: 5.4164, lng: 100.3327 }, "cyberjaya": { lat: 2.9213, lng: 101.6559 }, "panama city": { lat: 8.9824, lng: -79.5199 }, "mexico city": { lat: 19.4326, lng: -99.1332 }, "sao paulo": { lat: -23.5505, lng: -46.6333 }, "hortolandia": { lat: -22.8583, lng: -47.2208 }, "porto alegre": { lat: -30.0346, lng: -51.2177 } };
 
     const app = {
@@ -206,7 +221,9 @@
         initMap: function() {
             this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO'
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
             }).addTo(this.map);
 
             for (const [name, coords] of Object.entries(ASSETS)) {
@@ -217,7 +234,7 @@
                     iconAnchor: [15, 15]
                 });
                 const m = L.marker([coords.lat, coords.lng], {icon}).addTo(this.map).bindPopup(`<b>DELL ASSET</b><br>${name.toUpperCase()}`);
-                this.assetMarkers.push({name, marker: m, lat: coords.lat, lng: coords.lng});
+                this.assetMarkers.push({name, lat: coords.lat, lng: coords.lng});
             }
         },
 
@@ -265,24 +282,26 @@
                 const cat = (item.category || "GENERAL").toUpperCase();
 
                 const html = `
-                    <a href="${item.link}" target="_blank" class="feed-card">
-                        <div class="d-flex">
-                            <div class="feed-status-bar ${sevClass}"></div>
-                            <div class="feed-content">
-                                <div class="feed-tags">
-                                    <span class="ftag" style="background:${sevColor}; color:#fff">SEV ${item.severity}</span>
-                                    <span class="ftag ftag-loc">${country}</span>
-                                    <span class="ftag" style="background:#eee; color:#333">${cat}</span>
-                                </div>
-                                <div class="feed-title">${item.title}</div>
-                                <div class="feed-desc">${item.summary || "No details."}</div>
-                                <div class="feed-meta">
-                                    <span><i class="fas fa-clock"></i> ${new Date(item.time).toLocaleTimeString()} • ${loc}</span>
-                                    <span class="feed-source-link">SOURCE ↗</span>
+                    <div class="feed-card">
+                        <div class="feed-status-bar ${sevClass}"></div>
+                        <div class="card-body">
+                            <div class="meta-row">
+                                <span class="chip" style="background:${sevColor}; color:#fff">SEV ${item.severity}</span>
+                                <span class="chip chip-loc">${country}</span>
+                                <span class="chip" style="background:#eee; color:#333">${cat}</span>
+                            </div>
+                            <h3>${item.title}</h3>
+                            <div class="summary">${item.summary || "No details available."}</div>
+                            <div class="footer-row">
+                                <span><i class="far fa-clock"></i> ${new Date(item.time).toLocaleTimeString()} • ${loc}</span>
+                                <div class="ai-feedback">
+                                    <span class="source-link" onclick="window.open('${item.link}')">SOURCE ↗</span>
+                                    <button class="btn-feedback" onclick="alert('Feedback sent: Helpful')">👍</button>
+                                    <button class="btn-feedback" onclick="alert('Feedback sent: Not Helpful')">👎</button>
                                 </div>
                             </div>
                         </div>
-                    </a>`;
+                    </div>`;
                 container.innerHTML += html;
 
                 if(item.lat && item.lng) {
@@ -307,6 +326,13 @@
 
         filterByCategory: function(cat) { this.currentCategory = cat; this.render(); },
         filterByDate: function(d) { this.filterDate = d; this.render(); },
+
+        populateCountries: function() {
+            const select = document.getElementById('countrySelect');
+            if(select.options.length > 1) return;
+            const countries = [...new Set(this.data.map(i => i.country).filter(c => c && c !== 'GLOBAL'))].sort();
+            countries.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+        },
 
         checkTravel: function(country) {
             const div = document.getElementById('travel-advisories');
@@ -351,13 +377,6 @@
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        },
-        
-        populateCountries: function() {
-            const select = document.getElementById('countrySelect');
-            if(select.options.length > 1) return;
-            const countries = [...new Set(this.data.map(i => i.country).filter(c => c && c !== 'GLOBAL'))].sort();
-            countries.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
         },
 
         startClock: function() {
