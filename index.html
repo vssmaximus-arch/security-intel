@@ -449,7 +449,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadFromWorker();           // incidents
   filterNews("Global");             // initial render
 
-  await loadTravelAdvisories();     // real advisories
+  await loadTravelAdvisories();     // real advisories (with retries)
   // attempt again shortly in case cache was empty on first hit:
   setTimeout(loadTravelAdvisories, 2500);
 
@@ -770,38 +770,53 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL ADVISORIES (REAL)
-   — This is the travel logic I added; unchanged here.
+   TRAVEL ADVISORIES (REAL) - FRONTEND
+   - loadTravelAdvisories with retries
+   - filterTravel renders CRITICAL + HIGH lists
 =========================== */
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
-  try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+  sel.innerHTML = `<option selected disabled>Loading countries...</option>`;
+  TRAVEL_DATA = [];
+  TRAVEL_UPDATED_AT = null;
 
-    const json = await res.json();
-    TRAVEL_DATA = Array.isArray(json.advisories) ? json.advisories : [];
-    TRAVEL_UPDATED_AT = json.updated_at || null;
+  // Try up to 3 times to get a full advisory list (worker now tries to refresh on its side, but we retry client-side)
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`${WORKER_URL}/api/traveladvisories?ts=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const json = await res.json();
 
-    if (TRAVEL_DATA.length === 0) {
-      sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-      return;
+      const list = Array.isArray(json.advisories) ? json.advisories : [];
+      TRAVEL_DATA = list;
+      TRAVEL_UPDATED_AT = json.updated_at || json.cached_at || null;
+
+      // If list looks full, break early
+      if (TRAVEL_DATA && TRAVEL_DATA.length > 50) break;
+    } catch (e) {
+      // ignore and retry
     }
-
-    // Populate ALL countries
-    sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
-    TRAVEL_DATA.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
-      sel.appendChild(opt);
-    });
-  } catch {
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    // small backoff
+    await new Promise(r => setTimeout(r, 1200));
   }
+
+  // Final populate (if still small, show whatever we have or fallback message)
+  if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
+    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    return;
+  }
+
+  // Populate sorted
+  TRAVEL_DATA.sort((a,b) => (String(a.country || "").localeCompare(String(b.country || ""))));
+  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
+  TRAVEL_DATA.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.country;
+    opt.innerText = c.country;
+    sel.appendChild(opt);
+  });
 }
 
 async function filterTravel() {
@@ -829,7 +844,7 @@ async function filterTravel() {
 
     const updated = advisory.updated_at || json.cached_at || "Unknown";
 
-    // Advisory box
+    // Advisory box with change note
     let changedNote = "";
     if (advisory.changed) {
       const prev = advisory.previous_level ? `Level ${advisory.previous_level}` : "Unknown";
@@ -847,7 +862,7 @@ async function filterTravel() {
         ${changedNote}
       </div>`;
 
-    // Next-level activities (static mapping)
+    // Next-level activities (unchanged static mapping)
     const nextLevel = Math.min(level + 1, 4);
     const nextActivities = {
       1: [
@@ -878,9 +893,46 @@ async function filterTravel() {
     });
     activitiesHtml += `</div></div>`;
 
-    if (recent.length > 0) {
-      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      recent.forEach(n => {
+    // Partition recent incidents into CRITICAL (>=5) and HIGH (4)
+    const critical = [];
+    const high = [];
+    const seenIds = new Set();
+
+    recent.forEach(n => {
+      const sevNum = Number(n.severity || 0);
+      const sevText = String(n.severity_label || "").toUpperCase();
+      const id = n.id || (n.title + '|' + (n.time||''));
+      if (seenIds.has(id)) return;
+      if (sevNum >= 5 || sevText === "CRITICAL" || sevText === "EXTRA HIGH") {
+        critical.push(n);
+        seenIds.add(id);
+      } else if ( (sevNum === 4) || (sevText === "HIGH") ) {
+        high.push(n);
+        seenIds.add(id);
+      }
+    });
+
+    // Render panels: CRITICAL, then HIGH, then activities
+    let newsHtml = "";
+
+    if (critical.length > 0) {
+      newsHtml += `<div class="news-box-alert"><div class="news-box-header">CRITICAL / EXTRA-HIGH INCIDENTS (LAST 72H)</div>`;
+      critical.forEach(n => {
+        const when = (n.time) ? new Date(n.time).toLocaleString() : "Recently";
+        const sevLabel = n.severity_label || (n.severity ? ("SEV " + n.severity) : "CRITICAL");
+        newsHtml += `
+          <div class="news-box-item">
+            <div class="news-box-title">${escapeHtml(n.title || "(No title)")}</div>
+            <div class="news-box-summary" style="font-size:0.8rem;color:#5f6368;">${escapeHtml(n.summary || "")}</div>
+            <div style="font-size:0.75rem;color:#9aa0a6;margin-top:6px;">${escapeHtml(sevLabel)} • ${escapeHtml(when)}</div>
+          </div>`;
+      });
+      newsHtml += `</div>`;
+    }
+
+    if (high.length > 0) {
+      newsHtml += `<div class="news-box-alert"><div class="news-box-header">HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
+      high.forEach(n => {
         const when = (n.time) ? new Date(n.time).toLocaleString() : "Recently";
         const sevLabel = n.severity_label || (n.severity ? ("SEV " + n.severity) : "HIGH");
         newsHtml += `
@@ -891,8 +943,10 @@ async function filterTravel() {
           </div>`;
       });
       newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml + activitiesHtml;
-    } else {
+    }
+
+    // If nothing, show safe box + activities
+    if (!newsHtml) {
       newsContainer.innerHTML = `
         <div class="safe-box">
           <i class="fas fa-check-circle safe-icon"></i>
@@ -901,6 +955,8 @@ async function filterTravel() {
             <div style="margin-top:6px;">${activitiesHtml}</div>
           </div>
         </div>`;
+    } else {
+      newsContainer.innerHTML = newsHtml + activitiesHtml;
     }
   } catch (e) {
     advContainer.innerHTML = `
