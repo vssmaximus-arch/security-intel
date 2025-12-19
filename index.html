@@ -449,8 +449,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadFromWorker();           // incidents
   filterNews("Global");             // initial render
 
-  await loadTravelAdvisories();     // real advisories (with retries)
-  // attempt again shortly in case cache was empty on first hit:
+  await loadTravelAdvisories();     // real advisories (robust loader)
   setTimeout(loadTravelAdvisories, 2500);
 
   setInterval(async () => {
@@ -770,10 +769,21 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL ADVISORIES (REAL) - FRONTEND
-   - loadTravelAdvisories with retries
-   - filterTravel renders CRITICAL + HIGH lists
+   TRAVEL ADVISORIES (REAL)
+   - robust client loader (worker -> fallback -> local fallback)
 =========================== */
+
+/* Local fallback (kept intentionally small; not authoritative) */
+const LOCAL_FALLBACK = [
+  { country: "Afghanistan", level: 4, text: "Do Not Travel." },
+  { country: "Australia", level: 1, text: "Exercise normal precautions." },
+  { country: "Brazil", level: 2, text: "Exercise increased caution." },
+  { country: "Canada", level: 1, text: "Exercise normal precautions." },
+  { country: "China", level: 3, text: "Reconsider travel." },
+  { country: "India", level: 2, text: "Exercise increased caution." },
+  { country: "United States", level: 1, text: "Exercise normal precautions." }
+];
+
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
@@ -782,41 +792,89 @@ async function loadTravelAdvisories() {
   TRAVEL_DATA = [];
   TRAVEL_UPDATED_AT = null;
 
-  // Try up to 3 times to get a full advisory list (worker now tries to refresh on its side, but we retry client-side)
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories?ts=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const json = await res.json();
+  // Helper to populate dropdown
+  function populateDropdown(list, updated_at = null) {
+    if (!Array.isArray(list) || list.length === 0) return false;
+    TRAVEL_DATA = list;
+    TRAVEL_UPDATED_AT = updated_at || null;
+    TRAVEL_DATA.sort((a,b) => (String(a.country || "").localeCompare(String(b.country || ""))));
+    sel.innerHTML = `<option selected disabled>Select Country...</option>`;
+    TRAVEL_DATA.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.country;
+      opt.innerText = c.country;
+      sel.appendChild(opt);
+    });
+    return true;
+  }
 
-      const list = Array.isArray(json.advisories) ? json.advisories : [];
-      TRAVEL_DATA = list;
-      TRAVEL_UPDATED_AT = json.updated_at || json.cached_at || null;
-
-      // If list looks full, break early
-      if (TRAVEL_DATA && TRAVEL_DATA.length > 50) break;
-    } catch (e) {
-      // ignore and retry
+  // 1) Try Worker endpoint first (quick)
+  try {
+    console.log("[travel] Trying worker endpoint for advisories...");
+    const r = await fetch(`${WORKER_URL}/api/traveladvisories?ts=${Date.now()}`, { cache: "no-store", mode: "cors" });
+    if (r.ok) {
+      const j = await r.json();
+      const list = Array.isArray(j.advisories) ? j.advisories : [];
+      if (list.length > 50) {
+        console.log("[travel] Got full advisory list from worker:", list.length);
+        populateDropdown(list, j.updated_at || j.cached_at || null);
+        return;
+      }
+      // If worker returned something but small, still accept if not empty
+      if (list.length >= 20) {
+        console.log("[travel] Worker returned partial list (>=20):", list.length);
+        populateDropdown(list, j.updated_at || j.cached_at || null);
+        return;
+      }
+      console.log("[travel] Worker returned small list:", list.length);
+    } else {
+      console.warn("[travel] Worker endpoint returned non-ok:", r.status);
     }
-    // small backoff
-    await new Promise(r => setTimeout(r, 1200));
+  } catch (we) {
+    console.warn("[travel] Worker fetch failed:", we && we.message ? we.message : we);
   }
 
-  // Final populate (if still small, show whatever we have or fallback message)
-  if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-    return;
+  // 2) Try the travel-advisory.info API directly from the client
+  try {
+    console.log("[travel] Falling back to travel-advisory.info API directly...");
+    const r2 = await fetch("https://www.travel-advisory.info/api", { cache: "no-store", mode: "cors" });
+    if (r2.ok) {
+      const j2 = await r2.json();
+      const advs = [];
+      if (j2 && j2.data) {
+        for (const [code, entry] of Object.entries(j2.data)) {
+          if (!entry || !entry.name || !entry.advisory) continue;
+          const score = Number(entry.advisory.score);
+          const msg = String(entry.advisory.message || "").trim();
+          let level = 1;
+          if (score >= 3.5) level = 4;
+          else if (score >= 2.5) level = 3;
+          else if (score >= 1.5) level = 2;
+          advs.push({
+            code,
+            country: entry.name,
+            score: Number.isFinite(score) ? score : null,
+            level,
+            text: msg || `Risk score: ${Number.isFinite(score) ? score : "N/A"}`
+          });
+        }
+      }
+      if (advs.length > 0) {
+        console.log("[travel] Populating advisories from travel-advisory.info:", advs.length);
+        populateDropdown(advs, new Date().toISOString());
+        return;
+      }
+      console.warn("[travel] travel-advisory.info returned no advisories");
+    } else {
+      console.warn("[travel] travel-advisory.info fetch failed:", r2.status);
+    }
+  } catch (fe) {
+    console.warn("[travel] Direct travel-advisory.info fetch failed:", fe && fe.message ? fe.message : fe);
   }
 
-  // Populate sorted
-  TRAVEL_DATA.sort((a,b) => (String(a.country || "").localeCompare(String(b.country || ""))));
-  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-  TRAVEL_DATA.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.country;
-    opt.innerText = c.country;
-    sel.appendChild(opt);
-  });
+  // 3) As last resort use local fallback
+  console.warn("[travel] Using local fallback advisory list");
+  populateDropdown(LOCAL_FALLBACK, null);
 }
 
 async function filterTravel() {
@@ -829,7 +887,7 @@ async function filterTravel() {
   newsContainer.innerHTML = ``;
 
   try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, { cache: "no-store" });
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, { cache: "no-store", mode: "cors" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const json = await res.json();
 
@@ -844,7 +902,7 @@ async function filterTravel() {
 
     const updated = advisory.updated_at || json.cached_at || "Unknown";
 
-    // Advisory box with change note
+    // Advisory box
     let changedNote = "";
     if (advisory.changed) {
       const prev = advisory.previous_level ? `Level ${advisory.previous_level}` : "Unknown";
@@ -862,7 +920,7 @@ async function filterTravel() {
         ${changedNote}
       </div>`;
 
-    // Next-level activities (unchanged static mapping)
+    // Next-level activities (static mapping)
     const nextLevel = Math.min(level + 1, 4);
     const nextActivities = {
       1: [
@@ -945,7 +1003,6 @@ async function filterTravel() {
       newsHtml += `</div>`;
     }
 
-    // If nothing, show safe box + activities
     if (!newsHtml) {
       newsContainer.innerHTML = `
         <div class="safe-box">
