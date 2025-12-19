@@ -368,6 +368,9 @@ let currentRadius = 50;
 
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
+let travelRetryCount = 0;
+let travelRetryTimer = null;
+const TRAVEL_MAX_RETRIES = 6;
 
 let map;
 let layerGroup;
@@ -755,12 +758,22 @@ async function loadTravelAdvisories() {
     if (!res.ok) throw new Error("HTTP " + res.status);
 
     const json = await res.json();
-    TRAVEL_DATA = Array.isArray(json.advisories) ? json.advisories : [];
+    const advisoryList = Array.isArray(json.advisories)
+      ? json.advisories
+      : normalizeTravelData(json.data);
+    TRAVEL_DATA = advisoryList.filter(entry => entry && entry.country);
     TRAVEL_UPDATED_AT = json.updated_at || null;
 
     if (TRAVEL_DATA.length === 0) {
       sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+      scheduleTravelRetry();
       return;
+    }
+
+    travelRetryCount = 0;
+    if (travelRetryTimer) {
+      clearTimeout(travelRetryTimer);
+      travelRetryTimer = null;
     }
 
     // Populate ALL countries
@@ -773,7 +786,39 @@ async function loadTravelAdvisories() {
     });
   } catch {
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    scheduleTravelRetry();
   }
+}
+
+function scheduleTravelRetry() {
+  if (travelRetryCount >= TRAVEL_MAX_RETRIES) return;
+  travelRetryCount += 1;
+  if (travelRetryTimer) clearTimeout(travelRetryTimer);
+  const delayMs = 2000 + travelRetryCount * 1500;
+  travelRetryTimer = setTimeout(loadTravelAdvisories, delayMs);
+}
+
+function normalizeTravelData(data) {
+  if (!data || typeof data !== "object") return [];
+  return Object.entries(data)
+    .map(([code, entry]) => {
+      if (!entry || !entry.name || !entry.advisory) return null;
+      const score = Number(entry.advisory.score);
+      let level = 1;
+      if (Number.isFinite(score)) {
+        if (score >= 3.5) level = 4;
+        else if (score >= 2.5) level = 3;
+        else if (score >= 1.5) level = 2;
+      }
+      return {
+        code,
+        country: String(entry.name || "").trim(),
+        score: Number.isFinite(score) ? score : null,
+        level,
+        text: String(entry.advisory.message || "").trim(),
+      };
+    })
+    .filter(Boolean);
 }
 
 function filterTravel() {
