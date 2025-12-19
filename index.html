@@ -19,10 +19,10 @@
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
     /* SEVERITY COLORS (TEXT BASED) */
-    .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; } /* Red */
-    .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }     /* Orange */
-    .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; } /* Yellow */
-    .sev-LOW { background-color: #3b82f6; color: #fff; border-color:#3b82f6; }      /* Blue */
+    .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; }
+    .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }
+    .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; }
+    .sev-LOW { background-color: #3b82f6; color: #fff; border-color:#3b82f6; }
     .sev-UNKNOWN { background-color: #64748b; color: #fff; }
 
     .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -56,12 +56,12 @@
     .feed-card { background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; }
     .feed-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
     .feed-status-bar { width: 6px; flex-shrink: 0; }
-    
+
     .feed-content { padding: 18px 24px; width: 100%; }
     .feed-tags { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
     .ftag { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
     .ftag-loc { background: #202124; color: white; border-color: #202124; }
-    
+
     .feed-title { font-size: 1.1rem; font-weight: 700; color: #202124; margin-bottom: 8px; line-height: 1.4; }
     .feed-desc { font-size: 0.9rem; color: #4b4f56; line-height: 1.6; margin-bottom: 10px; }
     .feed-meta { font-size: 0.8rem; color: #5f6368; display: flex; justify-content: space-between; align-items: center; }
@@ -69,12 +69,9 @@
     .feed-source-link:hover { text-decoration: underline; }
 
     .loading-text { text-align: center; padding: 40px; color: #5f6368; font-weight: 500; }
-    
+
     /* Map Markers */
     .custom-div-icon { background: transparent; border: none; }
-    .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #c30b82; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
-    .marker-pin::after { content: ''; width: 14px; height: 14px; margin: 8px 0 0 8px; background: #fff; position: absolute; border-radius: 50%; }
-    
     .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
     .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
 
@@ -84,19 +81,24 @@
     .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
     .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
     .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.35; }
-    
-    /* Missing Second Part: News Box in Travel */
+
+    /* Travel Recent Incidents Box */
     .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
     .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
     .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
     .news-box-item:last-child { border-bottom: none; }
     .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
     .news-box-summary { font-size: 0.75rem; color: #5f6368; }
-    
+
+    /* Missing in Gemini: safe-box was referenced but not defined */
+    .safe-box { display:flex; gap:10px; align-items:flex-start; background:#f8f9fa; border:1px solid #e0e0e0; border-radius:8px; padding:10px 12px; margin-top:10px; }
+    .safe-icon { color:#1a73e8; margin-top:2px; }
+    .safe-text { font-size:0.85rem; font-weight:700; color:#202124; }
+
     .alert-row { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
     .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
     .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
-    
+
     .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
     .modal-title { font-weight: 800; color: #202124; }
@@ -173,11 +175,15 @@
             <option selected disabled>Loading Official Data...</option>
           </select>
           <div id="travel-advisories" class="mt-3"></div>
-          <div id="travel-news" class="mt-2"></div> </div>
+          <div id="travel-news" class="mt-2"></div>
+        </div>
 
         <div class="side-card">
           <div class="prox-header-row">
-             <div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity Alerts</div></div>
+            <div>
+              <div class="prox-dell-label">Dell Asset</div>
+              <div class="prox-main-title">Proximity Alerts</div>
+            </div>
           </div>
           <div class="mt-2 mb-3">
             <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
@@ -190,17 +196,17 @@
             <div class="text-center p-3 text-muted small">No immediate threats near assets.</div>
           </div>
         </div>
-        
+
         <div class="side-card">
-            <div class="card-label"><i class="fas fa-filter"></i> Category Filter</div>
-            <select class="category-select" id="categorySelect" onchange="app.filterByCategory(this.value)">
-                <option value="ALL" selected>All Categories</option>
-                <option value="PHYSICAL">Physical Security</option>
-                <option value="CYBER">Cyber Security</option>
-                <option value="INFRASTRUCTURE">Infrastructure</option>
-                <option value="DISASTER">Natural Disaster</option>
-                <option value="LOGISTICS">Logistics/Supply Chain</option>
-            </select>
+          <div class="card-label"><i class="fas fa-filter"></i> Category Filter</div>
+          <select class="category-select" id="categorySelect" onchange="app.filterByCategory(this.value)">
+            <option value="ALL" selected>All Categories</option>
+            <option value="PHYSICAL">Physical Security</option>
+            <option value="CYBER">Cyber Security</option>
+            <option value="INFRASTRUCTURE">Infrastructure</option>
+            <option value="DISASTER">Natural Disaster</option>
+            <option value="LOGISTICS">Logistics/Supply Chain</option>
+          </select>
         </div>
       </div>
     </div>
@@ -208,22 +214,22 @@
 </div>
 
 <div class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Daily Intelligence Briefing</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <select class="form-select mb-3"><option>Global</option><option>APJC</option></select>
-                <button class="btn-download" onclick="alert('PDF Reporting requires backend.')">Download Report</button>
-            </div>
-        </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Daily Intelligence Briefing</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <select class="form-select mb-3"><option>Global</option><option>APJC</option></select>
+        <button class="btn-download" onclick="alert('PDF Reporting requires backend.')">Download Report</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V112 Live
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 
 // FULL ASSET LIST (Hardcoded for immediate load)
 const ASSETS = {
@@ -292,251 +298,332 @@ const ASSETS = {
 let TRAVEL_DATA = [];
 
 const app = {
-    data: [],
-    map: null,
-    markers: [],
-    assetMarkers: [],
-    currentRegion: 'Global',
-    currentCategory: 'ALL',
-    filterDate: null,
+  data: [],
+  map: null,
+  markers: [],
+  assetLayer: null,
+  incidentLayer: null,
+  assetMarkers: [],
+  currentRegion: 'Global',
+  currentCategory: 'ALL',
+  filterDate: null,
 
-    init: function() {
-        this.initMap();
-        this.startClock();
-        this.fetchData();
-        this.fetchTravel();
-        setInterval(() => this.fetchData(), 60000);
-    },
+  init: function() {
+    this.initMap();
+    this.startClock();
+    this.fetchData();
+    this.fetchTravel();
+    setInterval(() => this.fetchData(true), 60000);
+  },
 
-    initMap: function() {
-        this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap &copy; CARTO',
-            subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(this.map);
+  initMap: function() {
+    this.map = L.map('map', { zoomControl: false }).setView([20, 0], 2);
 
-        // Plot Assets
-        for (const [name, coords] of Object.entries(ASSETS)) {
-            const icon = L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
-            const m = L.marker([coords.lat, coords.lng], {icon}).addTo(this.map).bindPopup(`<b>DELL ASSET</b><br>${name.toUpperCase()}`);
-            this.assetMarkers.push({name, lat: coords.lat, lng: coords.lng});
-        }
-    },
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(this.map);
 
-    fetchData: async function() {
-        try {
-            const res = await fetch(`${WORKER_URL}/api/incidents`);
-            if(!res.ok) throw new Error("Worker Error");
-            this.data = await res.json();
-            this.render();
-            this.updateProximity();
-        } catch(e) {
-            document.getElementById('general-news-feed').innerHTML = `<div class="loading-text text-danger">Connection Failed. Check URL.</div>`;
-        }
-    },
+    this.assetLayer = L.layerGroup().addTo(this.map);
+    this.incidentLayer = L.layerGroup().addTo(this.map);
 
-    fetchTravel: async function() {
-        try {
-            const res = await fetch(`${WORKER_URL}/api/traveladvisories`);
-            const json = await res.json();
-            TRAVEL_DATA = json.advisories || [];
-            this.populateCountries();
-        } catch(e) { console.error("Travel data fail"); }
-    },
+    this.renderAssets();
+  },
 
-    populateCountries: function() {
-        const select = document.getElementById('countrySelect');
-        select.innerHTML = '<option selected disabled>Select Country...</option>';
-        TRAVEL_DATA.sort((a,b) => a.country.localeCompare(b.country)).forEach(c => {
-            select.innerHTML += `<option value="${c.country}">${c.country}</option>`;
-        });
-    },
+  renderAssets: function() {
+    this.assetLayer.clearLayers();
+    this.assetMarkers = [];
 
-    render: function() {
-        const container = document.getElementById('general-news-feed');
-        container.innerHTML = '';
-        this.markers.forEach(m => this.map.removeLayer(m));
-        this.markers = [];
+    const icon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
 
-        let filtered = this.data.filter(i => {
-            const rMatch = this.currentRegion === 'Global' || i.region === this.currentRegion || this.currentRegion === 'ALL';
-            const cMatch = this.currentCategory === 'ALL' || (i.category && i.category.includes(this.currentCategory));
-            let dMatch = true;
-            if(this.filterDate) {
-                dMatch = new Date(i.time).toISOString().split('T')[0] === this.filterDate;
-            }
-            return rMatch && cMatch && dMatch;
-        }).sort((a,b) => (getSevWeight(b.severity) - getSevWeight(a.severity)) || (new Date(b.time) - new Date(a.time)));
+    for (const [name, coords] of Object.entries(ASSETS)) {
+      if (this.currentRegion !== "Global" && coords.region !== this.currentRegion) continue;
 
-        document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
+      L.marker([coords.lat, coords.lng], { icon })
+        .addTo(this.assetLayer)
+        .bindPopup(`<b>DELL ASSET</b><br>${name.toUpperCase()}`);
 
-        if(filtered.length === 0) {
-            container.innerHTML = `<div class="loading-text">No active threats matching criteria.</div>`;
-            return;
-        }
-
-        filtered.forEach(item => {
-            const sev = item.severity || "LOW";
-            const sevClass = `sev-${sev}`;
-            const badgeClass = `sev-${sev}`; 
-            
-            const loc = (item.location || "UNKNOWN").toUpperCase();
-            const country = (item.country || "GLOBAL").toUpperCase();
-            const cat = (item.category || "GENERAL").toUpperCase();
-
-            const html = `
-                <a href="${item.link}" target="_blank" class="feed-card">
-                    <div class="d-flex">
-                        <div class="feed-status-bar ${sevClass}"></div>
-                        <div class="feed-content">
-                            <div class="feed-tags">
-                                <span class="ftag ${badgeClass}">${sev}</span>
-                                <span class="ftag ftag-loc">${country}</span>
-                                <span class="ftag ftag-type">${cat}</span>
-                            </div>
-                            <div class="feed-title">${item.title}</div>
-                            <div class="feed-desc">${item.summary}</div>
-                            <div class="feed-meta">
-                                <span><i class="fas fa-clock"></i> ${new Date(item.time).toLocaleTimeString()} • ${loc}</span>
-                                <span class="feed-source-link">READ SOURCE <i class="fas fa-external-link-alt ms-1"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            `;
-            container.innerHTML += html;
-
-            if(item.lat && item.lng && item.lat !== 0) {
-                let color = '#3b82f6';
-                if(sev === 'CRITICAL') color = '#ef4444';
-                if(sev === 'HIGH') color = '#f97316';
-                if(sev === 'MODERATE') color = '#eab308';
-
-                const m = L.circleMarker([item.lat, item.lng], {
-                    radius: 8, fillColor: color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
-                }).addTo(this.map).bindPopup(`<b>${country}: ${loc}</b><br>${item.title}`);
-                this.markers.push(m);
-            }
-        });
-    },
-
-    filterNews: function(region, el) {
-        this.currentRegion = region;
-        if(el) {
-            document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-        this.render();
-    },
-
-    filterByCategory: function(cat) { this.currentCategory = cat; this.render(); },
-    filterByDate: function(d) { this.filterDate = d; this.render(); },
-
-    filterTravel: function() {
-        const country = document.getElementById("countrySelect").value;
-        const advisory = TRAVEL_DATA.find(c => c.country === country);
-        const div = document.getElementById("travel-advisories");
-        const newsDiv = document.getElementById("travel-news"); // The "Second Part"
-        
-        // 1. Show Advisory
-        if(advisory) {
-            let color = "#1a73e8", level = "LEVEL 1";
-            if(advisory.level >= 4) { color = "#d93025"; level = "LEVEL 4"; }
-            else if(advisory.level >= 3) { color = "#e37400"; level = "LEVEL 3"; }
-            else if(advisory.level >= 2) { color = "#f9ab00"; level = "LEVEL 2"; }
-
-            div.innerHTML = `
-            <div class="advisory-box" style="border-left:4px solid ${color}">
-                <div class="advisory-header"><span class="advisory-label">OFFICIAL STATUS</span><span class="advisory-level-badge" style="background:${color}">${level}</span></div>
-                <div class="advisory-text">${advisory.text}</div>
-            </div>`;
-        }
-
-        // 2. Show Related News (THE RESTORED FEATURE)
-        const related = this.data.filter(i => 
-             String(i.country).toUpperCase() === country.toUpperCase() || 
-             i.title.toUpperCase().includes(country.toUpperCase())
-        ).slice(0, 3);
-
-        if(related.length > 0) {
-            let newsHTML = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS</div>`;
-            related.forEach(n => {
-                newsHTML += `<div class="news-box-item">
-                    <div class="news-box-title">${n.title}</div>
-                    <div class="news-box-summary">${n.severity}</div>
-                </div>`;
-            });
-            newsHTML += `</div>`;
-            newsDiv.innerHTML = newsHTML;
-        } else {
-            newsDiv.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No recent incidents.</div></div>`;
-        }
-    },
-
-    updateProximity: function() {
-        const range = parseInt(document.getElementById('proxRadius').value);
-        const container = document.getElementById('proximity-alerts-container');
-        container.innerHTML = '';
-        let found = false;
-
-        this.data.forEach(inc => {
-            if(!inc.lat || !inc.lng) return;
-            for(const asset of this.assetMarkers) {
-                const dist = this.haversine(inc.lat, inc.lng, asset.lat, asset.lng);
-                if(dist <= range) {
-                    found = true;
-                    let color = '#1a73e8';
-                    if(inc.severity === 'CRITICAL') color = '#ef4444';
-                    if(inc.severity === 'HIGH') color = '#f97316';
-                    
-                    container.innerHTML += `
-                        <div class="alert-row">
-                            <div class="alert-top">
-                                <span style="color:${color}; font-weight:700; font-size:0.75rem;">${inc.category}</span>
-                                <span class="alert-dist">${Math.round(dist)} KM</span>
-                            </div>
-                            <div style="font-size:0.8rem;">${inc.title}</div>
-                            <div style="font-size:0.7rem; color:#64748b;">NEAR: ${asset.name.toUpperCase()}</div>
-                        </div>
-                    `;
-                }
-            }
-        });
-
-        if(!found) container.innerHTML = `<div class="text-center p-3 text-muted small">No active threats within ${range}km.</div>`;
-    },
-
-    haversine: function(lat1, lon1, lat2, lon2) {
-        const R = 6371; 
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    },
-
-    startClock: function() {
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('clock-date').innerText = now.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
-        }, 1000);
+      this.assetMarkers.push({ name, lat: coords.lat, lng: coords.lng });
     }
+  },
+
+  recenter: function() {
+    if (this.currentRegion === "AMER") this.map.setView([30, -90], 3);
+    else if (this.currentRegion === "EMEA") this.map.setView([45, 15], 3);
+    else if (this.currentRegion === "APJC") this.map.setView([20, 110], 3);
+    else if (this.currentRegion === "LATAM") this.map.setView([-15, -60], 3);
+    else this.map.setView([20, 0], 2);
+  },
+
+  fetchData: async function(silent=false) {
+    try {
+      const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Worker Error");
+
+      const raw = await res.json();
+      // normalize minimally so severity/category/region behave
+      this.data = (raw || []).map(i => ({
+        ...i,
+        severity: String(i.severity || "LOW").toUpperCase(),
+        category: String(i.category || "UNKNOWN").toUpperCase(),
+        region: String(i.region || "GLOBAL").toUpperCase(),
+        country: String(i.country || "GLOBAL"),
+        location: String(i.location || "UNKNOWN"),
+        lat: Number(i.lat || 0),
+        lng: Number(i.lng || 0),
+        time: i.time || new Date().toISOString()
+      }));
+
+      this.render();
+      this.updateProximity();
+    } catch (e) {
+      document.getElementById('general-news-feed').innerHTML =
+        `<div class="loading-text text-danger">Connection Failed. Check WORKER_URL.</div>`;
+    }
+  },
+
+  fetchTravel: async function() {
+    try {
+      const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
+      const json = await res.json();
+      TRAVEL_DATA = (json && json.advisories) ? json.advisories : [];
+      this.populateCountries();
+    } catch (e) {
+      // if travel fails, keep the dropdown in a sane state
+      const select = document.getElementById('countrySelect');
+      select.innerHTML = '<option selected disabled>Travel Data Unavailable</option>';
+    }
+  },
+
+  populateCountries: function() {
+    const select = document.getElementById('countrySelect');
+    select.innerHTML = '<option selected disabled>Select Country...</option>';
+
+    TRAVEL_DATA
+      .slice()
+      .sort((a, b) => String(a.country).localeCompare(String(b.country)))
+      .forEach(c => {
+        select.innerHTML += `<option value="${c.country}">${c.country}</option>`;
+      });
+  },
+
+  render: function() {
+    const container = document.getElementById('general-news-feed');
+    container.innerHTML = '';
+
+    this.incidentLayer.clearLayers();
+
+    let filtered = this.data
+      .filter(i => {
+        const rMatch = this.currentRegion === 'Global' || i.region === this.currentRegion;
+        const cMatch = this.currentCategory === 'ALL' || (i.category && i.category.includes(this.currentCategory));
+        let dMatch = true;
+        if (this.filterDate) {
+          dMatch = new Date(i.time).toISOString().split('T')[0] === this.filterDate;
+        }
+        return rMatch && cMatch && dMatch;
+      })
+      .sort((a, b) =>
+        (getSevWeight(b.severity) - getSevWeight(a.severity)) || (new Date(b.time) - new Date(a.time))
+      );
+
+    document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="loading-text">No active threats matching criteria.</div>`;
+      return;
+    }
+
+    filtered.forEach(item => {
+      const sev = item.severity || "LOW";
+      const sevClass = `sev-${sev}`;
+
+      const loc = (item.location || "UNKNOWN").toUpperCase();
+      const country = (item.country || "GLOBAL").toUpperCase();
+      const cat = (item.category || "GENERAL").toUpperCase();
+
+      container.innerHTML += `
+        <a href="${item.link}" target="_blank" class="feed-card">
+          <div class="d-flex">
+            <div class="feed-status-bar ${sevClass}"></div>
+            <div class="feed-content">
+              <div class="feed-tags">
+                <span class="ftag ${sevClass}">${sev}</span>
+                <span class="ftag ftag-loc">${country}</span>
+                <span class="ftag ftag-type">${cat}</span>
+              </div>
+              <div class="feed-title">${item.title || ""}</div>
+              <div class="feed-desc">${item.summary || ""}</div>
+              <div class="feed-meta">
+                <span><i class="fas fa-clock"></i> ${new Date(item.time).toLocaleTimeString()} • ${loc}</span>
+                <span class="feed-source-link">READ SOURCE <i class="fas fa-external-link-alt ms-1"></i></span>
+              </div>
+            </div>
+          </div>
+        </a>
+      `;
+
+      if (item.lat && item.lng && item.lat !== 0) {
+        let color = '#3b82f6';
+        if (sev === 'CRITICAL') color = '#ef4444';
+        if (sev === 'HIGH') color = '#f97316';
+        if (sev === 'MODERATE') color = '#eab308';
+
+        L.circleMarker([item.lat, item.lng], {
+          radius: 8, fillColor: color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
+        })
+          .addTo(this.incidentLayer)
+          .bindPopup(`<b>${country}: ${loc}</b><br>${item.title || ""}`);
+      }
+    });
+  },
+
+  filterNews: function(region, el) {
+    this.currentRegion = region;
+
+    if (el) {
+      document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    this.renderAssets();
+    this.recenter();
+    this.render();
+    this.updateProximity();
+  },
+
+  filterByCategory: function(cat) { this.currentCategory = cat; this.render(); this.updateProximity(); },
+  filterByDate: function(d) { this.filterDate = d; this.render(); this.updateProximity(); },
+
+  filterTravel: function() {
+    const country = document.getElementById("countrySelect").value;
+    const advisory = TRAVEL_DATA.find(c => String(c.country) === String(country));
+    const div = document.getElementById("travel-advisories");
+    const newsDiv = document.getElementById("travel-news");
+
+    // 1) Show Advisory
+    if (advisory) {
+      let color = "#1a73e8", level = "LEVEL 1";
+      if (Number(advisory.level) >= 4) { color = "#d93025"; level = "LEVEL 4"; }
+      else if (Number(advisory.level) >= 3) { color = "#e37400"; level = "LEVEL 3"; }
+      else if (Number(advisory.level) >= 2) { color = "#f9ab00"; level = "LEVEL 2"; }
+
+      div.innerHTML = `
+        <div class="advisory-box" style="border-left:4px solid ${color}">
+          <div class="advisory-header">
+            <span class="advisory-label">OFFICIAL STATUS</span>
+            <span class="advisory-level-badge" style="background:${color}">${level}</span>
+          </div>
+          <div class="advisory-text">${advisory.text || ""}</div>
+        </div>
+      `;
+    } else {
+      div.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon"></i><div class="safe-text">No advisory loaded.</div></div>`;
+    }
+
+    // 2) Show Related News
+    const related = this.data
+      .filter(i =>
+        String(i.country || "").toUpperCase() === String(country).toUpperCase() ||
+        String(i.title || "").toUpperCase().includes(String(country).toUpperCase())
+      )
+      .slice(0, 3);
+
+    if (related.length > 0) {
+      let newsHTML = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS</div>`;
+      related.forEach(n => {
+        newsHTML += `
+          <div class="news-box-item">
+            <div class="news-box-title">${n.title || ""}</div>
+            <div class="news-box-summary">${(n.severity || "LOW").toUpperCase()} • ${(n.category || "UNKNOWN").toUpperCase()}</div>
+          </div>
+        `;
+      });
+      newsHTML += `</div>`;
+      newsDiv.innerHTML = newsHTML;
+    } else {
+      newsDiv.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No recent incidents.</div></div>`;
+    }
+  },
+
+  updateProximity: function() {
+    const range = parseInt(document.getElementById('proxRadius').value, 10);
+    const container = document.getElementById('proximity-alerts-container');
+    container.innerHTML = '';
+    let found = false;
+
+    this.data.forEach(inc => {
+      if (!inc.lat || !inc.lng) return;
+
+      // optional: keep proximity aligned with region selection
+      if (this.currentRegion !== "Global" && String(inc.region || "").toUpperCase() !== this.currentRegion) return;
+
+      for (const asset of this.assetMarkers) {
+        const dist = this.haversine(inc.lat, inc.lng, asset.lat, asset.lng);
+        if (dist <= range) {
+          found = true;
+          let color = '#1a73e8';
+          if (inc.severity === 'CRITICAL') color = '#ef4444';
+          if (inc.severity === 'HIGH') color = '#f97316';
+          if (inc.severity === 'MODERATE') color = '#eab308';
+
+          container.innerHTML += `
+            <div class="alert-row">
+              <div class="alert-top">
+                <span style="color:${color}; font-weight:700; font-size:0.75rem;">${inc.category}</span>
+                <span class="alert-dist">${Math.round(dist)} KM</span>
+              </div>
+              <div style="font-size:0.8rem;">${inc.title || ""}</div>
+              <div style="font-size:0.7rem; color:#64748b;">NEAR: ${asset.name.toUpperCase()}</div>
+            </div>
+          `;
+        }
+      }
+    });
+
+    if (!found) container.innerHTML = `<div class="text-center p-3 text-muted small">No active threats within ${range}km.</div>`;
+  },
+
+  haversine: function(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  },
+
+  startClock: function() {
+    const tick = () => {
+      const now = new Date();
+      document.getElementById("clock-date").innerText =
+        now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "short", day: "numeric" });
+      document.getElementById("clock-time").innerText =
+        now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
 };
 
 function getSevWeight(sev) {
-    if(sev === 'CRITICAL') return 4;
-    if(sev === 'HIGH') return 3;
-    if(sev === 'MODERATE') return 2;
-    return 1;
+  sev = String(sev || "").toUpperCase();
+  if (sev === 'CRITICAL') return 4;
+  if (sev === 'HIGH') return 3;
+  if (sev === 'MODERATE') return 2;
+  return 1;
 }
 
 app.init();
 </script>
 </body>
 </html>
+
