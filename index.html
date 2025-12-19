@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dell SRO | Global Intelligence Dashboard</title>
+  <title>OS | INFOHUB</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -412,13 +412,24 @@ let TRAVEL = {
 };
 
 /* ===========================
+   SEVERITY (TEXT) HELPERS
+=========================== */
+function sevInfo(sevText) {
+  const s = String(sevText || "LOW").toUpperCase();
+  if (s === "CRITICAL") return { rank: 4, bar: "status-bar-crit", badge: "ftag-crit", color: "#d93025" };
+  if (s === "HIGH")     return { rank: 3, bar: "status-bar-warn", badge: "ftag-warn", color: "#f9ab00" };
+  if (s === "MODERATE") return { rank: 2, bar: "status-bar-info", badge: "ftag-info", color: "#1a73e8" };
+  return { rank: 1, bar: "status-bar-info", badge: "ftag-info", color: "#1a73e8" }; // LOW
+}
+
+/* ===========================
    INIT
 =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
   initMap();
   startClock();
 
-  await loadTravelAdvisories();   // <-- REAL data via Worker
+  await loadTravelAdvisories();   // REAL data via Worker
   await loadFromWorker();         // initial feed
   filterNews("Global");           // initial render
 
@@ -500,11 +511,9 @@ function renderIncidentsOnMap(region, incidents) {
   filtered.forEach(i => {
     if (!i.lat || !i.lng || Number(i.lat) === 0 || Number(i.lng) === 0) return;
 
-    const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
-
+    const s = sevInfo(i.severity);
     const marker = L.circleMarker([i.lat, i.lng], {
-      radius: 8, fillColor: color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.85
+      radius: 8, fillColor: s.color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.85
     });
 
     marker.bindPopup(`<b>${escapeHtml(i.country || "GLOBAL")} • ${escapeHtml(i.location || "UNKNOWN")}</b><br/>${escapeHtml(i.title || "")}`);
@@ -527,6 +536,7 @@ async function loadFromWorker(silent=false) {
     const list = Array.isArray(raw) ? raw : [];
     INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
 
+    // keep your original time-based sorting (traditional & predictable)
     INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
 
     FEED_IS_LIVE = true;
@@ -545,14 +555,15 @@ function normaliseWorkerIncident(item) {
   const regionRaw = String(item.region || "GLOBAL").toUpperCase();
   const region = (regionRaw === "GLOBAL") ? "Global" : regionRaw;
 
-  const severity = Number(item.severity || 1) || 1;
+  const sev = String(item.severity || "LOW").toUpperCase();
+  const safeSev = ["CRITICAL","HIGH","MODERATE","LOW"].includes(sev) ? sev : "LOW";
 
   return {
     id: item.id || (title + "|" + (item.link||"")),
     title,
     summary: item.summary || "",
     category: (item.category || "UNKNOWN").toUpperCase(),
-    severity,
+    severity: safeSev, // TEXT
     region,
     country: (item.country || "GLOBAL"),
     location: (item.location || "UNKNOWN"),
@@ -571,7 +582,6 @@ async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
-  // wipe options except placeholder
   sel.innerHTML = `<option selected disabled>Select Country...</option>`;
 
   try {
@@ -587,13 +597,12 @@ async function loadTravelAdvisories() {
       TRAVEL.byCountry[a.country] = {
         level: Number(a.level || 1),
         text: String(a.text || "No advisory text available."),
-        updated: a.updated || ""
+        updated: a.updated || payload.updated || ""
       };
     }
 
     TRAVEL.countries = Object.keys(TRAVEL.byCountry).sort((a,b) => a.localeCompare(b));
 
-    // Populate ALL countries from real dataset
     TRAVEL.countries.forEach(c => {
       const opt = document.createElement("option");
       opt.value = c;
@@ -602,7 +611,6 @@ async function loadTravelAdvisories() {
     });
 
   } catch (e) {
-    // If advisory fetch fails, keep UI functional but truthful
     const advContainer = document.getElementById("travel-advisories");
     if (advContainer) {
       advContainer.innerHTML = `
@@ -647,19 +655,16 @@ function renderGeneralFeed(region) {
 
   let html = "";
   data.forEach(i => {
-    const sev = Number(i.severity || 1);
-    const barClass = sev >= 4 ? "status-bar-crit" : (sev === 3 ? "status-bar-warn" : "status-bar-info");
-    const badgeClass = sev >= 4 ? "ftag-crit" : (sev === 3 ? "ftag-warn" : "ftag-info");
-
+    const s = sevInfo(i.severity);
     const when = safeTime(i.time);
     const src = i.source ? shortHost(i.source) : "Source";
 
     html += `
       <a href="${escapeAttr(i.link)}" target="_blank" class="feed-card">
-        <div class="feed-status-bar ${barClass}"></div>
+        <div class="feed-status-bar ${s.bar}"></div>
         <div class="feed-content">
           <div class="feed-tags">
-            <span class="ftag ${badgeClass}">SEV ${sev}</span>
+            <span class="ftag ${s.badge}">${escapeHtml(i.severity)}</span>
             <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
             <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
@@ -691,7 +696,7 @@ function updateHeadline(region) {
 
   const top = data[0];
   el.textContent = top.title;
-  sevEl.textContent = "SEV " + (top.severity || 1);
+  sevEl.textContent = String(top.severity || "LOW");
   catEl.textContent = top.category || "UNKNOWN";
   regEl.textContent = (top.region || "Global").toUpperCase();
 }
@@ -725,7 +730,7 @@ function renderProximityAlerts(region) {
     }
   }
 
-  alerts.sort((x,y) => (x.dist - y.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
+  alerts.sort((x,y) => (x.dist - y.dist) || (sevInfo(y.inc.severity).rank - sevInfo(x.inc.severity).rank));
 
   if (alerts.length === 0) {
     container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No incidents within ${currentRadius}km of Dell sites.</div>`;
@@ -735,17 +740,16 @@ function renderProximityAlerts(region) {
   const maxShow = 25;
   let html = "";
   alerts.slice(0, maxShow).forEach(a => {
-    const sev = Number(a.inc.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
+    const s = sevInfo(a.inc.severity);
 
     html += `
       <div class="alert-row">
         <div class="alert-top">
           <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>
+            <i class="fas fa-exclamation-circle" style="color:${s.color};margin-right:8px;"></i>
             ${escapeHtml(a.inc.title || "Incident")}
           </div>
-          <div class="alert-dist" style="color:${color}">${Math.round(a.dist)}km</div>
+          <div class="alert-dist" style="color:${s.color}">${Math.round(a.dist)}km</div>
         </div>
         <div class="alert-site">
           <i class="far fa-building"></i> Near: <b>${escapeHtml(a.asset.name)}</b>
