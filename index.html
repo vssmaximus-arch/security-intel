@@ -13,317 +13,63 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
+    body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
-    :root {
-      --dell-blue: #0076CE;
-      --bg-dark: #0f1115;
-    }
+    /* INCIDENT SEVERITY (TEXT) */
+    .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; }
+    .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }
+    .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; }
+    .sev-LOW { background-color: #1a73e8; color: #fff; border-color:#1a73e8; }
+    .sev-UNKNOWN { background-color: #64748b; color: #fff; border-color:#64748b; }
 
-    body {
-      background-color: var(--bg-dark);
-      font-family: 'Inter', sans-serif;
-      padding: 24px;
-      color: #333;
-    }
+    .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
+    .header-left { display: flex; align-items: center; height: 100%; }
+    .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
+    .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
+    .logo-text span { color: var(--dell-blue); }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: 0.2s; }
+    .nav-item-custom.active, .nav-item-custom:hover { background-color: #202124; color: #fff; }
+    .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
+    .content-area { padding: 30px; flex: 1; }
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; border:1px solid #e0e0e0; }
+    #map { width: 100%; height: 100%; z-index: 1; }
+    .sidebar-col { display: flex; flex-direction: column; gap: 24px; }
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .history-input-group { position: relative; }
+    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; }
+    .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
 
-    .app-container {
-      background-color: #fff;
-      border-radius: 24px;
-      min-height: 92vh;
-      padding: 0;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
+    /* FEED CARDS */
+    .feed-card { background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; }
+    .feed-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 6px; flex-shrink: 0; }
+    .feed-content { padding: 18px 24px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-loc { background: #202124; color: white; border-color: #202124; }
+    .feed-title { font-size: 1.1rem; font-weight: 700; color: #202124; margin-bottom: 8px; line-height: 1.4; }
+    .feed-desc { font-size: 0.9rem; color: #4b4f56; line-height: 1.6; margin-bottom: 10px; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; display: flex; justify-content: space-between; align-items: center; }
 
-    .header-container {
-      padding: 15px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #f0f0f0;
-      height: 70px;
-    }
+    .loading-text { text-align: center; padding: 40px; color: #5f6368; font-weight: 500; }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      height: 100%;
-    }
-
-    .logo-icon {
-      font-size: 1.6rem;
-      color: #1a73e8;
-      display: flex;
-      align-items: center;
-    }
-
-    .logo-text {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #202124;
-      letter-spacing: -0.5px;
-      margin-left: 12px;
-      line-height: 1;
-      padding-top: 2px;
-    }
-
-    .logo-text span {
-      color: var(--dell-blue);
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .nav-pills-custom {
-      background-color: #f1f3f4;
-      padding: 4px;
-      border-radius: 10px;
-      display: flex;
-      gap: 2px;
-    }
-
-    .nav-item-custom {
-      padding: 7px 18px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      color: #5f6368;
-      cursor: pointer;
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: 0.2s;
-    }
-
-    .nav-item-custom.active,
-    .nav-item-custom:hover {
-      background-color: #202124;
-      color: #fff;
-    }
-
-    .btn-dell {
-      background-color: #1a73e8;
-      color: white;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .content-area {
-      padding: 30px;
-      flex: 1;
-    }
-
-    .map-wrapper {
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      height: 520px;
-      background: #eef2f6;
-      border: 1px solid #e0e0e0;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-
-    .sidebar-col {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .side-card {
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-    }
-
-    .card-label {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #202124;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .history-input-group {
-      position: relative;
-    }
-
-    .history-input {
-      width: 100%;
-      padding: 10px 10px 10px 40px;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-
-    .calendar-icon {
-      position: absolute;
-      left: 12px;
-      top: 12px;
-      color: #5f6368;
-    }
-
-    .travel-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-
-    .category-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      background-color: #f8f9fa;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .prox-header-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2px;
-    }
-
-    .prox-dell-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #202124;
-    }
-
-    .prox-main-title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #1a73e8;
-      line-height: 1.1;
-    }
-
-    #proximity-alerts-container {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .stream-section {
-      margin-top: 25px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .feed-card {
-      background: #fff;
-      border-radius: 10px;
-      border: 1px solid #e0e0e0;
-      margin-bottom: 15px;
-      display: block;
-      overflow: hidden;
-      text-decoration: none;
-      color: inherit;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .feed-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .feed-status-bar {
-      width: 6px;
-      flex-shrink: 0;
-    }
-
-    .feed-content {
-      padding: 18px 24px;
-      width: 100%;
-    }
-
-    .feed-tags {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-
-    .ftag {
-      font-size: 0.7rem;
-      font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      border: 1px solid #eee;
-      letter-spacing: 0.5px;
-    }
-
-    .ftag-loc {
-      background: #202124;
-      color: white;
-      border-color: #202124;
-    }
-
-    .feed-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #202124;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .feed-desc {
-      font-size: 0.9rem;
-      color: #4b4f56;
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-
-    .feed-meta {
-      font-size: 0.8rem;
-      color: #5f6368;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .feed-source-link {
-      color: #1a73e8;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .feed-source-link:hover {
-      text-decoration: underline;
-    }
-
-    .loading-text {
-      text-align: center;
-      padding: 40px;
-      color: #5f6368;
-      font-weight: 500;
-    }
-
-    /* Map Markers */
+    /* MAP MARKERS */
     .custom-div-icon { background: transparent; border: none; }
-    .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #c30b82; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
-    .marker-pin::after { content: ''; width: 14px; height: 14px; margin: 8px 0 0 8px; background: #fff; position: absolute; border-radius: 50%; }
+    .marker-pin-dell {
+      width: 30px; height: 30px; border-radius: 10px;
+      background: var(--dell-blue); color: #fff;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      border: 2px solid #fff;
+    }
 
     /* Travel Advisory */
     .advisory-box { border-radius: 8px; padding: 12px; margin-top: 15px; border: 1px solid #ddd; }
@@ -331,6 +77,17 @@
     .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
     .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
     .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.35; }
+    .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
+
+    .safe-box { border-radius: 10px; padding: 12px; border: 1px solid #d2e3fc; background: #e8f0fe; display:flex; gap:10px; align-items:flex-start; }
+    .safe-icon { color:#1a73e8; margin-top:2px; }
+    .safe-text { font-size: 0.82rem; font-weight: 650; color:#1a1a1a; line-height:1.35; }
+
+    .news-box-alert { border-radius: 10px; padding: 12px; border: 1px solid #ffe0b2; background: #fff7ed; }
+    .news-box-header { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.6px; color:#7c2d12; margin-bottom: 8px; }
+    .news-box-item { padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #fed7aa; margin-bottom: 8px; }
+    .news-box-title { font-size: 0.82rem; font-weight: 800; color:#202124; margin-bottom:4px; }
+    .news-box-summary { font-size: 0.78rem; font-weight: 600; color:#4b4f56; line-height:1.35; }
   </style>
 </head>
 
@@ -356,11 +113,11 @@
         <div id="clock-time" style="color:#5f6368;"></div>
       </div>
 
-      <div class="btn-dell ms-3" onclick="manualRefresh()">
+      <div class="btn-daily ms-3" onclick="manualRefresh()">
         <i class="fas fa-rotate"></i> Refresh
       </div>
 
-      <div class="btn-dell ms-3" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;">
+      <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;">
         <i class="fas fa-file-alt"></i> Daily Briefings
       </div>
     </div>
@@ -402,15 +159,11 @@
             <option selected disabled>Select Country...</option>
           </select>
           <div id="travel-advisories" class="mt-3"></div>
+          <div id="travel-news" class="mt-3"></div>
         </div>
 
         <div class="side-card">
-          <div class="prox-header-row">
-            <div>
-              <div class="prox-dell-label">Dell Asset</div>
-              <div class="prox-main-title">Proximity Alerts</div>
-            </div>
-          </div>
+          <div class="card-label"><i class="fas fa-map-marker-alt"></i> Proximity Alerts</div>
           <div class="mt-2 mb-3">
             <select id="proxRadius" class="form-select form-select-sm" onchange="updateProximityRadius()">
               <option value="50" selected>50 KM Range</option>
@@ -459,73 +212,68 @@ const AUTO_REFRESH_MS = 60_000;
    DATA STATE
 =========================== */
 let INCIDENTS = [];
-let FEED_IS_LIVE = false;
+let TRAVEL_DATA = [];
 let currentRadius = 50;
 
 let map;
-let layerGroup;
-let incidentLayerGroup;
+let assetLayer;
+let incidentLayer;
 
 /* ===========================
-   STATIC DELL ASSETS (FULL LIST)
+   DELL ASSETS (FULL LIST)
 =========================== */
 const ASSETS = {
-  "dell round rock hq": { lat: 30.5083, lng: -97.6788, region: "AMER", display: "Dell Round Rock HQ" },
-  "dell austin parmer": { lat: 30.3952, lng: -97.6843, region: "AMER", display: "Dell Austin Parmer" },
-  "dell hopkinton": { lat: 42.2287, lng: -71.5226, region: "AMER", display: "Dell Hopkinton" },
-  "dell franklin": { lat: 42.0834, lng: -71.3967, region: "AMER", display: "Dell Franklin" },
-  "dell apex": { lat: 35.7327, lng: -78.85, region: "AMER", display: "Dell Apex" },
-  "dell eden prairie": { lat: 44.8617, lng: -93.4168, region: "AMER", display: "Dell Eden Prairie" },
-  "dell draper": { lat: 40.524, lng: -111.895, region: "AMER", display: "Dell Draper" },
-  "dell nashville hub": { lat: 36.1627, lng: -86.7816, region: "AMER", display: "Dell Nashville Hub" },
-  "dell oklahoma city": { lat: 35.4676, lng: -97.5164, region: "AMER", display: "Dell Oklahoma City" },
-  "dell santa clara": { lat: 37.3541, lng: -121.9552, region: "AMER", display: "Dell Santa Clara" },
-  "dell mclean": { lat: 38.9295, lng: -77.2268, region: "AMER", display: "Dell McLean" },
-  "dell el paso": { lat: 31.8385, lng: -106.5278, region: "AMER", display: "Dell El Paso" },
-  "dell toronto": { lat: 43.6532, lng: -79.3832, region: "AMER", display: "Dell Toronto" },
-  "dell mexico city": { lat: 19.4326, lng: -99.1332, region: "AMER", display: "Dell Mexico City" },
-  "dell hortolandia mfg": { lat: -22.8583, lng: -47.2208, region: "LATAM", display: "Dell Hortolândia Mfg" },
-  "dell sao paulo": { lat: -23.5505, lng: -46.6333, region: "LATAM", display: "Dell São Paulo" },
-  "dell porto alegre": { lat: -30.0346, lng: -51.2177, region: "LATAM", display: "Dell Porto Alegre" },
-  "dell panama city": { lat: 8.9824, lng: -79.5199, region: "LATAM", display: "Dell Panama City" },
-  "dell lodz mfg": { lat: 51.7285, lng: 19.4967, region: "EMEA", display: "Dell Lodz Mfg" },
-  "dell limerick": { lat: 52.6638, lng: -8.6267, region: "EMEA", display: "Dell Limerick" },
-  "dell dublin cherrywood": { lat: 53.2374, lng: -6.145, region: "EMEA", display: "Dell Dublin Cherrywood" },
-  "dell cork campus": { lat: 51.8985, lng: -8.4756, region: "EMEA", display: "Dell Cork Campus" },
-  "dell herzliya": { lat: 32.1644, lng: 34.7961, region: "EMEA", display: "Dell Herzliya" },
-  "dell haifa": { lat: 32.794, lng: 34.9896, region: "EMEA", display: "Dell Haifa" },
-  "dell beer sheva": { lat: 31.2626, lng: 34.8016, region: "EMEA", display: "Dell Beer Sheva" },
-  "dell bracknell": { lat: 51.416, lng: -0.754, region: "EMEA", display: "Dell Bracknell" },
-  "dell glasgow": { lat: 55.8642, lng: -4.2518, region: "EMEA", display: "Dell Glasgow" },
-  "dell montpellier": { lat: 43.6108, lng: 3.8767, region: "EMEA", display: "Dell Montpellier" },
-  "dell paris bezons": { lat: 48.8566, lng: 2.3522, region: "EMEA", display: "Dell Paris / Bezons" },
-  "dell frankfurt": { lat: 50.1109, lng: 8.6821, region: "EMEA", display: "Dell Frankfurt" },
-  "dell halle": { lat: 51.482, lng: 11.97, region: "EMEA", display: "Dell Halle" },
-  "dell amsterdam": { lat: 52.3676, lng: 4.9041, region: "EMEA", display: "Dell Amsterdam" },
-  "dell casablanca": { lat: 33.5731, lng: -7.5898, region: "EMEA", display: "Dell Casablanca" },
-  "dell cairo": { lat: 30.0444, lng: 31.2357, region: "EMEA", display: "Dell Cairo" },
-  "dell dubai": { lat: 25.2048, lng: 55.2708, region: "EMEA", display: "Dell Dubai" },
-  "dell bangalore": { lat: 12.9716, lng: 77.5946, region: "APJC", display: "Dell Bangalore" },
-  "dell hyderabad": { lat: 17.385, lng: 78.4867, region: "APJC", display: "Dell Hyderabad" },
-  "dell gurugram": { lat: 28.4595, lng: 77.0266, region: "APJC", display: "Dell Gurugram" },
-  "dell sriperumbudur mfg": { lat: 12.956, lng: 79.941, region: "APJC", display: "Dell Sriperumbudur Mfg" },
-  "dell singapore": { lat: 1.3521, lng: 103.8198, region: "APJC", display: "Dell Singapore" },
-  "dell penang": { lat: 5.4164, lng: 100.3327, region: "APJC", display: "Dell Penang" },
-  "dell cyberjaya": { lat: 2.9213, lng: 101.6559, region: "APJC", display: "Dell Cyberjaya" },
-  "dell xiamen mfg": { lat: 24.4798, lng: 118.0894, region: "APJC", display: "Dell Xiamen Mfg" },
-  "dell chengdu mfg": { lat: 30.5728, lng: 104.0668, region: "APJC", display: "Dell Chengdu Mfg" },
-  "dell shanghai": { lat: 31.2304, lng: 121.4737, region: "APJC", display: "Dell Shanghai" },
-  "dell taipei": { lat: 25.033, lng: 121.5654, region: "APJC", display: "Dell Taipei" },
-  "dell tokyo": { lat: 35.6762, lng: 139.6503, region: "APJC", display: "Dell Tokyo" },
-  "dell kawasaki": { lat: 35.53, lng: 139.696, region: "APJC", display: "Dell Kawasaki" },
-  "dell sydney": { lat: -33.8688, lng: 151.2093, region: "APJC", display: "Dell Sydney" },
-  "dell melbourne": { lat: -37.8136, lng: 144.9631, region: "APJC", display: "Dell Melbourne" },
+  "round rock hq": { "name": "Dell Round Rock HQ", "lat": 30.5083, "lng": -97.6788, "region": "AMER", "country": "US" },
+  "austin parmer": { "name": "Dell Austin Parmer", "lat": 30.3952, "lng": -97.6843, "region": "AMER", "country": "US" },
+  "hopkinton": { "name": "Dell Hopkinton", "lat": 42.2287, "lng": -71.5226, "region": "AMER", "country": "US" },
+  "franklin": { "name": "Dell Franklin", "lat": 42.0834, "lng": -71.3967, "region": "AMER", "country": "US" },
+  "apex": { "name": "Dell Apex", "lat": 35.7327, "lng": -78.8503, "region": "AMER", "country": "US" },
+  "eden prairie": { "name": "Dell Eden Prairie", "lat": 44.8617, "lng": -93.4168, "region": "AMER", "country": "US" },
+  "draper": { "name": "Dell Draper", "lat": 40.524, "lng": -111.895, "region": "AMER", "country": "US" },
+  "nashville hub": { "name": "Dell Nashville Hub", "lat": 36.1627, "lng": -86.7816, "region": "AMER", "country": "US" },
+  "oklahoma city": { "name": "Dell Oklahoma City", "lat": 35.4676, "lng": -97.5164, "region": "AMER", "country": "US" },
+  "santa clara": { "name": "Dell Santa Clara", "lat": 37.3541, "lng": -121.9552, "region": "AMER", "country": "US" },
+  "mclean": { "name": "Dell McLean", "lat": 38.9295, "lng": -77.2268, "region": "AMER", "country": "US" },
+  "el paso": { "name": "Dell El Paso", "lat": 31.8385, "lng": -106.5278, "region": "AMER", "country": "US" },
+  "toronto": { "name": "Dell Toronto", "lat": 43.6532, "lng": -79.3832, "region": "AMER", "country": "CA" },
+  "mexico city": { "name": "Dell Mexico City", "lat": 19.4326, "lng": -99.1332, "region": "AMER", "country": "MX" },
+  "hortolândia mfg": { "name": "Dell Hortolândia Mfg", "lat": -22.8583, "lng": -47.2208, "region": "LATAM", "country": "BR" },
+  "são paulo": { "name": "Dell São Paulo", "lat": -23.5505, "lng": -46.6333, "region": "LATAM", "country": "BR" },
+  "porto alegre": { "name": "Dell Porto Alegre", "lat": -30.0346, "lng": -51.2177, "region": "LATAM", "country": "BR" },
+  "panama city": { "name": "Dell Panama City", "lat": 8.9824, "lng": -79.5199, "region": "LATAM", "country": "PA" },
+  "lodz mfg": { "name": "Dell Lodz Mfg", "lat": 51.7285, "lng": 19.4967, "region": "EMEA", "country": "PL" },
+  "limerick": { "name": "Dell Limerick", "lat": 52.6638, "lng": -8.6267, "region": "EMEA", "country": "IE" },
+  "dublin cherrywood": { "name": "Dell Dublin Cherrywood", "lat": 53.2374, "lng": -6.145, "region": "EMEA", "country": "IE" },
+  "cork campus": { "name": "Dell Cork Campus", "lat": 51.8985, "lng": -8.4756, "region": "EMEA", "country": "IE" },
+  "herzliya": { "name": "Dell Herzliya", "lat": 32.1644, "lng": 34.7961, "region": "EMEA", "country": "IL" },
+  "haifa": { "name": "Dell Haifa", "lat": 32.794, "lng": 34.9896, "region": "EMEA", "country": "IL" },
+  "beer sheva": { "name": "Dell Beer Sheva", "lat": 31.2626, "lng": 34.8016, "region": "EMEA", "country": "IL" },
+  "bracknell": { "name": "Dell Bracknell", "lat": 51.416, "lng": -0.754, "region": "EMEA", "country": "GB" },
+  "glasgow": { "name": "Dell Glasgow", "lat": 55.8642, "lng": -4.2518, "region": "EMEA", "country": "GB" },
+  "montpellier": { "name": "Dell Montpellier", "lat": 43.6108, "lng": 3.8767, "region": "EMEA", "country": "FR" },
+  "paris bezons": { "name": "Dell Paris / Bezons", "lat": 48.8566, "lng": 2.3522, "region": "EMEA", "country": "FR" },
+  "frankfurt": { "name": "Dell Frankfurt", "lat": 50.1109, "lng": 8.6821, "region": "EMEA", "country": "DE" },
+  "halle": { "name": "Dell Halle", "lat": 51.482, "lng": 11.97, "region": "EMEA", "country": "DE" },
+  "amsterdam": { "name": "Dell Amsterdam", "lat": 52.3676, "lng": 4.9041, "region": "EMEA", "country": "NL" },
+  "casablanca": { "name": "Dell Casablanca", "lat": 33.5731, "lng": -7.5898, "region": "EMEA", "country": "MA" },
+  "cairo": { "name": "Dell Cairo", "lat": 30.0444, "lng": 31.2357, "region": "EMEA", "country": "EG" },
+  "dubai": { "name": "Dell Dubai", "lat": 25.2048, "lng": 55.2708, "region": "EMEA", "country": "AE" },
+  "bangalore": { "name": "Dell Bangalore", "lat": 12.9716, "lng": 77.5946, "region": "APJC", "country": "IN" },
+  "hyderabad": { "name": "Dell Hyderabad", "lat": 17.385, "lng": 78.4867, "region": "APJC", "country": "IN" },
+  "gurugram": { "name": "Dell Gurugram", "lat": 28.4595, "lng": 77.0266, "region": "APJC", "country": "IN" },
+  "sriperumbudur mfg": { "name": "Dell Sriperumbudur Mfg", "lat": 12.956, "lng": 79.941, "region": "APJC", "country": "IN" },
+  "singapore": { "name": "Dell Singapore", "lat": 1.3521, "lng": 103.8198, "region": "APJC", "country": "SG" },
+  "penang": { "name": "Dell Penang", "lat": 5.4164, "lng": 100.3327, "region": "APJC", "country": "MY" },
+  "cyberjaya": { "name": "Dell Cyberjaya", "lat": 2.9213, "lng": 101.6559, "region": "APJC", "country": "MY" },
+  "xiamen mfg": { "name": "Dell Xiamen Mfg", "lat": 24.4798, "lng": 118.0894, "region": "APJC", "country": "CN" },
+  "chengdu mfg": { "name": "Dell Chengdu Mfg", "lat": 30.5728, "lng": 104.0668, "region": "APJC", "country": "CN" },
+  "shanghai": { "name": "Dell Shanghai", "lat": 31.2304, "lng": 121.4737, "region": "APJC", "country": "CN" },
+  "taipei": { "name": "Dell Taipei", "lat": 25.033, "lng": 121.5654, "region": "APJC", "country": "TW" },
+  "tokyo": { "name": "Dell Tokyo", "lat": 35.6762, "lng": 139.6503, "region": "APJC", "country": "JP" },
+  "kawasaki": { "name": "Dell Kawasaki", "lat": 35.53, "lng": 139.696, "region": "APJC", "country": "JP" },
+  "sydney": { "name": "Dell Sydney", "lat": -33.8688, "lng": 151.2093, "region": "APJC", "country": "AU" },
+  "melbourne": { "name": "Dell Melbourne", "lat": -37.8136, "lng": 144.9631, "region": "APJC", "country": "AU" }
 };
-
-/* ===========================
-   TRAVEL ADVISORIES (LIVE from Worker)
-=========================== */
-let TRAVEL_DATA = [];
 
 /* ===========================
    INIT
@@ -533,10 +281,8 @@ let TRAVEL_DATA = [];
 document.addEventListener("DOMContentLoaded", async () => {
   initMap();
   startClock();
-
   await loadFromWorker();
   await loadTravelAdvisories();
-
   filterNews("Global");
 
   setInterval(async () => {
@@ -552,17 +298,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 function startClock() {
   const tick = () => {
     const now = new Date();
-    document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    });
-    document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZoneName: "short"
-    });
+    document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "short", day: "numeric" });
+    document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
   };
   tick();
   setInterval(tick, 1000);
@@ -574,26 +311,27 @@ function startClock() {
 function initMap() {
   map = L.map("map", { zoomControl: false }).setView([25, 10], 2);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png").addTo(map);
-  layerGroup = L.layerGroup().addTo(map);
-  incidentLayerGroup = L.layerGroup().addTo(map);
+  assetLayer = L.layerGroup().addTo(map);
+  incidentLayer = L.layerGroup().addTo(map);
   renderAssetsOnMap("Global");
 }
 
 function renderAssetsOnMap(region) {
-  layerGroup.clearLayers();
+  assetLayer.clearLayers();
+
   const icon = L.divIcon({
-    className: "custom-pin",
+    className: "custom-div-icon",
     html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
-    iconSize: [30, 42],
-    iconAnchor: [15, 42]
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
   });
 
-  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c, display: c.display || name }));
+  const assets = Object.entries(ASSETS).map(([key, c]) => ({ key, ...c }));
   const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
 
   filtered.forEach(a => {
-    const m = L.marker([a.lat, a.lng], { icon }).addTo(layerGroup);
-    m.bindTooltip(`<b>${escapeHtml(String(a.display).toUpperCase())}</b>`, { direction: "top", className: "map-tooltip" });
+    L.marker([a.lat, a.lng], { icon }).addTo(assetLayer)
+      .bindTooltip(`<b>${escapeHtml(String(a.name || a.key).toUpperCase())}</b>`, { direction:"top" });
   });
 
   if (region === "AMER") map.setView([30, -90], 3);
@@ -603,118 +341,167 @@ function renderAssetsOnMap(region) {
   else map.setView([25, 10], 2);
 }
 
+function renderIncidentsOnMap(region, incidents) {
+  incidentLayer.clearLayers();
+  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "Global") === region);
+
+  filtered.forEach(i => {
+    if (!i.lat || !i.lng) return;
+    const sev = getSevDetails(i.severity);
+    const marker = L.circleMarker([i.lat, i.lng], { radius: 8, fillColor: sev.color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.85 });
+    marker.bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(i.country || "")}`);
+    marker.addTo(incidentLayer);
+  });
+}
+
 /* ===========================
    WORKER FETCH
 =========================== */
-async function loadFromWorker(silent = false) {
+async function loadFromWorker(silent=false) {
   try {
     const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const raw = await res.json();
     INCIDENTS = raw.map(normaliseWorkerIncident).filter(Boolean);
 
-    FEED_IS_LIVE = true;
-    document.getElementById("feed-count").innerText = `${INCIDENTS.length} ITEMS`;
+    INCIDENTS.sort((a,b) => (getSevDetails(b.severity).val - getSevDetails(a.severity).val) || (new Date(b.time) - new Date(a.time)));
 
-    updateProximityAlerts();
+    document.getElementById("feed-count").innerText = `${INCIDENTS.length} ITEMS`;
+    renderProximityAlerts();
   } catch (e) {
-    FEED_IS_LIVE = false;
+    if (!silent) document.getElementById("feed-count").innerText = "OFFLINE";
   }
 }
 
 function normaliseWorkerIncident(item) {
   if (!item) return null;
+  let sev = (item.severity || "LOW").toUpperCase();
+  if(!["CRITICAL","HIGH","MODERATE","LOW"].includes(sev)) sev = "LOW";
+
   return {
     id: item.id,
-    title: item.title,
-    summary: item.summary,
-    category: item.category,
-    severity: (item.severity || "LOW").toUpperCase(),
-    region: item.region,
-    country: item.country,
-    location: item.location,
-    link: item.link,
-    source: item.source,
-    time: item.time,
-    lat: Number(item.lat),
-    lng: Number(item.lng),
-    nearest_site: item.nearest_site,
-    distance_km: Number(item.distance_km)
+    title: item.title || "",
+    summary: item.summary || "",
+    category: (item.category || "UNKNOWN").toUpperCase(),
+    severity: sev,
+    region: (item.region || "GLOBAL").toUpperCase(),
+    country: (item.country || "").toString(),
+    location: (item.location || "").toString(),
+    link: item.link || "#",
+    source: item.source || "",
+    time: item.time || new Date().toISOString(),
+    lat: Number(item.lat) || 0,
+    lng: Number(item.lng) || 0,
+    nearest_site: (item.nearest_site || "").toString(),
+    distance_km: Number(item.distance_km) || 0
   };
 }
 
 /* ===========================
-   TRAVEL ADVISORIES (LIVE)
+   TRAVEL ADVISORIES (REAL)
 =========================== */
-function populateCountries() {
-  const sel = document.getElementById("countrySelect");
-  if (!sel) return;
-  sel.innerHTML = '<option selected disabled>Select Country...</option>';
-  TRAVEL_DATA
-    .slice()
-    .sort((a, b) => String(a.country).localeCompare(String(b.country)))
-    .forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
-      sel.appendChild(opt);
-    });
-}
-
 async function loadTravelAdvisories() {
   try {
     const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const json = await res.json();
-    const list = Array.isArray(json.advisories) ? json.advisories : [];
-    TRAVEL_DATA = list.map(x => ({
-      country: x.country,
-      level: Number(x.level || 1),
-      text: x.text || "Level 1: Exercise Normal Precautions.",
-      url: x.url || "https://travel.state.gov/en/international-travel/travel-advisories.html"
-    }));
+    TRAVEL_DATA = Array.isArray(json.advisories) ? json.advisories : [];
   } catch (e) {
     TRAVEL_DATA = [];
   }
   populateCountries();
 }
 
+function populateCountries() {
+  const sel = document.getElementById("countrySelect");
+  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
+
+  const list = [...TRAVEL_DATA].sort((a,b) => String(a.country).localeCompare(String(b.country)));
+  list.forEach(a => {
+    sel.innerHTML += `<option value="${escapeAttr(a.country)}">${escapeHtml(a.country)}</option>`;
+  });
+
+  const advContainer = document.getElementById("travel-advisories");
+  if (advContainer && list.length === 0) {
+    advContainer.innerHTML = `
+      <div class="safe-box" style="border-color:#fad2cf;background:#fce8e6;">
+        <i class="fas fa-triangle-exclamation" style="color:#d93025;margin-top:2px;"></i>
+        <div class="safe-text" style="color:#b3261e;">
+          Travel Advisory feed unavailable. Check Worker connectivity or parsing.
+        </div>
+      </div>`;
+  }
+}
+
 function filterTravel() {
   const country = document.getElementById("countrySelect").value;
-  if (!country) return;
+  const advContainer = document.getElementById("travel-advisories");
+  const newsContainer = document.getElementById("travel-news");
+  if (!country || !advContainer || !newsContainer) return;
 
-  let advisory =
-    TRAVEL_DATA.find(a => a.country === country) ||
-    { level: 1, text: "Level 1: Exercise Normal Precautions.", url: "https://travel.state.gov/en/international-travel/travel-advisories.html" };
+  const advisory = TRAVEL_DATA.find(a => a.country === country) || { level: 1, level_text: "Level 1", indicators: "", date_issued: "", url: "" };
 
-  const div = document.getElementById("travel-advisories");
+  let advColor = "#1a73e8";
+  let advBg = "#e8f0fe";
+  let advBorder = "#d2e3fc";
+  const lvl = Number(advisory.level || 1);
 
-  let color = "#1a73e8", levelLabel = "LEVEL 1";
-  if (advisory.level >= 4) { color = "#d93025"; levelLabel = "LEVEL 4"; }
-  else if (advisory.level >= 3) { color = "#e37400"; levelLabel = "LEVEL 3"; }
-  else if (advisory.level >= 2) { color = "#f9ab00"; levelLabel = "LEVEL 2"; }
+  if (lvl === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; }
+  else if (lvl === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; }
+  else if (lvl >= 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; }
 
-  div.innerHTML = `
-    <div class="advisory-box" style="border-left:4px solid ${color}">
+  const levelText = advisory.level_text || `Level ${lvl}`;
+  const detailsBits = [];
+  if (advisory.indicators) detailsBits.push(`<div class="advisory-updated"><b>Risk Indicators:</b> ${escapeHtml(advisory.indicators)}</div>`);
+  if (advisory.date_issued) detailsBits.push(`<div class="advisory-updated"><b>Date Issued:</b> ${escapeHtml(advisory.date_issued)}</div>`);
+  if (advisory.url) detailsBits.push(`<div class="advisory-updated"><a href="${escapeAttr(advisory.url)}" target="_blank" style="color:#1a73e8;font-weight:700;text-decoration:none;">Open full advisory</a></div>`);
+
+  advContainer.innerHTML = `
+    <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
       <div class="advisory-header">
-        <span class="advisory-label">U.S. STATE DEPT TRAVEL ADVISORY</span>
-        <span class="advisory-level-badge" style="background:${color}">${levelLabel}</span>
+        <span class="advisory-label">U.S. STATE DEPARTMENT TRAVEL ADVISORY</span>
+        <span class="advisory-level-badge" style="background:${advColor}">${escapeHtml(levelText.toUpperCase())}</span>
       </div>
-      <div class="advisory-text">${escapeHtml(advisory.text)}</div>
-      <div style="font-size:0.72rem;color:#5f6368;margin-top:8px;font-weight:600;">
-        Source: <a href="${escapeAttr(advisory.url || 'https://travel.state.gov/en/international-travel/travel-advisories.html')}" target="_blank" style="color:#1a73e8;text-decoration:none;">travel.state.gov</a>
-      </div>
-    </div>
-  `;
+      <div class="advisory-text">${escapeHtml(advisory.text || levelText)}</div>
+      ${detailsBits.join("")}
+    </div>`;
+
+  const related = INCIDENTS.filter(i => {
+    const c = String(i.country || "").toLowerCase();
+    const t = (i.title || "").toLowerCase();
+    const s = (i.summary || "").toLowerCase();
+    const needle = country.toLowerCase();
+    return c.includes(needle) || t.includes(needle) || s.includes(needle);
+  }).slice(0, 5);
+
+  if (related.length > 0) {
+    let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS (FEED)</div>`;
+    related.forEach(n => {
+      newsHtml += `
+        <div class="news-box-item">
+          <div class="news-box-title">${escapeHtml(n.title)}</div>
+          <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
+        </div>`;
+    });
+    newsHtml += `</div>`;
+    newsContainer.innerHTML = newsHtml;
+  } else {
+    newsContainer.innerHTML = `
+      <div class="safe-box">
+        <i class="fas fa-check-circle safe-icon"></i>
+        <div class="safe-text">
+          No incidents matched for ${escapeHtml(country)} in the current feed.
+        </div>
+      </div>`;
+  }
 }
 
 /* ===========================
-   FEED RENDER
+   RENDER FEED
 =========================== */
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   container.innerHTML = "";
-
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
   if (data.length === 0) {
@@ -723,20 +510,21 @@ function renderGeneralFeed(region) {
   }
 
   data.forEach(i => {
+    const sevClass = `sev-${i.severity}`;
     container.innerHTML += `
       <a href="${escapeAttr(i.link)}" target="_blank" class="feed-card">
+        <div class="feed-status-bar ${sevClass}"></div>
         <div class="feed-content">
           <div class="feed-tags">
+            <span class="ftag ${sevClass}">${escapeHtml(i.severity)}</span>
             <span class="ftag ftag-loc">${escapeHtml(i.country || "GLOBAL")}</span>
             <span class="ftag">${escapeHtml(i.category || "UNKNOWN")}</span>
-            <span class="ftag">${escapeHtml(i.severity || "LOW")}</span>
           </div>
-          <div class="feed-title">${escapeHtml(i.title || "")}</div>
+          <div class="feed-title">${escapeHtml(i.title)}</div>
           <div class="feed-meta">Source: ${escapeHtml(i.source || "")} • ${new Date(i.time).toLocaleTimeString()}</div>
           <div class="feed-desc">${escapeHtml(i.summary || "")}</div>
         </div>
-      </a>
-    `;
+      </a>`;
   });
 }
 
@@ -751,106 +539,71 @@ function filterNews(region, el) {
 }
 
 /* ===========================
-   INCIDENTS ON MAP
-=========================== */
-function renderIncidentsOnMap(region, incidents) {
-  incidentLayerGroup.clearLayers();
-  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "Global") === region);
-
-  filtered.forEach(i => {
-    if (!i.lat || !i.lng) return;
-    const marker = L.circleMarker([i.lat, i.lng], {
-      radius: 7,
-      color: "#fff",
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.85
-    });
-    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br>${escapeHtml(i.country || "")}`);
-    marker.addTo(incidentLayerGroup);
-  });
-}
-
-/* ===========================
    PROXIMITY ALERTS
 =========================== */
 function updateProximityRadius() {
-  const sel = document.getElementById("proxRadius");
-  currentRadius = Number(sel.value || 50);
-  updateProximityAlerts();
+  currentRadius = Number(document.getElementById("proxRadius").value || 50);
+  renderProximityAlerts();
 }
 
-function updateProximityAlerts() {
-  const container = document.getElementById("proximity-alerts-container");
-  if (!container) return;
+function renderProximityAlerts() {
+  const box = document.getElementById("proximity-alerts-container");
+  const alerts = INCIDENTS
+    .filter(i => i.nearest_site && i.distance_km && i.distance_km <= currentRadius)
+    .slice(0, 25);
 
-  const assets = Object.entries(ASSETS).map(([name, a]) => ({ name, ...a }));
-  const alerts = [];
-
-  INCIDENTS.forEach(inc => {
-    if (!inc || !inc.lat || !inc.lng) return;
-
-    assets.forEach(a => {
-      const dist = haversineKm(inc.lat, inc.lng, a.lat, a.lng);
-      if (dist <= currentRadius) {
-        alerts.push({ inc, assetName: a.name, assetDisplay: (a.display || a.name), dist });
-      }
-    });
-  });
-
-  alerts.sort((x, y) => x.dist - y.dist);
-
-  if (!alerts.length) {
-    container.innerHTML = `<div class="text-center p-3 text-muted small">No incidents within ${currentRadius}km of Dell sites.</div>`;
+  if (alerts.length === 0) {
+    box.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No incidents within ${currentRadius} KM of any Dell site in this feed.</div></div>`;
     return;
   }
 
-  container.innerHTML = alerts.slice(0, 20).map(a => `
-    <div style="border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
-      <div style="font-weight:800;color:#202124;font-size:0.85rem;">${escapeHtml(String(a.assetDisplay).toUpperCase())}</div>
-      <div style="font-size:0.82rem;color:#5f6368;margin-top:2px;">${a.dist.toFixed(1)} km • ${escapeHtml(a.inc.country || "")} • ${escapeHtml(a.inc.category || "")}</div>
-      <div style="font-size:0.86rem;color:#202124;margin-top:6px;line-height:1.35;">${escapeHtml(a.inc.title || "")}</div>
-    </div>
-  `).join("");
+  let html = "";
+  alerts.forEach(i => {
+    const sevClass = `sev-${i.severity}`;
+    html += `
+      <div class="news-box-alert" style="border-color:#e0e0e0;background:#fff;">
+        <div class="feed-tags" style="margin-bottom:8px;">
+          <span class="ftag ${sevClass}">${escapeHtml(i.severity)}</span>
+          <span class="ftag ftag-loc">${escapeHtml(i.country || "")}</span>
+        </div>
+        <div class="news-box-title">${escapeHtml(i.title)}</div>
+        <div class="news-box-summary" style="margin-top:6px;">
+          <i class="far fa-building"></i> Near: <b>${escapeHtml((i.nearest_site || "").toUpperCase())}</b><br/>
+          <i class="fas fa-route"></i> Distance: <b>${escapeHtml(String(Math.round(i.distance_km)))}</b> KM
+        </div>
+      </div>`;
+  });
+  box.innerHTML = html;
 }
 
 /* ===========================
    HELPERS
 =========================== */
+function getSevDetails(level) {
+  const map = {
+    'CRITICAL': { val: 4, color: '#ef4444' },
+    'HIGH':     { val: 3, color: '#f97316' },
+    'MODERATE': { val: 2, color: '#eab308' },
+    'LOW':      { val: 1, color: '#1a73e8' }
+  };
+  return map[level] || { val: 0, color: '#64748b' };
+}
+
 async function manualRefresh() {
   await loadFromWorker();
   const active = document.querySelector(".nav-item-custom.active");
   filterNews(active ? active.innerText.trim() : "Global");
 }
 
-function loadHistory(d) {
-  alert("History simulation: " + d);
-}
+function loadHistory(d) { alert("History simulation: " + d); }
 
 function escapeHtml(s) {
   return String(s || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
-
-function escapeAttr(s) {
-  return escapeHtml(s).replaceAll("`", "&#96;");
-}
-
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+function escapeAttr(s) { return escapeHtml(s).replace(/`/g, "&#096;"); }
 </script>
 </body>
 </html>
