@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -164,10 +164,16 @@
     .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
     .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
     .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
     .tag-crit { background: #d93025; color: white; }
     .tag-cat { background: #3c4043; color: white; }
     .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+
+    /* NEW: severity tag styles (visual parity with ftag-*) */
+    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
+    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
+    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
 
     .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
     .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -252,7 +258,7 @@
             <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
             <div class="alert-content-main" id="headline-alert">Loading headline…</div>
             <div class="alert-tags">
-              <span class="tag tag-crit" id="headline-sev">SEV?</span>
+              <span class="tag" id="headline-sev">SEV?</span>
               <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
               <span class="tag tag-reg" id="headline-reg">REGION</span>
             </div>
@@ -553,6 +559,23 @@ function renderIncidentsOnMap(region, incidents) {
 }
 
 /* ===========================
+   HELPER: map severity numeric -> label + classes
+   (UI only; numeric logic untouched)
+=========================== */
+function mapSeverityToLabel(sev) {
+  const s = Number(sev || 1);
+  if (s >= 5) {
+    return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s >= 4) {
+    return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s === 3) {
+    return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
+  } else {
+    return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  }
+}
+
+/* ===========================
    WORKER FETCH
 =========================== */
 async function loadFromWorker(silent=false) {
@@ -591,6 +614,8 @@ function normaliseWorkerIncident(item) {
     summary: item.summary || "",
     category: (item.category || "UNKNOWN").toUpperCase(),
     severity,
+    // keep numeric severity for logic; UI reads this to show label
+    severity_label: item.severity_label || (severity >= 5 ? "CRITICAL" : (severity >= 4 ? "HIGH" : (severity === 3 ? "MEDIUM" : "LOW"))),
     region: (region === "GLOBAL") ? "Global" : region,
     country: (item.country || "GLOBAL"),
     location: (item.location || "UNKNOWN"),
@@ -632,8 +657,12 @@ function renderGeneralFeed(region) {
   let html = "";
   data.forEach(i => {
     const sev = Number(i.severity || 1);
-    const barClass = sev >= 4 ? "status-bar-crit" : (sev === 3 ? "status-bar-warn" : "status-bar-info");
-    const badgeClass = sev >= 4 ? "ftag-crit" : (sev === 3 ? "ftag-warn" : "ftag-info");
+
+    // use shared mapping for label + classes
+    const sevMeta = mapSeverityToLabel(sev);
+    const barClass = sevMeta.barClass;
+    const badgeClass = sevMeta.badgeClass;
+    const sevLabel = sevMeta.label;
 
     const when = safeTime(i.time);
     const src = i.source ? shortHost(i.source) : "Source";
@@ -643,7 +672,7 @@ function renderGeneralFeed(region) {
         <div class="feed-status-bar ${barClass}"></div>
         <div class="feed-content">
           <div class="feed-tags">
-            <span class="ftag ${badgeClass}">SEV ${sev}</span>
+            <span class="ftag ${badgeClass}">${escapeHtml(sevLabel)}</span>
             <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
             <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
@@ -667,7 +696,8 @@ function updateHeadline(region) {
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
   if (!data || data.length === 0) {
     el.textContent = "No headline available.";
-    sevEl.textContent = "SEV?";
+    sevEl.textContent = "—";
+    sevEl.className = "tag";
     catEl.textContent = "CATEGORY";
     regEl.textContent = region.toUpperCase();
     return;
@@ -675,7 +705,14 @@ function updateHeadline(region) {
 
   const top = data[0];
   el.textContent = top.title;
-  sevEl.textContent = "SEV " + (top.severity || 1);
+
+  const sev = Number(top.severity || 1);
+  const sevMeta = mapSeverityToLabel(sev);
+
+  // Set label + tag class
+  sevEl.textContent = sevMeta.label;
+  sevEl.className = `tag ${sevMeta.cls}`;
+
   catEl.textContent = top.category || "UNKNOWN";
   regEl.textContent = (top.region || "Global").toUpperCase();
 }
