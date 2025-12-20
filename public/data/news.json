@@ -1,30 +1,10 @@
 [
   {
-    "title": "CrowdStrike Leverages NVIDIA Nemotron in Amazon Bedrock to Advance Agentic Security",
-    "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-uses-nvidia-nemotron-aws-power-agentic-security/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162559+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Indirect Prompt Injection Attacks: A Lurking Risk to AI Systems",
-    "url": "https://www.crowdstrike.com/en-us/blog/indirect-prompt-injection-attacks-hidden-ai-risks/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162527+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Unveiling WARP PANDA: A New Sophisticated China-Nexus Adversary",
     "url": "https://www.crowdstrike.com/en-us/blog/warp-panda-cloud-threats/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162495+00:00",
+    "time": "2025-12-20T05:42:21.285277+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/falcon-shield-evolves-ai-agent-visibility/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162467+00:00",
+    "time": "2025-12-20T05:42:21.285246+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-december-2025/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162432+00:00",
+    "time": "2025-12-20T05:42:21.285208+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-achieves-100-percent-2025-mitre-attack-enterprise-evaluation/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162394+00:00",
+    "time": "2025-12-20T05:42:21.285169+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-leakage-ai-plumbing-problem/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162352+00:00",
+    "time": "2025-12-20T05:42:21.285126+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/built-for-scale-powered-by-ai-innovation-driving-falcon-exposure-management/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162320+00:00",
+    "time": "2025-12-20T05:42:21.285094+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-secures-growing-ai-attack-surface-with-falcon-aidr/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162283+00:00",
+    "time": "2025-12-20T05:42:21.285058+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,77 +74,27 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-endpoint-security-achieves-273-percent-roi-over-three-years/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-20T04:49:18.162233+00:00",
+    "time": "2025-12-20T05:42:21.285020+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.6 - 5 km SE of San Ramon, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283061",
+    "title": "CrowdTour 2026: Securing the AI Era Together",
+    "url": "https://www.crowdstrike.com/en-us/blog/crowdtour-2026-securing-ai-era-together/",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.386377+00:00",
+    "source": "crowdstrike.com",
+    "time": "2025-12-20T05:42:21.284983+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.0 - 13 km SSE of Tennant, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283071",
+    "title": "Inside CrowdStrike&rsquo;s Science-Backed Approach to Building Expert SOC Agents",
+    "url": "https://www.crowdstrike.com/en-us/blog/inside-crowdstrikes-science-backed-approach-to-building-soc-agents/",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.385888+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.4 - 4 km SE of San Ramon, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283076",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.385587+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 2.9 - 4 km SE of San Ramon, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283086",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.385304+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.6 - 4 km SE of San Ramon, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283091",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.384930+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 2.3 - 5 km SE of San Ramon, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283096",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.384531+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.2 - 19 km ESE of Julian, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41143447",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.384144+00:00",
+    "source": "crowdstrike.com",
+    "time": "2025-12-20T05:42:21.284939+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -174,7 +104,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283136",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.383859+00:00",
+    "time": "2025-12-20T05:42:14.425736+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -184,17 +114,87 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41143455",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-20T04:49:12.383526+00:00",
+    "time": "2025-12-20T05:42:14.425184+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Kura Sushi tops McDonald's, Starbucks in revenue per square foot",
-    "url": "https://asia.nikkei.com/business/food-beverage/kura-sushi-tops-mcdonald-s-starbucks-in-revenue-per-square-foot",
+    "title": "M 2.3 - 5 km SE of San Ramon, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283151",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189520+00:00",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.424897+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.7 - 4 km SE of San Ramon, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75283156",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.424488+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 2.1 - 21 km ESE of Naalehu, Hawaii",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74857112",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.424197+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.7 - 4 km S of Highland, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41143471",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.423911+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.9 - 85 km NE of Tonopah, Nevada",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nn00908786",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.423618+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.9 - 49 km NE of Tonopah, Nevada",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nn00908788",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.423303+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.3 - 4 km WSW of Anza, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41143479",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.423004+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.6 - 6 km NW of Rialto, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41143487",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-20T05:42:14.422688+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -204,7 +204,7 @@
     "url": "https://asia.nikkei.com/economy/bank-of-japan/corporate-japan-and-households-to-rethink-debt-after-boj-rate-hike",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189486+00:00",
+    "time": "2025-12-20T05:41:57.045829+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -214,7 +214,7 @@
     "url": "https://asia.nikkei.com/politics/defense/japan-new-zealand-deepen-defense-ties-with-logistical-support-agreement2",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189458+00:00",
+    "time": "2025-12-20T05:41:57.045801+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +224,7 @@
     "url": "https://asia.nikkei.com/spotlight/trump-administration/trump-arms-taiwan-to-block-china-s-potential-d-day-style-landing",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189431+00:00",
+    "time": "2025-12-20T05:41:57.045772+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +234,7 @@
     "url": "https://asia.nikkei.com/business/automobiles/electric-vehicles/honda-plans-ev-version-of-top-selling-japan-minicar-as-byd-looms",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189402+00:00",
+    "time": "2025-12-20T05:41:57.045743+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +244,7 @@
     "url": "https://asia.nikkei.com/economy/natural-disasters/japan-cuts-tokyo-quake-death-projection-but-fails-to-reach-reduction-goal",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189371+00:00",
+    "time": "2025-12-20T05:41:57.045713+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +254,7 @@
     "url": "https://asia.nikkei.com/spotlight/big-in-asia/stocks-dominate-conversation-in-india-for-now",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189340+00:00",
+    "time": "2025-12-20T05:41:57.045680+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/construction/japan-s-sekisui-house-sticks-with-goal-of-building-20-000-us-homes-a-year-ceo",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189311+00:00",
+    "time": "2025-12-20T05:41:57.045653+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +274,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/japan-s-toyota-tsusho-others-eye-infrastructure-investments-in-central-asia",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189276+00:00",
+    "time": "2025-12-20T05:41:57.045619+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,8 +284,48 @@
     "url": "https://asia.nikkei.com/business/business-trends/cakes-and-chips-tsmc-s-kumamoto-foray-opens-doors-in-taiwan",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-20T04:48:57.189231+00:00",
+    "time": "2025-12-20T05:41:57.045585+00:00",
     "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US-China rivalry divides Philippine leadership",
+    "url": "https://asia.nikkei.com/spotlight/comment/us-china-rivalry-divides-philippine-leadership",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2025-12-20T05:41:57.045517+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Mexico’s 50% tariff shock shuts Asia’s North American trade bypass",
+    "url": "https://www.scmp.com/week-asia/economics/article/3337107/mexicos-50-tariff-shock-shuts-asias-north-american-trade-bypass?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2025-12-20T05:30:09+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Malaysia allows halal hotels, eateries to deck halls with Christmas decor",
+    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3337159/malaysia-allows-halal-hotels-eateries-deck-halls-christmas-decor?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2025-12-20T05:04:47+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "With New E.U. Loan, Ukraine Avoids Budget Crunch and Can Plan War Effort",
+    "url": "https://www.nytimes.com/2025/12/19/world/europe/ukraine-russia-frozen-assets-loan.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2025-12-20T04:50:38+00:00",
+    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -296,6 +336,16 @@
     "source": "scmp.com",
     "time": "2025-12-20T04:32:19+00:00",
     "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US sanctions more relatives, associates of Venezuelan President Maduro",
+    "url": "https://www.aljazeera.com/news/2025/12/20/us-sanctions-more-relatives-associates-of-venezuelan-president-maduro?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2025-12-20T04:20:12+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -380,31 +430,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Will Taiwan’s decentralised military model raise more questions than it solves?",
-    "url": "https://www.scmp.com/news/china/military/article/3337064/will-taiwans-decentralised-military-model-raise-more-questions-it-solves?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2025-12-20T02:00:13+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Three Killed in Stabbing Attack in Taiwan",
     "url": "https://www.nytimes.com/2025/12/19/world/asia/stabbing-taipei-taiwan.html",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2025-12-20T01:33:00+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Taiwan intervention may just spell the end of the West",
-    "url": "https://www.scmp.com/opinion/china-opinion/article/3336903/taiwan-intervention-may-just-spell-end-west?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2025-12-20T01:30:08+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -490,16 +520,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Green forest fire notification in Cote d'Ivoire",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1026373",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "gdacs.org",
-    "time": "2025-12-20T00:00:44+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Steve Rosenberg: Was Putin's response to my question about war in Europe an olive branch?",
     "url": "https://www.bbc.com/news/articles/c5y9ed5d1r4o?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -566,16 +586,6 @@
     "source": "bbc.com",
     "time": "2025-12-19T22:01:20+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Greece rescues more than 500 asylum seekers off coast of Crete",
-    "url": "https://www.aljazeera.com/news/2025/12/19/greece-rescues-more-than-500-asylum-seekers-off-coast-of-crete?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2025-12-19T21:54:28+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -730,6 +740,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Sri Lanka | EU response to tropical storm DITWAH - DG ECHO Daily Map | 19/12/2025",
+    "url": "https://reliefweb.int/map/sri-lanka/sri-lanka-eu-response-tropical-storm-ditwah-dg-echo-daily-map-19122025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T20:17:15+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Trump strikes deal with US drugmakers to cut Medicaid medicine costs",
     "url": "https://www.theguardian.com/business/2025/dec/19/trump-drugs-costs-medicaid",
     "snippet": "Gemini unavailable – default relevance.",
@@ -756,6 +776,16 @@
     "source": "bleepingcomputer.com",
     "time": "2025-12-19T20:04:28+00:00",
     "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Green forest fire notification in Sudan",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1026372",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "gdacs.org",
+    "time": "2025-12-19T20:00:11+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -820,6 +850,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Colombia: Informe de Situación Humanitaria 2025 | Datos acumulados entre enero y noviembre de 2025 | Fecha de publicación: 19 de diciembre de 2025",
+    "url": "https://reliefweb.int/report/colombia/informe-de-situacion-humanitaria-2025-datos-acumulados-entre-enero-y-noviembre-de-2025-fecha-de-publicacion-19-de-diciembre-de-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T19:07:16+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Nigeria arrests dev of Microsoft 365 'Raccoon0365' phishing platform",
     "url": "https://www.bleepingcomputer.com/news/security/nigeria-arrests-dev-of-microsoft-365-raccoon0365-phishing-platform/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -835,6 +875,26 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2025-12-19T19:03:03+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Venezuela 5W - Humanitarian Operational Presence 2025 - Who does What Where When & for Whom? as of 30 November 2025",
+    "url": "https://reliefweb.int/report/venezuela-bolivarian-republic/venezuela-5w-humanitarian-operational-presence-2025-who-does-what-where-when-whom-30-november-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T18:59:32+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Venezuela 5W - Presencia Operativa Humanitaria 2025 - ¿Quién hace qué, dónde, cuándo y para quién? hasta el 30 de noviembre de 2025",
+    "url": "https://reliefweb.int/report/venezuela-bolivarian-republic/venezuela-5w-presencia-operativa-humanitaria-2025-quien-hace-que-donde-cuando-y-para-quien-hasta-el-30-de-noviembre-de-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T18:55:14+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -956,16 +1016,6 @@
     "source": "freightwaves.com",
     "time": "2025-12-19T17:44:17+00:00",
     "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "With New E.U. Loan, Ukraine Avoids Budget Crunch and Can Plan War Effort",
-    "url": "https://www.nytimes.com/2025/12/19/world/europe/ukraine-russia-frozen-assets-loan.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2025-12-19T17:43:00+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1120,16 +1170,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Green forest fire notification in Sudan",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1026358",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "gdacs.org",
-    "time": "2025-12-19T16:00:12+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "£100 contactless card limit to be lifted",
     "url": "https://www.bbc.com/news/articles/cx2prjr4lpko?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1220,6 +1260,46 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Central African Republic: Overview of population movements (October 2025)",
+    "url": "https://reliefweb.int/report/central-african-republic/central-african-republic-overview-population-movements-october-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T15:09:37+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CAR: République centrafricaine: Aperçu des mouvements de population (octobre 2025)",
+    "url": "https://reliefweb.int/report/central-african-republic/republique-centrafricaine-apercu-des-mouvements-de-population-octobre-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T15:07:48+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Central African Republic: Overview of population movements (September 2025)",
+    "url": "https://reliefweb.int/report/central-african-republic/central-african-republic-overview-population-movements-september-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T15:03:06+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CAR: République centrafricaine: Aperçu des mouvements de population (septembre 2025)",
+    "url": "https://reliefweb.int/report/central-african-republic/republique-centrafricaine-apercu-des-mouvements-de-population-septembre-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T15:00:47+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Over 25,000 FortiCloud SSO devices exposed to remote attacks",
     "url": "https://www.bleepingcomputer.com/news/security/over-25-000-forticloud-sso-devices-exposed-to-remote-attacks/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1260,6 +1340,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Mozambique: Escalation of violence in Memba and Erati districts, Nampula Province - Situation Report #5, As of 17 December 2025",
+    "url": "https://reliefweb.int/report/mozambique/mozambique-escalation-violence-memba-and-erati-districts-nampula-province-situation-report-5-17-december-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T14:32:37+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Criminal IP and Palo Alto Networks Cortex XSOAR integrate to bring AI-driven exposure intelligence to automated incident response",
     "url": "https://www.bleepingcomputer.com/news/security/criminal-ip-and-palo-alto-networks-cortex-xsoar-integrate-to-bring-ai-driven-exposure-intelligence-to-automated-incident-response/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1275,6 +1365,16 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "joc.com",
     "time": "2025-12-19T14:26:09+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "WFP Guatemala Country Brief November 2025",
+    "url": "https://reliefweb.int/report/guatemala/wfp-guatemala-country-brief-november-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2025-12-19T14:12:58+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
