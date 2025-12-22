@@ -16,11 +16,10 @@
     :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
-    /* SEVERITY COLORS */
     .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; }
     .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }
     .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; }
-    .sev-LOW { background-color: #3b82f6; color: #fff; border-color:#3b82f6; }
+    .sev-LOW { background-color: #1a73e8; color: #fff; border-color:#1a73e8; }
     .sev-UNKNOWN { background-color: #64748b; color: #fff; }
 
     .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -28,30 +27,59 @@
     .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; margin-left: 12px; }
     .logo-text span { color: var(--dell-blue); }
-    .content-area { padding: 30px; }
-    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; }
-    #map { width: 100%; height: 100%; }
-
-    .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; text-decoration: none; color: inherit; }
-    .feed-status-bar { width: 5px; flex-shrink: 0; }
-    .feed-content { padding: 16px 20px; width: 100%; }
-    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; }
-    
+    .header-right { display: flex; align-items: center; gap: 20px; }
     .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
     .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: 0.2s; }
     .nav-item-custom.active { background-color: #202124; color: #fff; }
     .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
+    .clock-container { text-align: right; margin: 0 25px; }
+    .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
+    .clock-time { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
+    
+    .content-area { padding: 30px; }
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; }
+    #map { width: 100%; height: 100%; }
 
-    .alert-row { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
-    .advisory-box { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-top: 15px; }
-    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
-    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .feed-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+    .feed-content { padding: 18px 24px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-loc { background: #202124; color: #fff; }
+    .feed-title { font-size: 1.1rem; font-weight: 700; color: #202124; margin-bottom: 8px; line-height: 1.4; }
+    .feed-desc { font-size: 0.9rem; color: #4b4f56; line-height: 1.6; margin-bottom: 10px; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; display: flex; justify-content: space-between; align-items: center; }
+    .feed-source-link { color: #1a73e8; font-weight: 600; text-decoration: none; }
+    .feed-source-link:hover { text-decoration: underline; }
 
     .loading-text { text-align: center; padding: 40px; color: #5f6368; font-weight: 500; }
     
+    .advisory-box { border-radius: 8px; padding: 12px; margin-top: 15px; border: 1px solid #ddd; }
+    .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
+    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.35; }
+
+    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
+    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .news-box-item:last-child { border-bottom: none; }
+    .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
+    .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+
+    .alert-row { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+    .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
+
     .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
     .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
+
+    .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
+    .modal-title { font-weight: 800; color: #202124; }
+    .modal-body { padding: 30px; }
+    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
     
     .sidebar-col { padding-left: 30px; }
     .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
@@ -59,8 +87,9 @@
     .history-input { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
     .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #fff; }
     .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
-    
-    .modal-content { border-radius: 12px; border: none; }
+    .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
   </style>
 </head>
 
@@ -71,20 +100,28 @@
       <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
       <div class="logo-text">OS <span>INFOHUB</span></div>
     </div>
+
     <div class="header-right d-flex align-items-center">
-      <div class="nav-pills-custom me-3">
+      <div class="nav-pills-custom">
         <a class="nav-item-custom active" onclick="app.filterNews('Global', this)">Global</a>
         <a class="nav-item-custom" onclick="app.filterNews('AMER', this)">AMER</a>
         <a class="nav-item-custom" onclick="app.filterNews('EMEA', this)">EMEA</a>
         <a class="nav-item-custom" onclick="app.filterNews('APJC', this)">APJC</a>
         <a class="nav-item-custom" onclick="app.filterNews('LATAM', this)">LATAM</a>
       </div>
-      <div class="ms-3 text-end" style="font-size: 0.85rem;">
-        <div id="clock-date" style="font-weight:700;">Loading...</div>
-        <div id="clock-time">--:--</div>
+
+      <div class="clock-container">
+        <div class="clock-date" id="clock-date">Loading...</div>
+        <div class="clock-time" id="clock-time">--:--</div>
       </div>
-      <div class="btn-daily ms-3" onclick="app.fetchData()"><i class="fas fa-rotate"></i> Refresh</div>
-      <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal"><i class="fas fa-file-alt"></i> Daily Briefings</div>
+
+      <div class="btn-daily ms-3" onclick="app.fetchData()">
+        <i class="fas fa-rotate"></i> Refresh
+      </div>
+
+      <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+        <i class="fas fa-file-alt"></i> Daily Briefings
+      </div>
     </div>
   </div>
 
@@ -113,12 +150,14 @@
           <div id="travel-news" class="mt-2"></div>
         </div>
         <div class="side-card">
-          <div class="card-label">Proximity Alerts</div>
-          <div style="margin:10px 0;">
-             <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
-              <option value="50" selected>50 KM</option>
-              <option value="100">100 KM</option>
-              <option value="500">500 KM</option>
+          <div class="prox-header-row">
+             <div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity Alerts</div></div>
+          </div>
+          <div class="mt-2 mb-3">
+            <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
+              <option value="50" selected>50 KM Range</option>
+              <option value="100">100 KM Range</option>
+              <option value="500">500 KM Range</option>
             </select>
           </div>
           <div id="proximity-alerts-container">Scanning assets...</div>
@@ -142,21 +181,27 @@
 <div class="modal fade" id="reportModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Daily Briefing</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body"><button class="btn btn-primary w-100" onclick="alert('Demo Mode')">Download</button></div>
+            <div class="modal-header"><h5 class="modal-title">Daily Intelligence Briefing</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <select class="form-select mb-3"><option>Global</option><option>APJC</option></select>
+                <button class="btn-download" onclick="alert('PDF Reporting requires backend.')">Download Report</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V127
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V126
 
 const ASSETS = {
   "round rock": { lat: 30.5083, lng: -97.6788 }, "austin": { lat: 30.3952, lng: -97.6843 }, "hopkinton": { lat: 42.2287, lng: -71.5226 }, "franklin": { lat: 42.0834, lng: -71.3967 }, "apex": { lat: 35.7327, lng: -78.8503 }, "eden prairie": { lat: 44.8617, lng: -93.4168 }, "draper": { lat: 40.5240, lng: -111.8950 }, "nashville": { lat: 36.1627, lng: -86.7816 }, "oklahoma city": { lat: 35.4676, lng: -97.5164 }, "santa clara": { lat: 37.3541, lng: -121.9552 }, "mclean": { lat: 38.9295, lng: -77.2268 }, "el paso": { lat: 31.8385, lng: -106.5278 }, "toronto": { lat: 43.6532, lng: -79.3832 }, "mexico city": { lat: 19.4326, lng: -99.1332 }, "sao paulo": { lat: -23.5505, lng: -46.6333 }, "hortolandia": { lat: -22.8583, lng: -47.2208 }, "porto alegre": { lat: -30.0346, lng: -51.2177 }, "panama city": { lat: 8.9824, lng: -79.5199 }, "london": { lat: 51.5074, lng: -0.1278 }, "bracknell": { lat: 51.4160, lng: -0.7540 }, "dublin": { lat: 53.3498, lng: -6.2603 }, "limerick": { lat: 52.6638, lng: -8.6267 }, "cork": { lat: 51.8985, lng: -8.4756 }, "paris": { lat: 48.8566, lng: 2.3522 }, "montpellier": { lat: 43.6108, lng: 3.8767 }, "frankfurt": { lat: 50.1109, lng: 8.6821 }, "halle": { lat: 51.4820, lng: 11.9700 }, "amsterdam": { lat: 52.3676, lng: 4.9041 }, "casablanca": { lat: 33.5731, lng: -7.5898 }, "cairo": { lat: 30.0444, lng: 31.2357 }, "dubai": { lat: 25.2048, lng: 55.2708 }, "herzliya": { lat: 32.1644, lng: 34.7961 }, "haifa": { lat: 32.7940, lng: 34.9896 }, "bangalore": { lat: 12.9716, lng: 77.5946 }, "hyderabad": { lat: 17.3850, lng: 78.4867 }, "gurugram": { lat: 28.4595, lng: 77.0266 }, "singapore": { lat: 1.3521, lng: 103.8198 }, "penang": { lat: 5.4164, lng: 100.3327 }, "cyberjaya": { lat: 2.9213, lng: 101.6559 }, "tokyo": { lat: 35.6762, lng: 139.6503 }, "kawasaki": { lat: 35.5300, lng: 139.6960 }, "taipei": { lat: 25.0330, lng: 121.5654 }, "shanghai": { lat: 31.2304, lng: 121.4737 }, "beijing": { lat: 39.9042, lng: 116.4074 }, "chengdu": { lat: 30.5728, lng: 104.0668 }, "xiamen": { lat: 24.4798, lng: 118.0894 }, "sydney": { lat: -33.8688, lng: 151.2093 }, "melbourne": { lat: -37.8136, lng: 144.9631 }
 };
 
+const WORKER_SITE_ALIAS = {
+  "round rock": "Dell Round Rock HQ", "austin": "Dell Austin Parmer", "hopkinton": "Dell Hopkinton", "franklin": "Dell Franklin", "apex": "Dell Apex", "eden prairie": "Dell Eden Prairie", "draper": "Dell Draper", "nashville": "Dell Nashville Hub", "oklahoma city": "Dell Oklahoma City", "santa clara": "Dell Santa Clara", "mclean": "Dell McLean", "el paso": "Dell El Paso", "toronto": "Dell Toronto", "mexico city": "Dell Mexico City", "panama city": "Dell Panama City", "sao paulo": "Dell São Paulo", "hortolandia": "Dell Hortolândia Mfg", "porto alegre": "Dell Porto Alegre", "lodz": "Dell Lodz Mfg", "limerick": "Dell Limerick", "dublin": "Dell Dublin Cherrywood", "cork": "Dell Cork Campus", "bracknell": "Dell Bracknell", "glasgow": "Dell Glasgow", "montpellier": "Dell Montpellier", "paris": "Dell Paris / Bezons", "frankfurt": "Dell Frankfurt", "halle": "Dell Halle", "amsterdam": "Dell Amsterdam", "casablanca": "Dell Casablanca", "cairo": "Dell Cairo", "dubai": "Dell Dubai", "herzliya": "Dell Herzliya", "haifa": "Dell Haifa", "bangalore": "Dell Bangalore", "bengaluru": "Dell Bangalore", "hyderabad": "Dell Hyderabad", "gurugram": "Dell Gurugram", "singapore": "Dell Singapore", "penang": "Dell Penang", "cyberjaya": "Dell Cyberjaya", "xiamen": "Dell Xiamen Mfg", "chengdu": "Dell Chengdu Mfg", "shanghai": "Dell Shanghai", "taipei": "Dell Taipei", "tokyo": "Dell Tokyo", "kawasaki": "Dell Kawasaki", "sydney": "Dell Sydney", "melbourne": "Dell Melbourne"
+};
+
 let TRAVEL_DATA = [];
-let INCIDENTS = [];
 
 const app = {
     data: [],
@@ -177,11 +222,23 @@ const app = {
 
     initMap: function() {
         this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(this.map);
+
+        // Plot Assets
         for (const [name, coords] of Object.entries(ASSETS)) {
-            const icon = L.divIcon({className: 'custom-div-icon', html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`, iconSize: [30, 30], iconAnchor: [15, 15]});
-            const m = L.marker([coords.lat, coords.lng], {icon}).addTo(this.map).bindPopup(`<b>DELL ASSET</b><br>${name.toUpperCase()}`);
-            this.assetMarkers.push({name, lat: coords.lat, lng: coords.lng});
+            const icon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            const displayName = WORKER_SITE_ALIAS[name] || name.toUpperCase();
+            const m = L.marker([coords.lat, coords.lng], {icon}).addTo(this.map).bindPopup(`<b>${displayName}</b>`);
+            this.assetMarkers.push({name: displayName, lat: coords.lat, lng: coords.lng});
         }
     },
 
@@ -197,12 +254,10 @@ const app = {
         try {
             const res = await fetch(`${WORKER_URL}/api/incidents`);
             this.data = await res.json();
-            INCIDENTS = this.data; // Store globally
             this.render();
             this.updateProximity();
         } catch(e) {
-            console.error(e);
-            document.getElementById('general-news-feed').innerHTML = `<div class="loading-text text-danger">Connection Failed.</div>`;
+            document.getElementById('general-news-feed').innerHTML = `<div class="loading-text text-danger">Connection Failed. Check URL.</div>`;
         }
     },
 
@@ -232,15 +287,19 @@ const app = {
             if(advisory.level >= 4) { color = "#d93025"; level = "LEVEL 4"; }
             else if(advisory.level >= 3) { color = "#e37400"; level = "LEVEL 3"; }
             else if(advisory.level >= 2) { color = "#f9ab00"; level = "LEVEL 2"; }
-            div.innerHTML = `<div class="advisory-box" style="border-left:4px solid ${color}"><div class="fw-bold" style="color:${color}">OFFICIAL STATUS: ${level}</div><div class="mt-1 small">${advisory.text}</div></div>`;
+
+            div.innerHTML = `<div class="advisory-box" style="border-left:4px solid ${color}"><div style="color:${color};font-weight:bold">OFFICIAL STATUS: ${level}</div><div class="mt-1 small">${advisory.text}</div></div>`;
         }
 
-        const related = this.data.filter(i => String(i.country).toUpperCase().includes(country.toUpperCase())).slice(0, 3);
+        const related = this.data.filter(i => 
+             String(i.country).toUpperCase().includes(country.toUpperCase()) || 
+             i.title.toUpperCase().includes(country.toUpperCase())
+        ).slice(0, 3);
+
         if(related.length > 0) {
             let newsHTML = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS</div>`;
             related.forEach(n => {
-                const sev = n.severity_text || n.severity || "LOW";
-                newsHTML += `<div class="news-box-item"><div class="news-box-title">${n.title}</div><div class="news-box-summary" style="font-size:0.7rem;">${sev}</div></div>`;
+                newsHTML += `<div class="news-box-item"><div class="news-box-title">${n.title}</div><div class="news-box-summary" style="font-size:0.7rem;">${n.severity}</div></div>`;
             });
             newsHTML += `</div>`;
             newsDiv.innerHTML = newsHTML;
@@ -262,29 +321,21 @@ const app = {
              return match;
         });
 
-        // Safe sort
-        filtered.sort((a,b) => (getSevWeight(b.severity_text || b.severity) - getSevWeight(a.severity_text || a.severity)));
+        filtered.sort((a,b) => (getSevWeight(b.severity) - getSevWeight(a.severity)));
         
         document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
 
-        if(filtered.length === 0) {
-            container.innerHTML = `<div class="loading-text">No active threats matching criteria.</div>`;
-            return;
-        }
-
         filtered.forEach(item => {
-            const sevText = item.severity_text || item.severity || "LOW";
-            const sevDetails = getSevDetails(sevText);
-            
+            const sev = getSevDetails(item.severity);
             const html = `
                 <a href="${item.link}" target="_blank" class="feed-card">
                     <div class="d-flex">
-                        <div class="feed-status-bar" style="background:${sevDetails.color}"></div>
+                        <div class="feed-status-bar" style="background:${sev.color}"></div>
                         <div class="feed-content">
                             <div class="feed-tags">
-                                <span class="ftag" style="background:${sevDetails.color}; color:#fff">${sevText}</span>
+                                <span class="ftag" style="background:${sev.color}; color:#fff">${item.severity}</span>
                                 <span class="ftag ftag-loc">${item.country || "GLOBAL"}</span>
-                                <span class="ftag">${item.category || "UNKNOWN"}</span>
+                                <span class="ftag ftag-type">${item.category || "UNKNOWN"}</span>
                             </div>
                             <div class="feed-title">${item.title}</div>
                             <div class="feed-desc">${item.summary}</div>
@@ -295,7 +346,7 @@ const app = {
 
             if(item.lat && item.lng) {
                 const m = L.circleMarker([item.lat, item.lng], {
-                    radius: 8, fillColor: sevDetails.color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
+                    radius: 8, fillColor: sev.color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
                 }).addTo(this.map).bindPopup(`<b>${item.title}</b>`);
                 this.markers.push(m);
             }
@@ -321,14 +372,14 @@ const app = {
         let found = false;
 
         this.data.forEach(inc => {
-            if(!inc.lat || !inc.lng) return;
+            if(!inc.lat) return;
             for(const [name, asset] of Object.entries(ASSETS)) {
+                 // Check distance using Worker data OR fallback to JS math if needed
                  const dist = haversineKm(inc.lat, inc.lng, asset.lat, asset.lng);
                  if(dist <= range) {
                      found = true;
-                     const sevText = inc.severity_text || inc.severity || "LOW";
-                     const color = getSevDetails(sevText).color;
-                     container.innerHTML += `<div class="alert-row"><div style="font-weight:700; color:${color}">${sevText} THREAT</div><div class="small">Near ${name.toUpperCase()} • ${Math.round(dist)} KM</div><div>${inc.title}</div></div>`;
+                     const sev = getSevDetails(inc.severity);
+                     container.innerHTML += `<div class="alert-row"><div style="font-weight:700; color:${sev.color}">${inc.severity} THREAT</div><div class="small">Near ${name.toUpperCase()} • ${Math.round(dist)} KM</div><div>${inc.title}</div></div>`;
                  }
             }
         });
@@ -337,20 +388,26 @@ const app = {
 };
 
 function getSevWeight(sev) {
-    // Handle both number (old cache) and text (new)
-    if(sev === 'CRITICAL' || sev === 4 || sev === '4') return 4;
-    if(sev === 'HIGH' || sev === 3 || sev === '3') return 3;
-    if(sev === 'MODERATE' || sev === 2 || sev === '2') return 2;
+    if(sev === 'CRITICAL') return 4;
+    if(sev === 'HIGH') return 3;
+    if(sev === 'MODERATE') return 2;
     return 1;
 }
 
 function getSevDetails(level) {
-    // Handle both number (old cache) and text (new)
-    if(level === 'CRITICAL' || level === 4 || level === '4') return {val:4, color:'#ef4444'};
-    if(level === 'HIGH' || level === 3 || level === '3') return {val:3, color:'#f97316'};
-    if(level === 'MODERATE' || level === 2 || level === '2') return {val:2, color:'#eab308'};
-    return {val:1, color:'#3b82f6'}; // LOW
+    const map = { 'CRITICAL':{val:4, color:'#ef4444'}, 'HIGH':{val:3, color:'#f97316'}, 'MODERATE':{val:2, color:'#eab308'}, 'LOW':{val:1, color:'#3b82f6'} };
+    return map[level] || {val:0, color:'#64748b'};
 }
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+    const R = 6371; 
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function loadHistory(d) { alert("History Simulation: " + d); }
 
 app.init();
 </script>
