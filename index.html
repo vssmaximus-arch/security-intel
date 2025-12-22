@@ -88,25 +88,22 @@
       </div>
 
       <div class="col-lg-3 sidebar-col">
-        <div class="side-card mb-3">
+        <div class="side-card">
           <div class="card-label"><i class="fas fa-history"></i> History Search</div>
           <input type="date" class="form-control" id="history-picker" onchange="loadHistory(this.value)" />
         </div>
 
-        <div class="side-card mb-3">
+        <div class="side-card">
           <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-          <select class="form-select mb-2" id="countrySelect" onchange="filterTravel()"><option disabled>Loading...</option></select>
-          <div id="travel-advisories"></div>
-          <div id="travel-news"></div>
+          <select class="form-select" id="countrySelect" onchange="filterTravel()"><option disabled>Loading...</option></select>
+          <div id="travel-advisories" class="mt-3"></div>
+          <div id="travel-news" class="mt-2"></div>
         </div>
 
         <div class="side-card">
           <div class="card-label">Proximity Alerts</div>
           <div style="margin:10px 0;">
-            <select id="proxRadius" class="form-select form-select-sm" onchange="updateProximityRadius()">
-              <option value="5">5 KM</option>
-              <option value="10">10 KM</option>
-              <option value="25">25 KM</option>
+            <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
               <option value="50" selected>50 KM</option>
               <option value="100">100 KM</option>
               <option value="500">500 KM</option>
