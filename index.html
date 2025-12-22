@@ -964,6 +964,15 @@ function safeTime(iso) {
   } catch { return "Recently"; }
 }
 
+/* Added severityLabel to match worker behavior and avoid ReferenceError when rendering travel news */
+function severityLabel(s) {
+  const n = Number(s || 1);
+  if (n >= 5) return "CRITICAL";
+  if (n >= 4) return "HIGH";
+  if (n === 3) return "MEDIUM";
+  return "LOW";
+}
+
 function escapeHtml(s) {
   return String(s || "")
     .replaceAll("&", "&amp;")
