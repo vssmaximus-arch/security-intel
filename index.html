@@ -18,6 +18,7 @@
 
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
+    /* SEVERITY COLORS (TEXT BASED) */
     .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; }
     .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }
     .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; }
@@ -33,7 +34,7 @@
     .header-right { display: flex; align-items: center; gap: 20px; }
     .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
     .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: 0.2s; }
-    .nav-item-custom.active { background-color: #202124; color: #fff; }
+    .nav-item-custom.active, .nav-item-custom:hover { background-color: #202124; color: #fff; }
     .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
     .clock-container { text-align: right; margin: 0 25px; }
     .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
@@ -55,15 +56,15 @@
     .history-input { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
     .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #fff; }
     .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
-    
-    .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
     .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
     #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
 
     .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
-    .feed-card { background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
-    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    
+    .feed-card { background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; }
+    .feed-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
     .feed-status-bar { width: 6px; flex-shrink: 0; }
+    
     .feed-content { padding: 18px 24px; width: 100%; }
     .feed-tags { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
     .ftag { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
@@ -76,22 +77,34 @@
 
     .loading-text { text-align: center; padding: 40px; color: #5f6368; font-weight: 500; }
     
+    /* Map Markers */
+    .custom-div-icon { background: transparent; border: none; }
+    .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #c30b82; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
+    .marker-pin::after { content: ''; width: 14px; height: 14px; margin: 8px 0 0 8px; background: #fff; position: absolute; border-radius: 50%; }
+
+    /* Travel Advisory */
     .advisory-box { border-radius: 8px; padding: 12px; margin-top: 15px; border: 1px solid #ddd; }
     .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
     .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
     .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.35; }
     
+    /* Missing Second Part: News Box in Travel */
     .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
     .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
     .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
     .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
     .news-box-summary { font-size: 0.75rem; color: #5f6368; }
-
+    
     .alert-row { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
     .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
     .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
-
+    
+    /* Feedback Buttons */
+    .ai-feedback-group { display: flex; gap: 8px; }
+    .btn-feedback { background: transparent; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 0.7rem; color: #5f6368; cursor: pointer; padding: 2px 6px; }
+    .btn-feedback:hover { background: #f1f3f4; color: #202124; }
+    
     .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
     .modal-title { font-weight: 800; color: #202124; }
@@ -147,7 +160,7 @@
             <div class="badge bg-secondary" id="feed-count">WAITING...</div>
           </div>
           <div id="general-news-feed">
-            <div class="loading-text">Connecting to Secure Worker...</div>
+            <div class="loading-text">Connecting to V120...</div>
           </div>
         </div>
       </div>
@@ -183,7 +196,7 @@
             </select>
           </div>
           <div id="proximity-alerts-container">
-            <div class="text-center p-3 text-muted small">Scanning assets...</div>
+            <div class="text-center p-3 text-muted small">No immediate threats near assets.</div>
           </div>
         </div>
         
@@ -219,12 +232,12 @@
 </div>
 
 <script>
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V119 Live
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V120 Live
 
-// FULL ASSET LIST (Hardcoded for immediate load)
+// FULL ASSET LIST (Matched to Worker V120 keys)
 const ASSETS = {
   "round rock": { lat: 30.5083, lng: -97.6788, region: "AMER" },
-  "austin": { lat: 30.2672, lng: -97.6843, region: "AMER" },
+  "austin": { lat: 30.2672, lng: -97.7431, region: "AMER" },
   "hopkinton": { lat: 42.2287, lng: -71.5226, region: "AMER" },
   "franklin": { lat: 42.0834, lng: -71.3967, region: "AMER" },
   "apex": { lat: 35.7327, lng: -78.8503, region: "AMER" },
@@ -235,40 +248,33 @@ const ASSETS = {
   "santa clara": { lat: 37.3541, lng: -121.9552, region: "AMER" },
   "mclean": { lat: 38.9295, lng: -77.2268, region: "AMER" },
   "el paso": { lat: 31.8385, lng: -106.5278, region: "AMER" },
-  "new york": { lat: 40.7128, lng: -74.0060, region: "AMER" },
-  "san francisco": { lat: 37.7749, lng: -122.4194, region: "AMER" },
-  "bangalore": { lat: 12.9716, lng: 77.5946, region: "APJC" },
-  "bengaluru": { lat: 12.9716, lng: 77.5946, region: "APJC" },
-  "delhi": { lat: 28.6139, lng: 77.2090, region: "APJC" },
-  "mumbai": { lat: 19.0760, lng: 72.8777, region: "APJC" },
-  "hyderabad": { lat: 17.3850, lng: 78.4867, region: "APJC" },
-  "chennai": { lat: 13.0827, lng: 80.2707, region: "APJC" },
-  "pune": { lat: 18.5204, lng: 73.8567, region: "APJC" },
-  "gurugram": { lat: 28.4595, lng: 77.0266, region: "APJC" },
-  "noida": { lat: 28.5355, lng: 77.3910, region: "APJC" },
+  "toronto": { lat: 43.6532, lng: -79.3832, region: "AMER" },
+  "mexico city": { lat: 19.4326, lng: -99.1332, region: "LATAM" },
+  "sao paulo": { lat: -23.5505, lng: -46.6333, region: "LATAM" },
+  "hortolandia": { lat: -22.8583, lng: -47.2208, region: "LATAM" },
+  "porto alegre": { lat: -30.0346, lng: -51.2177, region: "LATAM" },
+  "panama city": { lat: 8.9824, lng: -79.5199, region: "LATAM" },
   "london": { lat: 51.5074, lng: -0.1278, region: "EMEA" },
   "bracknell": { lat: 51.4160, lng: -0.7540, region: "EMEA" },
   "dublin": { lat: 53.3498, lng: -6.2603, region: "EMEA" },
   "limerick": { lat: 52.6638, lng: -8.6267, region: "EMEA" },
   "cork": { lat: 51.8985, lng: -8.4756, region: "EMEA" },
-  "glasgow": { lat: 55.8642, lng: -4.2518, region: "EMEA" },
   "paris": { lat: 48.8566, lng: 2.3522, region: "EMEA" },
   "montpellier": { lat: 43.6108, lng: 3.8767, region: "EMEA" },
   "frankfurt": { lat: 50.1109, lng: 8.6821, region: "EMEA" },
   "halle": { lat: 51.4820, lng: 11.9700, region: "EMEA" },
   "amsterdam": { lat: 52.3676, lng: 4.9041, region: "EMEA" },
-  "lodz": { lat: 51.7285, lng: 19.4967, region: "EMEA" },
   "casablanca": { lat: 33.5731, lng: -7.5898, region: "EMEA" },
   "cairo": { lat: 30.0444, lng: 31.2357, region: "EMEA" },
   "dubai": { lat: 25.2048, lng: 55.2708, region: "EMEA" },
-  "tel aviv": { lat: 32.0853, lng: 34.7818, region: "EMEA" },
   "herzliya": { lat: 32.1644, lng: 34.7961, region: "EMEA" },
   "haifa": { lat: 32.7940, lng: 34.9896, region: "EMEA" },
+  "bangalore": { lat: 12.9716, lng: 77.5946, region: "APJC" },
+  "hyderabad": { lat: 17.3850, lng: 78.4867, region: "APJC" },
+  "gurugram": { lat: 28.4595, lng: 77.0266, region: "APJC" },
   "singapore": { lat: 1.3521, lng: 103.8198, region: "APJC" },
-  "sydney": { lat: -33.8688, lng: 151.2093, region: "APJC" },
-  "melbourne": { lat: -37.8136, lng: 144.9631, region: "APJC" },
-  "auckland": { lat: -36.8485, lng: 174.7633, region: "APJC" },
-  "wellington": { lat: -41.2865, lng: 174.7762, region: "APJC" },
+  "penang": { lat: 5.4164, lng: 100.3327, region: "APJC" },
+  "cyberjaya": { lat: 2.9213, lng: 101.6559, region: "APJC" },
   "tokyo": { lat: 35.6762, lng: 139.6503, region: "APJC" },
   "kawasaki": { lat: 35.5300, lng: 139.6960, region: "APJC" },
   "taipei": { lat: 25.0330, lng: 121.5654, region: "APJC" },
@@ -276,13 +282,60 @@ const ASSETS = {
   "beijing": { lat: 39.9042, lng: 116.4074, region: "APJC" },
   "chengdu": { lat: 30.5728, lng: 104.0668, region: "APJC" },
   "xiamen": { lat: 24.4798, lng: 118.0894, region: "APJC" },
-  "penang": { lat: 5.4164, lng: 100.3327, region: "APJC" },
-  "cyberjaya": { lat: 2.9213, lng: 101.6559, region: "APJC" },
-  "panama city": { lat: 8.9824, lng: -79.5199, region: "LATAM" },
-  "mexico city": { lat: 19.4326, lng: -99.1332, region: "LATAM" },
-  "sao paulo": { lat: -23.5505, lng: -46.6333, region: "LATAM" },
-  "hortolandia": { lat: -22.8583, lng: -47.2208, region: "LATAM" },
-  "porto alegre": { lat: -30.0346, lng: -51.2177, region: "LATAM" }
+  "sydney": { lat: -33.8688, lng: 151.2093, region: "APJC" },
+  "melbourne": { lat: -37.8136, lng: 144.9631, region: "APJC" }
+};
+
+const WORKER_SITE_ALIAS = {
+  "round rock": "Dell Round Rock HQ",
+  "austin": "Dell Austin Parmer",
+  "hopkinton": "Dell Hopkinton",
+  "franklin": "Dell Franklin",
+  "apex": "Dell Apex",
+  "eden prairie": "Dell Eden Prairie",
+  "draper": "Dell Draper",
+  "nashville": "Dell Nashville Hub",
+  "oklahoma city": "Dell Oklahoma City",
+  "santa clara": "Dell Santa Clara",
+  "mclean": "Dell McLean",
+  "el paso": "Dell El Paso",
+  "toronto": "Dell Toronto",
+  "mexico city": "Dell Mexico City",
+  "panama city": "Dell Panama City",
+  "sao paulo": "Dell São Paulo",
+  "hortolandia": "Dell Hortolândia Mfg",
+  "porto alegre": "Dell Porto Alegre",
+  "lodz": "Dell Lodz Mfg",
+  "limerick": "Dell Limerick",
+  "dublin": "Dell Dublin Cherrywood",
+  "cork": "Dell Cork Campus",
+  "bracknell": "Dell Bracknell",
+  "glasgow": "Dell Glasgow",
+  "montpellier": "Dell Montpellier",
+  "paris": "Dell Paris / Bezons",
+  "frankfurt": "Dell Frankfurt",
+  "halle": "Dell Halle",
+  "amsterdam": "Dell Amsterdam",
+  "casablanca": "Dell Casablanca",
+  "cairo": "Dell Cairo",
+  "dubai": "Dell Dubai",
+  "herzliya": "Dell Herzliya",
+  "haifa": "Dell Haifa",
+  "bangalore": "Dell Bangalore",
+  "bengaluru": "Dell Bangalore",
+  "hyderabad": "Dell Hyderabad",
+  "gurugram": "Dell Gurugram",
+  "singapore": "Dell Singapore",
+  "penang": "Dell Penang",
+  "cyberjaya": "Dell Cyberjaya",
+  "xiamen": "Dell Xiamen Mfg",
+  "chengdu": "Dell Chengdu Mfg",
+  "shanghai": "Dell Shanghai",
+  "taipei": "Dell Taipei",
+  "tokyo": "Dell Tokyo",
+  "kawasaki": "Dell Kawasaki",
+  "sydney": "Dell Sydney",
+  "melbourne": "Dell Melbourne"
 };
 
 let TRAVEL_DATA = [];
@@ -312,16 +365,16 @@ const app = {
             maxZoom: 19
         }).addTo(this.map);
 
-        // Plot Assets
-        for (const [name, coords] of Object.entries(ASSETS)) {
+        for (const [key, data] of Object.entries(ASSETS)) {
             const icon = L.divIcon({
                 className: 'custom-div-icon',
                 html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`,
                 iconSize: [30, 30],
                 iconAnchor: [15, 15]
             });
-            const m = L.marker([coords.lat, coords.lng], {icon}).addTo(this.map).bindPopup(`<b>DELL ASSET</b><br>${name.toUpperCase()}`);
-            this.assetMarkers.push({name, lat: coords.lat, lng: coords.lng});
+            const displayName = WORKER_SITE_ALIAS[key] || key.toUpperCase();
+            L.marker([data.lat, data.lng], {icon}).addTo(this.map).bindPopup(`<b>${displayName}</b>`);
+            this.assetMarkers.push({name: displayName, lat: data.lat, lng: data.lng});
         }
     },
 
@@ -337,7 +390,6 @@ const app = {
         }
     },
 
-    // --- ASYNC RETRY LOOP FOR TRAVEL DATA ---
     loadTravelAdvisories: async function(attempt = 1) {
         const sel = document.getElementById("countrySelect");
         if (!sel) return;
@@ -353,7 +405,6 @@ const app = {
                 this.populateCountries();
             } else {
                 if(attempt < 4) {
-                    // Retry every 1.5s if empty (Cold Start Fix)
                     await new Promise(r => setTimeout(r, 1500 * attempt));
                     return this.loadTravelAdvisories(attempt + 1);
                 } else {
@@ -417,7 +468,10 @@ const app = {
                             <div class="feed-desc">${item.summary}</div>
                             <div class="feed-meta">
                                 <span><i class="fas fa-clock"></i> ${new Date(item.time).toLocaleTimeString()} • ${loc}</span>
-                                <span class="feed-source-link">READ SOURCE <i class="fas fa-external-link-alt ms-1"></i></span>
+                                <div class="ai-feedback-group">
+                                    <button class="btn-feedback">👍 Relevant</button>
+                                    <button class="btn-feedback">👎 Irrelevant</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -455,9 +509,8 @@ const app = {
         const country = document.getElementById("countrySelect").value;
         const advisory = TRAVEL_DATA.find(c => c.country === country);
         const div = document.getElementById("travel-advisories");
-        const newsDiv = document.getElementById("travel-news"); // <--- RESTORED THE MISSING SECOND PART
+        const newsDiv = document.getElementById("travel-news"); // Fix: Restored logic
         
-        // 1. Show Advisory
         if(advisory) {
             let color = "#1a73e8", level = "LEVEL 1";
             if(advisory.level >= 4) { color = "#d93025"; level = "LEVEL 4"; }
@@ -471,7 +524,6 @@ const app = {
             </div>`;
         }
 
-        // 2. Show Related News (THE RESTORED FEATURE)
         const related = this.data.filter(i => 
              String(i.country).toUpperCase() === country.toUpperCase() || 
              i.title.toUpperCase().includes(country.toUpperCase())
@@ -482,7 +534,7 @@ const app = {
             related.forEach(n => {
                 newsHTML += `<div class="news-box-item">
                     <div class="news-box-title">${n.title}</div>
-                    <div class="news-box-summary" style="font-size:0.7rem; color:${n.severity === 'CRITICAL' ? 'red' : 'gray'}">${n.severity}</div>
+                    <div class="news-box-summary" style="font-size:0.7rem;">${n.severity}</div>
                 </div>`;
             });
             newsHTML += `</div>`;
@@ -500,6 +552,8 @@ const app = {
 
         this.data.forEach(inc => {
             if(!inc.lat || !inc.lng) return;
+            // Use Worker provided nearest if within range logic or fallback
+            // Prioritize frontend calculation for immediate feedback
             for(const asset of this.assetMarkers) {
                 const dist = this.haversine(inc.lat, inc.lng, asset.lat, asset.lng);
                 if(dist <= range) {
