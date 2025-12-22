@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dell OS | INFOHUB </title>
+  <title>OS | INFOHUB</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -14,192 +14,86 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    :root {
-      --dell-blue: #0076CE;
-      --bg-dark: #0f1115;
-    }
+    :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
 
-    body {
-      background-color: var(--bg-dark);
-      font-family: 'Inter', sans-serif;
-      padding: 24px;
-      color: #333;
-    }
+    body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
-    .app-container {
-      background-color: #fff;
-      border-radius: 24px;
-      min-height: 92vh;
-      padding: 0;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+    /* SEVERITY COLORS (TEXT BASED) */
+    .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; } /* Red */
+    .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }     /* Orange */
+    .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; } /* Yellow */
+    .sev-LOW { background-color: #3b82f6; color: #fff; border-color:#3b82f6; }      /* Blue */
+    .sev-UNKNOWN { background-color: #64748b; color: #fff; }
 
-    .header-container {
-      padding: 15px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #f0f0f0;
-      height: 70px;
-    }
-
+    .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
     .header-left { display: flex; align-items: center; height: 100%; }
     .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
     .logo-text span { color: var(--dell-blue); }
-
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: 0.2s; }
+    .nav-item-custom.active, .nav-item-custom:hover { background-color: #202124; color: #fff; }
+    .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; gap:8px; align-items: center; }
     .clock-container { text-align: right; margin: 0 25px; }
     .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
     .clock-time { font-size: 0.8rem; color: #5f6368; font-weight: 500; }
-
-    .btn-daily {
-      background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px;
-      text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
-      box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer;
-    }
-    .btn-daily:hover { background-color: #1557b0; color: white; }
-
-    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
-    .nav-item-custom {
-      padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368;
-      cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .nav-item-custom.active { background-color: #202124; color: #fff; }
-
-    .content-area { padding: 30px; }
-
-    .map-wrapper {
-      position: relative; border-radius: 16px; overflow: hidden; height: 520px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6;
-    }
+    
+    .content-area { padding: 30px; flex: 1; }
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
     #map { width: 100%; height: 100%; z-index: 1; }
-
-    .leaflet-tooltip.map-tooltip {
-      background-color: #202124;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .leaflet-tooltip-top:before { border-top-color: #202124; }
-
-    .marker-pin-dell {
-      width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-      display: flex; justify-content: center; align-items: center;
-    }
-    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
-
     .sidebar-col { padding-left: 30px; }
-    .side-card {
-      background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
     .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-    .card-label i { color: #9aa0a6; }
-
-    .history-input-group { position: relative; }
-    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
-    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
-    .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
-
-    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
-
-    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
-    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+    .history-input { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; }
+    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #fff; }
+    .category-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; background-color: #f8f9fa; font-weight: 600; color: #333; }
     .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
-
-    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
-    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
-    .radius-select {
-      font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer;
-    }
-
     #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
-    #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
-    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-    #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-    #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
-    .alert-row:last-child { border-bottom: none; }
-    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
-    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
-    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
+    .stream-section { margin-top: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+    .feed-card { background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; margin-bottom: 15px; display: block; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .feed-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 6px; flex-shrink: 0; }
+    .feed-content { padding: 18px 24px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-loc { background: #202124; color: #fff; }
+    .feed-title { font-size: 1.1rem; font-weight: 700; color: #202124; margin-bottom: 8px; line-height: 1.4; }
+    .feed-desc { font-size: 0.9rem; color: #4b4f56; line-height: 1.6; margin-bottom: 10px; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; display: flex; justify-content: space-between; align-items: center; }
+    .feed-source-link { color: #1a73e8; font-weight: 600; text-decoration: none; }
+    .feed-source-link:hover { text-decoration: underline; }
 
-    .stream-section { margin-top: 25px; }
-    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
-    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
-    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
-    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
-
-    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
-    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .feed-status-bar { width: 5px; flex-shrink: 0; }
-    .status-bar-crit { background-color: #d93025; }   /* Sev 4-5 */
-    .status-bar-warn { background-color: #f9ab00; }   /* Sev 3 */
-    .status-bar-info { background-color: #1a73e8; }   /* Sev 1-2 */
-
-    .feed-content { padding: 16px 20px; width: 100%; }
-    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
-    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
-    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
-    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
-    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
-    .ftag-type { background: #f1f3f4; color: #5f6368; }
-    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
-
-    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
-    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
-    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
-    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
-
-    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
-    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
-    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
-    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
-    .tag-crit { background: #d93025; color: white; }
-    .tag-cat { background: #3c4043; color: white; }
-    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
-
-    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
-    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
-    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
-    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
-
-    .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
+    .loading-text { text-align: center; padding: 40px; color: #5f6368; font-weight: 500; }
+    
+    .advisory-box { border-radius: 8px; padding: 12px; margin-top: 15px; border: 1px solid #ddd; }
     .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
     .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
-    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
-    .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
-
-    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
-    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
-    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
-
+    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.35; }
+    
+    /* Missing Second Part: News Box in Travel */
     .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
     .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
     .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
     .news-box-item:last-child { border-bottom: none; }
     .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
     .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+    
+    .alert-row { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+    .alert-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .alert-dist { font-weight: 700; color: #d93025; font-size: 0.85rem; }
+
+    .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px;}
 
     .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
     .modal-title { font-weight: 800; color: #202124; }
     .modal-body { padding: 30px; }
-    .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
-    .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
     .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
-    .btn-download:hover { background: #1557b0; }
   </style>
 </head>
 
@@ -213,11 +107,11 @@
 
     <div class="header-right d-flex align-items-center">
       <div class="nav-pills-custom">
-        <a class="nav-item-custom active" onclick="filterNews('Global')">Global</a>
-        <a class="nav-item-custom" onclick="filterNews('AMER')">AMER</a>
-        <a class="nav-item-custom" onclick="filterNews('EMEA')">EMEA</a>
-        <a class="nav-item-custom" onclick="filterNews('APJC')">APJC</a>
-        <a class="nav-item-custom" onclick="filterNews('LATAM')">LATAM</a>
+        <a class="nav-item-custom active" onclick="app.filterNews('Global', this)">Global</a>
+        <a class="nav-item-custom" onclick="app.filterNews('AMER', this)">AMER</a>
+        <a class="nav-item-custom" onclick="app.filterNews('EMEA', this)">EMEA</a>
+        <a class="nav-item-custom" onclick="app.filterNews('APJC', this)">APJC</a>
+        <a class="nav-item-custom" onclick="app.filterNews('LATAM', this)">LATAM</a>
       </div>
 
       <div class="clock-container">
@@ -225,756 +119,307 @@
         <div class="clock-time" id="clock-time">--:--</div>
       </div>
 
-      <div class="btn-daily" onclick="manualRefresh()">
+      <div class="btn-daily ms-3" onclick="app.fetchData()">
         <i class="fas fa-rotate"></i> Refresh
       </div>
 
-      <div class="btn-daily" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;">
+      <div class="btn-daily ms-3" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;">
         <i class="fas fa-file-alt"></i> Daily Briefings
       </div>
     </div>
   </div>
 
   <div class="content-area">
-    <div class="row g-4">
-      <div class="col-lg-9">
-        <div class="map-wrapper">
-          <div id="map"></div>
-        </div>
+    <div class="row g-4 h-100">
+      <div class="col-lg-9 d-flex flex-column">
+        <div class="map-wrapper mb-3"><div id="map"></div></div>
 
         <div class="stream-section">
-          <div class="stream-header">
-            <div class="stream-label">
-              <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
-              <span class="live-box ms-2" id="feed-status-label">Connecting…</span>
-            </div>
-            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;">
-              VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span>
-            </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="fw-bold text-uppercase text-secondary" style="font-size: 0.85rem;">Live Intelligence</div>
+            <div class="badge bg-secondary" id="feed-count">WAITING...</div>
           </div>
-
-          <div class="critical-alert-bar">
-            <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
-            <div class="alert-content-main" id="headline-alert">Loading headline…</div>
-            <div class="alert-tags">
-              <span class="tag" id="headline-sev">SEV?</span>
-              <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-              <span class="tag tag-reg" id="headline-reg">REGION</span>
-            </div>
-          </div>
-
-          <div id="general-news-feed">
-            <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
-          </div>
+          <div id="general-news-feed"><div class="loading-text">Connecting to Secure Worker...</div></div>
         </div>
       </div>
 
       <div class="col-lg-3 sidebar-col">
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-history"></i> History Search</div>
-          <div class="history-input-group">
-            <i class="far fa-calendar-alt calendar-icon"></i>
-            <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" />
-          </div>
-          <div class="sub-text" id="history-status">Pick a date to load archived intelligence (simulated).</div>
+          <div class="card-label">History Search</div>
+          <input type="date" class="history-input" id="history-picker" onchange="app.filterByDate(this.value)">
         </div>
 
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-          <select class="travel-select" id="countrySelect" onchange="filterTravel()">
-            <option selected disabled>Loading countries...</option>
-          </select>
+          <div class="card-label">Travel Safety</div>
+          <select class="travel-select" id="countrySelect" onchange="app.filterTravel()"><option disabled>Loading...</option></select>
           <div id="travel-advisories" class="mt-3"></div>
           <div id="travel-news" class="mt-2"></div>
         </div>
 
-        <div class="side-card" style="padding-bottom: 10px;">
+        <div class="side-card">
           <div class="prox-header-row">
-            <div>
-              <div class="prox-dell-label">Dell Asset</div>
-              <div class="prox-main-title">Proximity<br/>Alerts</div>
-            </div>
+             <div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity Alerts</div></div>
           </div>
-          <div class="prox-controls">
-            <div class="prox-subtitle">WITHIN RADIUS</div>
-            <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()">
-              <option value="5">5 KM</option>
-              <option value="10">10 KM</option>
-              <option value="25">25 KM</option>
-              <option value="50" selected>50 KM</option>
-              <option value="100">100 KM</option>
-              <option value="500">500 KM</option>
+          <div class="mt-2 mb-3">
+            <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
+              <option value="50" selected>50 KM Range</option>
+              <option value="100">100 KM Range</option>
+              <option value="500">500 KM Range</option>
             </select>
           </div>
-
-          <div id="proximity-alerts-container"></div>
-
-          <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
-            <a href="#" onclick="manualRefresh();return false;" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;">REFRESH ALERTS</a>
-          </div>
+          <div id="proximity-alerts-container">Scanning assets...</div>
+        </div>
+        
+         <div class="side-card">
+            <div class="card-label">Category Filter</div>
+            <select class="category-select" id="categorySelect" onchange="app.filterByCategory(this.value)">
+                <option value="ALL" selected>All Categories</option>
+                <option value="PHYSICAL">Physical Security</option>
+                <option value="CYBER">Cyber Security</option>
+                <option value="INFRASTRUCTURE">Infrastructure</option>
+                <option value="DISASTER">Natural Disaster</option>
+                <option value="LOGISTICS">Logistics/Supply Chain</option>
+            </select>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Select Date</label>
-          <input type="date" class="form-control" id="reportDate" />
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Daily Intelligence Briefing</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <select class="form-select mb-3"><option>Global</option><option>APJC</option></select>
+                <button class="btn-download" onclick="alert('PDF Reporting requires backend.')">Download Report</button>
+            </div>
         </div>
-        <div class="mb-4">
-          <label class="form-label">Select Region / Report Profile</label>
-          <select class="form-select" id="reportRegion">
-            <option value="Global">Global</option>
-            <option value="APJC">APJC</option>
-            <option value="India">India</option>
-            <option value="Oceania">Oceania</option>
-            <option value="Japan">Japan</option>
-            <option value="South_Korea">South_Korea</option>
-            <option value="SAEM">SAEM</option>
-            <option value="Greater_China_HK">Greater_China_HK</option>
-            <option value="Taiwan">Taiwan</option>
-            <option value="Malaysia">Malaysia</option>
-            <option value="Singapore">Singapore</option>
-          </select>
-        </div>
-        <button class="btn-download" onclick="downloadReport()">
-          <i class="fas fa-download me-2"></i> Retrieve Briefing
-        </button>
-        <div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem; display:none;"></div>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
-/* ===========================
-   CONFIG
-=========================== */
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
-const AUTO_REFRESH_MS = 60_000;
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V132 (Smartraveller)
 
-/* ===========================
-   DATA STATE
-=========================== */
-let INCIDENTS = [];
-let FEED_IS_LIVE = false;
-let currentRadius = 50;
+const ASSETS = {
+  "round rock": { lat: 30.5083, lng: -97.6788, region: "AMER" }, "austin": { lat: 30.2672, lng: -97.6843 }, "hopkinton": { lat: 42.2287, lng: -71.5226 }, "franklin": { lat: 42.0834, lng: -71.3967 }, "apex": { lat: 35.7327, lng: -78.8503 }, "eden prairie": { lat: 44.8617, lng: -93.4168 }, "draper": { lat: 40.5240, lng: -111.8950 }, "nashville": { lat: 36.1627, lng: -86.7816 }, "oklahoma city": { lat: 35.4676, lng: -97.5164 }, "santa clara": { lat: 37.3541, lng: -121.9552 }, "mclean": { lat: 38.9295, lng: -77.2268 }, "el paso": { lat: 31.8385, lng: -106.5278 }, "toronto": { lat: 43.6532, lng: -79.3832 }, "mexico city": { lat: 19.4326, lng: -99.1332 }, "sao paulo": { lat: -23.5505, lng: -46.6333 }, "hortolandia": { lat: -22.8583, lng: -47.2208 }, "porto alegre": { lat: -30.0346, lng: -51.2177 }, "panama city": { lat: 8.9824, lng: -79.5199 }, "london": { lat: 51.5074, lng: -0.1278 }, "bracknell": { lat: 51.4160, lng: -0.7540 }, "dublin": { lat: 53.3498, lng: -6.2603 }, "limerick": { lat: 52.6638, lng: -8.6267 }, "cork": { lat: 51.8985, lng: -8.4756 }, "paris": { lat: 48.8566, lng: 2.3522 }, "montpellier": { lat: 43.6108, lng: 3.8767 }, "frankfurt": { lat: 50.1109, lng: 8.6821 }, "halle": { lat: 51.4820, lng: 11.9700 }, "amsterdam": { lat: 52.3676, lng: 4.9041 }, "casablanca": { lat: 33.5731, lng: -7.5898 }, "cairo": { lat: 30.0444, lng: 31.2357 }, "dubai": { lat: 25.2048, lng: 55.2708 }, "herzliya": { lat: 32.1644, lng: 34.7961 }, "haifa": { lat: 32.7940, lng: 34.9896 }, "bangalore": { lat: 12.9716, lng: 77.5946 }, "hyderabad": { lat: 17.3850, lng: 78.4867 }, "gurugram": { lat: 28.4595, lng: 77.0266 }, "singapore": { lat: 1.3521, lng: 103.8198 }, "penang": { lat: 5.4164, lng: 100.3327 }, "cyberjaya": { lat: 2.9213, lng: 101.6559 }, "tokyo": { lat: 35.6762, lng: 139.6503 }, "kawasaki": { lat: 35.5300, lng: 139.6960 }, "taipei": { lat: 25.0330, lng: 121.5654 }, "shanghai": { lat: 31.2304, lng: 121.4737 }, "beijing": { lat: 39.9042, lng: 116.4074 }, "chengdu": { lat: 30.5728, lng: 104.0668 }, "xiamen": { lat: 24.4798, lng: 118.0894 }, "sydney": { lat: -33.8688, lng: 151.2093 }, "melbourne": { lat: -37.8136, lng: 144.9631 }
+};
+
+const WORKER_SITE_ALIAS = {
+  "round rock": "Dell Round Rock HQ", "austin": "Dell Austin Parmer", "hopkinton": "Dell Hopkinton", "franklin": "Dell Franklin", "apex": "Dell Apex", "eden prairie": "Dell Eden Prairie", "draper": "Dell Draper", "nashville": "Dell Nashville Hub", "oklahoma city": "Dell Oklahoma City", "santa clara": "Dell Santa Clara", "mclean": "Dell McLean", "el paso": "Dell El Paso", "toronto": "Dell Toronto", "mexico city": "Dell Mexico City", "panama city": "Dell Panama City", "sao paulo": "Dell São Paulo", "hortolandia": "Dell Hortolândia Mfg", "porto alegre": "Dell Porto Alegre", "lodz": "Dell Lodz Mfg", "limerick": "Dell Limerick", "dublin": "Dell Dublin Cherrywood", "cork": "Dell Cork Campus", "bracknell": "Dell Bracknell", "glasgow": "Dell Glasgow", "montpellier": "Dell Montpellier", "paris": "Dell Paris / Bezons", "frankfurt": "Dell Frankfurt", "halle": "Dell Halle", "amsterdam": "Dell Amsterdam", "casablanca": "Dell Casablanca", "cairo": "Dell Cairo", "dubai": "Dell Dubai", "herzliya": "Dell Herzliya", "haifa": "Dell Haifa", "bangalore": "Dell Bangalore", "bengaluru": "Dell Bangalore", "hyderabad": "Dell Hyderabad", "gurugram": "Dell Gurugram", "singapore": "Dell Singapore", "penang": "Dell Penang", "cyberjaya": "Dell Cyberjaya", "xiamen": "Dell Xiamen Mfg", "chengdu": "Dell Chengdu Mfg", "shanghai": "Dell Shanghai", "taipei": "Dell Taipei", "tokyo": "Dell Tokyo", "kawasaki": "Dell Kawasaki", "sydney": "Dell Sydney", "melbourne": "Dell Melbourne"
+};
 
 let TRAVEL_DATA = [];
-let TRAVEL_UPDATED_AT = null;
+let INCIDENTS = [];
 
-let map;
-let layerGroup;
-let incidentLayerGroup;
+const app = {
+    data: [],
+    map: null,
+    markers: [],
+    assetMarkers: [],
+    currentRegion: 'Global',
+    currentCategory: 'ALL',
+    filterDate: null,
 
-/* ===========================
-   DELL SITES (your list)
-   (Kept exactly as you provided)
-=========================== */
-const DELL_SITES = [
-  // AMER
-  { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
-  { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
-  { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
-  { name: "Dell Franklin", country: "US", region: "AMER", lat: 42.0834, lon: -71.3967 },
-  { name: "Dell Apex", country: "US", region: "AMER", lat: 35.7327, lon: -78.8503 },
-  { name: "Dell Eden Prairie", country: "US", region: "AMER", lat: 44.8617, lon: -93.4168 },
-  { name: "Dell Draper", country: "US", region: "AMER", lat: 40.5240, lon: -111.8950 },
-  { name: "Dell Nashville Hub", country: "US", region: "AMER", lat: 36.1627, lon: -86.7816 },
-  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164 },
-  { name: "Dell Santa Clara", country: "US", region: "AMER", lat: 37.3541, lon: -121.9552 },
-  { name: "Dell McLean", country: "US", region: "AMER", lat: 38.9295, lon: -77.2268 },
-  { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
-  { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
-  { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
+    init: function() {
+        this.initMap();
+        this.startClock();
+        this.fetchData();
+        this.loadTravel();
+        setInterval(() => this.fetchData(), 60000);
+    },
 
-  // LATAM
-  { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
-  { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
-  { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
-  { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
+    initMap: function() {
+        this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
+        for (const [name, coords] of Object.entries(ASSETS)) {
+            const icon = L.divIcon({className: 'custom-div-icon', html: `<div class="marker-pin-dell"><i class="fas fa-building"></i></div>`, iconSize: [30, 30], iconAnchor: [15, 15]});
+            const displayName = WORKER_SITE_ALIAS[name] || name.toUpperCase();
+            const m = L.marker([coords.lat, coords.lng], {icon}).addTo(this.map).bindPopup(`<b>${displayName}</b>`);
+            this.assetMarkers.push({name: displayName, lat: coords.lat, lng: coords.lng});
+        }
+    },
 
-  // EMEA
-  { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
-  { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
-  { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
-  { name: "Dell Cork Campus", country: "IE", region: "EMEA", lat: 51.8985, lon: -8.4756 },
-  { name: "Dell Herzliya", country: "IL", region: "EMEA", lat: 32.1644, lon: 34.7961 },
-  { name: "Dell Haifa", country: "IL", region: "EMEA", lat: 32.7940, lon: 34.9896 },
-  { name: "Dell Beer Sheva", country: "IL", region: "EMEA", lat: 31.2626, lon: 34.8016 },
-  { name: "Dell Bracknell", country: "GB", region: "EMEA", lat: 51.4160, lon: -0.7540 },
-  { name: "Dell Glasgow", country: "GB", region: "EMEA", lat: 55.8642, lon: -4.2518 },
-  { name: "Dell Montpellier", country: "FR", region: "EMEA", lat: 43.6108, lon: 3.8767 },
-  { name: "Dell Paris / Bezons", country: "FR", region: "EMEA", lat: 48.8566, lon: 2.3522 },
-  { name: "Dell Frankfurt", country: "DE", region: "EMEA", lat: 50.1109, lon: 8.6821 },
-  { name: "Dell Halle", country: "DE", region: "EMEA", lat: 51.4820, lon: 11.9700 },
-  { name: "Dell Amsterdam", country: "NL", region: "EMEA", lat: 52.3676, lon: 4.9041 },
-  { name: "Dell Casablanca", country: "MA", region: "EMEA", lat: 33.5731, lon: -7.5898 },
-  { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
-  { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
+    startClock: function() {
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock-time').innerText = now.toLocaleTimeString();
+            document.getElementById('clock-date').innerText = now.toLocaleDateString();
+        }, 1000);
+    },
 
-  // APJC
-  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
-  { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
-  { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
-  { name: "Dell Sriperumbudur Mfg", country: "IN", region: "APJC", lat: 12.9560, lon: 79.9410 },
-  { name: "Dell Singapore", country: "SG", region: "APJC", lat: 1.3521, lon: 103.8198 },
-  { name: "Dell Penang", country: "MY", region: "APJC", lat: 5.4164, lon: 100.3327 },
-  { name: "Dell Cyberjaya", country: "MY", region: "APJC", lat: 2.9213, lon: 101.6559 },
-  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894 },
-  { name: "Dell Chengdu Mfg", country: "CN", region: "APJC", lat: 30.5728, lon: 104.0668 },
-  { name: "Dell Shanghai", country: "CN", region: "APJC", lat: 31.2304, lon: 121.4737 },
-  { name: "Dell Taipei", country: "TW", region: "APJC", lat: 25.0330, lon: 121.5654 },
-  { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
-  { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
-  { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
-];
+    fetchData: async function() {
+        try {
+            const res = await fetch(`${WORKER_URL}/api/incidents`);
+            this.data = await res.json();
+            INCIDENTS = this.data; 
+            this.render();
+            this.updateProximity();
+        } catch(e) {
+            document.getElementById('general-news-feed').innerHTML = `<div class="loading-text text-danger">Connection Failed. Check URL.</div>`;
+        }
+    },
 
-/* For proximity + map rendering we use a simple normalized list:
-   keep same ASSETS mapping as your original */
-const ASSETS = {};
-DELL_SITES.forEach(s => {
-  const key = s.name.toLowerCase();
-  ASSETS[key] = { lat: s.lat, lng: s.lon, region: s.region };
-});
+    loadTravel: async function(attempt=1) {
+        try {
+            const res = await fetch(`${WORKER_URL}/api/traveladvisories`);
+            const json = await res.json();
+            if(json.advisories && json.advisories.length > 0) {
+                TRAVEL_DATA = json.advisories;
+                const sel = document.getElementById('countrySelect');
+                sel.innerHTML = '<option selected disabled>Select Country...</option>';
+                TRAVEL_DATA.sort((a,b)=>a.country.localeCompare(b.country)).forEach(c => sel.innerHTML += `<option value="${c.country}">${c.country}</option>`);
+            } else if(attempt < 4) {
+                setTimeout(() => this.loadTravel(attempt+1), 1500);
+            }
+        } catch(e) {}
+    },
 
-/* ===========================
-   INIT
-=========================== */
-document.addEventListener("DOMContentLoaded", async () => {
-  initMap();
-  startClock();
+    filterTravel: function() {
+        const country = document.getElementById("countrySelect").value;
+        const advisory = TRAVEL_DATA.find(c => c.country === country);
+        const div = document.getElementById("travel-advisories");
+        const newsDiv = document.getElementById("travel-news");
+        
+        if(advisory) {
+            let color = "#1a73e8", level = "LEVEL 1";
+            if(advisory.level >= 4) { color = "#d93025"; level = "LEVEL 4"; }
+            else if(advisory.level >= 3) { color = "#e37400"; level = "LEVEL 3"; }
+            else if(advisory.level >= 2) { color = "#f9ab00"; level = "LEVEL 2"; }
 
-  await loadFromWorker();           // incidents
-  filterNews("Global");             // initial render
+            div.innerHTML = `<div class="advisory-box" style="border-left:4px solid ${color}"><div class="fw-bold" style="color:${color}">OFFICIAL STATUS: ${level}</div><div class="mt-1 small">${advisory.text}</div></div>`;
+        }
 
-  await loadTravelAdvisories();     // real advisories
-  // attempt again shortly in case cache was empty on first hit:
-  setTimeout(loadTravelAdvisories, 2500);
+        const related = this.data.filter(i => 
+             String(i.country).toUpperCase().includes(country.toUpperCase()) || 
+             i.title.toUpperCase().includes(country.toUpperCase())
+        ).slice(0, 3);
 
-  setInterval(async () => {
-    await loadFromWorker(true);
-    const active = document.querySelector(".nav-item-custom.active");
-    filterNews(active ? active.innerText.trim() : "Global");
-  }, AUTO_REFRESH_MS);
-});
+        if(related.length > 0) {
+            let newsHTML = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS</div>`;
+            related.forEach(n => {
+                const sev = n.severity_text || n.severity || "LOW";
+                newsHTML += `<div class="news-box-item"><div class="news-box-title">${n.title}</div><div class="news-box-summary" style="font-size:0.7rem;">${sev}</div></div>`;
+            });
+            newsHTML += `</div>`;
+            newsDiv.innerHTML = newsHTML;
+        } else {
+            newsDiv.innerHTML = `<div class="safe-box" style="margin-top:10px;"><i class="fas fa-check-circle"></i> No recent incidents.</div>`;
+        }
+    },
 
-/* ===========================
-   CLOCK
-=========================== */
-function startClock() {
-  const tick = () => {
-    const now = new Date();
-    const timeOptions = { hour: "2-digit", minute: "2-digit", timeZoneName: "short" };
-    const dateOptions = { weekday: "long", year: "numeric", month: "short", day: "numeric" };
-    document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", dateOptions);
-    document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US", timeOptions);
-  };
-  tick();
-  setInterval(tick, 1000);
+    render: function() {
+        const container = document.getElementById('general-news-feed');
+        container.innerHTML = '';
+        this.markers.forEach(m => this.map.removeLayer(m));
+        this.markers = [];
+
+        let filtered = this.data.filter(i => {
+             let match = (this.currentRegion === 'Global' || i.region === this.currentRegion);
+             if (this.currentCategory !== 'ALL') match = match && (i.category === this.currentCategory);
+             if (this.filterDate) match = match && (new Date(i.time).toISOString().split('T')[0] === this.filterDate);
+             return match;
+        });
+
+        filtered.sort((a,b) => (getSevWeight(b.severity_text || b.severity) - getSevWeight(a.severity_text || a.severity)));
+        
+        document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
+
+        if(filtered.length === 0) {
+            container.innerHTML = `<div class="loading-text">No active threats matching criteria.</div>`;
+            return;
+        }
+
+        filtered.forEach(item => {
+            const sevText = item.severity_text || item.severity || "LOW";
+            const sevDetails = getSevDetails(sevText);
+            
+            const html = `
+                <a href="${item.link}" target="_blank" class="feed-card">
+                    <div class="d-flex">
+                        <div class="feed-status-bar" style="background:${sevDetails.color}"></div>
+                        <div class="feed-content">
+                            <div class="feed-tags">
+                                <span class="ftag" style="background:${sevDetails.color}; color:#fff">${sevText}</span>
+                                <span class="ftag ftag-loc">${item.country || "GLOBAL"}</span>
+                                <span class="ftag">${item.category || "UNKNOWN"}</span>
+                            </div>
+                            <div class="feed-title">${item.title}</div>
+                            <div class="feed-desc">${item.summary}</div>
+                        </div>
+                    </div>
+                </a>`;
+            container.innerHTML += html;
+
+            if(item.lat && item.lng) {
+                const m = L.circleMarker([item.lat, item.lng], {
+                    radius: 8, fillColor: sevDetails.color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
+                }).addTo(this.map).bindPopup(`<b>${item.title}</b>`);
+                this.markers.push(m);
+            }
+        });
+    },
+
+    filterNews: function(reg, el) {
+        this.currentRegion = reg;
+        if(el) {
+            document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+        this.render();
+    },
+
+    filterByCategory: function(cat) { this.currentCategory = cat; this.render(); },
+    filterByDate: function(d) { this.filterDate = d; this.render(); },
+
+    updateProximity: function() {
+        const range = parseInt(document.getElementById('proxRadius').value);
+        const container = document.getElementById('proximity-alerts-container');
+        container.innerHTML = '';
+        let found = false;
+
+        this.data.forEach(inc => {
+            if(!inc.lat) return;
+            for(const [name, asset] of Object.entries(ASSETS)) {
+                 const dist = haversineKm(inc.lat, inc.lng, asset.lat, asset.lng);
+                 if(dist <= range) {
+                     found = true;
+                     const sevText = inc.severity_text || inc.severity || "LOW";
+                     const color = getSevDetails(sevText).color;
+                     container.innerHTML += `<div class="alert-row"><div style="font-weight:700; color:${color}">${sevText} THREAT</div><div class="small">Near ${WORKER_SITE_ALIAS[name] || name.toUpperCase()} • ${Math.round(dist)} KM</div><div>${inc.title}</div></div>`;
+                 }
+            }
+        });
+        if(!found) container.innerHTML = `<div class="text-center p-3 text-muted small">No active threats within ${range}km.</div>`;
+    },
+
+    haversineKm: function(lat1, lon1, lat2, lon2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    },
+
+    loadHistory: function(d) { alert("History Simulation: " + d); }
+};
+
+function getSevWeight(sev) {
+    if(sev === 'CRITICAL' || sev === 4 || sev === '4') return 4;
+    if(sev === 'HIGH' || sev === 3 || sev === '3') return 3;
+    if(sev === 'MODERATE' || sev === 2 || sev === '2') return 2;
+    return 1;
 }
 
-/* ===========================
-   MAP
-=========================== */
-function initMap() {
-  map = L.map("map", {
-    zoomControl: false,
-    attributionControl: false,
-    minZoom: 2,
-    maxBounds: [[-90, -180], [90, 180]]
-  }).setView([25, 10], 2);
-
-  L.control.zoom({ position: "topleft" }).addTo(map);
-
-  L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png",
-    { maxZoom: 19, noWrap: true }
-  ).addTo(map);
-
-  layerGroup = L.layerGroup().addTo(map);
-  incidentLayerGroup = L.layerGroup().addTo(map);
-
-  renderAssetsOnMap("Global");
+function getSevDetails(level) {
+    const map = { 'CRITICAL':{val:4, color:'#ef4444'}, 'HIGH':{val:3, color:'#f97316'}, 'MODERATE':{val:2, color:'#eab308'}, 'LOW':{val:1, color:'#3b82f6'} };
+    return map[level] || {val:0, color:'#64748b'};
 }
 
-function renderAssetsOnMap(region) {
-  layerGroup.clearLayers();
-
-  const dellIcon = L.divIcon({
-    className: "custom-pin",
-    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
-    iconSize: [30, 42],
-    iconAnchor: [15, 42]
-  });
-
-  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
-  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
-
-  filtered.forEach(a => {
-    const m = L.marker([a.lat, a.lng], { icon: dellIcon }).addTo(layerGroup);
-    m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
-  });
-
-  if (region === "AMER") map.setView([30, -90], 3);
-  else if (region === "EMEA") map.setView([45, 15], 3);
-  else if (region === "APJC") map.setView([20, 110], 3);
-  else if (region === "LATAM") map.setView([-15, -60], 3);
-  else map.setView([25, 10], 2);
-}
-
-function renderIncidentsOnMap(region, incidents) {
-  incidentLayerGroup.clearLayers();
-  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
-
-  filtered.forEach(i => {
-    if (!i.lat || !i.lng || Number(i.lat) === 0 || Number(i.lng) === 0) return;
-
-    const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
-
-    const marker = L.circleMarker([i.lat, i.lng], {
-      radius: 8,
-      fillColor: color,
-      color: "#fff",
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.85
-    });
-
-    marker.bindPopup(`<b>${escapeHtml(i.country || "GLOBAL")} • ${escapeHtml(i.location || "UNKNOWN")}</b><br/>${escapeHtml(i.title || "")}`);
-    marker.addTo(incidentLayerGroup);
-  });
-}
-
-/* ===========================
-   UI: severity mapping (UI only)
-=========================== */
-function mapSeverityToLabel(sev) {
-  const s = Number(sev || 1);
-  if (s >= 5) {
-    return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  } else if (s >= 4) {
-    return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  } else if (s === 3) {
-    return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-  } else {
-    return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
-  }
-}
-
-/* ===========================
-   WORKER FETCH
-=========================== */
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById("feed-status-label");
-  if (!silent) label.textContent = "Refreshing…";
-
-  try {
-    const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : [];
-    INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
-
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
-
-    FEED_IS_LIVE = true;
-    label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch {
-    FEED_IS_LIVE = false;
-    if (!silent) label.textContent = "OFFLINE • Worker unreachable";
-  }
-}
-
-function normaliseWorkerIncident(item) {
-  if (!item) return null;
-  const title = item.title || "";
-  if (!title) return null;
-
-  const region = (item.region || "GLOBAL").toUpperCase();
-  const severity = Number(item.severity || 1) || 1;
-
-  return {
-    id: item.id || (title + "|" + (item.link||"")),
-    title,
-    summary: item.summary || "",
-    category: (item.category || "UNKNOWN").toUpperCase(),
-    severity,
-    severity_label: item.severity_label || (severity >= 5 ? "CRITICAL" : (severity >= 4 ? "HIGH" : (severity === 3 ? "MEDIUM" : "LOW"))),
-    region: (region === "GLOBAL") ? "Global" : region,
-    country: (item.country || "GLOBAL"),
-    location: (item.location || "UNKNOWN"),
-    link: item.link || item.url || "#",
-    source: item.source || "",
-    time: item.time || new Date().toISOString(),
-    lat: Number(item.lat || 0),
-    lng: Number(item.lng || 0)
-  };
-}
-
-/* ===========================
-   FEED RENDER
-=========================== */
-function filterNews(region) {
-  document.querySelectorAll(".nav-item-custom").forEach(el => {
-    el.classList.remove("active");
-    if (el.innerText.trim() === region) el.classList.add("active");
-  });
-
-  renderAssetsOnMap(region);
-  renderGeneralFeed(region);
-  renderIncidentsOnMap(region, INCIDENTS);
-  renderProximityAlerts(region);
-  updateHeadline(region);
-}
-
-function renderGeneralFeed(region) {
-  const container = document.getElementById("general-news-feed");
-  if (!container) return;
-
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-
-  if (!data || data.length === 0) {
-    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
-    return;
-  }
-
-  let html = "";
-  data.forEach(i => {
-    const sev = Number(i.severity || 1);
-
-    // use shared mapping for label + classes
-    const sevMeta = mapSeverityToLabel(sev);
-    const barClass = sevMeta.barClass;
-    const badgeClass = sevMeta.badgeClass;
-    const sevLabel = sevMeta.label;
-
-    const when = safeTime(i.time);
-    const src = i.source ? shortHost(i.source) : "Source";
-
-    html += `
-      <a href="${escapeAttr(i.link)}" target="_blank" class="feed-card">
-        <div class="feed-status-bar ${barClass}"></div>
-        <div class="feed-content">
-          <div class="feed-tags">
-            <span class="ftag ${badgeClass}">${escapeHtml(sevLabel)}</span>
-            <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
-            <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
-            <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
-          </div>
-          <div class="feed-title">${escapeHtml(i.title)}</div>
-          <div class="feed-meta">${escapeHtml(src)} • ${escapeHtml(when)}</div>
-          <div class="feed-desc">${escapeHtml(i.summary || "No summary available.")}</div>
-        </div>
-      </a>`;
-  });
-
-  container.innerHTML = html;
-}
-
-function updateHeadline(region) {
-  const el = document.getElementById("headline-alert");
-  const sevEl = document.getElementById("headline-sev");
-  const catEl = document.getElementById("headline-cat");
-  const regEl = document.getElementById("headline-reg");
-
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  if (!data || data.length === 0) {
-    el.textContent = "No headline available.";
-    sevEl.textContent = "—";
-    sevEl.className = "tag";
-    catEl.textContent = "CATEGORY";
-    regEl.textContent = region.toUpperCase();
-    return;
-  }
-
-  const top = data[0];
-  el.textContent = top.title;
-
-  const sev = Number(top.severity || 1);
-  const sevMeta = mapSeverityToLabel(sev);
-
-  // Set label + tag class
-  sevEl.textContent = sevMeta.label;
-  sevEl.className = `tag ${sevMeta.cls}`;
-
-  catEl.textContent = top.category || "UNKNOWN";
-  regEl.textContent = (top.region || "Global").toUpperCase();
-}
-
-/* ===========================
-   PROXIMITY ALERTS
-=========================== */
-function updateProximityRadius() {
-  const radiusSelect = document.getElementById("proxRadius");
-  currentRadius = parseFloat(radiusSelect.value || "50");
-  const active = document.querySelector(".nav-item-custom.active");
-  const region = active ? active.innerText.trim() : "Global";
-  renderProximityAlerts(region);
-}
-
-function renderProximityAlerts(region) {
-  const container = document.getElementById("proximity-alerts-container");
-  if (!container) return;
-
-  const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-
-  const alerts = [];
-  for (const inc of incidents) {
-    if (!inc.lat || !inc.lng) continue;
-
-    for (const [name, a] of Object.entries(ASSETS)) {
-      const dist = haversineKm(inc.lat, inc.lng, a.lat, a.lng);
-      if (dist <= currentRadius) {
-        alerts.push({ inc, assetName: name, dist });
-      }
-    }
-  }
-
-  alerts.sort((x,y) => (x.dist - y.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
-
-  if (alerts.length === 0) {
-    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No incidents within ${currentRadius}km of assets.</div>`;
-    return;
-  }
-
-  const maxShow = 25;
-  let html = "";
-  alerts.slice(0, maxShow).forEach(a => {
-    const sev = Number(a.inc.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
-    const title = a.inc.title || "Incident";
-    const desc = a.inc.summary || "";
-
-    html += `
-      <div class="alert-row">
-        <div class="alert-top">
-          <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>
-            ${escapeHtml(title)}
-          </div>
-          <div class="alert-dist" style="color:${color}">${Math.round(a.dist)}km</div>
-        </div>
-        <div class="alert-site">
-          <i class="far fa-building"></i> Near: <b>${escapeHtml(a.assetName.toUpperCase())}</b>
-        </div>
-        <div class="alert-desc">${escapeHtml(desc)}</div>
-      </div>`;
-  });
-
-  container.innerHTML = html;
-}
-
-/* ===========================
-   TRAVEL ADVISORIES (REAL)
-   Updated so frontend triggers a live refresh first
-=========================== */
-async function loadTravelAdvisories() {
-  const sel = document.getElementById("countrySelect");
-  if (!sel) return;
-
-  try {
-    // Try the worker's live endpoint first (it forces a travel refresh)
-    const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
-    let json = null;
-    if (liveRes && liveRes.ok) {
-      json = await liveRes.json();
-    } else {
-      // fallback to cached endpoint
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
-      if (res && res.ok) json = await res.json();
-    }
-
-    TRAVEL_DATA = Array.isArray(json?.advisories) ? json.advisories : [];
-    TRAVEL_UPDATED_AT = json?.updated_at || null;
-
-    if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
-      sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-      return;
-    }
-
-    // Populate ALL countries (sorted)
-    TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
-    sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
-      sel.appendChild(opt);
-    });
-  } catch {
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-  }
-}
-
-/* Render advisory + incidents returned by worker */
-function renderAdvisoryAndIncidents(payload) {
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!advContainer || !newsContainer) return;
-
-  try {
-    const advisory = payload.advisory || {};
-    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
-
-    const level = Number(advisory.level || 1);
-    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
-    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
-
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
-
-    advContainer.innerHTML = `
-      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
-        <div class="advisory-header">
-          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
-          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
-        </div>
-        <div class="advisory-text">${escapeHtml(advisory.text || "")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
-      </div>`;
-
-    if (incidents.length > 0) {
-      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      incidents.forEach(n => {
-        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
-        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
-        newsHtml += `
-          <div class="news-box-item">
-            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
-            <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
-            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
-          </div>`;
-      });
-      newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml;
-    } else {
-      newsContainer.innerHTML = `
-        <div class="safe-box">
-          <i class="fas fa-check-circle safe-icon"></i>
-          <div class="safe-text">
-            No high-severity incidents in the last 72 hours
-          </div>
-        </div>`;
-    }
-
-  } catch (e) {
-    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
-    newsContainer.innerHTML = "";
-  }
-}
-
-/* On country select -> query worker for advisory + recent high-severity incidents */
-async function filterTravel() {
-  const country = document.getElementById("countrySelect").value;
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!country || !advContainer || !newsContainer) return;
-
-  advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
-  newsContainer.innerHTML = '';
-
-  try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const json = await res.json();
-
-    renderAdvisoryAndIncidents(json);
-  } catch (e) {
-    // fallback to TRAVEL_DATA if worker query fails
-    const advisory = TRAVEL_DATA.find(x => x.country === country) || { country, level:1, text: "No advisory available" };
-    renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
-  }
-}
-
-/* ===========================
-   HISTORY, REPORTS, MANUAL REFRESH (unchanged)
-=========================== */
-function loadHistory(dateStr) {
-  if (!dateStr) return;
-  const statusDiv = document.getElementById("history-status");
-  if (!statusDiv) return;
-
-  statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading (simulated)…';
-  setTimeout(() => {
-    statusDiv.innerHTML = `<span class="text-success"><i class="fas fa-check"></i> Archive loaded for ${escapeHtml(dateStr)} [SIMULATED]</span>`;
-  }, 800);
-}
-
-function downloadReport() {
-  const region = document.getElementById("reportRegion").value;
-  const feedback = document.getElementById("download-feedback");
-  if (!feedback) return;
-
-  feedback.style.display = "block";
-  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving…';
-
-  const url = `public/reports/${region.toLowerCase()}_latest.html`;
-
-  setTimeout(() => {
-    window.open(url, "_blank");
-    feedback.innerHTML = '<div class="alert alert-info mt-2 text-start" style="font-size:0.8rem"><strong>Note:</strong> if a 404 appears, the briefing file has not been generated yet.</div>';
-  }, 600);
-}
-
-async function manualRefresh() {
-  await loadFromWorker();
-  const active = document.querySelector(".nav-item-custom.active");
-  filterNews(active ? active.innerText.trim() : "Global");
-}
-
-/* ===========================
-   HELPERS (unchanged)
-=========================== */
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
-
-function shortHost(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source"; }
-}
-
-function safeTime(iso) {
-  try {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return "Recently";
-    return d.toLocaleString();
-  } catch { return "Recently"; }
-}
-
-function escapeHtml(s) {
-  return String(s || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-function escapeAttr(s) {
-  return escapeHtml(s).replaceAll("`", "&#096;");
-}
+app.init();
 </script>
 </body>
 </html>
