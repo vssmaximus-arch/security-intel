@@ -45,6 +45,7 @@
     .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
     .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
     .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .news-box-item:last-child { border-bottom: none; }
   </style></head><body><div class="app-container">
   <div class="header-container">
     <div class="d-flex align-items-center">
@@ -102,7 +103,10 @@
         <div class="side-card">
           <div class="card-label">Proximity Alerts</div>
           <div style="margin:10px 0;">
-            <select id="proxRadius" class="form-select form-select-sm" onchange="app.updateProximity()">
+            <select id="proxRadius" class="form-select form-select-sm" onchange="updateProximityRadius()">
+              <option value="5">5 KM</option>
+              <option value="10">10 KM</option>
+              <option value="25">25 KM</option>
               <option value="50" selected>50 KM</option>
               <option value="100">100 KM</option>
               <option value="500">500 KM</option>
@@ -320,8 +324,8 @@
   for (const inc of incidents) {
     if (!inc) continue;
     // Prefer worker-provided nearest fields
-    const workerSite = (inc.nearest_site_name || '').toString().toLowerCase();
-    const workerDist = Number(inc.distance_km || NaN);
+    const workerSite = (inc.nearest_site_name || inc.nearest_site || inc.nearest_site_key || '').toString().toLowerCase();
+    const workerDist = Number(inc.distance_km || inc.distance || NaN);
     if (workerSite && Number.isFinite(workerDist) && workerDist <= currentRadius) {
       alerts.push({ inc, assetName: (WORKER_SITE_ALIAS[workerSite] || workerSite), dist: workerDist });
       continue;
