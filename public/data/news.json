@@ -1,10 +1,20 @@
 [
   {
+    "title": "Unveiling WARP PANDA: A New Sophisticated China-Nexus Adversary",
+    "url": "https://www.crowdstrike.com/en-us/blog/warp-panda-cloud-threats/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "crowdstrike.com",
+    "time": "2025-12-23T07:26:50.207976+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Falcon Shield Evolves with AI Agent Visibility and Falcon Next-Gen SIEM Integration",
     "url": "https://www.crowdstrike.com/en-us/blog/falcon-shield-evolves-ai-agent-visibility/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625653+00:00",
+    "time": "2025-12-23T07:26:50.207948+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -14,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-december-2025/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625619+00:00",
+    "time": "2025-12-23T07:26:50.207913+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-achieves-100-percent-2025-mitre-attack-enterprise-evaluation/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625583+00:00",
+    "time": "2025-12-23T07:26:50.207874+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-leakage-ai-plumbing-problem/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625542+00:00",
+    "time": "2025-12-23T07:26:50.207834+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/built-for-scale-powered-by-ai-innovation-driving-falcon-exposure-management/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625512+00:00",
+    "time": "2025-12-23T07:26:50.207804+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-secures-growing-ai-attack-surface-with-falcon-aidr/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625477+00:00",
+    "time": "2025-12-23T07:26:50.207771+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-endpoint-security-achieves-273-percent-roi-over-three-years/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625425+00:00",
+    "time": "2025-12-23T07:26:50.207736+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +84,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdtour-2026-securing-ai-era-together/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625391+00:00",
+    "time": "2025-12-23T07:26:50.207699+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,47 +94,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/inside-crowdstrikes-science-backed-approach-to-building-soc-agents/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625358+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "How CrowdStrike Trains GenAI Models at Scale Using Distributed Computing",
-    "url": "https://www.crowdstrike.com/en-us/blog/how-crowdstrike-trains-genai-models-at-scale-using-distributed-computing/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "crowdstrike.com",
-    "time": "2025-12-23T06:38:21.625310+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 0.7 - 12 km SSE of Corona, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145911",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.433843+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.2 - 15 km WSW of Johannesburg, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145919",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.433564+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.0 - 15 km WSW of Johannesburg, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145927",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.433268+00:00",
+    "time": "2025-12-23T07:26:50.207653+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -134,7 +104,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145935",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.432991+00:00",
+    "time": "2025-12-23T07:26:45.718419+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -144,7 +114,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/pr71502923",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.432707+00:00",
+    "time": "2025-12-23T07:26:45.718122+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -154,7 +124,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145943",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.432409+00:00",
+    "time": "2025-12-23T07:26:45.717848+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -164,7 +134,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145951",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.432129+00:00",
+    "time": "2025-12-23T07:26:45.717569+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -174,7 +144,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145959",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.431852+00:00",
+    "time": "2025-12-23T07:26:45.717273+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -184,8 +154,18 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75285116",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.431567+00:00",
+    "time": "2025-12-23T07:26:45.716989+00:00",
     "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 4.3 - 280 km E of Levuka, Fiji",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000rkb2",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-23T07:26:45.716707+00:00",
+    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -194,7 +174,27 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145975",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2025-12-23T06:38:17.431243+00:00",
+    "time": "2025-12-23T07:26:45.716423+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.9 - 2 km NNE of Malibu, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145983",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-23T07:26:45.716115+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.0 - 18 km WSW of Johannesburg, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41145991",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2025-12-23T07:26:45.715710+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -204,7 +204,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/thailand-cambodia-conflict/asean-meeting-ends-without-immediate-thai-cambodian-ceasefire",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.635084+00:00",
+    "time": "2025-12-23T07:26:33.765510+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -214,7 +214,7 @@
     "url": "https://asia.nikkei.com/spotlight/supply-chain/vietnam-where-chinese-goods-go-to-be-redirected-to-the-us",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.635051+00:00",
+    "time": "2025-12-23T07:26:33.765478+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +224,7 @@
     "url": "https://asia.nikkei.com/business/business-trends/exit-the-dragon-hard-times-for-chinese-tourism-providers-in-japan",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.635023+00:00",
+    "time": "2025-12-23T07:26:33.765450+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +234,7 @@
     "url": "https://asia.nikkei.com/business/consumer/as-india-s-quick-commerce-sector-expands-so-does-the-competition",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634994+00:00",
+    "time": "2025-12-23T07:26:33.765418+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +244,7 @@
     "url": "https://asia.nikkei.com/business/finance/vietnam-launches-ambitious-dual-city-international-financial-center",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634964+00:00",
+    "time": "2025-12-23T07:26:33.765390+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +254,7 @@
     "url": "https://asia.nikkei.com/editor-s-picks/interview/japan-s-takaichi-rejects-irresponsible-bond-issuance-tax-cuts",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634936+00:00",
+    "time": "2025-12-23T07:26:33.765363+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/transportation/cathay-shares-hit-10-year-high-as-airline-expects-earnings-growth",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634906+00:00",
+    "time": "2025-12-23T07:26:33.765332+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +274,7 @@
     "url": "https://asia.nikkei.com/economy/trade/japan-confirms-broad-trade-agreement-with-bangladesh-to-cut-tariffs",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634868+00:00",
+    "time": "2025-12-23T07:26:33.765294+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +284,7 @@
     "url": "https://asia.nikkei.com/economy/trade-war/trump-tariffs/indonesia-says-it-has-reached-us-tariff-deal-aims-for-january-signing",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634836+00:00",
+    "time": "2025-12-23T07:26:33.765245+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,8 +294,38 @@
     "url": "https://asia.nikkei.com/business/finance/smfg-joins-us-firms-to-provide-3.5bn-for-european-m-as",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2025-12-23T06:38:05.634791+00:00",
+    "time": "2025-12-23T07:26:33.765200+00:00",
     "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Asia’s 2025 in extreme weather and natural disasters, from deadly earthquakes to typhoons",
+    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3336736/asias-2025-extreme-weather-and-natural-disasters-deadly-earthquakes-typhoons?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2025-12-23T07:00:07+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "FCC Bans Foreign-Made Drones and Key Parts Over U.S. National Security Risks",
+    "url": "https://thehackernews.com/2025/12/fcc-bans-foreign-made-drones-and-key.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "thehackernews.com",
+    "time": "2025-12-23T06:58:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Salah scores goal as Egypt rally to win against Zimbabwe at AFCON 2025",
+    "url": "https://www.aljazeera.com/sports/2025/12/23/salah-scores-goal-as-egypt-rally-to-win-against-zimbabwe-at-afcon-2025?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2025-12-23T06:53:03+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -500,16 +530,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Nepal to clean up Mount Everest’s waste by limiting climbers, flying more drones",
-    "url": "https://www.scmp.com/week-asia/health-environment/article/3337378/nepal-clean-mount-everests-waste-limiting-climbers-flying-more-drones?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2025-12-23T04:30:07+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Trump unveils ‘Trump-class’ battleships for US Navy’s ‘Golden Fleet’",
     "url": "https://www.aljazeera.com/news/2025/12/23/trump-unveils-trump-class-battleships-for-naval-golden-fleet?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -705,16 +725,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2025-12-23T01:48:19+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Trump warns Maduro not to ‘play tough’ as Russia, China back Venezuela",
-    "url": "https://www.aljazeera.com/news/2025/12/23/trump-warns-maduro-not-to-play-tough-as-china-russia-back-venezuela?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2025-12-23T01:43:53+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -936,6 +946,16 @@
     "source": "gcaptain.com",
     "time": "2025-12-22T21:15:20+00:00",
     "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US pauses offshore wind projects over security concerns",
+    "url": "https://www.bbc.com/news/articles/cd74lyr094vo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2025-12-22T21:02:43+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1356,16 +1376,6 @@
     "source": "freightwaves.com",
     "time": "2025-12-22T14:44:00+00:00",
     "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Gold and silver hit records as investors hunt for safety",
-    "url": "https://www.bbc.com/news/articles/cd74ldr2zryo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2025-12-22T14:35:14+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -2185,16 +2195,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "thehackernews.com",
     "time": "2025-12-19T11:23:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Nigeria Arrests RaccoonO365 Phishing Developer Linked to Microsoft 365 Attacks",
-    "url": "https://thehackernews.com/2025/12/nigeria-arrests-raccoono365-phishing.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "thehackernews.com",
-    "time": "2025-12-19T10:26:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
