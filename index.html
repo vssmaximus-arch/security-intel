@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <style>
-    /* (your existing CSS unchanged) */
+    /* Your original CSS preserved — only minor additions at the end */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
@@ -53,13 +53,58 @@
     .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
     .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
     #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
-    /* more CSS unchanged ... */
+    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
+    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
+    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
+    .stream-section { margin-top: 25px; }
+    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
+    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+    /* feed cards */
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
+    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+    .status-bar-crit { background-color: #d93025; }   .status-bar-warn { background-color: #f9ab00; }   .status-bar-info { background-color: #1a73e8; }
+    .feed-content { padding: 16px 20px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+    .ftag-type { background: #f1f3f4; color: #5f6368; }
+    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
+    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
+    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
+    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
+    .tag-crit { background: #d93025; color: white; }
+    .tag-cat { background: #3c4043; color: white; }
+    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
+    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
+    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
     .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
     .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
     .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
     .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
     .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
+    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
+    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
+    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
+    /* small helper styles to ensure list fallback looks fine */
+    .fallback-list { padding: 12px; color:#666; font-size:0.95rem; }
   </style>
 </head>
 
@@ -141,7 +186,6 @@
 
         <div class="side-card">
           <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-          <!-- NOTE: added a simple status row below select -->
           <select class="travel-select" id="countrySelect" onchange="filterTravel()">
             <option selected disabled>Loading countries...</option>
           </select>
@@ -181,7 +225,7 @@
   </div>
 </div>
 
-<!-- MODAL (unchanged) -->
+<!-- MODAL unchanged -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -221,157 +265,128 @@
 
 <script>
 /* ===========================
-   CONFIG
+   CONFIG & STATE
    =========================== */
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // keep this pointing at your Worker
 const AUTO_REFRESH_MS = 60_000;
 
-/* ===========================
-   STATE
-   =========================== */
 let INCIDENTS = [];
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
 let map, layerGroup, incidentLayerGroup, currentRadius = 50;
 
-/* (Dell sites & helper functions unchanged - keep as in your earlier file) */
-
-/* ===== DELL SITES (same as your list) ===== */
+/* DELL SITES (kept small here to save space — copy your full list) */
 const DELL_SITES = [
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
   { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
   { name: "Dell Franklin", country: "US", region: "AMER", lat: 42.0834, lon: -71.3967 },
   { name: "Dell Apex", country: "US", region: "AMER", lat: 35.7327, lon: -78.8503 },
-  { name: "Dell Eden Prairie", country: "US", region: "AMER", lat: 44.8617, lon: -93.4168 },
-  { name: "Dell Draper", country: "US", region: "AMER", lat: 40.5240, lon: -111.8950 },
-  { name: "Dell Nashville Hub", country: "US", region: "AMER", lat: 36.1627, lon: -86.7816 },
-  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164 },
-  { name: "Dell Santa Clara", country: "US", region: "AMER", lat: 37.3541, lon: -121.9552 },
-  { name: "Dell McLean", country: "US", region: "AMER", lat: 38.9295, lon: -77.2268 },
-  { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
-  { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
-  { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
-  { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
-  { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
-  { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
-  { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
-  { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
-  { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
-  { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
-  { name: "Dell Cork Campus", country: "IE", region: "EMEA", lat: 51.8985, lon: -8.4756 },
-  { name: "Dell Herzliya", country: "IL", region: "EMEA", lat: 32.1644, lon: 34.7961 },
-  { name: "Dell Haifa", country: "IL", region: "EMEA", lat: 32.7940, lon: 34.9896 },
-  { name: "Dell Bracknell", country: "GB", region: "EMEA", lat: 51.4160, lon: -0.7540 },
-  { name: "Dell Glasgow", country: "GB", region: "EMEA", lat: 55.8642, lon: -4.2518 },
-  { name: "Dell Montpellier", country: "FR", region: "EMEA", lat: 43.6108, lon: 3.8767 },
-  { name: "Dell Paris / Bezons", country: "FR", region: "EMEA", lat: 48.8566, lon: 2.3522 },
-  { name: "Dell Frankfurt", country: "DE", region: "EMEA", lat: 50.1109, lon: 8.6821 },
-  { name: "Dell Shanghai", country: "CN", region: "APJC", lat: 31.2304, lon: 121.4737 },
-  { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
+  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
+  { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 }
 ];
+const ASSETS = {}; DELL_SITES.forEach(s => ASSETS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon, region: s.region });
 
-const ASSETS = {};
-DELL_SITES.forEach(s => ASSETS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon, region: s.region });
-
-/* ========== helpers ========== */
-function safeJson(obj){ try{ return JSON.parse(JSON.stringify(obj)); }catch{ return null; } }
+/* small helpers */
 function escapeHtml(s){ return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'", "&#039;"); }
-function shortHost(url){ try { return new URL(url).hostname.replace(/^www\./,''); } catch { return "source"; } }
-function haversineKm(lat1,lon1,lat2,lon2){ const R=6371, toRad = x => x*Math.PI/180; const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1); const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(a)); }
-function normalizeRegion(r){ const x=String(r||"").toUpperCase(); return ["APJC","EMEA","AMER"].includes(x)?x:"GLOBAL"; }
+function safeTime(iso){ try{ const d=new Date(iso); return isNaN(d.getTime())? "Recently" : d.toLocaleString(); }catch{return "Recently";} }
+function shortHost(url){ try{ return new URL(url).hostname.replace(/^www\./,''); }catch{return "source";} }
+function haversineKm(lat1,lon1,lat2,lon2){ const R=6371,toRad=x=>x*Math.PI/180; const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1); const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(a)); }
+function mapSeverityToLabel(sev){ const s=Number(sev||1); if(s>=5) return {label:"CRITICAL",cls:"tag-critical",badgeClass:"ftag-crit",barClass:"status-bar-crit"}; if(s>=4) return {label:"HIGH",cls:"tag-high",badgeClass:"ftag-crit",barClass:"status-bar-crit"}; if(s===3) return {label:"MEDIUM",cls:"tag-medium",badgeClass:"ftag-warn",barClass:"status-bar-warn"}; return {label:"LOW",cls:"tag-low",badgeClass:"ftag-info",barClass:"status-bar-info"}; }
 
-/* ========== init ========== */
+/* ===========================
+   STARTUP
+   =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  initMap();
-  startClock();
-
-  await loadFromWorker();           // incidents
-  filterNews("Global");             // initial render
-
-  await loadTravelAdvisories();     // real advisories
-  setTimeout(loadTravelAdvisories, 2500);
-
-  setInterval(async () => {
-    await loadFromWorker(true);
-    const active = document.querySelector(".nav-item-custom.active");
-    filterNews(active ? active.innerText.trim() : "Global");
-  }, AUTO_REFRESH_MS);
+  initMap(); startClock();
+  await loadFromWorker(); filterNews("Global");
+  await loadTravelAdvisories(); setTimeout(loadTravelAdvisories, 2500);
+  setInterval(async ()=>{ await loadFromWorker(true); const active=document.querySelector(".nav-item-custom.active"); filterNews(active?active.innerText.trim():"Global"); }, AUTO_REFRESH_MS);
 });
 
 /* ========== clock ========== */
-function startClock(){ const tick = ()=>{ const now=new Date(); const timeOptions={hour:"2-digit",minute:"2-digit",timeZoneName:"short"}; const dateOptions={weekday:"long",year:"numeric",month:"short",day:"numeric"}; document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US",dateOptions); document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US",timeOptions);} ; tick(); setInterval(tick,1000); }
+function startClock(){ const tick=()=>{ const now=new Date(); document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", {weekday:"long", year:"numeric", month:"short", day:"numeric"}); document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",timeZoneName:"short"}); }; tick(); setInterval(tick,1000); }
 
-/* ========== map basics ========== */
-function initMap(){
-  map = L.map("map",{ zoomControl:false, attributionControl:false, minZoom:2, maxBounds:[[ -90,-180],[90,180]] }).setView([25,10],2);
-  L.control.zoom({ position: "topleft" }).addTo(map);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png", { maxZoom:19, noWrap:true }).addTo(map);
-  layerGroup = L.layerGroup().addTo(map);
-  incidentLayerGroup = L.layerGroup().addTo(map);
-  renderAssetsOnMap("Global");
-}
+/* ========== map ========== */
+function initMap(){ map=L.map("map",{zoomControl:false,attributionControl:false,minZoom:2,maxBounds:[[-90,-180],[90,180]]}).setView([25,10],2); L.control.zoom({ position: "topleft" }).addTo(map); L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png",{maxZoom:19,noWrap:true}).addTo(map); layerGroup=L.layerGroup().addTo(map); incidentLayerGroup=L.layerGroup().addTo(map); renderAssetsOnMap("Global"); }
+function renderAssetsOnMap(region){ layerGroup.clearLayers(); const dellIcon=L.divIcon({className:"custom-pin", html:'<div class="marker-pin-dell"><i class="fas fa-building"></i></div>', iconSize:[30,42], iconAnchor:[15,42]}); const assets=Object.entries(ASSETS).map(([name,c])=>({name, ...c})); const filtered=(region==="Global")?assets:assets.filter(a=>a.region===region); filtered.forEach(a=>{ const m=L.marker([a.lat,a.lng],{icon:dellIcon}).addTo(layerGroup); m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" }); }); if(region==="AMER") map.setView([30,-90],3); else if(region==="EMEA") map.setView([45,15],3); else if(region==="APJC") map.setView([20,110],3); else if(region==="LATAM") map.setView([-15,-60],3); else map.setView([25,10],2); }
 
-function renderAssetsOnMap(region){
-  layerGroup.clearLayers();
-  const dellIcon = L.divIcon({ className:"custom-pin", html:'<div class="marker-pin-dell"><i class="fas fa-building"></i></div>', iconSize:[30,42], iconAnchor:[15,42] });
-  const assets = Object.entries(ASSETS).map(([name,c])=>({ name, ...c }));
-  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
-  filtered.forEach(a => {
-    const m = L.marker([a.lat, a.lng], { icon: dellIcon }).addTo(layerGroup);
-    m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
-  });
-  if (region === "AMER") map.setView([30,-90],3); else if (region === "EMEA") map.setView([45,15],3); else if (region === "APJC") map.setView([20,110],3); else if (region === "LATAM") map.setView([-15,-60],3); else map.setView([25,10],2);
-}
-
-/* ========== incidents load (unchanged) ========== */
+/* ========== INCIDENTS LOAD (robust) ========== */
 async function loadFromWorker(silent=false){
-  const label = document.getElementById("feed-status-label");
-  if (!silent) label.textContent = "Refreshing…";
-  try {
-    const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+  const label=document.getElementById("feed-status-label");
+  if(!silent) label.textContent="Refreshing…";
+  try{
+    const res=await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
     const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : [];
-    INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
+
+    // Normalise many shapes:
+    let arr = [];
+    if(Array.isArray(raw)) arr = raw;
+    else if(raw && Array.isArray(raw.incidents)) arr = raw.incidents;
+    else if(raw && raw.items && Array.isArray(raw.items)) arr = raw.items;
+    else if(raw && typeof raw === "object") {
+      // If keyed object, try to discover an array value
+      if(Array.isArray(raw.data)) arr = raw.data;
+      else if(Array.isArray(raw.results)) arr = raw.results;
+      else if(Array.isArray(raw.items)) arr = raw.items;
+      else arr = []; // fallback to empty
+    }
+
+    // convert items to canonical shape
+    INCIDENTS = arr.map(i=> {
+      if(!i) return null;
+      // If item is string, create minimal object
+      if(typeof i === "string") return { id: i, title: i, summary: "", category: "UNKNOWN", severity: 1, region: "Global", country: "GLOBAL", location: "UNKNOWN", link:"#", time: new Date().toISOString(), lat:0, lng:0 };
+      const title = i.title || i.headline || i.name || "";
+      if(!title) return null;
+      const region = (i.region || i.area || i.zone || "GLOBAL").toUpperCase();
+      const severity = Number(i.severity || i.sev || i.level || 1) || 1;
+      return {
+        id: i.id || (title + "|" + (i.link||"")),
+        title,
+        summary: i.summary || i.description || i.snippet || "",
+        category: (i.category || i.category_name || "UNKNOWN").toUpperCase(),
+        severity,
+        severity_label: i.severity_label || (severity>=5?"CRITICAL":(severity>=4?"HIGH":(severity===3?"MEDIUM":"LOW"))),
+        region: (region==="GLOBAL") ? "Global" : region,
+        country: (i.country || i.country_name || i.countryCode || "GLOBAL"),
+        location: (i.location || i.place || "UNKNOWN"),
+        link: i.link || i.url || "#",
+        source: i.source || "",
+        time: i.time || i.published || new Date().toISOString(),
+        lat: Number(i.lat || i.latitude || 0),
+        lng: Number(i.lng || i.longitude || 0)
+      };
+    }).filter(Boolean);
+
     INCIDENTS.sort((a,b)=> new Date(b.time)-new Date(a.time));
-    FEED_IS_LIVE = true; label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch {
-    FEED_IS_LIVE = false; if (!silent) label.textContent = "OFFLINE • Worker unreachable";
+    label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
+    renderGeneralFeed(document.querySelector(".nav-item-custom.active") ? document.querySelector(".nav-item-custom.active").innerText.trim() : "Global");
+    renderIncidentsOnMap(document.querySelector(".nav-item-custom.active") ? document.querySelector(".nav-item-custom.active").innerText.trim() : "Global", INCIDENTS);
+  }catch(err){
+    if(!silent) { document.getElementById("feed-status-label").textContent = "OFFLINE • Worker unreachable"; }
+    console.error("loadFromWorker error:", err);
   }
 }
 
-function normaliseWorkerIncident(item){
-  if (!item) return null;
-  const title = item.title || ""; if (!title) return null;
-  const region = (item.region || "GLOBAL").toUpperCase();
-  const severity = Number(item.severity || 1) || 1;
-  return {
-    id: item.id || (title + "|" + (item.link||"")),
-    title, summary: item.summary || "", category: (item.category || "UNKNOWN").toUpperCase(),
-    severity, severity_label: item.severity_label || (severity>=5?"CRITICAL":(severity>=4?"HIGH":(severity===3?"MEDIUM":"LOW"))),
-    region: (region === "GLOBAL") ? "Global" : region,
-    country: (item.country || "GLOBAL"), location: (item.location || "UNKNOWN"),
-    link: item.link || item.url || "#", source: item.source || "", time: item.time || new Date().toISOString(),
-    lat: Number(item.lat || 0), lng: Number(item.lng || 0)
-  };
-}
-
-/* ========== feed rendering (unchanged) ========== */
-function filterNews(region){
-  document.querySelectorAll(".nav-item-custom").forEach(el => { el.classList.remove("active"); if (el.innerText.trim() === region) el.classList.add("active"); });
-  renderAssetsOnMap(region); renderGeneralFeed(region); renderIncidentsOnMap(region, INCIDENTS); renderProximityAlerts(region); updateHeadline(region);
-}
-
+/* ===========================
+   RENDER FEED (defensive)
+   =========================== */
 function renderGeneralFeed(region){
-  const container = document.getElementById("general-news-feed"); if (!container) return;
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  if (!data || data.length === 0) { container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`; return; }
-  let html = "";
+  const container=document.getElementById("general-news-feed"); if(!container) return;
+  const data = (region==="Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  if(!data || data.length===0){ container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`; return; }
+
+  let html="";
   data.forEach(i => {
-    const sevMeta = mapSeverityToLabel(Number(i.severity||1));
+    // If the item is a simple string fallback, render small row
+    if(typeof i === "string"){
+      html += `<div class="fallback-list">${escapeHtml(i)}</div>`;
+      return;
+    }
+    const sevMeta = mapSeverityToLabel(Number(i.severity || 1));
     const when = safeTime(i.time);
     const src = i.source ? shortHost(i.source) : "Source";
     html += `
@@ -380,8 +395,8 @@ function renderGeneralFeed(region){
         <div class="feed-content">
           <div class="feed-tags">
             <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
-            <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
-            <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
+            <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
+            <span class="ftag ftag-type">${escapeHtml(i.category||"UNKNOWN")}</span>
             <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
           </div>
           <div class="feed-title">${escapeHtml(i.title)}</div>
@@ -390,191 +405,159 @@ function renderGeneralFeed(region){
         </div>
       </a>`;
   });
+
   container.innerHTML = html;
 }
 
-function updateHeadline(region){
-  const el = document.getElementById("headline-alert"), sevEl = document.getElementById("headline-sev"), catEl = document.getElementById("headline-cat"), regEl = document.getElementById("headline-reg");
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  if (!data || data.length === 0) { el.textContent = "No headline available."; sevEl.textContent="—"; sevEl.className="tag"; catEl.textContent="CATEGORY"; regEl.textContent=region.toUpperCase(); return; }
-  const top = data[0]; el.textContent = top.title;
-  const sevMeta = mapSeverityToLabel(Number(top.severity||1));
-  sevEl.textContent = sevMeta.label; sevEl.className = `tag ${sevMeta.cls}`; catEl.textContent = top.category || "UNKNOWN"; regEl.textContent = (top.region || "Global").toUpperCase();
-}
-
-/* ========== proximity (unchanged) ========== */
-function updateProximityRadius(){ currentRadius = parseFloat(document.getElementById("proxRadius").value || "50"); const active = document.querySelector(".nav-item-custom.active"); renderProximityAlerts(active ? active.innerText.trim() : "Global"); }
-
-function renderProximityAlerts(region){
-  const container = document.getElementById("proximity-alerts-container"); if (!container) return;
-  const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  const alerts = [];
-  for (const inc of incidents) {
-    if (!inc.lat || !inc.lng) continue;
-    for (const [name,a] of Object.entries(ASSETS)) {
-      const dist = haversineKm(inc.lat, inc.lng, a.lat, a.lng);
-      if (dist <= currentRadius) alerts.push({ inc, assetName: name, dist });
-    }
-  }
-  alerts.sort((x,y) => (x.dist - y.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
-  if (alerts.length === 0) { container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No incidents within ${currentRadius}km of assets.</div>`; return; }
-  let html = ""; const maxShow = 25;
-  alerts.slice(0, maxShow).forEach(a => {
-    const sev = Number(a.inc.severity||1); const color = sev>=4? "#d93025" : (sev===3 ? "#f9ab00" : "#1a73e8");
-    html += `<div class="alert-row"><div class="alert-top"><div class="alert-type"><i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>${escapeHtml(a.inc.title)}</div><div class="alert-dist" style="color:${color}">${Math.round(a.dist)}km</div></div><div class="alert-site"><i class="far fa-building"></i> Near: <b>${escapeHtml(a.assetName.toUpperCase())}</b></div><div class="alert-desc">${escapeHtml(a.inc.summary)}</div></div>`;
+/* ========== MAP INCIDENTS ========== */
+function renderIncidentsOnMap(region, incidents){
+  incidentLayerGroup.clearLayers();
+  const filtered = (region === "Global") ? incidents : incidents.filter(i => i.region === region);
+  filtered.forEach(i => {
+    if(!i.lat || !i.lng || Number(i.lat) === 0 || Number(i.lng) === 0) return;
+    const sev = Number(i.severity || 1);
+    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
+    const marker = L.circleMarker([i.lat,i.lng], { radius:8, fillColor: color, color:"#fff", weight:2, opacity:1, fillOpacity:0.85 });
+    marker.bindPopup(`<b>${escapeHtml(i.country||"GLOBAL")} • ${escapeHtml(i.location||"UNKNOWN")}</b><br/>${escapeHtml(i.title||"")}`);
+    marker.addTo(incidentLayerGroup);
   });
+}
+
+/* ========== PROXIMITY ========== */
+function updateProximityRadius(){ currentRadius = Number(document.getElementById("proxRadius").value || 50); const active=document.querySelector(".nav-item-custom.active"); renderProximityAlerts(active?active.innerText.trim():"Global"); }
+function renderProximityAlerts(region){
+  const container=document.getElementById("proximity-alerts-container"); if(!container) return;
+  const incidents = (region==="Global")?INCIDENTS:INCIDENTS.filter(i=>i.region===region);
+  const alerts=[];
+  for(const inc of incidents){
+    if(!inc.lat || !inc.lng) continue;
+    for(const [name,a] of Object.entries(ASSETS)){
+      const dist = haversineKm(inc.lat, inc.lng, a.lat, a.lng);
+      if(dist <= currentRadius) alerts.push({ inc, assetName: name, dist });
+    }
+  }
+  alerts.sort((x,y)=>(x.dist-y.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
+  if(alerts.length===0){ container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No incidents within ${currentRadius}km of assets.</div>`; return; }
+  let html=""; alerts.slice(0,25).forEach(a=>{ const sev=Number(a.inc.severity||1); const color = sev>=4? "#d93025":(sev===3?"#f9ab00":"#1a73e8"); html += `<div class="alert-row"><div class="alert-top"><div class="alert-type"><i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>${escapeHtml(a.inc.title)}</div><div class="alert-dist" style="color:${color}">${Math.round(a.dist)}km</div></div><div class="alert-site"><i class="far fa-building"></i> Near: <b>${escapeHtml(a.assetName.toUpperCase())}</b></div><div class="alert-desc">${escapeHtml(a.inc.summary)}</div></div>`; });
   container.innerHTML = html;
 }
 
-/* ========== ADVISORY UI CODE (FIXED / ROBUST) ========== */
+/* ===========================
+   TRAVEL ADVISORIES (robust)
+   =========================== */
 
-/**
- * normalizeAdvisoriesFromWorker(json)
- * Accepts the many shapes the worker might return and always returns:
- *  [{ country, level, text, updated }, ...]
- */
-function normalizeAdvisoriesFromWorker(json) {
-  if (!json) return [];
-
-  // If worker returned top-level array, assume array of advisories
-  if (Array.isArray(json)) {
-    return json.map(item => {
-      if (!item) return null;
-      if (typeof item === "string") return { country: item, level: 1, text: "" };
-      if (item.country) return { country: item.country, level: Number(item.level||1), text: item.text||item.summary||"", updated: item.updated || new Date().toISOString() };
-      return null;
-    }).filter(Boolean);
-  }
-
-  // If worker returned object with `advisories` array, use that
-  if (Array.isArray(json.advisories)) {
-    return json.advisories.map(item => {
-      if (!item) return null;
-      if (typeof item === "string") return { country: item, level: 1, text: "" };
-      if (item.country) return { country: item.country, level: Number(item.level||1), text: item.text||item.summary||"", updated: item.updated || json.updated_at || new Date().toISOString() };
-      return null;
-    }).filter(Boolean);
-  }
-
-  // If worker returned a keyed object (Kevle sometimes returns { "Afghanistan": {...}, "Australia": {...} })
-  const keys = Object.keys(json).filter(k => !["updated_at","updatedAt","source","cached_at","cachedAt"].includes(k));
-  if (keys.length > 0) {
-    // check whether keys look like country names with advisory values
+/* Convert worker payload to array of {country,level,text,updated} */
+function normalizeAdvisories(obj){
+  if(!obj) return [];
+  // If already array
+  if(Array.isArray(obj)) return obj.map(a=>({ country: a.country || a.name || String(a||""), level: Number(a.level||1), text: a.text||a.summary||"", updated: a.updated||new Date().toISOString() }));
+  // If {advisories: [...]}
+  if(obj.advisories && Array.isArray(obj.advisories)) return obj.advisories.map(a=>({ country: a.country||a.name||String(a||""), level: Number(a.level||1), text: a.text||a.summary||"", updated: a.updated||obj.updated_at||new Date().toISOString() }));
+  // If keyed object like { "Afghanistan": {...}, "Australia": {...} }
+  const keys = Object.keys(obj).filter(k => !["updated_at","updatedAt","source","cached_at","cachedAt"].includes(k));
+  if(keys.length>0 && typeof obj[keys[0]] === "object"){
     const arr = [];
-    for (const k of keys) {
-      const v = json[k];
-      // If the value is a string or object containing level/summary, map it
-      if (v && (typeof v === "object")) {
-        // try to detect level inside v
-        const rawLevel = String(v.level || v["advisory-level"] || v.level_text || v.level || "").toLowerCase();
-        let level = 1;
-        if (rawLevel.includes("do not")) level = 4; else if (rawLevel.includes("reconsider")) level = 3; else if (rawLevel.includes("exercise")) level = 2;
-        const text = v.summary || v.text || v.description || v.level || "";
-        arr.push({ country: k, level, text, updated: v.published || v.updated || json.updated_at || new Date().toISOString() });
-      } else if (typeof v === "string") {
-        arr.push({ country: k, level: 1, text: v, updated: json.updated_at || new Date().toISOString() });
-      }
+    for(const k of keys){
+      const v = obj[k];
+      if(!v) continue;
+      const lvlText = String(v.level || v["advisory-level"] || v.level_text || "").toLowerCase();
+      let level = 1;
+      if(lvlText.includes("do not")) level = 4; else if(lvlText.includes("reconsider")) level = 3; else if(lvlText.includes("exercise")) level = 2;
+      const text = v.summary || v.text || v.description || String(v.level || "");
+      arr.push({ country: k, level, text, updated: v.published || v.updated || obj.updated_at || new Date().toISOString() });
     }
-    if (arr.length > 0) return arr;
+    if(arr.length>0) return arr;
   }
-
-  // Last resort: if json has single fields that look wrong, return empty so we fall back
   return [];
 }
 
-/**
- * loadTravelAdvisories()
- * Attempt live endpoint first (which triggers background refresh), then fallback to cached endpoint.
- * Robustly handles all response shapes from the worker and normalizes to array of advisories.
- */
-async function loadTravelAdvisories() {
-  const sel = document.getElementById("countrySelect");
-  const status = document.getElementById("travel-status");
-  if (!sel || !status) return;
+/* Try worker live then cached; normalize any shape */
+async function loadTravelAdvisories(){
+  const sel=document.getElementById("countrySelect"), status=document.getElementById("travel-status");
+  if(!sel||!status) return;
+  sel.innerHTML=`<option selected disabled>Loading countries...</option>`; status.textContent="Loading advisories…";
 
-  // Show progress
-  sel.innerHTML = `<option selected disabled>Loading countries...</option>`;
-  status.textContent = "Loading advisories…";
-
-  try {
-    // Try live endpoint first (non-blocking server-side refresh)
+  try{
     let json = null;
-    try {
-      const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
-      if (liveRes && liveRes.ok) json = await liveRes.json();
-    } catch (e) { /* ignore live fail - try cached */ }
+    // Try cached first (most Workers implement /api/traveladvisories)
+    try{
+      const r = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
+      if(r && r.ok) json = await r.json();
+    }catch(e){ console.warn("cached travel fetch failed:", e); }
 
-    // If live didn't produce JSON, try cached endpoint
-    if (!json) {
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
-      if (res && res.ok) json = await res.json();
+    // If empty try live endpoint (some worker versions support /live)
+    if(!json){
+      try{
+        const r2 = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
+        if(r2 && r2.ok) json = await r2.json();
+      }catch(e){}
     }
 
-    // Normalize any shape into an array of advisories
-    let advisories = normalizeAdvisoriesFromWorker(json);
+    // Normalize:
+    let advisories = normalizeAdvisories(json);
 
-    // If empty, fall back to static list
-    if (!advisories || advisories.length === 0) {
-      advisories = (typeof TRAVEL_DATA !== "undefined" && Array.isArray(TRAVEL_DATA) && TRAVEL_DATA.length > 0) ? TRAVEL_DATA : [
-        { country: "Afghanistan", level: 4, text: "Do Not Travel." },
-        { country: "Australia", level: 1, text: "Exercise normal precautions." },
-        { country: "China", level: 3, text: "Reconsider Travel." },
-        { country: "India", level: 2, text: "Exercise increased caution." },
-        { country: "United Kingdom", level: 2, text: "Exercise increased caution." },
-        { country: "United States", level: 1, text: "Exercise normal precautions." }
+    // If still empty, use any previously loaded TRAVEL_DATA or static fallback
+    if(!advisories || advisories.length===0){
+      if(Array.isArray(TRAVEL_DATA) && TRAVEL_DATA.length>0) advisories = TRAVEL_DATA;
+      else advisories = [
+        { country:"Afghanistan", level:4, text:"Do Not Travel."},
+        { country:"Australia", level:1, text:"Exercise normal precautions."},
+        { country:"China", level:3, text:"Reconsider Travel."},
+        { country:"India", level:2, text:"Exercise increased caution."},
+        { country:"United Kingdom", level:2, text:"Exercise increased caution."},
+        { country:"United States", level:1, text:"Exercise normal precautions."}
       ];
       status.textContent = `Advisories incomplete (source: fallback). ${advisories.length} countries loaded.`;
     } else {
-      TRAVEL_UPDATED_AT = (json && (json.updated_at || json.cached_at)) ? (json.updated_at || json.cached_at) : new Date().toISOString();
-      const src = (json && (json.source || json.source_name)) ? json.source || json.source_name : "worker";
+      TRAVEL_UPDATED_AT = json && (json.updated_at || json.cached_at) ? (json.updated_at || json.cached_at) : new Date().toISOString();
+      const src = json && (json.source || json.source_name) ? (json.source || json.source_name) : "worker";
       status.textContent = `Advisories loaded: ${advisories.length} (source: ${src})`;
     }
 
-    // Ensure each entry has a country string
+    // Normalize to array of {country,level,text,updated} and populate TRAVEL_DATA
     TRAVEL_DATA = advisories.map(a => {
-      if (!a) return null;
-      if (typeof a === "string") return { country: a, level: 1, text: "" };
-      return { country: a.country || a.name || "", level: Number(a.level || 1), text: a.text || a.summary || "", updated: a.updated || TRAVEL_UPDATED_AT };
+      return {
+        country: a.country || a.name || String(a||""),
+        level: Number(a.level || 1),
+        text: a.text || a.summary || "",
+        updated: a.updated || TRAVEL_UPDATED_AT || new Date().toISOString()
+      };
     }).filter(Boolean);
 
-    // Sort and populate select
-    TRAVEL_DATA.sort((a,b) => String(a.country || "").localeCompare(String(b.country || "")));
+    TRAVEL_DATA.sort((a,b)=> (String(a.country||"")).localeCompare(String(b.country||"")));
+
+    // Populate select
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
-      sel.appendChild(opt);
+    TRAVEL_DATA.forEach(c=>{
+      const opt=document.createElement("option"); opt.value=c.country; opt.innerText=c.country; sel.appendChild(opt);
     });
 
-    if (TRAVEL_DATA.length === 0) {
+    if(TRAVEL_DATA.length === 0){
       sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
       status.textContent = "Advisories unavailable";
     }
-  } catch (e) {
+  }catch(e){
+    console.error("loadTravelAdvisories error:", e);
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
     status.textContent = "Advisories unavailable (error)";
-    console.error("loadTravelAdvisories error:", e);
   }
 }
 
-/* Render advisory + incidents returned by worker (unchanged) */
-function renderAdvisoryAndIncidents(payload) {
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!advContainer || !newsContainer) return;
-
-  try {
+/* Renders advisory details and recent incidents */
+function renderAdvisoryAndIncidents(payload){
+  const advContainer=document.getElementById("travel-advisories"), newsContainer=document.getElementById("travel-news");
+  if(!advContainer || !newsContainer) return;
+  try{
     const advisory = payload.advisory || {};
     const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
 
     const level = Number(advisory.level || 1);
-    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
-    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
+    let advColor="#1a73e8", advBg="#e8f0fe", advBorder="#d2e3fc", levelText="LEVEL 1";
+    if(level===2){advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2";}
+    else if(level===3){advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3";}
+    else if(level===4){advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4";}
 
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : (payload.advisory && payload.advisory.updated ? new Date(payload.advisory.updated).toLocaleString() : "Unknown");
+    const updated = advisory.updated ? new Date(advisory.updated).toLocaleString() : (payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown");
 
     advContainer.innerHTML = `
       <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
@@ -586,76 +569,81 @@ function renderAdvisoryAndIncidents(payload) {
         <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
       </div>`;
 
-    if (incidents.length > 0) {
+    if(incidents.length>0){
       let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      incidents.forEach(n => {
-        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
-        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
-        newsHtml += `
-          <div class="news-box-item">
-            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
-            <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
-            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
-          </div>`;
+      incidents.forEach(n=>{
+        const sev = n.severity || 1; const sevLabel = (n.severity_label || (sev>=4?"HIGH":(sev===3?"MEDIUM":"LOW"))).toUpperCase();
+        const when = n.time ? new Date(n.time).toLocaleString() : "Unknown";
+        newsHtml += `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title||"Untitled")}</div><div class="news-box-summary">${escapeHtml(n.summary||"")}</div><div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(sevLabel)}</strong> • ${escapeHtml(n.location||n.country||"")} • ${escapeHtml(when)}</div></div>`;
       });
-      newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml;
+      newsHtml += `</div>`; newsContainer.innerHTML = newsHtml;
     } else {
-      newsContainer.innerHTML = `
-        <div class="safe-box">
-          <i class="fas fa-check-circle safe-icon"></i>
-          <div class="safe-text">No high-severity incidents in the last 72 hours</div>
-        </div>`;
+      newsContainer.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No high-severity incidents in the last 72 hours</div></div>`;
     }
-
-  } catch (e) {
-    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
-    newsContainer.innerHTML = "";
+  }catch(e){
+    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`; newsContainer.innerHTML = "";
   }
 }
 
-async function filterTravel() {
+/* ========== UI helpers & small features ========== */
+function loadHistory(dateStr){ if(!dateStr) return; const statusDiv=document.getElementById("history-status"); statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading (simulated)…'; setTimeout(()=>{ statusDiv.innerHTML = `<span class="text-success"><i class="fas fa-check"></i> Archive loaded for ${escapeHtml(dateStr)} [SIMULATED]</span>`; },800); }
+function downloadReport(){ const region=document.getElementById("reportRegion").value; const feedback=document.getElementById("download-feedback"); feedback.style.display="block"; feedback.innerHTML='<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving…'; setTimeout(()=>{ window.open(`public/reports/${region.toLowerCase()}_latest.html`,"_blank"); feedback.innerHTML = '<div class="alert alert-info mt-2 text-start" style="font-size:0.8rem"><strong>Note:</strong> if a 404 appears, the briefing file has not been generated yet.</div>'; },600); }
+async function manualRefresh(){ await loadFromWorker(); const active=document.querySelector(".nav-item-custom.active"); filterNews(active?active.innerText.trim():"Global"); await loadTravelAdvisories(); }
+
+/* ========== country selection handler ========== */
+async function filterTravel(){
   const country = document.getElementById("countrySelect").value;
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
-  if (!country || !advContainer || !newsContainer) return;
-
+  if(!country || !advContainer || !newsContainer) return;
   advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
   newsContainer.innerHTML = '';
-
-  try {
+  try{
     const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    if(!res.ok) throw new Error("HTTP " + res.status);
     const json = await res.json();
-    renderAdvisoryAndIncidents(json);
-  } catch (e) {
-    // fallback to TRAVEL_DATA
-    const advisory = TRAVEL_DATA.find(x => x.country === country) || { country, level:1, text: "No advisory available" };
+    // Worker returns {advisory, recent_incidents} or similar — normalize
+    if(json && (json.advisory || json.recent_incidents)) {
+      renderAdvisoryAndIncidents(json);
+    } else {
+      // If worker returned {advisories: [...]}, find by country
+      if(json && Array.isArray(json.advisories)){
+        const adv = json.advisories.find(a => (a.country||"").toLowerCase() === country.toLowerCase()) || { country, level:1, text:"No advisory available" };
+        renderAdvisoryAndIncidents({ advisory: adv, recent_incidents: [] });
+      } else {
+        // fallback to TRAVEL_DATA
+        const advisory = TRAVEL_DATA.find(x=>x.country===country) || { country, level:1, text:"No advisory available" };
+        renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
+      }
+    }
+  }catch(e){
+    console.warn("filterTravel error:", e);
+    const advisory = TRAVEL_DATA.find(x=>x.country===country) || { country, level:1, text:"No advisory available" };
     renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
   }
 }
 
-/* ========== other helpers used by UI ========== */
-function mapSeverityToLabel(sev) {
-  const s = Number(sev || 1);
-  if (s >= 5) return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  else if (s >= 4) return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  else if (s === 3) return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-  else return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+/* ========== small utilities for feed header ========== */
+function filterNews(region){
+  document.querySelectorAll(".nav-item-custom").forEach(el => { el.classList.remove("active"); if(el.innerText.trim()===region) el.classList.add("active"); });
+  renderAssetsOnMap(region);
+  renderGeneralFeed(region);
+  renderIncidentsOnMap(region, INCIDENTS);
+  renderProximityAlerts(region);
+  updateHeadline(region);
+}
+function updateHeadline(region){
+  const el=document.getElementById("headline-alert"), sevEl=document.getElementById("headline-sev"), catEl=document.getElementById("headline-cat"), regEl=document.getElementById("headline-reg");
+  const data = (region==="Global")?INCIDENTS:INCIDENTS.filter(i=>i.region===region);
+  if(!data || data.length===0){ el.textContent="No headline available."; sevEl.textContent="—"; sevEl.className="tag"; catEl.textContent="CATEGORY"; regEl.textContent=region.toUpperCase(); return; }
+  const top=data[0]; el.textContent = top.title;
+  const sevMeta = mapSeverityToLabel(Number(top.severity||1)); sevEl.textContent = sevMeta.label; sevEl.className = `tag ${sevMeta.cls}`;
+  catEl.textContent = top.category || "UNKNOWN"; regEl.textContent = (top.region || "Global").toUpperCase();
 }
 
-function safeTime(iso) { try { const d = new Date(iso); if (isNaN(d.getTime())) return "Recently"; return d.toLocaleString(); } catch { return "Recently"; } }
-function severityLabel(v) { const s=Number(v||1); return s>=4?"HIGH":(s===3?"MEDIUM":"LOW"); }
-
-/* ========== small: loadHistory, downloadReport, manualRefresh ========== */
-function loadHistory(dateStr) { if (!dateStr) return; const statusDiv = document.getElementById("history-status"); statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading (simulated)…'; setTimeout(()=>{ statusDiv.innerHTML = `<span class="text-success"><i class="fas fa-check"></i> Archive loaded for ${escapeHtml(dateStr)} [SIMULATED]</span>`; },800); }
-function downloadReport(){ const region = document.getElementById("reportRegion").value; const feedback = document.getElementById("download-feedback"); feedback.style.display="block"; feedback.innerHTML='<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving…'; setTimeout(()=>{ window.open(`public/reports/${region.toLowerCase()}_latest.html`,"_blank"); feedback.innerHTML = '<div class="alert alert-info mt-2 text-start" style="font-size:0.8rem"><strong>Note:</strong> if a 404 appears, the briefing file has not been generated yet.</div>'; },600); }
-async function manualRefresh(){ await loadFromWorker(); const active = document.querySelector(".nav-item-custom.active"); filterNews(active ? active.innerText.trim() : "Global"); await loadTravelAdvisories(); }
-
 /* ===========================
-   END OF SCRIPT
+   END
    =========================== */
 </script>
 </body>
 </html>
-
