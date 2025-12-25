@@ -121,7 +121,7 @@
 
     #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
     #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
-    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
     #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
     #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
@@ -575,7 +575,7 @@ function mapSeverityToLabel(sev) {
   }
 }
 
-/* Helper used by travel news render (previously undefined) */
+/* Helper for travel news (previously missing) */
 function severityLabel(sev) {
   return (mapSeverityToLabel(sev) || {}).label || "LOW";
 }
@@ -803,124 +803,156 @@ async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
-  // show loading immediately
+  // loading UI
   sel.innerHTML = `<option selected disabled>Loading countries...</option>`;
   sel.disabled = true;
 
   try {
-    // Fetch live first, then cached
+    // 1) try live endpoint
     let json = null;
     try {
       const live = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
       if (live && live.ok) json = await live.json();
     } catch (e) {
-      // ignore, try cached
+      // ignore; we'll try cache
     }
 
+    // 2) try cached endpoint
     if (!json) {
-      const cached = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
-      if (cached && cached.ok) json = await cached.json();
-    }
-
-    // Build normalized array
-    let advisories = [];
-
-    function pushAdvisory(country, level, text, updated) {
-      if (!country) return;
-      advisories.push({
-        country: String(country).trim(),
-        level: Number(level || 1) || 1,
-        text: String(text || "").trim(),
-        updated: updated || new Date().toISOString()
-      });
-    }
-
-    // 1) If it's already an array
-    if (Array.isArray(json)) {
-      for (const e of json) {
-        if (e && (e.country || e.name)) {
-          pushAdvisory(e.country || e.name, e.level || e.advisory_level || 1, e.text || e.summary || e.advisory || "", e.updated || e.updated_at);
-        } else if (typeof e === 'string') {
-          pushAdvisory(e, 1, "", null);
-        }
+      try {
+        const cached = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
+        if (cached && cached.ok) json = await cached.json();
+      } catch (e) {
+        // ignore
       }
     }
-    // 2) If json.advisories is an array
-    else if (json && Array.isArray(json.advisories)) {
-      for (const e of json.advisories) {
-        pushAdvisory(e.country || e.name, e.level || e.advisory_level || 1, e.text || e.summary || e.advisory || "", e.updated || e.updated_at);
-      }
+
+    // 3) scan recursively for advisory-like objects
+    const results = [];
+    const seenObjs = new WeakSet();
+
+    function looksLikeAdvisory(obj) {
+      if (!obj || typeof obj !== "object") return false;
+      // Country-like and some advisory info
+      const hasCountry = ('country' in obj) || ('name' in obj);
+      const hasText = ('text' in obj) || ('summary' in obj) || ('advisory' in obj) || ('message' in obj);
+      const hasLevel = ('level' in obj) || ('advisory_level' in obj) || (obj.advisory && ('score' in obj.advisory || 'message' in obj.advisory));
+      return hasCountry && (hasText || hasLevel);
     }
-    // 3) If travel-advisory.info shape: json.data
-    else if (json && json.data && typeof json.data === 'object') {
-      for (const entry of Object.values(json.data)) {
-        if (entry && entry.name && entry.advisory) {
-          const lvl = (typeof entry.advisory.score === 'number') ? Math.min(Math.ceil(entry.advisory.score / 1.5), 4) : 1;
-          pushAdvisory(entry.name, lvl, `Risk Score: ${entry.advisory.score}. ${entry.advisory.message || ""}`, entry.advisory.updated || json.updated_at);
-        }
+
+    function scan(node) {
+      if (!node || typeof node !== 'object') return;
+      if (seenObjs.has(node)) return;
+      seenObjs.add(node);
+
+      if (Array.isArray(node)) {
+        for (const item of node) scan(item);
+        return;
       }
-    }
-    // 4) If json.advisories is an object mapping or json itself is mapping countryName -> advisory
-    else if (json && typeof json === 'object') {
-      const metaIgnore = new Set(["advisories","lastFetched","length","updated_at","updatedAt","source"]);
-      // case: json.advisories is object
-      if (json.advisories && typeof json.advisories === 'object' && !Array.isArray(json.advisories)) {
-        for (const [k, v] of Object.entries(json.advisories)) {
-          if (!v) continue;
-          if (typeof v === 'object' && (v.level || v.summary || v.text || v.summary || v.advisory)) {
-            pushAdvisory(v.country || v.name || k, v.level || v.advisory || v['advisory-level'] || 1, v.text || v.summary || v.advisory || "", v.updated || v.updated_at || json.updated_at);
+
+      // direct advisory object
+      if (looksLikeAdvisory(node)) {
+        results.push(node);
+        return;
+      }
+
+      // special case: travel-advisory.info shape -> node.data is mapping
+      if (node.data && typeof node.data === 'object') {
+        for (const v of Object.values(node.data)) {
+          if (v && typeof v === 'object' && v.name && v.advisory) {
+            results.push({
+              country: v.name,
+              level: (typeof v.advisory.score === 'number') ? Math.min(Math.ceil(v.advisory.score / 1.5),4) : 1,
+              text: v.advisory.message || '',
+              updated: v.advisory.updated || node.updated_at || node.updated
+            });
           } else {
-            // fallback: treat k as country and v as text
-            pushAdvisory(k, 1, (typeof v === 'string' ? v : ""), null);
+            scan(v);
+          }
+        }
+      }
+
+      // otherwise traverse children
+      for (const v of Object.values(node)) {
+        // skip known metadata containers to avoid adding them as country keys
+        if (typeof v === 'object') scan(v);
+      }
+    }
+
+    if (json) scan(json);
+
+    // If nothing found via recursive scan, attempt the common shapes explicitly
+    if (results.length === 0 && json) {
+      // shape: { advisories: [ ... ] }
+      if (Array.isArray(json.advisories)) {
+        results.push(...json.advisories);
+      } else if (json.advisories && typeof json.advisories === 'object') {
+        // sometimes advisories is an object mapping country->obj
+        for (const [k,v] of Object.entries(json.advisories)) {
+          if (v && typeof v === 'object') {
+            // if v already has country/name use it
+            if (v.country || v.name) results.push(v);
+            else {
+              // treat key as country name
+              results.push({ country: k, level: v.level || 1, text: v.text || v.summary || v.advisory || '' });
+            }
+          } else if (typeof v === 'string') {
+            results.push({ country: k, level: 1, text: v });
           }
         }
       } else {
-        // treat top-level keys as possible country names unless they're meta keys
-        for (const [k, v] of Object.entries(json)) {
-          if (metaIgnore.has(k)) continue;
-          if (!k || typeof k !== 'string') continue;
-          // skip if key looks like metadata
-          const lower = k.toLowerCase();
-          if (lower === 'advisories' || lower === 'lastfetched' || lower === 'length' || lower === 'source') continue;
-
-          if (v && typeof v === 'object' && (v.level || v.summary || v.text || v.advisory || v['advisory'])) {
-            pushAdvisory(v.country || v.name || k, v.level || v.advisory || v['advisory-level'] || 1, v.text || v.summary || v.advisory || "", v.updated || v.updated_at || json.updated_at);
-          } else if (typeof v === 'string') {
-            pushAdvisory(k, 1, v, null);
-          } else {
-            // if value is primitive or nothing, still allow country key
-            pushAdvisory(k, 1, "", null);
+        // top-level may be mapping country -> advisory (some proxies). iterate keys and push those who look like advisory
+        for (const [k,v] of Object.entries(json)) {
+          if (k === 'advisories' || k === 'lastFetched' || k === 'length' || k === 'updated_at' || k === 'source') continue;
+          if (v && typeof v === 'object' && (v.level || v.text || v.summary || v.advisory)) {
+            results.push({ country: v.country || v.name || k, level: v.level || 1, text: v.text || v.summary || v.advisory || '' });
           }
         }
       }
     }
 
-    // Clean, dedupe, sort
-    advisories = advisories.filter(a => a && a.country);
+    // Normalize collected results to our schema and dedupe by lowercase country
+    const final = [];
     const seen = new Set();
-    const unique = [];
-    for (const a of advisories) {
-      const key = a.country.trim().toLowerCase();
-      if (!seen.has(key)) {
+    for (const r of results) {
+      try {
+        const country = (r.country || r.name || '').toString().trim();
+        if (!country) continue;
+        const key = country.toLowerCase();
+        if (seen.has(key)) continue;
         seen.add(key);
-        unique.push({
-          country: a.country.trim(),
-          level: Number(a.level || 1) || 1,
-          text: String(a.text || ""),
-          updated: a.updated || new Date().toISOString()
+
+        let level = 1;
+        if (typeof r.level === 'number') level = Math.min(Math.max(Math.round(r.level),1),4);
+        else if (typeof r.level === 'string') {
+          const lc = r.level.toLowerCase();
+          if (lc.includes('do not') || lc.includes('do not travel')) level = 4;
+          else if (lc.includes('reconsider')) level = 3;
+          else if (lc.includes('exercise') || lc.includes('increase')) level = 2;
+        } else if (r.advisory && typeof r.advisory.score === 'number') {
+          level = Math.min(Math.ceil(r.advisory.score / 1.5), 4);
+        }
+
+        const text = (r.text || r.summary || (r.advisory && (r.advisory.message || r.advisory.summary)) || '').toString().trim();
+
+        final.push({
+          country,
+          level,
+          text,
+          updated: r.updated || r.updated_at || r.advisory && r.advisory.updated || new Date().toISOString()
         });
+      } catch (e) {
+        // ignore single bad item
       }
     }
-    unique.sort((a,b) => a.country.localeCompare(b.country));
 
-    // If result empty, fall back to STATIC_TRAVEL_DATA
-    const finalList = (unique.length > 0) ? unique : STATIC_TRAVEL_DATA.slice();
+    // If still nothing, use static fallback
+    const finalList = (final.length > 0) ? final.sort((a,b)=>a.country.localeCompare(b.country)) : STATIC_TRAVEL_DATA.slice();
 
-    // assign global data & updated stamp
+    // Save globally and populate UI
     TRAVEL_DATA = finalList;
     TRAVEL_UPDATED_AT = new Date().toISOString();
 
-    // populate select
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
     finalList.forEach(c => {
       const opt = document.createElement("option");
@@ -928,10 +960,10 @@ async function loadTravelAdvisories() {
       opt.innerText = c.country;
       sel.appendChild(opt);
     });
-
     sel.disabled = false;
+
   } catch (err) {
-    // if anything unexpected, show unavailable
+    // If anything fails, mark unavailable but keep UI responsive
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
     sel.disabled = false;
   }
