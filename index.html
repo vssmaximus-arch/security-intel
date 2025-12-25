@@ -803,128 +803,137 @@ async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
+  // show loading immediately
+  sel.innerHTML = `<option selected disabled>Loading countries...</option>`;
+  sel.disabled = true;
+
   try {
-    // Try the worker's live endpoint first (forces a travel refresh)
+    // Fetch live first, then cached
     let json = null;
     try {
-      const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
-      if (liveRes && liveRes.ok) json = await liveRes.json();
+      const live = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
+      if (live && live.ok) json = await live.json();
     } catch (e) {
-      // ignore and try cached below
+      // ignore, try cached
     }
 
     if (!json) {
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
-      if (res && res.ok) json = await res.json();
+      const cached = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
+      if (cached && cached.ok) json = await cached.json();
     }
 
-    // Normalize lots of possible shapes:
-    // - json is array -> array of advisories
-    // - json.advisories is array -> use it
-    // - json is object mapping country->data (e.g. Kevle proxy) -> convert to array
-    // - json.data from travel-advisory.info -> convert
+    // Build normalized array
     let advisories = [];
 
+    function pushAdvisory(country, level, text, updated) {
+      if (!country) return;
+      advisories.push({
+        country: String(country).trim(),
+        level: Number(level || 1) || 1,
+        text: String(text || "").trim(),
+        updated: updated || new Date().toISOString()
+      });
+    }
+
+    // 1) If it's already an array
     if (Array.isArray(json)) {
-      advisories = json.slice();
-    } else if (json && Array.isArray(json.advisories)) {
-      advisories = json.advisories.slice();
-    } else if (json && typeof json === "object") {
-      // travel-advisory.info shape: { data: { ISO: { name,..., advisory:{score,message}} } }
-      if (json.data && typeof json.data === "object") {
-        try {
-          for (const entry of Object.values(json.data)) {
-            if (entry && entry.name && entry.advisory) {
-              const lvl = typeof entry.advisory.score === "number"
-                ? Math.min(Math.ceil(entry.advisory.score / 1.5), 4)
-                : 1;
-              advisories.push({
-                country: entry.name,
-                level: lvl,
-                text: `Risk Score: ${entry.advisory.score}. ${entry.advisory.message || ""}`,
-                updated: entry.advisory.updated || json.updated_at || new Date().toISOString()
-              });
-            }
-          }
-        } catch (e) { /* fallthrough */ }
+      for (const e of json) {
+        if (e && (e.country || e.name)) {
+          pushAdvisory(e.country || e.name, e.level || e.advisory_level || 1, e.text || e.summary || e.advisory || "", e.updated || e.updated_at);
+        } else if (typeof e === 'string') {
+          pushAdvisory(e, 1, "", null);
+        }
       }
+    }
+    // 2) If json.advisories is an array
+    else if (json && Array.isArray(json.advisories)) {
+      for (const e of json.advisories) {
+        pushAdvisory(e.country || e.name, e.level || e.advisory_level || 1, e.text || e.summary || e.advisory || "", e.updated || e.updated_at);
+      }
+    }
+    // 3) If travel-advisory.info shape: json.data
+    else if (json && json.data && typeof json.data === 'object') {
+      for (const entry of Object.values(json.data)) {
+        if (entry && entry.name && entry.advisory) {
+          const lvl = (typeof entry.advisory.score === 'number') ? Math.min(Math.ceil(entry.advisory.score / 1.5), 4) : 1;
+          pushAdvisory(entry.name, lvl, `Risk Score: ${entry.advisory.score}. ${entry.advisory.message || ""}`, entry.advisory.updated || json.updated_at);
+        }
+      }
+    }
+    // 4) If json.advisories is an object mapping or json itself is mapping countryName -> advisory
+    else if (json && typeof json === 'object') {
+      const metaIgnore = new Set(["advisories","lastFetched","length","updated_at","updatedAt","source"]);
+      // case: json.advisories is object
+      if (json.advisories && typeof json.advisories === 'object' && !Array.isArray(json.advisories)) {
+        for (const [k, v] of Object.entries(json.advisories)) {
+          if (!v) continue;
+          if (typeof v === 'object' && (v.level || v.summary || v.text || v.summary || v.advisory)) {
+            pushAdvisory(v.country || v.name || k, v.level || v.advisory || v['advisory-level'] || 1, v.text || v.summary || v.advisory || "", v.updated || v.updated_at || json.updated_at);
+          } else {
+            // fallback: treat k as country and v as text
+            pushAdvisory(k, 1, (typeof v === 'string' ? v : ""), null);
+          }
+        }
+      } else {
+        // treat top-level keys as possible country names unless they're meta keys
+        for (const [k, v] of Object.entries(json)) {
+          if (metaIgnore.has(k)) continue;
+          if (!k || typeof k !== 'string') continue;
+          // skip if key looks like metadata
+          const lower = k.toLowerCase();
+          if (lower === 'advisories' || lower === 'lastfetched' || lower === 'length' || lower === 'source') continue;
 
-      // Kevle proxy / smartraveller proxy often returns country-> object mapping
-      if (advisories.length === 0) {
-        const keys = Object.keys(json || {});
-        // detect if mapping looks like country->advisory
-        const looksLikeMapping = keys.length > 0 && keys.every(k => {
-          const v = json[k];
-          return v && (v.level || v.summary || v.text || v.advisory);
-        });
-        if (looksLikeMapping) {
-          for (const [countryName, data] of Object.entries(json)) {
-            const lvlRaw = (data.level || data['advisory'] || data['advisory-level'] || "");
-            let level = 1;
-            const lvlText = String(lvlRaw || "").toLowerCase();
-            if (lvlText.includes("do not") || lvlText.includes("4") || lvlText === "4") level = 4;
-            else if (lvlText.includes("reconsider") || lvlText.includes("3") || lvlText === "3") level = 3;
-            else if (lvlText.includes("exercise") || lvlText.includes("2") || lvlText === "2") level = 2;
-
-            const text = data.text || data.summary || data.advisory || (data['advice'] || "") || "";
-            advisories.push({
-              country: countryName,
-              level,
-              text: String(text || "").trim(),
-              updated: data.updated || json.updated_at || new Date().toISOString()
-            });
+          if (v && typeof v === 'object' && (v.level || v.summary || v.text || v.advisory || v['advisory'])) {
+            pushAdvisory(v.country || v.name || k, v.level || v.advisory || v['advisory-level'] || 1, v.text || v.summary || v.advisory || "", v.updated || v.updated_at || json.updated_at);
+          } else if (typeof v === 'string') {
+            pushAdvisory(k, 1, v, null);
+          } else {
+            // if value is primitive or nothing, still allow country key
+            pushAdvisory(k, 1, "", null);
           }
         }
       }
+    }
 
-      // If still nothing, check for json.advisories as object -> turn into array
-      if (advisories.length === 0 && json.advisories && typeof json.advisories === "object") {
-        const vals = Object.values(json.advisories);
-        if (Array.isArray(vals)) advisories = vals.map(v => ({
-          country: v.country || v.name || "",
-          level: Number(v.level) || 1,
-          text: v.text || v.summary || "",
-          updated: v.updated || new Date().toISOString()
-        })).filter(x => x.country);
+    // Clean, dedupe, sort
+    advisories = advisories.filter(a => a && a.country);
+    const seen = new Set();
+    const unique = [];
+    for (const a of advisories) {
+      const key = a.country.trim().toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push({
+          country: a.country.trim(),
+          level: Number(a.level || 1) || 1,
+          text: String(a.text || ""),
+          updated: a.updated || new Date().toISOString()
+        });
       }
     }
+    unique.sort((a,b) => a.country.localeCompare(b.country));
 
-    // Final fallbacks
-    if (!Array.isArray(advisories) || advisories.length === 0) {
-      // If we already have cached TRAVEL_DATA use that; else the small STATIC_TRAVEL_DATA
-      advisories = (Array.isArray(TRAVEL_DATA) && TRAVEL_DATA.length) ? TRAVEL_DATA.slice() : STATIC_TRAVEL_DATA.slice();
-    }
+    // If result empty, fall back to STATIC_TRAVEL_DATA
+    const finalList = (unique.length > 0) ? unique : STATIC_TRAVEL_DATA.slice();
 
-    // normalize country casing & ensure unique
-    const seen = new Set();
-    advisories = advisories.map(a => ({
-      country: (a.country || "").toString(),
-      level: Number(a.level || 1),
-      text: (a.text || "").toString(),
-      updated: a.updated || a.updated_at || new Date().toISOString()
-    })).filter(a => a.country).filter(a => {
-      const k = a.country.trim().toLowerCase();
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
-
-    // sort & set state
-    advisories.sort((x,y) => (x.country || "").localeCompare(y.country || ""));
-    TRAVEL_DATA = advisories;
+    // assign global data & updated stamp
+    TRAVEL_DATA = finalList;
     TRAVEL_UPDATED_AT = new Date().toISOString();
 
     // populate select
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.forEach(c => {
+    finalList.forEach(c => {
       const opt = document.createElement("option");
       opt.value = c.country;
       opt.innerText = c.country;
       sel.appendChild(opt);
     });
+
+    sel.disabled = false;
   } catch (err) {
-    // on any error show unavailable
+    // if anything unexpected, show unavailable
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    sel.disabled = false;
   }
 }
 
