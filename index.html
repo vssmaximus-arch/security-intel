@@ -443,11 +443,12 @@ const DELL_SITES = [
 ];
 
 /* For proximity + map rendering we use a simple normalized list:
-   keep same ASSETS mapping as your original */
+   keep same ASSETS mapping as your original; include display name.
+*/
 const ASSETS = {};
 DELL_SITES.forEach(s => {
   const key = s.name.toLowerCase();
-  ASSETS[key] = { lat: s.lat, lng: s.lon, region: s.region, country: s.country };
+  ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
 
 /* ===========================
@@ -490,14 +491,10 @@ const CITY_COORDS = {
   "melbourne": { lat: -37.8136, lng: 144.9631 }
 };
 
-/* seed dell sites into city lookups so "dell sydney" and other names can match */
 DELL_SITES.forEach(s => {
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
 
-/* ===========================
-   COUNTRY CENTERS (fallback)
-=========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
   "syria": { lat: 34.8021, lng: 38.9968 },
@@ -552,7 +549,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   filterNews("Global");             // initial render
 
   await loadTravelAdvisories();     // real advisories
-  // attempt again shortly in case cache was empty on first hit:
   setTimeout(loadTravelAdvisories, 2500);
 
   setInterval(async () => {
@@ -611,7 +607,7 @@ function renderAssetsOnMap(region) {
     iconAnchor: [15, 42]
   });
 
-  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
+  const assets = Object.entries(ASSETS).map(([name, c]) => ({ key: name, ...c }));
   const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
 
   filtered.forEach(a => {
@@ -627,45 +623,50 @@ function renderAssetsOnMap(region) {
 }
 
 /* ===========================
-   INCIDENT COORDS RESOLUTION (unchanged)
-=========================== */
+   INCIDENT COORDS RESOLUTION (improved)
+   returns { lat, lng, source } where source is one of:
+     'latlng' | 'city' | 'dell_site' | 'country'
+*/
 function getCoordsForIncident(inc) {
   try {
     const lat = Number(inc.lat || inc.latitude || 0);
     const lng = Number(inc.lng || inc.longitude || 0);
     if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
-      return { lat, lng };
+      return { lat, lng, source: 'latlng' };
     }
 
     const locRaw = String(inc.location || "").trim();
     if (locRaw && locRaw.toLowerCase() !== "unknown") {
       const locKey = locRaw.toLowerCase().split(",")[0].trim();
-      if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
-      for (const k of Object.keys(CITY_COORDS)) {
-        if (locKey.includes(k) || k.includes(locKey)) {
-          return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
-        }
-      }
+
+      // exact city match
+      if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng, source: 'city' };
+
+      // check dell site name match
       for (const s of DELL_SITES) {
         const sname = s.name.toLowerCase();
-        if (sname.includes(locKey) || locKey.includes(sname)) {
-          return { lat: s.lat, lng: s.lon };
+        if (sname.includes(locKey) || locKey.includes(sname) || sname === locKey) {
+          return { lat: s.lat, lng: s.lon, source: 'dell_site' };
+        }
+      }
+
+      // attempt fuzzy: if locKey contains a city that exists
+      for (const k of Object.keys(CITY_COORDS)) {
+        if (locKey.includes(k) || k.includes(locKey)) {
+          return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng, source: 'city' };
         }
       }
     }
 
+    // if incident provides country only, return country centroid as fallback
     const countryRaw = String(inc.country || "").trim();
     if (countryRaw) {
       const cKey = countryRaw.toLowerCase();
-      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
+      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng, source: 'country' };
       const cut = cKey.split(",")[0].trim();
-      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
-      for (const s of DELL_SITES) {
-        if (String(s.country || "").toLowerCase() === cKey || s.country.toLowerCase() === cKey.slice(0,2)) {
-          return { lat: s.lat, lng: s.lon };
-        }
-      }
+      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng, source: 'country' };
     }
+
     return null;
   } catch (e) {
     return null;
@@ -673,7 +674,7 @@ function getCoordsForIncident(inc) {
 }
 
 /* ===========================
-   Render incidents on map (unchanged)
+   Render incidents on map (unchanged - still plots country centroids)
 =========================== */
 function renderIncidentsOnMap(region, incidents) {
   incidentLayerGroup.clearLayers();
@@ -684,10 +685,11 @@ function renderIncidentsOnMap(region, incidents) {
     if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
       coords = { lat: Number(i.lat), lng: Number(i.lng) };
     } else {
-      coords = getCoordsForIncident(i);
+      const c = getCoordsForIncident(i);
+      if (c) coords = { lat: c.lat, lng: c.lng };
     }
 
-    if (!coords) return; // still no coords, skip
+    if (!coords) return;
     const sev = Number(i.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
@@ -774,9 +776,12 @@ function normaliseWorkerIncident(item) {
     lng: Number(item.lng || 0)
   };
 
-  // If lat/lng empty, attempt to resolve
   const coords = getCoordsForIncident(normalized);
-  if (coords) {
+  if (coords && coords.source !== 'country') {
+    normalized.lat = coords.lat;
+    normalized.lng = coords.lng;
+  } else if (coords && coords.source === 'country') {
+    // still store country centroid for map plotting, but preserve source info
     normalized.lat = coords.lat;
     normalized.lng = coords.lng;
   }
@@ -873,40 +878,32 @@ function updateHeadline(region) {
 }
 
 /* ===========================
-   PROXIMITY ALERTS - FILTER IMPROVEMENT
-   Only show events that are *real incidents* from your master list
-   and have severity >= 4 (serious/critical).
+   PROXIMITY ALERTS - REFINED
 =========================== */
 
-/* --- NEW helper: isIncidentOfInterest() --- 
-   Uses positive keywords (real incident types) and excludes business/news glare.
-   This function is the only place that determines what is an 'incident' for the Proximity panel.
-*/
+/* improved positive/negative keyword lists */
 function isIncidentOfInterest(inc) {
   if (!inc) return false;
   const t = String((inc.title || "") + " " + (inc.summary || "") + " " + (inc.category || "") + " " + (inc.location || "")).toLowerCase();
 
-  // Positive keywords (from your master list). We look for these words/phrases.
-  const pos = /\b(earthquake|aftershocks|tsunami|volcanic|tornado|hurricane|cyclone|severe storm|thunderstorm|hailstorm|heat wave|extreme heat|wildfire|bushfire|bush fire|flood|flash[- ]flood|landslide|mudslide|drought|sinkhole|structural fire|fire at|chemical spill|hazardous material|hazmat|gas leak|radiation|air[- ]quality|water contamination|power outage|blackout|explosion|bomb threat|active shooter|shooting|gunman|armed attack|hostage|kidnap|riots?|civil unrest|protest|demonstration|police activity|police investigation|arrest|missing person|evacuation|shelter[- ]in[- ]place|curfew|lockdown|road closure|bridge collapse|train crash|derailment|airport closed|port closed|shipping delay|port shutdown|border closure|strike|work stoppage|ransomware|data breach|malware|phishing|ddos|internet outage|telecom outage|power line down|chemical leak|hazmat|building evacuation|building lockdown|structural concern|fire alarm|sprinkler|evacuation order|shelter in place|ambulance|mass casualty|mass casualty incident|medical emergency|disease outbreak|quarantine|contagion|amber alert|missing child|violent protest|riot conditions|suspicious package|perimeter breach|settlement collapse|landslide|flooding in|tsunami warning)\b/;
+  // Positive keywords from user's master list (expanded)
+  const pos = /\b(earthquake|aftershocks|tsunami|volcanic|tornado|hurricane|cyclone|severe storm|thunderstorm|hailstorm|heat wave|extreme heat|extreme cold|blizzard|wildfire|bushfire|flood|flash[- ]flood|landslide|mudslide|drought|sinkhole|structural fire|fire at|chemical spill|hazardous material|hazmat|gas leak|radiation|air[- ]quality|water contamination|power outage|blackout|explosion|bomb threat|active shooter|shooting|gunman|armed attack|hostage|kidnap|kidnapping|riots?|civil unrest|protest|demonstration|riot conditions|police activity|police investigation|arrested|missing person|evacuation|shelter[- ]in[- ]place|curfew|lockdown|road closure|bridge collapse|train crash|derailment|airport closed|port closed|shipping delay|port shutdown|border closure|strike|work stoppage|ransomware|data breach|malware|phishing|ddos|internet outage|telecom outage|power line down|chemical leak|hazmat|building evacuation|building lockdown|structural concern|fire alarm|sprinkler|mass casualty|mass casualty incident|medical emergency|disease outbreak|quarantine|contagion|amber alert|missing child|violent protest|riot|suspicious package|perimeter breach|vandalism|theft|burglary|bomb)\b/;
 
-  // Negative keywords to exclude business / corporate / market / lifestyle news
-  const neg = /\b(acquir(e|es|ed|ing)|acquisition|merger|ipo|shares|stock|profit|earnings|revenue|appoints|named as|announces plans to|ceo|cfo|acquired|acquisition of|buyout|buyout|partnership|launches product|press release|interview|review|film|movie|festival|awards|celebrity|fashion|recipe|opinion|commentary|column|analysis:|analysis—|op-ed|buy now|sale|discount)\b/;
+  // Negative keywords to exclude business / corporate / lifestyle / legal news
+  const neg = /\b(acquir(e|es|ed|ing)|acquisition|merger|ipo|shares|stock|profit|earnings|revenue|appoints|named as|announces plans to|ceo|cfo|acquired|acquisition of|buyout|partnership|launches product|press release|interview|review|film|movie|festival|awards|celebrity|fashion|recipe|opinion|column|analysis:|analysis—|op-ed|court|supreme court|trial|convicted|sentenced|appeal|bail|judge|case dismissed|sentencing|found guilty)\b/;
 
-  // If negative match found, treat as not an incident
-  if (neg.test(t)) return false;
-
-  // If positive match found, treat as incident
-  if (pos.test(t)) return true;
-
-  // Also treat some categories as incidents (AI categories like PHYSICAL/CYBER/DISASTER/INFRASTRUCTURE/LOGISTICS)
   const cat = String(inc.category || "").toUpperCase();
-  if (["PHYSICAL","DISASTER","INFRASTRUCTURE","LOGISTICS","CYBER","HEALTH","EMERGENCY"].includes(cat)) return true;
+  const categoryIncident = ["PHYSICAL","DISASTER","INFRASTRUCTURE","LOGISTICS","CYBER","HEALTH","EMERGENCY"].includes(cat);
 
-  // fallback: not an incident of interest
+  // if neg and no positive indicators and no incident category -> exclude
+  if (neg.test(t) && !pos.test(t) && !categoryIncident) return false;
+
+  if (pos.test(t)) return true;
+  if (categoryIncident) return true;
+
   return false;
 }
 
-/* Update proximity alerts: keep severity >=4 AND isIncidentOfInterest true */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   currentRadius = parseFloat(radiusSelect.value || "50");
@@ -930,27 +927,27 @@ function renderProximityAlerts(region) {
     // only incident types per master list
     if (!isIncidentOfInterest(inc)) continue;
 
-    // resolve coords
-    let coords = null;
-    if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
-      coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
-    } else {
-      coords = getCoordsForIncident(inc);
+    // resolve coords and accept only good sources (no country centroid)
+    const coordsInfo = getCoordsForIncident(inc);
+    if (!coordsInfo) continue;
+    if (!['latlng','city','dell_site'].includes(coordsInfo.source)) {
+      // skip country centroid based location for proximity list
+      continue;
     }
-    if (!coords) continue;
+    const coords = { lat: coordsInfo.lat, lng: coordsInfo.lng };
 
     // nearest dell site within radius?
     let nearest = null;
-    for (const [assetName, a] of Object.entries(ASSETS)) {
+    for (const [assetKey, a] of Object.entries(ASSETS)) {
       const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
       if (dist <= currentRadius) {
         if (!nearest || dist < nearest.dist) {
-          nearest = { dist, assetName, a };
+          nearest = { dist, assetKey, a };
         }
       }
     }
     if (nearest) {
-      alerts.push({ inc, nearest });
+      alerts.push({ inc, nearest, coords });
     }
   }
 
@@ -969,7 +966,7 @@ function renderProximityAlerts(region) {
     const title = a.inc.title || "Incident";
     const desc = a.inc.summary || "";
     const dist = Math.round(a.nearest.dist);
-    const assetDisplay = (a.nearest.assetName || "").toUpperCase();
+    const assetDisplay = (a.nearest.a && a.nearest.a.name) ? a.nearest.a.name : (a.nearest.assetKey || "").toUpperCase();
 
     html += `
       <div class="alert-row">
@@ -1182,7 +1179,6 @@ function escapeAttr(s) {
   return escapeHtml(s).replaceAll("`", "&#096;");
 }
 
-/* helper for advisory rendering */
 function severityLabel(s) {
   const n = Number(s || 1);
   if (n >= 5) return "CRITICAL";
