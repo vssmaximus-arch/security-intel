@@ -895,8 +895,22 @@ function updateHeadline(region) {
 /* ===========================
    PROXIMITY ALERTS
    - show serious/high (severity >=4) within radius
+   - ALSO include severity 3 events when relevant (protest/demonstration/evacuation/police activity etc)
    - uses resolved coordinates for incidents
 =========================== */
+
+/* Allowed operational categories useful for proximity */
+const PROX_ALLOWED_CATEGORIES = new Set([
+  "PHYSICAL","DISASTER","INFRASTRUCTURE","LOGISTICS","LAW_ENFORCEMENT","HEALTH_SAFETY",
+  "TRANSPORT","FACILITY","SECURITY","CYBER","PROTEST","CIVIL_UNREST","RIOT"
+]);
+
+/* business blacklist to avoid showing acquisition/IPO/business headlines */
+const PROX_BUSINESS_BLACKLIST_RE = /acquisit|acquisition|merger|service now|servicenow|stock|shares|earnings|profit|ipo|market|business|press release/i;
+
+/* keywords that indicate proximity relevance even at severity 3 */
+const PROX_INCIDENT_KEYWORDS_RE = /\b(protest|demonstration|riot|civil unrest|evacu|evacuation|curfew|police activity|police|bomb threat|suspicious package|suspicious object|fire|hazmat|chemical spill|flood|landslide|earthquake|tsunami|tornado|hurricane|wildfire|strike|road closure|airport closure|port shutdown|workplace violence|active threat|shelter[- ]?in[- ]?place)\b/i;
+
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   currentRadius = parseFloat(radiusSelect.value || "50");
@@ -911,40 +925,74 @@ function renderProximityAlerts(region) {
 
   const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
-  // Focus on serious/critical = severity>=4
   const alerts = [];
   for (const inc of incidents) {
-    const sev = Number(inc.severity || 1);
-    if (sev < 4) continue; // only serious/critical
+    try {
+      const sev = Number(inc.severity || 1);
+      const cat = (inc.category || "UNKNOWN").toUpperCase();
+      const combinedText = `${(inc.title || "")} ${(inc.summary || "")}`.toLowerCase();
 
-    // Defensive: skip business / market noise in proximity panel
-    const categoryUpper = String(inc.category || "").toUpperCase();
-    if (categoryUpper.includes("BUSINESS") || /acquisit|acquisition|merger|service now|servicenow|stock|shares|earnings|profit|market/i.test((inc.title||"")+" "+(inc.summary||""))) {
-      continue;
-    }
+      // skip obvious business/market noise
+      if (cat.includes("BUSINESS") || PROX_BUSINESS_BLACKLIST_RE.test(combinedText)) continue;
 
-    // resolve coords if missing
-    let coords = null;
-    if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
-      coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
-    } else {
-      coords = getCoordsForIncident(inc);
-    }
-    if (!coords) continue;
+      // resolve coords (and attempt asset-name fallback below)
+      let coords = null;
+      if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
+        coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
+      } else {
+        coords = getCoordsForIncident(inc);
+      }
 
-    // measure distance to each Dell site; if any site within currentRadius, add (choose nearest site)
-    let nearest = null;
-    for (const [assetName, a] of Object.entries(ASSETS)) {
-      const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
-      if (dist <= currentRadius) {
-        if (!nearest || dist < nearest.dist) {
-          nearest = { dist, assetName, a };
+      // If still no coords, try matching asset name in title/summary as a fallback
+      if (!coords) {
+        const lower = combinedText;
+        for (const [assetKey, a] of Object.entries(ASSETS)) {
+          if (lower.includes(assetKey.toLowerCase()) || (lower.includes((a.name||"").toLowerCase()))) {
+            coords = { lat: a.lat, lng: a.lng };
+            break;
+          }
         }
       }
-    }
+      if (!coords) continue;
 
-    if (nearest) {
-      alerts.push({ inc, nearest });
+      // measure distance to each Dell site; if any site within currentRadius, choose nearest site
+      let nearest = null;
+      for (const [assetName, a] of Object.entries(ASSETS)) {
+        const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
+        if (dist <= currentRadius) {
+          if (!nearest || dist < nearest.dist) {
+            nearest = { dist, assetName: a.name || assetName, a };
+          }
+        }
+      }
+
+      if (!nearest) continue;
+
+      // inclusion rules:
+      const hasKeyword = PROX_INCIDENT_KEYWORDS_RE.test(combinedText);
+      const allowedCategory = PROX_ALLOWED_CATEGORIES.has(cat);
+
+      // Always include high/critical (+ within radius)
+      if (sev >= 4) {
+        alerts.push({ inc, nearest });
+        continue;
+      }
+
+      // Include medium (sev==3) if it has proximity keywords or is in allowed operational category
+      if (sev === 3 && (hasKeyword || allowedCategory)) {
+        alerts.push({ inc, nearest });
+        continue;
+      }
+
+      // Include low/medium (sev==2) only if it's a strong proximity match (keyword + allowed category)
+      if (sev === 2 && (hasKeyword && allowedCategory)) {
+        alerts.push({ inc, nearest });
+        continue;
+      }
+
+      // else skip
+    } catch (e) {
+      continue;
     }
   }
 
@@ -993,13 +1041,11 @@ async function loadTravelAdvisories() {
   if (!sel) return;
 
   try {
-    // Try the worker's live endpoint first (it forces a travel refresh)
     const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
     let json = null;
     if (liveRes && liveRes.ok) {
       json = await liveRes.json();
     } else {
-      // fallback to cached endpoint
       const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
       if (res && res.ok) json = await res.json();
     }
@@ -1012,7 +1058,6 @@ async function loadTravelAdvisories() {
       return;
     }
 
-    // Populate ALL countries (sorted)
     TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
     TRAVEL_DATA.forEach(c => {
