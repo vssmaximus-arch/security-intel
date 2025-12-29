@@ -121,7 +121,7 @@
 
     #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
     #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
-    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
     #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
     #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
@@ -447,8 +447,101 @@ const DELL_SITES = [
 const ASSETS = {};
 DELL_SITES.forEach(s => {
   const key = s.name.toLowerCase();
-  ASSETS[key] = { lat: s.lat, lng: s.lon, region: s.region };
+  ASSETS[key] = { lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
+
+/* ===========================
+   CITY LOOKUP (used for incident coordinate resolution)
+=========================== */
+const CITY_COORDS = {
+  "new york": { lat: 40.7128, lng: -74.0060 },
+  "london": { lat: 51.5074, lng: -0.1278 },
+  "paris": { lat: 48.8566, lng: 2.3522 },
+  "tokyo": { lat: 35.6762, lng: 139.6503 },
+  "singapore": { lat: 1.3521, lng: 103.8198 },
+  "sydney": { lat: -33.8688, lng: 151.2093 },
+  "dubai": { lat: 25.2048, lng: 55.2708 },
+  "tel aviv": { lat: 32.0853, lng: 34.7818 },
+  "mumbai": { lat: 19.0760, lng: 72.8777 },
+  "delhi": { lat: 28.6139, lng: 77.2090 },
+  "bangalore": { lat: 12.9716, lng: 77.5946 },
+  "moscow": { lat: 55.7558, lng: 37.6173 },
+  "kyiv": { lat: 50.4501, lng: 30.5234 },
+  "beijing": { lat: 39.9042, lng: 116.4074 },
+  "shanghai": { lat: 31.2304, lng: 121.4737 },
+  "hong kong": { lat: 22.3193, lng: 114.1694 },
+  "taipei": { lat: 25.0330, lng: 121.5654 },
+  "mexico city": { lat: 19.4326, lng: -99.1332 },
+  "sao paulo": { lat: -23.5505, lng: -46.6333 },
+  "berlin": { lat: 52.52, lng: 13.4050 },
+  "madrid": { lat: 40.4168, lng: -3.7038 },
+  "rome": { lat: 41.9028, lng: 12.4964 },
+  "jakarta": { lat: -6.2088, lng: 106.8456 },
+  "seoul": { lat: 37.5665, lng: 126.9780 },
+  "manila": { lat: 14.5995, lng: 120.9842 },
+  "bangkok": { lat: 13.7563, lng: 100.5018 },
+  "cairo": { lat: 30.0444, lng: 31.2357 },
+  "istanbul": { lat: 41.0082, lng: 28.9784 },
+  "lagos": { lat: 6.5244, lng: 3.3792 },
+  "nairobi": { lat: -1.2921, lng: 36.8219 },
+  "auckland": { lat: -36.8485, lng: 174.7633 },
+  "wellington": { lat: -41.2865, lng: 174.7762 },
+  "melbourne": { lat: -37.8136, lng: 144.9631 },
+  "tokyo": { lat: 35.6762, lng: 139.6503 }
+};
+
+/* seed dell sites into city lookups so "dell sydney" and other names can match */
+DELL_SITES.forEach(s => {
+  // add by site key (lowercased name)
+  CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
+});
+
+/* ===========================
+   COUNTRY CENTERS (fallback)
+   keys are lowercase country full names
+=========================== */
+const COUNTRY_COORDS = {
+  "india": { lat: 20.5937, lng: 78.9629 },
+  "syria": { lat: 34.8021, lng: 38.9968 },
+  "pakistan": { lat: 30.3753, lng: 69.3451 },
+  "australia": { lat: -25.2744, lng: 133.7751 },
+  "united kingdom": { lat: 55.3781, lng: -3.4360 },
+  "united states": { lat: 37.0902, lng: -95.7129 },
+  "usa": { lat: 37.0902, lng: -95.7129 },
+  "ukraine": { lat: 48.3794, lng: 31.1656 },
+  "russia": { lat: 61.5240, lng: 105.3188 },
+  "china": { lat: 35.8617, lng: 104.1954 },
+  "japan": { lat: 36.2048, lng: 138.2529 },
+  "singapore": { lat: 1.3521, lng: 103.8198 },
+  "thailand": { lat: 15.8700, lng: 100.9925 },
+  "new zealand": { lat: -40.9006, lng: 174.8860 },
+  "france": { lat: 46.2276, lng: 2.2137 },
+  "germany": { lat: 51.1657, lng: 10.4515 },
+  "brazil": { lat: -14.2350, lng: -51.9253 },
+  "mexico": { lat: 23.6345, lng: -102.5528 },
+  "canada": { lat: 56.1304, lng: -106.3468 },
+  "israel": { lat: 31.0461, lng: 34.8516 },
+  "uae": { lat: 23.4241, lng: 53.8478 },
+  "saudi arabia": { lat: 23.8859, lng: 45.0792 },
+  "philippines": { lat: 12.8797, lng: 121.7740 },
+  "indonesia": { lat: -0.7893, lng: 113.9213 },
+  "south korea": { lat: 35.9078, lng: 127.7669 },
+  "taiwan": { lat: 23.6978, lng: 120.9605 },
+  "sri lanka": { lat: 7.8731, lng: 80.7718 },
+  "bangladesh": { lat: 23.6850, lng: 90.3563 },
+  "nepal": { lat: 28.3949, lng: 84.1240 },
+  "malaysia": { lat: 4.2105, lng: 101.9758 },
+  "vietnam": { lat: 14.0583, lng: 108.2772 },
+  "turkey": { lat: 38.9637, lng: 35.2433 },
+  "iran": { lat: 32.4279, lng: 53.6880 },
+  "iraq": { lat: 33.2232, lng: 43.6793 },
+  "south africa": { lat: -30.5595, lng: 22.9375 },
+  "nigeria": { lat: 9.0820, lng: 8.6753 },
+  "kenya": { lat: -0.0236, lng: 37.9062 },
+  "egypt": { lat: 26.8206, lng: 30.8025 },
+  "spain": { lat: 40.4637, lng: -3.7492 },
+  "italy": { lat: 41.8719, lng: 12.5674 }
+};
 
 /* ===========================
    INIT
@@ -535,18 +628,88 @@ function renderAssetsOnMap(region) {
   else map.setView([25, 10], 2);
 }
 
+/* ===========================
+   INCIDENT COORDS RESOLUTION
+   (NEW) - returns {lat,lng} or null
+=========================== */
+function getCoordsForIncident(inc) {
+  try {
+    // accept existing valid coords
+    const lat = Number(inc.lat || inc.latitude || 0);
+    const lng = Number(inc.lng || inc.longitude || 0);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
+      return { lat, lng };
+    }
+
+    // 1) location -> city lookup
+    const locRaw = String(inc.location || "").trim();
+    if (locRaw && locRaw.toLowerCase() !== "unknown") {
+      const locKey = locRaw.toLowerCase().split(",")[0].trim();
+      if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
+
+      // try substring matches against CITY_COORDS keys
+      for (const k of Object.keys(CITY_COORDS)) {
+        if (locKey.includes(k) || k.includes(locKey)) {
+          return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
+        }
+      }
+
+      // try match to Dell site names
+      for (const s of DELL_SITES) {
+        const sname = s.name.toLowerCase();
+        if (sname.includes(locKey) || locKey.includes(sname)) {
+          return { lat: s.lat, lng: s.lon };
+        }
+      }
+    }
+
+    // 2) try country fallback (inc.country can be code or full name)
+    const countryRaw = String(inc.country || "").trim();
+    if (countryRaw) {
+      const cKey = countryRaw.toLowerCase();
+      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
+
+      // try normalization (common iso)
+      const cut = cKey.split(",")[0].trim();
+      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
+
+      // try to find Dell site in same two-letter country code (DELL uses two-letter codes in site list)
+      for (const s of DELL_SITES) {
+        if (String(s.country || "").toLowerCase() === cKey || s.country.toLowerCase() === cKey.slice(0,2)) {
+          return { lat: s.lat, lng: s.lon };
+        }
+      }
+    }
+
+    // 3) no decent fallback
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ===========================
+   Render incidents on map (now uses resolved coords)
+=========================== */
 function renderIncidentsOnMap(region, incidents) {
   incidentLayerGroup.clearLayers();
   const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
 
   filtered.forEach(i => {
-    if (!i.lat || !i.lng || Number(i.lat) === 0 || Number(i.lng) === 0) return;
+    // attempt to resolve coordinates if missing
+    let coords = null;
+    if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
+      coords = { lat: Number(i.lat), lng: Number(i.lng) };
+    } else {
+      coords = getCoordsForIncident(i);
+    }
 
+    if (!coords) return; // still no coords, skip for map
     const sev = Number(i.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
-    const marker = L.circleMarker([i.lat, i.lng], {
-      radius: 8,
+    const marker = L.circleMarker([coords.lat, coords.lng], {
+      radius: sev >= 4 ? 10 : 7,
       fillColor: color,
       color: "#fff",
       weight: 2,
@@ -554,7 +717,7 @@ function renderIncidentsOnMap(region, incidents) {
       fillOpacity: 0.85
     });
 
-    marker.bindPopup(`<b>${escapeHtml(i.country || "GLOBAL")} • ${escapeHtml(i.location || "UNKNOWN")}</b><br/>${escapeHtml(i.title || "")}`);
+    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(i.link||'#')}" target="_blank">Source</a>`);
     marker.addTo(incidentLayerGroup);
   });
 }
@@ -575,13 +738,9 @@ function mapSeverityToLabel(sev) {
   }
 }
 
-/* Helper for travel news (previously missing) */
-function severityLabel(sev) {
-  return (mapSeverityToLabel(sev) || {}).label || "LOW";
-}
-
 /* ===========================
    WORKER FETCH
+   (unchanged, just uses returned incidents)
 =========================== */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
@@ -605,6 +764,9 @@ async function loadFromWorker(silent=false) {
   }
 }
 
+/* ===========================
+   NORMALISE INCIDENT (now ensures coords)
+=========================== */
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -613,7 +775,7 @@ function normaliseWorkerIncident(item) {
   const region = (item.region || "GLOBAL").toUpperCase();
   const severity = Number(item.severity || 1) || 1;
 
-  return {
+  const normalized = {
     id: item.id || (title + "|" + (item.link||"")),
     title,
     summary: item.summary || "",
@@ -629,6 +791,15 @@ function normaliseWorkerIncident(item) {
     lat: Number(item.lat || 0),
     lng: Number(item.lng || 0)
   };
+
+  // If lat/lng empty, attempt to resolve
+  const coords = getCoordsForIncident(normalized);
+  if (coords) {
+    normalized.lat = coords.lat;
+    normalized.lng = coords.lng;
+  }
+
+  return normalized;
 }
 
 /* ===========================
@@ -723,6 +894,8 @@ function updateHeadline(region) {
 
 /* ===========================
    PROXIMITY ALERTS
+   - show serious/high (severity >=4) within radius
+   - uses resolved coordinates for incidents
 =========================== */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
@@ -738,19 +911,38 @@ function renderProximityAlerts(region) {
 
   const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
+  // Focus on serious/critical = severity>=4
   const alerts = [];
   for (const inc of incidents) {
-    if (!inc.lat || !inc.lng) continue;
+    const sev = Number(inc.severity || 1);
+    if (sev < 4) continue; // only serious/critical
 
-    for (const [name, a] of Object.entries(ASSETS)) {
-      const dist = haversineKm(inc.lat, inc.lng, a.lat, a.lng);
+    // resolve coords if missing
+    let coords = null;
+    if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
+      coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
+    } else {
+      coords = getCoordsForIncident(inc);
+    }
+    if (!coords) continue;
+
+    // measure distance to each Dell site; if any site within currentRadius, add (choose nearest site)
+    let nearest = null;
+    for (const [assetName, a] of Object.entries(ASSETS)) {
+      const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
       if (dist <= currentRadius) {
-        alerts.push({ inc, assetName: name, dist });
+        if (!nearest || dist < nearest.dist) {
+          nearest = { dist, assetName, a };
+        }
       }
+    }
+
+    if (nearest) {
+      alerts.push({ inc, nearest });
     }
   }
 
-  alerts.sort((x,y) => (x.dist - y.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
+  alerts.sort((x,y) => (x.nearest.dist - y.nearest.dist) || (Number(y.inc.severity)-Number(x.inc.severity)));
 
   if (alerts.length === 0) {
     container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No incidents within ${currentRadius}km of assets.</div>`;
@@ -764,6 +956,8 @@ function renderProximityAlerts(region) {
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
     const title = a.inc.title || "Incident";
     const desc = a.inc.summary || "";
+    const dist = Math.round(a.nearest.dist);
+    const assetDisplay = (a.nearest.assetName || "").toUpperCase();
 
     html += `
       <div class="alert-row">
@@ -772,10 +966,10 @@ function renderProximityAlerts(region) {
             <i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>
             ${escapeHtml(title)}
           </div>
-          <div class="alert-dist" style="color:${color}">${Math.round(a.dist)}km</div>
+          <div class="alert-dist" style="color:${color}">${dist}km</div>
         </div>
         <div class="alert-site">
-          <i class="far fa-building"></i> Near: <b>${escapeHtml(a.assetName.toUpperCase())}</b>
+          <i class="far fa-building"></i> Near: <b>${escapeHtml(assetDisplay)}</b>
         </div>
         <div class="alert-desc">${escapeHtml(desc)}</div>
       </div>`;
@@ -786,186 +980,43 @@ function renderProximityAlerts(region) {
 
 /* ===========================
    TRAVEL ADVISORIES (REAL)
-   Robust loader that normalizes many Worker response shapes.
+   (unchanged)
 =========================== */
-
-/* Small hardcoded fallback to use immediately if the worker returns no usable data.
-   Kept intentionally tiny — worker should fill full dataset. */
-const STATIC_TRAVEL_DATA = [
-  { country: "Afghanistan", level: 4, text: "Do Not Travel." },
-  { country: "Australia", level: 1, text: "Exercise normal precautions." },
-  { country: "India", level: 2, text: "Exercise increased caution." },
-  { country: "United Kingdom", level: 2, text: "Exercise increased caution." },
-  { country: "United States", level: 1, text: "Exercise normal precautions." }
-];
-
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
-  // loading UI
-  sel.innerHTML = `<option selected disabled>Loading countries...</option>`;
-  sel.disabled = true;
-
   try {
-    // 1) try live endpoint
+    // Try the worker's live endpoint first (it forces a travel refresh)
+    const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
     let json = null;
-    try {
-      const live = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
-      if (live && live.ok) json = await live.json();
-    } catch (e) {
-      // ignore; we'll try cache
+    if (liveRes && liveRes.ok) {
+      json = await liveRes.json();
+    } else {
+      // fallback to cached endpoint
+      const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
+      if (res && res.ok) json = await res.json();
     }
 
-    // 2) try cached endpoint
-    if (!json) {
-      try {
-        const cached = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
-        if (cached && cached.ok) json = await cached.json();
-      } catch (e) {
-        // ignore
-      }
+    TRAVEL_DATA = Array.isArray(json?.advisories) ? json.advisories : [];
+    TRAVEL_UPDATED_AT = json?.updated_at || null;
+
+    if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
+      sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+      return;
     }
 
-    // 3) scan recursively for advisory-like objects
-    const results = [];
-    const seenObjs = new WeakSet();
-
-    function looksLikeAdvisory(obj) {
-      if (!obj || typeof obj !== "object") return false;
-      // Country-like and some advisory info
-      const hasCountry = ('country' in obj) || ('name' in obj);
-      const hasText = ('text' in obj) || ('summary' in obj) || ('advisory' in obj) || ('message' in obj);
-      const hasLevel = ('level' in obj) || ('advisory_level' in obj) || (obj.advisory && ('score' in obj.advisory || 'message' in obj.advisory));
-      return hasCountry && (hasText || hasLevel);
-    }
-
-    function scan(node) {
-      if (!node || typeof node !== 'object') return;
-      if (seenObjs.has(node)) return;
-      seenObjs.add(node);
-
-      if (Array.isArray(node)) {
-        for (const item of node) scan(item);
-        return;
-      }
-
-      // direct advisory object
-      if (looksLikeAdvisory(node)) {
-        results.push(node);
-        return;
-      }
-
-      // special case: travel-advisory.info shape -> node.data is mapping
-      if (node.data && typeof node.data === 'object') {
-        for (const v of Object.values(node.data)) {
-          if (v && typeof v === 'object' && v.name && v.advisory) {
-            results.push({
-              country: v.name,
-              level: (typeof v.advisory.score === 'number') ? Math.min(Math.ceil(v.advisory.score / 1.5),4) : 1,
-              text: v.advisory.message || '',
-              updated: v.advisory.updated || node.updated_at || node.updated
-            });
-          } else {
-            scan(v);
-          }
-        }
-      }
-
-      // otherwise traverse children
-      for (const v of Object.values(node)) {
-        // skip known metadata containers to avoid adding them as country keys
-        if (typeof v === 'object') scan(v);
-      }
-    }
-
-    if (json) scan(json);
-
-    // If nothing found via recursive scan, attempt the common shapes explicitly
-    if (results.length === 0 && json) {
-      // shape: { advisories: [ ... ] }
-      if (Array.isArray(json.advisories)) {
-        results.push(...json.advisories);
-      } else if (json.advisories && typeof json.advisories === 'object') {
-        // sometimes advisories is an object mapping country->obj
-        for (const [k,v] of Object.entries(json.advisories)) {
-          if (v && typeof v === 'object') {
-            // if v already has country/name use it
-            if (v.country || v.name) results.push(v);
-            else {
-              // treat key as country name
-              results.push({ country: k, level: v.level || 1, text: v.text || v.summary || v.advisory || '' });
-            }
-          } else if (typeof v === 'string') {
-            results.push({ country: k, level: 1, text: v });
-          }
-        }
-      } else {
-        // top-level may be mapping country -> advisory (some proxies). iterate keys and push those who look like advisory
-        for (const [k,v] of Object.entries(json)) {
-          if (k === 'advisories' || k === 'lastFetched' || k === 'length' || k === 'updated_at' || k === 'source') continue;
-          if (v && typeof v === 'object' && (v.level || v.text || v.summary || v.advisory)) {
-            results.push({ country: v.country || v.name || k, level: v.level || 1, text: v.text || v.summary || v.advisory || '' });
-          }
-        }
-      }
-    }
-
-    // Normalize collected results to our schema and dedupe by lowercase country
-    const final = [];
-    const seen = new Set();
-    for (const r of results) {
-      try {
-        const country = (r.country || r.name || '').toString().trim();
-        if (!country) continue;
-        const key = country.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-
-        let level = 1;
-        if (typeof r.level === 'number') level = Math.min(Math.max(Math.round(r.level),1),4);
-        else if (typeof r.level === 'string') {
-          const lc = r.level.toLowerCase();
-          if (lc.includes('do not') || lc.includes('do not travel')) level = 4;
-          else if (lc.includes('reconsider')) level = 3;
-          else if (lc.includes('exercise') || lc.includes('increase')) level = 2;
-        } else if (r.advisory && typeof r.advisory.score === 'number') {
-          level = Math.min(Math.ceil(r.advisory.score / 1.5), 4);
-        }
-
-        const text = (r.text || r.summary || (r.advisory && (r.advisory.message || r.advisory.summary)) || '').toString().trim();
-
-        final.push({
-          country,
-          level,
-          text,
-          updated: r.updated || r.updated_at || r.advisory && r.advisory.updated || new Date().toISOString()
-        });
-      } catch (e) {
-        // ignore single bad item
-      }
-    }
-
-    // If still nothing, use static fallback
-    const finalList = (final.length > 0) ? final.sort((a,b)=>a.country.localeCompare(b.country)) : STATIC_TRAVEL_DATA.slice();
-
-    // Save globally and populate UI
-    TRAVEL_DATA = finalList;
-    TRAVEL_UPDATED_AT = new Date().toISOString();
-
+    // Populate ALL countries (sorted)
+    TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    finalList.forEach(c => {
+    TRAVEL_DATA.forEach(c => {
       const opt = document.createElement("option");
       opt.value = c.country;
       opt.innerText = c.country;
       sel.appendChild(opt);
     });
-    sel.disabled = false;
-
-  } catch (err) {
-    // If anything fails, mark unavailable but keep UI responsive
+  } catch {
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-    sel.disabled = false;
   }
 }
 
@@ -985,7 +1036,7 @@ function renderAdvisoryAndIncidents(payload) {
     else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
     else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
 
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : (payload.updated_at ? new Date(payload.updated_at).toLocaleString() : "Unknown");
+    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
 
     advContainer.innerHTML = `
       <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
@@ -1122,6 +1173,15 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) {
   return escapeHtml(s).replaceAll("`", "&#096;");
+}
+
+/* helper used by advisory rendering (keeps compatibility) */
+function severityLabel(s) {
+  const n = Number(s || 1);
+  if (n >= 5) return "CRITICAL";
+  if (n >= 4) return "HIGH";
+  if (n === 3) return "MEDIUM";
+  return "LOW";
 }
 </script>
 </body>
