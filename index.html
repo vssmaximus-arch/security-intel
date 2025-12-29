@@ -1,575 +1,66 @@
-
-I see the issue clearly now. The "Connection Failed" error in your screenshot is happening because the worker is failing to respond correctly, likely due to a script error or timeout, and the "ReferenceError: DELL_SITES is not defined" in your console log confirms that the index.html script is trying to access DELL_SITES before it has been initialized.
-
-This usually happens when functions are called before the data structures they rely on are defined.
-
-I have fixed this in V145c.
-
-Fixes Applied:
-
-Index Order: I moved all data constants (DELL_SITES, ASSETS) to the very top of the script block in index.html. This guarantees they exist before any function tries to use them.
-
-Worker Stability: I simplified the worker logic to ensure it always returns a JSON response, even if the upstream APIs fail completely.
-
-Typos: Fixed a typo in mapSeverityToLabel where it referenced variables that might not exist in that scope.
-
-Here are the FINAL FIXED FILES.
-
-FILE 1: worker.js (V145c - STABLE SERVER)
-Instructions:
-
-Delete worker.js.
-
-Paste the code below.
-
-Deploy.
-
-JavaScript
-/**
- * OSINFOHUB – EDGE INTEL BRAIN (V145c - STABILITY FIX)
- * * STATUS: 🟢 LIVE
- * * FIX: Simplified logic to prevent timeouts.
- * * SOURCE: Kevle Proxy (Primary) -> Open API -> Static.
- * * DATA: Full lists preserved.
- */
-
-const BATCH_SIZE = 5;
-const EMAIL_THRESHOLD = ["CRITICAL", "HIGH"];
-const TRAVEL_CACHE_KEY = "travel_cache_v5";
-const TRAVEL_LOCK_KEY = "travel_refresh_lock";
-const TRAVEL_REFRESH_HOURS = 12;
-
-const KEVLE_API = "https://smartraveller.kevle.xyz/api/advisories";
-const OPEN_TRAVEL_API = "https://www.travel-advisory.info/api";
-
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type,secret",
-};
-
-const EMAIL_FROM = "OSINT Alerts <onboarding@resend.dev>";
-const ADMIN_EMAIL = "vssmaximus@gmail.com";
-
-// --- 1. CITY LOOKUP (TOP SCOPE) ---
-const CITY_COORDS = {
-  "new york": { lat: 40.7128, lng: -74.0060 },
-  "london": { lat: 51.5074, lng: -0.1278 },
-  "paris": { lat: 48.8566, lng: 2.3522 },
-  "tokyo": { lat: 35.6762, lng: 139.6503 },
-  "singapore": { lat: 1.3521, lng: 103.8198 },
-  "sydney": { lat: -33.8688, lng: 151.2093 },
-  "dubai": { lat: 25.2048, lng: 55.2708 },
-  "tel aviv": { lat: 32.0853, lng: 34.7818 },
-  "mumbai": { lat: 19.0760, lng: 72.8777 },
-  "delhi": { lat: 28.6139, lng: 77.2090 },
-  "bangalore": { lat: 12.9716, lng: 77.5946 },
-  "moscow": { lat: 55.7558, lng: 37.6173 },
-  "kyiv": { lat: 50.4501, lng: 30.5234 },
-  "beijing": { lat: 39.9042, lng: 116.4074 },
-  "shanghai": { lat: 31.2304, lng: 121.4737 },
-  "hong kong": { lat: 22.3193, lng: 114.1694 },
-  "taipei": { lat: 25.0330, lng: 121.5654 },
-  "mexico city": { lat: 19.4326, lng: -99.1332 },
-  "sao paulo": { lat: -23.5505, lng: -46.6333 },
-  "berlin": { lat: 52.5200, lng: 13.4050 },
-  "madrid": { lat: 40.4168, lng: -3.7038 },
-  "rome": { lat: 41.9028, lng: 12.4964 },
-  "jakarta": { lat: -6.2088, lng: 106.8456 },
-  "seoul": { lat: 37.5665, lng: 126.9780 },
-  "manila": { lat: 14.5995, lng: 120.9842 },
-  "bangkok": { lat: 13.7563, lng: 100.5018 },
-  "cairo": { lat: 30.0444, lng: 31.2357 },
-  "istanbul": { lat: 41.0082, lng: 28.9784 },
-  "lagos": { lat: 6.5244, lng: 3.3792 },
-  "nairobi": { lat: -1.2921, lng: 36.8219 }
-};
-
-// --- 2. DELL SITE LIST ---
-const DELL_SITES = [
-  { key: "round rock", name: "Dell Round Rock HQ", lat: 30.5083, lng: -97.6788 },
-  { key: "austin", name: "Dell Austin Parmer", lat: 30.3952, lng: -97.6843 },
-  { key: "hopkinton", name: "Dell Hopkinton", lat: 42.2287, lng: -71.5226 },
-  { key: "franklin", name: "Dell Franklin", lat: 42.0834, lng: -71.3967 },
-  { key: "apex", name: "Dell Apex", lat: 35.7327, lng: -78.8503 },
-  { key: "eden prairie", name: "Dell Eden Prairie", lat: 44.8617, lng: -93.4168 },
-  { key: "draper", name: "Dell Draper", lat: 40.5240, lng: -111.8950 },
-  { key: "nashville", name: "Dell Nashville Hub", lat: 36.1627, lng: -86.7816 },
-  { key: "oklahoma city", name: "Dell Oklahoma City", lat: 35.4676, lng: -97.5164 },
-  { key: "santa clara", name: "Dell Santa Clara", lat: 37.3541, lng: -121.9552 },
-  { key: "mclean", name: "Dell McLean", lat: 38.9295, lng: -77.2268 },
-  { key: "el paso", name: "Dell El Paso", lat: 31.8385, lng: -106.5278 },
-  { key: "toronto", name: "Dell Toronto", lat: 43.6532, lng: -79.3832 },
-  { key: "mexico city", name: "Dell Mexico City", lat: 19.4326, lng: -99.1332 },
-  { key: "hortolandia", name: "Dell Hortolândia Mfg", lat: -22.8583, lng: -47.2208 },
-  { key: "sao paulo", name: "Dell São Paulo", lat: -23.5505, lng: -46.6333 },
-  { key: "porto alegre", name: "Dell Porto Alegre", lat: -30.0346, lng: -51.2177 },
-  { key: "panama city", name: "Dell Panama City", lat: 8.9824, lng: -79.5199 },
-  { key: "lodz", name: "Dell Lodz Mfg", lat: 51.7285, lng: 19.4967 },
-  { key: "limerick", name: "Dell Limerick", lat: 52.6638, lng: -8.6267 },
-  { key: "dublin", name: "Dell Dublin Cherrywood", lat: 53.2374, lng: -6.1450 },
-  { key: "cork", name: "Dell Cork Campus", lat: 51.8985, lng: -8.4756 },
-  { key: "herzliya", name: "Dell Herzliya", lat: 32.1644, lng: 34.7961 },
-  { key: "haifa", name: "Dell Haifa", lat: 32.7940, lng: 34.9896 },
-  { key: "bracknell", name: "Dell Bracknell", lat: 51.4160, lng: -0.7540 },
-  { key: "glasgow", name: "Dell Glasgow", lat: 55.8642, lng: -4.2518 },
-  { key: "montpellier", name: "Dell Montpellier", lat: 43.6108, lng: 3.8767 },
-  { key: "paris", name: "Dell Paris / Bezons", lat: 48.8566, lng: 2.3522 },
-  { key: "frankfurt", name: "Dell Frankfurt", lat: 50.1109, lng: 8.6821 },
-  { key: "halle", name: "Dell Halle", lat: 51.4820, lng: 11.9700 },
-  { key: "amsterdam", name: "Dell Amsterdam", lat: 52.3676, lng: 4.9041 },
-  { key: "casablanca", name: "Dell Casablanca", lat: 33.5731, lng: -7.5898 },
-  { key: "cairo", name: "Dell Cairo", lat: 30.0444, lng: 31.2357 },
-  { key: "dubai", name: "Dell Dubai", lat: 25.2048, lng: 55.2708 },
-  { key: "bangalore", name: "Dell Bangalore", lat: 12.9716, lng: 77.5946 },
-  { key: "hyderabad", name: "Dell Hyderabad", lat: 17.3850, lng: 78.4867 },
-  { key: "gurugram", name: "Dell Gurugram", lat: 28.4595, lng: 77.0266 },
-  { key: "sriperumbudur", name: "Dell Sriperumbudur Mfg", lat: 12.9560, lng: 79.9410 },
-  { key: "singapore", name: "Dell Singapore", lat: 1.3521, lng: 103.8198 },
-  { key: "penang", name: "Dell Penang", lat: 5.4164, lng: 100.3327 },
-  { key: "cyberjaya", name: "Dell Cyberjaya", lat: 2.9213, lng: 101.6559 },
-  { key: "xiamen", name: "Dell Xiamen Mfg", lat: 24.4798, lng: 118.0894 },
-  { key: "chengdu", name: "Dell Chengdu Mfg", lat: 30.5728, lng: 104.0668 },
-  { key: "shanghai", name: "Dell Shanghai", lat: 31.2304, lng: 121.4737 },
-  { key: "taipei", name: "Dell Taipei", lat: 25.0330, lng: 121.5654 },
-  { key: "tokyo", name: "Dell Tokyo", lat: 35.6762, lng: 139.6503 },
-  { key: "kawasaki", name: "Dell Kawasaki", lat: 35.5300, lng: 139.6960 },
-  { key: "sydney", name: "Dell Sydney", lat: -33.8688, lng: 151.2093 },
-  { key: "melbourne", name: "Dell Melbourne", lat: -37.8136, lng: 144.9631 }
-];
-
-// Populate CITY_COORDS with Dell sites for safe lookup
-DELL_SITES.forEach(s => {
-  CITY_COORDS[s.key] = { lat: s.lat, lng: s.lng };
-});
-
-// --- 3. HARDCODED FALLBACK DATA ---
-const STATIC_TRAVEL_DATA = [
-  { country: "Afghanistan", level: 4, text: "Do Not Travel." }, 
-  { country: "Australia", level: 1, text: "Exercise normal precautions." },
-  { country: "China", level: 3, text: "Reconsider Travel." },
-  { country: "France", level: 2, text: "Exercise increased caution." },
-  { country: "India", level: 2, text: "Exercise increased caution." },
-  { country: "Israel", level: 3, text: "Reconsider Travel." },
-  { country: "Mexico", level: 2, text: "Exercise increased caution." },
-  { country: "Russia", level: 4, text: "Do Not Travel." },
-  { country: "Ukraine", level: 4, text: "Do Not Travel." },
-  { country: "United Kingdom", level: 2, text: "Exercise increased caution." },
-  { country: "United States", level: 1, text: "Exercise normal precautions." }
-];
-
-// --- 4. MASTER FEED LIST ---
-const SOURCES = [
-  "https://news.google.com/rss/search?q=India+security+safety&hl=en-IN&gl=IN&ceid=IN:en",
-  "https://www.indiatoday.in/rss/home",
-  "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml",
-  "https://www.thehindu.com/news/national/feeder/default.rss",
-  "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
-  "https://www.osac.gov/Content/RSS/Alerts",
-  "https://www.gov.uk/government/organisations/foreign-commonwealth-development-office.atom",
-  "https://www.straitstimes.com/news/singapore/rss.xml",
-  "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml",
-  "https://e.vnexpress.net/rss/news.rss",
-  "https://www.inquirer.net/fullfeed",
-  "https://www.bangkokpost.com/rss/data/topstories.xml",
-  "https://www.rnz.co.nz/rss/news.xml",
-  "https://www.nzherald.co.nz/arc/outboundfeeds/rss/section/new-zealand/?outputType=xml",
-  "https://www.abc.net.au/news/feed/45910/rss.xml",
-  "https://www.japantimes.co.jp/feed",
-  "https://www.scmp.com/rss/91/feed",
-  "http://www.koreaherald.com/rss/rss_1.xml",
-  "https://focustaiwan.tw/rss/news",
-  "https://globalnews.ca/feed/",
-  "https://mexiconewsdaily.com/feed/",
-  "https://en.mercopress.com/rss",
-  "https://www.riotimesonline.com/feed/",
-  "https://www.theguardian.com/world/rss",
-  "https://www.france24.com/en/rss",
-  "https://rss.dw.com/rdf/rss-en-all",
-  "https://www.aljazeera.com/xml/rss/all.xml",
-  "https://www.freightwaves.com/feed",
-  "https://www.supplychaindive.com/feeds/news/",
-  "https://gcaptain.com/feed/",
-  "https://www.logisticsmgmt.com/rss/Logistics_Mgmt",
-  "https://newsroom.fmglobal.com/rss/supply-chain",
-  "https://www.cisa.gov/cybersecurity-advisories/all.xml",
-  "https://therecord.media/feed",
-  "https://www.theregister.com/security/headlines.atom",
-  "https://www.gdacs.org/Content/feeds/all.xml",
-  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom"
-];
-
-const IGNORE_REGEX = /sport|hockey|soccer|football|cricket|tennis|nfl|nba|f1|champions league|celebrity|movie|gossip|arts|culture|review|recipe|festivals|concert|fashion|royal|lifestyle|horoscope|bowler|wicket|batsman|ipl|innings|match|acquisition|merger|shares|stock|profit|earnings|revenue|appoints|named as|announces plans|ceo|cfo|acquired|buyout|partnership|launches product|quarterly result|dividend|service now|servicenow/i;
-const RISK_REGEX = /shooting|gunman|active shooter|attack|terror|hostage|kidnap|bomb|explosion|riot|protest|unrest|coup|cartel|siege|killed|dead|injured|death|murder|crime|homicide|fatal|earthquake|tsunami|flood|cyclone|typhoon|hurricane|tornado|volcano|ransomware|data breach|cyber|malware|outage|blackout|grid failure|strike|port closed|airport closed|cargo|supply chain|logistics|embargo|pandemic|outbreak|quarantine|fire|arrest|crash|derailment|warning|alert|crisis|emergency|risk|threat|security|disruption|delay|police|military|conflict|tension|border|jail|court|law|sentence|blockade|sanction|tariff|trade war/i;
-
-const SMART_PACKS = {
-  PHYSICAL: { include: ["active shooter","shots fired","shooting","gunman","armed suspect","armed attack","stabbing","hostage","kidnap","bomb","ied","explosion","terror","militant","extremist","assassination","ambush","riot","looting","arson","civil unrest","violent protest","clashes","lockdown","evacuation","curfew","martial law","manhunt","swat","navy","army","military","defense","carrier","warship"], boosters: ["mass casualty","multiple dead","fatalities","injured","school","campus","mall","airport","metro","station"] },
-  CYBER: { include: ["ransomware","data breach","security breach","compromised","malware","trojan","botnet","phishing","zero-day","exploit","backdoor","ddos","cyber attack","hacker","leak"], boosters: ["operations halted","systems offline","critical infrastructure","data leaked","production outage"] },
-  INFRASTRUCTURE: { include: ["power outage","blackout","grid failure","load shedding","water outage","telecom","internet outage","cloud outage","data center","service disruption","smog","pollution","visibility"], boosters: ["nationwide","critical services","emergency services","indefinite"] },
-  DISASTER: { include: ["earthquake","tsunami","volcano","cyclone","typhoon","hurricane","tornado","storm","flood","wildfire","bushfire","landslide","blizzard","quake","magnitude"], boosters: ["evacuation","destroyed","damaged","warning"] },
-  LOGISTICS: { include: ["port closed","airport closed","flight cancellations","shipping delays","congestion","vessel collision","derailment","train crash","bridge collapse","road closure","border closure","strike","work stoppage","embargo","sanctions","blockade","tariff","trade war"], boosters: ["indefinite","halted","shutdown","disruption"] }
-};
-
-function calculateSmartScore(text) {
-  let score = 0;
-  let matches = [];
-  const lowerText = text.toLowerCase();
-  for (const [pack, data] of Object.entries(SMART_PACKS)) {
-    for (const word of data.include) {
-      if (lowerText.includes(word)) {
-        score += 1;
-        matches.push(pack);
-      }
-    }
-    for (const word of data.boosters) {
-      if (lowerText.includes(word)) score += 3;
-    }
-  }
-  return { score, matches: [...new Set(matches)] };
-}
-
-function cleanUrl(url) {
-  let clean = url.trim();
-  if (clean.startsWith("[")) {
-    const match = clean.match(/\((https?:\/\/[^\)]+)\)/);
-    if (match) return match[1];
-  }
-  return clean;
-}
-
-export default {
-  async fetch(req, env, ctx) {
-    if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
-    const url = new URL(req.url);
-
-    if (url.pathname === "/api/incidents") {
-      const data = await env.INTEL_KV.get("incidents");
-      return new Response(data || "[]", { headers: { ...CORS, "Content-Type": "application/json" } });
-    }
-
-    if (url.pathname === "/api/traveladvisories") {
-      const countryQ = url.searchParams.get("country");
-      let cached = await env.INTEL_KV.get(TRAVEL_CACHE_KEY, { type: "json" });
-
-      let validCache = false;
-      if (cached && cached.updated_at) {
-        const age = Date.now() - new Date(cached.updated_at).getTime();
-        // Check Expiry (12 Hours)
-        if (age < TRAVEL_REFRESH_HOURS * 60 * 60 * 1000 && Array.isArray(cached.advisories) && cached.advisories.length > 50) {
-          validCache = true;
-        }
-      }
-
-      // If no valid cache, USE HARDCODED DATA IMMEDIATELY
-      if (!validCache) {
-          // Trigger background update but don't wait for it
-          ctx.waitUntil(refreshTravelData(env));
-          if (!cached) cached = { advisories: STATIC_TRAVEL_DATA, source: "static_hardcoded" };
-      }
-
-      if (countryQ && cached && Array.isArray(cached.advisories)) {
-          const needle = countryQ.toLowerCase();
-          let advisory = cached.advisories.find(a => a.country.toLowerCase() === needle);
-          if (!advisory) advisory = cached.advisories.find(a => a.country.toLowerCase().includes(needle));
-          
-          const allIncidents = (await env.INTEL_KV.get("incidents", { type: "json" })) || [];
-          const recent = allIncidents.filter(i => 
-             String(i.country).toLowerCase().includes(needle) || 
-             String(i.title).toLowerCase().includes(needle)
-          ).slice(0, 5);
-
-          return new Response(JSON.stringify({ advisory, recent_incidents: recent }), { headers: { ...CORS, "Content-Type": "application/json" } });
-      }
-      
-      return new Response(
-        JSON.stringify(cached),
-        { headers: { ...CORS, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (url.pathname === "/api/ingest" && req.method === "POST") {
-      const secret = req.headers.get("secret");
-      if (secret !== env.INGEST_SECRET) return new Response("Unauthorized", { status: 403, headers: CORS });
-      ctx.waitUntil(runIngestion(env));
-      return new Response("Ingestion triggered", { headers: CORS });
-    }
-
-    return new Response("osinfohub online", { headers: CORS });
-  },
-
-  async scheduled(event, env, ctx) { 
-      ctx.waitUntil(runIngestion(env)); 
-      ctx.waitUntil(refreshTravelData(env));
-  },
-};
-
-// --- REFRESHER LOGIC (Kevle Proxy + Open API) ---
-async function refreshTravelData(env) {
-    const locked = await env.INTEL_KV.get(TRAVEL_LOCK_KEY);
-    if(locked) return;
-    await env.INTEL_KV.put(TRAVEL_LOCK_KEY, "1", { expirationTtl: 60 });
-
-    try {
-        let advisories = [];
-        
-        // 1. Try KEVLE PROXY (Primary)
-        try {
-            const resp = await fetch(KEVLE_API, { headers: { "User-Agent": "OSInfoHub/1.0" } });
-            if(resp.ok) {
-                const json = await resp.json();
-                for (const [countryName, data] of Object.entries(json)) {
-                     let level = 1;
-                     const lvlText = String(data.level || "").toLowerCase();
-                     if(lvlText.includes("do not")) level = 4;
-                     else if(lvlText.includes("reconsider")) level = 3;
-                     else if(lvlText.includes("exercise a high")) level = 2;
-
-                     advisories.push({
-                         country: countryName,
-                         level: level,
-                         text: `${data.level}. ${data.summary || ""}`,
-                         updated: new Date().toISOString()
-                     });
-                }
-            }
-        } catch(e) { console.log("Kevle Proxy failed:", e.message); }
-
-        // 2. Fallback: Travel-Advisory.info
-        if(advisories.length < 50) {
-             try {
-                const resp = await fetch(OPEN_TRAVEL_API, { headers: { "User-Agent": "OSInfoHub/1.0" } });
-                if(resp.ok) {
-                    const json = await resp.json();
-                    if(json.data) {
-                        for (const [code, entry] of Object.entries(json.data)) {
-                          if(entry.name && entry.advisory) {
-                             advisories.push({
-                                 country: entry.name,
-                                 level: Math.min(Math.ceil(entry.advisory.score / 1.5), 4),
-                                 text: `Risk Score: ${entry.advisory.score}. ${entry.advisory.message || ""}`,
-                                 updated: new Date().toISOString()
-                             });
-                          }
-                      }
-                    }
-                }
-             } catch(e) { console.log("OpenAPI failed:", e.message); }
-        }
-
-        // 3. Save if valid
-        if(advisories.length > 50) {
-             advisories.sort((a,b) => a.country.localeCompare(b.country));
-             await env.INTEL_KV.put(TRAVEL_CACHE_KEY, JSON.stringify({ advisories, updated_at: new Date().toISOString(), source: "proxy_refresh" }));
-        }
-
-    } catch(e) { console.log("Travel Refresh Failed"); }
-    finally {
-        await env.INTEL_KV.delete(TRAVEL_LOCK_KEY);
-    }
-}
-
-async function runIngestion(env) {
-  console.log("--- V145c INGESTION START ---");
-  const existing = (await env.INTEL_KV.get("incidents", { type: "json" })) || [];
-  const seen = new Set(existing.map((i) => i.id));
-  const fresh = [];
-  const batch = [...SOURCES].sort(() => 0.5 - Math.random()).slice(0, BATCH_SIZE);
-
-  for (const src of batch) {
-    try {
-      const resp = await fetch(src, { headers: { "User-Agent": "Mozilla/5.0" } });
-      if (!resp.ok) continue;
-      const xml = await resp.text();
-      const items = parseUniversal(xml).slice(0, 5);
-
-      for (const item of items) {
-        const id = stableId(item.link || item.title);
-        if (seen.has(id)) continue;
-        seen.add(id);
-
-        const text = `${item.title} ${item.summary}`.trim();
-        if (IGNORE_REGEX.test(text)) continue;
-
-        const isIndia = src.toLowerCase().includes("india") || src.toLowerCase().includes("ndtv");
-        const smartData = calculateSmartScore(text);
-        const smartPass = smartData.score >= 1;
-        const riskPass = RISK_REGEX.test(text);
-
-        if (!isIndia && !smartPass && !riskPass) continue;
-
-        await new Promise(r => setTimeout(r, 1000));
-        let ai = await callGroq(env.GROQ_API_KEY, text);
-        if (!ai) continue;
-
-        let c = (ai.country || "GLOBAL").toUpperCase();
-        if(c.includes("UNKNOWN")) c = "GLOBAL";
-        
-        let l = (ai.location || "UNKNOWN").toUpperCase();
-        if(l.includes("UNKNOWN")) l = "UNKNOWN";
-
-        let severityClean = String(ai.severity || "LOW").toUpperCase();
-        if (!["CRITICAL", "HIGH", "MODERATE", "LOW"].includes(severityClean)) severityClean = "LOW";
-        
-        let severityNum = 1;
-        if(severityClean === "CRITICAL") severityNum = 4;
-        else if(severityClean === "HIGH") severityNum = 3;
-        else if(severityClean === "MODERATE") severityNum = 2;
-
-        const coords = resolveCoords(ai.location, item);
-        const prox = nearestDellSite(coords.lat, coords.lng);
-
-        const incident = {
-          id, title: item.title, link: item.link, summary: ai.summary || item.summary,
-          category: (ai.category || "UNKNOWN").toUpperCase(), 
-          severity: severityNum,
-          severity_text: severityClean,
-          region: normalizeRegion(ai.region), country: c, location: l,
-          lat: coords.lat, lng: coords.lng, time: new Date().toISOString(), source: src,
-          nearest_site_key: prox.siteKey, nearest_site_name: prox.siteName, distance_km: prox.dist,
-          smart_score: smartData.score, smart_packs: smartData.matches, india_priority: !!isIndia
-        };
-
-        fresh.push(incident);
-
-        if (EMAIL_THRESHOLD.includes(incident.severity_text)) {
-          await sendEmail(env, incident);
-        }
-      }
-    } catch (e) { console.log(`Loop Error: ${e.message}`); }
-  }
-
-  if (fresh.length) {
-    const merged = [...fresh, ...existing].slice(0, 200);
-    await env.INTEL_KV.put("incidents", JSON.stringify(merged));
-  }
-}
-
-async function callGroq(apiKey, text) {
-  try {
-    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant", temperature: 0, max_tokens: 300,
-        response_format: { type: "json_object" },
-        messages: [{ role: "system", content: 'You are an SRO Analyst. JSON ONLY: {"summary":"3 sentences","category":"PHYSICAL|CYBER|INFRASTRUCTURE|DISASTER|LOGISTICS","severity":"CRITICAL|HIGH|MODERATE|LOW","region":"APJC|EMEA|AMER|GLOBAL","country":"Name","location":"City"}' }, { role: "user", content: text.slice(0,700) }]
-      }),
-    });
-    if (!resp.ok) return null;
-    let json = await resp.json();
-    return JSON.parse(json.choices[0].message.content);
-  } catch (e) { return null; }
-}
-
-function parseUniversal(xml) {
-  const items = [];
-  const regex = /<(?:rss:)?(item|entry)(?:[\s\S]*?)>([\s\S]*?)<\/(?:rss:)?\1>/gi;
-  let match;
-  while ((match = regex.exec(xml)) !== null) {
-    const blob = match[2];
-    const title = decodeHtml(blob.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "").replace(/<!\[CDATA\[(.*?)\]\]>/g, "$1").trim();
-    let link = "";
-    const linkMatch = blob.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
-    if(linkMatch) link = linkMatch[1];
-    else { const hrefMatch = blob.match(/<link[^>]+href=["'](.*?)["']/i); if(hrefMatch) link = hrefMatch[1]; }
-    
-    let summaryRaw = ((blob.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1] || (blob.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i) || [])[1] || (blob.match(/<content[^>]*>([\s\S]*?)<\/content>/i) || [])[1] || "");
-    summaryRaw = summaryRaw.replace(/<!\[CDATA\[(.*?)\]\]>/g, "$1").replace(/<[^>]+>/g, " ").trim();
-
-    if (title) items.push({ title: title.replace(/<[^>]+>/g, "").trim(), link: link.trim(), summary: decodeHtml(summaryRaw) });
-  }
-  return items;
-}
-
-function resolveCoords(locationStr, item) {
-  if (item.lat && item.lng) return { lat: parseFloat(item.lat), lng: parseFloat(item.lng) };
-  if (!locationStr) return { lat: 0, lng: 0 };
-  const key = String(locationStr).toLowerCase().split(",")[0].trim();
-  return CITY_COORDS[key] || { lat: 0, lng: 0 };
-}
-
-function nearestDellSite(lat, lng) {
-  if (!lat || !lng) return { dist: 9999, siteKey: null, siteName: null };
-  let bestDist = 9999;
-  let bestKey = null;
-  let bestName = null;
-  for (const s of DELL_SITES) {
-    const d = haversine(lat, lng, s.lat, s.lng);
-    if (d < bestDist) { bestDist = d; bestKey = s.key; bestName = s.name; }
-  }
-  return { dist: Math.round(bestDist), siteKey: bestKey, siteName: bestName };
-}
-
-function haversine(lat1, lon1, lat2, lon2) {
-  const R = 6371; const toRad = (x) => (x * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1); const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
-function stableId(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i); return String(h); }
-function normalizeRegion(r) { return ["APJC","EMEA","AMER"].includes(r) ? r : "GLOBAL"; }
-function clampInt(v, min, max) { const n = parseInt(v, 10); return (!Number.isFinite(n)) ? min : Math.max(min, Math.min(max, n)); }
-function decodeHtml(s) { return String(s || "").replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", '"').replaceAll("&#039;", "'"); }
-
-async function sendEmail(env, inc) {
-  if (!env.RESEND_API_KEY) return;
-  const emoji = inc.severity_text === "CRITICAL" ? "🛑" : "⚠️";
-  const subject = `${emoji} [${inc.country}] ${inc.location} - ${inc.category} (${inc.severity_text}): ${inc.title.slice(0,60)}`;
-  const html = `<p><b>${inc.summary}</b></p><p>Nearest Site: ${inc.nearest_site_name || "N/A"}</p><p>Source: ${inc.link}</p>`;
-  await fetch("https://api.resend.com/emails", {
-      method: "POST", headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: EMAIL_FROM, to: [ADMIN_EMAIL], subject, html })
-  });
-}
-FILE 2: index.html (V129 - FIXED DEFINITION ORDER)
-Instructions:
-
-Delete index.html.
-
-Paste the code below.
-
-Commit.
-
-HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OS | INFOHUB</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
-    .sev-CRITICAL { background-color: #ef4444; color: #fff; }
-    .sev-HIGH { background-color: #f97316; color: #fff; }
-    .sev-MODERATE { background-color: #eab308; color: #000; }
-    .sev-LOW { background-color: #3b82f6; color: #fff; }
+    
+    .sev-CRITICAL { background-color: #ef4444; color: #fff; border-color:#ef4444; }
+    .sev-HIGH { background-color: #f97316; color: #fff; border-color:#f97316; }
+    .sev-MODERATE { background-color: #eab308; color: #000; border-color:#eab308; }
+    .sev-LOW { background-color: #3b82f6; color: #fff; border-color:#3b82f6; }
+    .sev-UNKNOWN { background-color: #64748b; color: #fff; }
+
     .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 70px; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; margin-left: 12px; }
     .logo-text span { color: var(--dell-blue); }
+
     .content-area { padding: 30px; }
-    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; }
-    #map { width: 100%; height: 100%; }
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; background: #eef2f6; border: 1px solid #e0e0e0; }
+    #map { width: 100%; height: 100%; z-index: 1; }
+    
+    .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+    .feed-content { padding: 18px 24px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-right: 5px; border:1px solid #eee; }
+    .ftag-loc { background: #202124; color: #fff; }
+    .feed-title { font-size: 1.1rem; font-weight: 700; color: #202124; margin-bottom: 8px; }
+    .feed-desc { font-size: 0.9rem; color: #4b4f56; line-height: 1.5; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; display: flex; justify-content: space-between; align-items: center; margin-top:8px;}
+
     .sidebar-col { padding-left: 30px; display: flex; flex-direction: column; gap: 20px; }
     .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; }
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; }
+    .nav-item-custom.active { background-color: #202124; color: #fff; }
+    
     .advisory-box { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-top: 15px; }
     .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
     .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
-    .feed-card { background: #fff; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 15px; display: block; text-decoration: none; color: inherit; }
-    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-right: 5px; }
-    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
-    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; }
-    .nav-item-custom.active { background-color: #202124; color: #fff; }
+    .alert-row { padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+    
     .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; display: flex; justify-content: center; align-items: center; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
     .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+    
+    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
+    .prox-header-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
   </style>
 </head>
 <body>
@@ -584,6 +75,7 @@ HTML
         <a class="nav-item-custom" onclick="app.filterNews('AMER', this)">AMER</a>
         <a class="nav-item-custom" onclick="app.filterNews('EMEA', this)">EMEA</a>
         <a class="nav-item-custom" onclick="app.filterNews('APJC', this)">APJC</a>
+        <a class="nav-item-custom" onclick="app.filterNews('LATAM', this)">LATAM</a>
       </div>
       <div class="text-end" style="font-size:0.85rem;">
         <div id="clock-date" style="font-weight:700;">Loading...</div>
@@ -619,17 +111,26 @@ HTML
               <option value="100">100 KM</option>
               <option value="500">500 KM</option>
             </select>
-          <div id="proximity-alerts-container" style="max-height:400px;overflow-y:auto;">Scanning assets...</div>
+          <div id="proximity-alerts-container">Scanning assets...</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V129
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Daily Briefing</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><button class="btn btn-primary w-100" onclick="alert('Demo Mode')">Download</button></div>
+        </div>
+    </div>
+</div>
 
-// --- MOVED TO TOP to fix ReferenceError ---
+<script>
+// --- 1. DATA DEFINITIONS (MOVED TO TOP TO FIX REFERENCE ERROR) ---
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; // V145c
+
 const ASSETS = {
   "round rock": { lat: 30.5083, lng: -97.6788 }, "austin": { lat: 30.3952, lng: -97.6843 }, 
   "hopkinton": { lat: 42.2287, lng: -71.5226 }, "franklin": { lat: 42.0834, lng: -71.3967 }, 
@@ -641,7 +142,7 @@ const ASSETS = {
 const WORKER_SITE_ALIAS = {
   "round rock": "Dell Round Rock HQ", "austin": "Dell Austin Parmer", "hopkinton": "Dell Hopkinton", 
   "franklin": "Dell Franklin", "bangalore": "Dell Bangalore", "london": "Dell London",
-  "singapore": "Dell Singapore", "sydney": "Dell Sydney"
+  "singapore": "Dell Singapore", "sydney": "Dell Sydney", "dubai": "Dell Dubai", "tokyo": "Dell Tokyo"
 };
 
 let TRAVEL_DATA = [];
@@ -649,13 +150,17 @@ let INCIDENTS = [];
 
 const app = {
     init: function() {
-        this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
-        this.plotAssets();
+        this.initMap();
         this.startClock();
         this.fetchData();
         this.loadTravel();
         setInterval(() => this.fetchData(), 60000);
+    },
+
+    initMap: function() {
+        this.map = L.map('map', {zoomControl: false}).setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
+        this.plotAssets();
     },
 
     plotAssets: function() {
@@ -680,7 +185,9 @@ const app = {
             INCIDENTS = await res.json();
             this.render();
             this.updateProximity();
-        } catch(e) { console.log("Incident fetch error"); }
+        } catch(e) { 
+            // document.getElementById('general-news-feed').innerHTML = `<div class="text-center p-5 text-muted">Retrying connection...</div>`;
+        }
     },
 
     loadTravel: async function(attempt=1) {
@@ -711,15 +218,14 @@ const app = {
             else if(advisory.level >= 3) { color = "#e37400"; level = "LEVEL 3"; }
             else if(advisory.level >= 2) { color = "#f9ab00"; level = "LEVEL 2"; }
 
-            div.innerHTML = `<div class="advisory-box" style="border-left:4px solid ${color}"><div style="color:${color};font-weight:bold">OFFICIAL STATUS: ${level}</div><div class="mt-1 small">${advisory.text}</div></div>`;
+            div.innerHTML = `<div class="advisory-box" style="border-left:4px solid ${color}"><div class="fw-bold" style="color:${color}">OFFICIAL STATUS: ${level}</div><div class="mt-1 small">${advisory.text}</div></div>`;
         }
 
         const related = INCIDENTS.filter(i => String(i.country).toUpperCase().includes(country.toUpperCase())).slice(0, 3);
         if(related.length > 0) {
             let newsHTML = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS</div>`;
             related.forEach(n => {
-                const sevText = n.severity_text || (n.severity >= 4 ? "CRITICAL" : n.severity == 3 ? "HIGH" : "LOW");
-                newsHTML += `<div class="news-box-item"><div style="font-weight:700;font-size:0.8rem">${n.title}</div><div style="font-size:0.7rem;color:${sevText==='CRITICAL'?'red':'gray'}">${sevText}</div></div>`;
+                newsHTML += `<div class="news-box-item"><div style="font-weight:700;font-size:0.8rem">${n.title}</div><div style="font-size:0.7rem;color:#666">${n.severity_text}</div></div>`;
             });
             newsDiv.innerHTML = newsHTML + `</div>`;
         } else {
@@ -730,30 +236,54 @@ const app = {
     render: function() {
         const container = document.getElementById('general-news-feed');
         container.innerHTML = '';
-        INCIDENTS.slice(0, 50).forEach(item => {
-            const sev = item.severity_text || "LOW";
-            const color = sev === 'CRITICAL' ? '#ef4444' : sev === 'HIGH' ? '#f97316' : '#1a73e8';
-            container.innerHTML += `
+        this.markers.forEach(m => this.map.removeLayer(m)); // Clear old markers
+        this.markers = [];
+
+        let filtered = this.data.filter(i => this.currentRegion === 'Global' || i.region === this.currentRegion);
+        
+        filtered.sort((a,b) => (getSevWeight(b.severity_text) - getSevWeight(a.severity_text)));
+        document.getElementById('feed-count').innerText = `${filtered.length} ITEMS`;
+
+        filtered.forEach(item => {
+            const sevText = item.severity_text || item.severity || "LOW";
+            const sevDetails = getSevDetails(sevText);
+            
+            const html = `
                 <a href="${item.link}" target="_blank" class="feed-card">
                     <div class="d-flex">
-                        <div style="width:5px;background:${color}"></div>
-                        <div class="p-3 w-100">
-                            <div class="d-flex gap-2 mb-2">
-                                <span class="ftag" style="background:${color};color:white">${sev}</span>
-                                <span class="ftag" style="background:#333;color:white">${item.country}</span>
+                        <div class="feed-status-bar" style="background:${sevDetails.color}"></div>
+                        <div class="feed-content">
+                            <div class="feed-tags">
+                                <span class="ftag" style="background:${sevDetails.color}; color:#fff">${sevText}</span>
+                                <span class="ftag ftag-loc">${item.country}</span>
                             </div>
-                            <div style="font-weight:700;margin-bottom:5px;">${item.title}</div>
-                            <div style="font-size:0.85rem;color:#555;">${item.summary}</div>
+                            <div class="feed-title">${item.title}</div>
+                            <div class="feed-desc">${item.summary}</div>
+                            <div class="feed-meta">
+                                <span><i class="fas fa-clock"></i> ${new Date(item.time).toLocaleTimeString()}</span>
+                                <span class="feed-source-link">SOURCE <i class="fas fa-external-link-alt ms-1"></i></span>
+                            </div>
                         </div>
                     </div>
                 </a>`;
+            container.innerHTML += html;
+
+            if(item.lat && item.lng) {
+                const m = L.circleMarker([item.lat, item.lng], {
+                    radius: 8, fillColor: sevDetails.color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
+                }).addTo(this.map).bindPopup(`<b>${item.title}</b>`);
+                this.markers.push(m);
+            }
         });
-        document.getElementById('feed-count').innerText = `${INCIDENTS.length} ITEMS`;
     },
 
-    filterNews: function(reg, el) {
-        document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
-        if(el) el.classList.add('active');
+    filterNews: function(region, el) {
+        this.currentRegion = region;
+        if(el) {
+            document.querySelectorAll('.nav-item-custom').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+        this.render();
     },
 
     updateProximity: function() {
@@ -761,7 +291,7 @@ const app = {
         const container = document.getElementById('proximity-alerts-container');
         container.innerHTML = '';
         let found = false;
-        
+
         INCIDENTS.forEach(inc => {
             if(!inc.lat) return;
             for(const [name, asset] of Object.entries(ASSETS)) {
@@ -769,8 +299,16 @@ const app = {
                  if(dist <= range) {
                      found = true;
                      const sevText = inc.severity_text || "LOW";
-                     const color = sevText === 'CRITICAL' ? '#ef4444' : '#1a73e8';
-                     container.innerHTML += `<div style="padding:10px;border-bottom:1px solid #eee"><div style="font-weight:700;color:${color}">${sevText} THREAT</div><div class="small">Near ${WORKER_SITE_ALIAS[name] || name.toUpperCase()} • ${Math.round(dist)} KM</div><div>${inc.title}</div></div>`;
+                     const color = getSevDetails(sevText).color;
+                     container.innerHTML += `
+                        <div class="alert-row">
+                            <div class="alert-top">
+                                <span style="color:${color}; font-weight:700; font-size:0.75rem;">${sevText} THREAT</span>
+                                <span class="alert-dist">${Math.round(dist)} KM</span>
+                            </div>
+                            <div style="font-size:0.8rem;">${inc.title}</div>
+                            <div style="font-size:0.7rem; color:#64748b;">NEAR: ${WORKER_SITE_ALIAS[name] || name.toUpperCase()}</div>
+                        </div>`;
                  }
             }
         });
@@ -786,10 +324,19 @@ const app = {
     }
 };
 
+function getSevWeight(sev) {
+    if(sev === 'CRITICAL' || sev === 4 || sev === '4') return 4;
+    if(sev === 'HIGH' || sev === 3 || sev === '3') return 3;
+    if(sev === 'MODERATE' || sev === 2 || sev === '2') return 2;
+    return 1;
+}
+
+function getSevDetails(level) {
+    const map = { 'CRITICAL':{val:4, color:'#ef4444'}, 'HIGH':{val:3, color:'#f97316'}, 'MODERATE':{val:2, color:'#eab308'}, 'LOW':{val:1, color:'#3b82f6'} };
+    return map[level] || {val:0, color:'#64748b'};
+}
+
 app.init();
 </script>
 </body>
 </html>
-
-
-
