@@ -896,48 +896,7 @@ function updateHeadline(region) {
    PROXIMITY ALERTS
    - show serious/high (severity >=4) within radius
    - uses resolved coordinates for incidents
-   - UPDATED: applies stricter filtering to remove business/corporate noise
 =========================== */
-
-/* Allowed proximity categories (only these categories should be considered)
-   Keep list conservative to avoid business noise. */
-const PROX_ALLOWED_CATEGORIES = new Set([
-  "PHYSICAL","DISASTER","INFRASTRUCTURE","LOGISTICS","LAW_ENFORCEMENT",
-  "HEALTH_SAFETY","TRANSPORT","FACILITY","SECURITY","CYBER"
-]);
-
-/* Business-noise regex used client-side as a second barrier */
-const CLIENT_BUSINESS_BLACKLIST_RE = new RegExp([
-  "\\bacquir","\\bmerg","\\bearnings\\b","\\bipo\\b","\\bfunding\\b","\\binvest",
-  "\\bpartnership","\\bproduct launch","\\bservice now","\\bservice-now","\\bceo\\b",
-  "\\bcto\\b","\\bboard\\b","\\binvestor\\b","\\bshares\\b","\\bstock\\b",
-  "\\bquarterly results\\b","\\bpress release\\b","\\bawards?\\b","\\bfestival\\b",
-  "\\bconcert\\b","\\bmovie\\b","\\bcelebrity\\b","\\bsports?\\b","\\brecipe\\b","\\blifestyle\\b"
-].join("|"), "i");
-
-/* Incident keywords (client-side duplicate of worker logic) */
-const CLIENT_INCIDENT_KEYWORDS_RE = new RegExp([
-  "\\bprotest\\b","\\bdemonstration\\b","\\briot\\b","\\bevacuat","\\bshelter[- ]?in[- ]?place",
-  "\\bcurfew\\b","\\bpolice activity\\b","\\bpolice operation\\b","\\bbomb threat\\b","\\bexplosion\\b",
-  "\\bfire\\b","\\bwildfire\\b","\\bchemical spill\\b","\\bhazardous material","\\bhazmat\\b",
-  "\\bflood\\b","\\blandslide\\b","\\bearthquake\\b","\\btsunami\\b","\\btornado\\b","\\bhurricane\\b",
-  "\\bpower outage\\b","\\boutage\\b","\\bairport closure\\b","\\bport shutdown\\b","\\btransportation strike\\b",
-  "\\broad closures?\\b","\\bmajor traffic disruption\\b","\\bmissing person\\b","\\bactive threat\\b",
-  "\\bworkplace violence\\b","\\bsuspicious package\\b","\\bperimeter breach\\b","\\bburglary\\b","\\btheft incident\\b"
-].join("|"), "i');
-
-/* helper: returns true if title+summary look like an incident keyword */
-function clientMentionsIncidentKeyword(text) {
-  if (!text) return false;
-  return CLIENT_INCIDENT_KEYWORDS_RE.test(text);
-}
-
-/* helper: returns true if text looks like business noise */
-function clientLooksLikeBusinessNoise(text) {
-  if (!text) return false;
-  return CLIENT_BUSINESS_BLACKLIST_RE.test(text);
-}
-
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   currentRadius = parseFloat(radiusSelect.value || "50");
@@ -952,65 +911,34 @@ function renderProximityAlerts(region) {
 
   const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
-  // Focus on serious/critical = severity>=4 (but we will consider some severity 3 if keywords exist)
+  // Focus on serious/critical = severity>=4
   const alerts = [];
   for (const inc of incidents) {
-    try {
-      const sev = Number(inc.severity || 1);
+    const sev = Number(inc.severity || 1);
+    if (sev < 4) continue; // only serious/critical
 
-      // client-side: skip BUSINESS / UNKNOWN / empty categories immediately
-      const cat = (inc.category || "UNKNOWN").toUpperCase();
-      if (!PROX_ALLOWED_CATEGORIES.has(cat)) {
-        // If category is not allowed, only allow if it *explicitly* contains an incident keyword and severity >=3
-        const combinedText = `${inc.title || ""} ${inc.summary || ""}`;
-        const hasKeyword = clientMentionsIncidentKeyword(combinedText);
-        if (!(hasKeyword && sev >= 3)) {
-          continue;
+    // resolve coords if missing
+    let coords = null;
+    if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
+      coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
+    } else {
+      coords = getCoordsForIncident(inc);
+    }
+    if (!coords) continue;
+
+    // measure distance to each Dell site; if any site within currentRadius, add (choose nearest site)
+    let nearest = null;
+    for (const [assetName, a] of Object.entries(ASSETS)) {
+      const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
+      if (dist <= currentRadius) {
+        if (!nearest || dist < nearest.dist) {
+          nearest = { dist, assetName, a };
         }
       }
+    }
 
-      // skip obvious business noise even if category survived
-      const combined = `${inc.title || ""} ${inc.summary || ""}`;
-      if (clientLooksLikeBusinessNoise(combined)) continue;
-
-      // require a usable location (not GLOBAL, not UNKNOWN)
-      const country = String(inc.country || "").trim().toLowerCase();
-      const location = String(inc.location || "").trim().toLowerCase();
-      if ((!country || country === "global" || country === "unknown") && (!location || location === "unknown" || location === "global")) {
-        // allow only if highest severity (critical), but otherwise skip
-        if (sev < 5) continue;
-      }
-
-      // If severity is low (<4) and no incident keyword -> skip
-      const hasIncidentKeyword = clientMentionsIncidentKeyword(combined);
-      if (sev < 4 && !hasIncidentKeyword) continue;
-
-      // resolve coords if missing
-      let coords = null;
-      if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
-        coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
-      } else {
-        coords = getCoordsForIncident(inc);
-      }
-      if (!coords) continue;
-
-      // measure distance to each Dell site; if any site within currentRadius, add (choose nearest site)
-      let nearest = null;
-      for (const [assetName, a] of Object.entries(ASSETS)) {
-        const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
-        if (dist <= currentRadius) {
-          if (!nearest || dist < nearest.dist) {
-            nearest = { dist, assetName, a };
-          }
-        }
-      }
-
-      if (nearest) {
-        alerts.push({ inc, nearest });
-      }
-    } catch (e) {
-      // skip problematic record
-      continue;
+    if (nearest) {
+      alerts.push({ inc, nearest });
     }
   }
 
