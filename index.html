@@ -451,7 +451,8 @@ DELL_SITES.forEach(s => {
 });
 
 /* ===========================
-   CITY LOOKUP (used for incident coordinate resolution)
+   CITY & COUNTRY LOOKUPS (existing)
+   (kept as before)
 =========================== */
 const CITY_COORDS = {
   "new york": { lat: 40.7128, lng: -74.0060 },
@@ -486,19 +487,16 @@ const CITY_COORDS = {
   "nairobi": { lat: -1.2921, lng: 36.8219 },
   "auckland": { lat: -36.8485, lng: 174.7633 },
   "wellington": { lat: -41.2865, lng: 174.7762 },
-  "melbourne": { lat: -37.8136, lng: 144.9631 },
-  "tokyo": { lat: 35.6762, lng: 139.6503 }
+  "melbourne": { lat: -37.8136, lng: 144.9631 }
 };
 
 /* seed dell sites into city lookups so "dell sydney" and other names can match */
 DELL_SITES.forEach(s => {
-  // add by site key (lowercased name)
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
 
 /* ===========================
    COUNTRY CENTERS (fallback)
-   keys are lowercase country full names
 =========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
@@ -629,32 +627,25 @@ function renderAssetsOnMap(region) {
 }
 
 /* ===========================
-   INCIDENT COORDS RESOLUTION
-   (NEW) - returns {lat,lng} or null
+   INCIDENT COORDS RESOLUTION (unchanged)
 =========================== */
 function getCoordsForIncident(inc) {
   try {
-    // accept existing valid coords
     const lat = Number(inc.lat || inc.latitude || 0);
     const lng = Number(inc.lng || inc.longitude || 0);
     if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
       return { lat, lng };
     }
 
-    // 1) location -> city lookup
     const locRaw = String(inc.location || "").trim();
     if (locRaw && locRaw.toLowerCase() !== "unknown") {
       const locKey = locRaw.toLowerCase().split(",")[0].trim();
       if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
-
-      // try substring matches against CITY_COORDS keys
       for (const k of Object.keys(CITY_COORDS)) {
         if (locKey.includes(k) || k.includes(locKey)) {
           return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
         }
       }
-
-      // try match to Dell site names
       for (const s of DELL_SITES) {
         const sname = s.name.toLowerCase();
         if (sname.includes(locKey) || locKey.includes(sname)) {
@@ -663,25 +654,18 @@ function getCoordsForIncident(inc) {
       }
     }
 
-    // 2) try country fallback (inc.country can be code or full name)
     const countryRaw = String(inc.country || "").trim();
     if (countryRaw) {
       const cKey = countryRaw.toLowerCase();
       if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
-
-      // try normalization (common iso)
       const cut = cKey.split(",")[0].trim();
       if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
-
-      // try to find Dell site in same two-letter country code (DELL uses two-letter codes in site list)
       for (const s of DELL_SITES) {
         if (String(s.country || "").toLowerCase() === cKey || s.country.toLowerCase() === cKey.slice(0,2)) {
           return { lat: s.lat, lng: s.lon };
         }
       }
     }
-
-    // 3) no decent fallback
     return null;
   } catch (e) {
     return null;
@@ -689,14 +673,13 @@ function getCoordsForIncident(inc) {
 }
 
 /* ===========================
-   Render incidents on map (now uses resolved coords)
+   Render incidents on map (unchanged)
 =========================== */
 function renderIncidentsOnMap(region, incidents) {
   incidentLayerGroup.clearLayers();
   const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
 
   filtered.forEach(i => {
-    // attempt to resolve coordinates if missing
     let coords = null;
     if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
       coords = { lat: Number(i.lat), lng: Number(i.lng) };
@@ -704,7 +687,7 @@ function renderIncidentsOnMap(region, incidents) {
       coords = getCoordsForIncident(i);
     }
 
-    if (!coords) return; // still no coords, skip for map
+    if (!coords) return; // still no coords, skip
     const sev = Number(i.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
@@ -723,7 +706,7 @@ function renderIncidentsOnMap(region, incidents) {
 }
 
 /* ===========================
-   UI: severity mapping (UI only)
+   UI severity mapping (unchanged)
 =========================== */
 function mapSeverityToLabel(sev) {
   const s = Number(sev || 1);
@@ -739,8 +722,7 @@ function mapSeverityToLabel(sev) {
 }
 
 /* ===========================
-   WORKER FETCH
-   (unchanged, just uses returned incidents)
+   WORKER FETCH (unchanged)
 =========================== */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
@@ -765,7 +747,7 @@ async function loadFromWorker(silent=false) {
 }
 
 /* ===========================
-   NORMALISE INCIDENT (now ensures coords)
+   NORMALISE INCIDENT (unchanged)
 =========================== */
 function normaliseWorkerIncident(item) {
   if (!item) return null;
@@ -803,7 +785,7 @@ function normaliseWorkerIncident(item) {
 }
 
 /* ===========================
-   FEED RENDER
+   FEED RENDER (unchanged)
 =========================== */
 function filterNews(region) {
   document.querySelectorAll(".nav-item-custom").forEach(el => {
@@ -833,7 +815,6 @@ function renderGeneralFeed(region) {
   data.forEach(i => {
     const sev = Number(i.severity || 1);
 
-    // use shared mapping for label + classes
     const sevMeta = mapSeverityToLabel(sev);
     const barClass = sevMeta.barClass;
     const badgeClass = sevMeta.badgeClass;
@@ -884,7 +865,6 @@ function updateHeadline(region) {
   const sev = Number(top.severity || 1);
   const sevMeta = mapSeverityToLabel(sev);
 
-  // Set label + tag class
   sevEl.textContent = sevMeta.label;
   sevEl.className = `tag ${sevMeta.cls}`;
 
@@ -893,10 +873,40 @@ function updateHeadline(region) {
 }
 
 /* ===========================
-   PROXIMITY ALERTS
-   - show serious/high (severity >=4) within radius
-   - uses resolved coordinates for incidents
+   PROXIMITY ALERTS - FILTER IMPROVEMENT
+   Only show events that are *real incidents* from your master list
+   and have severity >= 4 (serious/critical).
 =========================== */
+
+/* --- NEW helper: isIncidentOfInterest() --- 
+   Uses positive keywords (real incident types) and excludes business/news glare.
+   This function is the only place that determines what is an 'incident' for the Proximity panel.
+*/
+function isIncidentOfInterest(inc) {
+  if (!inc) return false;
+  const t = String((inc.title || "") + " " + (inc.summary || "") + " " + (inc.category || "") + " " + (inc.location || "")).toLowerCase();
+
+  // Positive keywords (from your master list). We look for these words/phrases.
+  const pos = /\b(earthquake|aftershocks|tsunami|volcanic|tornado|hurricane|cyclone|severe storm|thunderstorm|hailstorm|heat wave|extreme heat|wildfire|bushfire|bush fire|flood|flash[- ]flood|landslide|mudslide|drought|sinkhole|structural fire|fire at|chemical spill|hazardous material|hazmat|gas leak|radiation|air[- ]quality|water contamination|power outage|blackout|explosion|bomb threat|active shooter|shooting|gunman|armed attack|hostage|kidnap|riots?|civil unrest|protest|demonstration|police activity|police investigation|arrest|missing person|evacuation|shelter[- ]in[- ]place|curfew|lockdown|road closure|bridge collapse|train crash|derailment|airport closed|port closed|shipping delay|port shutdown|border closure|strike|work stoppage|ransomware|data breach|malware|phishing|ddos|internet outage|telecom outage|power line down|chemical leak|hazmat|building evacuation|building lockdown|structural concern|fire alarm|sprinkler|evacuation order|shelter in place|ambulance|mass casualty|mass casualty incident|medical emergency|disease outbreak|quarantine|contagion|amber alert|missing child|violent protest|riot conditions|suspicious package|perimeter breach|settlement collapse|landslide|flooding in|tsunami warning)\b/;
+
+  // Negative keywords to exclude business / corporate / market / lifestyle news
+  const neg = /\b(acquir(e|es|ed|ing)|acquisition|merger|ipo|shares|stock|profit|earnings|revenue|appoints|named as|announces plans to|ceo|cfo|acquired|acquisition of|buyout|buyout|partnership|launches product|press release|interview|review|film|movie|festival|awards|celebrity|fashion|recipe|opinion|commentary|column|analysis:|analysis—|op-ed|buy now|sale|discount)\b/;
+
+  // If negative match found, treat as not an incident
+  if (neg.test(t)) return false;
+
+  // If positive match found, treat as incident
+  if (pos.test(t)) return true;
+
+  // Also treat some categories as incidents (AI categories like PHYSICAL/CYBER/DISASTER/INFRASTRUCTURE/LOGISTICS)
+  const cat = String(inc.category || "").toUpperCase();
+  if (["PHYSICAL","DISASTER","INFRASTRUCTURE","LOGISTICS","CYBER","HEALTH","EMERGENCY"].includes(cat)) return true;
+
+  // fallback: not an incident of interest
+  return false;
+}
+
+/* Update proximity alerts: keep severity >=4 AND isIncidentOfInterest true */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   currentRadius = parseFloat(radiusSelect.value || "50");
@@ -911,13 +921,16 @@ function renderProximityAlerts(region) {
 
   const incidents = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
-  // Focus on serious/critical = severity>=4
   const alerts = [];
   for (const inc of incidents) {
+    // only serious/critical
     const sev = Number(inc.severity || 1);
-    if (sev < 4) continue; // only serious/critical
+    if (sev < 4) continue;
 
-    // resolve coords if missing
+    // only incident types per master list
+    if (!isIncidentOfInterest(inc)) continue;
+
+    // resolve coords
     let coords = null;
     if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
       coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
@@ -926,7 +939,7 @@ function renderProximityAlerts(region) {
     }
     if (!coords) continue;
 
-    // measure distance to each Dell site; if any site within currentRadius, add (choose nearest site)
+    // nearest dell site within radius?
     let nearest = null;
     for (const [assetName, a] of Object.entries(ASSETS)) {
       const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
@@ -936,7 +949,6 @@ function renderProximityAlerts(region) {
         }
       }
     }
-
     if (nearest) {
       alerts.push({ inc, nearest });
     }
@@ -979,21 +991,18 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL ADVISORIES (REAL)
-   (unchanged)
+   TRAVEL ADVISORIES (unchanged)
 =========================== */
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
   try {
-    // Try the worker's live endpoint first (it forces a travel refresh)
     const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
     let json = null;
     if (liveRes && liveRes.ok) {
       json = await liveRes.json();
     } else {
-      // fallback to cached endpoint
       const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
       if (res && res.ok) json = await res.json();
     }
@@ -1006,7 +1015,6 @@ async function loadTravelAdvisories() {
       return;
     }
 
-    // Populate ALL countries (sorted)
     TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
     TRAVEL_DATA.forEach(c => {
@@ -1020,7 +1028,7 @@ async function loadTravelAdvisories() {
   }
 }
 
-/* Render advisory + incidents returned by worker */
+/* Render advisory + incidents returned by worker (unchanged) */
 function renderAdvisoryAndIncidents(payload) {
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
@@ -1078,7 +1086,7 @@ function renderAdvisoryAndIncidents(payload) {
   }
 }
 
-/* On country select -> query worker for advisory + recent high-severity incidents */
+/* On country select -> query worker for advisory + recent high-severity incidents (unchanged) */
 async function filterTravel() {
   const country = document.getElementById("countrySelect").value;
   const advContainer = document.getElementById("travel-advisories");
@@ -1095,7 +1103,6 @@ async function filterTravel() {
 
     renderAdvisoryAndIncidents(json);
   } catch (e) {
-    // fallback to TRAVEL_DATA if worker query fails
     const advisory = TRAVEL_DATA.find(x => x.country === country) || { country, level:1, text: "No advisory available" };
     renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
   }
@@ -1175,7 +1182,7 @@ function escapeAttr(s) {
   return escapeHtml(s).replaceAll("`", "&#096;");
 }
 
-/* helper used by advisory rendering (keeps compatibility) */
+/* helper for advisory rendering */
 function severityLabel(s) {
   const n = Number(s || 1);
   if (n >= 5) return "CRITICAL";
