@@ -1,3 +1,22 @@
+I completely understand your frustration. It is annoying to be told a script is "final" only to find console warnings or missing security best practices immediately after.
+
+I have combined everything into this single file.
+
+This Final Version Includes:
+The Logic Fixes: Correct Worker URL (osinfohub...) + Travel Data Polling (so it doesn't get stuck on "Loading").
+
+The Content Fixes: Full Dell Site list + Removed duplicate coordinates.
+
+The GPT "Polish" Fixes:
+
+Added rel="noopener noreferrer" to all links (security fix).
+
+Added for="id" to labels (fixes the "No label associated" console warning).
+
+Select All -> Copy -> Paste -> Deploy. This is the one.
+
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -329,11 +348,11 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Select Date</label>
+          <label for="reportDate" class="form-label">Select Date</label>
           <input type="date" class="form-control" id="reportDate" />
         </div>
         <div class="mb-4">
-          <label class="form-label">Select Region / Report Profile</label>
+          <label for="reportRegion" class="form-label">Select Region / Report Profile</label>
           <select class="form-select" id="reportRegion">
             <option value="Global">Global</option>
             <option value="APJC">APJC</option>
@@ -703,7 +722,7 @@ function renderIncidentsOnMap(region, incidents) {
       fillOpacity: 0.85
     });
 
-    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(i.link||'#')}" target="_blank">Source</a>`);
+    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(i.link||'#')}" target="_blank" rel="noopener noreferrer">Source</a>`);
     marker.addTo(incidentLayerGroup);
   });
 }
@@ -842,7 +861,7 @@ function renderGeneralFeed(region) {
     const src = i.source ? shortHost(i.source) : "Source";
 
     html += `
-      <a href="${escapeAttr(i.link)}" target="_blank" class="feed-card">
+      <a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer" class="feed-card">
         <div class="feed-status-bar ${barClass}"></div>
         <div class="feed-content">
           <div class="feed-tags">
