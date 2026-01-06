@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dell OS | INFOHUB </title>
 
+  <!-- Use cdnjs / cloudflare CDN to avoid tracking-prevention blocks -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
@@ -368,19 +370,23 @@ const AUTO_REFRESH_MS = 60_000;
    DATA STATE
 =========================== */
 let INCIDENTS = [];
-let PROXIMITY_INCIDENTS = [];
+let PROXIMITY_INCIDENTS = []; // NEW SEPARATE FEED
 let FEED_IS_LIVE = false;
 let currentRadius = 50;
+
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
+
 let map;
 let layerGroup;
 let incidentLayerGroup;
 
 /* ===========================
-   DELL SITES (repeated in frontend)
+   DELL SITES (your list)
+   -- NOTE: duplicate of worker DELL_SITES so client can resolve locations locally
 =========================== */
 const DELL_SITES = [
+  // AMER
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
   { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
@@ -395,10 +401,14 @@ const DELL_SITES = [
   { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
   { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
   { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
+
+  // LATAM
   { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
   { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
   { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
   { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
+
+  // EMEA
   { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
   { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
   { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
@@ -416,6 +426,8 @@ const DELL_SITES = [
   { name: "Dell Casablanca", country: "MA", region: "EMEA", lat: 33.5731, lon: -7.5898 },
   { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
   { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
+
+  // APJC
   { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
   { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
   { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
@@ -430,7 +442,7 @@ const DELL_SITES = [
   { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
   { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
+  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
 ];
 
 const ASSETS = {};
@@ -439,7 +451,9 @@ DELL_SITES.forEach(s => {
   ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
 
-/* Full CITY_COORDS & COUNTRY_COORDS (same as worker) */
+/* ===========================
+   CITY LOOKUP (used for incident coordinate resolution)
+=========================== */
 const CITY_COORDS = {
   "new york": { lat: 40.7128, lng: -74.0060 },
   "london": { lat: 51.5074, lng: -0.1278 },
@@ -475,8 +489,15 @@ const CITY_COORDS = {
   "wellington": { lat: -41.2865, lng: 174.7762 },
   "melbourne": { lat: -37.8136, lng: 144.9631 }
 };
-DELL_SITES.forEach(s => { CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon }; });
 
+DELL_SITES.forEach(s => {
+  CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
+});
+
+/* ===========================
+   COUNTRY CENTERS (fallback)
+   keys are lowercase country full names
+=========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
   "syria": { lat: 34.8021, lng: 38.9968 },
@@ -513,24 +534,30 @@ function safeSetText(id, text) {
   try {
     const el = document.getElementById(id);
     if (el) el.textContent = String(text === undefined ? "" : text);
-  } catch (e) {}
+  } catch (e) {
+    // ignore
+  }
 }
 
 function safeSetHTML(id, html) {
   try {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html == null ? "" : html;
-  } catch (e) {}
+  } catch (e) {
+    // ignore
+  }
 }
 
 /* ===========================
-   Clock, Map, Render helpers
+   CLOCK (defensive)
 =========================== */
 function startClock() {
   const tick = () => {
     const now = new Date();
     const timeOptions = { hour: "2-digit", minute: "2-digit", timeZoneName: "short" };
     const dateOptions = { weekday: "long", year: "numeric", month: "short", day: "numeric" };
+
+    // defensive writes
     safeSetText("clock-date", now.toLocaleDateString("en-US", dateOptions));
     safeSetText("clock-time", now.toLocaleTimeString("en-US", timeOptions));
   };
@@ -538,6 +565,9 @@ function startClock() {
   setInterval(tick, 1000);
 }
 
+/* ===========================
+   MAP
+=========================== */
 function initMap() {
   map = L.map("map", {
     zoomControl: false,
@@ -584,78 +614,83 @@ function renderAssetsOnMap(region) {
   else map.setView([25, 10], 2);
 }
 
-/* Coord resolution, rendering, UI functions are the same logic as in previous worker code:
-   - getCoordsForIncident
-   - renderIncidentsOnMap
-   - mapSeverityToLabel
-   - loadFromWorker
-   - loadProximityFromWorker
-   - normaliseWorkerIncident
-   - filterNews
-   - renderGeneralFeed
-   - updateHeadline
-   - updateProximityRadius
-   - renderProximityAlerts
-   - loadTravelAdvisories, populateTravelSelect, renderAdvisoryAndIncidents, filterTravel
-   - loadHistory, downloadReport, manualRefresh
-   - helpers: haversineKm, shortHost, safeTime, escapeHtml/escapeAttr, severityLabel
-   These functions are included below in full for completeness (identical to earlier).
-*/
-
 /* ===========================
-   Helper implementations (copied identical to worker logic)
+   INCIDENT COORDS RESOLUTION
+   (NEW) - returns {lat,lng} or null
 =========================== */
 function getCoordsForIncident(inc) {
   try {
+    // accept existing valid coords
     const lat = Number(inc.lat || inc.latitude || 0);
     const lng = Number(inc.lng || inc.longitude || 0);
     if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
       return { lat, lng };
     }
 
+    // 1) location -> city lookup
     const locRaw = String(inc.location || "").trim();
     if (locRaw && locRaw.toLowerCase() !== "unknown") {
       const locKey = locRaw.toLowerCase().split(",")[0].trim();
       if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
 
+      // try substring matches against CITY_COORDS keys
       for (const k of Object.keys(CITY_COORDS)) {
-        if (locKey.includes(k) || k.includes(locKey)) return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
+        if (locKey.includes(k) || k.includes(locKey)) {
+          return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
+        }
       }
 
+      // try match to Dell site names
       for (const s of DELL_SITES) {
         const sname = s.name.toLowerCase();
-        if (sname.includes(locKey) || locKey.includes(sname)) return { lat: s.lat, lng: s.lon };
+        if (sname.includes(locKey) || locKey.includes(sname)) {
+          return { lat: s.lat, lng: s.lon };
+        }
       }
     }
 
+    // 2) try country fallback (inc.country can be code or full name)
     const countryRaw = String(inc.country || "").trim();
     if (countryRaw) {
       const cKey = countryRaw.toLowerCase();
       if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
+
+      // try normalization (common iso)
       const cut = cKey.split(",")[0].trim();
       if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
+
+      // try to find Dell site in same two-letter country code (DELL uses two-letter codes in site list)
       for (const s of DELL_SITES) {
         if (String(s.country || "").toLowerCase() === cKey || s.country.toLowerCase() === cKey.slice(0,2)) {
           return { lat: s.lat, lng: s.lon };
         }
       }
     }
+
+    // 3) no decent fallback
     return null;
-  } catch (e) { return null; }
+  } catch (e) {
+    return null;
+  }
 }
 
+/* ===========================
+   Render incidents on map (now uses resolved coords)
+=========================== */
 function renderIncidentsOnMap(region, incidents) {
   incidentLayerGroup.clearLayers();
   const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
 
   filtered.forEach(i => {
+    // attempt to resolve coordinates if missing
     let coords = null;
     if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
       coords = { lat: Number(i.lat), lng: Number(i.lng) };
     } else {
       coords = getCoordsForIncident(i);
     }
-    if (!coords) return;
+
+    if (!coords) return; // still no coords, skip for map
     const sev = Number(i.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
@@ -673,23 +708,39 @@ function renderIncidentsOnMap(region, incidents) {
   });
 }
 
+/* ===========================
+   UI: severity mapping (UI only)
+=========================== */
 function mapSeverityToLabel(sev) {
   const s = Number(sev || 1);
-  if (s >= 5) return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  if (s >= 4) return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  if (s === 3) return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-  return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  if (s >= 5) {
+    return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s >= 4) {
+    return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s === 3) {
+    return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
+  } else {
+    return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  }
 }
 
+/* ===========================
+   WORKER FETCH
+   (unchanged, just uses returned incidents)
+=========================== */
 async function loadFromWorker(silent=false) {
   if (!silent) safeSetText("feed-status-label", "Refreshing…");
+
   try {
     const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
+
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
     INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
+
     INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
+
     FEED_IS_LIVE = true;
     safeSetText("feed-status-label", `LIVE • ${INCIDENTS.length} ITEMS`);
   } catch {
@@ -698,6 +749,7 @@ async function loadFromWorker(silent=false) {
   }
 }
 
+/* NEW: Load the curated proximity feed separately */
 async function loadProximityFromWorker(silent = false) {
   try {
     const res = await fetch(`${WORKER_URL}/api/proximity`, { cache: "no-store" });
@@ -705,9 +757,15 @@ async function loadProximityFromWorker(silent = false) {
     const json = await res.json();
     const list = Array.isArray(json?.incidents) ? json.incidents : [];
     PROXIMITY_INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
-  } catch (e) {}
+    if (!silent) console.log("Loaded proximity items:", PROXIMITY_INCIDENTS.length);
+  } catch (e) {
+    if (!silent) console.error("loadProximityFromWorker failed:", e);
+  }
 }
 
+/* ===========================
+   NORMALISE INCIDENT (now ensures coords)
+=========================== */
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -733,6 +791,7 @@ function normaliseWorkerIncident(item) {
     lng: Number(item.lng || 0)
   };
 
+  // If lat/lng empty, attempt to resolve
   const coords = getCoordsForIncident(normalized);
   if (coords) {
     normalized.lat = coords.lat;
@@ -742,6 +801,9 @@ function normaliseWorkerIncident(item) {
   return normalized;
 }
 
+/* ===========================
+   FEED RENDER
+=========================== */
 function filterNews(region) {
   document.querySelectorAll(".nav-item-custom").forEach(el => {
     el.classList.remove("active");
@@ -769,16 +831,22 @@ function renderGeneralFeed(region) {
   let html = "";
   data.forEach(i => {
     const sev = Number(i.severity || 1);
+
+    // use shared mapping for label + classes
     const sevMeta = mapSeverityToLabel(sev);
+    const barClass = sevMeta.barClass;
+    const badgeClass = sevMeta.badgeClass;
+    const sevLabel = sevMeta.label;
+
     const when = safeTime(i.time);
     const src = i.source ? shortHost(i.source) : "Source";
 
     html += `
       <a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer" class="feed-card">
-        <div class="feed-status-bar ${sevMeta.barClass}"></div>
+        <div class="feed-status-bar ${barClass}"></div>
         <div class="feed-content">
           <div class="feed-tags">
-            <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
+            <span class="ftag ${badgeClass}">${escapeHtml(sevLabel)}</span>
             <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
             <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
@@ -814,6 +882,7 @@ function updateHeadline(region) {
   const sev = Number(top.severity || 1);
   const sevMeta = mapSeverityToLabel(sev);
 
+  // Set label + tag class
   if (sevEl) {
     sevEl.textContent = sevMeta.label;
     sevEl.className = `tag ${sevMeta.cls}`;
@@ -823,6 +892,9 @@ function updateHeadline(region) {
   if (regEl) regEl.textContent = (top.region || "Global").toUpperCase();
 }
 
+/* ===========================
+   PROXIMITY ALERTS (UPDATED to use curated PROXIMITY_INCIDENTS)
+=========================== */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   currentRadius = parseFloat(radiusSelect.value || "50");
@@ -835,6 +907,7 @@ function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
 
+  // Use curated proximity incidents (worker provides filtered list)
   const data = (region === "Global")
     ? PROXIMITY_INCIDENTS
     : PROXIMITY_INCIDENTS.filter(i => (i.region || "Global") === region);
@@ -842,6 +915,7 @@ function renderProximityAlerts(region) {
   const alerts = [];
   for (const inc of data) {
     try {
+      // resolve coords
       let coords = null;
       if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
         coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
@@ -850,6 +924,7 @@ function renderProximityAlerts(region) {
       }
       if (!coords) continue;
 
+      // find nearest asset within radius
       let nearest = null;
       for (const [assetKey, a] of Object.entries(ASSETS)) {
         const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
@@ -866,6 +941,7 @@ function renderProximityAlerts(region) {
     }
   }
 
+  // sort (closest first, then highest severity)
   alerts.sort((x, y) => (x.nearest.dist - y.nearest.dist) || (Number(y.inc.severity) - Number(x.inc.severity)));
 
   if (alerts.length === 0) {
@@ -882,8 +958,11 @@ function renderProximityAlerts(region) {
     const sev = Number(a.inc.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
     const title = a.inc.title || "Incident";
+    
+    // Shorten desc
     let desc = a.inc.summary || "";
     if (desc.length > 120) desc = desc.substring(0, 120) + "...";
+    
     const dist = Math.round(a.nearest.dist);
     const assetDisplay = (a.nearest.assetName || "").toUpperCase();
 
@@ -906,7 +985,9 @@ function renderProximityAlerts(region) {
   container.innerHTML = html;
 }
 
-/* TRAVEL ADVISORIES (frontend) */
+/* ===========================
+   TRAVEL ADVISORIES (REAL - FIXED POLLING)
+=========================== */
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
@@ -930,28 +1011,35 @@ async function loadTravelAdvisories() {
     await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
 
     const MAX_ATTEMPTS = 8;
-    const POLL_DELAY_MS = 3000;
+    const POLL_DELAY_MS = 3000; // 3s
     let attempt = 0;
+    let json = null;
+
     while (attempt < MAX_ATTEMPTS) {
       await new Promise(r => setTimeout(r, POLL_DELAY_MS));
       try {
         res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
         if (res && res.ok) {
-          const json = await res.json();
-          if (Array.isArray(json.advisories) && json.advisories.length > 0) {
-            TRAVEL_DATA = json.advisories;
-            TRAVEL_UPDATED_AT = json.updated_at || null;
-            populateTravelSelect(sel);
-            return;
-          }
+          json = await res.json();
+          if (Array.isArray(json.advisories) && json.advisories.length > 0) break;
         }
-      } catch (e) {}
+      } catch (e) {
+        // ignore and keep polling
+      }
       attempt++;
     }
 
-    safeSetHTML("countrySelect", `<option selected disabled>Advisories unavailable</option>`);
+    TRAVEL_DATA = Array.isArray(json?.advisories) ? json.advisories : [];
+    TRAVEL_UPDATED_AT = json?.updated_at || null;
+
+    if (TRAVEL_DATA.length > 0) {
+      populateTravelSelect(sel);
+    } else {
+      safeSetHTML("countrySelect", `<option selected disabled>Advisories unavailable</option>`);
+    }
   } catch (e) {
     safeSetHTML("countrySelect", `<option selected disabled>Advisories unavailable</option>`);
+    console.error("loadTravelAdvisories error:", e);
   }
 }
 
@@ -970,6 +1058,7 @@ function renderAdvisoryAndIncidents(payload) {
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
   if (!advContainer || !newsContainer) return;
+
   try {
     const advisory = payload.advisory || {};
     const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
@@ -1043,6 +1132,9 @@ async function filterTravel() {
   }
 }
 
+/* ===========================
+   HISTORY, REPORTS, MANUAL REFRESH (unchanged)
+=========================== */
 function loadHistory(dateStr) {
   if (!dateStr) return;
   const statusDiv = document.getElementById("history-status");
@@ -1077,6 +1169,20 @@ async function manualRefresh() {
   filterNews(active ? active.innerText.trim() : "Global");
 }
 
+/* ===========================
+   HELPERS (unchanged)
+=========================== */
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
 function shortHost(url) {
   try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source"; }
 }
@@ -1100,6 +1206,8 @@ function escapeHtml(s) {
 function escapeAttr(s) {
   return escapeHtml(s).replaceAll("`", "&#096;");
 }
+
+/* helper used by advisory rendering (keeps compatibility) */
 function severityLabel(s) {
   const n = Number(s || 1);
   if (n >= 5) return "CRITICAL";
@@ -1109,7 +1217,7 @@ function severityLabel(s) {
 }
 
 /* ===========================
-   APP INITIALIZATION (Start Engine)
+   APP INITIALIZATION
    =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
   try {
