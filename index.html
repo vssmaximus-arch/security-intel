@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dell OS | INFOHUB </title>
 
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -330,11 +329,11 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="reportDate" class="form-label">Select Date</label>
+          <label class="form-label">Select Date</label>
           <input type="date" class="form-control" id="reportDate" />
         </div>
         <div class="mb-4">
-          <label for="reportRegion" class="form-label">Select Region / Report Profile</label>
+          <label class="form-label">Select Region / Report Profile</label>
           <select class="form-select" id="reportRegion">
             <option value="Global">Global</option>
             <option value="APJC">APJC</option>
@@ -443,11 +442,14 @@ const DELL_SITES = [
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
 ];
 
+/* For proximity + map rendering we use a simple normalized list:
+   keep same ASSETS mapping as your original */
 const ASSETS = {};
 DELL_SITES.forEach(s => {
   const key = s.name.toLowerCase();
   ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
+
 /* ===========================
    CITY LOOKUP (used for incident coordinate resolution)
 =========================== */
@@ -486,7 +488,44 @@ const CITY_COORDS = {
   "wellington": { lat: -41.2865, lng: 174.7762 },
   "melbourne": { lat: -37.8136, lng: 144.9631 }
 };
-DELL_SITES.forEach(s => { CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon }; });
+
+/* seed dell sites into city lookups */
+DELL_SITES.forEach(s => {
+  CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
+});
+
+/* ===========================
+   COUNTRY CENTERS (fallback)
+   keys are lowercase country full names
+=========================== */
+const COUNTRY_COORDS = {
+  "india": { lat: 20.5937, lng: 78.9629 },
+  "syria": { lat: 34.8021, lng: 38.9968 },
+  "pakistan": { lat: 30.3753, lng: 69.3451 },
+  "australia": { lat: -25.2744, lng: 133.7751 },
+  "united kingdom": { lat: 55.3781, lng: -3.4360 },
+  "united states": { lat: 37.0902, lng: -95.7129 },
+  "usa": { lat: 37.0902, lng: -95.7129 },
+  "ukraine": { lat: 48.3794, lng: 31.1656 },
+  "russia": { lat: 61.5240, lng: 105.3188 },
+  "china": { lat: 35.8617, lng: 104.1954 },
+  "japan": { lat: 36.2048, lng: 138.2529 },
+  "singapore": { lat: 1.3521, lng: 103.8198 },
+  "thailand": { lat: 15.8700, lng: 100.9925 },
+  "new zealand": { lat: -40.9006, lng: 174.8860 },
+  "france": { lat: 46.2276, lng: 2.2137 },
+  "germany": { lat: 51.1657, lng: 10.4515 },
+  "brazil": { lat: -14.2350, lng: -51.9253 },
+  "mexico": { lat: 23.6345, lng: -102.5528 },
+  "canada": { lat: 56.1304, lng: -106.3468 },
+  "israel": { lat: 31.0461, lng: 34.8516 },
+  "uae": { lat: 23.4241, lng: 53.8478 },
+  "saudi arabia": { lat: 23.8859, lng: 45.0792 },
+  "philippines": { lat: 12.8797, lng: 121.7740 },
+  "indonesia": { lat: -0.7893, lng: 113.9213 },
+  "south korea": { lat: 35.9078, lng: 127.7669 },
+  "taiwan": { lat: 23.6978, lng: 120.9605 }
+};
 
 /* ===========================
    Defensive DOM helpers
@@ -664,7 +703,7 @@ function renderIncidentsOnMap(region, incidents) {
       fillOpacity: 0.85
     });
 
-    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(i.link||'#')}" target="_blank" rel="noopener noreferrer">Source</a>`);
+    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(i.link||'#')}" target="_blank">Source</a>`);
     marker.addTo(incidentLayerGroup);
   });
 }
@@ -803,7 +842,7 @@ function renderGeneralFeed(region) {
     const src = i.source ? shortHost(i.source) : "Source";
 
     html += `
-      <a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer" class="feed-card">
+      <a href="${escapeAttr(i.link)}" target="_blank" class="feed-card">
         <div class="feed-status-bar ${barClass}"></div>
         <div class="feed-content">
           <div class="feed-tags">
@@ -949,6 +988,7 @@ function renderProximityAlerts(region) {
 /* ===========================
    TRAVEL ADVISORIES (REAL - FIXED POLLING)
 =========================== */
+// Replace your existing loadTravelAdvisories() with this version:
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
@@ -1183,26 +1223,6 @@ function severityLabel(s) {
   if (n === 3) return "MEDIUM";
   return "LOW";
 }
-
-/* ===========================
-   APP INITIALIZATION
-   =========================== */
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    startClock();
-    initMap();
-    await loadTravelAdvisories();
-    await manualRefresh();
-    setInterval(() => {
-        loadFromWorker(true);
-        loadProximityFromWorker(true);
-        const active = document.querySelector(".nav-item-custom.active");
-        filterNews(active ? active.innerText.trim() : "Global");
-    }, AUTO_REFRESH_MS);
-    const active = document.querySelector(".nav-item-custom.active");
-    filterNews(active ? active.innerText.trim() : "Global");
-  } catch (err) { console.error("Init failed", err); }
-});
 </script>
 </body>
 </html>
