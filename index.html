@@ -62,27 +62,50 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-width: 86px;
+      min-width: 110px;                   /* stable width so layout doesn't jump */
       padding: 6px 8px;
       border-radius: 8px;
       background: #f6f8fa;
       border: 1px solid #e6e9ec;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      font-weight: 600;
+      font-weight: 700;
       color: #202124;
       cursor: default;
       position: relative;
       font-size: 12px;
+      /* remove movement */
+      transform: none !important;
+      transition: none !important;
     }
     .multi-clock .mc-city { font-size: 0.72rem; color:#5f6368; font-weight:700; letter-spacing:0.3px; }
-    .multi-clock .mc-time { font-size: 0.95rem; font-weight:800; color:#202124; margin-top:2px; }
-    .multi-clock .mc-tz { font-size: 0.65rem; color:#6b7280; margin-top:2px; font-weight:700; }
+    .multi-clock .mc-time {
+      font-size: 0.95rem;
+      font-weight:800;
+      color:#202124;
+      margin-top:4px;
+      /* use monospace to prevent width changes */
+      font-family: 'Inter', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+      /* fixed width to accommodate HH:MM:SS and optional AM/PM if any */
+      width: 92px;
+      text-align: center;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .multi-clock .mc-tz {
+      font-size: 0.65rem;
+      color:#6b7280;
+      margin-top:4px;
+      font-weight:700;
+      width: 92px;
+      text-align: center;
+    }
 
-    /* Tooltip list of hubs */
-    .multi-clock[title] { position: relative; }
-    .multi-clock:hover { transform: translateY(-2px); transition: transform 0.12s ease; }
+    /* no hover translation — keep static */
+    .multi-clock:hover { transform: none; }
+
+    /* hide multi-clocks on narrow screens to keep header tidy */
     @media (max-width: 1100px) {
-      .multi-clocks { display: none; } /* hide on small screens to preserve header */
+      .multi-clocks { display: none; }
     }
 
     .clock-container { text-align: right; margin: 0 25px; }
@@ -252,7 +275,7 @@
         <div class="multi-clock" data-timezone="America/Chicago" title="Dell Round Rock HQ, Dell Austin Parmer">
           <div class="mc-city">Austin</div>
           <div class="mc-time" id="mc-Austin">--:--:--</div>
-          <div class="mc-tz" id="mc-Austin-tz">CDT</div>
+          <div class="mc-tz" id="mc-Austin-tz">CST</div>
         </div>
 
         <div class="multi-clock" data-timezone="Asia/Singapore" title="Dell Singapore">
@@ -649,7 +672,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 function startClock() {
   const tick = () => {
     const now = new Date();
-    const timeOptions = { hour: "2-digit", minute: "2-digit", timeZoneName: "short" };
+    // keep main clock as before but use 24-hour format? The user asked to keep existing date/time clock
+    const timeOptions = { hour: "2-digit", minute: "2-digit", timeZoneName: "short", hour12: false };
     const dateOptions = { weekday: "long", year: "numeric", month: "short", day: "numeric" };
     document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", dateOptions);
     document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US", timeOptions);
@@ -660,20 +684,24 @@ function startClock() {
 
 /* ===========================
    MULTI-CLOCKS (NEW)
-   - updates each clock element which has data-timezone attribute
+   - 24-hour format, fixed-width time, static (no translate)
 =========================== */
-function formatWithZone(date, timeZone) {
-  // Return time string and short tz name
+function formatWithZone24(date, timeZone) {
+  // Return time string and short tz name, 24-hour with seconds
   try {
-    const timeOptions = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true, timeZone, timeZoneName: "short" };
-    const parts = new Intl.DateTimeFormat("en-US", timeOptions).formatToParts(date);
-    const timePart = parts.filter(p => p.type === "hour" || p.type === "minute" || p.type === "second" || p.type === "dayPeriod" || p.type === "literal")
-                          .map(p => p.value).join("");
+    const timeOptions = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone, timeZoneName: "short" };
+    const parts = new Intl.DateTimeFormat("en-GB", timeOptions).formatToParts(date);
+    // Build "HH:MM:SS" exactly with leading zeros
+    const hour = (parts.find(p => p.type === "hour") || {}).value || "";
+    const minute = (parts.find(p => p.type === "minute") || {}).value || "";
+    const second = (parts.find(p => p.type === "second") || {}).value || "";
     const tzPart = (parts.find(p => p.type === "timeZoneName") || {}).value || "";
-    return { time: timePart.trim(), tz: tzPart.trim() };
+    const time = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}:${String(second).padStart(2,'0')}`;
+    return { time: time, tz: tzPart.trim() };
   } catch (e) {
     // Fallback
-    return { time: date.toLocaleTimeString("en-US"), tz: "" };
+    const s = date.toLocaleTimeString("en-GB", { hour12: false, timeZone });
+    return { time: s, tz: "" };
   }
 }
 
@@ -686,15 +714,16 @@ function startMultiClocks() {
     clockEls.forEach(el => {
       const tz = el.getAttribute("data-timezone");
       if (!tz) return;
-      const out = formatWithZone(now, tz);
-      const idKey = el.querySelector(".mc-time")?.id;
-      const tzIdKey = el.querySelector(".mc-tz")?.id;
-      if (idKey) document.getElementById(idKey).innerText = out.time;
-      if (tzIdKey) document.getElementById(tzIdKey).innerText = out.tz || '';
+      const out = formatWithZone24(now, tz);
+      const timeEl = el.querySelector(".mc-time");
+      const tzEl = el.querySelector(".mc-tz");
+      if (timeEl) timeEl.innerText = out.time;
+      if (tzEl) tzEl.innerText = out.tz || '';
     });
   };
 
   tick();
+  // Update every 1 second to keep seconds accurate but stable due to fixed width and monospace
   setInterval(tick, 1000);
 }
 
