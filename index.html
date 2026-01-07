@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <style>
@@ -48,6 +48,42 @@
     .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
     .logo-text span { color: var(--dell-blue); }
+
+    /* MULTI CLOCKS (new) */
+    .multi-clocks {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-left: 18px;
+      padding-left: 8px;
+    }
+    .multi-clock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 86px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #f6f8fa;
+      border: 1px solid #e6e9ec;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      font-weight: 600;
+      color: #202124;
+      cursor: default;
+      position: relative;
+      font-size: 12px;
+    }
+    .multi-clock .mc-city { font-size: 0.72rem; color:#5f6368; font-weight:700; letter-spacing:0.3px; }
+    .multi-clock .mc-time { font-size: 0.95rem; font-weight:800; color:#202124; margin-top:2px; }
+    .multi-clock .mc-tz { font-size: 0.65rem; color:#6b7280; margin-top:2px; font-weight:700; }
+
+    /* Tooltip list of hubs */
+    .multi-clock[title] { position: relative; }
+    .multi-clock:hover { transform: translateY(-2px); transition: transform 0.12s ease; }
+    @media (max-width: 1100px) {
+      .multi-clocks { display: none; } /* hide on small screens to preserve header */
+    }
 
     .clock-container { text-align: right; margin: 0 25px; }
     .clock-date { font-weight: 700; color: #202124; font-size: 0.9rem; }
@@ -209,6 +245,48 @@
     <div class="header-left">
       <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
       <div class="logo-text">OS <span>INFOHUB</span></div>
+
+      <!-- MULTI-CLOCK ROW (ADDED) -->
+      <div class="multi-clocks" aria-hidden="false">
+        <!-- Each clock: data-timezone value + title for tooltip listing Dell hubs this timezone covers -->
+        <div class="multi-clock" data-timezone="America/Chicago" title="Dell Round Rock HQ, Dell Austin Parmer">
+          <div class="mc-city">Austin</div>
+          <div class="mc-time" id="mc-Austin">--:--:--</div>
+          <div class="mc-tz" id="mc-Austin-tz">CDT</div>
+        </div>
+
+        <div class="multi-clock" data-timezone="Asia/Singapore" title="Dell Singapore">
+          <div class="mc-city">Singapore</div>
+          <div class="mc-time" id="mc-Singapore">--:--:--</div>
+          <div class="mc-tz" id="mc-Singapore-tz">SGT</div>
+        </div>
+
+        <div class="multi-clock" data-timezone="Asia/Tokyo" title="Dell Tokyo, Dell Kawasaki">
+          <div class="mc-city">Tokyo</div>
+          <div class="mc-time" id="mc-Tokyo">--:--:--</div>
+          <div class="mc-tz" id="mc-Tokyo-tz">JST</div>
+        </div>
+
+        <div class="multi-clock" data-timezone="Australia/Sydney" title="Dell Sydney">
+          <div class="mc-city">Sydney</div>
+          <div class="mc-time" id="mc-Sydney">--:--:--</div>
+          <div class="mc-tz" id="mc-Sydney-tz">AEST</div>
+        </div>
+
+        <div class="multi-clock" data-timezone="Asia/Kolkata" title="Dell Bangalore, Dell Hyderabad, Dell Gurugram">
+          <div class="mc-city">India</div>
+          <div class="mc-time" id="mc-India">--:--:--</div>
+          <div class="mc-tz" id="mc-India-tz">IST</div>
+        </div>
+
+        <div class="multi-clock" data-timezone="Europe/London" title="Dell Bracknell">
+          <div class="mc-city">UK</div>
+          <div class="mc-time" id="mc-UK">--:--:--</div>
+          <div class="mc-tz" id="mc-UK-tz">GMT</div>
+        </div>
+      </div>
+      <!-- END MULTI-CLOCK ROW -->
+
     </div>
 
     <div class="header-right d-flex align-items-center">
@@ -547,6 +625,7 @@ const COUNTRY_COORDS = {
 document.addEventListener("DOMContentLoaded", async () => {
   initMap();
   startClock();
+  startMultiClocks();   // NEW: initialize multi-clock bar
 
   await loadFromWorker();           // general incidents
   await loadProximityFromWorker();  // CURATED PROXIMITY FEED
@@ -575,6 +654,46 @@ function startClock() {
     document.getElementById("clock-date").innerText = now.toLocaleDateString("en-US", dateOptions);
     document.getElementById("clock-time").innerText = now.toLocaleTimeString("en-US", timeOptions);
   };
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ===========================
+   MULTI-CLOCKS (NEW)
+   - updates each clock element which has data-timezone attribute
+=========================== */
+function formatWithZone(date, timeZone) {
+  // Return time string and short tz name
+  try {
+    const timeOptions = { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true, timeZone, timeZoneName: "short" };
+    const parts = new Intl.DateTimeFormat("en-US", timeOptions).formatToParts(date);
+    const timePart = parts.filter(p => p.type === "hour" || p.type === "minute" || p.type === "second" || p.type === "dayPeriod" || p.type === "literal")
+                          .map(p => p.value).join("");
+    const tzPart = (parts.find(p => p.type === "timeZoneName") || {}).value || "";
+    return { time: timePart.trim(), tz: tzPart.trim() };
+  } catch (e) {
+    // Fallback
+    return { time: date.toLocaleTimeString("en-US"), tz: "" };
+  }
+}
+
+function startMultiClocks() {
+  const clockEls = document.querySelectorAll(".multi-clock");
+  if (!clockEls || clockEls.length === 0) return;
+
+  const tick = () => {
+    const now = new Date();
+    clockEls.forEach(el => {
+      const tz = el.getAttribute("data-timezone");
+      if (!tz) return;
+      const out = formatWithZone(now, tz);
+      const idKey = el.querySelector(".mc-time")?.id;
+      const tzIdKey = el.querySelector(".mc-tz")?.id;
+      if (idKey) document.getElementById(idKey).innerText = out.time;
+      if (tzIdKey) document.getElementById(tzIdKey).innerText = out.tz || '';
+    });
+  };
+
   tick();
   setInterval(tick, 1000);
 }
