@@ -7,8 +7,10 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" crossorigin="" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" crossorigin=""></script>
+  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <style>
@@ -43,7 +45,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid #f0f0f0;
-      height: 90px; /* Increased slightly to fit digital clocks */
+      height: 90px;
     }
 
     .header-left { display: flex;
@@ -54,7 +56,7 @@
     }
     .logo-text span { color: var(--dell-blue); }
 
-    /* --- NEW DIGITAL CLOCK STYLES --- */
+    /* --- DIGITAL CLOCK STYLES --- */
     .multi-clock-container {
       display: flex;
       gap: 12px;
@@ -107,6 +109,7 @@
       padding: 9px 18px; border-radius: 8px;
       text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
       box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer;
+      transition: opacity 0.2s;
     }
     .btn-daily:hover { background-color: #1557b0; color: white;
     }
@@ -353,7 +356,7 @@
         <a class="nav-item-custom" onclick="filterNews('LATAM')">LATAM</a>
       </div>
 
-      <div class="btn-daily ms-3" onclick="manualRefresh()">
+      <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()">
         <i class="fas fa-rotate"></i> Refresh
       </div>
 
@@ -510,7 +513,7 @@ const AUTO_REFRESH_MS = 60_000;
    DATA STATE
 =========================== */
 let INCIDENTS = [];
-let PROXIMITY_INCIDENTS = []; // NEW SEPARATE FEED
+let PROXIMITY_INCIDENTS = [];
 let FEED_IS_LIVE = false;
 let currentRadius = 50;
 
@@ -706,12 +709,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   // attempt again shortly in case cache was empty on first hit:
   setTimeout(loadTravelAdvisories, 2500);
 
+  // UPDATED: Scheduled refresh guard
+  let scheduledRefreshInProgress = false;
   setInterval(async () => {
-    await loadFromWorker(true);
-    await loadProximityFromWorker(true);
-    const 
-    active = document.querySelector(".nav-item-custom.active");
-    filterNews(active ? active.innerText.trim() : "Global");
+    if (scheduledRefreshInProgress) return;
+    scheduledRefreshInProgress = true;
+    try {
+      await loadFromWorker(true);
+      await loadProximityFromWorker(true);
+      const active = document.querySelector(".nav-item-custom.active");
+      filterNews(active ? active.innerText.trim() : "Global");
+    } finally {
+      scheduledRefreshInProgress = false;
+    }
   }, AUTO_REFRESH_MS);
 });
 /* ===========================
@@ -746,12 +756,12 @@ function startClock() {
     targets.forEach(t => {
       const el = document.getElementById(t.id);
       if (el) {
-        // Using 12-hour format consistent with previous clock style
+        // Using 24-hour format
         const timeStr = now.toLocaleTimeString("en-US", {
           timeZone: t.zone,
           hour: "2-digit",
           minute: "2-digit",
-          hour12: true
+          hour12: false
         });
         el.innerText = timeStr;
       }
@@ -762,7 +772,7 @@ function startClock() {
 }
 
 /* ===========================
-   MAP
+   MAP (SWITCHED TO CARTO POSITRON TO FIX 400 ERRORS)
 =========================== */
 function initMap() {
   map = L.map("map", {
@@ -773,10 +783,16 @@ function initMap() {
   }).setView([25, 10], 2);
   L.control.zoom({ position: "topleft" }).addTo(map);
 
+  // Use CartoDB Positron (Light) - Very stable, no 400 errors
   L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png",
-    { maxZoom: 19, noWrap: true }
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    { 
+      maxZoom: 19, 
+      noWrap: true,
+      subdomains: ['a','b','c','d'] // UPDATED: Array format per convention
+    }
   ).addTo(map);
+
   layerGroup = L.layerGroup().addTo(map);
   incidentLayerGroup = L.layerGroup().addTo(map);
 
@@ -807,8 +823,7 @@ function renderAssetsOnMap(region) {
 }
 
 /* ===========================
-   INCIDENT COORDS RESOLUTION
-   (NEW) - returns {lat,lng} or null
+   INCIDENT COORDS RESOLUTION (HARDENED)
 =========================== */
 function getCoordsForIncident(inc) {
   try {
@@ -823,20 +838,25 @@ function getCoordsForIncident(inc) {
     const locRaw = String(inc.location || "").trim();
     if (locRaw && locRaw.toLowerCase() !== "unknown") {
       const locKey = locRaw.toLowerCase().split(",")[0].trim();
-      if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
+      
+      // FIX: Ignore very short keys to avoid false positives (e.g. "on", "at")
+      if (locKey.length >= 3) {
+        if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
 
-      // try substring matches against CITY_COORDS keys
-      for (const k of Object.keys(CITY_COORDS)) {
-        if (locKey.includes(k) || k.includes(locKey)) {
-          return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
+        // try substring matches against CITY_COORDS keys
+        for (const k of Object.keys(CITY_COORDS)) {
+          if (k.length < 3) continue; // SAFETY FIX: ignore short dictionary keys too
+          if (locKey.includes(k) || k.includes(locKey)) {
+            return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
+          }
         }
-      }
 
-      // try match to Dell site names
-      for (const s of DELL_SITES) {
-        const sname = s.name.toLowerCase();
-        if (sname.includes(locKey) || locKey.includes(sname)) {
-          return { lat: s.lat, lng: s.lon };
+        // try match to Dell site names
+        for (const s of DELL_SITES) {
+          const sname = s.name.toLowerCase();
+          if (sname.includes(locKey) || locKey.includes(sname)) {
+            return { lat: s.lat, lng: s.lon };
+          }
         }
       }
     }
@@ -851,9 +871,12 @@ function getCoordsForIncident(inc) {
       const cut = cKey.split(",")[0].trim();
       if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
 
-      // try to find Dell site in same two-letter country code (DELL uses two-letter codes in site list)
+      // try to find Dell site in same two-letter country code
+      // FIX: Safer country code extraction and comparison
+      const cCode = cKey.slice(0,2).toLowerCase();
       for (const s of DELL_SITES) {
-        if (String(s.country || "").toLowerCase() === cKey || s.country.toLowerCase() === cKey.slice(0,2)) {
+        const sCode = String(s.country || "").toLowerCase();
+        if (sCode === cKey || (sCode === cCode && cKey.length >= 2)) {
           return { lat: s.lat, lng: s.lon };
         }
       }
@@ -895,7 +918,8 @@ function renderIncidentsOnMap(region, incidents) {
       fillOpacity: 0.85
     });
 
-    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(i.link||'#')}" target="_blank" rel="noopener noreferrer">Source</a>`);
+    // UPDATED: Used safeHref for link safety
+    marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
     marker.addTo(incidentLayerGroup);
   });
 }
@@ -920,13 +944,29 @@ function mapSeverityToLabel(sev) {
    WORKER FETCH
    (unchanged, just uses returned incidents)
 =========================== */
+// ADDED: Helper to fetch with timeout
+async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { ...opts, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
-  if (!silent) label.textContent = "Refreshing…";
+  if (label && !silent) label.textContent = "Refreshing…"; // ADDED: DOM Guard
 
   try {
-    const res = await fetch(`${WORKER_URL}/api/incidents`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    // UPDATED: Use fetchWithTimeout
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
+    if (!res.ok) {
+        console.error("Incidents fetch status:", res.status, res.statusText); // ADDED: Specific HTTP error logging with statusText
+        throw new Error("HTTP " + res.status);
+    }
 
     const raw = await res.json();
     const list = Array.isArray(raw) ?
@@ -936,25 +976,30 @@ async function loadFromWorker(silent=false) {
     INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
 
     FEED_IS_LIVE = true;
-    label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch {
+    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`; // ADDED: DOM Guard
+  } catch (e) {
+    console.error("Worker fetch failed:", e); // ADDED: Debugging
     FEED_IS_LIVE = false;
-    if (!silent) label.textContent = "OFFLINE • Worker unreachable";
+    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable"; // ADDED: DOM Guard
   }
 }
 
 /* NEW: Load the curated proximity feed separately */
 async function loadProximityFromWorker(silent = false) {
   try {
-    const res = await fetch(`${WORKER_URL}/api/proximity`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    // UPDATED: Use fetchWithTimeout
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
+    if (!res.ok) {
+        console.error("Proximity fetch status:", res.status, res.statusText); // ADDED: Specific HTTP error logging with statusText
+        throw new Error("HTTP " + res.status);
+    }
     const json = await res.json();
     const list = Array.isArray(json?.incidents) ?
       json.incidents : [];
     PROXIMITY_INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
     if (!silent) console.log("Loaded proximity items:", PROXIMITY_INCIDENTS.length);
   } catch (e) {
-    if (!silent) console.error("loadProximityFromWorker failed:", e);
+    console.error("loadProximityFromWorker failed:", e); // ADDED: Debugging
   }
 }
 
@@ -1051,8 +1096,9 @@ function renderGeneralFeed(region) {
     const wideBadge = i.country_wide ? `<span class="ftag ftag-type" style="margin-left:6px;font-size:0.65rem;background:#000;color:#fff;">COUNTRY-WIDE</span>` 
     : "";
 
+    // UPDATED: Used safeHref for link safety
     html += `
-      <a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer" class="feed-card">
+      <a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener noreferrer" class="feed-card">
         <div class="feed-status-bar ${barClass}"></div>
         <div class="feed-content">
           <div class="feed-tags">
@@ -1075,6 +1121,8 @@ function renderGeneralFeed(region) {
 
 function updateHeadline(region) {
   const el = document.getElementById("headline-alert");
+  if (!el) return; // ADDED: DOM Guard
+
   const sevEl = document.getElementById("headline-sev");
   const catEl = document.getElementById("headline-cat");
   const regEl = document.getElementById("headline-reg");
@@ -1082,10 +1130,9 @@ function updateHeadline(region) {
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
   if (!data || data.length === 0) {
     el.textContent = "No headline available.";
-    sevEl.textContent = "—";
-    sevEl.className = "tag";
-    catEl.textContent = "CATEGORY";
-    regEl.textContent = region.toUpperCase();
+    if (sevEl) { sevEl.textContent = "—"; sevEl.className = "tag"; } // ADDED: DOM Guard
+    if (catEl) catEl.textContent = "CATEGORY";
+    if (regEl) regEl.textContent = region.toUpperCase();
     return;
   }
 
@@ -1095,11 +1142,13 @@ function updateHeadline(region) {
   const sevMeta = mapSeverityToLabel(sev);
 
   // Set label + tag class
-  sevEl.textContent = sevMeta.label;
-  sevEl.className = `tag ${sevMeta.cls}`;
+  if (sevEl) {
+    sevEl.textContent = sevMeta.label;
+    sevEl.className = `tag ${sevMeta.cls}`;
+  }
 
-  catEl.textContent = top.category || "UNKNOWN";
-  regEl.textContent = (top.region || "Global").toUpperCase();
+  if (catEl) catEl.textContent = top.category || "UNKNOWN";
+  if (regEl) regEl.textContent = (top.region || "Global").toUpperCase();
 }
 
 /* ===========================
@@ -1107,7 +1156,9 @@ function updateHeadline(region) {
 =========================== */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
-  currentRadius = parseFloat(radiusSelect.value || "50");
+  if (radiusSelect) {
+      currentRadius = parseFloat(radiusSelect.value || "50");
+  }
   const active = document.querySelector(".nav-item-custom.active");
   const region = active ? active.innerText.trim() : "Global";
   renderProximityAlerts(region);
@@ -1188,8 +1239,7 @@ function renderProximityAlerts(region) {
     
     // If country-wide forced this inclusion, show N/A distance to avoid confusion, 
     // unless it happens to be close anyway.
-    let 
-    distDisplay = `${Math.round(a.nearest.dist)}km`;
+    let distDisplay = `${Math.round(a.nearest.dist)}km`;
     if (a.inc.country_wide && a.nearest.dist > currentRadius) {
        distDisplay = "N/A"; 
     }
@@ -1226,12 +1276,13 @@ async function loadTravelAdvisories() {
   if (!sel) return;
 
   try {
-    const liveRes = await fetch(`${WORKER_URL}/api/traveladvisories/live`, { cache: "no-store" });
+    // UPDATED: Use fetchWithTimeout
+    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
     let json = null;
     if (liveRes && liveRes.ok) {
       json = await liveRes.json();
     } else {
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories`, { cache: "no-store" });
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
       if (res && res.ok) json = await res.json();
     }
 
@@ -1251,7 +1302,8 @@ async function loadTravelAdvisories() {
       opt.innerText = c.country;
       sel.appendChild(opt);
     });
-  } catch {
+  } catch (e) {
+    console.error("Travel advisory fetch failed:", e); // ADDED: Debugging
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
   }
 }
@@ -1316,7 +1368,10 @@ function renderAdvisoryAndIncidents(payload) {
 }
 
 async function filterTravel() {
-  const country = document.getElementById("countrySelect").value;
+  const countrySelect = document.getElementById("countrySelect");
+  if (!countrySelect) return;
+  const country = countrySelect.value;
+  
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
   if (!country || !advContainer || !newsContainer) return;
@@ -1324,8 +1379,12 @@ async function filterTravel() {
   advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
   newsContainer.innerHTML = '';
   try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    // UPDATED: Use fetchWithTimeout
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
+    if (!res.ok) {
+        console.error("Single advisory fetch status:", res.status, res.statusText); // ADDED: Specific HTTP error logging with statusText
+        throw new Error("HTTP " + res.status);
+    }
     const json = await res.json();
 
     renderAdvisoryAndIncidents(json);
@@ -1337,7 +1396,7 @@ async function filterTravel() {
 }
 
 /* ===========================
-   HISTORY, REPORTS, MANUAL REFRESH (unchanged)
+   HISTORY, REPORTS, MANUAL REFRESH (HARDENED)
 =========================== */
 function loadHistory(dateStr) {
   if (!dateStr) return;
@@ -1351,10 +1410,11 @@ function loadHistory(dateStr) {
 }
 
 function downloadReport() {
-  const region = document.getElementById("reportRegion").value;
+  const regionInput = document.getElementById("reportRegion");
   const feedback = document.getElementById("download-feedback");
-  if (!feedback) return;
+  if (!feedback || !regionInput) return; // ADDED: DOM Guard
 
+  const region = regionInput.value;
   feedback.style.display = "block";
   feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving…';
 
@@ -1365,15 +1425,29 @@ function downloadReport() {
   }, 600);
 }
 
+// UPDATED: Debounced refresh to prevent spamming
+let isRefreshing = false;
 async function manualRefresh() {
-  await loadFromWorker();
-  await loadProximityFromWorker();
-  const active = document.querySelector(".nav-item-custom.active");
-  filterNews(active ? active.innerText.trim() : "Global");
+  if (isRefreshing) return;
+  isRefreshing = true;
+  
+  // UPDATED: Explicit targeting by ID to avoid ambiguity
+  const btn = document.getElementById('btn-refresh');
+  if(btn) btn.style.opacity = "0.5";
+
+  try {
+    await loadFromWorker();
+    await loadProximityFromWorker();
+    const active = document.querySelector(".nav-item-custom.active");
+    filterNews(active ? active.innerText.trim() : "Global");
+  } finally {
+    isRefreshing = false;
+    if(btn) btn.style.opacity = "1";
+  }
 }
 
 /* ===========================
-   HELPERS (unchanged)
+   HELPERS (unchanged + hardened)
 =========================== */
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -1388,6 +1462,24 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 
 function shortHost(url) {
   try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source";
+  }
+}
+
+// ADDED: Safe HREF helper with extended support
+function safeHref(u) {
+  try {
+    const str = String(u || "").trim();
+    if (!str) return "#";
+
+    // allow mailto/tel
+    if (/^(mailto:|tel:)/i.test(str)) return str;
+
+    // allow relative URLs by using location.origin as base
+    const url = new URL(str, location.origin);
+    if (!["http:", "https:"].includes(url.protocol)) return "#";
+    return url.href;
+  } catch {
+    return "#";
   }
 }
 
@@ -1407,8 +1499,10 @@ function escapeHtml(s) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+// UPDATED: Robust null handling
 function escapeAttr(s) {
-  return escapeHtml(s).replaceAll("`", "&#096;");
+  return escapeHtml(String(s || "")).replaceAll("`", "&#096;");
 }
 
 /* helper used by advisory rendering (keeps compatibility) */
