@@ -490,13 +490,11 @@ const CITY_COORDS = {
 
 /* seed dell sites into city lookups so "dell sydney" and other names can match */
 DELL_SITES.forEach(s => {
-  // add by site key (lowercased name)
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
 
 /* ===========================
    COUNTRY CENTERS (fallback)
-   keys are lowercase country full names
 =========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
@@ -553,7 +551,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   filterNews("Global");             // initial render
 
   await loadTravelAdvisories();     // real advisories
-  // attempt again shortly in case cache was empty on first hit:
   setTimeout(loadTravelAdvisories, 2500);
 
   setInterval(async () => {
@@ -630,31 +627,26 @@ function renderAssetsOnMap(region) {
 
 /* ===========================
    INCIDENT COORDS RESOLUTION
-   (NEW) - returns {lat,lng} or null
 =========================== */
 function getCoordsForIncident(inc) {
   try {
-    // accept existing valid coords
     const lat = Number(inc.lat || inc.latitude || 0);
     const lng = Number(inc.lng || inc.longitude || 0);
     if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
       return { lat, lng };
     }
 
-    // 1) location -> city lookup
     const locRaw = String(inc.location || "").trim();
     if (locRaw && locRaw.toLowerCase() !== "unknown") {
       const locKey = locRaw.toLowerCase().split(",")[0].trim();
       if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
 
-      // try substring matches against CITY_COORDS keys
       for (const k of Object.keys(CITY_COORDS)) {
         if (locKey.includes(k) || k.includes(locKey)) {
           return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
         }
       }
 
-      // try match to Dell site names
       for (const s of DELL_SITES) {
         const sname = s.name.toLowerCase();
         if (sname.includes(locKey) || locKey.includes(sname)) {
@@ -663,17 +655,14 @@ function getCoordsForIncident(inc) {
       }
     }
 
-    // 2) try country fallback (inc.country can be code or full name)
     const countryRaw = String(inc.country || "").trim();
     if (countryRaw) {
       const cKey = countryRaw.toLowerCase();
       if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
 
-      // try normalization (common iso)
       const cut = cKey.split(",")[0].trim();
       if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
 
-      // try to find Dell site in same two-letter country code (DELL uses two-letter codes in site list)
       for (const s of DELL_SITES) {
         if (String(s.country || "").toLowerCase() === cKey || s.country.toLowerCase() === cKey.slice(0,2)) {
           return { lat: s.lat, lng: s.lon };
@@ -681,30 +670,25 @@ function getCoordsForIncident(inc) {
       }
     }
 
-    // 3) no decent fallback
     return null;
   } catch (e) {
     return null;
   }
 }
 
-/* ===========================
-   Render incidents on map (now uses resolved coords)
-=========================== */
 function renderIncidentsOnMap(region, incidents) {
   incidentLayerGroup.clearLayers();
   const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
 
   filtered.forEach(i => {
-    // attempt to resolve coordinates if missing
     let coords = null;
     if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
       coords = { lat: Number(i.lat), lng: Number(i.lng) };
     } else {
       coords = getCoordsForIncident(i);
     }
+    if (!coords) return;
 
-    if (!coords) return; // still no coords, skip for map
     const sev = Number(i.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
@@ -740,7 +724,6 @@ function mapSeverityToLabel(sev) {
 
 /* ===========================
    WORKER FETCH
-   (unchanged, just uses returned incidents)
 =========================== */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
@@ -805,7 +788,7 @@ function normaliseWorkerIncident(item) {
     lat: Number(item.lat || 0),
     lng: Number(item.lng || 0),
 
-    // NEW FIELDS FOR PROXIMITY LOGIC (PRESERVED FROM WORKER)
+    // PROXIMITY FIELDS
     country_wide: !!item.country_wide,
     country_code: item.country_code || null,
     nearest_site_name: item.nearest_site_name || null,
@@ -813,7 +796,6 @@ function normaliseWorkerIncident(item) {
     distance_km: (item.distance_km === 0 || item.distance_km) ? Number(item.distance_km) : null
   };
 
-  // If lat/lng empty, attempt to resolve
   const coords = getCoordsForIncident(normalized);
   if (coords) {
     normalized.lat = coords.lat;
@@ -853,8 +835,6 @@ function renderGeneralFeed(region) {
   let html = "";
   data.forEach(i => {
     const sev = Number(i.severity || 1);
-
-    // use shared mapping for label + classes
     const sevMeta = mapSeverityToLabel(sev);
     const barClass = sevMeta.barClass;
     const badgeClass = sevMeta.badgeClass;
@@ -905,7 +885,6 @@ function updateHeadline(region) {
   const sev = Number(top.severity || 1);
   const sevMeta = mapSeverityToLabel(sev);
 
-  // Set label + tag class
   sevEl.textContent = sevMeta.label;
   sevEl.className = `tag ${sevMeta.cls}`;
 
@@ -914,7 +893,7 @@ function updateHeadline(region) {
 }
 
 /* ===========================
-   PROXIMITY ALERTS (UPDATED LOGIC + BADGE)
+   PROXIMITY ALERTS (FIXED)
 =========================== */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
@@ -928,7 +907,6 @@ function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
 
-  // Use curated proximity incidents
   const data = (region === "Global")
     ? PROXIMITY_INCIDENTS
     : PROXIMITY_INCIDENTS.filter(i => (i.region || "Global") === region);
@@ -936,7 +914,6 @@ function renderProximityAlerts(region) {
   const alerts = [];
   for (const inc of data) {
     try {
-      // resolve coords
       let coords = null;
       if (inc.lat && inc.lng && Number(inc.lat) !== 0 && Number(inc.lng) !== 0) {
         coords = { lat: Number(inc.lat), lng: Number(inc.lng) };
@@ -945,7 +922,6 @@ function renderProximityAlerts(region) {
       }
       if (!coords) continue;
 
-      // Prefer worker-provided nearest site + distance (more accurate than UI guessing)
       let nearest = null;
 
       if ((inc.distance_km === 0 || inc.distance_km) && inc.nearest_site_name) {
@@ -955,7 +931,6 @@ function renderProximityAlerts(region) {
           a: null
         };
       } else {
-        // Fallback: compute nearest asset (always), then decide inclusion
         for (const [assetKey, a] of Object.entries(ASSETS)) {
           const dist = haversineKm(coords.lat, coords.lng, a.lat, a.lng);
           if (!nearest || dist < nearest.dist) {
@@ -963,22 +938,16 @@ function renderProximityAlerts(region) {
           }
         }
       }
-      
+
       if (!nearest) continue;
 
-      // CORE FIX: Include if within radius OR marked as country-wide cataclysm
       const include = !!inc.country_wide || (nearest.dist <= currentRadius);
-
-      if (include) {
-          alerts.push({ inc, nearest });
-      }
-
+      if (include) alerts.push({ inc, nearest });
     } catch (e) {
       continue;
     }
   }
 
-  // sort (closest first, then highest severity)
   alerts.sort((x, y) => (x.nearest.dist - y.nearest.dist) || (Number(y.inc.severity) - Number(x.inc.severity)));
 
   if (alerts.length === 0) {
@@ -995,16 +964,16 @@ function renderProximityAlerts(region) {
     const sev = Number(a.inc.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
     const title = a.inc.title || "Incident";
-    
-    // Country-Wide Badge
+
+    // ✅ FIX: define desc so this function never throws
+    const desc = (a.inc.summary && String(a.inc.summary).trim())
+      ? String(a.inc.summary).trim()
+      : "No details available.";
+
     const wideBadge = a.inc.country_wide ? `<span class="ftag ftag-type" style="margin-left:6px;font-size:0.65rem;">COUNTRY-WIDE</span>` : "";
-    
-    // If country-wide forced this inclusion, show N/A distance to avoid confusion, 
-    // unless it happens to be close anyway.
+
     let distDisplay = `${Math.round(a.nearest.dist)}km`;
-    if (a.inc.country_wide && a.nearest.dist > currentRadius) {
-       distDisplay = "N/A"; 
-    }
+    if (a.inc.country_wide && a.nearest.dist > currentRadius) distDisplay = "N/A";
 
     const assetDisplay = (a.nearest.assetName || "").toUpperCase();
 
@@ -1144,7 +1113,7 @@ async function filterTravel() {
 }
 
 /* ===========================
-   HISTORY, REPORTS, MANUAL REFRESH (unchanged)
+   HISTORY, REPORTS, MANUAL REFRESH
 =========================== */
 function loadHistory(dateStr) {
   if (!dateStr) return;
@@ -1181,7 +1150,7 @@ async function manualRefresh() {
 }
 
 /* ===========================
-   HELPERS (unchanged)
+   HELPERS
 =========================== */
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -1218,7 +1187,6 @@ function escapeAttr(s) {
   return escapeHtml(s).replaceAll("`", "&#096;");
 }
 
-/* helper used by advisory rendering (keeps compatibility) */
 function severityLabel(s) {
   const n = Number(s || 1);
   if (n >= 5) return "CRITICAL";
