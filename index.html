@@ -13,6 +13,9 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    /* Import Digital Font for Clocks */
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
     :root {
       --dell-blue: #0076CE;
       --bg-dark: #0f1115;
@@ -40,7 +43,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid #f0f0f0;
-      height: 70px;
+      height: 90px; /* Increased slightly to fit digital clocks */
     }
 
     .header-left { display: flex;
@@ -51,33 +54,50 @@
     }
     .logo-text span { color: var(--dell-blue); }
 
-    /* --- NEW CLOCK STYLES --- */
+    /* --- NEW DIGITAL CLOCK STYLES --- */
     .multi-clock-container {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       margin: 0 20px;
       padding-right: 20px;
       border-right: 1px solid #e0e0e0;
       height: 100%;
       align-items: center;
     }
+
     .clock-box {
       text-align: center;
-      min-width: 50px;
+      min-width: 85px;
+      background: #2b2b2b; /* Dark casing */
+      border: 3px solid #b0b0b0; /* Silver bezel */
+      border-radius: 10px;
+      padding: 6px;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+      position: relative;
     }
+
     .clock-label {
-      font-size: 0.65rem;
-      font-weight: 800;
-      color: #9aa0a6;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: #888; /* Dim text printed on the "case" */
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
+
     .clock-val {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #202124;
+      font-family: 'Share Tech Mono', monospace; /* Digital font */
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: #4fdb5e; /* Neon Green */
       line-height: 1;
+      background: #000; /* Screen background */
+      padding: 4px 6px;
+      border-radius: 4px;
+      display: block;
+      text-shadow: 0 0 5px rgba(79, 219, 94, 0.5); /* Inner Glow */
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.8); /* Inner shadow for depth */
       font-variant-numeric: tabular-nums;
     }
     /* ------------------------ */
