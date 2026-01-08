@@ -9,8 +9,8 @@
     script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com 'unsafe-inline';
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
-    img-src 'self' data: https://*.basemaps.cartocdn.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com;
+    img-src 'self' data: https://*.basemaps.cartocdn.com https://server.arcgisonline.com;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
     base-uri 'self';
   ">
   
@@ -596,183 +596,75 @@ const COUNTRY_COORDS = {
    INIT
 =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    initMap();
-    startClock();
-
-    // Global keyboard listener for cluster accessibility (Enter/Space to click)
-    // UPDATED: Robust spacebar detection
-    document.addEventListener('keydown', (e) => {
-      const el = e.target;
-      // Ensure we are targeting a cluster icon
-      if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
-
-      // Check for activation keys
-      const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
-      if (isActivation) {
-        e.preventDefault();
-        el.click(); // Trigger Leaflet's internal click handler
+  // FIX: MAP (SWITCHED TO ESRI WORLD GRAY CANVAS + CLUSTERING)
+  function initMap() {
+    // FIX: Bounds to prevent world repeating
+    const worldBounds = [[-90, -200], [90, 200]]; // UPDATED: Widen to 200 to include NZ
+    
+    map = L.map("map", {
+      zoomControl: false,
+      attributionControl: true, // REQUIRED for Esri
+      minZoom: 1.5, // Allow zooming out more
+      maxBounds: worldBounds,
+      maxBoundsViscosity: 1.0,
+      worldCopyJump: true // Handle date line crossing smoothly
+    }).setView([25, 10], 2);
+    
+    L.control.zoom({ position: "topleft" }).addTo(map);
+  
+    // Use Esri World Gray Canvas (English Labels Guaranteed)
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      { 
+        maxZoom: 19, 
+        noWrap: false, // Allow wrapping for smooth panning
+        // NOTE: no 'bounds' here — rely on map.maxBounds instead
+        attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
       }
+    ).addTo(map);
+  
+    // 1. Assets cluster (for Dell sites)
+    assetsClusterGroup = L.markerClusterGroup({
+      chunkedLoading: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 10
     });
-
-    await loadFromWorker();           // general incidents
-    await loadProximityFromWorker();  // CURATED PROXIMITY FEED
-    filterNews("Global");             // initial render
-
-    /* SAFE INVOKE FOR TRAVEL ADVISORIES (To prevent ReferenceError race condition) */
-    if (typeof window.loadTravelAdvisories === 'function') {
-        await window.loadTravelAdvisories();
-        setTimeout(window.loadTravelAdvisories, 2500);
-    } else {
-        console.warn("loadTravelAdvisories not yet defined. Scheduling retry.");
-        setTimeout(() => { if(typeof window.loadTravelAdvisories === 'function') window.loadTravelAdvisories(); }, 1000);
-    }
-
-    // UPDATED: Scheduled refresh guard
-    let scheduledRefreshInProgress = false;
-    setInterval(async () => {
-      if (scheduledRefreshInProgress) return;
-      scheduledRefreshInProgress = true;
-      try {
-        await loadFromWorker(true);
-        await loadProximityFromWorker(true);
-        const active = document.querySelector(".nav-item-custom.active");
-        filterNews(active ? active.innerText.trim() : "Global");
-      } finally {
-        scheduledRefreshInProgress = false;
-      }
-    }, AUTO_REFRESH_MS);
-
-    console.info("System online");
-  } catch (err) {
-    console.error("Critical Init Failure:", err);
-  }
-});
-/* ===========================
-   CLOCK (UPDATED FOR MULTI-HUB)
-=========================== */
-function startClock() {
-  const targets = [
-    { id: "clock-austin", zone: "America/Chicago", label: "Austin" },
-    { id: "clock-ireland", zone: "Europe/Dublin", label: "Ireland" },
-    { id: "clock-india", zone: "Asia/Kolkata", label: "India" },
-    { id: "clock-sg", zone: "Asia/Singapore", label: "Singapore" },
-    { id: "clock-tokyo", zone: "Asia/Tokyo", label: "Tokyo" },
-    { id: "clock-sydney", zone: "Australia/Sydney", label: "Sydney" }
-  ];
-
-  // Render container once if empty
-  const container = document.getElementById("multi-clock-container");
-  if (container && container.innerHTML.trim() === "") {
-     let html = "";
-     targets.forEach(t => {
-       html += `
-         <div class="clock-box">
-           <div class="clock-label">${t.label}</div>
-           <div class="clock-val" id="${t.id}">--:--</div>
-         </div>`;
-     });
-     container.innerHTML = html;
-  }
-
-  const tick = () => {
-    const now = new Date();
-    targets.forEach(t => {
-      const el = document.getElementById(t.id);
-      if (el) {
-        // Using 24-hour format
-        const timeStr = now.toLocaleTimeString("en-US", {
-          timeZone: t.zone,
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false // FIXED: 24h format
+    map.addLayer(assetsClusterGroup);
+  
+    // 2. Incident clustering (Non-Critical)
+    incidentClusterGroup = L.markerClusterGroup({
+      chunkedLoading: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 13,
+      maxClusterRadius: 50, // tighter clustering in cities
+      zoomToBoundsOnClick: !isTouch,
+      iconCreateFunction: function(cluster) {
+        const children = cluster.getAllChildMarkers();
+        let count = children.length;
+        let maxSeverity = 0;
+        let counts = { critical:0, high:0, medium:0, low:0 };
+        children.forEach(m => {
+          const s = Number(m.options.severity || 1);
+          if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
+          else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
+          else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
+          else { counts.low++; }
         });
-        el.innerText = timeStr;
+  
+        let cls = 'cluster-blue';
+        if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
+        if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+  
+        const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
+        const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
+  
+        // center anchor so hotspot = visual center
+        return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
       }
     });
-  };
-  tick();
-  setInterval(tick, 1000);
-}
 
-/* ===========================
-   MAP (SWITCHED TO CARTO POSITRON + CLUSTERING)
-=========================== */
-function initMap() {
-  // FIX: Bounds to prevent world repeating
-  const worldBounds = [[-90, -180], [90, 180]];
-  
-  map = L.map("map", {
-    zoomControl: false,
-    attributionControl: false,
-    minZoom: 2, 
-    maxBounds: worldBounds,
-    maxBoundsViscosity: 1.0 // Sticky bounds
-  }).setView([25, 10], 2);
-  
-  L.control.zoom({ position: "topleft" }).addTo(map);
-
-  // Use CartoDB Positron (Light) - Very stable, no 400 errors
-  L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    { 
-      maxZoom: 19, 
-      noWrap: true, // PREVENT TILE REPEAT
-      bounds: worldBounds, // STRICT BOUNDS
-      subdomains: ['a','b','c','d']
-    }
-  ).addTo(map);
-
-  // 1. Assets cluster (for Dell sites)
-  assetsClusterGroup = L.markerClusterGroup({
-    chunkedLoading: true,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    disableClusteringAtZoom: 10
-  });
-  map.addLayer(assetsClusterGroup);
-
-  // 2. Incident clustering (Non-Critical)
-  incidentClusterGroup = L.markerClusterGroup({
-    chunkedLoading: true,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    disableClusteringAtZoom: 13,
-    maxClusterRadius: 50, // tighter clustering in cities
-    // disable auto-zoom on touch devices so we can show a tap summary instead
-    zoomToBoundsOnClick: !isTouch,
-    iconCreateFunction: function(cluster) {
-      const children = cluster.getAllChildMarkers();
-      let count = children.length;
-      
-      // Calculate max severity in cluster to determine color
-      let maxSeverity = 0;
-      let counts = { critical:0, high:0, medium:0, low:0 };
-      
-      children.forEach(m => {
-        const s = Number(m.options.severity || 1);
-        if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
-        else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
-        else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
-        else { counts.low++; }
-      });
-
-      // Color logic: Red if High/Crit inside, Amber if Medium, Blue otherwise
-      let cls = 'cluster-blue';
-      if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber'; // Simplify high/crit to amber/red logic
-      if (maxSeverity >= 4) cls = 'cluster-red'; 
-      else if (maxSeverity === 3) cls = 'cluster-amber';
-
-      // ADDED: Full ARIA label + escapeAttr for security
-      const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
-      
-      // ADDED: tabindex="0", role="button", and aria-hidden="true" for visual count
-      // FIXED: Added tabindex="-1" to inner div to prevent double focus
-      const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
-      return L.divIcon({ html, className: '', iconSize: [40,40] });
-    }
-  });
-  
   // DEBOUNCED HOVER SUMMARY: quieter UX for fast movements
   incidentClusterGroup.on('clustermouseover', (e) => {
     clearTimeout(_clusterHoverTimeout);
@@ -847,9 +739,106 @@ function initMap() {
   renderAssetsOnMap("Global");
 
   // ensure map sizes correctly after initial render/layout
-  setTimeout(()=>{ try { map.invalidateSize(); } catch(e){} }, 200);
+  setTimeout(()=>{ try { map.invalidateSize(); map.fitWorld(); } catch(e){} }, 200);
   window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
+  }
+
+  // Actually call initMap (since we wrapped it inside DOMContentLoaded)
+  initMap();
+  
+  startClock();
+
+  // Global keyboard listener for cluster accessibility (Enter/Space to click)
+  // UPDATED: Robust spacebar detection
+  document.addEventListener('keydown', (e) => {
+    const el = e.target;
+    // Ensure we are targeting a cluster icon
+    if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
+
+    // Check for activation keys
+    const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
+    if (isActivation) {
+      e.preventDefault();
+      el.click(); // Trigger Leaflet's internal click handler
+    }
+  });
+
+  await loadFromWorker();           // general incidents
+  await loadProximityFromWorker();  // CURATED PROXIMITY FEED
+  filterNews("Global");             // initial render
+
+  /* SAFE INVOKE FOR TRAVEL ADVISORIES (To prevent ReferenceError race condition) */
+  if (typeof window.loadTravelAdvisories === 'function') {
+      await window.loadTravelAdvisories();
+      setTimeout(window.loadTravelAdvisories, 2500);
+  } else {
+      console.warn("loadTravelAdvisories not yet defined. Scheduling retry.");
+      setTimeout(() => { if(typeof window.loadTravelAdvisories === 'function') window.loadTravelAdvisories(); }, 1000);
+  }
+
+  // UPDATED: Scheduled refresh guard
+  let scheduledRefreshInProgress = false;
+  setInterval(async () => {
+    if (scheduledRefreshInProgress) return;
+    scheduledRefreshInProgress = true;
+    try {
+      await loadFromWorker(true);
+      await loadProximityFromWorker(true);
+      const active = document.querySelector(".nav-item-custom.active");
+      filterNews(active ? active.innerText.trim() : "Global");
+    } finally {
+      scheduledRefreshInProgress = false;
+    }
+  }, AUTO_REFRESH_MS);
+});
+/* ===========================
+   CLOCK (UPDATED FOR MULTI-HUB)
+=========================== */
+function startClock() {
+  const targets = [
+    { id: "clock-austin", zone: "America/Chicago", label: "Austin" },
+    { id: "clock-ireland", zone: "Europe/Dublin", label: "Ireland" },
+    { id: "clock-india", zone: "Asia/Kolkata", label: "India" },
+    { id: "clock-sg", zone: "Asia/Singapore", label: "Singapore" },
+    { id: "clock-tokyo", zone: "Asia/Tokyo", label: "Tokyo" },
+    { id: "clock-sydney", zone: "Australia/Sydney", label: "Sydney" }
+  ];
+
+  // Render container once if empty
+  const container = document.getElementById("multi-clock-container");
+  if (container && container.innerHTML.trim() === "") {
+     let html = "";
+     targets.forEach(t => {
+       html += `
+         <div class="clock-box">
+           <div class="clock-label">${t.label}</div>
+           <div class="clock-val" id="${t.id}">--:--</div>
+         </div>`;
+     });
+     container.innerHTML = html;
+  }
+
+  const tick = () => {
+    const now = new Date();
+    targets.forEach(t => {
+      const el = document.getElementById(t.id);
+      if (el) {
+        // Using 24-hour format
+        const timeStr = now.toLocaleTimeString("en-US", {
+          timeZone: t.zone,
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false // FIXED: 24h format
+        });
+        el.innerText = timeStr;
+      }
+    });
+  };
+  tick();
+  setInterval(tick, 1000);
 }
+
+// NOTE: initMap is defined inside DOMContentLoaded above to ensure it runs correctly.
 
 function renderAssetsOnMap(region) {
   assetsClusterGroup.clearLayers();
