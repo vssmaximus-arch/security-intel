@@ -9,7 +9,7 @@
     style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com;
     base-uri 'self';
   ">
   <title>Dell OS | INFOHUB</title>
@@ -18,12 +18,12 @@
   
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSA8UYmpGg17/f8uQfcz423lXzn1491uQ24xAw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/nyB6bzuhXo/qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" integrity="sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" integrity="sha512-RLEjtaFGdC4iQMJDbMzim/dOvAu+8Qp9sw7QE4wIMYwq2zoCKZrFi52kW2uH6+C/SXp8oY28z6JLn1TfQJay8A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" integrity="sha512-BBToHPBStgMiw0lD4AtkRIZmdndhB6aQbXpX7omcrXeG8VqllnQL0H/gl689g1629LXqHKoQxLdKG8BpeJUWeA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js" integrity="sha512-MQlyPV+ol2lp4KodaU/Xmrn+txc1TP15pOBF/2Sfre7qMe0WYBh1yeXDqIbWzOJIi4tZ4of3Z+LbTafIK63k0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" integrity="sha512-RLEjtaFGdC4iQMJDbMzim/dOvAu+8Qp9sw7QE4wIMYcg2goVoivzwgSZq9CsIxp4xKAZPKh5J2f2lOko2Ze6FQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" integrity="sha512-BBToHPBStgMiw0lD4AtkRIZmdndhB6aQbXpX7omcrXeG2PauGBl2lzq2xUZTxaLxYz5IDHlmneCZ1IJ+P3kYtQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js" integrity="sha512-MQlyPV+ol2lp4KodaU/Xmrn+txc1TP15pOBF/2Sfre7MRsA/pB4Vy58bEqe9u7a7DczMLtU5wT8n7OblJepKbg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
@@ -141,6 +141,7 @@
     }
     .leaflet-tooltip-top:before { border-top-color: #202124; }
     
+    /* Cluster Summary Popup Overrides */
     .leaflet-popup-content-wrapper { border-radius: 6px; padding: 0; }
     .leaflet-popup-content { margin: 10px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; font-weight: 600; color: #333; }
 
@@ -151,6 +152,7 @@
     }
     .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
 
+    /* Single Incident Dot (for inside clusters or standalone) */
     .incident-dot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 3px rgba(0,0,0,0.3); }
     
     /* Cluster Icons */
@@ -164,9 +166,9 @@
     .cluster-icon:focus { outline: 2px solid #fff; outline-offset: 2px; } /* A11y Focus */
     
     .cluster-count { font-size:13px; line-height:1; }
-    .cluster-blue { background: #1a73e8; }
-    .cluster-amber { background: #f9ab00; }
-    .cluster-red { background: #d93025; }
+    .cluster-blue { background: #1a73e8; }   /* Low/Info */
+    .cluster-amber { background: #f9ab00; }  /* Medium */
+    .cluster-red { background: #d93025; }    /* High/Crit */
 
     /* --- UI ELEMENTS --- */
     .btn-daily {
