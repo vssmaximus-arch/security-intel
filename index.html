@@ -234,16 +234,32 @@
 </div>
 
 <script>
+/* ===========================
+   CONFIG & STATE
+=========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
-let INCIDENTS = [], PROXIMITY_INCIDENTS = [], FEED_IS_LIVE = false, currentRadius = 50, TRAVEL_DATA = [], TRAVEL_UPDATED_AT = null;
-let map, assetsClusterGroup, incidentClusterGroup, criticalLayerGroup, _clusterHoverTimeout = null;
+
+let INCIDENTS = [];
+let PROXIMITY_INCIDENTS = [];
+let FEED_IS_LIVE = false;
+let currentRadius = 50;
+let TRAVEL_DATA = [];
+let TRAVEL_UPDATED_AT = null;
+let map;
+let assetsClusterGroup;
+let incidentClusterGroup;
+let criticalLayerGroup;
+let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
+/* Error handling */
 window.onerror = function(msg, url, line, col, error) { console.error("Global Error:", { msg, url, line, col, error }); };
 window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled Rejection:', ev.reason); });
 
-/* --- DATA CONSTANTS --- */
+/* ===========================
+   DATA CONSTANTS
+=========================== */
 const DELL_SITES = [
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
@@ -515,36 +531,6 @@ function renderIncidentsOnMap(region, incidents) {
   try { assetsClusterGroup.bringToBack(); } catch(e) {}
 }
 
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById("feed-status-label");
-  if (label && !silent) label.textContent = "Refreshing…"; 
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
-    if (!res.ok) { console.error("Incidents fetch status:", res.status, res.statusText); throw new Error("HTTP " + res.status); }
-    const raw = await res.json();
-    INCIDENTS = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident).filter(Boolean);
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
-    FEED_IS_LIVE = true;
-    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`; 
-  } catch (e) {
-    console.error("Worker fetch failed:", e); 
-    FEED_IS_LIVE = false;
-    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable"; 
-  }
-}
-
-async function loadProximityFromWorker(silent = false) {
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
-    if (!res.ok) { console.error("Proximity fetch status:", res.status, res.statusText); throw new Error("HTTP " + res.status); }
-    const json = await res.json();
-    PROXIMITY_INCIDENTS = (Array.isArray(json?.incidents) ? json.incidents : []).map(normaliseWorkerIncident).filter(Boolean);
-    if (!silent) console.log("Loaded proximity items:", PROXIMITY_INCIDENTS.length);
-  } catch (e) {
-    console.error("loadProximityFromWorker failed:", e); 
-  }
-}
-
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -658,7 +644,7 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   APP BOOT & UI HOOKS (Added to fix missing handlers)
+   APP BOOT & UI HOOKS
    =========================== */
 
 async function filterTravel() {
