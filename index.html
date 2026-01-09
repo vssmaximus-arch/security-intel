@@ -14,8 +14,7 @@
     base-uri 'self';
   ">
   
-  <link rel="icon" href="data:,">
-  <title>Dell OS | INFOHUB</title>
+  <link rel="icon" href="data:,"> <title>Dell OS | INFOHUB</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
@@ -173,9 +172,7 @@
     </div>
 
     <div class="header-right d-flex align-items-center">
-      <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks">
-        </div>
-
+      <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks"></div>
       <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
         <a class="nav-item-custom active" onclick="filterNews('Global')" role="tab" aria-selected="true" tabindex="0">Global</a>
         <a class="nav-item-custom" onclick="filterNews('AMER')" role="tab" aria-selected="false" tabindex="0">AMER</a>
@@ -183,180 +180,69 @@
         <a class="nav-item-custom" onclick="filterNews('APJC')" role="tab" aria-selected="false" tabindex="0">APJC</a>
         <a class="nav-item-custom" onclick="filterNews('LATAM')" role="tab" aria-selected="false" tabindex="0">LATAM</a>
       </div>
-
-      <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()" role="button" aria-label="Refresh Data" tabindex="0">
-        <i class="fas fa-rotate"></i> Refresh
-      </div>
-
-      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;
-        box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
-        <i class="fas fa-file-alt"></i> Daily Briefings
-      </div>
+      <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()" role="button" aria-label="Refresh Data" tabindex="0"><i class="fas fa-rotate"></i> Refresh</div>
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0"><i class="fas fa-file-alt"></i> Daily Briefings</div>
     </div>
   </div>
 
   <div class="content-area">
     <div class="row g-4">
       <div class="col-lg-9">
-        <div class="map-wrapper" aria-label="Incident Map" role="application">
-          <div id="map" tabindex="0"></div>
-        </div>
-
+        <div class="map-wrapper" aria-label="Incident Map" role="application"><div id="map" tabindex="0"></div></div>
         <div class="stream-section">
           <div class="stream-header">
-            
-            <div class="stream-label">
-              <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
-              <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
-            </div>
-            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
-              VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span>
-            </div>
- 
+            <div class="stream-label"><i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span></div>
+            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span></div>
           </div>
-
           <div class="critical-alert-bar" role="alert">
             <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
             <div class="alert-content-main" id="headline-alert">Loading headline…</div>
-            <div class="alert-tags">
-              <span class="tag" id="headline-sev">SEV?</span>
-              <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-    
-              <span class="tag tag-reg" id="headline-reg">REGION</span>
-            </div>
+            <div class="alert-tags"><span class="tag" id="headline-sev">SEV?</span><span class="tag tag-cat" id="headline-cat">CATEGORY</span><span class="tag tag-reg" id="headline-reg">REGION</span></div>
           </div>
-
-          <div id="general-news-feed" aria-live="polite">
-            <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
-          </div>
+          <div id="general-news-feed" aria-live="polite"><div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div></div>
         </div>
       </div>
-
       <div class="col-lg-3 sidebar-col">
-      
         <div class="side-card">
           <div class="card-label"><i class="fas fa-history"></i> History Search</div>
-          <div class="history-input-group">
-            <i class="far fa-calendar-alt calendar-icon"></i>
-            <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" />
-          </div>
+          <div class="history-input-group"><i class="far fa-calendar-alt calendar-icon"></i><input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" /></div>
           <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
         </div>
-
-  
         <div class="side-card">
           <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-          <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Select country for travel info">
-            <option selected disabled>Loading countries...</option>
-          </select>
+          <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Select country for travel info"><option selected disabled>Loading countries...</option></select>
           <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
           <div id="travel-news" class="mt-2"></div>
         </div>
-
-       
         <div class="side-card" style="padding-bottom: 10px;">
-          <div class="prox-header-row">
-            <div>
-              <div class="prox-dell-label">Dell Asset</div>
-              <div class="prox-main-title">Proximity<br/>Alerts</div>
-            </div>
-          </div>
+          <div class="prox-header-row"><div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity<br/>Alerts</div></div></div>
           <div class="prox-controls">
-         
             <div class="prox-subtitle">WITHIN RADIUS</div>
-            <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius">
-              <option value="5">5 KM</option>
-              <option value="10">10 KM</option>
-              <option value="25">25 KM</option>
-              <option value="50" selected>50 KM</option>
-              <option 
-                value="100">100 KM</option>
-              <option value="500">500 KM</option>
-            </select>
+            <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="500">500 KM</option></select>
           </div>
-
           <div id="proximity-alerts-container" aria-live="polite"></div>
-
-          <div style="text-align: center;
-            padding-top: 10px; border-top: 1px solid #f1f1f1;">
-            <a href="#" onclick="manualRefresh();return false;" style="font-size: 0.75rem;
-            font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
-          </div>
+          <div style="text-align:center;padding-top:10px;border-top:1px solid #f1f1f1;"><a href="#" onclick="manualRefresh();return false;" style="font-size:0.75rem;font-weight:700;color:#1a73e8;text-decoration:none;" role="button" tabindex="0">REFRESH ALERTS</a></div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-   
-        <div class="mb-3">
-          <label class="form-label" for="reportDate">Select Date</label>
-          <input type="date" class="form-control" id="reportDate" />
-        </div>
-        <div class="mb-4">
-          <label class="form-label" for="reportRegion">Select Region / Report Profile</label>
-          <select class="form-select" id="reportRegion">
-            <option value="Global">Global</option>
-           
-            <option value="APJC">APJC</option>
-            <option value="India">India</option>
-            <option value="Oceania">Oceania</option>
-            <option value="Japan">Japan</option>
-            <option value="South_Korea">South_Korea</option>
-            <option value="SAEM">SAEM</option>
-            <option value="Greater_China_HK">Greater_China_HK</option>
-            <option value="Taiwan">Taiwan</option>
-       
-            <option value="Malaysia">Malaysia</option>
-            <option value="Singapore">Singapore</option>
-          </select>
-        </div>
-        <button class="btn-download" onclick="downloadReport()">
-          <i class="fas fa-download me-2"></i> Retrieve Briefing
-        </button>
-        <div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem;
-          display:none;" aria-live="polite"></div>
-      </div>
-    </div>
-  </div>
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label" for="reportDate">Select Date</label><input type="date" class="form-control" id="reportDate" /></div><div class="mb-4"><label class="form-label" for="reportRegion">Select Region / Report Profile</label><select class="form-select" id="reportRegion"><option value="Global">Global</option><option value="APJC">APJC</option><option value="India">India</option><option value="Oceania">Oceania</option><option value="Japan">Japan</option><option value="South_Korea">South_Korea</option><option value="SAEM">SAEM</option><option value="Greater_China_HK">Greater_China_HK</option><option value="Taiwan">Taiwan</option><option value="Malaysia">Malaysia</option><option value="Singapore">Singapore</option></select></div><button class="btn-download" onclick="downloadReport()"><i class="fas fa-download me-2"></i> Retrieve Briefing</button><div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div></div></div></div>
 </div>
 
 <script>
-/* ===========================
-   CONFIG & STATE
-=========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
-
-let INCIDENTS = [];
-let PROXIMITY_INCIDENTS = [];
-let FEED_IS_LIVE = false;
-let currentRadius = 50;
-let TRAVEL_DATA = [];
-let TRAVEL_UPDATED_AT = null;
-let map;
-let assetsClusterGroup;
-let incidentClusterGroup;
-let criticalLayerGroup;
-let _clusterHoverTimeout = null;
+let INCIDENTS = [], PROXIMITY_INCIDENTS = [], FEED_IS_LIVE = false, currentRadius = 50, TRAVEL_DATA = [], TRAVEL_UPDATED_AT = null;
+let map, assetsClusterGroup, incidentClusterGroup, criticalLayerGroup, _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-/* Error handling */
-window.onerror = function(msg, url, line, col, error) { console.error("Global Error Caught:", { msg, url, line, col, error }); };
-window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled promise rejection:', ev.reason); });
+window.onerror = function(msg, url, line, col, error) { console.error("Global Error:", { msg, url, line, col, error }); };
+window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled Rejection:', ev.reason); });
 
-/* ===========================
-   DATA CONSTANTS
-=========================== */
+/* --- DATA CONSTANTS --- */
 const DELL_SITES = [
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
@@ -467,7 +353,7 @@ function severityLabel(s) { const n = Number(s || 1); if (n >= 5) return "CRITIC
 function mapSeverityToLabel(sev) { const s = Number(sev || 1); if (s >= 5) return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s >= 4) return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s === 3) return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" }; return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" }; }
 
 /* ===========================
-   CORE LOGIC (Global)
+   CORE LOGIC
 =========================== */
 function startClock() {
   const targets = [
@@ -485,10 +371,10 @@ function startClock() {
 }
 
 function initMap() {
-  // FIX: Force single world view (no duplicates)
-  const worldBounds = [[-90, -180], [90, 180]]; // Strict bounds
+  // FIX: Force single world view to prevent "Two Australias"
+  const worldBounds = [[-90, -180], [90, 180]]; // Strict -180 to 180 to stop repeats
   
-  if (map) { try { map.remove(); } catch(e) {} } // Clean up existing
+  if (map) { try { map.remove(); } catch(e) {} }
 
   map = L.map("map", { 
     zoomControl: false, 
@@ -496,14 +382,15 @@ function initMap() {
     minZoom: 2.2, 
     maxBounds: worldBounds, 
     maxBoundsViscosity: 1.0, 
-    worldCopyJump: false // Stop wrapping
+    worldCopyJump: false // Disabled wrapping
   }).setView([20, 10], 2);
   
   L.control.zoom({ position: "topleft" }).addTo(map);
   
+  // Use Esri World Gray Canvas (English)
   L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", { 
     maxZoom: 19, 
-    noWrap: true, // Stop repeating tiles
+    noWrap: true, // Crucial: Stop tiling repeats
     bounds: worldBounds, 
     attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA' 
   }).addTo(map);
@@ -552,13 +439,18 @@ function initMap() {
   });
 
   map.addLayer(incidentClusterGroup);
+
   criticalLayerGroup = L.layerGroup().addTo(map);
   try { criticalLayerGroup.bringToFront(); } catch(e) {}
+  
   renderAssetsOnMap("Global");
-  setTimeout(()=>{ try { map.invalidateSize(); map.fitWorld(); } catch(e){} }, 200);
+  setTimeout(()=>{ try { map.invalidateSize(); } catch(e){} }, 200);
   window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
 }
 
+/* ===========================
+   STEP 2: RENDER ASSETS/INCIDENTS
+=========================== */
 function renderAssetsOnMap(region) {
   if (!assetsClusterGroup) return;
   assetsClusterGroup.clearLayers();
