@@ -312,6 +312,7 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
+
 const ASSETS = {};
 DELL_SITES.forEach(s => { ASSETS[s.name.toLowerCase()] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country }; });
 
@@ -347,7 +348,7 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
-   HELPER FUNCTIONS (Global)
+   HELPER FUNCTIONS
 =========================== */
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
@@ -370,7 +371,7 @@ function severityLabel(s) { const n = Number(s || 1); if (n >= 5) return "CRITIC
 function mapSeverityToLabel(sev) { const s = Number(sev || 1); if (s >= 5) return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s >= 4) return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s === 3) return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" }; return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" }; }
 
 /* ===========================
-   CORE LOGIC (Global)
+   CORE LOGIC
 =========================== */
 function startClock() {
   const targets = [
@@ -388,36 +389,32 @@ function startClock() {
 }
 
 function initMap() {
-  const worldBounds = [[-90, -180], [90, 180]]; // Strict -180..180
+  const worldBounds = [[-90, -180], [90, 180]]; // Strict -180 to 180 to stop repeats
   
-  map = L.map("map", {
-    zoomControl: false,
-    attributionControl: true,
-    minZoom: 2,
-    maxBounds: worldBounds,
-    maxBoundsViscosity: 1.0,
+  map = L.map("map", { 
+    zoomControl: false, 
+    attributionControl: true, 
+    minZoom: 2, 
+    maxBounds: worldBounds, 
+    maxBoundsViscosity: 1.0, 
     worldCopyJump: false // Disabled wrapping
   }).setView([20, 10], 2);
-
+  
   L.control.zoom({ position: "topleft" }).addTo(map);
-
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
-    maxZoom: 19,
-    noWrap: true,      // Crucial: Stop tiling repeats
-    bounds: worldBounds,
-    attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
+  
+  // Use Esri World Gray Canvas (English)
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", { 
+    maxZoom: 19, 
+    noWrap: true, // Crucial: Stop tiling repeats
+    bounds: worldBounds, 
+    attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA' 
   }).addTo(map);
 
   assetsClusterGroup = L.markerClusterGroup({ chunkedLoading: true, spiderfyOnMaxZoom: true, showCoverageOnHover: false, disableClusteringAtZoom: 10 });
   map.addLayer(assetsClusterGroup);
 
   incidentClusterGroup = L.markerClusterGroup({
-    chunkedLoading: true,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    disableClusteringAtZoom: 13,
-    maxClusterRadius: 50,
-    zoomToBoundsOnClick: !isTouch,
+    chunkedLoading: true, spiderfyOnMaxZoom: true, showCoverageOnHover: false, disableClusteringAtZoom: 13, maxClusterRadius: 50, zoomToBoundsOnClick: !isTouch,
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
       let count = children.length, maxSeverity = 0, counts = { critical:0, high:0, medium:0, low:0 };
@@ -458,6 +455,7 @@ function initMap() {
   });
 
   map.addLayer(incidentClusterGroup);
+
   criticalLayerGroup = L.layerGroup().addTo(map);
   try { criticalLayerGroup.bringToFront(); } catch(e) {}
   
@@ -483,9 +481,6 @@ function renderAssetsOnMap(region) {
   else map.setView([25, 10], 2);
 }
 
-/* ===========================
-   INCIDENT COORDS RESOLUTION (HARDENED)
-=========================== */
 function getCoordsForIncident(inc) {
   try {
     const lat = Number(inc.lat || inc.latitude || 0);
@@ -651,9 +646,8 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   APP BOOT & UI HOOKS (Added to fix missing handlers)
-   =========================== */
-
+   APP BOOT & UI HOOKS
+=========================== */
 async function filterTravel() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
