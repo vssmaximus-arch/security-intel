@@ -598,8 +598,8 @@ const COUNTRY_COORDS = {
 document.addEventListener("DOMContentLoaded", async () => {
   // FIX: MAP (SWITCHED TO ESRI WORLD GRAY CANVAS + CLUSTERING)
   function initMap() {
-    // FIX: Bounds to prevent world repeating
-    const worldBounds = [[-90, -180], [90, 180]]; // UPDATED: use valid longitude range to avoid wrapped duplicates
+    // Use valid world bounds to avoid wrapped duplicates but keep full globe
+    const worldBounds = [[-90, -180], [90, 180]]; // valid longitude range
     
     map = L.map("map", {
       zoomControl: false,
@@ -607,18 +607,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       minZoom: 1.5, // Allow zooming out more
       maxBounds: worldBounds,
       maxBoundsViscosity: 1.0,
-      worldCopyJump: true // Handle date line crossing smoothly
+      worldCopyJump: false // prevent horizontal wrapping duplication
     }).setView([25, 10], 2);
     
     L.control.zoom({ position: "topleft" }).addTo(map);
   
-    // Use Esri World Gray Canvas (English Labels Guaranteed)
+    // Use Esri World Gray Canvas — do not wrap tiles and restrict tile requests to bounds
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       { 
-        maxZoom: 19, 
-        noWrap: true, // Prevent horizontal tile repetition — FIXED duplicate Australia
-        // NOTE: no 'bounds' here — rely on map.maxBounds instead
+        maxZoom: 19,
+        noWrap: true,               // prevent horizontal tile repetition
+        bounds: worldBounds,        // only request tiles inside valid longitudes
         attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
       }
     ).addTo(map);
