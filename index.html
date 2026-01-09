@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com 'unsafe-inline';
@@ -12,6 +13,7 @@
     connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
     base-uri 'self';
   ">
+  
   <link rel="icon" href="data:,">
   <title>Dell OS | INFOHUB</title>
 
@@ -38,6 +40,7 @@
     .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
     .logo-text span { color: var(--dell-blue); }
+    
     /* Clocks */
     .multi-clock-container { display: flex; gap: 12px; margin: 0 20px; padding-right: 20px; border-right: 1px solid #e0e0e0; height: 100%; align-items: center; }
     .clock-box { text-align: center; min-width: 85px; background: #2b2b2b; border: 3px solid #b0b0b0; border-radius: 10px; padding: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
@@ -48,13 +51,114 @@
     .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
     #map { width: 100%; height: 100%; z-index: 1; outline: none; background: #eef2f6; }
     #map:focus { box-shadow: inset 0 0 0 3px rgba(26,115,232,0.5); }
+    
+    .leaflet-tooltip.map-tooltip { background-color: #202124; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .leaflet-tooltip-top:before { border-top-color: #202124; }
+    .leaflet-popup-content-wrapper { border-radius: 6px; padding: 0; }
+    .leaflet-popup-content { margin: 10px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; font-weight: 600; color: #333; }
 
-    /* rest of CSS same as original (kept for brevity) */
-    /* Icons, UI components, etc... */
-    /* (The full CSS is preserved from original; previously posted - not modifying) */
+    /* Icons */
+    .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+    .incident-dot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 3px rgba(0,0,0,0.3); }
+    .cluster-icon { display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; cursor: pointer; }
+    .cluster-icon:focus { outline: 2px solid #fff; outline-offset: 2px; }
+    .cluster-count { font-size:13px; line-height:1; }
+    .cluster-blue { background: #1a73e8; }
+    .cluster-amber { background: #f9ab00; }
+    .cluster-red { background: #d93025; }
 
-    /* For brevity in this message I keep style blocks identical to the original file.
-       In your actual file they must all be present (they are in the HTML below). */
+    /* UI Components */
+    .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; transition: opacity 0.2s; }
+    .btn-daily:hover { background-color: #1557b0; color: white; }
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nav-item-custom.active { background-color: #202124; color: #fff; }
+    .content-area { padding: 30px; }
+    .sidebar-col { padding-left: 30px; }
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .card-label i { color: #9aa0a6; }
+    .history-input-group { position: relative; }
+    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
+    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+    .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
+    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
+    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+    .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+    #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
+    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
+    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
+    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
+    .stream-section { margin-top: 25px; }
+    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
+    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
+    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+    .status-bar-crit { background-color: #d93025; }
+    .status-bar-warn { background-color: #f9ab00; }
+    .status-bar-info { background-color: #1a73e8; }
+    .feed-content { padding: 16px 20px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+    .ftag-type { background: #f1f3f4; color: #5f6368; }
+    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
+    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
+    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
+    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
+    .tag-crit { background: #d93025; color: white; }
+    .tag-cat { background: #3c4043; color: white; }
+    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
+    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
+    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
+    .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
+    .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
+    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
+    .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
+    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
+    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
+    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
+    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
+    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .news-box-item:last-child { border-bottom: none; }
+    .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
+    .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+    .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
+    .modal-title { font-weight: 800; color: #202124; }
+    .modal-body { padding: 30px; }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
+    .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
+    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
+    .btn-download:hover { background: #1557b0; }
   </style>
 </head>
 
@@ -125,12 +229,10 @@
   </div>
 </div>
 
-<!-- report modal -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label" for="reportDate">Select Date</label><input type="date" class="form-control" id="reportDate" /></div><div class="mb-4"><label class="form-label" for="reportRegion">Select Region / Report Profile</label><select class="form-select" id="reportRegion"><option value="Global">Global</option><option value="APJC">APJC</option><option value="India">India</option><option value="Oceania">Oceania</option><option value="Japan">Japan</option><option value="South_Korea">South_Korea</option><option value="SAEM">SAEM</option><option value="Greater_China_HK">Greater_China_HK</option><option value="Taiwan">Taiwan</option><option value="Malaysia">Malaysia</option><option value="Singapore">Singapore</option></select></div><button class="btn-download" onclick="downloadReport()"><i class="fas fa-download me-2"></i> Retrieve Briefing</button><div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div></div></div></div>
 </div>
 
-<!-- FULL app script (single block) -->
 <script>
 /* ===========================
    CONFIG & STATE
@@ -157,7 +259,6 @@ window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled
 
 /* ===========================
    DATA CONSTANTS
-   (kept same as original)
 =========================== */
 const DELL_SITES = [
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -211,11 +312,9 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
-
 const ASSETS = {};
 DELL_SITES.forEach(s => { ASSETS[s.name.toLowerCase()] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country }; });
 
-/* CITY_COORDS and COUNTRY_COORDS preserved exactly from original (omitted here for brevity) */
 const CITY_COORDS = {
   "new york": { lat: 40.7128, lng: -74.0060 }, "london": { lat: 51.5074, lng: -0.1278 }, "paris": { lat: 48.8566, lng: 2.3522 },
   "tokyo": { lat: 35.6762, lng: 139.6503 }, "singapore": { lat: 1.3521, lng: 103.8198 }, "sydney": { lat: -33.8688, lng: 151.2093 },
@@ -248,18 +347,20 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
-   HELPERS
+   HELPER FUNCTIONS (Global)
 =========================== */
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try { const res = await fetch(url, { ...opts, signal: controller.signal }); return res; } finally { clearTimeout(id); }
 }
+
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c;
 }
+
 function shortHost(url) { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source"; } }
 function safeHref(u) { try { const str = String(u || "").trim(); if (!str) return "#"; if (/^(mailto:|tel:)/i.test(str)) return str; const url = new URL(str, location.origin); if (!["http:", "https:"].includes(url.protocol)) return "#"; return url.href; } catch { return "#"; } }
 function safeTime(iso) { try { const d = new Date(iso); if (isNaN(d.getTime())) return "Recently"; return d.toLocaleString(); } catch { return "Recently"; } }
@@ -269,8 +370,7 @@ function severityLabel(s) { const n = Number(s || 1); if (n >= 5) return "CRITIC
 function mapSeverityToLabel(sev) { const s = Number(sev || 1); if (s >= 5) return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s >= 4) return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s === 3) return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" }; return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" }; }
 
 /* ===========================
-   CORE LOGIC
-   (initMap is global and single)
+   CORE LOGIC (Global)
 =========================== */
 function startClock() {
   const targets = [
@@ -287,37 +387,37 @@ function startClock() {
   tick(); setInterval(tick, 1000);
 }
 
-/* IMPORTANT: single global initMap — enforces single world with noWrap + strict bounds */
 function initMap() {
-  // Strict single-world bounds to avoid duplicate Australia and other wrap artifacts
-  const worldBounds = [[-90, -180], [90, 180]];
-
+  const worldBounds = [[-90, -180], [90, 180]]; // Strict -180..180
+  
   map = L.map("map", {
     zoomControl: false,
     attributionControl: true,
     minZoom: 2,
     maxBounds: worldBounds,
     maxBoundsViscosity: 1.0,
-    worldCopyJump: false
+    worldCopyJump: false // Disabled wrapping
   }).setView([20, 10], 2);
 
   L.control.zoom({ position: "topleft" }).addTo(map);
 
-  // Esri World Light Gray Base — noWrap: true and bounds to stop repeats
   L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
     maxZoom: 19,
-    noWrap: true,
+    noWrap: true,      // Crucial: Stop tiling repeats
     bounds: worldBounds,
     attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
   }).addTo(map);
 
-  // Assets cluster
   assetsClusterGroup = L.markerClusterGroup({ chunkedLoading: true, spiderfyOnMaxZoom: true, showCoverageOnHover: false, disableClusteringAtZoom: 10 });
   map.addLayer(assetsClusterGroup);
 
-  // Incident cluster group with same behavior as before
   incidentClusterGroup = L.markerClusterGroup({
-    chunkedLoading: true, spiderfyOnMaxZoom: true, showCoverageOnHover: false, disableClusteringAtZoom: 13, maxClusterRadius: 50, zoomToBoundsOnClick: !isTouch,
+    chunkedLoading: true,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    disableClusteringAtZoom: 13,
+    maxClusterRadius: 50,
+    zoomToBoundsOnClick: !isTouch,
     iconCreateFunction: function(cluster) {
       const children = cluster.getAllChildMarkers();
       let count = children.length, maxSeverity = 0, counts = { critical:0, high:0, medium:0, low:0 };
@@ -328,12 +428,13 @@ function initMap() {
       let cls = 'cluster-blue';
       if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
       if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+      
       const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
       const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
       return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
     }
   });
-
+  
   incidentClusterGroup.on('clustermouseover', (e) => {
     clearTimeout(_clusterHoverTimeout);
     _clusterHoverTimeout = setTimeout(() => {
@@ -357,21 +458,13 @@ function initMap() {
   });
 
   map.addLayer(incidentClusterGroup);
-
   criticalLayerGroup = L.layerGroup().addTo(map);
   try { criticalLayerGroup.bringToFront(); } catch(e) {}
-
-  // Render assets and ensure map size
+  
   renderAssetsOnMap("Global");
   setTimeout(()=>{ try { map.invalidateSize(); } catch(e){} }, 200);
   window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
 }
-
-/* ===========================
-   Remaining app functions preserved (incidents, feeds, rendering, fetches)
-   ... (function bodies copied from original unchanged)
-   For brevity in this message I will include the key functions intact below.
-=========================== */
 
 function renderAssetsOnMap(region) {
   assetsClusterGroup.clearLayers();
@@ -390,6 +483,9 @@ function renderAssetsOnMap(region) {
   else map.setView([25, 10], 2);
 }
 
+/* ===========================
+   INCIDENT COORDS RESOLUTION (HARDENED)
+=========================== */
 function getCoordsForIncident(inc) {
   try {
     const lat = Number(inc.lat || inc.latitude || 0);
@@ -425,7 +521,7 @@ function renderIncidentsOnMap(region, incidents) {
     let coords = null;
     if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) coords = { lat: Number(i.lat), lng: Number(i.lng) };
     else coords = getCoordsForIncident(i);
-    if (!coords) return;
+    if (!coords) return; 
     const sev = Number(i.severity || 1), color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
     if (sev >= 4) {
         const marker = L.circleMarker([coords.lat, coords.lng], { radius: 10, fillColor: color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.9 });
@@ -442,7 +538,6 @@ function renderIncidentsOnMap(region, incidents) {
   try { assetsClusterGroup.bringToBack(); } catch(e) {}
 }
 
-/* Normalise, fetch, render feed and proximity functions kept identical to original (not modified) */
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -466,158 +561,9 @@ function normaliseWorkerIncident(item) {
   return normalized;
 }
 
-/* The rest of the app logic (renderGeneralFeed, updateHeadline, proximity, travel, loadFromWorker, loadProximityFromWorker,
-   loadTravelAdvisories, manualRefresh, initApp, etc.) is preserved as in the original app. */
-
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById("feed-status-label");
-  if (label && !silent) label.textContent = "Refreshing…";
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : [];
-    INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
-    FEED_IS_LIVE = true;
-    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch (e) {
-    console.error("Worker fetch failed:", e);
-    FEED_IS_LIVE = false;
-    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable";
-  }
-}
-
-async function loadProximityFromWorker(silent = false) {
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    const list = Array.isArray(json?.incidents) ? json.incidents : [];
-    PROXIMITY_INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
-  } catch (e) {
-    console.error("loadProximityFromWorker failed:", e);
-  }
-}
-
-async function loadTravelAdvisories() {
-  const sel = document.getElementById("countrySelect");
-  if (!sel) return;
-  try {
-    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
-    let json = null;
-    if (liveRes && liveRes.ok) {
-      json = await liveRes.json();
-    } else {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
-      if (res && res.ok) json = await res.json();
-    }
-    TRAVEL_DATA = Array.isArray(json?.advisories) ? json.advisories : [];
-    TRAVEL_UPDATED_AT = json?.updated_at || null;
-    if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
-      sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-      return;
-    }
-    TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
-    sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
-      sel.appendChild(opt);
-    });
-  } catch (e) {
-    console.error("Travel advisory fetch failed:", e);
-    if (document.getElementById("countrySelect")) document.getElementById("countrySelect").innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-  }
-}
-
-function renderAdvisoryAndIncidents(payload) {
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!advContainer || !newsContainer) return;
-  try {
-    const advisory = payload.advisory || {};
-    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
-    const level = Number(advisory.level || 1);
-    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
-    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
-    advContainer.innerHTML = `
-      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
-        <div class="advisory-header">
-          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
-          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
-        </div>
-        <div class="advisory-text">${escapeHtml(advisory.text || "")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
-      </div>`;
-    if (incidents.length > 0) {
-      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      incidents.forEach(n => {
-        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
-        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
-        newsHtml += `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div><div class="news-box-summary">${escapeHtml(n.summary || "")}</div><div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div></div>`;
-      });
-      newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml;
-    } else {
-      newsContainer.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No high-severity incidents in the last 72 hours</div></div>`;
-    }
-  } catch (e) {
-    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
-    newsContainer.innerHTML = "";
-  }
-}
-
-async function filterTravel() {
-  const countrySelect = document.getElementById("countrySelect");
-  if (!countrySelect) return;
-  const country = countrySelect.value;
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!country || !advContainer || !newsContainer) return;
-  advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
-  newsContainer.innerHTML = '';
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    renderAdvisoryAndIncidents(json);
-  } catch (e) {
-    const advisory = TRAVEL_DATA.find(x => x.country === country) || { country, level:1, text: "No advisory available" };
-    renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
-  }
-}
-
-function loadHistory(val) {
-  const status = document.getElementById("history-status");
-  if (status) status.textContent = val ? `Loaded archive for ${val} (simulated).` : "Pick a date to load archived intelligence (simulated).";
-}
-
-function downloadReport() {
-  const fb = document.getElementById("download-feedback");
-  if (!fb) return;
-  fb.style.display = "block";
-  fb.textContent = "Report retrieval is not yet implemented in this demo.";
-  setTimeout(() => { fb.style.display = "none"; }, 3000);
-}
-
-async function manualRefresh() {
-  try {
-    const label = document.getElementById("feed-status-label");
-    if (label) label.textContent = "Refreshing…";
-    await Promise.all([ loadFromWorker(true), loadProximityFromWorker(true), loadTravelAdvisories() ]);
-    const active = document.querySelector(".nav-item-custom.active");
-    const region = active ? active.innerText.trim() : "Global";
-    renderGeneralFeed(region);
-    renderIncidentsOnMap(region, INCIDENTS);
-    renderProximityAlerts(region);
-    updateHeadline(region);
-    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch (e) { console.error("manualRefresh failed:", e); }
+function filterNews(region) {
+  document.querySelectorAll(".nav-item-custom").forEach(el => { el.classList.remove("active"); if (el.innerText.trim() === region) el.classList.add("active"); });
+  renderAssetsOnMap(region); renderGeneralFeed(region); renderIncidentsOnMap(region, INCIDENTS); renderProximityAlerts(region); updateHeadline(region);
 }
 
 function renderGeneralFeed(region) {
@@ -638,12 +584,12 @@ function renderGeneralFeed(region) {
 }
 
 function updateHeadline(region) {
-  const el = document.getElementById("headline-alert"); if (!el) return;
+  const el = document.getElementById("headline-alert"); if (!el) return; 
   const sevEl = document.getElementById("headline-sev"), catEl = document.getElementById("headline-cat"), regEl = document.getElementById("headline-reg");
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
   if (!data || data.length === 0) {
     el.textContent = "No headline available.";
-    if (sevEl) { sevEl.textContent = "—"; sevEl.className = "tag"; }
+    if (sevEl) { sevEl.textContent = "—"; sevEl.className = "tag"; } 
     if (catEl) catEl.textContent = "CATEGORY";
     if (regEl) regEl.textContent = region.toUpperCase();
     return;
@@ -696,7 +642,7 @@ function renderProximityAlerts(region) {
     const title = a.inc.title || "Incident";
     const wideBadge = a.inc.country_wide ? `<span class="ftag ftag-type" style="margin-left:6px;font-size:0.65rem;background:#000;color:#fff;">COUNTRY-WIDE</span>` : "";
     let distDisplay = `${Math.round(a.nearest.dist)}km`;
-    if (a.inc.country_wide && a.nearest.dist > currentRadius) distDisplay = "N/A";
+    if (a.inc.country_wide && a.nearest.dist > currentRadius) distDisplay = "N/A"; 
     const assetDisplay = (a.nearest.assetName || "").toUpperCase();
     const desc = (a.inc.summary && String(a.inc.summary).trim()) ? String(a.inc.summary).trim() : "No details available.";
     html += `<div class="alert-row"><div class="alert-top"><div class="alert-type"><i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>${escapeHtml(title)} ${wideBadge}</div><div class="alert-dist" style="color:${color}">${distDisplay}</div></div><div class="alert-site"><i class="far fa-building"></i> Near: <b>${escapeHtml(assetDisplay)}</b></div><div class="alert-desc">${escapeHtml(desc)}</div></div>`;
@@ -705,12 +651,71 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   APP BOOT
-=========================== */
+   APP BOOT & UI HOOKS (Added to fix missing handlers)
+   =========================== */
+
+async function filterTravel() {
+  const sel = document.getElementById("countrySelect");
+  if (!sel) return;
+  const country = sel.value;
+  if (!country) return;
+  try {
+    // Prefer live endpoint to force newest data
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories/live?country=${encodeURIComponent(country)}`);
+    let payload = null;
+    if (res && res.ok) payload = await res.json();
+    // fallback to local advisories if live fails
+    if (!payload) {
+      const adv = (TRAVEL_DATA || []).find(a => a.country && String(a.country).toLowerCase() === String(country).toLowerCase());
+      payload = { advisory: adv || { country, level: 1, text: "No specific advisory found." }, recent_incidents: [] };
+    }
+    renderAdvisoryAndIncidents(payload);
+  } catch (err) {
+    console.error("filterTravel error:", err);
+  }
+}
+
+async function manualRefresh() {
+  try {
+    const label = document.getElementById("feed-status-label");
+    if (label) label.textContent = "Refreshing…";
+    // Refresh incidents, proximity and travel lists in parallel where possible
+    await Promise.all([
+      loadFromWorker(true),
+      loadProximityFromWorker(true),
+      loadTravelAdvisories()
+    ]);
+    // Re-render for current active region
+    const active = document.querySelector(".nav-item-custom.active");
+    const region = active ? active.innerText.trim() : "Global";
+    renderGeneralFeed(region);
+    renderIncidentsOnMap(region, INCIDENTS);
+    renderProximityAlerts(region);
+    updateHeadline(region);
+    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
+  } catch (e) {
+    console.error("manualRefresh failed:", e);
+  }
+}
+
+function downloadReport() {
+  const fb = document.getElementById("download-feedback");
+  if (!fb) return;
+  fb.style.display = "block";
+  fb.textContent = "Report retrieval is not yet implemented in this demo.";
+  setTimeout(() => { fb.style.display = "none"; }, 3000);
+}
+
+function loadHistory(val) {
+  const status = document.getElementById("history-status");
+  if (status) status.textContent = val ? `Loaded archive for ${val} (simulated).` : "Pick a date to load archived intelligence (simulated).";
+}
+
+/* Application initializer */
 async function initApp() {
   try {
     startClock();
-    initMap();
+    initMap(); // uses the noWrap:true, worldCopyJump:false settings
 
     // Initial data load
     await loadFromWorker();
@@ -725,7 +730,7 @@ async function initApp() {
     setInterval(() => manualRefresh(), AUTO_REFRESH_MS);
 
     // Initial render
-    renderGeneralFeed("Global");
+    filterNews("Global");
     updateHeadline("Global");
 
     // If there are countries available, select the first one and render it
