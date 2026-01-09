@@ -1,23 +1,9 @@
-Thanks — I rewrote the **single, clean `index.html`** so there’s **only one startup section** and **only one `initMap()`** (globally visible), and the map uses the strict single-world settings you requested.
-
-What I fixed compared to the broken/duplicated versions:
-
-* Removed any `initMap` definitions that were inside a `DOMContentLoaded` handler. `initMap` is now a global function.
-* Kept a single `initApp()` and a single `document.addEventListener('DOMContentLoaded', initApp);` at the very end.
-* Map options set to `noWrap: true`, strict bounds `[-180,180]`, and `worldCopyJump: false` so Australia / other countries don’t duplicate.
-* Preserved the UI, clustering, travel feeds, proximity, clock, and all other logic from the original.
-* Defensive guards around DOM queries and fetches, same worker URL and auto-refresh.
-
-Replace your `index.html` with the file below, clear cache (Ctrl+F5) and it should start cleanly.
-
----
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com 'unsafe-inline';
@@ -27,6 +13,7 @@ Replace your `index.html` with the file below, clear cache (Ctrl+F5) and it shou
     connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
     base-uri 'self';
   ">
+  
   <link rel="icon" href="data:,">
   <title>Dell OS | INFOHUB</title>
 
@@ -53,7 +40,7 @@ Replace your `index.html` with the file below, clear cache (Ctrl+F5) and it shou
     .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
     .logo-text span { color: var(--dell-blue); }
-
+    
     /* Clocks */
     .multi-clock-container { display: flex; gap: 12px; margin: 0 20px; padding-right: 20px; border-right: 1px solid #e0e0e0; height: 100%; align-items: center; }
     .clock-box { text-align: center; min-width: 85px; background: #2b2b2b; border: 3px solid #b0b0b0; border-radius: 10px; padding: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
@@ -64,7 +51,7 @@ Replace your `index.html` with the file below, clear cache (Ctrl+F5) and it shou
     .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
     #map { width: 100%; height: 100%; z-index: 1; outline: none; background: #eef2f6; }
     #map:focus { box-shadow: inset 0 0 0 3px rgba(26,115,232,0.5); }
-
+    
     .leaflet-tooltip.map-tooltip { background-color: #202124; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
     .leaflet-tooltip-top:before { border-top-color: #202124; }
     .leaflet-popup-content-wrapper { border-radius: 6px; padding: 0; }
@@ -178,144 +165,73 @@ Replace your `index.html` with the file below, clear cache (Ctrl+F5) and it shou
 <body>
   <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
-  <div class="app-container" id="main-content">
-    <div class="header-container">
-      <div class="header-left">
-        <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-        <div class="logo-text">OS <span>INFOHUB</span></div>
-      </div>
-
-      <div class="header-right d-flex align-items-center">
-        <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks"></div>
-        <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
-          <a class="nav-item-custom active" onclick="filterNews('Global')" role="tab" aria-selected="true" tabindex="0">Global</a>
-          <a class="nav-item-custom" onclick="filterNews('AMER')" role="tab" aria-selected="false" tabindex="0">AMER</a>
-          <a class="nav-item-custom" onclick="filterNews('EMEA')" role="tab" aria-selected="false" tabindex="0">EMEA</a>
-          <a class="nav-item-custom" onclick="filterNews('APJC')" role="tab" aria-selected="false" tabindex="0">APJC</a>
-          <a class="nav-item-custom" onclick="filterNews('LATAM')" role="tab" aria-selected="false" tabindex="0">LATAM</a>
-        </div>
-        <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()" role="button" aria-label="Refresh Data" tabindex="0"><i class="fas fa-rotate"></i> Refresh</div>
-        <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0"><i class="fas fa-file-alt"></i> Daily Briefings</div>
-      </div>
+<div class="app-container" id="main-content">
+  <div class="header-container">
+    <div class="header-left">
+      <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="logo-text">OS <span>INFOHUB</span></div>
     </div>
 
-    <div class="content-area">
-      <div class="row g-4">
-        <div class="col-lg-9">
-          <div class="map-wrapper" aria-label="Incident Map" role="application">
-            <div id="map" tabindex="0"></div>
+    <div class="header-right d-flex align-items-center">
+      <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks"></div>
+      <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
+        <a class="nav-item-custom active" onclick="filterNews('Global')" role="tab" aria-selected="true" tabindex="0">Global</a>
+        <a class="nav-item-custom" onclick="filterNews('AMER')" role="tab" aria-selected="false" tabindex="0">AMER</a>
+        <a class="nav-item-custom" onclick="filterNews('EMEA')" role="tab" aria-selected="false" tabindex="0">EMEA</a>
+        <a class="nav-item-custom" onclick="filterNews('APJC')" role="tab" aria-selected="false" tabindex="0">APJC</a>
+        <a class="nav-item-custom" onclick="filterNews('LATAM')" role="tab" aria-selected="false" tabindex="0">LATAM</a>
+      </div>
+      <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()" role="button" aria-label="Refresh Data" tabindex="0"><i class="fas fa-rotate"></i> Refresh</div>
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0"><i class="fas fa-file-alt"></i> Daily Briefings</div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div class="row g-4">
+      <div class="col-lg-9">
+        <div class="map-wrapper" aria-label="Incident Map" role="application"><div id="map" tabindex="0"></div></div>
+        <div class="stream-section">
+          <div class="stream-header">
+            <div class="stream-label"><i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span></div>
+            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span></div>
           </div>
-
-          <div class="stream-section">
-            <div class="stream-header">
-              <div class="stream-label">
-                <i class="fas fa-circle live-dot-blue"></i>
-                Real-time Intelligence Stream
-                <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
-              </div>
-              <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
-                VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span>
-              </div>
-            </div>
-
-            <div class="critical-alert-bar" role="alert">
-              <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
-              <div class="alert-content-main" id="headline-alert">Loading headline…</div>
-              <div class="alert-tags">
-                <span class="tag" id="headline-sev">SEV?</span>
-                <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-                <span class="tag tag-reg" id="headline-reg">REGION</span>
-              </div>
-            </div>
-
-            <div id="general-news-feed" aria-live="polite">
-              <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
-            </div>
+          <div class="critical-alert-bar" role="alert">
+            <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+            <div class="alert-content-main" id="headline-alert">Loading headline…</div>
+            <div class="alert-tags"><span class="tag" id="headline-sev">SEV?</span><span class="tag tag-cat" id="headline-cat">CATEGORY</span><span class="tag tag-reg" id="headline-reg">REGION</span></div>
           </div>
+          <div id="general-news-feed" aria-live="polite"><div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div></div>
         </div>
-
-        <div class="col-lg-3 sidebar-col">
-          <div class="side-card">
-            <div class="card-label"><i class="fas fa-history"></i> History Search</div>
-            <div class="history-input-group">
-              <i class="far fa-calendar-alt calendar-icon"></i>
-              <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" />
-            </div>
-            <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
+      </div>
+      <div class="col-lg-3 sidebar-col">
+        <div class="side-card">
+          <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+          <div class="history-input-group"><i class="far fa-calendar-alt calendar-icon"></i><input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" /></div>
+          <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
+        </div>
+        <div class="side-card">
+          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+          <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Select country for travel info"><option selected disabled>Loading countries...</option></select>
+          <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
+          <div id="travel-news" class="mt-2"></div>
+        </div>
+        <div class="side-card" style="padding-bottom: 10px;">
+          <div class="prox-header-row"><div><div class="prox-dell-label">Dell Asset</div><div class="prox-main-title">Proximity<br/>Alerts</div></div></div>
+          <div class="prox-controls">
+            <div class="prox-subtitle">WITHIN RADIUS</div>
+            <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius"><option value="5">5 KM</option><option value="10">10 KM</option><option value="25">25 KM</option><option value="50" selected>50 KM</option><option value="100">100 KM</option><option value="500">500 KM</option></select>
           </div>
-
-          <div class="side-card">
-            <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-            <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Select country for travel info"><option selected disabled>Loading countries...</option></select>
-            <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
-            <div id="travel-news" class="mt-2"></div>
-          </div>
-
-          <div class="side-card" style="padding-bottom: 10px;">
-            <div class="prox-header-row">
-              <div>
-                <div class="prox-dell-label">Dell Asset</div>
-                <div class="prox-main-title">Proximity<br/>Alerts</div>
-              </div>
-            </div>
-
-            <div class="prox-controls">
-              <div class="prox-subtitle">WITHIN RADIUS</div>
-              <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius">
-                <option value="5">5 KM</option>
-                <option value="10">10 KM</option>
-                <option value="25">25 KM</option>
-                <option value="50" selected>50 KM</option>
-                <option value="100">100 KM</option>
-                <option value="500">500 KM</option>
-              </select>
-            </div>
-
-            <div id="proximity-alerts-container" aria-live="polite"></div>
-
-            <div style="text-align:center;padding-top:10px;border-top:1px solid #f1f1f1;">
-              <a href="#" onclick="manualRefresh();return false;" style="font-size:0.75rem;font-weight:700;color:#1a73e8;text-decoration:none;" role="button" tabindex="0">REFRESH ALERTS</a>
-            </div>
-          </div>
+          <div id="proximity-alerts-container" aria-live="polite"></div>
+          <div style="text-align:center;padding-top:10px;border-top:1px solid #f1f1f1;"><a href="#" onclick="manualRefresh();return false;" style="font-size:0.75rem;font-weight:700;color:#1a73e8;text-decoration:none;" role="button" tabindex="0">REFRESH ALERTS</a></div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label" for="reportDate">Select Date</label>
-            <input type="date" class="form-control" id="reportDate" />
-          </div>
-          <div class="mb-4">
-            <label class="form-label" for="reportRegion">Select Region / Report Profile</label>
-            <select class="form-select" id="reportRegion">
-              <option value="Global">Global</option>
-              <option value="APJC">APJC</option>
-              <option value="India">India</option>
-              <option value="Oceania">Oceania</option>
-              <option value="Japan">Japan</option>
-              <option value="South_Korea">South_Korea</option>
-              <option value="SAEM">SAEM</option>
-              <option value="Greater_China_HK">Greater_China_HK</option>
-              <option value="Taiwan">Taiwan</option>
-              <option value="Malaysia">Malaysia</option>
-              <option value="Singapore">Singapore</option>
-            </select>
-          </div>
-          <button class="btn-download" onclick="downloadReport()"><i class="fas fa-download me-2"></i> Retrieve Briefing</button>
-          <div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label" for="reportDate">Select Date</label><input type="date" class="form-control" id="reportDate" /></div><div class="mb-4"><label class="form-label" for="reportRegion">Select Region / Report Profile</label><select class="form-select" id="reportRegion"><option value="Global">Global</option><option value="APJC">APJC</option><option value="India">India</option><option value="Oceania">Oceania</option><option value="Japan">Japan</option><option value="South_Korea">South_Korea</option><option value="SAEM">SAEM</option><option value="Greater_China_HK">Greater_China_HK</option><option value="Taiwan">Taiwan</option><option value="Malaysia">Malaysia</option><option value="Singapore">Singapore</option></select></div><button class="btn-download" onclick="downloadReport()"><i class="fas fa-download me-2"></i> Retrieve Briefing</button><div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div></div></div></div>
+</div>
 
 <script>
 /* ===========================
@@ -330,25 +246,19 @@ let FEED_IS_LIVE = false;
 let currentRadius = 50;
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
-
 let map;
 let assetsClusterGroup;
 let incidentClusterGroup;
 let criticalLayerGroup;
-
 let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-/* Error handlers */
-window.onerror = function(msg, url, line, col, error) {
-  console.error("Global Error Caught:", { msg, url, line, col, error });
-};
-window.addEventListener('unhandledrejection', (ev) => {
-  console.error('Unhandled promise rejection:', ev.reason);
-});
+/* Error handling */
+window.onerror = function(msg, url, line, col, error) { console.error("Global Error:", { msg, url, line, col, error }); };
+window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled Rejection:', ev.reason); });
 
 /* ===========================
-   DATA (DELL SITES, CITY + COUNTRY LOOKUPS)
+   DATA CONSTANTS
 =========================== */
 const DELL_SITES = [
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -402,7 +312,6 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
-
 const ASSETS = {};
 DELL_SITES.forEach(s => { ASSETS[s.name.toLowerCase()] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country }; });
 
@@ -438,18 +347,20 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
-   HELPERS
+   HELPER FUNCTIONS (Global)
 =========================== */
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try { const res = await fetch(url, { ...opts, signal: controller.signal }); return res; } finally { clearTimeout(id); }
 }
+
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c;
 }
+
 function shortHost(url) { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source"; } }
 function safeHref(u) { try { const str = String(u || "").trim(); if (!str) return "#"; if (/^(mailto:|tel:)/i.test(str)) return str; const url = new URL(str, location.origin); if (!["http:", "https:"].includes(url.protocol)) return "#"; return url.href; } catch { return "#"; } }
 function safeTime(iso) { try { const d = new Date(iso); if (isNaN(d.getTime())) return "Recently"; return d.toLocaleString(); } catch { return "Recently"; } }
@@ -459,7 +370,7 @@ function severityLabel(s) { const n = Number(s || 1); if (n >= 5) return "CRITIC
 function mapSeverityToLabel(sev) { const s = Number(sev || 1); if (s >= 5) return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s >= 4) return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" }; if (s === 3) return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" }; return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" }; }
 
 /* ===========================
-   CLOCK
+   CORE LOGIC (Global)
 =========================== */
 function startClock() {
   const targets = [
@@ -476,27 +387,23 @@ function startClock() {
   tick(); setInterval(tick, 1000);
 }
 
-/* ===========================
-   MAP (global initMap)
-   - single world: noWrap true, bounds [-180,180], worldCopyJump false
-=========================== */
 function initMap() {
-  const worldBounds = [[-90, -180], [90, 180]]; // strict -180..180
-
+  const worldBounds = [[-90, -180], [90, 180]]; // Strict -180..180
+  
   map = L.map("map", {
     zoomControl: false,
     attributionControl: true,
     minZoom: 2,
     maxBounds: worldBounds,
     maxBoundsViscosity: 1.0,
-    worldCopyJump: false
+    worldCopyJump: false // Disabled wrapping
   }).setView([20, 10], 2);
 
   L.control.zoom({ position: "topleft" }).addTo(map);
 
   L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
     maxZoom: 19,
-    noWrap: true,      // prevent repeats
+    noWrap: true,      // Crucial: Stop tiling repeats
     bounds: worldBounds,
     attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
   }).addTo(map);
@@ -521,12 +428,13 @@ function initMap() {
       let cls = 'cluster-blue';
       if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
       if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+      
       const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
       const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
       return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
     }
   });
-
+  
   incidentClusterGroup.on('clustermouseover', (e) => {
     clearTimeout(_clusterHoverTimeout);
     _clusterHoverTimeout = setTimeout(() => {
@@ -537,17 +445,11 @@ function initMap() {
         const s = Number(m.options.severity || 1);
         if (s >= 5) counts.critical++; else if (s >= 4) counts.high++; else if (s === 3) counts.medium++; else counts.low++;
       });
-      const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
-                      (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
-                      (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
-                      (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
-                      (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+      const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` + (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') + (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') + (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') + (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
       L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' }).setLatLng(cluster.getLatLng()).setContent(summary).openOn(map);
     }, 80);
   });
-
   incidentClusterGroup.on('clustermouseout', () => { clearTimeout(_clusterHoverTimeout); map.closePopup(); });
-
   incidentClusterGroup.on('clusterclick', (e) => {
     if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
     const cluster = e.layer, children = cluster.getAllChildMarkers();
@@ -556,18 +458,14 @@ function initMap() {
   });
 
   map.addLayer(incidentClusterGroup);
-
   criticalLayerGroup = L.layerGroup().addTo(map);
   try { criticalLayerGroup.bringToFront(); } catch(e) {}
-
+  
   renderAssetsOnMap("Global");
   setTimeout(()=>{ try { map.invalidateSize(); } catch(e){} }, 200);
   window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
 }
 
-/* ===========================
-   RENDER ASSETS/INCIDENTS
-=========================== */
 function renderAssetsOnMap(region) {
   assetsClusterGroup.clearLayers();
   const dellIcon = L.divIcon({ className: "custom-pin", html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>', iconSize: [30, 42], iconAnchor: [15, 42] });
@@ -585,6 +483,9 @@ function renderAssetsOnMap(region) {
   else map.setView([25, 10], 2);
 }
 
+/* ===========================
+   INCIDENT COORDS RESOLUTION (HARDENED)
+=========================== */
 function getCoordsForIncident(inc) {
   try {
     const lat = Number(inc.lat || inc.latitude || 0);
@@ -620,7 +521,7 @@ function renderIncidentsOnMap(region, incidents) {
     let coords = null;
     if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) coords = { lat: Number(i.lat), lng: Number(i.lng) };
     else coords = getCoordsForIncident(i);
-    if (!coords) return;
+    if (!coords) return; 
     const sev = Number(i.severity || 1), color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
     if (sev >= 4) {
         const marker = L.circleMarker([coords.lat, coords.lng], { radius: 10, fillColor: color, color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.9 });
@@ -637,9 +538,6 @@ function renderIncidentsOnMap(region, incidents) {
   try { assetsClusterGroup.bringToBack(); } catch(e) {}
 }
 
-/* ===========================
-   NORMALISE + FEED RENDER
-=========================== */
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -686,12 +584,12 @@ function renderGeneralFeed(region) {
 }
 
 function updateHeadline(region) {
-  const el = document.getElementById("headline-alert"); if (!el) return;
+  const el = document.getElementById("headline-alert"); if (!el) return; 
   const sevEl = document.getElementById("headline-sev"), catEl = document.getElementById("headline-cat"), regEl = document.getElementById("headline-reg");
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
   if (!data || data.length === 0) {
     el.textContent = "No headline available.";
-    if (sevEl) { sevEl.textContent = "—"; sevEl.className = "tag"; }
+    if (sevEl) { sevEl.textContent = "—"; sevEl.className = "tag"; } 
     if (catEl) catEl.textContent = "CATEGORY";
     if (regEl) regEl.textContent = region.toUpperCase();
     return;
@@ -703,9 +601,6 @@ function updateHeadline(region) {
   if (regEl) regEl.textContent = (top.region || "Global").toUpperCase();
 }
 
-/* ===========================
-   PROXIMITY ALERTS
-=========================== */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   if (radiusSelect) currentRadius = parseFloat(radiusSelect.value || "50");
@@ -747,7 +642,7 @@ function renderProximityAlerts(region) {
     const title = a.inc.title || "Incident";
     const wideBadge = a.inc.country_wide ? `<span class="ftag ftag-type" style="margin-left:6px;font-size:0.65rem;background:#000;color:#fff;">COUNTRY-WIDE</span>` : "";
     let distDisplay = `${Math.round(a.nearest.dist)}km`;
-    if (a.inc.country_wide && a.nearest.dist > currentRadius) distDisplay = "N/A";
+    if (a.inc.country_wide && a.nearest.dist > currentRadius) distDisplay = "N/A"; 
     const assetDisplay = (a.nearest.assetName || "").toUpperCase();
     const desc = (a.inc.summary && String(a.inc.summary).trim()) ? String(a.inc.summary).trim() : "No details available.";
     html += `<div class="alert-row"><div class="alert-top"><div class="alert-type"><i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>${escapeHtml(title)} ${wideBadge}</div><div class="alert-dist" style="color:${color}">${distDisplay}</div></div><div class="alert-site"><i class="far fa-building"></i> Near: <b>${escapeHtml(assetDisplay)}</b></div><div class="alert-desc">${escapeHtml(desc)}</div></div>`;
@@ -756,121 +651,53 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL ADVISORIES
-=========================== */
-async function loadTravelAdvisories() {
+   APP BOOT & UI HOOKS (Added to fix missing handlers)
+   =========================== */
+
+async function filterTravel() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
+  const country = sel.value;
+  if (!country) return;
   try {
-    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
-    let json = null;
-    if (liveRes && liveRes.ok) json = await liveRes.json();
-    else {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
-      if (res && res.ok) json = await res.json();
+    // Prefer live endpoint to force newest data
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories/live?country=${encodeURIComponent(country)}`);
+    let payload = null;
+    if (res && res.ok) payload = await res.json();
+    // fallback to local advisories if live fails
+    if (!payload) {
+      const adv = (TRAVEL_DATA || []).find(a => a.country && String(a.country).toLowerCase() === String(country).toLowerCase());
+      payload = { advisory: adv || { country, level: 1, text: "No specific advisory found." }, recent_incidents: [] };
     }
-    TRAVEL_DATA = Array.isArray(json?.advisories) ? json.advisories : [];
-    TRAVEL_UPDATED_AT = json?.updated_at || null;
-    if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) { sel.innerHTML = `<option selected disabled>Loading advisories...</option>`; return; }
-    TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
-    sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
-      sel.appendChild(opt);
-    });
-  } catch (e) {
-    console.error("Travel advisory fetch failed:", e);
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    renderAdvisoryAndIncidents(payload);
+  } catch (err) {
+    console.error("filterTravel error:", err);
   }
 }
 
-function renderAdvisoryAndIncidents(payload) {
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!advContainer || !newsContainer) return;
+async function manualRefresh() {
   try {
-    const advisory = payload.advisory || {};
-    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
-    const level = Number(advisory.level || 1);
-    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
-    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
-    advContainer.innerHTML = `
-      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
-        <div class="advisory-header">
-          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
-          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
-        </div>
-        <div class="advisory-text">${escapeHtml(advisory.text || "")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
-      </div>`;
-    if (incidents.length > 0) {
-      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      incidents.forEach(n => {
-        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
-        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
-        newsHtml += `
-          <div class="news-box-item">
-            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
-            <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
-            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
-          </div>`;
-      });
-      newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml;
-    } else {
-      newsContainer.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No high-severity incidents in the last 72 hours</div></div>`;
-    }
-  } catch (e) {
-    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
-    newsContainer.innerHTML = "";
-  }
-}
-
-/* ===========================
-   LOAD FEEDS (worker)
-=========================== */
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById("feed-status-label");
-  if (label && !silent) label.textContent = "Refreshing…";
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
-    if (!res.ok) { throw new Error("HTTP " + res.status); }
-    const raw = await res.json();
-    INCIDENTS = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident).filter(Boolean);
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
-    FEED_IS_LIVE = true;
+    const label = document.getElementById("feed-status-label");
+    if (label) label.textContent = "Refreshing…";
+    // Refresh incidents, proximity and travel lists in parallel where possible
+    await Promise.all([
+      loadFromWorker(true),
+      loadProximityFromWorker(true),
+      loadTravelAdvisories()
+    ]);
+    // Re-render for current active region
+    const active = document.querySelector(".nav-item-custom.active");
+    const region = active ? active.innerText.trim() : "Global";
+    renderGeneralFeed(region);
+    renderIncidentsOnMap(region, INCIDENTS);
+    renderProximityAlerts(region);
+    updateHeadline(region);
     if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
   } catch (e) {
-    console.error("Worker fetch failed:", e);
-    FEED_IS_LIVE = false;
-    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable";
+    console.error("manualRefresh failed:", e);
   }
 }
 
-async function loadProximityFromWorker(silent = false) {
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const json = await res.json();
-    PROXIMITY_INCIDENTS = (Array.isArray(json?.incidents) ? json.incidents : []).map(normaliseWorkerIncident).filter(Boolean);
-    if (!silent) console.log("Loaded proximity items:", PROXIMITY_INCIDENTS.length);
-  } catch (e) {
-    console.error("loadProximityFromWorker failed:", e);
-  }
-}
-
-/* ===========================
-   HISTORY/REPORTS/REFRESH UI
-=========================== */
-function loadHistory(val) {
-  const status = document.getElementById("history-status");
-  if (status) status.textContent = val ? `Loaded archive for ${val} (simulated).` : "Pick a date to load archived intelligence (simulated).";
-}
 function downloadReport() {
   const fb = document.getElementById("download-feedback");
   if (!fb) return;
@@ -879,47 +706,34 @@ function downloadReport() {
   setTimeout(() => { fb.style.display = "none"; }, 3000);
 }
 
-let isRefreshing = false;
-async function manualRefresh() {
-  if (isRefreshing) return;
-  isRefreshing = true;
-  const btn = document.getElementById('btn-refresh'); if(btn) btn.style.opacity = "0.5";
-  try {
-    await Promise.all([ loadFromWorker(true), loadProximityFromWorker(true), loadTravelAdvisories() ]);
-    const active = document.querySelector(".nav-item-custom.active");
-    const region = active ? active.innerText.trim() : "Global";
-    renderGeneralFeed(region); renderIncidentsOnMap(region, INCIDENTS); renderProximityAlerts(region); updateHeadline(region);
-  } finally {
-    isRefreshing = false;
-    if(btn) btn.style.opacity = "1";
-  }
+function loadHistory(val) {
+  const status = document.getElementById("history-status");
+  if (status) status.textContent = val ? `Loaded archive for ${val} (simulated).` : "Pick a date to load archived intelligence (simulated).";
 }
 
-/* ===========================
-   INIT APP
-   Single startup: initApp + DOMContentLoaded
-=========================== */
+/* Application initializer */
 async function initApp() {
   try {
     startClock();
-    initMap();
+    initMap(); // uses the noWrap:true, worldCopyJump:false settings
 
-    // initial loads
+    // Initial data load
     await loadFromWorker();
     await loadProximityFromWorker();
     await loadTravelAdvisories();
 
-    // wire UI
+    // Wire up some UI events (defensive checks)
     const sel = document.getElementById("countrySelect");
     if (sel) sel.addEventListener("change", filterTravel);
 
-    // auto refresh guard
+    // Auto-refresh
     setInterval(() => manualRefresh(), AUTO_REFRESH_MS);
 
-    // initial render
+    // Initial render
     filterNews("Global");
     updateHeadline("Global");
 
+    // If there are countries available, select the first one and render it
     if (sel && sel.options && sel.options.length > 1) {
       sel.selectedIndex = 1;
       filterTravel();
@@ -929,17 +743,8 @@ async function initApp() {
   }
 }
 
+// Start when DOM ready
 document.addEventListener("DOMContentLoaded", initApp);
 </script>
 </body>
 </html>
-```
-
----
-
-If you’d like, I can now:
-
-* Generate a tiny **diff** showing exactly what changed (2–3 lines in the map init and removing the extra startup block), or
-* Test for any remaining duplicate global names and produce a one-line list of risky names to inspect.
-
-Which do you prefer?
