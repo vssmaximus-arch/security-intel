@@ -595,34 +595,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   // FIX: MAP (SWITCHED TO ESRI WORLD GRAY CANVAS + CLUSTERING)
   function initMap() {
     // 1. DEFINE HARD BOUNDARIES (The "Walls")
-    // This defines a box from the South Pole/Date Line to North Pole/Date Line
-    // Latitude cut off at 85 to prevent tile distortion at poles
-    // FIX: Tighten longitudes slightly to prevent dateline wrap seam duplication
-    const southWest = L.latLng(-85, -179.999);
-    const northEast = L.latLng(85, 179.999);
-    const worldBounds = L.latLngBounds(southWest, northEast);
+    const southWest = L.latLng(-85, -180);
+    const northEast = L.latLng(85, 180);
+    const bounds = L.latLngBounds(southWest, northEast);
     
     map = L.map("map", {
-      scrollWheelZoom: false,  // FIXED: Prevents scroll-jacking
+      scrollWheelZoom: false,
       zoomControl: false,
       attributionControl: true, // REQUIRED for Esri
-      minZoom: 2,              // NUCLEAR FIX: Stop zooming out so far that the world repeats
-      maxBounds: worldBounds,  // NUCLEAR FIX: Apply the "Walls"
-      maxBoundsViscosity: 1.0, // NUCLEAR FIX: 1.0 = "Concrete Wall" (bounces back instantly)
-      worldCopyJump: false     // NUCLEAR FIX: DONT jump the user to the "other" world
-    }).setView([25, 10], 2);
+      minZoom: 2,              // Prevent zooming out to see gray void
+      maxBounds: bounds,       // Strictly confine the map
+      maxBoundsViscosity: 1.0, // Hard limit, no bouncing
+      worldCopyJump: false
+    }).setView([20, 0], 2);
     
     L.control.zoom({ position: "topleft" }).addTo(map);
   
     // 2. CONFIGURE TILES TO NOT REPEAT
-    // Use Esri World Gray Canvas (English Labels Guaranteed)
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       { 
         maxZoom: 19, 
-        minZoom: 2,
-        noWrap: true, // NUCLEAR FIX: CRITICAL: Tells the image not to duplicate horizontally
-        bounds: worldBounds,
+        noWrap: true, // This stops the map from repeating horizontally
+        bounds: bounds,
         attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
       }
     ).addTo(map);
@@ -743,13 +738,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderAssetsOnMap("Global");
 
   // ensure map sizes correctly after initial render/layout
-  // FIX: Do NOT use fitWorld() (can trigger incorrect zoom + wrap artifacts in wide containers)
-  setTimeout(()=>{ 
-    try { 
-      map.invalidateSize(); 
-      map.panInsideBounds(worldBounds, { animate: false });
-    } catch(e){} 
-  }, 200);
+  setTimeout(()=>{ try { map.invalidateSize(); map.fitWorld(); } catch(e){} }, 200);
   window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
   }
 
