@@ -13,7 +13,7 @@
     connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
     base-uri 'self';
   ">
-
+  
   <link rel="icon" href="data:,"> 
   <title>Dell OS | INFOHUB</title>
 
@@ -619,7 +619,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       { 
-        maxZoom: 19,
+        maxZoom: 19, 
         minZoom: 2,
         noWrap: true, // NUCLEAR FIX: CRITICAL: Tells the image not to duplicate horizontally
         bounds: worldBounds,
