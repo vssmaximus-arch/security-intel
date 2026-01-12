@@ -595,8 +595,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // FIX: MAP (SWITCHED TO ESRI WORLD GRAY CANVAS + CLUSTERING)
   function initMap() {
     // 1. DEFINE HARD BOUNDARIES (The "Walls")
-    const southWest = L.latLng(-85, -180);
-    const northEast = L.latLng(85, 180);
+    // UPDATED: Avoid exact +/-180 which can cause dateline edge duplication
+    const southWest = L.latLng(-85, -179.999);
+    const northEast = L.latLng(85, 179.999);
     const bounds = L.latLngBounds(southWest, northEast);
     
     map = L.map("map", {
@@ -738,8 +739,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderAssetsOnMap("Global");
 
   // ensure map sizes correctly after initial render/layout
-  setTimeout(()=>{ try { map.invalidateSize(); map.fitWorld(); } catch(e){} }, 200);
-  window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
+  // UPDATED: Removed fitWorld() (can reintroduce wrapping/seam issues). Use panInsideBounds instead.
+  setTimeout(()=>{ 
+    try { 
+      map.invalidateSize(); 
+      map.panInsideBounds(bounds, { animate: false });
+    } catch(e){} 
+  }, 200);
+  window.addEventListener('resize', ()=>{ 
+    try { 
+      map.invalidateSize(); 
+      map.panInsideBounds(bounds, { animate: false });
+    } catch(e){} 
+  });
   }
 
   // Actually call initMap (since we wrapped it inside DOMContentLoaded)
