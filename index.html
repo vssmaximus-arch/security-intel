@@ -13,7 +13,7 @@
     connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
     base-uri 'self';
   ">
-  
+
   <link rel="icon" href="data:,"> 
   <title>Dell OS | INFOHUB</title>
 
@@ -597,8 +597,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 1. DEFINE HARD BOUNDARIES (The "Walls")
     // This defines a box from the South Pole/Date Line to North Pole/Date Line
     // Latitude cut off at 85 to prevent tile distortion at poles
-    const southWest = L.latLng(-85, -180);
-    const northEast = L.latLng(85, 180);
+    // FIX: Tighten longitudes slightly to prevent dateline wrap seam duplication
+    const southWest = L.latLng(-85, -179.999);
+    const northEast = L.latLng(85, 179.999);
     const worldBounds = L.latLngBounds(southWest, northEast);
     
     map = L.map("map", {
@@ -618,7 +619,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     L.tileLayer(
       "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       { 
-        maxZoom: 19, 
+        maxZoom: 19,
+        minZoom: 2,
         noWrap: true, // NUCLEAR FIX: CRITICAL: Tells the image not to duplicate horizontally
         bounds: worldBounds,
         attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
@@ -741,7 +743,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderAssetsOnMap("Global");
 
   // ensure map sizes correctly after initial render/layout
-  setTimeout(()=>{ try { map.invalidateSize(); map.fitWorld(); } catch(e){} }, 200);
+  // FIX: Do NOT use fitWorld() (can trigger incorrect zoom + wrap artifacts in wide containers)
+  setTimeout(()=>{ 
+    try { 
+      map.invalidateSize(); 
+      map.panInsideBounds(worldBounds, { animate: false });
+    } catch(e){} 
+  }, 200);
   window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
   }
 
