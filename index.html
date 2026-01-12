@@ -592,6 +592,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const northEast = L.latLng(85, 180);
     const bounds = L.latLngBounds(southWest, northEast);
 
+    /* ====== FIX: disable Leaflet world wrapping so nothing duplicates across the dateline ====== */
+    const NoWrapCRS = L.extend({}, L.CRS.EPSG3857, { wrapLng: null, wrapLat: null });
+
     map = L.map("map", {
       scrollWheelZoom: false,
       zoomControl: false,
@@ -600,7 +603,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       maxZoom: 19,
       maxBounds: bounds,
       maxBoundsViscosity: 1.0,
-      worldCopyJump: false
+      worldCopyJump: false,
+      crs: NoWrapCRS
     }).setView([20, 0], 2);
 
     L.control.zoom({ position: "topleft" }).addTo(map);
