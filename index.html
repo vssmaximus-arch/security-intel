@@ -1206,6 +1206,50 @@ function renderProximityAlerts(region) {
   container.innerHTML = html;
 }
 
+/* ===========================
+   TRAVEL SAFETY CHECK (FIX: NORMALIZE + FILTER)
+=========================== */
+function getTravelCountryName(item) {
+  const c =
+    (typeof item?.country === "string" && item.country.trim()) ? item.country.trim() :
+    (typeof item?.country_name === "string" && item.country_name.trim()) ? item.country_name.trim() :
+    (typeof item?.name === "string" && item.name.trim()) ? item.name.trim() :
+    "";
+  return c;
+}
+
+function normalizeTravelAdvisories(json) {
+  if (!json) return [];
+  if (Array.isArray(json)) return json;
+
+  if (json.advisories !== undefined) {
+    const a = json.advisories;
+    if (Array.isArray(a)) return a;
+    if (a && typeof a === "object") return Object.values(a);
+    return [];
+  }
+
+  if (typeof json === "object") return Object.values(json);
+  return [];
+}
+
+function cleanTravelAdvisories(list) {
+  return (list || []).filter(item => {
+    if (!item || typeof item !== "object") return false;
+
+    const name = getTravelCountryName(item);
+    if (!name) return false;
+
+    const lc = name.toLowerCase();
+
+    // kill container keys / obvious junk
+    if (lc === "advisories" || lc === "advisory" || lc === "countries") return false;
+    if (lc === "undefined" || lc === "null" || lc.includes("[object object]")) return false;
+
+    return true;
+  });
+}
+
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
@@ -1219,7 +1263,8 @@ async function loadTravelAdvisories() {
       if (res && res.ok) json = await res.json();
     }
 
-    TRAVEL_DATA = Array.isArray(json?.advisories) ? json.advisories : [];
+    const normalized = normalizeTravelAdvisories(json);
+    TRAVEL_DATA = cleanTravelAdvisories(normalized);
     TRAVEL_UPDATED_AT = json?.updated_at || null;
 
     if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
@@ -1227,12 +1272,16 @@ async function loadTravelAdvisories() {
       return;
     }
 
-    TRAVEL_DATA.sort((a,b) => (a.country || "").localeCompare(b.country || ""));
+    TRAVEL_DATA.sort((a,b) => (getTravelCountryName(a) || "").localeCompare(getTravelCountryName(b) || ""));
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-    TRAVEL_DATA.forEach(c => {
+
+    TRAVEL_DATA.forEach(item => {
+      const countryName = getTravelCountryName(item);
+      if (!countryName) return;
+
       const opt = document.createElement("option");
-      opt.value = c.country;
-      opt.innerText = c.country;
+      opt.value = countryName;
+      opt.innerText = countryName;
       sel.appendChild(opt);
     });
   } catch (e) {
@@ -1315,7 +1364,7 @@ async function filterTravel() {
     const json = await res.json();
     renderAdvisoryAndIncidents(json);
   } catch (e) {
-    const advisory = TRAVEL_DATA.find(x => x.country === country) || { country, level:1, text: "No advisory available" };
+    const advisory = TRAVEL_DATA.find(x => getTravelCountryName(x) === country) || { country, level:1, text: "No advisory available" };
     renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
   }
 }
