@@ -599,17 +599,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   // FIX: MAP (SWITCHED TO ESRI WORLD GRAY CANVAS + CLUSTERING)
   function initMap() {
     // FIX: Bounds to prevent world repeating
-    const worldBounds = [[-90, -180], [90, 180]]; // UPDATED: constrain to -180..180
+    const southWest = L.latLng(-85, -180);
+    const northEast = L.latLng(85, 180);
+    const bounds = L.latLngBounds(southWest, northEast);
     
     map = L.map("map", {
       scrollWheelZoom: false,  // FIXED: Prevents scroll-jacking
       zoomControl: false,
       attributionControl: true, // REQUIRED for Esri
-      minZoom: 1.5, // Allow zooming out more
-      maxBounds: worldBounds,
-      maxBoundsViscosity: 1.0,
-      worldCopyJump: false // Disabled to avoid duplicate rendering across the antimeridian
-    }).setView([25, 10], 2);
+      minZoom: 2, // NUCLEAR FIX: Stops zooming out too far
+      maxBounds: bounds, // NUCLEAR FIX: Locks view to one world
+      maxBoundsViscosity: 1.0, // NUCLEAR FIX: Solid bounce back
+      worldCopyJump: false 
+    }).setView([20, 0], 2);
     
     L.control.zoom({ position: "topleft" }).addTo(map);
   
@@ -618,8 +620,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       { 
         maxZoom: 19, 
-        noWrap: true, // Prevent tile wrapping to avoid duplicated countries
-        bounds: worldBounds,
+        noWrap: true, // NUCLEAR FIX: Stops tile repetition
+        bounds: bounds,
         attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA'
       }
     ).addTo(map);
