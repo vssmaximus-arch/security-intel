@@ -526,10 +526,7 @@ const CITY_COORDS = {
   "berlin": { lat: 52.52, lng: 13.4050 },
   "madrid": { lat: 40.4168, lng: -3.7038 },
   "rome": { lat: 41.9028, lng: 12.4964 },
-
-  /* FIXED LINE: jakarta */
   "jakarta": { lat: -6.2088, lng: 106.8456 },
-
   "seoul": { lat: 37.5665, lng: 126.9780 },
   "manila": { lat: 14.5995, lng: 120.9842 },
   "bangkok": { lat: 13.7563, lng: 100.5018 },
@@ -802,6 +799,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadProximityFromWorker();
   filterNews("Global");
 
+  // kick off travel advisory loading
   if (typeof window.loadTravelAdvisories === 'function') {
       await window.loadTravelAdvisories();
       setTimeout(window.loadTravelAdvisories, 2500);
@@ -1016,7 +1014,7 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
 }
 
 /* ===========================
-   LOAD + 48H FILTERING (CHANGES)
+   LOAD + 48H FILTERING
 =========================== */
 
 async function loadFromWorker(silent=false) {
@@ -1085,8 +1083,7 @@ async function loadProximityFromWorker(silent = false) {
 }
 
 /* ===========================
-   rest of original code (unchanged)
-   - normaliseWorkerIncident, renderGeneralFeed, updateHeadline, etc.
+   REST: normaliser & utility functions
 =========================== */
 
 function normaliseWorkerIncident(item) {
@@ -1298,8 +1295,9 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL SAFETY CHECK (FIX: NORMALIZE + FILTER)
+   TRAVEL SAFETY CHECK (robust extractor)
 =========================== */
+
 function getTravelCountryName(item) {
   const c =
     (typeof item?.country === "string" && item.country.trim()) ? item.country.trim() :
@@ -1309,67 +1307,98 @@ function getTravelCountryName(item) {
   return c;
 }
 
-function normalizeTravelAdvisories(json) {
-  if (!json) return [];
-  if (Array.isArray(json)) return json;
+/**
+ * recursivelyExtractAdvisories(obj)
+ * - Recursively walk `obj` and collect candidate advisory objects.
+ * - Accepts many shapes: arrays, nested objects, object keyed by country, etc.
+ */
+function recursivelyExtractAdvisories(obj) {
+  const out = [];
+  const seenObjs = new WeakSet();
 
-  if (json.advisories !== undefined) {
-    const a = json.advisories;
-    if (Array.isArray(a)) return a;
-    if (a && typeof a === "object") return Object.values(a);
-    return [];
+  function walk(x) {
+    if (!x) return;
+    if (typeof x === "string" || typeof x === "number" || typeof x === "boolean") return;
+    if (Array.isArray(x)) {
+      for (const it of x) walk(it);
+      return;
+    }
+    if (typeof x === "object") {
+      // Avoid revisiting same object (circular)
+      if (seenObjs.has(x)) return;
+      seenObjs.add(x);
+
+      // Heuristic: object looks like an advisory if it has country/name or text fields
+      const name = getTravelCountryName(x);
+      const hasText = (typeof x?.text === "string" && x.text.trim()) || (typeof x?.advice === "string" && x.advice.trim()) || (typeof x?.summary === "string" && x.summary.trim());
+      if (name || hasText || (typeof x?.level === "number")) {
+        out.push(x);
+        // continue to walk children too, because there might be nested advisories
+      }
+      for (const v of Object.values(x)) {
+        walk(v);
+      }
+    }
   }
 
-  if (typeof json === "object") return Object.values(json);
-  return [];
+  walk(obj);
+  return out;
 }
 
+/* Deduplicate and keep only items that look like advisories */
 function cleanTravelAdvisories(list) {
-  return (list || []).filter(item => {
-    if (!item || typeof item !== "object") return false;
-
+  const map = new Map();
+  for (const item of (list || [])) {
+    if (!item || typeof item !== "object") continue;
     const name = getTravelCountryName(item);
-    if (!name) return false;
-
-    const lc = name.toLowerCase();
-
-    // kill container keys / obvious junk
-    if (lc === "advisories" || lc === "advisory" || lc === "countries") return false;
-    if (lc === "undefined" || lc === "null" || lc.includes("[object object]")) return false;
-
-    return true;
-  });
+    if (!name) continue;
+    const key = name.toLowerCase().trim();
+    if (!map.has(key)) map.set(key, item);
+  }
+  return Array.from(map.values());
 }
 
+/* ===========================
+   loadTravelAdvisories (uses robust extractor)
+=========================== */
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
+  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+
   try {
+    // Prefer the live endpoint which forces a refresh server-side
     const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
     let json = null;
-    if (liveRes && liveRes.ok) json = await liveRes.json();
-    else {
+    if (liveRes && liveRes.ok) {
+      json = await liveRes.json();
+    } else {
+      // fallback to cached endpoint
       const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
       if (res && res.ok) json = await res.json();
     }
 
-    const normalized = normalizeTravelAdvisories(json);
-    TRAVEL_DATA = cleanTravelAdvisories(normalized);
+    let extracted = [];
+    if (!json) extracted = [];
+    else extracted = recursivelyExtractAdvisories(json);
+
+    TRAVEL_DATA = cleanTravelAdvisories(extracted);
     TRAVEL_UPDATED_AT = json?.updated_at || null;
 
     if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
-      sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+      console.warn("loadTravelAdvisories: no advisories extracted. Raw response:", json);
+      sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
       return;
     }
 
+    // Sort and populate select
     TRAVEL_DATA.sort((a,b) => (getTravelCountryName(a) || "").localeCompare(getTravelCountryName(b) || ""));
     sel.innerHTML = `<option selected disabled>Select Country...</option>`;
 
     TRAVEL_DATA.forEach(item => {
       const countryName = getTravelCountryName(item);
       if (!countryName) return;
-
       const opt = document.createElement("option");
       opt.value = countryName;
       opt.innerText = countryName;
@@ -1381,6 +1410,7 @@ async function loadTravelAdvisories() {
   }
 }
 
+/* Render advisory + recent incidents (unchanged) */
 function renderAdvisoryAndIncidents(payload) {
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
@@ -1461,7 +1491,7 @@ async function filterTravel() {
 }
 
 /* ===========================
-   HISTORY (was simulated) - now uses /api/archive
+   HISTORY (archive)
 =========================== */
 async function loadHistory(dateStr) {
   if (!dateStr) return;
@@ -1497,6 +1527,9 @@ async function loadHistory(dateStr) {
   }
 }
 
+/* ===========================
+   DAILY BRIEF PREVIEW & DOWNLOAD
+=========================== */
 // PREVIEW: Fetch /api/dailybrief and render inside modal
 async function previewBriefing() {
   const dateVal = document.getElementById('reportDate').value;
@@ -1661,6 +1694,9 @@ async function downloadReport() {
   }
 }
 
+/* ===========================
+   REFRESH / UTILS
+=========================== */
 let isRefreshing = false;
 async function manualRefresh() {
   if (isRefreshing) return;
@@ -1737,6 +1773,7 @@ function severityLabel(s) {
   return "LOW";
 }
 
+/* Expose loadTravelAdvisories for external calls */
 window.loadTravelAdvisories = loadTravelAdvisories;
 </script>
 </body>
