@@ -588,8 +588,9 @@ const COUNTRY_COORDS = {
 =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
   function initMap() {
-    const southWest = L.latLng(-85, -180);
-    const northEast = L.latLng(85, 180);
+    // NOTE: tightened longitudes from -180/180 to -179.999/179.999 to avoid dateline tile duplication
+    const southWest = L.latLng(-85, -179.999);
+    const northEast = L.latLng(85, 179.999);
     const bounds = L.latLngBounds(southWest, northEast);
 
     map = L.map("map", {
@@ -722,7 +723,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     try { criticalLayerGroup.bringToFront(); } catch(e) {}
 
     renderAssetsOnMap("Global");
-    setTimeout(()=>{ try { map.invalidateSize(); } catch(e){} }, 200);
+    setTimeout(()=>{ 
+      try { 
+        map.invalidateSize(); 
+        // ensure the view is inside our tightened bounds (prevents accidental antimeridian wrap)
+        try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
+      } catch(e){} 
+    }, 200);
     window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
   }
 
