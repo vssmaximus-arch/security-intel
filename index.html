@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -609,8 +609,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     L.control.zoom({ position: "topleft" }).addTo(map);
 
+    /* ====== FIX: force English labels by using a no-label base + English reference labels overlay ====== */
     L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
       {
         subdomains: "abcd",
         maxZoom: 19,
@@ -619,6 +620,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
           '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }
+    ).addTo(map);
+
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        noWrap: true,
+        bounds: bounds,
+        attribution: "&copy; Esri"
       }
     ).addTo(map);
 
