@@ -606,18 +606,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     L.control.zoom({ position: "topleft" }).addTo(map);
 
-    L.tileLayer(
+    // --- Enhanced tile layers: Esri primary + Carto fallback (bulletproofing) ---
+    const esriLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
+        noWrap: true,
+        bounds: bounds,
+        keepBuffer: 2
+      }
+    );
+
+    const cartoLayer = L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
       {
         subdomains: "abcd",
         maxZoom: 19,
         noWrap: true,
         bounds: bounds,
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
-          '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
+        keepBuffer: 2
       }
-    ).addTo(map);
+    );
+
+    // Track tile errors and switch after threshold
+    let esriTileErrors = 0;
+    let cartoTileErrors = 0;
+    const ERROR_THRESHOLD = 12;
+
+    function switchToLayer(fromLayer, toLayer, reason) {
+      try {
+        if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
+        if (!map.hasLayer(toLayer)) toLayer.addTo(map);
+        console.warn('Switched basemap due to:', reason);
+      } catch (e) {
+        console.error('Layer switch failed:', e);
+      }
+    }
+
+    esriLayer.on('tileerror', () => {
+      esriTileErrors++;
+      if (esriTileErrors >= ERROR_THRESHOLD) {
+        switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
+      }
+    });
+
+    cartoLayer.on('tileerror', () => {
+      cartoTileErrors++;
+      if (cartoTileErrors >= ERROR_THRESHOLD) {
+        console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
+      }
+    });
+
+    // Start with Esri (enterprise-grade), Carto available as fallback
+    esriLayer.addTo(map);
+
+    // --- End of Enhanced tile layers ---
 
     assetsClusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
