@@ -290,7 +290,7 @@
             <i class="far fa-calendar-alt calendar-icon"></i>
             <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" />
           </div>
-          <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence.</div>
+          <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
         </div>
 
 
@@ -381,7 +381,7 @@
         </div>
 
         <div id="preview-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
-        <div id="briefing-preview" style="max-height:48vh; overflow:auto; margin-top:12px;" tabindex="-1" aria-live="polite" aria-busy="false"></div>
+        <div id="briefing-preview" style="max-height:48vh; overflow:auto; margin-top:12px;"></div>
       </div>
     </div>
   </div>
@@ -426,7 +426,6 @@ window.addEventListener('unhandledrejection', (ev) => {
 
 /* ===========================
    DELL SITES (your list)
-   (unchanged)
 =========================== */
 const DELL_SITES = [
   // AMER
@@ -494,15 +493,15 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
 ];
+/* For proximity + map rendering we use a simple normalized list:
+   keep same ASSETS mapping as your original */
 const ASSETS = {};
 DELL_SITES.forEach(s => {
   const key = s.name.toLowerCase();
   ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
-
 /* ===========================
-   CITY & COUNTRY LOOKUPS
-   (unchanged)
+   CITY LOOKUP (used for incident coordinate resolution)
 =========================== */
 const CITY_COORDS = {
   "new york": { lat: 40.7128, lng: -74.0060 },
@@ -528,6 +527,7 @@ const CITY_COORDS = {
   "madrid": { lat: 40.4168, lng: -3.7038 },
   "rome": { lat: 41.9028, lng: 12.4964 },
 
+  /* FIXED LINE: jakarta */
   "jakarta": { lat: -6.2088, lng: 106.8456 },
 
   "seoul": { lat: 37.5665, lng: 126.9780 },
@@ -544,6 +544,9 @@ const CITY_COORDS = {
 DELL_SITES.forEach(s => {
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
+/* ===========================
+   COUNTRY CENTERS (fallback)
+=========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
   "syria": { lat: 34.8021, lng: 38.9968 },
@@ -867,10 +870,6 @@ function startClock() {
   setInterval(tick, 1000);
 }
 
-/* ===========================
-   MAP & RENDER HELPERS
-   (unchanged)
-=========================== */
 function renderAssetsOnMap(region) {
   assetsClusterGroup.clearLayers();
   const dellIcon = L.divIcon({
@@ -1005,9 +1004,6 @@ function mapSeverityToLabel(sev) {
   }
 }
 
-/* ===========================
-   SAFE FETCH WITH TIMEOUT
-=========================== */
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -1022,6 +1018,7 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
 /* ===========================
    LOAD + 48H FILTERING (CHANGES)
 =========================== */
+
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
@@ -1089,7 +1086,9 @@ async function loadProximityFromWorker(silent = false) {
 
 /* ===========================
    rest of original code (unchanged)
+   - normaliseWorkerIncident, renderGeneralFeed, updateHeadline, etc.
 =========================== */
+
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -1462,7 +1461,7 @@ async function filterTravel() {
 }
 
 /* ===========================
-   HISTORY (uses /api/archive)
+   HISTORY (was simulated) - now uses /api/archive
 =========================== */
 async function loadHistory(dateStr) {
   if (!dateStr) return;
@@ -1498,29 +1497,17 @@ async function loadHistory(dateStr) {
   }
 }
 
-/* ===========================
-   DAILY BRIEF PREVIEW + DOWNLOAD
-=========================== */
-
 // PREVIEW: Fetch /api/dailybrief and render inside modal
 async function previewBriefing() {
   const dateVal = document.getElementById('reportDate').value;
   const region = (document.getElementById('reportRegion').value || 'Global').trim();
   const feedback = document.getElementById('preview-feedback');
   const container = document.getElementById('briefing-preview');
-  const btnPreview = document.getElementById('btn-preview');
-  const btnDownload = document.getElementById('btn-download');
-
   if (!feedback || !container) return;
-
-  // disable buttons
-  if (btnPreview) btnPreview.disabled = true;
-  if (btnDownload) btnDownload.disabled = true;
 
   feedback.style.display = "block";
   feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Generating preview…';
   container.innerHTML = "";
-  container.setAttribute('aria-busy', 'true');
 
   try {
     let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
@@ -1531,25 +1518,11 @@ async function previewBriefing() {
     const json = await res.json();
 
     renderBriefingPreview(json, container);
-
-    // focus for accessibility
-    container.setAttribute('tabindex', '-1');
-    container.focus({ preventScroll: true });
-
     feedback.style.display = "none";
   } catch (err) {
     console.error("previewBriefing error", err);
     feedback.style.display = "block";
-    if (err && err.name === 'AbortError') {
-      feedback.innerHTML = `<div class="text-danger">Preview timed out (server slow). Try again.</div>`;
-    } else {
-      feedback.innerHTML = `<div class="text-danger">Preview failed: ${escapeHtml(String(err.message || err))}</div>`;
-    }
-    container.innerHTML = "";
-  } finally {
-    container.setAttribute('aria-busy', 'false');
-    if (btnPreview) btnPreview.disabled = false;
-    if (btnDownload) btnDownload.disabled = false;
+    feedback.innerHTML = `<div class="text-danger">Preview failed: ${escapeHtml(String(err.message || err))}</div>`;
   }
 }
 
@@ -1606,17 +1579,10 @@ async function downloadReport() {
   const regionInput = document.getElementById("reportRegion");
   const dateInput = document.getElementById("reportDate");
   const feedback = document.getElementById("preview-feedback");
-  const btnPreview = document.getElementById('btn-preview');
-  const btnDownload = document.getElementById('btn-download');
-
   if (!feedback || !regionInput) return;
 
   const region = (regionInput.value || "Global").trim();
   const date = (dateInput && dateInput.value) ? dateInput.value : null;
-
-  // disable buttons while preparing
-  if (btnPreview) btnPreview.disabled = true;
-  if (btnDownload) btnDownload.disabled = true;
 
   feedback.style.display = "block";
   feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Preparing download…';
@@ -1637,8 +1603,8 @@ async function downloadReport() {
     let html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
       <meta name="viewport" content="width=device-width,initial-scale=1" />
       <style>
-        body{font-family:Inter,Arial,Helvetica,sans-serif;padding:20px;color:#222;background:#f7f9fb}
-        h1{font-size:20px;color:#0f3f74;margin-bottom:6px}
+        body{font-family:Inter,Arial,Helvetica,sans-serif;padding:20px;color:#222}
+        h1{font-size:20px;color:#0f3f74}
         .meta{margin-bottom:10px;color:#444}
         .incident{border-left:4px solid #d1d1d1;padding:10px;margin:12px 0;border-radius:4px;background:#fff}
         .sev{font-weight:800;padding:3px 6px;border-radius:4px;color:#fff}
@@ -1646,7 +1612,6 @@ async function downloadReport() {
         .sev-medium{background:#f9ab00;color:#000}
         .sev-low{background:#1a73e8}
         .summary{color:#333}
-        footer{margin-top:20px;color:#666;font-size:0.8rem}
       </style>
       </head><body>
       <h1>${escapeHtml(title)}</h1>
@@ -1674,7 +1639,7 @@ async function downloadReport() {
       });
     }
 
-    html += `<footer>Generated: ${new Date().toLocaleString()}</footer></body></html>`;
+    html += `<footer style="margin-top:20px;color:#666;font-size:0.8rem">Generated: ${new Date().toLocaleString()}</footer></body></html>`;
 
     const blob = new Blob([html], { type: "text/html" });
     const fname = `briefing_${region.toLowerCase().replace(/\s+/g,'_')}_${date ? date : 'latest'}.html`;
@@ -1692,14 +1657,7 @@ async function downloadReport() {
   } catch (err) {
     console.error("downloadReport error", err);
     feedback.style.display = "block";
-    if (err && err.name === 'AbortError') {
-      feedback.innerHTML = `<div class="text-danger">Download timed out (server slow). Try again.</div>`;
-    } else {
-      feedback.innerHTML = `<div class="text-danger">Failed to generate briefing: ${escapeHtml(String(err.message || err))}</div>`;
-    }
-  } finally {
-    if (btnPreview) btnPreview.disabled = false;
-    if (btnDownload) btnDownload.disabled = false;
+    feedback.innerHTML = `<div class="text-danger">Failed to generate briefing: ${escapeHtml(String(err.message || err))}</div>`;
   }
 }
 
