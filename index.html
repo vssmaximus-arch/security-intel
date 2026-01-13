@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -605,6 +606,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     L.control.zoom({ position: "topleft" }).addTo(map);
 
+    // NO LABELS basemap (Carto) as requested
     L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
       {
@@ -626,13 +628,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     map.addLayer(assetsClusterGroup);
 
+    // Force custom behavior: ensure clusterclick handler ALWAYS runs
     incidentClusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       disableClusteringAtZoom: 13,
       maxClusterRadius: 50,
-      zoomToBoundsOnClick: !isTouch,
+      zoomToBoundsOnClick: false, // <- critical: popup handler will run
       iconCreateFunction: function(cluster) {
         const children = cluster.getAllChildMarkers();
         let count = children.length;
@@ -688,9 +691,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       map.closePopup();
     });
 
+    // ALWAYS run popup logic on click (restores prior behavior)
     incidentClusterGroup.on('clusterclick', (e) => {
-      if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
-
       const cluster = e.layer;
       const children = cluster.getAllChildMarkers();
       let counts = { critical:0, high:0, medium:0, low:0 };
@@ -1207,7 +1209,7 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL SAFETY CHECK (FIX: NORMALIZE + FILTER)
+   TRAVEL SAFETY CHECK
 =========================== */
 function getTravelCountryName(item) {
   const c =
@@ -1476,3 +1478,4 @@ window.loadTravelAdvisories = loadTravelAdvisories;
 </script>
 </body>
 </html>
+```
