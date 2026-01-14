@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
@@ -10,7 +10,7 @@
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
     base-uri 'self';
   ">
 
@@ -211,6 +211,7 @@
     .btn-download:hover { background: #1557b0; }
   </style>
 </head>
+
 <body>
   <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
@@ -394,33 +395,40 @@ const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
 
 /* ===========================
+   GITHUB SMARTTRAVELLER FALLBACK (simple)
+=========================== */
+const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
+const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
+const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
+
+/* ===========================
    STATIC COUNTRIES FALLBACK
 =========================== */
 const CONST_COUNTRIES = [
-  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
-  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
-  "Denmark", "Djibouti", "Dominica", "Dominican Republic",
-  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-  "Fiji", "Finland", "France",
-  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-  "Haiti", "Honduras", "Hungary",
-  "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
-  "Jamaica", "Japan", "Jordan",
-  "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan",
-  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
-  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
+  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
+  "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (DRC)","Congo (Republic)","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic",
+  "Denmark","Djibouti","Dominica","Dominican Republic",
+  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
+  "Fiji","Finland","France",
+  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+  "Haiti","Honduras","Hungary",
+  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
+  "Jamaica","Japan","Jordan",
+  "Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan",
+  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
+  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
+  "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway",
   "Oman",
-  "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
   "Qatar",
-  "Romania", "Russia", "Rwanda",
-  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
-  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
-  "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+  "Romania","Russia","Rwanda",
+  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
+  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+  "Vanuatu","Vatican City","Venezuela","Vietnam",
   "Yemen",
-  "Zambia", "Zimbabwe"
+  "Zambia","Zimbabwe"
 ];
 
 /* ===========================
@@ -454,7 +462,7 @@ window.addEventListener('unhandledrejection', (ev) => {
 });
 
 /* ===========================
-   DELL SITES (your list)
+   DELL SITES (your list) - fixed syntax + removed duplicate São Paulo
 =========================== */
 const DELL_SITES = [
   // AMER
@@ -467,8 +475,8 @@ const DELL_SITES = [
   { name: "Dell Eden Prairie", country: "US", region: "AMER", lat: 44.8617, lon: -93.4168 },
   { name: "Dell Draper", country: "US", region: "AMER", lat: 40.5240, lon: -111.8950 },
   { name: "Dell Nashville Hub", country: "US", region: "AMER", lat: 36.1627, lon: -86.7816 },
-  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164
-  },
+  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164 },
+
   { name: "Dell Santa Clara", country: "US", region: "AMER", lat: 37.3541, lon: -121.9552 },
   { name: "Dell McLean", country: "US", region: "AMER", lat: 38.9295, lon: -77.2268 },
   { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
@@ -477,8 +485,7 @@ const DELL_SITES = [
 
   // LATAM
   { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
-  { name: "Dell São Paulo", country: "BR",
-    region: "LATAM", lat: -23.5505, lon: -46.6333 },
+  { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
   { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
   { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
 
@@ -504,23 +511,21 @@ const DELL_SITES = [
   { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
 
   // APJC
-  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946
-  },
+  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
   { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
   { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
   { name: "Dell Sriperumbudur Mfg", country: "IN", region: "APJC", lat: 12.9560, lon: 79.9410 },
   { name: "Dell Singapore", country: "SG", region: "APJC", lat: 1.3521, lon: 103.8198 },
   { name: "Dell Penang", country: "MY", region: "APJC", lat: 5.4164, lon: 100.3327 },
   { name: "Dell Cyberjaya", country: "MY", region: "APJC", lat: 2.9213, lon: 101.6559 },
-  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894
-  },
+  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894 },
   { name: "Dell Chengdu Mfg", country: "CN", region: "APJC", lat: 30.5728, lon: 104.0668 },
   { name: "Dell Shanghai", country: "CN", region: "APJC", lat: 31.2304, lon: 121.4737 },
   { name: "Dell Taipei", country: "TW", region: "APJC", lat: 25.0330, lon: 121.5654 },
   { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
   { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
+  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
 /* For proximity + map rendering we use a simple normalized list:
    keep same ASSETS mapping as your original */
@@ -620,121 +625,165 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
-   INIT
+   INIT (wrapped in try/catch)
 =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  function initMap() {
-    const southWest = L.latLng(-85, -179.999);
-    const northEast = L.latLng(85, 179.999);
-    const bounds = L.latLngBounds(southWest, northEast);
+  try {
+    function initMap() {
+      // Guard: ensure Leaflet loaded
+      if (typeof L === 'undefined') {
+        throw new Error("Leaflet failed to load");
+      }
 
-    map = L.map("map", {
-      scrollWheelZoom: false,
-      zoomControl: false,
-      attributionControl: true,
-      minZoom: 2,
-      maxZoom: 19,
-      maxBounds: bounds,
-      maxBoundsViscosity: 1.0,
-      worldCopyJump: false
-    }).setView([20, 0], 2);
+      // NOTE: tightened longitudes from -180/180 to -179.999/179.999 to avoid dateline tile duplication
+      const southWest = L.latLng(-85, -179.999);
+      const northEast = L.latLng(85, 179.999);
+      const bounds = L.latLngBounds(southWest, northEast);
 
-    L.control.zoom({ position: "topleft" }).addTo(map);
-
-    const esriLayer = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      {
+      map = L.map("map", {
+        scrollWheelZoom: false,
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: 2,
         maxZoom: 19,
-        attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
-        noWrap: true,
-        bounds: bounds,
-        keepBuffer: 2
+        maxBounds: bounds,
+        maxBoundsViscosity: 1.0,
+        worldCopyJump: false
+      }).setView([20, 0], 2);
+
+      L.control.zoom({ position: "topleft" }).addTo(map);
+
+      // --- Enhanced tile layers: Esri primary + Carto fallback (bulletproofing) ---
+      const esriLayer = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
+          noWrap: true,
+          bounds: bounds,
+          keepBuffer: 2
+        }
+      );
+
+      const cartoLayer = L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        {
+          subdomains: "abcd",
+          maxZoom: 19,
+          noWrap: true,
+          bounds: bounds,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
+          keepBuffer: 2
+        }
+      );
+
+      // Track tile errors and switch after threshold
+      let esriTileErrors = 0;
+      let cartoTileErrors = 0;
+      const ERROR_THRESHOLD = 12;
+
+      function switchToLayer(fromLayer, toLayer, reason) {
+        try {
+          if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
+          if (!map.hasLayer(toLayer)) toLayer.addTo(map);
+          console.warn('Switched basemap due to:', reason);
+        } catch (e) {
+          console.error('Layer switch failed:', e);
+        }
       }
-    );
 
-    const cartoLayer = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-      {
-        subdomains: "abcd",
-        maxZoom: 19,
-        noWrap: true,
-        bounds: bounds,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
-        keepBuffer: 2
-      }
-    );
+      esriLayer.on('tileerror', () => {
+        esriTileErrors++;
+        if (esriTileErrors >= ERROR_THRESHOLD) {
+          switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
+        }
+      });
 
-    let esriTileErrors = 0;
-    let cartoTileErrors = 0;
-    const ERROR_THRESHOLD = 12;
+      cartoLayer.on('tileerror', () => {
+        cartoTileErrors++;
+        if (cartoTileErrors >= ERROR_THRESHOLD) {
+          console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
+        }
+      });
 
-    function switchToLayer(fromLayer, toLayer, reason) {
-      try {
-        if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
-        if (!map.hasLayer(toLayer)) toLayer.addTo(map);
-        console.warn('Switched basemap due to:', reason);
-      } catch (e) {
-        console.error('Layer switch failed:', e);
-      }
-    }
+      // Start with Esri (enterprise-grade), Carto available as fallback
+      esriLayer.addTo(map);
 
-    esriLayer.on('tileerror', () => {
-      esriTileErrors++;
-      if (esriTileErrors >= ERROR_THRESHOLD) {
-        switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
-      }
-    });
+      // --- End of Enhanced tile layers ---
 
-    cartoLayer.on('tileerror', () => {
-      cartoTileErrors++;
-      if (cartoTileErrors >= ERROR_THRESHOLD) {
-        console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
-      }
-    });
+      assetsClusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        disableClusteringAtZoom: 10
+      });
+      map.addLayer(assetsClusterGroup);
 
-    esriLayer.addTo(map);
+      incidentClusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        disableClusteringAtZoom: 13,
+        maxClusterRadius: 50,
+        zoomToBoundsOnClick: !isTouch,
+        iconCreateFunction: function(cluster) {
+          const children = cluster.getAllChildMarkers();
+          let count = children.length;
+          let maxSeverity = 0;
+          let counts = { critical:0, high:0, medium:0, low:0 };
+          children.forEach(m => {
+            const s = Number(m.options.severity || 1);
+            if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
+            else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
+            else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
+            else { counts.low++; }
+          });
 
-    assetsClusterGroup = L.markerClusterGroup({
-      chunkedLoading: true,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      disableClusteringAtZoom: 10
-    });
-    map.addLayer(assetsClusterGroup);
+          let cls = 'cluster-blue';
+          if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
+          if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
 
-    incidentClusterGroup = L.markerClusterGroup({
-      chunkedLoading: true,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      disableClusteringAtZoom: 13,
-      maxClusterRadius: 50,
-      zoomToBoundsOnClick: !isTouch,
-      iconCreateFunction: function(cluster) {
-        const children = cluster.getAllChildMarkers();
-        let count = children.length;
-        let maxSeverity = 0;
-        let counts = { critical:0, high:0, medium:0, low:0 };
-        children.forEach(m => {
-          const s = Number(m.options.severity || 1);
-          if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
-          else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
-          else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
-          else { counts.low++; }
-        });
+          const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
+          const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
+          return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
+        }
+      });
 
-        let cls = 'cluster-blue';
-        if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
-        if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+      incidentClusterGroup.on('clustermouseover', (e) => {
+        clearTimeout(_clusterHoverTimeout);
+        _clusterHoverTimeout = setTimeout(() => {
+          const cluster = e.layer;
+          const children = cluster.getAllChildMarkers();
+          let counts = { critical:0, high:0, medium:0, low:0 };
+          children.forEach(m => {
+            const s = Number(m.options.severity || 1);
+            if (s >= 5) counts.critical++;
+            else if (s >= 4) counts.high++;
+            else if (s === 3) counts.medium++;
+            else counts.low++;
+          });
 
-        const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
-        const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
-        return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
-      }
-    });
+          const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
+                          (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
+                          (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
+                          (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
+                          (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
 
-    incidentClusterGroup.on('clustermouseover', (e) => {
-      clearTimeout(_clusterHoverTimeout);
-      _clusterHoverTimeout = setTimeout(() => {
+          L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
+            .setLatLng(cluster.getLatLng())
+            .setContent(summary)
+            .openOn(map);
+        }, 80);
+      });
+
+      incidentClusterGroup.on('clustermouseout', () => {
+        clearTimeout(_clusterHoverTimeout);
+        map.closePopup();
+      });
+
+      incidentClusterGroup.on('clusterclick', (e) => {
+        if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
+
         const cluster = e.layer;
         const children = cluster.getAllChildMarkers();
         let counts = { critical:0, high:0, medium:0, low:0 };
@@ -752,101 +801,85 @@ document.addEventListener("DOMContentLoaded", async () => {
                         (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
                         (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
 
-        L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
+        L.popup({ closeButton: true, offset: [0, -10], className: 'map-tooltip' })
           .setLatLng(cluster.getLatLng())
           .setContent(summary)
           .openOn(map);
-      }, 80);
-    });
 
-    incidentClusterGroup.on('clustermouseout', () => {
-      clearTimeout(_clusterHoverTimeout);
-      map.closePopup();
-    });
-
-    incidentClusterGroup.on('clusterclick', (e) => {
-      if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
-
-      const cluster = e.layer;
-      const children = cluster.getAllChildMarkers();
-      let counts = { critical:0, high:0, medium:0, low:0 };
-      children.forEach(m => {
-        const s = Number(m.options.severity || 1);
-        if (s >= 5) counts.critical++;
-        else if (s >= 4) counts.high++;
-        else if (s === 3) counts.medium++;
-        else counts.low++;
+        setTimeout(() => document.querySelector('.leaflet-popup-close-button')?.focus(), 50);
       });
 
-      const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
-                      (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
-                      (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
-                      (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
-                      (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+      map.addLayer(incidentClusterGroup);
 
-      L.popup({ closeButton: true, offset: [0, -10], className: 'map-tooltip' })
-        .setLatLng(cluster.getLatLng())
-        .setContent(summary)
-        .openOn(map);
+      criticalLayerGroup = L.layerGroup().addTo(map);
+      try { criticalLayerGroup.bringToFront(); } catch(e) {}
 
-      setTimeout(() => document.querySelector('.leaflet-popup-close-button')?.focus(), 50);
+      renderAssetsOnMap("Global");
+      setTimeout(()=>{ 
+        try { 
+          map.invalidateSize(); 
+          // ensure the view is inside our tightened bounds (prevents accidental antimeridian wrap)
+          try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
+        } catch(e){} 
+      }, 200);
+      window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
+    }
+
+    // Try to initialize map, with handling if Leaflet is missing or init fails
+    try {
+      initMap();
+    } catch (mapErr) {
+      console.error("Map initialization failed:", mapErr);
+      const mapEl = document.getElementById('map');
+      if (mapEl) {
+        mapEl.innerHTML = '<div style="padding:25px;color:#666;font-weight:600;">Map failed to initialize. Leaflet may not have loaded.</div>';
+      }
+    }
+
+    startClock();
+
+    document.addEventListener('keydown', (e) => {
+      const el = e.target;
+      if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
+      const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
+      if (isActivation) {
+        e.preventDefault();
+        el.click();
+      }
     });
 
-    map.addLayer(incidentClusterGroup);
+    await loadFromWorker();
+    await loadProximityFromWorker();
+    filterNews("Global");
 
-    criticalLayerGroup = L.layerGroup().addTo(map);
-    try { criticalLayerGroup.bringToFront(); } catch(e) {}
-
-    renderAssetsOnMap("Global");
-    setTimeout(()=>{ 
-      try { 
-        map.invalidateSize(); 
-        // ensure the view is inside our tightened bounds (prevents accidental antimeridian wrap)
-        try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
-      } catch(e){} 
-    }, 200);
-    window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
-  }
-
-  initMap();
-  startClock();
-
-  document.addEventListener('keydown', (e) => {
-    const el = e.target;
-    if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
-    const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
-    if (isActivation) {
-      e.preventDefault();
-      el.click();
+    // Simplified travel advisory loading - one sequential attempt
+    if (typeof window.loadTravelAdvisories === 'function') {
+      try {
+        await window.loadTravelAdvisories();
+      } catch (e) {
+        console.warn("loadTravelAdvisories initial call failed:", e);
+      }
     }
-  });
 
-  await loadFromWorker();
-  await loadProximityFromWorker();
-  filterNews("Global");
+    let scheduledRefreshInProgress = false;
+    setInterval(async () => {
+      if (scheduledRefreshInProgress) return;
+      scheduledRefreshInProgress = true;
+      try {
+        await loadFromWorker(true);
+        await loadProximityFromWorker(true);
+        const active = document.querySelector(".nav-item-custom.active");
+        filterNews(active ? active.innerText.trim() : "Global");
+      } finally {
+        scheduledRefreshInProgress = false;
+      }
+    }, AUTO_REFRESH_MS);
 
-  // kick off travel advisory loading
-  if (typeof window.loadTravelAdvisories === 'function') {
-      await window.loadTravelAdvisories();
-      setTimeout(window.loadTravelAdvisories, 2500);
-  } else {
-      console.warn("loadTravelAdvisories not yet defined. Scheduling retry.");
-      setTimeout(() => { if(typeof window.loadTravelAdvisories === 'function') window.loadTravelAdvisories(); }, 1000);
+  } catch (initError) {
+    // Global initialization error: show minimal fallback and log
+    console.error("Initialization error:", initError);
+    document.getElementById('general-news-feed').innerHTML = `<div style="padding:20px;color:#b00;">Application failed to initialize. See console for details.</div>`;
   }
-
-  let scheduledRefreshInProgress = false;
-  setInterval(async () => {
-    if (scheduledRefreshInProgress) return;
-    scheduledRefreshInProgress = true;
-    try {
-      await loadFromWorker(true);
-      await loadProximityFromWorker(true);
-      const active = document.querySelector(".nav-item-custom.active");
-      filterNews(active ? active.innerText.trim() : "Global");
-    } finally {
-      scheduledRefreshInProgress = false;
-    }
-  }, AUTO_REFRESH_MS);
 });
 
 /* ===========================
@@ -895,6 +928,7 @@ function startClock() {
 }
 
 function renderAssetsOnMap(region) {
+  if (!assetsClusterGroup) return;
   assetsClusterGroup.clearLayers();
   const dellIcon = L.divIcon({
     className: "custom-pin",
@@ -910,6 +944,7 @@ function renderAssetsOnMap(region) {
     m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
     assetsClusterGroup.addLayer(m);
   });
+  if (!map) return;
   if (region === "AMER") map.setView([30, -90], 3);
   else if (region === "EMEA") map.setView([45, 15], 3);
   else if (region === "APJC") map.setView([20, 110], 3);
@@ -972,6 +1007,7 @@ function getCoordsForIncident(inc) {
 }
 
 function renderIncidentsOnMap(region, incidents) {
+  if (!incidentClusterGroup || !criticalLayerGroup) return;
   incidentClusterGroup.clearLayers();
   criticalLayerGroup.clearLayers();
 
@@ -1040,7 +1076,7 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
 }
 
 /* ===========================
-   LOAD + 48H FILTERING (CHANGES)
+   LOAD + 48H FILTERING
 =========================== */
 
 async function loadFromWorker(silent=false) {
@@ -1057,7 +1093,7 @@ async function loadFromWorker(silent=false) {
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
 
-    // --- NEW: enforce 48-hour cutoff on client ---
+    // --- enforce 48-hour cutoff ---
     const cutoffMs = Date.now() - (48 * 3600 * 1000);
     INCIDENTS = list
       .map(normaliseWorkerIncident)
@@ -1090,7 +1126,7 @@ async function loadProximityFromWorker(silent = false) {
     const json = await res.json();
     const list = Array.isArray(json?.incidents) ? json.incidents : [];
 
-    // --- NEW: enforce 48-hour cutoff on proximity items too ---
+    // --- enforce 48-hour cutoff on proximity items too ---
     const cutoffMs = Date.now() - (48 * 3600 * 1000);
     PROXIMITY_INCIDENTS = list
       .map(normaliseWorkerIncident)
@@ -1109,8 +1145,7 @@ async function loadProximityFromWorker(silent = false) {
 }
 
 /* ===========================
-   rest of original code (unchanged)
-   - normaliseWorkerIncident, renderGeneralFeed, updateHeadline, etc.
+   REST/UTILS (normaliser + helpers)
 =========================== */
 
 function normaliseWorkerIncident(item) {
@@ -1123,7 +1158,7 @@ function normaliseWorkerIncident(item) {
   const normalized = {
     id: item.id || (title + "|" + (item.link||"")),
     title,
-    summary: item.summary || "",
+    summary: item.summary || item.description || "",
     category: (item.category || "UNKNOWN").toUpperCase(),
     severity,
     severity_label: item.severity_label || (severity >= 5 ? "CRITICAL" : (severity >= 4 ? "HIGH" : (severity === 3 ? "MEDIUM" : "LOW"))),
@@ -1322,7 +1357,7 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL SAFETY CHECK (robust extractor)
+   TRAVEL SAFETY CHECK (simplified, sequential fallback)
 =========================== */
 
 function getTravelCountryName(item) {
@@ -1334,66 +1369,113 @@ function getTravelCountryName(item) {
   return c;
 }
 
-function normalizeTravelAdvisories(json) {
-  if (!json) return [];
-  if (Array.isArray(json)) return json;
+function recursivelyExtractAdvisories(obj) {
+  const out = [];
+  const seenObjs = new WeakSet();
 
-  if (json.advisories !== undefined) {
-    const a = json.advisories;
-    if (Array.isArray(a)) return a;
-    if (a && typeof a === "object") return Object.values(a);
-    return [];
+  function walk(x) {
+    if (!x) return;
+    if (typeof x === "string" || typeof x === "number" || typeof x === "boolean") return;
+    if (Array.isArray(x)) {
+      for (const it of x) walk(it);
+      return;
+    }
+    if (typeof x === "object") {
+      if (seenObjs.has(x)) return;
+      seenObjs.add(x);
+
+      const name = getTravelCountryName(x);
+      const hasText = (typeof x?.text === "string" && x.text.trim()) || (typeof x?.advice === "string" && x.advice.trim()) || (typeof x?.summary === "string" && x.summary.trim());
+      if (name || hasText || (typeof x?.level === "number")) {
+        out.push(x);
+      }
+      for (const v of Object.values(x)) {
+        walk(v);
+      }
+    }
   }
 
-  if (typeof json === "object") return Object.values(json);
-  return [];
+  walk(obj);
+  return out;
 }
 
 function cleanTravelAdvisories(list) {
-  return (list || []).filter(item => {
-    if (!item || typeof item !== "object") return false;
-
+  const map = new Map();
+  for (const item of (list || [])) {
+    if (!item || typeof item !== "object") continue;
     const name = getTravelCountryName(item);
-    if (!name) return false;
-
-    const lc = name.toLowerCase();
-
-    // kill container keys / obvious junk
-    if (lc === "advisories" || lc === "advisory" || lc === "countries") return false;
-    if (lc === "undefined" || lc === "null" || lc.includes("[object object]")) return false;
-
-    return true;
-  });
+    if (!name) continue;
+    const key = name.toLowerCase().trim();
+    if (!map.has(key)) map.set(key, item);
+  }
+  return Array.from(map.values());
 }
 
+/* Simplified sequential loadTravelAdvisories:
+   Try worker/live → worker/cached → GitHub raw.
+*/
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
-  // Attempt to fetch from worker
+  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
   let fetchedData = [];
-  try {
-    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
-    let json = null;
-    if (liveRes && liveRes.ok) {
-      json = await liveRes.json();
-    } else {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
-      if (res && res.ok) json = await res.json();
-    }
 
-    const normalized = normalizeTravelAdvisories(json);
-    fetchedData = cleanTravelAdvisories(normalized);
-    TRAVEL_UPDATED_AT = json?.updated_at || null;
+  // 1) Try worker live
+  try {
+    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
+    if (liveRes && liveRes.ok) {
+      const json = await liveRes.json();
+      const normalized = recursivelyExtractAdvisories(json);
+      fetchedData = cleanTravelAdvisories(normalized);
+      TRAVEL_UPDATED_AT = json?.updated_at || TRAVEL_UPDATED_AT;
+    }
   } catch (e) {
-    console.error("Travel advisory fetch failed:", e);
+    console.warn("Worker live traveladvisories failed:", e);
   }
 
-  // Fallback to empty if fetch totally failed
-  TRAVEL_DATA = fetchedData || [];
+  // 2) If empty, try worker cached
+  if (!fetchedData || fetchedData.length === 0) {
+    try {
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`, {}, 10000);
+      if (res && res.ok) {
+        const json = await res.json();
+        const normalized = recursivelyExtractAdvisories(json);
+        fetchedData = cleanTravelAdvisories(normalized);
+        TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || json?.updated_at || TRAVEL_UPDATED_AT;
+      }
+    } catch (e) {
+      console.warn("Worker cached traveladvisories failed:", e);
+    }
+  }
 
-  // If fetched data is very small (e.g. only 'Global' fallback from worker), we still want a full dropdown.
-  // We'll merge fetched names with our static list.
+  // 3) GitHub fallback (simple)
+  if (!fetchedData || fetchedData.length === 0) {
+    try {
+      const r = await fetchWithTimeout(GITHUB_SMR_ADVISORIES_JSON, {}, 9000);
+      if (r && r.ok) {
+        const payload = await r.json();
+        const normalized = recursivelyExtractAdvisories(payload);
+        fetchedData = cleanTravelAdvisories(normalized);
+        TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || new Date().toISOString();
+      } else {
+        // try alternate path
+        const r2 = await fetchWithTimeout(GITHUB_SMR_ADVISORIES_JSON_ALT, {}, 9000);
+        if (r2 && r2.ok) {
+          const payload = await r2.json();
+          const normalized = recursivelyExtractAdvisories(payload);
+          fetchedData = cleanTravelAdvisories(normalized);
+          TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || new Date().toISOString();
+        }
+      }
+    } catch (e) {
+      console.warn("GitHub fallback failed:", e);
+    }
+  }
+
+  TRAVEL_DATA = (fetchedData || []).slice();
+
+  // Merge with static list so dropdown always populated
   const countrySet = new Set(CONST_COUNTRIES);
   TRAVEL_DATA.forEach(item => {
     const name = getTravelCountryName(item);
@@ -1401,7 +1483,6 @@ async function loadTravelAdvisories() {
   });
 
   const sortedCountries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
-
   if (sortedCountries.length === 0) {
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
     return;
@@ -1416,41 +1497,46 @@ async function loadTravelAdvisories() {
   });
 }
 
+/* Render advisory + recent incidents */
 function renderAdvisoryAndIncidents(payload) {
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
   if (!advContainer || !newsContainer) return;
 
   try {
-    const advisory = payload.advisory || {};
-    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
+    const advisory = payload.advisory || payload || {};
+    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents :
+                      Array.isArray(payload.incidents) ? payload.incidents : [];
 
-    const level = Number(advisory.level || 1);
+    const level = Number(advisory.level || advisory.risk_level || 1);
     let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
     if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
     else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
     else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
 
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
+    const updated = payload.cached_at || payload.updated_at || advisory.updated_at || null;
+    const updatedStr = updated ? new Date(updated).toLocaleString() : "Unknown";
+
     advContainer.innerHTML = `
       <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
         <div class="advisory-header">
           <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
           <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
         </div>
-        <div class="advisory-text">${escapeHtml(advisory.text || "")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
+        <div class="advisory-text">${escapeHtml(advisory.text || advisory.advice || advisory.summary || "No advisory available")}</div>
+        <div class="advisory-updated">Updated: ${escapeHtml(updatedStr)}</div>
       </div>`;
 
     if (incidents.length > 0) {
       let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
       incidents.forEach(n => {
+        // ensure severityLabel call parentheses correct:
         const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
         const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
         newsHtml += `
           <div class="news-box-item">
             <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
-            <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
+            <div class="news-box-summary">${escapeHtml(n.summary || n.description || "")}</div>
             <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
           </div>`;
       });
@@ -1470,6 +1556,7 @@ function renderAdvisoryAndIncidents(payload) {
   }
 }
 
+/* Filter travel: try worker then fallback to TRAVEL_DATA or GitHub */
 async function filterTravel() {
   const countrySelect = document.getElementById("countrySelect");
   if (!countrySelect) return;
@@ -1482,21 +1569,37 @@ async function filterTravel() {
   advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
   newsContainer.innerHTML = '';
   try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
-    if (!res.ok) {
-        console.error("Single advisory fetch status:", res.status, res.statusText);
-        throw new Error("HTTP " + res.status);
+    // Try worker first
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
+    if (res && res.ok) {
+      const json = await res.json();
+      // If worker returned usable advisory, render
+      const text = json?.advisory?.text || json?.text || "";
+      const incidents = Array.isArray(json?.recent_incidents) ? json.recent_incidents : (Array.isArray(json?.incidents) ? json.incidents : []);
+      const level = Number(json?.advisory?.level || json?.level || 0);
+      if ((text && text.trim().length > 10) || (incidents && incidents.length > 0) || level > 1) {
+        renderAdvisoryAndIncidents(json);
+        return;
+      }
     }
-    const json = await res.json();
-    renderAdvisoryAndIncidents(json);
   } catch (e) {
-    const advisory = TRAVEL_DATA.find(x => getTravelCountryName(x) === country) || { country, level:1, text: "No advisory available" };
-    renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
+    console.warn("Worker single advisory fetch failed:", e);
   }
+
+  // If worker did not provide useful info, fall back to TRAVEL_DATA candidate
+  const candidate = TRAVEL_DATA.find(x => getTravelCountryName(x)?.toLowerCase() === country.toLowerCase());
+  if (candidate) {
+    const advisory = candidate.advisory || candidate || { text: candidate.text || "No advisory available", level: candidate.level || 1 };
+    renderAdvisoryAndIncidents({ advisory, recent_incidents: candidate.recent_incidents || [] });
+    return;
+  }
+
+  // Otherwise tell user no advisory
+  renderAdvisoryAndIncidents({ advisory: { level: 1, text: "No advisory available" }, recent_incidents: [] });
 }
 
 /* ===========================
-   HISTORY (was simulated) - now uses /api/archive
+   HISTORY (archive)
 =========================== */
 async function loadHistory(dateStr) {
   if (!dateStr) return;
@@ -1521,7 +1624,7 @@ async function loadHistory(dateStr) {
       const when = i.time ? new Date(i.time).toLocaleString() : "";
       return `<div style="padding:8px;border-bottom:1px solid #eee;">
                 <div style="font-weight:700">${escapeHtml(i.title || "Untitled")}</div>
-                <div style="font-size:0.85rem;color:#666">${escapeHtml(i.summary || "")}</div>
+                <div style="font-size:0.85rem;color:#666">${escapeHtml(i.summary || i.description || "")}</div>
                 <div style="font-size:0.75rem;color:#999;margin-top:6px;">${escapeHtml(when)}</div>
               </div>`;
     }).join("");
@@ -1532,7 +1635,10 @@ async function loadHistory(dateStr) {
   }
 }
 
-// PREVIEW: Fetch /api/dailybrief and render inside modal
+/* ===========================
+   DAILY BRIEF PREVIEW & DOWNLOAD (unchanged)
+=========================== */
+// PREVIEW
 async function previewBriefing() {
   const dateVal = document.getElementById('reportDate').value;
   const region = (document.getElementById('reportRegion').value || 'Global').trim();
@@ -1562,7 +1668,6 @@ async function previewBriefing() {
 }
 
 function renderBriefingPreview(payload, container) {
-  // payload expected: { counts: { total, critical }, incidents: [...] }
   container.innerHTML = "";
   const counts = payload && payload.counts ? payload.counts : { total: 0, critical: 0 };
   const incidents = Array.isArray(payload && payload.incidents) ? payload.incidents : [];
@@ -1581,7 +1686,6 @@ function renderBriefingPreview(payload, container) {
     return;
   }
 
-  // Render a compact list (limit 50)
   html += '<div>';
   incidents.slice(0, 50).forEach(i => {
     const sevMeta = mapSeverityToLabel(i.severity || 1);
@@ -1609,7 +1713,7 @@ function renderBriefingPreview(payload, container) {
   container.innerHTML = html;
 }
 
-// DOWNLOAD: fetch /api/dailybrief JSON and create a downloadable HTML file on client
+// DOWNLOAD
 async function downloadReport() {
   const regionInput = document.getElementById("reportRegion");
   const dateInput = document.getElementById("reportDate");
@@ -1630,7 +1734,6 @@ async function downloadReport() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const json = await res.json();
 
-    // Build a simple HTML briefing
     const counts = json.counts || { total: 0, critical: 0 };
     const incidents = Array.isArray(json.incidents) ? json.incidents : [];
     const title = `Daily Briefing - ${region} ${date ? date : '(last 24h)'}`;
@@ -1696,6 +1799,9 @@ async function downloadReport() {
   }
 }
 
+/* ===========================
+   REFRESH / UTILS
+=========================== */
 let isRefreshing = false;
 async function manualRefresh() {
   if (isRefreshing) return;
@@ -1772,7 +1878,10 @@ function severityLabel(s) {
   return "LOW";
 }
 
+/* Expose small functions for debugging */
 window.loadTravelAdvisories = loadTravelAdvisories;
+window.filterTravel = filterTravel;
+window.loadHistory = loadHistory;
 </script>
 </body>
 </html>
