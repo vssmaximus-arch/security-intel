@@ -346,16 +346,18 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-
         <div class="mb-3">
           <label class="form-label" for="reportDate">Select Date</label>
           <input type="date" class="form-control" id="reportDate" />
+          <div class="form-text" style="font-size:0.8rem;margin-top:6px;">
+            Leave empty for the last 24 hours (live).
+          </div>
         </div>
+
         <div class="mb-4">
           <label class="form-label" for="reportRegion">Select Region / Report Profile</label>
           <select class="form-select" id="reportRegion">
             <option value="Global">Global</option>
-
             <option value="APJC">APJC</option>
             <option value="India">India</option>
             <option value="Oceania">Oceania</option>
@@ -364,16 +366,22 @@
             <option value="SAEM">SAEM</option>
             <option value="Greater_China_HK">Greater_China_HK</option>
             <option value="Taiwan">Taiwan</option>
-
             <option value="Malaysia">Malaysia</option>
             <option value="Singapore">Singapore</option>
           </select>
         </div>
-        <button class="btn-download" onclick="downloadReport()">
-          <i class="fas fa-download me-2"></i> Retrieve Briefing
-        </button>
-        <div id="download-feedback" class="mt-3 text-center" style="font-size:0.85rem;
-          display:none;" aria-live="polite"></div>
+
+        <div class="d-grid gap-2" style="margin-bottom:8px;">
+          <button class="btn-download" id="btn-preview" onclick="previewBriefing()" aria-label="Preview daily briefing">
+            <i class="fas fa-eye me-2"></i> Preview Briefing
+          </button>
+          <button class="btn-download" id="btn-download" onclick="downloadReport()" aria-label="Download briefing (generated)">
+            <i class="fas fa-download me-2"></i> Download Briefing
+          </button>
+        </div>
+
+        <div id="preview-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
+        <div id="briefing-preview" style="max-height:48vh; overflow:auto; margin-top:12px;"></div>
       </div>
     </div>
   </div>
@@ -385,6 +393,37 @@
 =========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
+
+/* ===========================
+   STATIC COUNTRIES FALLBACK
+   (Ensures dropdown is populated even if API returns sparse data)
+=========================== */
+const CONST_COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+  "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+  "Fiji", "Finland", "France",
+  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+  "Haiti", "Honduras", "Hungary",
+  "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+  "Jamaica", "Japan", "Jordan",
+  "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan",
+  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+  "Oman",
+  "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+  "Qatar",
+  "Romania", "Russia", "Rwanda",
+  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+  "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+  "Yemen",
+  "Zambia", "Zimbabwe"
+];
 
 /* ===========================
    DATA STATE
@@ -1337,6 +1376,8 @@ async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
+  // Attempt to fetch from worker
+  let fetchedData = [];
   try {
     const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
     let json = null;
@@ -1347,30 +1388,37 @@ async function loadTravelAdvisories() {
     }
 
     const normalized = normalizeTravelAdvisories(json);
-    TRAVEL_DATA = cleanTravelAdvisories(normalized);
+    fetchedData = cleanTravelAdvisories(normalized);
     TRAVEL_UPDATED_AT = json?.updated_at || null;
-
-    if (!TRAVEL_DATA || TRAVEL_DATA.length === 0) {
-      sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-      return;
-    }
-
-    TRAVEL_DATA.sort((a,b) => (getTravelCountryName(a) || "").localeCompare(getTravelCountryName(b) || ""));
-    sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-
-    TRAVEL_DATA.forEach(item => {
-      const countryName = getTravelCountryName(item);
-      if (!countryName) return;
-
-      const opt = document.createElement("option");
-      opt.value = countryName;
-      opt.innerText = countryName;
-      sel.appendChild(opt);
-    });
   } catch (e) {
     console.error("Travel advisory fetch failed:", e);
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
   }
+
+  // Fallback to empty if fetch totally failed
+  TRAVEL_DATA = fetchedData || [];
+
+  // If fetched data is very small (e.g. only 'Global' fallback from worker), we still want a full dropdown.
+  // We'll merge fetched names with our static list.
+  const countrySet = new Set(CONST_COUNTRIES);
+  TRAVEL_DATA.forEach(item => {
+    const name = getTravelCountryName(item);
+    if (name) countrySet.add(name);
+  });
+
+  const sortedCountries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
+
+  if (sortedCountries.length === 0) {
+    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    return;
+  }
+
+  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
+  sortedCountries.forEach(cName => {
+    const opt = document.createElement("option");
+    opt.value = cName;
+    opt.innerText = cName;
+    sel.appendChild(opt);
+  });
 }
 
 function renderAdvisoryAndIncidents(payload) {
@@ -1489,20 +1537,168 @@ async function loadHistory(dateStr) {
   }
 }
 
-function downloadReport() {
+// PREVIEW: Fetch /api/dailybrief and render inside modal
+async function previewBriefing() {
+  const dateVal = document.getElementById('reportDate').value;
+  const region = (document.getElementById('reportRegion').value || 'Global').trim();
+  const feedback = document.getElementById('preview-feedback');
+  const container = document.getElementById('briefing-preview');
+  if (!feedback || !container) return;
+
+  feedback.style.display = "block";
+  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Generating preview…';
+  container.innerHTML = "";
+
+  try {
+    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
+    if (dateVal) url += `&date=${encodeURIComponent(dateVal)}`;
+
+    const res = await fetchWithTimeout(url, {}, 20000);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+
+    renderBriefingPreview(json, container);
+    feedback.style.display = "none";
+  } catch (err) {
+    console.error("previewBriefing error", err);
+    feedback.style.display = "block";
+    feedback.innerHTML = `<div class="text-danger">Preview failed: ${escapeHtml(String(err.message || err))}</div>`;
+  }
+}
+
+function renderBriefingPreview(payload, container) {
+  // payload expected: { counts: { total, critical }, incidents: [...] }
+  container.innerHTML = "";
+  const counts = payload && payload.counts ? payload.counts : { total: 0, critical: 0 };
+  const incidents = Array.isArray(payload && payload.incidents) ? payload.incidents : [];
+
+  let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div><strong>Total incidents (24h):</strong> ${Number(counts.total || 0)}</div>
+    <div><strong>Critical:</strong> ${Number(counts.critical || 0)}</div>
+  </div>`;
+
+  if (!incidents.length) {
+    html += `<div class="safe-box" style="margin-top:8px;">
+      <i class="fas fa-check-circle safe-icon"></i>
+      <div class="safe-text">No incidents in this 24-hour window for the selected region.</div>
+    </div>`;
+    container.innerHTML = html;
+    return;
+  }
+
+  // Render a compact list (limit 50)
+  html += '<div>';
+  incidents.slice(0, 50).forEach(i => {
+    const sevMeta = mapSeverityToLabel(i.severity || 1);
+    const when = safeTime(i.time);
+    const src = i.source ? shortHost(i.source) : "Source";
+    const summary = escapeHtml(i.summary || "");
+    html += `
+      <div class="feed-card" style="margin-bottom:10px;">
+        <div class="feed-status-bar ${sevMeta.barClass}"></div>
+        <div class="feed-content">
+          <div class="feed-tags">
+            <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
+            <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
+            <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
+            <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
+          </div>
+          <div class="feed-title">${escapeHtml(i.title || "Untitled")}</div>
+          <div class="feed-meta">${escapeHtml(src)} • ${escapeHtml(when)}</div>
+          <div class="feed-desc">${summary}</div>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+// DOWNLOAD: fetch /api/dailybrief JSON and create a downloadable HTML file on client
+async function downloadReport() {
   const regionInput = document.getElementById("reportRegion");
-  const feedback = document.getElementById("download-feedback");
+  const dateInput = document.getElementById("reportDate");
+  const feedback = document.getElementById("preview-feedback");
   if (!feedback || !regionInput) return;
 
-  const region = regionInput.value;
-  feedback.style.display = "block";
-  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Retrieving…';
+  const region = (regionInput.value || "Global").trim();
+  const date = (dateInput && dateInput.value) ? dateInput.value : null;
 
-  const url = `public/reports/${region.toLowerCase()}_latest.html`;
-  setTimeout(() => {
-    window.open(url, "_blank");
-    feedback.innerHTML = '<div class="alert alert-info mt-2 text-start" style="font-size:0.8rem"><strong>Note:</strong> if a 404 appears, the briefing file has not been generated yet.</div>';
-  }, 600);
+  feedback.style.display = "block";
+  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Preparing download…';
+
+  try {
+    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
+    if (date) url += `&date=${encodeURIComponent(date)}`;
+
+    const res = await fetchWithTimeout(url, {}, 20000);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const json = await res.json();
+
+    // Build a simple HTML briefing
+    const counts = json.counts || { total: 0, critical: 0 };
+    const incidents = Array.isArray(json.incidents) ? json.incidents : [];
+    const title = `Daily Briefing - ${region} ${date ? date : '(last 24h)'}`;
+
+    let html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <style>
+        body{font-family:Inter,Arial,Helvetica,sans-serif;padding:20px;color:#222}
+        h1{font-size:20px;color:#0f3f74}
+        .meta{margin-bottom:10px;color:#444}
+        .incident{border-left:4px solid #d1d1d1;padding:10px;margin:12px 0;border-radius:4px;background:#fff}
+        .sev{font-weight:800;padding:3px 6px;border-radius:4px;color:#fff}
+        .sev-high{background:#d93025}
+        .sev-medium{background:#f9ab00;color:#000}
+        .sev-low{background:#1a73e8}
+        .summary{color:#333}
+      </style>
+      </head><body>
+      <h1>${escapeHtml(title)}</h1>
+      <div class="meta">Total incidents: <strong>${counts.total}</strong> &nbsp; | &nbsp; Critical: <strong>${counts.critical}</strong></div>`;
+
+    if (!incidents.length) {
+      html += `<p>No incidents in this period.</p>`;
+    } else {
+      incidents.forEach(i => {
+        const sev = Number(i.severity || 1);
+        let sevClass = 'sev-low', sevLabel = 'LOW';
+        if (sev >= 5) { sevClass = 'sev-high'; sevLabel = 'CRITICAL'; }
+        else if (sev >= 4) { sevClass = 'sev-high'; sevLabel = 'HIGH'; }
+        else if (sev === 3) { sevClass = 'sev-medium'; sevLabel = 'MEDIUM'; }
+
+        html += `<div class="incident">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><strong>${escapeHtml(i.title || 'Untitled')}</strong></div>
+              <div><span class="sev ${sevClass}">${escapeHtml(sevLabel)}</span></div>
+            </div>
+            <div style="margin-top:6px;color:#666;font-size:0.9rem">${escapeHtml(i.country || '')} • ${escapeHtml(i.location || '')} • ${escapeHtml(safeTime(i.time))}</div>
+            <div class="summary" style="margin-top:8px">${escapeHtml(i.summary || '')}</div>
+            <div style="margin-top:8px"><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a></div>
+          </div>`;
+      });
+    }
+
+    html += `<footer style="margin-top:20px;color:#666;font-size:0.8rem">Generated: ${new Date().toLocaleString()}</footer></body></html>`;
+
+    const blob = new Blob([html], { type: "text/html" });
+    const fname = `briefing_${region.toLowerCase().replace(/\s+/g,'_')}_${date ? date : 'latest'}.html`;
+    const urlBlob = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = urlBlob;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(urlBlob);
+
+    feedback.style.display = "block";
+    feedback.innerHTML = `<div class="alert alert-success mt-2 text-start" style="font-size:0.8rem">Downloaded: <strong>${escapeHtml(fname)}</strong></div>`;
+  } catch (err) {
+    console.error("downloadReport error", err);
+    feedback.style.display = "block";
+    feedback.innerHTML = `<div class="text-danger">Failed to generate briefing: ${escapeHtml(String(err.message || err))}</div>`;
+  }
 }
 
 let isRefreshing = false;
