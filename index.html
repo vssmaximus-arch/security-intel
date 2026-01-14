@@ -457,7 +457,6 @@ window.addEventListener('unhandledrejection', (ev) => {
 
 /* ===========================
    DELL SITES (your list)
-   (unchanged)
 =========================== */
 const DELL_SITES = [
   // AMER
@@ -533,7 +532,7 @@ DELL_SITES.forEach(s => {
   ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
 /* ===========================
-   CITY LOOKUP & COUNTRY CENTERS (unchanged)
+   CITY LOOKUP (used for incident coordinate resolution)
 =========================== */
 const CITY_COORDS = {
   "new york": { lat: 40.7128, lng: -74.0060 },
@@ -576,6 +575,9 @@ const CITY_COORDS = {
 DELL_SITES.forEach(s => {
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
+/* ===========================
+   COUNTRY CENTERS (fallback)
+=========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
   "syria": { lat: 34.8021, lng: 38.9968 },
@@ -620,344 +622,433 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
-   UTILS
+   INIT
 =========================== */
-function escapeHtml(s) { return String(s || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
-function escapeAttr(s) { return escapeHtml(String(s || "")).replaceAll("`", "&#096;"); }
-function safeTime(iso) { try { const d = new Date(iso); if (isNaN(d.getTime())) return "Recently"; return d.toLocaleString(); } catch { return "Recently"; } }
+document.addEventListener("DOMContentLoaded", async () => {
+  function initMap() {
+    // NOTE: tightened longitudes from -180/180 to -179.999/179.999 to avoid dateline tile duplication
+    const southWest = L.latLng(-85, -179.999);
+    const northEast = L.latLng(85, 179.999);
+    const bounds = L.latLngBounds(southWest, northEast);
+
+    map = L.map("map", {
+      scrollWheelZoom: false,
+      zoomControl: false,
+      attributionControl: true,
+      minZoom: 2,
+      maxZoom: 19,
+      maxBounds: bounds,
+      maxBoundsViscosity: 1.0,
+      worldCopyJump: false
+    }).setView([20, 0], 2);
+
+    L.control.zoom({ position: "topleft" }).addTo(map);
+
+    // --- Enhanced tile layers: Esri primary + Carto fallback (bulletproofing) ---
+    const esriLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
+        noWrap: true,
+        bounds: bounds,
+        keepBuffer: 2
+      }
+    );
+
+    const cartoLayer = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      {
+        subdomains: "abcd",
+        maxZoom: 19,
+        noWrap: true,
+        bounds: bounds,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
+        keepBuffer: 2
+      }
+    );
+
+    // Track tile errors and switch after threshold
+    let esriTileErrors = 0;
+    let cartoTileErrors = 0;
+    const ERROR_THRESHOLD = 12;
+
+    function switchToLayer(fromLayer, toLayer, reason) {
+      try {
+        if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
+        if (!map.hasLayer(toLayer)) toLayer.addTo(map);
+        console.warn('Switched basemap due to:', reason);
+      } catch (e) {
+        console.error('Layer switch failed:', e);
+      }
+    }
+
+    esriLayer.on('tileerror', () => {
+      esriTileErrors++;
+      if (esriTileErrors >= ERROR_THRESHOLD) {
+        switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
+      }
+    });
+
+    cartoLayer.on('tileerror', () => {
+      cartoTileErrors++;
+      if (cartoTileErrors >= ERROR_THRESHOLD) {
+        console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
+      }
+    });
+
+    // Start with Esri (enterprise-grade), Carto available as fallback
+    esriLayer.addTo(map);
+
+    // --- End of Enhanced tile layers ---
+
+    assetsClusterGroup = L.markerClusterGroup({
+      chunkedLoading: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 10
+    });
+    map.addLayer(assetsClusterGroup);
+
+    incidentClusterGroup = L.markerClusterGroup({
+      chunkedLoading: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 13,
+      maxClusterRadius: 50,
+      zoomToBoundsOnClick: !isTouch,
+      iconCreateFunction: function(cluster) {
+        const children = cluster.getAllChildMarkers();
+        let count = children.length;
+        let maxSeverity = 0;
+        let counts = { critical:0, high:0, medium:0, low:0 };
+        children.forEach(m => {
+          const s = Number(m.options.severity || 1);
+          if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
+          else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
+          else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
+          else { counts.low++; }
+        });
+
+        let cls = 'cluster-blue';
+        if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
+        if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+
+        const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
+        const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
+        return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
+      }
+    });
+
+    incidentClusterGroup.on('clustermouseover', (e) => {
+      clearTimeout(_clusterHoverTimeout);
+      _clusterHoverTimeout = setTimeout(() => {
+        const cluster = e.layer;
+        const children = cluster.getAllChildMarkers();
+        let counts = { critical:0, high:0, medium:0, low:0 };
+        children.forEach(m => {
+          const s = Number(m.options.severity || 1);
+          if (s >= 5) counts.critical++;
+          else if (s >= 4) counts.high++;
+          else if (s === 3) counts.medium++;
+          else counts.low++;
+        });
+
+        const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
+                        (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
+                        (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
+                        (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
+                        (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+
+        L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
+          .setLatLng(cluster.getLatLng())
+          .setContent(summary)
+          .openOn(map);
+      }, 80);
+    });
+
+    incidentClusterGroup.on('clustermouseout', () => {
+      clearTimeout(_clusterHoverTimeout);
+      map.closePopup();
+    });
+
+    incidentClusterGroup.on('clusterclick', (e) => {
+      if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
+
+      const cluster = e.layer;
+      const children = cluster.getAllChildMarkers();
+      let counts = { critical:0, high:0, medium:0, low:0 };
+      children.forEach(m => {
+        const s = Number(m.options.severity || 1);
+        if (s >= 5) counts.critical++;
+        else if (s >= 4) counts.high++;
+        else if (s === 3) counts.medium++;
+        else counts.low++;
+      });
+
+      const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
+                      (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
+                      (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
+                      (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
+                      (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+
+      L.popup({ closeButton: true, offset: [0, -10], className: 'map-tooltip' })
+        .setLatLng(cluster.getLatLng())
+        .setContent(summary)
+        .openOn(map);
+
+      setTimeout(() => document.querySelector('.leaflet-popup-close-button')?.focus(), 50);
+    });
+
+    map.addLayer(incidentClusterGroup);
+
+    criticalLayerGroup = L.layerGroup().addTo(map);
+    try { criticalLayerGroup.bringToFront(); } catch(e) {}
+
+    renderAssetsOnMap("Global");
+    setTimeout(()=>{ 
+      try { 
+        map.invalidateSize(); 
+        // ensure the view is inside our tightened bounds (prevents accidental antimeridian wrap)
+        try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
+      } catch(e){} 
+    }, 200);
+    window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
+  }
+
+  initMap();
+  startClock();
+
+  document.addEventListener('keydown', (e) => {
+    const el = e.target;
+    if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
+    const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
+    if (isActivation) {
+      e.preventDefault();
+      el.click();
+    }
+  });
+
+  await loadFromWorker();
+  await loadProximityFromWorker();
+  filterNews("Global");
+
+  if (typeof window.loadTravelAdvisories === 'function') {
+      // Intentionally waiting a moment to allow UI init
+      setTimeout(window.loadTravelAdvisories, 500);
+  } else {
+      setTimeout(() => { if(typeof window.loadTravelAdvisories === 'function') window.loadTravelAdvisories(); }, 1000);
+  }
+
+  let scheduledRefreshInProgress = false;
+  setInterval(async () => {
+    if (scheduledRefreshInProgress) return;
+    scheduledRefreshInProgress = true;
+    try {
+      await loadFromWorker(true);
+      await loadProximityFromWorker(true);
+      const active = document.querySelector(".nav-item-custom.active");
+      filterNews(active ? active.innerText.trim() : "Global");
+    } finally {
+      scheduledRefreshInProgress = false;
+    }
+  }, AUTO_REFRESH_MS);
+});
+
+/* ===========================
+   CLOCK
+=========================== */
+function startClock() {
+  const targets = [
+    { id: "clock-austin", zone: "America/Chicago", label: "Austin" },
+    { id: "clock-ireland", zone: "Europe/Dublin", label: "Ireland" },
+    { id: "clock-india", zone: "Asia/Kolkata", label: "India" },
+    { id: "clock-sg", zone: "Asia/Singapore", label: "Singapore" },
+    { id: "clock-tokyo", zone: "Asia/Tokyo", label: "Tokyo" },
+    { id: "clock-sydney", zone: "Australia/Sydney", label: "Sydney" }
+  ];
+
+  const container = document.getElementById("multi-clock-container");
+  if (container && container.innerHTML.trim() === "") {
+     let html = "";
+     targets.forEach(t => {
+       html += `
+         <div class="clock-box">
+           <div class="clock-label">${t.label}</div>
+           <div class="clock-val" id="${t.id}">--:--</div>
+         </div>`;
+     });
+     container.innerHTML = html;
+  }
+
+  const tick = () => {
+    const now = new Date();
+    targets.forEach(t => {
+      const el = document.getElementById(t.id);
+      if (el) {
+        const timeStr = now.toLocaleTimeString("en-US", {
+          timeZone: t.zone,
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
+        el.innerText = timeStr;
+      }
+    });
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+function renderAssetsOnMap(region) {
+  assetsClusterGroup.clearLayers();
+  const dellIcon = L.divIcon({
+    className: "custom-pin",
+    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
+    iconSize: [30, 42],
+    iconAnchor: [15, 42]
+  });
+  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
+  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
+
+  filtered.forEach(a => {
+    const m = L.marker([a.lat, a.lng], { icon: dellIcon });
+    m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
+    assetsClusterGroup.addLayer(m);
+  });
+  if (region === "AMER") map.setView([30, -90], 3);
+  else if (region === "EMEA") map.setView([45, 15], 3);
+  else if (region === "APJC") map.setView([20, 110], 3);
+  else if (region === "LATAM") map.setView([-15, -60], 3);
+  else map.setView([25, 10], 2);
+}
+
+function getCoordsForIncident(inc) {
+  try {
+    const lat = Number(inc.lat || inc.latitude || 0);
+    const lng = Number(inc.lng || inc.longitude || 0);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
+      return { lat, lng };
+    }
+
+    const locRaw = String(inc.location || "").trim();
+    if (locRaw && locRaw.toLowerCase() !== "unknown") {
+      const locKey = locRaw.toLowerCase().split(",")[0].trim();
+
+      if (locKey.length >= 3) {
+        if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
+
+        for (const k of Object.keys(CITY_COORDS)) {
+          if (k.length < 3) continue;
+          if (locKey.includes(k) || k.includes(locKey)) {
+            return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
+          }
+        }
+
+        for (const s of DELL_SITES) {
+          const sname = s.name.toLowerCase();
+          if (sname.includes(locKey) || locKey.includes(sname)) {
+            return { lat: s.lat, lng: s.lon };
+          }
+        }
+      }
+    }
+
+    const countryRaw = String(inc.country || "").trim();
+    if (countryRaw) {
+      const cKey = countryRaw.toLowerCase();
+      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
+
+      const cut = cKey.split(",")[0].trim();
+      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
+
+      const cCode = cKey.slice(0,2).toLowerCase();
+      for (const s of DELL_SITES) {
+        const sCode = String(s.country || "").toLowerCase();
+        if (sCode === cKey || (sCode === cCode && cKey.length >= 2)) {
+          return { lat: s.lat, lng: s.lon };
+        }
+      }
+    }
+
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function renderIncidentsOnMap(region, incidents) {
+  incidentClusterGroup.clearLayers();
+  criticalLayerGroup.clearLayers();
+
+  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
+
+  filtered.forEach(i => {
+    let coords = null;
+    if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
+      coords = { lat: Number(i.lat), lng: Number(i.lng) };
+    } else {
+      coords = getCoordsForIncident(i);
+    }
+
+    if (!coords) return;
+    const sev = Number(i.severity || 1);
+    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
+
+    if (sev >= 4) {
+        const marker = L.circleMarker([coords.lat, coords.lng], {
+          radius: 10,
+          fillColor: color,
+          color: "#fff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+        criticalLayerGroup.addLayer(marker);
+    } else {
+        const incidentDiv = `<div class="incident-dot" style="background:${color};"></div>`;
+        const marker = L.marker([coords.lat, coords.lng], {
+            icon: L.divIcon({ html: incidentDiv, className: '', iconSize:[20,20], iconAnchor:[10,10]}),
+            severity: sev
+        });
+        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+        incidentClusterGroup.addLayer(marker);
+    }
+  });
+
+  try { criticalLayerGroup.bringToFront(); } catch(e) {}
+  try { assetsClusterGroup.bringToBack(); } catch(e) {}
+}
+
+function mapSeverityToLabel(sev) {
+  const s = Number(sev || 1);
+  if (s >= 5) {
+    return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s >= 4) {
+    return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s === 3) {
+    return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
+  } else {
+    return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  }
+}
+
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
-  try { const res = await fetch(url, { ...opts, signal: controller.signal }); return res; } finally { clearTimeout(id); }
-}
-
-/* ===========================
-   TRAVEL ADVISORIES: robust extraction/cleanup
-=========================== */
-
-/**
- * getTravelCountryName(item)
- * Accepts strings or objects and returns a sensible display name or "".
- */
-function getTravelCountryName(item) {
-  if (!item) return "";
-
-  // primitive string -> country name
-  if (typeof item === "string") {
-    const s = item.trim();
-    if (!s) return "";
-    if (s.toLowerCase() === "global") return "";
-    return s;
-  }
-
-  // If object
   try {
-    // Try common keys
-    if (typeof item.country === "string" && item.country.trim()) return item.country.trim();
-    if (typeof item.country_name === "string" && item.country_name.trim()) return item.country_name.trim();
-    if (typeof item.name === "string" && item.name.trim()) return item.name.trim();
-    if (typeof item.title === "string" && item.title.trim()) return item.title.trim();
-    if (typeof item.location === "string" && item.location.trim()) return item.location.trim();
-
-    // Country may be nested object { country: { name: "X" } }
-    if (item.country && typeof item.country === "object") {
-      if (typeof item.country.name === "string" && item.country.name.trim()) return item.country.name.trim();
-      if (typeof item.country.country_name === "string" && item.country.country_name.trim()) return item.country.country_name.trim();
-    }
-
-    // Some objects use 'iso' or 'countryCode' but not human-friendly - skip
-  } catch (e) {
-    // ignore
-  }
-
-  return "";
-}
-
-/**
- * Recursively walk structure and collect advisory-like objects or country strings.
- * Heuristics: object with text/advice/summary/level or having a country/name/title.
- */
-function recursivelyExtractAdvisories(obj) {
-  const out = [];
-  const seen = new WeakSet();
-
-  function walk(x) {
-    if (!x) return;
-    if (typeof x === "string") {
-      const s = x.trim();
-      if (s && s.toLowerCase() !== "global" && s.length < 80) out.push(s);
-      return;
-    }
-    if (Array.isArray(x)) {
-      x.forEach(v => walk(v));
-      return;
-    }
-    if (typeof x === "object") {
-      if (seen.has(x)) return;
-      seen.add(x);
-
-      const name = getTravelCountryName(x);
-      const hasText = (typeof x.text === "string" && x.text.trim()) || (typeof x.summary === "string" && x.summary.trim()) || (typeof x.advice === "string" && x.advice.trim());
-      const hasLevel = (typeof x.level === "number") || !!x.advisory;
-
-      if (name || hasText || hasLevel) {
-        out.push(x);
-      }
-
-      Object.values(x).forEach(v => walk(v));
-    }
-  }
-
-  walk(obj);
-  return out;
-}
-
-/**
- * cleanTravelAdvisories(list)
- * - Deduplicate by lowercased country name
- * - Remove junk entries like "global" or container keys
- */
-function cleanTravelAdvisories(list) {
-  if (!Array.isArray(list)) return [];
-  const map = new Map();
-  for (const item of list) {
-    try {
-      if (!item) continue;
-      if (typeof item === "string") {
-        const nm = item.trim();
-        if (!nm) continue;
-        const key = nm.toLowerCase();
-        if (["global","advisories","advisory","countries","undefined","null","[object object]"].includes(key)) continue;
-        if (!map.has(key)) map.set(key, { country: nm });
-        continue;
-      }
-      if (typeof item !== "object") continue;
-
-      const nm = getTravelCountryName(item);
-      if (!nm) continue;
-      const key = nm.toLowerCase().trim();
-      if (["global","advisories","advisory","countries","undefined","null","[object object]"].includes(key)) continue;
-      if (!map.has(key)) {
-        // Ensure object has country for display
-        if (!item.country && !item.name) item.country = nm;
-        map.set(key, item);
-      } else {
-        // Keep object with more content (heuristic)
-        const existing = map.get(key);
-        const existingScore = ((existing.text||existing.summary||existing.advice||existing.level) ? 1 : 0);
-        const newScore = ((item.text||item.summary||item.advice||item.level) ? 1 : 0);
-        if (newScore > existingScore) map.set(key, item);
-      }
-    } catch (e) {
-      continue;
-    }
-  }
-  return Array.from(map.values());
-}
-
-/* ===========================
-   loadTravelAdvisories (robust)
-=========================== */
-async function loadTravelAdvisories() {
-  const sel = document.getElementById("countrySelect");
-  if (!sel) return;
-
-  // show loading state & disable select while loading
-  sel.disabled = true;
-  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-
-  let json = null;
-  try {
-    // Prefer the live endpoint; fallback to cached
-    try {
-      const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 15000);
-      if (liveRes && liveRes.ok) json = await liveRes.json();
-      else {
-        const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`, {}, 15000);
-        if (res && res.ok) json = await res.json();
-      }
-    } catch (err) {
-      // try cached
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`, {}, 15000);
-      if (res && res.ok) json = await res.json();
-    }
-  } catch (e) {
-    console.warn("Travel advisories fetch error:", e);
-  }
-
-  // Extract candidates
-  let candidates = [];
-  if (!json) {
-    candidates = [];
-  } else if (Array.isArray(json)) {
-    candidates = json;
-  } else if (json.advisories !== undefined) {
-    const a = json.advisories;
-    if (Array.isArray(a)) candidates = a;
-    else if (a && typeof a === "object") candidates = Object.values(a);
-  } else if (typeof json === "object") {
-    // If top-level appears to be a map of country->advisory, use that
-    const entries = Object.entries(json);
-    let looksLikeMap = false;
-    for (const [k,v] of entries) {
-      if (v && typeof v === 'object' && (v.text || v.advice || v.summary || typeof v.level === 'number' || v.advisory || v.recent_incidents)) {
-        looksLikeMap = true; break;
-      }
-    }
-    if (looksLikeMap) {
-      candidates = entries.map(([k,v]) => {
-        if (!v || typeof v !== 'object') return { country: String(k) };
-        if (!v.country && !v.name) v.country = String(k);
-        return v;
-      });
-    } else {
-      // Deep-recursive extraction
-      candidates = recursivelyExtractAdvisories(json);
-    }
-  }
-
-  // Normalize + clean
-  const normalized = (candidates || []).map(it => {
-    if (!it) return null;
-    if (typeof it === "string") return { country: it };
-    if (typeof it === "object") return it;
-    return null;
-  }).filter(Boolean);
-
-  TRAVEL_DATA = cleanTravelAdvisories(normalized || []);
-  TRAVEL_UPDATED_AT = (json && json.updated_at) ? json.updated_at : TRAVEL_UPDATED_AT;
-
-  // Build final country list, merging with CONST_COUNTRIES only when necessary
-  const countrySet = new Set();
-
-  // prefer TRAVEL_DATA names first
-  if (TRAVEL_DATA && TRAVEL_DATA.length > 0) {
-    for (const item of TRAVEL_DATA) {
-      const n = getTravelCountryName(item);
-      if (n && n.toLowerCase() !== "global") countrySet.add(n);
-    }
-  }
-
-  // If we didn't get many names from the worker (or none), merge static fallback
-  if (countrySet.size < 10) {
-    for (const c of CONST_COUNTRIES) {
-      if (c && typeof c === "string") countrySet.add(c);
-    }
-  }
-
-  // Final safe check: ensure not empty
-  if (countrySet.size === 0) {
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-    sel.disabled = false;
-    return;
-  }
-
-  const sorted = Array.from(countrySet).sort((a,b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-  for (const name of sorted) {
-    if (!name || typeof name !== "string") continue;
-    const ntrim = name.trim();
-    if (!ntrim || ntrim.toLowerCase() === "global") continue;
-    const opt = document.createElement("option");
-    opt.value = ntrim;
-    opt.innerText = ntrim;
-    sel.appendChild(opt);
-  }
-
-  sel.disabled = false;
-}
-
-/* ===========================
-   TRAVEL ADVISORY RENDERER + FILTER (unchanged)
-=========================== */
-function renderAdvisoryAndIncidents(payload) {
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!advContainer || !newsContainer) return;
-
-  try {
-    const advisory = payload.advisory || {};
-    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
-
-    const level = Number(advisory.level || 1);
-    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
-    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
-
-    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
-    advContainer.innerHTML = `
-      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
-        <div class="advisory-header">
-          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
-          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
-        </div>
-        <div class="advisory-text">${escapeHtml(advisory.text || advisory.advice || "")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
-      </div>`;
-
-    if (incidents.length > 0) {
-      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      incidents.forEach(n => {
-        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
-        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
-        newsHtml += `
-          <div class="news-box-item">
-            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
-            <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
-            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
-          </div>`;
-      });
-      newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml;
-    } else {
-      newsContainer.innerHTML = `
-        <div class="safe-box">
-          <i class="fas fa-check-circle safe-icon"></i>
-          <div class="safe-text">No high-severity incidents in the last 72 hours</div>
-        </div>`;
-    }
-
-  } catch (e) {
-    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
-    newsContainer.innerHTML = "";
-  }
-}
-
-async function filterTravel() {
-  const countrySelect = document.getElementById("countrySelect");
-  if (!countrySelect) return;
-  const country = countrySelect.value;
-
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!country || !advContainer || !newsContainer) return;
-
-  advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
-  newsContainer.innerHTML = '';
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
-    if (!res.ok) {
-        console.error("Single advisory fetch status:", res.status, res.statusText);
-        throw new Error("HTTP " + res.status);
-    }
-    const json = await res.json();
-    renderAdvisoryAndIncidents(json);
-  } catch (e) {
-    const advisory = TRAVEL_DATA.find(x => {
-      try { return (getTravelCountryName(x) || "").toLowerCase() === String(country || "").toLowerCase(); } catch { return false; }
-    }) || { country, level:1, text: "No advisory available" };
-    renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
+    const res = await fetch(url, { ...opts, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
   }
 }
 
 /* ===========================
-   REST OF YOUR ORIGINAL SCRIPT (unchanged)
-   - loadFromWorker, loadProximityFromWorker, map + feeds + history + briefing etc.
-   (I'm including everything else from your original unchanged)
+   LOAD + 48H FILTERING (CHANGES)
 =========================== */
 
-/* --- LOAD + 48H FILTERING --- */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
@@ -1024,7 +1115,8 @@ async function loadProximityFromWorker(silent = false) {
 }
 
 /* ===========================
-   REST: normaliser & utility functions (unchanged)
+   rest of original code (unchanged)
+   - normaliseWorkerIncident, renderGeneralFeed, updateHeadline, etc.
 =========================== */
 
 function normaliseWorkerIncident(item) {
@@ -1236,189 +1328,209 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   rest: map, clock, brief preview, download, etc. unchanged
-   (I've kept your original implementations below.)
-   – startClock, renderAssetsOnMap, getCoordsForIncident, renderIncidentsOnMap,
-     mapSeverityToLabel, previewBriefing, downloadReport, history, etc.
+   TRAVEL SAFETY CHECK (FIX: NORMALIZE + FILTER)
 =========================== */
+function getTravelCountryName(item) {
+  const c =
+    (typeof item?.country === "string" && item.country.trim()) ? item.country.trim() :
+    (typeof item?.country_name === "string" && item.country_name.trim()) ? item.country_name.trim() :
+    (typeof item?.name === "string" && item.name.trim()) ? item.name.trim() :
+    "";
+  return c;
+}
 
-function startClock() {
-  const targets = [
-    { id: "clock-austin", zone: "America/Chicago", label: "Austin" },
-    { id: "clock-ireland", zone: "Europe/Dublin", label: "Ireland" },
-    { id: "clock-india", zone: "Asia/Kolkata", label: "India" },
-    { id: "clock-sg", zone: "Asia/Singapore", label: "Singapore" },
-    { id: "clock-tokyo", zone: "Asia/Tokyo", label: "Tokyo" },
-    { id: "clock-sydney", zone: "Australia/Sydney", label: "Sydney" }
-  ];
+function normalizeTravelAdvisories(json) {
+  if (!json) return [];
+  if (Array.isArray(json)) return json;
 
-  const container = document.getElementById("multi-clock-container");
-  if (container && container.innerHTML.trim() === "") {
-     let html = "";
-     targets.forEach(t => {
-       html += `
-         <div class="clock-box">
-           <div class="clock-label">${t.label}</div>
-           <div class="clock-val" id="${t.id}">--:--</div>
-         </div>`;
-     });
-     container.innerHTML = html;
+  if (json.advisories !== undefined) {
+    const a = json.advisories;
+    if (Array.isArray(a)) return a;
+    if (a && typeof a === "object") return Object.values(a);
+    return [];
   }
 
-  const tick = () => {
-    const now = new Date();
-    targets.forEach(t => {
-      const el = document.getElementById(t.id);
-      if (el) {
-        const timeStr = now.toLocaleTimeString("en-US", {
-          timeZone: t.zone,
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false
-        });
-        el.innerText = timeStr;
-      }
-    });
-  };
-  tick();
-  setInterval(tick, 1000);
+  if (typeof json === "object") return Object.values(json);
+  return [];
 }
 
-function renderAssetsOnMap(region) {
-  assetsClusterGroup.clearLayers();
-  const dellIcon = L.divIcon({
-    className: "custom-pin",
-    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
-    iconSize: [30, 42],
-    iconAnchor: [15, 42]
-  });
-  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
-  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
+function cleanTravelAdvisories(list) {
+  return (list || []).filter(item => {
+    if (!item || typeof item !== "object") return false;
 
-  filtered.forEach(a => {
-    const m = L.marker([a.lat, a.lng], { icon: dellIcon });
-    m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
-    assetsClusterGroup.addLayer(m);
+    const name = getTravelCountryName(item);
+    if (!name) return false;
+
+    const lc = name.toLowerCase();
+
+    // kill container keys / obvious junk
+    if (lc === "advisories" || lc === "advisory" || lc === "countries") return false;
+    if (lc === "undefined" || lc === "null" || lc.includes("[object object]")) return false;
+
+    return true;
   });
-  if (region === "AMER") map.setView([30, -90], 3);
-  else if (region === "EMEA") map.setView([45, 15], 3);
-  else if (region === "APJC") map.setView([20, 110], 3);
-  else if (region === "LATAM") map.setView([-15, -60], 3);
-  else map.setView([25, 10], 2);
 }
 
-function getCoordsForIncident(inc) {
+// FIX APPLIED HERE: Populate dropdown immediately with static list
+async function loadTravelAdvisories() {
+  const sel = document.getElementById("countrySelect");
+  if (!sel) return;
+
+  // 1. Populate dropdown immediately with full static list
+  // This ensures the UI is usable instantly even if the network is slow or fails
+  const countrySet = new Set(CONST_COUNTRIES);
+  const sortedCountries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
+
+  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
+  sortedCountries.forEach(cName => {
+    const opt = document.createElement("option");
+    opt.value = cName;
+    opt.innerText = cName;
+    sel.appendChild(opt);
+  });
+
+  // 2. Fetch live status in background
   try {
-    const lat = Number(inc.lat || inc.latitude || 0);
-    const lng = Number(inc.lng || inc.longitude || 0);
-    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
-      return { lat, lng };
+    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
+    let json = null;
+    if (liveRes && liveRes.ok) json = await liveRes.json();
+    else {
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
+      if (res && res.ok) json = await res.json();
     }
 
-    const locRaw = String(inc.location || "").trim();
-    if (locRaw && locRaw.toLowerCase() !== "unknown") {
-      const locKey = locRaw.toLowerCase().split(",")[0].trim();
+    const normalized = normalizeTravelAdvisories(json);
+    const fetchedData = cleanTravelAdvisories(normalized);
+    TRAVEL_DATA = fetchedData || [];
+    TRAVEL_UPDATED_AT = json?.updated_at || null;
 
-      if (locKey.length >= 3) {
-        if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
+    // We do NOT re-render the dropdown here to avoid resetting user selection.
+    // The dropdown already has valid country names.
+    // When user selects one, filterTravel() will find the matching data in TRAVEL_DATA.
 
-        for (const k of Object.keys(CITY_COORDS)) {
-          if (k.length < 3) continue;
-          if (locKey.includes(k) || k.includes(locKey)) {
-            return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
-          }
-        }
-
-        for (const s of DELL_SITES) {
-          const sname = s.name.toLowerCase();
-          if (sname.includes(locKey) || locKey.includes(sname)) {
-            return { lat: s.lat, lng: s.lon };
-          }
-        }
-      }
-    }
-
-    const countryRaw = String(inc.country || "").trim();
-    if (countryRaw) {
-      const cKey = countryRaw.toLowerCase();
-      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
-
-      const cut = cKey.split(",")[0].trim();
-      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
-
-      const cCode = cKey.slice(0,2).toLowerCase();
-      for (const s of DELL_SITES) {
-        const sCode = String(s.country || "").toLowerCase();
-        if (sCode === cKey || (sCode === cCode && cKey.length >= 2)) {
-          return { lat: s.lat, lng: s.lon };
-        }
-      }
-    }
-
-    return null;
   } catch (e) {
-    return null;
+    console.error("Travel advisory fetch failed:", e);
+    // Dropdown remains populated with static list, which is good.
   }
 }
 
-function renderIncidentsOnMap(region, incidents) {
-  incidentClusterGroup.clearLayers();
-  criticalLayerGroup.clearLayers();
+function renderAdvisoryAndIncidents(payload) {
+  const advContainer = document.getElementById("travel-advisories");
+  const newsContainer = document.getElementById("travel-news");
+  if (!advContainer || !newsContainer) return;
 
-  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
+  try {
+    const advisory = payload.advisory || {};
+    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents : [];
 
-  filtered.forEach(i => {
-    let coords = null;
-    if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
-      coords = { lat: Number(i.lat), lng: Number(i.lng) };
+    const level = Number(advisory.level || 1);
+    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
+    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
+    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
+    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
+
+    const updated = payload.cached_at ? new Date(payload.cached_at).toLocaleString() : "Unknown";
+    advContainer.innerHTML = `
+      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
+        <div class="advisory-header">
+          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
+          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
+        </div>
+        <div class="advisory-text">${escapeHtml(advisory.text || "")}</div>
+        <div class="advisory-updated">Updated: ${escapeHtml(updated)}</div>
+      </div>`;
+
+    if (incidents.length > 0) {
+      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
+      incidents.forEach(n => {
+        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
+        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
+        newsHtml += `
+          <div class="news-box-item">
+            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
+            <div class="news-box-summary">${escapeHtml(n.summary || "")}</div>
+            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
+          </div>`;
+      });
+      newsHtml += `</div>`;
+      newsContainer.innerHTML = newsHtml;
     } else {
-      coords = getCoordsForIncident(i);
+      newsContainer.innerHTML = `
+        <div class="safe-box">
+          <i class="fas fa-check-circle safe-icon"></i>
+          <div class="safe-text">No high-severity incidents in the last 72 hours</div>
+        </div>`;
     }
 
-    if (!coords) return;
-    const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
-
-    if (sev >= 4) {
-        const marker = L.circleMarker([coords.lat, coords.lng], {
-          radius: 10,
-          fillColor: color,
-          color: "#fff",
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.9
-        });
-        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
-        criticalLayerGroup.addLayer(marker);
-    } else {
-        const incidentDiv = `<div class="incident-dot" style="background:${color};"></div>`;
-        const marker = L.marker([coords.lat, coords.lng], {
-            icon: L.divIcon({ html: incidentDiv, className: '', iconSize:[20,20], iconAnchor:[10,10]}),
-            severity: sev
-        });
-        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
-        incidentClusterGroup.addLayer(marker);
-    }
-  });
-
-  try { criticalLayerGroup.bringToFront(); } catch(e) {}
-  try { assetsClusterGroup.bringToBack(); } catch(e) {}
-}
-
-function mapSeverityToLabel(sev) {
-  const s = Number(sev || 1);
-  if (s >= 5) {
-    return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  } else if (s >= 4) {
-    return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  } else if (s === 3) {
-    return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-  } else {
-    return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  } catch (e) {
+    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
+    newsContainer.innerHTML = "";
   }
 }
 
-/* daily brief preview + download functions (unchanged) */
+async function filterTravel() {
+  const countrySelect = document.getElementById("countrySelect");
+  if (!countrySelect) return;
+  const country = countrySelect.value;
+
+  const advContainer = document.getElementById("travel-advisories");
+  const newsContainer = document.getElementById("travel-news");
+  if (!country || !advContainer || !newsContainer) return;
+
+  advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
+  newsContainer.innerHTML = '';
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
+    if (!res.ok) {
+        console.error("Single advisory fetch status:", res.status, res.statusText);
+        throw new Error("HTTP " + res.status);
+    }
+    const json = await res.json();
+    renderAdvisoryAndIncidents(json);
+  } catch (e) {
+    const advisory = TRAVEL_DATA.find(x => getTravelCountryName(x) === country) || { country, level:1, text: "No advisory available" };
+    renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
+  }
+}
+
+/* ===========================
+   HISTORY (was simulated) - now uses /api/archive
+=========================== */
+async function loadHistory(dateStr) {
+  if (!dateStr) return;
+  const statusDiv = document.getElementById("history-status");
+  if (!statusDiv) return;
+
+  statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading…';
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
+    if (!res.ok) {
+      console.error("Archive fetch status:", res.status, res.statusText);
+      throw new Error("HTTP " + res.status);
+    }
+    const arr = await res.json();
+    if (!Array.isArray(arr) || arr.length === 0) {
+      statusDiv.innerHTML = `<span class="text-muted">No archived incidents for ${escapeHtml(dateStr)}.</span>`;
+      return;
+    }
+
+    // show a compact list (first 20)
+    const items = arr.slice(0, 20).map(i => {
+      const when = i.time ? new Date(i.time).toLocaleString() : "";
+      return `<div style="padding:8px;border-bottom:1px solid #eee;">
+                <div style="font-weight:700">${escapeHtml(i.title || "Untitled")}</div>
+                <div style="font-size:0.85rem;color:#666">${escapeHtml(i.summary || "")}</div>
+                <div style="font-size:0.75rem;color:#999;margin-top:6px;">${escapeHtml(when)}</div>
+              </div>`;
+    }).join("");
+    statusDiv.innerHTML = `<div style="max-height:260px;overflow-y:auto;">${items}</div>`;
+  } catch (e) {
+    console.error('loadHistory failed', e);
+    statusDiv.innerHTML = `<span class="text-danger">Error loading archive for ${escapeHtml(dateStr)}</span>`;
+  }
+}
+
+// PREVIEW: Fetch /api/dailybrief and render inside modal
 async function previewBriefing() {
   const dateVal = document.getElementById('reportDate').value;
   const region = (document.getElementById('reportRegion').value || 'Global').trim();
@@ -1448,6 +1560,7 @@ async function previewBriefing() {
 }
 
 function renderBriefingPreview(payload, container) {
+  // payload expected: { counts: { total, critical }, incidents: [...] }
   container.innerHTML = "";
   const counts = payload && payload.counts ? payload.counts : { total: 0, critical: 0 };
   const incidents = Array.isArray(payload && payload.incidents) ? payload.incidents : [];
@@ -1466,6 +1579,7 @@ function renderBriefingPreview(payload, container) {
     return;
   }
 
+  // Render a compact list (limit 50)
   html += '<div>';
   incidents.slice(0, 50).forEach(i => {
     const sevMeta = mapSeverityToLabel(i.severity || 1);
@@ -1493,6 +1607,7 @@ function renderBriefingPreview(payload, container) {
   container.innerHTML = html;
 }
 
+// DOWNLOAD: fetch /api/dailybrief JSON and create a downloadable HTML file on client
 async function downloadReport() {
   const regionInput = document.getElementById("reportRegion");
   const dateInput = document.getElementById("reportDate");
@@ -1513,6 +1628,7 @@ async function downloadReport() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const json = await res.json();
 
+    // Build a simple HTML briefing
     const counts = json.counts || { total: 0, critical: 0 };
     const incidents = Array.isArray(json.incidents) ? json.incidents : [];
     const title = `Daily Briefing - ${region} ${date ? date : '(last 24h)'}`;
@@ -1578,7 +1694,6 @@ async function downloadReport() {
   }
 }
 
-/* REFRESH / UTILS */
 let isRefreshing = false;
 async function manualRefresh() {
   if (isRefreshing) return;
@@ -1626,161 +1741,36 @@ function safeHref(u) {
   }
 }
 
-/* Expose the travel loader */
+function safeTime(iso) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "Recently";
+    return d.toLocaleString();
+  } catch { return "Recently"; }
+}
+
+function escapeHtml(s) {
+  return String(s || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(s) {
+  return escapeHtml(String(s || "")).replaceAll("`", "&#096;");
+}
+
+function severityLabel(s) {
+  const n = Number(s || 1);
+  if (n >= 5) return "CRITICAL";
+  if (n >= 4) return "HIGH";
+  if (n === 3) return "MEDIUM";
+  return "LOW";
+}
+
 window.loadTravelAdvisories = loadTravelAdvisories;
-
-/* INIT */
-document.addEventListener("DOMContentLoaded", async () => {
-  function initMap() {
-    const southWest = L.latLng(-85, -179.999);
-    const northEast = L.latLng(85, 179.999);
-    const bounds = L.latLngBounds(southWest, northEast);
-
-    map = L.map("map", {
-      scrollWheelZoom: false,
-      zoomControl: false,
-      attributionControl: true,
-      minZoom: 2,
-      maxZoom: 19,
-      maxBounds: bounds,
-      maxBoundsViscosity: 1.0,
-      worldCopyJump: false
-    }).setView([20, 0], 2);
-
-    L.control.zoom({ position: "topleft" }).addTo(map);
-
-    // tile layers
-    const esriLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
-      maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA', noWrap: true, bounds: bounds, keepBuffer: 2
-    });
-    const cartoLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd", maxZoom: 19, noWrap: true, bounds: bounds, attribution: '&copy; OpenStreetMap &copy; CARTO', keepBuffer: 2
-    });
-
-    let esriTileErrors = 0, cartoTileErrors = 0, ERROR_THRESHOLD = 12;
-    function switchToLayer(fromLayer, toLayer, reason) {
-      try { if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer); if (!map.hasLayer(toLayer)) toLayer.addTo(map); console.warn('Switched basemap due to:', reason); } catch(e) { console.error('Layer switch failed:', e); }
-    }
-    esriLayer.on('tileerror', ()=>{ esriTileErrors++; if (esriTileErrors >= ERROR_THRESHOLD) switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold'); });
-    cartoLayer.on('tileerror', ()=>{ cartoTileErrors++; if (cartoTileErrors >= ERROR_THRESHOLD) console.error('Carto tile failures >= threshold.'); });
-
-    esriLayer.addTo(map);
-
-    assetsClusterGroup = L.markerClusterGroup({ chunkedLoading: true, spiderfyOnMaxZoom: true, showCoverageOnHover: false, disableClusteringAtZoom: 10 });
-    map.addLayer(assetsClusterGroup);
-
-    incidentClusterGroup = L.markerClusterGroup({
-      chunkedLoading: true, spiderfyOnMaxZoom: true, showCoverageOnHover: false, disableClusteringAtZoom: 13, maxClusterRadius: 50, zoomToBoundsOnClick: !isTouch,
-      iconCreateFunction: function(cluster) {
-        const children = cluster.getAllChildMarkers();
-        let count = children.length;
-        let maxSeverity = 0;
-        let counts = { critical:0, high:0, medium:0, low:0 };
-        children.forEach(m => {
-          const s = Number(m.options.severity || 1);
-          if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
-          else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
-          else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
-          else { counts.low++; }
-        });
-
-        let cls = 'cluster-blue';
-        if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
-        if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
-
-        const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
-        const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
-        return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
-      }
-    });
-
-    incidentClusterGroup.on('clustermouseover', (e) => {
-      clearTimeout(_clusterHoverTimeout);
-      _clusterHoverTimeout = setTimeout(() => {
-        const cluster = e.layer;
-        const children = cluster.getAllChildMarkers();
-        let counts = { critical:0, high:0, medium:0, low:0 };
-        children.forEach(m => {
-          const s = Number(m.options.severity || 1);
-          if (s >= 5) counts.critical++;
-          else if (s >= 4) counts.high++;
-          else if (s === 3) counts.medium++;
-          else counts.low++;
-        });
-
-        const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
-                        (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
-                        (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
-                        (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
-                        (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
-
-        L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' }).setLatLng(cluster.getLatLng()).setContent(summary).openOn(map);
-      }, 80);
-    });
-
-    incidentClusterGroup.on('clustermouseout', () => { clearTimeout(_clusterHoverTimeout); map.closePopup(); });
-
-    incidentClusterGroup.on('clusterclick', (e) => {
-      if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
-      const cluster = e.layer;
-      const children = cluster.getAllChildMarkers();
-      let counts = { critical:0, high:0, medium:0, low:0 };
-      children.forEach(m => {
-        const s = Number(m.options.severity || 1);
-        if (s >= 5) counts.critical++;
-        else if (s >= 4) counts.high++;
-        else if (s === 3) counts.medium++;
-        else counts.low++;
-      });
-      const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
-                      (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
-                      (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
-                      (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
-                      (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
-      L.popup({ closeButton: true, offset: [0, -10], className: 'map-tooltip' }).setLatLng(cluster.getLatLng()).setContent(summary).openOn(map);
-      setTimeout(() => document.querySelector('.leaflet-popup-close-button')?.focus(), 50);
-    });
-
-    map.addLayer(incidentClusterGroup);
-    criticalLayerGroup = L.layerGroup().addTo(map);
-    try { criticalLayerGroup.bringToFront(); } catch(e) {}
-
-    renderAssetsOnMap("Global");
-    setTimeout(()=>{ try { map.invalidateSize(); try { map.panInsideBounds(bounds, { animate: false }); } catch(e){} } catch(e){} }, 200);
-    window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
-  }
-
-  initMap();
-  startClock();
-
-  document.addEventListener('keydown', (e) => {
-    const el = e.target;
-    if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
-    const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
-    if (isActivation) { e.preventDefault(); el.click(); }
-  });
-
-  await loadFromWorker();
-  await loadProximityFromWorker();
-  filterNews("Global");
-
-  // kick off travel advisory loading
-  try { await loadTravelAdvisories(); } catch(e) { console.warn("loadTravelAdvisories failed at startup", e); }
-
-  let scheduledRefreshInProgress = false;
-  setInterval(async () => {
-    if (scheduledRefreshInProgress) return;
-    scheduledRefreshInProgress = true;
-    try {
-      await loadFromWorker(true);
-      await loadProximityFromWorker(true);
-      const active = document.querySelector(".nav-item-custom.active");
-      filterNews(active ? active.innerText.trim() : "Global");
-    } finally {
-      scheduledRefreshInProgress = false;
-    }
-  }, AUTO_REFRESH_MS);
-});
 </script>
 </body>
 </html>
