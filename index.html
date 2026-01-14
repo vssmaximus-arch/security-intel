@@ -209,6 +209,23 @@
     .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
     .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
     .btn-download:hover { background: #1557b0; }
+
+    /* DEBUG OVERLAY */
+    .assets-debug {
+      position: absolute;
+      top: 110px;
+      right: 18px;
+      z-index: 999999;
+      background: #fff;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      max-width: 320px;
+      line-height: 1.25;
+    }
+    .assets-debug pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-size: 12px; color:#222; }
   </style>
 </head>
 
@@ -625,6 +642,36 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
+   DEBUG HELPERS (non-destructive)
+=========================== */
+function createAssetsDebugOverlay(){
+  let d = document.getElementById('assets-debug');
+  if(!d){
+    d = document.createElement('div');
+    d.id = 'assets-debug';
+    d.className = 'assets-debug';
+    d.setAttribute('role','status');
+    d.setAttribute('aria-live','polite');
+    document.body.appendChild(d);
+  }
+  return d;
+}
+function updateAssetsDebugOverlay(info){
+  try{
+    const d = createAssetsDebugOverlay();
+    d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div>
+      <div><strong>DELL_SITES:</strong> ${info.dellSites}</div>
+      <div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div>
+      <div><strong>assets.length:</strong> ${info.assetsLen}</div>
+      <div><strong>filtered:</strong> ${info.filteredLen}</div>
+      <div style="margin-top:6px;font-weight:700">Sample entries</div>
+      <pre>${info.sample}</pre>`;
+  }catch(e){
+    console.log('updateAssetsDebugOverlay error', e);
+  }
+}
+
+/* ===========================
    INIT (wrapped in try/catch)
 =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
@@ -875,6 +922,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }, AUTO_REFRESH_MS);
 
+    // initial debug console print
+    console.log('DELL_SITES.length', DELL_SITES.length, 'ASSETS keys', Object.keys(ASSETS).length);
+
   } catch (initError) {
     // Global initialization error: show minimal fallback and log
     console.error("Initialization error:", initError);
@@ -937,7 +987,32 @@ function renderAssetsOnMap(region) {
     iconAnchor: [15, 42]
   });
   const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
+
+  // debug: compute everything and show overlay
   const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
+
+  // console debug
+  console.log('renderAssetsOnMap', { region, dellSites: DELL_SITES.length, assetsKeys: Object.keys(ASSETS).length, assetsLen: assets.length, filteredLen: filtered.length });
+  console.log('assets sample', assets.slice(0, 8));
+  console.log('filtered sample', filtered.slice(0, 8));
+
+  // update the on-page debug overlay
+  const sampleText = filtered.slice(0, 8).map(a => {
+    return `${a.name} -> lat:${String(a.lat)} lng:${String(a.lng)} region:${a.region}`;
+  }).join('\n');
+  updateAssetsDebugOverlay({
+    dellSites: DELL_SITES.length,
+    assetsKeys: Object.keys(ASSETS).length,
+    assetsLen: assets.length,
+    filteredLen: filtered.length,
+    sample: sampleText || '(no entries)'
+  });
+
+  // If any entries have missing coords, log them
+  const missing = filtered.filter(a => !Number.isFinite(Number(a.lat)) || !Number.isFinite(Number(a.lng)));
+  if (missing.length) {
+    console.warn('Some assets have missing coords', missing.slice(0,8));
+  }
 
   filtered.forEach(a => {
     const m = L.marker([a.lat, a.lng], { icon: dellIcon });
@@ -1823,8 +1898,8 @@ async function manualRefresh() {
 
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const dLat = (lat2 - lat1) * Math.PI / 180; 
+  const dLon = (lon2 - lon1) * Math.PI / 180; 
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
             Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLon/2) * Math.sin(dLon/2);
