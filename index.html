@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
@@ -52,15 +52,165 @@
     }
     .skip-link:focus { top: 10px; }
 
-    /* === UI styles omitted for brevity are identical to previous working version ===
-       (The CSS remains the same as your working code. Keep it here.) */
-    /* ... (all the same CSS from previous page) ... */
+    .app-container {
+      background-color: #fff;
+      border-radius: 24px;
+      min-height: 92vh;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
 
-    /* For brevity in this message: use the same styles included previously.
-       In your saved file ensure all CSS sections included earlier are present. */
+    .header-container {
+      padding: 15px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f0f0f0;
+      height: 90px;
+    }
+
+    .header-left { display: flex; align-items: center; height: 100%; }
+    .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
+    .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
+    .logo-text span { color: var(--dell-blue); }
+
+    .multi-clock-container { display: flex; gap: 12px; margin: 0 20px; padding-right: 20px; border-right: 1px solid #e0e0e0; height: 100%; align-items: center; }
+    .clock-box { text-align: center; min-width: 85px; background: #2b2b2b; border: 3px solid #b0b0b0; border-radius: 10px; padding: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
+    .clock-label { font-family: 'Inter', sans-serif; font-size: 0.55rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .clock-val { font-family: 'Share Tech Mono', monospace; font-size: 1.25rem; font-weight: 400; color: #4fdb5e; line-height: 1; background: #000; padding: 4px 6px; border-radius: 4px; display: block; text-shadow: 0 0 5px rgba(79, 219, 94, 0.5); box-shadow: inset 0 0 5px rgba(0,0,0,0.8); font-variant-numeric: tabular-nums; }
+
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
+    #map { width: 100%; height: 100%; z-index: 1; outline: none; }
+    #map:focus { box-shadow: inset 0 0 0 3px rgba(26,115,232,0.5); }
+
+    .leaflet-tooltip.map-tooltip { background-color: #202124; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .leaflet-tooltip-top:before { border-top-color: #202124; }
+    .leaflet-popup-content-wrapper { border-radius: 6px; padding: 0; }
+    .leaflet-popup-content { margin: 10px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; font-weight: 600; color: #333; }
+
+    .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+
+    .incident-dot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 3px rgba(0,0,0,0.3); }
+
+    .cluster-icon { display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; cursor: pointer; }
+    .cluster-icon:focus { outline: 2px solid #fff; outline-offset: 2px; }
+    .cluster-count { font-size:13px; line-height:1; }
+    .cluster-blue { background: #1a73e8; }
+    .cluster-amber { background: #f9ab00; }
+    .cluster-red { background: #d93025; }
+
+    .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; transition: opacity 0.2s; }
+    .btn-daily:hover { background-color: #1557b0; color: white; }
+    .btn-daily:focus { outline: 2px solid #202124; outline-offset: 2px; }
+
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nav-item-custom.active { background-color: #202124; color: #fff; }
+    .nav-item-custom:focus { outline: 2px solid #202124; }
+
+    .content-area { padding: 30px; }
+    .sidebar-col { padding-left: 30px; }
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .card-label i { color: #9aa0a6; }
+
+    .history-input-group { position: relative; }
+    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
+    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+    .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
+
+    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
+    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+    .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
+
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+    #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
+    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
+    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
+    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
+
+    .stream-section { margin-top: 25px; }
+    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
+    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; }
+    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+    .status-bar-crit { background-color: #d93025; }
+    .status-bar-warn { background-color: #f9ab00; }
+    .status-bar-info { background-color: #1a73e8; }
+
+    .feed-content { padding: 16px 20px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+    .ftag-type { background: #f1f3f4; color: #5f6368; }
+    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
+
+    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
+    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+
+    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
+    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
+    .tag-crit { background: #d93025; color: white; }
+    .tag-cat { background: #3c4043; color: white; }
+    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
+    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
+    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
+
+    .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
+    .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
+    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
+    .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
+
+    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
+    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
+    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
+
+    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
+    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .news-box-item:last-child { border-bottom: none; }
+    .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
+    .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+
+    .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
+    .modal-title { font-weight: 800; color: #202124; }
+    .modal-body { padding: 30px; }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
+    .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
+    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
+    .btn-download:hover { background: #1557b0; }
   </style>
 </head>
-
 <body>
   <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
@@ -103,6 +253,7 @@
 
         <div class="stream-section">
           <div class="stream-header">
+
             <div class="stream-label">
               <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
               <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
@@ -110,6 +261,7 @@
             <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
               VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1"></i></span>
             </div>
+
           </div>
 
           <div class="critical-alert-bar" role="alert">
@@ -118,6 +270,7 @@
             <div class="alert-tags">
               <span class="tag" id="headline-sev">SEV?</span>
               <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
+
               <span class="tag tag-reg" id="headline-reg">REGION</span>
             </div>
           </div>
@@ -129,6 +282,7 @@
       </div>
 
       <div class="col-lg-3 sidebar-col">
+
         <div class="side-card">
           <div class="card-label"><i class="fas fa-history"></i> History Search</div>
           <div class="history-input-group">
@@ -137,6 +291,7 @@
           </div>
           <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
         </div>
+
 
         <div class="side-card">
           <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
@@ -147,6 +302,7 @@
           <div id="travel-news" class="mt-2"></div>
         </div>
 
+
         <div class="side-card" style="padding-bottom: 10px;">
           <div class="prox-header-row">
             <div>
@@ -155,6 +311,7 @@
             </div>
           </div>
           <div class="prox-controls">
+
             <div class="prox-subtitle">WITHIN RADIUS</div>
             <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius">
               <option value="5">5 KM</option>
@@ -175,11 +332,11 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- report modal (unchanged layout) -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -231,11 +388,44 @@
 
 <script>
 /* ===========================
-   CONFIG + STATE
+   CONFIG
 =========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
 
+/* ===========================
+   STATIC COUNTRIES FALLBACK
+=========================== */
+const CONST_COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (DRC)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+  "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+  "Fiji", "Finland", "France",
+  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+  "Haiti", "Honduras", "Hungary",
+  "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+  "Jamaica", "Japan", "Jordan",
+  "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan",
+  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+  "Oman",
+  "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+  "Qatar",
+  "Romania", "Russia", "Rwanda",
+  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+  "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+  "Yemen",
+  "Zambia", "Zimbabwe"
+];
+
+/* ===========================
+   DATA STATE
+=========================== */
 let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
 let FEED_IS_LIVE = false;
@@ -249,69 +439,55 @@ let assetsClusterGroup;
 let incidentClusterGroup;
 let criticalLayerGroup;
 
-/* helper */
+/* Small UX helpers (debounce + detect touch) */
 let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-/* ===========================
-   STATIC COUNTRIES (fallback)
-=========================== */
-const CONST_COUNTRIES = [
-  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
-  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
-  "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (DRC)","Congo (Republic)","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic",
-  "Denmark","Djibouti","Dominica","Dominican Republic",
-  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
-  "Fiji","Finland","France",
-  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
-  "Haiti","Honduras","Hungary",
-  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
-  "Jamaica","Japan","Jordan",
-  "Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan",
-  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
-  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
-  "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway",
-  "Oman",
-  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
-  "Qatar",
-  "Romania","Russia","Rwanda",
-  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
-  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
-  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
-  "Vanuatu","Vatican City","Venezuela","Vietnam",
-  "Yemen",
-  "Zambia","Zimbabwe"
-];
+/* ERROR MONITORING (Simple Sentry stub) */
+window.onerror = function(msg, url, line, col, error) {
+   console.error("Global Error Caught:", { msg, url, line, col, error });
+};
+
+/* UNHANDLED PROMISE REJECTION (For fetch failures) */
+window.addEventListener('unhandledrejection', (ev) => {
+  console.error('Unhandled promise rejection:', ev.reason);
+});
 
 /* ===========================
-   DELL_SITES, CITY_COORDS, COUNTRY_COORDS
-   (unchanged except/add small fixes)
+   DELL SITES (your list)
 =========================== */
 const DELL_SITES = [
+  // AMER
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
+
   { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
   { name: "Dell Franklin", country: "US", region: "AMER", lat: 42.0834, lon: -71.3967 },
   { name: "Dell Apex", country: "US", region: "AMER", lat: 35.7327, lon: -78.8503 },
   { name: "Dell Eden Prairie", country: "US", region: "AMER", lat: 44.8617, lon: -93.4168 },
   { name: "Dell Draper", country: "US", region: "AMER", lat: 40.5240, lon: -111.8950 },
   { name: "Dell Nashville Hub", country: "US", region: "AMER", lat: 36.1627, lon: -86.7816 },
-  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164 },
+  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164
+  },
   { name: "Dell Santa Clara", country: "US", region: "AMER", lat: 37.3541, lon: -121.9552 },
   { name: "Dell McLean", country: "US", region: "AMER", lat: 38.9295, lon: -77.2268 },
   { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
   { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
   { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
 
+  // LATAM
   { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
-  { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
+  { name: "Dell São Paulo", country: "BR",
+    region: "LATAM", lat: -23.5505, lon: -46.6333 },
   { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
   { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
 
+  // EMEA
   { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
   { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
   { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
   { name: "Dell Cork Campus", country: "IE", region: "EMEA", lat: 51.8985, lon: -8.4756 },
+
   { name: "Dell Herzliya", country: "IL", region: "EMEA", lat: 32.1644, lon: 34.7961 },
   { name: "Dell Haifa", country: "IL", region: "EMEA", lat: 32.7940, lon: 34.9896 },
   { name: "Dell Beer Sheva", country: "IL", region: "EMEA", lat: 31.2626, lon: 34.8016 },
@@ -319,6 +495,7 @@ const DELL_SITES = [
   { name: "Dell Glasgow", country: "GB", region: "EMEA", lat: 55.8642, lon: -4.2518 },
   { name: "Dell Montpellier", country: "FR", region: "EMEA", lat: 43.6108, lon: 3.8767 },
   { name: "Dell Paris / Bezons", country: "FR", region: "EMEA", lat: 48.8566, lon: 2.3522 },
+
   { name: "Dell Frankfurt", country: "DE", region: "EMEA", lat: 50.1109, lon: 8.6821 },
   { name: "Dell Halle", country: "DE", region: "EMEA", lat: 51.4820, lon: 11.9700 },
   { name: "Dell Amsterdam", country: "NL", region: "EMEA", lat: 52.3676, lon: 4.9041 },
@@ -326,14 +503,17 @@ const DELL_SITES = [
   { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
   { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
 
-  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
+  // APJC
+  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946
+  },
   { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
   { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
   { name: "Dell Sriperumbudur Mfg", country: "IN", region: "APJC", lat: 12.9560, lon: 79.9410 },
   { name: "Dell Singapore", country: "SG", region: "APJC", lat: 1.3521, lon: 103.8198 },
   { name: "Dell Penang", country: "MY", region: "APJC", lat: 5.4164, lon: 100.3327 },
   { name: "Dell Cyberjaya", country: "MY", region: "APJC", lat: 2.9213, lon: 101.6559 },
-  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894 },
+  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894
+  },
   { name: "Dell Chengdu Mfg", country: "CN", region: "APJC", lat: 30.5728, lon: 104.0668 },
   { name: "Dell Shanghai", country: "CN", region: "APJC", lat: 31.2304, lon: 121.4737 },
   { name: "Dell Taipei", country: "TW", region: "APJC", lat: 25.0330, lon: 121.5654 },
@@ -342,13 +522,16 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
 ];
-
+/* For proximity + map rendering we use a simple normalized list:
+   keep same ASSETS mapping as your original */
 const ASSETS = {};
 DELL_SITES.forEach(s => {
   const key = s.name.toLowerCase();
   ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
-
+/* ===========================
+   CITY LOOKUP (used for incident coordinate resolution)
+=========================== */
 const CITY_COORDS = {
   "new york": { lat: 40.7128, lng: -74.0060 },
   "london": { lat: 51.5074, lng: -0.1278 },
@@ -372,7 +555,10 @@ const CITY_COORDS = {
   "berlin": { lat: 52.52, lng: 13.4050 },
   "madrid": { lat: 40.4168, lng: -3.7038 },
   "rome": { lat: 41.9028, lng: 12.4964 },
+
+  /* FIXED LINE: jakarta */
   "jakarta": { lat: -6.2088, lng: 106.8456 },
+
   "seoul": { lat: 37.5665, lng: 126.9780 },
   "manila": { lat: 14.5995, lng: 120.9842 },
   "bangkok": { lat: 13.7563, lng: 100.5018 },
@@ -387,7 +573,9 @@ const CITY_COORDS = {
 DELL_SITES.forEach(s => {
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
-
+/* ===========================
+   COUNTRY CENTERS (fallback)
+=========================== */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
   "syria": { lat: 34.8021, lng: 38.9968 },
@@ -432,13 +620,12 @@ const COUNTRY_COORDS = {
 };
 
 /* ===========================
-   INIT MAP + TILE HANDLING (fixes)
+   INIT
 =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
   function initMap() {
-    // tightened lat/lon bounds to reduce dateline artefacts
-    const southWest = L.latLng(-80, -179.99);
-    const northEast = L.latLng(80, 179.99);
+    const southWest = L.latLng(-85, -179.999);
+    const northEast = L.latLng(85, 179.999);
     const bounds = L.latLngBounds(southWest, northEast);
 
     map = L.map("map", {
@@ -454,28 +641,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     L.control.zoom({ position: "topleft" }).addTo(map);
 
-    // --- tilelayers with adaptive failure handling ---
-    const ERROR_WINDOW_MS = 60_000; // rolling window
-    const MIN_THRESHOLD = 6;        // minimum failures to switch
-    const ERROR_DECAY_MS = 10_000;  // success reduces weighted errors
-
-    let esriErrors = [];
-    let cartoErrors = [];
-
-    function trimOld(arr) {
-      const cutoff = Date.now() - ERROR_WINDOW_MS;
-      while (arr.length && arr[0] < cutoff) arr.shift();
-    }
-
-    function dynamicThreshold() {
-      // simple heuristic: base threshold on current zoom and a minimum
-      try {
-        const z = map ? Math.max(2, Math.min(12, map.getZoom())) : 4;
-        return Math.max(MIN_THRESHOLD, Math.round(6 + z / 2));
-      } catch(e) {
-        return MIN_THRESHOLD;
+    const esriLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
+        noWrap: true,
+        bounds: bounds,
+        keepBuffer: 2
       }
-    }
+    );
+
+    const cartoLayer = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      {
+        subdomains: "abcd",
+        maxZoom: 19,
+        noWrap: true,
+        bounds: bounds,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
+        keepBuffer: 2
+      }
+    );
+
+    let esriTileErrors = 0;
+    let cartoTileErrors = 0;
+    const ERROR_THRESHOLD = 12;
 
     function switchToLayer(fromLayer, toLayer, reason) {
       try {
@@ -487,50 +678,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
-    const esriLayer = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA', noWrap: true, bounds: bounds, keepBuffer: 2 }
-    );
-
-    const cartoLayer = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-      { subdomains: "abcd", maxZoom: 19, noWrap: true, bounds: bounds, attribution: '&copy; OpenStreetMap & CARTO', keepBuffer: 2 }
-    );
-
-    // tile error handlers (with rolling-window counts)
-    esriLayer.on('tileerror', (ev) => {
-      esriErrors.push(Date.now());
-      trimOld(esriErrors);
-      console.debug('esri tileerror count (last window):', esriErrors.length);
-      const thr = dynamicThreshold();
-      if (esriErrors.length >= thr) {
-        switchToLayer(esriLayer, cartoLayer, `Esri tile failures >= ${thr}`);
-      }
-    });
-    esriLayer.on('tileload', () => {
-      // decay esri error counts to avoid switching for past issues
-      if (esriErrors.length) {
-        esriErrors = esriErrors.slice(Math.max(0, esriErrors.length - 2));
+    esriLayer.on('tileerror', () => {
+      esriTileErrors++;
+      if (esriTileErrors >= ERROR_THRESHOLD) {
+        switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
       }
     });
 
-    cartoLayer.on('tileerror', (ev) => {
-      cartoErrors.push(Date.now());
-      trimOld(cartoErrors);
-      console.debug('carto tileerror count (last window):', cartoErrors.length);
-      const thr = dynamicThreshold();
-      if (cartoErrors.length >= thr) {
+    cartoLayer.on('tileerror', () => {
+      cartoTileErrors++;
+      if (cartoTileErrors >= ERROR_THRESHOLD) {
         console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
       }
     });
-    cartoLayer.on('tileload', () => {
-      if (cartoErrors.length) cartoErrors = cartoErrors.slice(Math.max(0, cartoErrors.length - 2));
-    });
 
-    // prefer Esri, carto is fallback
     esriLayer.addTo(map);
 
-    // --- clustering: tuned to reduce overlapping clusters ---
     assetsClusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       spiderfyOnMaxZoom: true,
@@ -542,10 +705,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     incidentClusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       spiderfyOnMaxZoom: true,
-      spiderfyDistanceMultiplier: 1.6,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 14, // cluster until zoom 14
-      maxClusterRadius: 40,        // reduced to limit overlap in dense cities
+      disableClusteringAtZoom: 13,
+      maxClusterRadius: 50,
       zoomToBoundsOnClick: !isTouch,
       iconCreateFunction: function(cluster) {
         const children = cluster.getAllChildMarkers();
@@ -632,18 +794,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     map.addLayer(incidentClusterGroup);
 
-    // critical markers
     criticalLayerGroup = L.layerGroup().addTo(map);
-
-    // ensure criticalLayer is always visible above clusters
-    map.on('moveend', () => {
-      try { criticalLayerGroup.bringToFront(); } catch(e) { /* ignore */ }
-    });
+    try { criticalLayerGroup.bringToFront(); } catch(e) {}
 
     renderAssetsOnMap("Global");
     setTimeout(()=>{ 
       try { 
         map.invalidateSize(); 
+        // ensure the view is inside our tightened bounds (prevents accidental antimeridian wrap)
         try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
       } catch(e){} 
     }, 200);
@@ -653,23 +811,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   initMap();
   startClock();
 
-  // Accessibility: allow keyboard activation of clusters
   document.addEventListener('keydown', (e) => {
     const el = e.target;
     if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
-    const isActivation = e.key === 'Enter' || e.code === 'Space';
+    const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
     if (isActivation) {
       e.preventDefault();
       el.click();
     }
   });
 
-  // initial loads
   await loadFromWorker();
   await loadProximityFromWorker();
   filterNews("Global");
 
-  // kick off travel advisories (robust)
+  // kick off travel advisory loading
   if (typeof window.loadTravelAdvisories === 'function') {
       await window.loadTravelAdvisories();
       setTimeout(window.loadTravelAdvisories, 2500);
@@ -678,7 +834,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => { if(typeof window.loadTravelAdvisories === 'function') window.loadTravelAdvisories(); }, 1000);
   }
 
-  // periodic refresh
   let scheduledRefreshInProgress = false;
   setInterval(async () => {
     if (scheduledRefreshInProgress) return;
@@ -739,103 +894,77 @@ function startClock() {
   setInterval(tick, 1000);
 }
 
-/* ===========================
-   RENDER ASSETS + INCIDENTS
-=========================== */
 function renderAssetsOnMap(region) {
-  try {
-    assetsClusterGroup.clearLayers();
-    const dellIcon = L.divIcon({
-      className: "custom-pin",
-      html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
-      iconSize: [30, 42],
-      iconAnchor: [15, 42]
-    });
-    const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
-    const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
+  assetsClusterGroup.clearLayers();
+  const dellIcon = L.divIcon({
+    className: "custom-pin",
+    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
+    iconSize: [30, 42],
+    iconAnchor: [15, 42]
+  });
+  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
+  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
 
-    filtered.forEach(a => {
-      const m = L.marker([a.lat, a.lng], { icon: dellIcon });
-      m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
-      assetsClusterGroup.addLayer(m);
-    });
-
-    if (region === "AMER") map.setView([30, -90], 3);
-    else if (region === "EMEA") map.setView([45, 15], 3);
-    else if (region === "APJC") map.setView([20, 110], 3);
-    else if (region === "LATAM") map.setView([-15, -60], 3);
-    else map.setView([25, 10], 2);
-  } catch(e) {
-    console.error("renderAssetsOnMap failed:", e);
-  }
+  filtered.forEach(a => {
+    const m = L.marker([a.lat, a.lng], { icon: dellIcon });
+    m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
+    assetsClusterGroup.addLayer(m);
+  });
+  if (region === "AMER") map.setView([30, -90], 3);
+  else if (region === "EMEA") map.setView([45, 15], 3);
+  else if (region === "APJC") map.setView([20, 110], 3);
+  else if (region === "LATAM") map.setView([-15, -60], 3);
+  else map.setView([25, 10], 2);
 }
 
 function getCoordsForIncident(inc) {
   try {
-    // prefer explicit lat/lng if present and meaningful
     const lat = Number(inc.lat || inc.latitude || 0);
     const lng = Number(inc.lng || inc.longitude || 0);
     if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
       return { lat, lng };
     }
 
-    // First try country (best fallback for ambiguous city names)
-    const countryRaw = String(inc.country || "").trim();
-    if (countryRaw) {
-      const cKey = countryRaw.toLowerCase();
-      // direct country name
-      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
-      // some responses include "United States", "USA", etc
-      const cut = cKey.split(",")[0].trim();
-      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
-      // try country code match against assets
-      const cCode = cKey.slice(0,2).toLowerCase();
-      for (const s of DELL_SITES) {
-        const sCode = String(s.country || "").toLowerCase();
-        if (sCode === cKey || sCode === cCode) return { lat: s.lat, lng: s.lon };
-      }
-    }
-
-    // Next, handle location strings (city, site names)
     const locRaw = String(inc.location || "").trim();
     if (locRaw && locRaw.toLowerCase() !== "unknown") {
-      // common pattern: "City, Country" -> take city part
-      const cityCandidate = locRaw.split(",")[0].trim().toLowerCase();
+      const locKey = locRaw.toLowerCase().split(",")[0].trim();
 
-      if (cityCandidate.length >= 2) {
-        // exact city map
-        if (CITY_COORDS[cityCandidate]) return { lat: CITY_COORDS[cityCandidate].lat, lng: CITY_COORDS[cityCandidate].lng };
+      if (locKey.length >= 3) {
+        if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
 
-        // try substring matching: more robust for "New York City" vs "New York"
         for (const k of Object.keys(CITY_COORDS)) {
           if (k.length < 3) continue;
-          if (cityCandidate.includes(k) || k.includes(cityCandidate)) {
+          if (locKey.includes(k) || k.includes(locKey)) {
             return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
           }
         }
 
-        // try to match DELL site names (they are specific)
         for (const s of DELL_SITES) {
           const sname = s.name.toLowerCase();
-          if (sname.includes(cityCandidate) || cityCandidate.includes(sname)) {
+          if (sname.includes(locKey) || locKey.includes(sname)) {
             return { lat: s.lat, lng: s.lon };
           }
         }
       }
     }
 
-    // If we reach here, try last-resort lookups:
-    // - If country was provided as iso code (e.g., "US"), match asset country codes
+    const countryRaw = String(inc.country || "").trim();
     if (countryRaw) {
-      const code = countryRaw.trim().toLowerCase();
-      if (code.length === 2) {
-        for (const s of DELL_SITES) {
-          if ((s.country || '').toLowerCase() === code) return { lat: s.lat, lng: s.lon };
+      const cKey = countryRaw.toLowerCase();
+      if (COUNTRY_COORDS[cKey]) return { lat: COUNTRY_COORDS[cKey].lat, lng: COUNTRY_COORDS[cKey].lng };
+
+      const cut = cKey.split(",")[0].trim();
+      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
+
+      const cCode = cKey.slice(0,2).toLowerCase();
+      for (const s of DELL_SITES) {
+        const sCode = String(s.country || "").toLowerCase();
+        if (sCode === cKey || (sCode === cCode && cKey.length >= 2)) {
+          return { lat: s.lat, lng: s.lon };
         }
       }
     }
 
-    // Give up
     return null;
   } catch (e) {
     return null;
@@ -843,56 +972,49 @@ function getCoordsForIncident(inc) {
 }
 
 function renderIncidentsOnMap(region, incidents) {
-  try {
-    incidentClusterGroup.clearLayers();
-    criticalLayerGroup.clearLayers();
+  incidentClusterGroup.clearLayers();
+  criticalLayerGroup.clearLayers();
 
-    const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
+  const filtered = (region === "Global") ? incidents : incidents.filter(i => (i.region || "GLOBAL") === region);
 
-    filtered.forEach(i => {
-      let coords = null;
-      if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
-        coords = { lat: Number(i.lat), lng: Number(i.lng) };
-      } else {
-        coords = getCoordsForIncident(i);
-      }
+  filtered.forEach(i => {
+    let coords = null;
+    if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
+      coords = { lat: Number(i.lat), lng: Number(i.lng) };
+    } else {
+      coords = getCoordsForIncident(i);
+    }
 
-      if (!coords) return;
-      const sev = Number(i.severity || 1);
-      const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
+    if (!coords) return;
+    const sev = Number(i.severity || 1);
+    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
-      if (sev >= 4) {
-          const marker = L.circleMarker([coords.lat, coords.lng], {
-            radius: 10,
-            fillColor: color,
-            color: "#fff",
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.9
-          });
-          marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
-          criticalLayerGroup.addLayer(marker);
-      } else {
-          const incidentDiv = `<div class="incident-dot" style="background:${color};"></div>`;
-          const marker = L.marker([coords.lat, coords.lng], {
-              icon: L.divIcon({ html: incidentDiv, className: '', iconSize:[20,20], iconAnchor:[10,10]}),
-              severity: sev
-          });
-          marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
-          incidentClusterGroup.addLayer(marker);
-      }
-    });
+    if (sev >= 4) {
+        const marker = L.circleMarker([coords.lat, coords.lng], {
+          radius: 10,
+          fillColor: color,
+          color: "#fff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+        criticalLayerGroup.addLayer(marker);
+    } else {
+        const incidentDiv = `<div class="incident-dot" style="background:${color};"></div>`;
+        const marker = L.marker([coords.lat, coords.lng], {
+            icon: L.divIcon({ html: incidentDiv, className: '', iconSize:[20,20], iconAnchor:[10,10]}),
+            severity: sev
+        });
+        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+        incidentClusterGroup.addLayer(marker);
+    }
+  });
 
-    try { criticalLayerGroup.bringToFront(); } catch(e) {}
-    try { assetsClusterGroup.bringToBack(); } catch(e) {}
-  } catch(e) {
-    console.error("renderIncidentsOnMap failed:", e);
-  }
+  try { criticalLayerGroup.bringToFront(); } catch(e) {}
+  try { assetsClusterGroup.bringToBack(); } catch(e) {}
 }
 
-/* ===========================
-   Severity/labels utilities
-=========================== */
 function mapSeverityToLabel(sev) {
   const s = Number(sev || 1);
   if (s >= 5) {
@@ -906,9 +1028,6 @@ function mapSeverityToLabel(sev) {
   }
 }
 
-/* ===========================
-   fetchWithTimeout helper
-=========================== */
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -921,8 +1040,9 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
 }
 
 /* ===========================
-   LOAD + 48H FILTERING
+   LOAD + 48H FILTERING (CHANGES)
 =========================== */
+
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
@@ -937,6 +1057,7 @@ async function loadFromWorker(silent=false) {
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
 
+    // --- NEW: enforce 48-hour cutoff on client ---
     const cutoffMs = Date.now() - (48 * 3600 * 1000);
     INCIDENTS = list
       .map(normaliseWorkerIncident)
@@ -969,6 +1090,7 @@ async function loadProximityFromWorker(silent = false) {
     const json = await res.json();
     const list = Array.isArray(json?.incidents) ? json.incidents : [];
 
+    // --- NEW: enforce 48-hour cutoff on proximity items too ---
     const cutoffMs = Date.now() - (48 * 3600 * 1000);
     PROXIMITY_INCIDENTS = list
       .map(normaliseWorkerIncident)
@@ -987,8 +1109,10 @@ async function loadProximityFromWorker(silent = false) {
 }
 
 /* ===========================
-   normaliser + feed rendering
+   rest of original code (unchanged)
+   - normaliseWorkerIncident, renderGeneralFeed, updateHeadline, etc.
 =========================== */
+
 function normaliseWorkerIncident(item) {
   if (!item) return null;
   const title = item.title || "";
@@ -1113,9 +1237,6 @@ function updateHeadline(region) {
   if (regEl) regEl.textContent = (top.region || "Global").toUpperCase();
 }
 
-/* ===========================
-   Proximity alerts
-=========================== */
 function updateProximityRadius() {
   const radiusSelect = document.getElementById("proxRadius");
   if (radiusSelect) currentRadius = parseFloat(radiusSelect.value || "50");
@@ -1201,8 +1322,9 @@ function renderProximityAlerts(region) {
 }
 
 /* ===========================
-   TRAVEL ADVISORIES (robust: extraction + fallback)
+   TRAVEL SAFETY CHECK (robust extractor)
 =========================== */
+
 function getTravelCountryName(item) {
   const c =
     (typeof item?.country === "string" && item.country.trim()) ? item.country.trim() :
@@ -1212,92 +1334,76 @@ function getTravelCountryName(item) {
   return c;
 }
 
-function recursivelyExtractAdvisories(obj) {
-  const out = [];
-  const seenObjs = new WeakSet();
+function normalizeTravelAdvisories(json) {
+  if (!json) return [];
+  if (Array.isArray(json)) return json;
 
-  function walk(x) {
-    if (!x) return;
-    if (typeof x === "string" || typeof x === "number" || typeof x === "boolean") return;
-    if (Array.isArray(x)) {
-      for (const it of x) walk(it);
-      return;
-    }
-    if (typeof x === "object") {
-      if (seenObjs.has(x)) return;
-      seenObjs.add(x);
-      const name = getTravelCountryName(x);
-      const hasText = (typeof x?.text === "string" && x.text.trim()) || (typeof x?.advice === "string" && x.advice.trim()) || (typeof x?.summary === "string" && x.summary.trim());
-      if (name || hasText || (typeof x?.level === "number")) {
-        out.push(x);
-      }
-      for (const v of Object.values(x)) walk(v);
-    }
+  if (json.advisories !== undefined) {
+    const a = json.advisories;
+    if (Array.isArray(a)) return a;
+    if (a && typeof a === "object") return Object.values(a);
+    return [];
   }
 
-  walk(obj);
-  return out;
+  if (typeof json === "object") return Object.values(json);
+  return [];
 }
 
 function cleanTravelAdvisories(list) {
-  const map = new Map();
-  for (const item of (list || [])) {
-    if (!item || typeof item !== "object") continue;
+  return (list || []).filter(item => {
+    if (!item || typeof item !== "object") return false;
+
     const name = getTravelCountryName(item);
-    if (!name) continue;
-    const key = name.toLowerCase().trim();
-    // filter obvious junk
-    if (["advisories","advisory","countries","global","undefined","null","[object object]"].includes(key)) continue;
-    if (!map.has(key)) map.set(key, item);
-  }
-  return Array.from(map.values());
+    if (!name) return false;
+
+    const lc = name.toLowerCase();
+
+    // kill container keys / obvious junk
+    if (lc === "advisories" || lc === "advisory" || lc === "countries") return false;
+    if (lc === "undefined" || lc === "null" || lc.includes("[object object]")) return false;
+
+    return true;
+  });
 }
 
 async function loadTravelAdvisories() {
   const sel = document.getElementById("countrySelect");
   if (!sel) return;
 
-  sel.disabled = true;
-  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-
-  let fetched = [];
+  // Attempt to fetch from worker
+  let fetchedData = [];
   try {
+    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`);
     let json = null;
-    try {
-      const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
-      if (liveRes && liveRes.ok) json = await liveRes.json();
-    } catch (e) { console.debug("live advisories request failed", e); }
-
-    if (!json) {
-      try {
-        const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`, {}, 12000);
-        if (res && res.ok) json = await res.json();
-      } catch (e) { console.debug("cached advisories request failed", e); }
+    if (liveRes && liveRes.ok) {
+      json = await liveRes.json();
+    } else {
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`);
+      if (res && res.ok) json = await res.json();
     }
 
-    const extracted = json ? recursivelyExtractAdvisories(json) : [];
-    fetched = cleanTravelAdvisories(extracted);
+    const normalized = normalizeTravelAdvisories(json);
+    fetchedData = cleanTravelAdvisories(normalized);
     TRAVEL_UPDATED_AT = json?.updated_at || null;
   } catch (e) {
     console.error("Travel advisory fetch failed:", e);
   }
 
-  TRAVEL_DATA = fetched || [];
+  // Fallback to empty if fetch totally failed
+  TRAVEL_DATA = fetchedData || [];
 
-  // Merge with static list and remove junk; ensure full dropdown
+  // If fetched data is very small (e.g. only 'Global' fallback from worker), we still want a full dropdown.
+  // We'll merge fetched names with our static list.
   const countrySet = new Set(CONST_COUNTRIES);
   TRAVEL_DATA.forEach(item => {
     const name = getTravelCountryName(item);
     if (name) countrySet.add(name);
   });
 
-  // Remove known junk
-  ["global","advisories","advisory","countries","undefined","null","[object object]"].forEach(k => countrySet.delete(k));
-
   const sortedCountries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
+
   if (sortedCountries.length === 0) {
     sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-    sel.disabled = false;
     return;
   }
 
@@ -1308,11 +1414,8 @@ async function loadTravelAdvisories() {
     opt.innerText = cName;
     sel.appendChild(opt);
   });
-  sel.disabled = false;
-  console.debug("Travel select populated:", sortedCountries.length, "items; TRAVEL_DATA items:", TRAVEL_DATA.length);
 }
 
-/* Render advisory and incidents (unchanged from working behaviour) */
 function renderAdvisoryAndIncidents(payload) {
   const advContainer = document.getElementById("travel-advisories");
   const newsContainer = document.getElementById("travel-news");
@@ -1387,25 +1490,18 @@ async function filterTravel() {
     const json = await res.json();
     renderAdvisoryAndIncidents(json);
   } catch (e) {
-    const advisory = TRAVEL_DATA.find(x => getTravelCountryName(x) === country) || { country, level:1, text: "Advisory unavailable" };
+    const advisory = TRAVEL_DATA.find(x => getTravelCountryName(x) === country) || { country, level:1, text: "No advisory available" };
     renderAdvisoryAndIncidents({ advisory, recent_incidents: [] });
   }
 }
 
 /* ===========================
-   History (date sanitize)
+   HISTORY (was simulated) - now uses /api/archive
 =========================== */
 async function loadHistory(dateStr) {
   if (!dateStr) return;
   const statusDiv = document.getElementById("history-status");
   if (!statusDiv) return;
-
-  // sanitize/check date
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) {
-    statusDiv.innerHTML = `<span class="text-danger">Invalid date: ${escapeHtml(String(dateStr))}</span>`;
-    return;
-  }
 
   statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading…';
   try {
@@ -1420,6 +1516,7 @@ async function loadHistory(dateStr) {
       return;
     }
 
+    // show a compact list (first 20)
     const items = arr.slice(0, 20).map(i => {
       const when = i.time ? new Date(i.time).toLocaleString() : "";
       return `<div style="padding:8px;border-bottom:1px solid #eee;">
@@ -1435,12 +1532,7 @@ async function loadHistory(dateStr) {
   }
 }
 
-/* ===========================
-   Briefing preview & download
-   (unchanged)
-=========================== */
-// previewBriefing, renderBriefingPreview, downloadReport
-// (Use the same robust implementations from earlier version — omitted here for brevity)
+// PREVIEW: Fetch /api/dailybrief and render inside modal
 async function previewBriefing() {
   const dateVal = document.getElementById('reportDate').value;
   const region = (document.getElementById('reportRegion').value || 'Global').trim();
@@ -1470,6 +1562,7 @@ async function previewBriefing() {
 }
 
 function renderBriefingPreview(payload, container) {
+  // payload expected: { counts: { total, critical }, incidents: [...] }
   container.innerHTML = "";
   const counts = payload && payload.counts ? payload.counts : { total: 0, critical: 0 };
   const incidents = Array.isArray(payload && payload.incidents) ? payload.incidents : [];
@@ -1488,6 +1581,7 @@ function renderBriefingPreview(payload, container) {
     return;
   }
 
+  // Render a compact list (limit 50)
   html += '<div>';
   incidents.slice(0, 50).forEach(i => {
     const sevMeta = mapSeverityToLabel(i.severity || 1);
@@ -1511,9 +1605,11 @@ function renderBriefingPreview(payload, container) {
       </div>`;
   });
   html += '</div>';
+
   container.innerHTML = html;
 }
 
+// DOWNLOAD: fetch /api/dailybrief JSON and create a downloadable HTML file on client
 async function downloadReport() {
   const regionInput = document.getElementById("reportRegion");
   const dateInput = document.getElementById("reportDate");
@@ -1534,6 +1630,7 @@ async function downloadReport() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const json = await res.json();
 
+    // Build a simple HTML briefing
     const counts = json.counts || { total: 0, critical: 0 };
     const incidents = Array.isArray(json.incidents) ? json.incidents : [];
     const title = `Daily Briefing - ${region} ${date ? date : '(last 24h)'}`;
@@ -1599,9 +1696,6 @@ async function downloadReport() {
   }
 }
 
-/* ===========================
-   REFRESH & UTIL
-=========================== */
 let isRefreshing = false;
 async function manualRefresh() {
   if (isRefreshing) return;
@@ -1678,7 +1772,6 @@ function severityLabel(s) {
   return "LOW";
 }
 
-/* Expose travel loader for external calls */
 window.loadTravelAdvisories = loadTravelAdvisories;
 </script>
 </body>
