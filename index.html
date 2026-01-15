@@ -414,6 +414,9 @@
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
 
+/* DEBUG UI (overlay hidden unless enabled via ?debug=1 or localStorage flag) */
+const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
+
 /* ===========================
    GITHUB SMARTTRAVELLER FALLBACK (simple)
 =========================== */
@@ -650,11 +653,13 @@ function createAssetsDebugOverlay(){
     d.className = 'assets-debug';
     d.setAttribute('role','status');
     d.setAttribute('aria-live','polite');
+    d.style.display = 'none';
     document.body.appendChild(d);
   }
   return d;
 }
 function updateAssetsDebugOverlay(info){
+  if (!DEBUG_UI) return;
   try{
     const d = createAssetsDebugOverlay();
     d.style.display = 'block';
