@@ -35,20 +35,8 @@
     :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
-    /* Accessibility helper (Bootstrap-compatible) */
-    .visually-hidden {
-      position: absolute !important;
-      width: 1px !important;
-      height: 1px !important;
-      padding: 0 !important;
-      margin: -1px !important;
-      overflow: hidden !important;
-      clip: rect(0, 0, 0, 0) !important;
-      white-space: nowrap !important;
-      border: 0 !important;
-    }
-
-    /* Skip Link */
+    /* Accessibility Helper */
+    .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
     .skip-link { position: absolute; top: -50px; left: 10px; background: #1a73e8; color: #fff; padding: 10px; z-index: 99999; font-weight: 700; border-radius: 4px; text-decoration: none; transition: top 0.2s; }
     .skip-link:focus { top: 10px; }
 
@@ -126,21 +114,10 @@
     .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
     .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
-
-    /* Dismiss controls (Proximity) */
+    /* Dismiss Button */
     .alert-actions { display: flex; gap: 8px; margin-top: 8px; }
-    .btn-dismiss {
-      font-size: 0.72rem;
-      padding: 3px 9px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: #fff;
-      color: #5f6368;
-      cursor: pointer;
-      font-weight: 700;
-    }
+    .btn-dismiss { font-size: 0.7rem; padding: 2px 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff; color: #5f6368; cursor: pointer; }
     .btn-dismiss:hover { background: #f1f3f4; color: #202124; }
-    .btn-dismiss:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
     .stream-section { margin-top: 25px; }
     .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
@@ -148,7 +125,7 @@
     .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
     .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
 
-    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; position: relative; cursor: pointer; }
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; position: relative; }
     .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .feed-status-bar { width: 5px; flex-shrink: 0; }
     .status-bar-crit { background-color: #d93025; }
@@ -170,23 +147,10 @@
     .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
     .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
 
-    /* Voting (thumbs) */
+    /* Voting Buttons */
     .vote-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
-    .btn-vote {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      padding: 3px 9px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: #5f6368;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
+    .btn-vote { background: none; border: 1px solid #e0e0e0; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; cursor: pointer; color: #5f6368; }
     .btn-vote:hover { background: #f1f3f4; color: #1a73e8; }
-    .btn-vote:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
     .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
     .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
@@ -248,23 +212,22 @@
       <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks"></div>
 
       <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
-        <a class="nav-item-custom active" onclick="filterNews('Global')" data-action="filter-region" data-region="Global" role="tab" aria-selected="true" tabindex="0">Global</a>
-        <a class="nav-item-custom" onclick="filterNews('AMER')" data-action="filter-region" data-region="AMER" role="tab" aria-selected="false" tabindex="0">AMER</a>
-        <a class="nav-item-custom" onclick="filterNews('EMEA')" data-action="filter-region" data-region="EMEA" role="tab" aria-selected="false" tabindex="0">EMEA</a>
-        <a class="nav-item-custom" onclick="filterNews('APJC')" data-action="filter-region" data-region="APJC" role="tab" aria-selected="false" tabindex="0">APJC</a>
-        <a class="nav-item-custom" onclick="filterNews('LATAM')" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
+        <a class="nav-item-custom active" data-action="filter-region" data-region="Global" role="tab" aria-selected="true" tabindex="0">Global</a>
+        <a class="nav-item-custom" data-action="filter-region" data-region="AMER" role="tab" aria-selected="false" tabindex="0">AMER</a>
+        <a class="nav-item-custom" data-action="filter-region" data-region="EMEA" role="tab" aria-selected="false" tabindex="0">EMEA</a>
+        <a class="nav-item-custom" data-action="filter-region" data-region="APJC" role="tab" aria-selected="false" tabindex="0">APJC</a>
+        <a class="nav-item-custom" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
       </div>
 
-      <div id="btn-refresh" class="btn-daily ms-3" style="background:#1a73e8;color:#fff;padding:9px 12px;border-radius:8px;cursor:pointer" role="button" aria-label="Refresh feed" onclick="manualRefresh()" data-action="refresh" tabindex="0">
+      <div id="btn-refresh" class="btn-daily ms-3" data-action="refresh" role="button" aria-label="Refresh Data" tabindex="0">
         <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
       </div>
 
-      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;
-        box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
         <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
       </div>
-
-      <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Open admin controls" title="Admin">
+      
+      <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Admin Settings" title="Admin">
         <i class="fas fa-cog" aria-hidden="true"></i>
       </button>
     </div>
@@ -280,16 +243,17 @@
         <div class="stream-section">
           <div class="stream-header">
              <div class="stream-label">
-              <i class="fas fa-circle live-dot-blue" aria-hidden="true"></i> Real-time Intelligence Stream
+              <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
               <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
             </div>
-            <div class="stream-links" onclick="manualRefresh()" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0" aria-label="Refresh feed">
+            <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
               VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
             </div>
+
           </div>
 
           <div class="critical-alert-bar" role="alert">
-            <i class="fas fa-exclamation-triangle alert-icon-lg" aria-hidden="true"></i>
+            <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
             <div class="alert-content-main" id="headline-alert">Loading headline…</div>
             <div class="alert-tags" id="headline-tags">
               <span class="tag" id="headline-sev">SEV?</span>
@@ -305,25 +269,28 @@
       </div>
 
       <div class="col-lg-3 sidebar-col">
+
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-history" aria-hidden="true"></i> History Search</div>
+          <div class="card-label"><i class="fas fa-history"></i> History Search</div>
           <div class="history-input-group">
-            <i class="far fa-calendar-alt calendar-icon" aria-hidden="true"></i>
+            <i class="far fa-calendar-alt calendar-icon"></i>
             <label for="history-picker" class="form-label visually-hidden">History date</label>
             <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" />
           </div>
-          <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence.</div>
+          <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
         </div>
 
+
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-plane" aria-hidden="true"></i> Travel Safety Check</div>
+          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
           <label for="countrySelect" class="form-label visually-hidden">Travel country</label>
-          <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Travel country">
+          <select class="travel-select" id="countrySelect" aria-label="Select country for travel info">
             <option selected disabled>Loading countries...</option>
           </select>
           <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
           <div id="travel-news" class="mt-2"></div>
         </div>
+
 
         <div class="side-card" style="padding-bottom: 10px;">
           <div class="prox-header-row">
@@ -333,6 +300,7 @@
             </div>
           </div>
           <div class="prox-controls">
+
             <div class="prox-subtitle">WITHIN RADIUS</div>
             <label for="proxRadius" class="form-label visually-hidden">Proximity radius</label>
             <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius">
@@ -348,20 +316,20 @@
           <div id="proximity-alerts-container" aria-live="polite"></div>
 
           <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
-            <a href="#" onclick="manualRefresh(); return false;" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0" aria-label="Refresh alerts">REFRESH ALERTS</a>
+            <a href="#" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<!-- REPORT MODAL -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;" aria-hidden="true"></i>Daily Intelligence Briefings</h5>
+        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -385,11 +353,11 @@
         </div>
 
         <div class="d-grid gap-2" style="margin-bottom:8px;">
-          <button class="btn-download" id="btn-preview" data-action="preview-brief" onclick="previewBriefing()" aria-label="Preview daily briefing">
-            <i class="fas fa-eye me-2" aria-hidden="true"></i> Preview Briefing
+          <button class="btn-download" id="btn-preview" onclick="previewBriefing()" aria-label="Preview daily briefing">
+            <i class="fas fa-eye me-2"></i> Preview Briefing
           </button>
-          <button class="btn-download" id="btn-download" data-action="download-brief" onclick="downloadReport()" aria-label="Download briefing (generated)">
-            <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
+          <button class="btn-download" id="btn-download" onclick="downloadReport()" aria-label="Download briefing (generated)">
+            <i class="fas fa-download me-2"></i> Download Briefing
           </button>
         </div>
 
@@ -400,51 +368,28 @@
   </div>
 </div>
 
-<!-- ADMIN MODAL (Secret, Ingestion, Brief generation, Reports admin) -->
-<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
+<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="adminModalTitle"><i class="fas fa-user-shield me-2" aria-hidden="true" style="color:#1a73e8;"></i>Admin Controls</h5>
+        <h5 class="modal-title">Admin Controls</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-
         <div class="mb-3">
           <label class="form-label" for="adminSecret">Admin Secret (Session)</label>
-          <input type="password" id="adminSecret" class="form-control" placeholder="Enter secret" aria-label="Admin secret">
-          <div class="form-text" style="font-size:0.8rem;margin-top:6px;">Stored in sessionStorage only (clears when the tab/browser session ends).</div>
+          <input type="password" id="adminSecret" class="form-control" placeholder="Enter Secret" aria-label="Admin secret">
         </div>
-
-        <div class="d-flex gap-2 mb-3">
-          <button class="btn btn-primary btn-sm" data-action="admin-save-secret" aria-label="Save admin secret">Save</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary btn-sm" data-action="admin-save-secret" aria-label="Save admin secret">Save (Session)</button>
           <button class="btn btn-outline-danger btn-sm" data-action="admin-clear-secret" aria-label="Clear admin secret">Clear</button>
         </div>
-
         <hr>
-        <h6 style="font-weight:800;color:#202124;">Admin Actions</h6>
-
+        <h6>Actions</h6>
         <div class="d-grid gap-2">
-          <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest" aria-label="Trigger ingestion">Trigger Ingestion</button>
-          <button class="btn btn-outline-dark btn-sm" data-action="admin-unlock" aria-label="Unlock ingestion and travel locks">Unlock Locks</button>
-          <button class="btn btn-outline-secondary btn-sm" data-action="admin-force-refresh-travel" aria-label="Force refresh travel advisories">Force Refresh Travel</button>
+           <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest" aria-label="Trigger ingestion">Trigger Ingestion</button>
+           <button class="btn btn-outline-dark btn-sm" data-action="admin-list-briefs" aria-label="List stored briefs">List Stored Briefs (Console)</button>
         </div>
-
-        <hr>
-        <h6 style="font-weight:800;color:#202124;">Briefings</h6>
-        <div class="d-grid gap-2">
-          <button class="btn btn-outline-primary btn-sm" data-action="admin-generate-brief" aria-label="Generate and store briefing">Generate &amp; Store Brief (Selected Date/Region)</button>
-          <button class="btn btn-outline-secondary btn-sm" data-action="admin-list-briefs" aria-label="List stored briefs">List Stored Briefs (Console)</button>
-        </div>
-
-        <hr>
-        <h6 style="font-weight:800;color:#202124;">Voting / Thumbs</h6>
-        <div class="d-grid gap-2">
-          <button class="btn btn-outline-success btn-sm" data-action="admin-thumbs-status" aria-label="Show thumbs status">Thumbs Status (Console)</button>
-        </div>
-
-        <div id="adminFeedback" class="mt-3" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
-
       </div>
     </div>
   </div>
@@ -454,20 +399,10 @@
 
 <script>
 /* ===========================
-   CONFIG
-   =========================== */
+   CONFIG & STATE
+=========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
-
-/* DEBUG UI (overlay hidden unless enabled via ?debug=1 or localStorage flag) */
-const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
-
-/* Local thumbs fallback storage key */
-const LOCAL_THUMBS_KEY = 'local_thumbs_v1';
-
-/* ===========================
-   STATE
-   =========================== */
 let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
 let FEED_IS_LIVE = false;
@@ -483,21 +418,6 @@ try {
   }
 } catch(e) {}
 
-// Local thumbs (used for public early voting)
-let LOCAL_THUMBS = { byId: {}, upIds: [], downIds: [], blockedIds: [] };
-function loadLocalThumbs() {
-  try {
-    const s = sessionStorage.getItem(LOCAL_THUMBS_KEY);
-    if (!s) return;
-    const obj = JSON.parse(s);
-    if (obj && typeof obj === 'object') LOCAL_THUMBS = obj;
-  } catch (e) {}
-}
-function saveLocalThumbs() {
-  try { sessionStorage.setItem(LOCAL_THUMBS_KEY, JSON.stringify(LOCAL_THUMBS)); } catch(e){}
-}
-loadLocalThumbs();
-
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
 
@@ -506,25 +426,69 @@ let assetsClusterGroup;
 let incidentClusterGroup;
 let criticalLayerGroup;
 
-/* small UX helpers */
 let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
 
-/* capture console errors */
 window.onerror = function(msg, url, line, col, error) {
    console.error("Global Error Caught:", { msg, url, line, col, error });
 };
+
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled promise rejection:', ev.reason);
 });
 
 /* ===========================
-   DELL SITES (unchanged)
-   =========================== */
-// ... (the DELL_SITES list and ASSETS mapping)
-// For brevity here, the DELL_SITES array and ASSETS object are identical to your provided list.
-// We'll re-create ASSETS mapping below after DELL_SITES definition:
+   GITHUB SMARTTRAVELLER FALLBACK (simple)
+=========================== */
+const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
+const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
+const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
 
+/* ===========================
+   WORLD COUNTRIES (fallback)
+   Define WORLD_COUNTRIES, keep alias for CONST_COUNTRIES for
+   backwards compatibility across earlier index variants.
+=========================== */
+const WORLD_COUNTRIES = [
+  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
+  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
+  "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czechia",
+  "Denmark","Djibouti","Dominica","Dominican Republic",
+  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
+  "Fiji","Finland","France",
+  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+  "Haiti","Honduras","Hungary",
+  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
+  "Jamaica","Japan","Jordan",
+  "Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan",
+  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
+  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
+  "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Macedonia","Norway",
+  "Oman",
+  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
+  "Qatar",
+  "Romania","Russia","Rwanda",
+  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
+  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+  "Vanuatu","Vatican City","Venezuela","Vietnam",
+  "Yemen",
+  "Zambia","Zimbabwe"
+];
+
+// Backwards compatibility alias: some older index variants used CONST_COUNTRIES
+if (typeof CONST_COUNTRIES === 'undefined') {
+  // define CONST_COUNTRIES globally (in case other code references it)
+  window.CONST_COUNTRIES = Array.isArray(window.CONST_COUNTRIES) ? window.CONST_COUNTRIES : (Array.isArray(WORLD_COUNTRIES) ? WORLD_COUNTRIES.slice() : []);
+}
+if (typeof WORLD_COUNTRIES === 'undefined' && typeof CONST_COUNTRIES !== 'undefined') {
+  window.WORLD_COUNTRIES = Array.isArray(CONST_COUNTRIES) ? CONST_COUNTRIES.slice() : [];
+}
+
+/* ===========================
+   DELL SITES
+=========================== */
 const DELL_SITES = [
   // AMER
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -584,11 +548,10 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
-
 const ASSETS = {};
 DELL_SITES.forEach(s => ASSETS[s.name.toLowerCase()] = s);
 
-/* City lookup fallback */
+/* City Lookup */
 const CITY_COORDS = {
   "london": {lat:51.5074, lng:-0.1278}, "paris": {lat:48.8566, lng:2.3522},
   "sydney": {lat:-33.8688, lng:151.2093}, "tokyo": {lat:35.6762, lng:139.6503},
@@ -607,12 +570,17 @@ function getCoordsForIncident(i) {
   for (const [city, c] of Object.entries(CITY_COORDS)) {
     if (loc.includes(city)) return c;
   }
+  // Check Dell sites too
+  for (const s of DELL_SITES) {
+    const sname = (s.name || '').toLowerCase();
+    if (loc.includes(sname)) return { lat: s.lat, lng: s.lon };
+  }
   return null;
 }
 
 /* ===========================
    INIT
-   =========================== */
+=========================== */
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     // Admin modal: auto-populate secret field from session storage
@@ -625,7 +593,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fld = document.getElementById('adminSecret');
             if (fld) fld.value = sec ? String(sec) : '';
             const fb = document.getElementById('adminFeedback');
-            if (fb) { fb.style.display = 'none'; fb.className = ''; }
+            if (fb) fb.style.display = 'none';
           } catch(e) {}
         });
       }
@@ -738,7 +706,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           let cls = 'cluster-blue';
           if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
           if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
-
           const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
           const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
           return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
@@ -758,169 +725,220 @@ document.addEventListener("DOMContentLoaded", async () => {
             else if (s === 3) counts.medium++;
             else counts.low++;
           });
-          const tt = `Critical: ${counts.critical}, High: ${counts.high}, Medium: ${counts.medium}, Low: ${counts.low}`;
-          cluster.bindTooltip(tt, { direction:'top', offset:[0,-10], opacity:0.95, className:'map-tooltip' }).openTooltip();
-        }, 100);
+
+          const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
+                          (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
+                          (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
+                          (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
+                          (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+          L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
+            .setLatLng(cluster.getLatLng())
+            .setContent(summary)
+            .openOn(map);
+        }, 80);
       });
 
-      incidentClusterGroup.on('clustermouseout', (e) => {
+      incidentClusterGroup.on('clustermouseout', () => {
         clearTimeout(_clusterHoverTimeout);
-        try { e.layer.closeTooltip(); } catch {}
+        map.closePopup();
+      });
+      incidentClusterGroup.on('clusterclick', (e) => {
+        if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
+
+        const cluster = e.layer;
+        const children = cluster.getAllChildMarkers();
+        let counts = { critical:0, high:0, medium:0, low:0 };
+        children.forEach(m => {
+          const s = Number(m.options.severity || 1);
+          if (s >= 5) counts.critical++;
+          else if (s >= 4) counts.high++;
+          else if (s === 3) counts.medium++;
+          else counts.low++;
+        });
+
+        const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
+                        (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
+                        (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
+                        (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
+                        (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+
+        L.popup({ closeButton: true, offset: [0, -10], className: 'map-tooltip' })
+          .setLatLng(cluster.getLatLng())
+          .setContent(summary)
+          .openOn(map);
+        setTimeout(() => document.querySelector('.leaflet-popup-close-button')?.focus(), 50);
       });
 
       map.addLayer(incidentClusterGroup);
 
-      criticalLayerGroup = L.layerGroup();
-      map.addLayer(criticalLayerGroup);
+      criticalLayerGroup = L.layerGroup().addTo(map);
+      try { criticalLayerGroup.bringToFront(); } catch(e) {}
+
+      renderAssetsOnMap("Global");
+      setTimeout(()=>{ 
+        try { 
+          map.invalidateSize(); 
+          try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
+        } catch(e){} 
+      }, 200);
+      window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
     }
 
-    initMap();
-  } catch (e) {
-    console.error("Map init error:", e);
-  }
-
-  // World clocks
-  startClock();
-
-  // Delegated click handler for CSP-safe actions (keeps existing onclick functionality intact)
-  document.addEventListener('click', async (e) => {
-    const t = e.target.closest('[data-action]');
-    if (!t) return;
-
-    const action = String(t.getAttribute('data-action') || '');
-    if (!action) return;
-
-    // prevent anchor '#' scroll / accidental navigation when button-like
-    if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) {
-      e.preventDefault();
-    }
-
-    // If clicking vote/dismiss/admin buttons inside a clickable card, stop bubbling
-    if (action === 'vote' || action === 'dismiss-alert' || action.startsWith('admin-')) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    if (action === 'filter-region') {
-      const region = t.getAttribute('data-region') || t.textContent.trim();
-      document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
-      t.classList.add('active');
-      filterNews(region);
-      return;
-    }
-
-    if (action === 'refresh') {
-      manualRefresh();
-      return;
-    }
-
-    if (action === 'preview-brief') {
-      previewBriefing();
-      return;
-    }
-
-    if (action === 'download-brief') {
-      downloadReport();
-      return;
-    }
-
-    if (action === 'vote') {
-      const id = t.getAttribute('data-id');
-      const vote = t.getAttribute('data-vote');
-      if (id && vote) voteThumb(id, vote);
-      return;
-    }
-
-    if (action === 'dismiss-alert') {
-      const id = t.getAttribute('data-id');
-      if (id) dismissAlertById(id);
-      const row = t.closest('.alert-row');
-      if (row) row.remove();
-      return;
-    }
-
-    // Admin actions
-    if (action === 'admin-save-secret') {
-      const sec = adminGetSecretFromField();
-      if (sec) {
-        sessionStorage.setItem('admin_secret', sec);
-        adminSetFeedback('Secret saved for this session.');
-      } else {
-        adminSetFeedback('Secret field is empty.', true);
+    // Try to initialize map, with handling if Leaflet is missing or init fails
+    try {
+      initMap();
+    } catch (mapErr) {
+      console.error("Map initialization failed:", mapErr);
+      const mapEl = document.getElementById('map');
+      if (mapEl) {
+        mapEl.innerHTML = '<div style="padding:25px;color:#666;font-weight:600;">Map failed to initialize. Leaflet may not have loaded.</div>';
       }
-      return;
     }
 
-    if (action === 'admin-clear-secret') {
-      sessionStorage.removeItem('admin_secret');
-      const fld = document.getElementById('adminSecret');
-      if (fld) fld.value = '';
-      adminSetFeedback('Secret cleared.');
-      return;
-    }
+    startClock();
 
-    if (action === 'admin-trigger-ingest') {
-      adminTriggerIngest();
-      return;
-    }
+    // Delegated click handler for CSP-safe actions (keeps existing onclick functionality intact)
+    document.addEventListener('click', async (e) => {
+      const t = e.target.closest('[data-action]');
+      if (!t) return;
 
-    if (action === 'admin-unlock') {
-      adminUnlock();
-      return;
-    }
+      const action = String(t.getAttribute('data-action') || '');
+      if (!action) return;
 
-    if (action === 'admin-thumbs-status') {
-      adminThumbsStatus();
-      return;
-    }
+      // prevent anchor '#' scroll / accidental navigation when button-like
+      if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) {
+        e.preventDefault();
+      }
 
-    if (action === 'admin-force-refresh-travel') {
-      adminForceRefreshTravel();
-      return;
-    }
+      // If clicking vote/dismiss/admin buttons inside a clickable card, stop bubbling
+      if (action === 'vote' || action === 'dismiss-alert' || action.startsWith('admin-')) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
 
-    if (action === 'admin-generate-brief') {
-      adminGenerateBrief();
-      return;
-    }
+      if (action === 'filter-region') {
+        const region = t.getAttribute('data-region') || t.textContent.trim();
+        document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
+        t.classList.add('active');
+        filterNews(region);
+        return;
+      }
 
-    if (action === 'admin-list-briefs') {
-      adminListBriefs();
-      return;
-    }
-  });
+      if (action === 'refresh') {
+        manualRefresh();
+        return;
+      }
 
-  // Click anywhere on feed card to open link (buttons/links inside are excluded)
-  document.addEventListener('click', (e) => {
-    const card = e.target.closest('.feed-card[data-link]');
-    if (!card) return;
-    if (e.target.closest('a')) return;
-    if (e.target.closest('[data-action]')) return;
-    const href = card.getAttribute('data-link');
-    if (!href) return;
-    try { window.open(href, '_blank', 'noopener'); } catch(e2) {}
-  });
+      if (action === 'preview-brief') {
+        previewBriefing();
+        return;
+      }
 
-  // Initial load
-  await loadFromWorker();
-  await loadProximityFromWorker();
-  filterNews("Global");
-  await loadTravelAdvisories();
+      if (action === 'download-brief') {
+        downloadReport();
+        return;
+      }
 
-  // Auto refresh
-  setInterval(async () => {
-    if (FEED_IS_LIVE) {
-      await loadFromWorker(true);
-      await loadProximityFromWorker(true);
-      const active = document.querySelector('.nav-item-custom.active');
-      filterNews(active ? active.textContent.trim() : "Global");
-    }
-  }, AUTO_REFRESH_MS);
+      if (action === 'vote') {
+        const id = t.getAttribute('data-id');
+        const vote = t.getAttribute('data-vote');
+        if (id && vote) voteThumb(id, vote);
+        return;
+      }
+
+      if (action === 'dismiss-alert') {
+        const id = t.getAttribute('data-id');
+        if (id) dismissAlertById(id);
+        const row = t.closest('.alert-row');
+        if (row) row.remove();
+        return;
+      }
+
+      // Admin actions
+      if (action === 'admin-save-secret') {
+        const sec = adminGetSecretFromField();
+        if (sec) {
+          sessionStorage.setItem('admin_secret', sec);
+          adminSetFeedback('Secret saved for this session.');
+        } else {
+          adminSetFeedback('Secret field is empty.', true);
+        }
+        return;
+      }
+
+      if (action === 'admin-clear-secret') {
+        sessionStorage.removeItem('admin_secret');
+        const fld = document.getElementById('adminSecret');
+        if (fld) fld.value = '';
+        adminSetFeedback('Secret cleared.');
+        return;
+      }
+
+      if (action === 'admin-trigger-ingest') {
+        adminTriggerIngest();
+        return;
+      }
+
+      if (action === 'admin-unlock') {
+        adminUnlock();
+        return;
+      }
+
+      if (action === 'admin-thumbs-status') {
+        adminThumbsStatus();
+        return;
+      }
+
+      if (action === 'admin-force-refresh-travel') {
+        adminForceRefreshTravel();
+        return;
+      }
+
+      if (action === 'admin-generate-brief') {
+        adminGenerateBrief();
+        return;
+      }
+
+      if (action === 'admin-list-briefs') {
+        adminListBriefs();
+        return;
+      }
+    });
+
+    // Click anywhere on feed card to open link (buttons/links inside are excluded)
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.feed-card[data-link]');
+      if (!card) return;
+      if (e.target.closest('a')) return;
+      if (e.target.closest('[data-action]')) return;
+      const href = card.getAttribute('data-link');
+      if (!href) return;
+      try { window.open(href, '_blank', 'noopener'); } catch(e2) {}
+    });
+
+    // Initial load
+    await loadFromWorker();
+    await loadProximityFromWorker();
+    filterNews("Global");
+    await loadTravelAdvisories();
+
+    // Auto refresh
+    setInterval(async () => {
+      if (FEED_IS_LIVE) {
+        await loadFromWorker(true);
+        await loadProximityFromWorker(true);
+        const active = document.querySelector('.nav-item-custom.active');
+        filterNews(active ? active.textContent.trim() : "Global");
+      }
+    }, AUTO_REFRESH_MS);
+  } catch (e) {
+    console.error("Initialization error:", e);
+  }
 });
 
 /* ===========================
    CLOCKS
-   =========================== */
+=========================== */
 function startClock() {
   const container = document.getElementById("multi-clock-container");
   const zones = [
@@ -952,13 +970,24 @@ function startClock() {
 
 /* ===========================
    FETCH (Worker Data)
-   =========================== */
+=========================== */
+async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { ...opts, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
 
   try {
-    const res = await fetch(`${WORKER_URL}/api/incidents`);
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const raw = await res.json();
 
@@ -979,7 +1008,7 @@ async function loadFromWorker(silent=false) {
 
 async function loadProximityFromWorker(silent=false) {
   try {
-    const res = await fetch(`${WORKER_URL}/api/proximity`);
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
     if (!res.ok) return;
     const json = await res.json();
     const cutoff = Date.now() - (48 * 3600 * 1000);
@@ -987,7 +1016,7 @@ async function loadProximityFromWorker(silent=false) {
       .map(normaliseWorkerIncident)
       .filter(i => i && new Date(i.time).getTime() >= cutoff);
   } catch(e) {
-    console.error("Proximity load failed", e);
+    if (!silent) console.error("Proximity load failed", e);
   }
 }
 
@@ -999,16 +1028,8 @@ async function manualRefresh() {
 }
 
 /* ===========================
-   RENDERING (Feed + Proximity + Headline)
-   =========================== */
-function isBlockedId(id) {
-  if (!id) return false;
-  if (DISMISSED_ALERT_IDS.has(String(id))) return true;
-  if (LOCAL_THUMBS && Array.isArray(LOCAL_THUMBS.blockedIds) && LOCAL_THUMBS.blockedIds.includes(String(id))) return true;
-  if (LOCAL_THUMBS && LOCAL_THUMBS.byId && LOCAL_THUMBS.byId[String(id)] === 'down') return true;
-  return false;
-}
-
+   RENDERING
+=========================== */
 function filterNews(region) {
   renderAssetsOnMap(region);
   renderIncidentsOnMap(region, INCIDENTS);
@@ -1023,15 +1044,13 @@ function renderGeneralFeed(region) {
 
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
-  const visible = data.filter(i => !isBlockedId(i.id));
-
-  if (!visible.length) {
+  if (!data.length) {
     container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
     return;
   }
 
   let html = '';
-  visible.forEach(i => {
+  data.forEach(i => {
     const sev = mapSeverityToLabel(i.severity);
     const id = escapeAttr(String(i.id || (i.title + i.time)));
 
@@ -1052,19 +1071,20 @@ function renderGeneralFeed(region) {
             </a>
           </div>
 
-          <div class="feed-meta">${safeTime(i.time)} • ${shortHost(i.source)}</div>
+          <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
           <div class="feed-desc">${escapeHtml(i.summary)}</div>
 
-          <div class="vote-row" aria-label="Vote buttons">
-            <button class="btn-vote" data-action="vote" data-vote="up" data-id="${id}" aria-label="Vote Up" title="Helpful">
+          <div class="vote-row">
+            <button type="button" class="btn-vote" data-action="vote" data-vote="up" data-id="${id}" aria-label="Vote up" title="Helpful">
               <i class="fas fa-thumbs-up" aria-hidden="true"></i>
             </button>
-            <button class="btn-vote" data-action="vote" data-vote="down" data-id="${id}" aria-label="Vote Down" title="Not Relevant">
+            <button type="button" class="btn-vote" data-action="vote" data-vote="down" data-id="${id}" aria-label="Vote down" title="Not relevant">
               <i class="fas fa-thumbs-down" aria-hidden="true"></i>
             </button>
           </div>
         </div>
-      </div>`;
+      </div>
+    `;
   });
 
   container.innerHTML = html;
@@ -1084,16 +1104,14 @@ function renderProximityAlerts(region) {
 
   const data = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
 
-  // Build alerts with nearest-site calculation
   const alerts = [];
   data.forEach(inc => {
     const coords = (inc.lat && inc.lng) ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
     if (!coords) return;
 
-    // skip dismissed or blocked
+    // skip dismissed
     const key = String(inc.id || (inc.title + inc.time));
     if (DISMISSED_ALERT_IDS.has(key)) return;
-    if (isBlockedId(key)) return;
 
     let nearest = null;
 
@@ -1108,7 +1126,6 @@ function renderProximityAlerts(region) {
 
     if (!nearest) return;
 
-    // country wide or within radius
     if (inc.country_wide || nearest.dist <= currentRadius) {
       alerts.push({ inc, nearest, key });
     }
@@ -1152,15 +1169,13 @@ function updateHeadline(region) {
   const tags = document.getElementById("headline-tags");
   if (!el || !tags) return;
 
-  // pick first non-blocked headline
-  const available = (data || []).filter(i => !isBlockedId(i.id));
-  if (available.length) {
-    el.textContent = available[0].title || "Headline";
-    const sev = mapSeverityToLabel(available[0].severity);
+  if (data.length) {
+    el.textContent = data[0].title || "Headline";
+    const sev = mapSeverityToLabel(data[0].severity);
     tags.innerHTML = `
-      <span class="tag tag-crit" style="background:${(Number(available[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
-      <span class="tag tag-cat">${escapeHtml(available[0].category || 'CATEGORY')}</span>
-      <span class="tag tag-reg">${escapeHtml(available[0].region || 'REGION')}</span>
+      <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
+      <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
+      <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
     `;
   } else {
     el.textContent = "No critical alerts.";
@@ -1169,8 +1184,8 @@ function updateHeadline(region) {
 }
 
 /* ===========================
-   REPORTING (Preview + Download)
-   =========================== */
+   REPORTING
+=========================== */
 async function previewBriefing() {
   const region = document.getElementById('reportRegion')?.value || 'Global';
   const date = document.getElementById('reportDate')?.value || '';
@@ -1184,20 +1199,17 @@ async function previewBriefing() {
   if (date) url += `&date=${encodeURIComponent(date)}`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url, {}, 20000);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
 
     const incidents = json.incidents || [];
-    // Filter out any locally-blocked ids
-    const visible = incidents.filter(i => !isBlockedId(i.id));
-
     if (!cont) return;
 
-    if (!visible.length) {
+    if (!incidents.length) {
       cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
     } else {
-      cont.innerHTML = visible.slice(0, 50).map(i => `
+      cont.innerHTML = incidents.slice(0, 50).map(i => `
         <div style="border-bottom:1px solid #eee; padding:8px 0;">
           <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
           <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
@@ -1222,13 +1234,13 @@ async function downloadReport() {
 
 /* ===========================
    HISTORY
-   =========================== */
+=========================== */
 async function loadHistory(dateStr) {
   const status = document.getElementById('history-status');
   if (status) status.textContent = "Loading archive…";
 
   try {
-    const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`, {}, 15000);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const arr = await res.json();
 
@@ -1239,11 +1251,8 @@ async function loadHistory(dateStr) {
       return;
     }
 
-    // filter out local blocked
-    const filtered = (arr || []).filter(i => !isBlockedId(i.id || (i.title + (i.time || ""))));
-
     status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
-      filtered.map(i => `
+      arr.map(i => `
         <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
           <strong>${escapeHtml(i.title || "")}</strong><br>
           <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span>
@@ -1251,33 +1260,145 @@ async function loadHistory(dateStr) {
       `).join('') +
       `</div>`;
   } catch (e) {
-    if (status) status.textContent = `Archive error: ${e.message || String(e)}`;
+    if (status) status.textContent = `Archive error: ${e.message}`;
   }
 }
 
 /* ===========================
    TRAVEL
-   =========================== */
+   Robust fallback: worker live -> worker cached -> GitHub -> local WORLD_COUNTRIES
+=========================== */
 async function loadTravelAdvisories() {
   const sel = document.getElementById('countrySelect');
   if (!sel) return;
 
-  // First try Worker live
+  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+  let fetchedData = [];
+
+  // 1) Try worker live
   try {
-    sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories/live`);
-    if (res.ok) {
-      const data = await res.json();
-      TRAVEL_DATA = Array.isArray(data) ? data : (Array.isArray(data.advisories) ? data.advisories : []);
-      TRAVEL_UPDATED_AT = new Date().toISOString();
+    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
+    if (liveRes && liveRes.ok) {
+      const json = await liveRes.json();
+      const normalized = recursivelyExtractAdvisories(json);
+      fetchedData = cleanTravelAdvisories(normalized);
+      TRAVEL_UPDATED_AT = json?.updated_at || TRAVEL_UPDATED_AT;
     }
   } catch (e) {
-    // ignore
+    console.warn("Worker live traveladvisories failed:", e);
   }
 
-  // Populate dropdown (use fixed world list so UI always works)
-  sel.innerHTML = `<option selected disabled>Select Country...</option>` +
-    WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+  // 2) If empty, try worker cached
+  if (!fetchedData || fetchedData.length === 0) {
+    try {
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`, {}, 10000);
+      if (res && res.ok) {
+        const json = await res.json();
+        const normalized = recursivelyExtractAdvisories(json);
+        fetchedData = cleanTravelAdvisories(normalized);
+        TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || json?.updated_at || TRAVEL_UPDATED_AT;
+      }
+    } catch (e) {
+      console.warn("Worker cached traveladvisories failed:", e);
+    }
+  }
+
+  // 3) GitHub fallback (simple)
+  if (!fetchedData || fetchedData.length === 0) {
+    try {
+      const r = await fetchWithTimeout(GITHUB_SMR_ADVISORIES_JSON, {}, 9000);
+      if (r && r.ok) {
+        const payload = await r.json();
+        const normalized = recursivelyExtractAdvisories(payload);
+        fetchedData = cleanTravelAdvisories(normalized);
+        TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || new Date().toISOString();
+      } else {
+        const r2 = await fetchWithTimeout(GITHUB_SMR_ADVISORIES_JSON_ALT, {}, 9000);
+        if (r2 && r2.ok) {
+          const payload = await r2.json();
+          const normalized = recursivelyExtractAdvisories(payload);
+          fetchedData = cleanTravelAdvisories(normalized);
+          TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || new Date().toISOString();
+        }
+      }
+    } catch (e) {
+      console.warn("GitHub fallback failed:", e);
+    }
+  }
+
+  TRAVEL_DATA = (fetchedData || []).slice();
+
+  // Merge with static list so dropdown always populated; prefer WORLD_COUNTRIES if available
+  const baseList = Array.isArray(WORLD_COUNTRIES) && WORLD_COUNTRIES.length ? WORLD_COUNTRIES : (Array.isArray(CONST_COUNTRIES) ? CONST_COUNTRIES : []);
+  const countrySet = new Set(baseList);
+  TRAVEL_DATA.forEach(item => {
+    const name = getTravelCountryName(item);
+    if (name) countrySet.add(name);
+  });
+
+  const sortedCountries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
+  if (sortedCountries.length === 0) {
+    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
+    return;
+  }
+
+  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
+  sortedCountries.forEach(cName => {
+    const opt = document.createElement("option");
+    opt.value = cName;
+    opt.innerText = cName;
+    sel.appendChild(opt);
+  });
+}
+
+/* helper functions for travel advisory normalization */
+function getTravelCountryName(item) {
+  const c =
+    (typeof item?.country === "string" && item.country.trim()) ? item.country.trim() :
+    (typeof item?.country_name === "string" && item.country_name.trim()) ? item.country_name.trim() :
+    (typeof item?.name === "string" && item.name.trim()) ? item.name.trim() :
+    "";
+  return c;
+}
+
+function recursivelyExtractAdvisories(obj) {
+  const out = [];
+  const seenObjs = new WeakSet();
+  function walk(x) {
+    if (!x) return;
+    if (typeof x === "string" || typeof x === "number" || typeof x === "boolean") return;
+    if (Array.isArray(x)) {
+      for (const it of x) walk(it);
+      return;
+    }
+    if (typeof x === "object") {
+      if (seenObjs.has(x)) return;
+      seenObjs.add(x);
+      const name = getTravelCountryName(x);
+      const hasText = (typeof x?.text === "string" && x.text.trim()) || (typeof x?.advice === "string" && x.advice.trim()) || (typeof x?.summary === "string" && x.summary.trim());
+      if (name || hasText || (typeof x?.level === "number")) {
+        out.push(x);
+      }
+      for (const v of Object.values(x)) {
+        walk(v);
+      }
+    }
+  }
+
+  walk(obj);
+  return out;
+}
+
+function cleanTravelAdvisories(list) {
+  const map = new Map();
+  for (const item of (list || [])) {
+    if (!item || typeof item !== "object") continue;
+    const name = getTravelCountryName(item);
+    if (!name) continue;
+    const key = name.toLowerCase().trim();
+    if (!map.has(key)) map.set(key, item);
+  }
+  return Array.from(map.values());
 }
 
 async function filterTravel() {
@@ -1289,259 +1410,341 @@ async function filterTravel() {
   if (newsCont) newsCont.innerHTML = "";
 
   try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
+    if (res && res.ok) {
+      const data = await res.json();
+      const adv = data.advisory || data;
+      const level = Number(adv.level || 1);
+      const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
 
-    const adv = data.advisory || data;
-    const level = Number(adv.level || 1);
-    const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
-
-    if (cont) cont.innerHTML = `
-      <div class="advisory-box">
-        <div class="advisory-header">
-          <div class="advisory-label">OFFICIAL ADVISORY</div>
-          <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
-        </div>
-        <div class="advisory-text">${escapeHtml(adv.text || "No major advisory.")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || "Unknown")}</div>
-      </div>
-    `;
-
-    // If worker returns related news, render it
-    const news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
-    if (newsCont && news.length) {
-      newsCont.innerHTML = `
-        <div class="news-box-alert">
-          <div class="news-box-header">RELATED NEWS</div>
-          ${news.slice(0, 5).map(n => `
-            <div class="news-box-item">
-              <div class="news-box-title">${escapeHtml(n.title || '')}</div>
-              <div class="news-box-summary">${escapeHtml(n.summary || '')}</div>
-            </div>
-          `).join('')}
+      if (cont) cont.innerHTML = `
+        <div class="advisory-box">
+          <div class="advisory-header">
+            <div class="advisory-label">OFFICIAL ADVISORY</div>
+            <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
+          </div>
+          <div class="advisory-text">${escapeHtml(adv.text || "No major advisory.")}</div>
+          <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || "Unknown")}</div>
         </div>
       `;
+      const news = Array.isArray(data.news) ? data.news : [];
+      if (newsCont && news.length) {
+        newsCont.innerHTML = `
+          <div class="news-box-alert">
+            <div class="news-box-header">RELATED NEWS</div>
+            ${news.slice(0, 5).map(n => `
+              <div class="news-box-item">
+                <div class="news-box-title">${escapeHtml(n.title || '')}</div>
+                <div class="news-box-summary">${escapeHtml(n.summary || '')}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      return;
     }
   } catch (e) {
-    if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">Advisory unavailable.</div></div>`;
+    console.warn('Worker single advisory fetch failed:', e);
+  }
+
+  // If worker did not provide useful info, fall back to TRAVEL_DATA candidate
+  const candidate = TRAVEL_DATA.find(x => getTravelCountryName(x)?.toLowerCase() === country.toLowerCase());
+  if (candidate) {
+    const advisory = candidate.advisory || candidate || { text: candidate.text || "No advisory available", level: candidate.level || 1 };
+    renderAdvisoryAndIncidents({ advisory, recent_incidents: candidate.recent_incidents || [] });
+    return;
+  }
+
+  // Otherwise tell user no advisory
+  renderAdvisoryAndIncidents({ advisory: { level: 1, text: "No advisory available" }, recent_incidents: [] });
+}
+
+function renderAdvisoryAndIncidents(payload) {
+  const advContainer = document.getElementById("travel-advisories");
+  const newsContainer = document.getElementById("travel-news");
+  if (!advContainer || !newsContainer) return;
+
+  try {
+    const advisory = payload.advisory || payload || {};
+    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents :
+                      Array.isArray(payload.incidents) ? payload.incidents : [];
+
+    const level = Number(advisory.level || advisory.risk_level || 1);
+    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
+    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
+    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
+    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
+
+    const updated = payload.cached_at || payload.updated_at || advisory.updated_at || null;
+    const updatedStr = updated ? new Date(updated).toLocaleString() : "Unknown";
+
+    advContainer.innerHTML = `
+      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
+        <div class="advisory-header">
+          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
+          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
+        </div>
+        <div class="advisory-text">${escapeHtml(advisory.text || advisory.advice || advisory.summary || "No advisory available")}</div>
+        <div class="advisory-updated">Updated: ${escapeHtml(updatedStr)}</div>
+      </div>`;
+    if (incidents.length > 0) {
+      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
+      incidents.forEach(n => {
+        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
+        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
+        newsHtml += `
+          <div class="news-box-item">
+            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
+            <div class="news-box-summary">${escapeHtml(n.summary || n.description || "")}</div>
+            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
+          </div>`;
+      });
+      newsHtml += `</div>`;
+      newsContainer.innerHTML = newsHtml;
+    } else {
+      newsContainer.innerHTML = `
+        <div class="safe-box">
+          <i class="fas fa-check-circle safe-icon"></i>
+          <div class="safe-text">No high-severity incidents in the last 72 hours</div>
+        </div>`;
+    }
+
+  } catch (e) {
+    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
+    newsContainer.innerHTML = "";
   }
 }
 
 /* ===========================
    MAP RENDERING
-   =========================== */
+=========================== */
 function renderAssetsOnMap(region) {
-  if (!assetsClusterGroup || !map) return;
+  if (!assetsClusterGroup) return;
   assetsClusterGroup.clearLayers();
-
-  Object.values(ASSETS).forEach(a => {
-    if (region === "Global" || a.region === region) {
-      const m = L.marker([a.lat, a.lon], {
-        icon: L.divIcon({
-          className: 'custom-pin',
-          html: '<div class="marker-pin-dell"><i class="fas fa-building" aria-hidden="true"></i></div>',
-          iconSize:[30,42],
-          iconAnchor:[15,42]
-        })
-      });
-      m.bindTooltip(escapeHtml(a.name), { className: 'map-tooltip', direction: 'top' });
-      m.addTo(assetsClusterGroup);
-    }
+  const dellIcon = L.divIcon({
+    className: "custom-pin",
+    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
+    iconSize: [30, 42],
+    iconAnchor: [15, 42]
   });
+  const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
+  const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
+
+  filtered.forEach(a => {
+    const m = L.marker([a.lat, a.lon], { icon: dellIcon });
+    m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
+    assetsClusterGroup.addLayer(m);
+  });
+  if (!map) return;
+  if (region === "AMER") map.setView([30, -90], 3);
+  else if (region === "EMEA") map.setView([45, 15], 3);
+  else if (region === "APJC") map.setView([20, 110], 3);
+  else if (region === "LATAM") map.setView([-15, -60], 3);
+  else map.setView([25, 10], 2);
 }
 
 function renderIncidentsOnMap(region, list) {
-  if (!incidentClusterGroup || !criticalLayerGroup || !map) return;
+  if (!incidentClusterGroup || !criticalLayerGroup) return;
   incidentClusterGroup.clearLayers();
   criticalLayerGroup.clearLayers();
 
-  const data = (region === "Global") ? list : (Array.isArray(list) ? list.filter(i => i.region === region) : []);
+  const filtered = (region === "Global") ? list : list.filter(i => (i.region || "GLOBAL") === region);
+  filtered.forEach(i => {
+    let coords = null;
+    if (i.lat && i.lng && Number(i.lat) !== 0 && Number(i.lng) !== 0) {
+      coords = { lat: Number(i.lat), lng: Number(i.lng) };
+    } else {
+      coords = getCoordsForIncident(i);
+    }
 
-  data.forEach(i => {
-    if (isBlockedId(i.id)) return; // skip blocked
-    const c = (Number(i.lat) && Number(i.lng)) ? { lat:Number(i.lat), lng:Number(i.lng) } : getCoordsForIncident(i);
-    if (!c) return;
-
+    if (!coords) return;
     const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
+    const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
 
-    const marker = L.marker([c.lat, c.lng], {
-      severity: sev,
-      icon: L.divIcon({
-        html: `<div class="incident-dot" style="background:${color}"></div>`,
-        className: '',
-        iconSize: [12,12]
-      })
-    }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}`);
-
-    if (sev >= 4) criticalLayerGroup.addLayer(marker);
-    else incidentClusterGroup.addLayer(marker);
+    if (sev >= 4) {
+      const marker = L.circleMarker([coords.lat, coords.lng], {
+          radius: 10,
+          fillColor: color,
+          color: "#fff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        });
+        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+        criticalLayerGroup.addLayer(marker);
+    } else {
+        const incidentDiv = `<div class="incident-dot" style="background:${color};"></div>`;
+        const marker = L.marker([coords.lat, coords.lng], {
+            icon: L.divIcon({ html: incidentDiv, className: '', iconSize:[20,20], iconAnchor:[10,10]}),
+            severity: sev
+        });
+        marker.bindPopup(`<b>${escapeHtml(i.title || "")}</b><br/><small>${escapeHtml(i.country || "")} • ${escapeHtml(i.location || "")}</small><br/><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+        incidentClusterGroup.addLayer(marker);
+    }
   });
+
+  try { criticalLayerGroup.bringToFront(); } catch(e) {}
+  try { assetsClusterGroup.bringToBack(); } catch(e) {}
 }
 
 /* ===========================
    NORMALIZATION + UTILITIES
-   =========================== */
+=========================== */
 function normaliseWorkerIncident(i) {
   if (!i || !i.title) return null;
-  return {
-    id: i.id || (i.title + (i.time || '')),
-    title: i.title,
+  const title = i.title || "";
+  const region = (i.region || "GLOBAL").toUpperCase();
+  const severity = Number(i.severity || 1) || 1;
+  const normalized = {
+    id: i.id || (title + "|" + (i.link||"")),
+    title,
     summary: i.summary || i.description || "",
+    category: (i.category || "UNKNOWN").toUpperCase(),
+    severity,
+    severity_label: i.severity_label || (severity >= 5 ? "CRITICAL" : (severity >= 4 ? "HIGH" : (severity === 3 ? "MEDIUM" : "LOW"))),
+    region: (region === "GLOBAL") ? "Global" : region,
+    country: (i.country || "GLOBAL"),
+    location: (i.location || "UNKNOWN"),
     link: i.link || i.url || "#",
-    time: i.time || new Date().toISOString(),
-    severity: Number(i.severity) || 1,
-    region: String(i.region || "GLOBAL").toUpperCase(),
-    country: String(i.country || "GLOBAL").toUpperCase(),
-    category: String(i.category || "UNKNOWN").toUpperCase(),
-    lat: Number(i.lat) || 0,
-    lng: Number(i.lng) || 0,
     source: i.source || "",
-    distance_km: (i.distance_km != null) ? Number(i.distance_km) : null,
-    nearest_site_name: i.nearest_site_name || null,
+    time: i.time || new Date().toISOString(),
+    lat: Number(i.lat || 0),
+    lng: Number(i.lng || 0),
     country_wide: !!i.country_wide,
-    location: i.location || i.city || i.country || ''
+    country_code: i.country_code || null,
+    nearest_site_name: i.nearest_site_name || null,
+    nearest_site_key: i.nearest_site_key || null,
+    distance_km: (i.distance_km === 0 || i.distance_km) ? Number(i.distance_km) : null
   };
+
+  const coords = getCoordsForIncident(normalized);
+  if (coords) {
+    normalized.lat = coords.lat;
+    normalized.lng = coords.lng;
+  }
+
+  return normalized;
 }
 
-function mapSeverityToLabel(s) {
+function mapSeverityToLabel(sev) {
+  const s = Number(sev || 1);
+  if (s >= 5) {
+    return { label: "CRITICAL", cls: "tag-critical", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s >= 4) {
+    return { label: "HIGH", cls: "tag-high", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  } else if (s === 3) {
+    return { label: "MEDIUM", cls: "tag-medium", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
+  } else {
+    return { label: "LOW", cls: "tag-low", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  }
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function shortHost(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source";
+  }
+}
+
+function safeHref(u) {
+  try {
+    const str = String(u || "").trim();
+    if (!str) return "#";
+    if (/^(mailto:|tel:)/i.test(str)) return str;
+    const url = new URL(str, location.origin);
+    if (!["http:", "https:"].includes(url.protocol)) return "#";
+    return url.href;
+  } catch {
+    return "#";
+  }
+}
+
+function safeTime(iso) {
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "Recently";
+    return d.toLocaleString();
+  } catch { return "Recently";
+  }
+}
+
+function escapeHtml(s) {
+  return String(s || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(s) {
+  return escapeHtml(String(s || "")).replaceAll("`", "&#096;");
+}
+
+function severityLabel(s) {
   const n = Number(s || 1);
-  if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  if (n >= 4) return { label: "HIGH", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  if (n === 3) return { label: "MEDIUM", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-  return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  if (n >= 5) return "CRITICAL";
+  if (n >= 4) return "HIGH";
+  if (n === 3) return "MEDIUM";
+  return "LOW";
 }
-
-function haversineKm(lat1,lon1,lat2,lon2) {
-  const R=6371;
-  const dLat=(lat2-lat1)*Math.PI/180;
-  const dLon=(lon2-lon1)*Math.PI/180;
-  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
-            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) *
-            Math.sin(dLon/2)*Math.sin(dLon/2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-function shortHost(u){ try{return new URL(u).hostname.replace(/^www\./,'');}catch{return "Source";}}
-function safeHref(u){ try{return new URL(u,location.href).href;}catch{return "#";}}
-function safeTime(t){ try{ const d=new Date(t); return isNaN(d.getTime()) ? "Recently" : d.toLocaleString(); }catch{return "Recently";}}
-function escapeHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;"); }
-function escapeAttr(s){ return String(s||"").replace(/"/g,"&quot;").replace(/`/g,"&#096;"); }
-
-function severityLabel(s) { const n = Number(s || 1); if (n >= 5) return "CRITICAL"; if (n >= 4) return "HIGH"; if (n === 3) return "MEDIUM"; return "LOW"; }
 
 /* ===========================
    VOTING / DISMISS / ADMIN
-   =========================== */
-
-/**
- * voteThumb:
- * - attempts to POST to worker /api/thumb (server learning)
- * - if worker rejects (403) we fallback to local, session-scoped thumbs storage so public voting works for pilot.
- * - down vote: removes/hides item locally from feed, proximity, history and brief preview (local block)
- * - up vote: records locally; we also try server
- */
+   (Voting is public for pilot — client will not send admin secret)
+=========================== */
 async function voteThumb(id, vote) {
   const cleanId = String(id || '').trim();
   const v = String(vote || '').trim();
   if (!cleanId || (v !== 'up' && v !== 'down')) return;
 
-  // optimistic UI
   try {
     const lbl = document.getElementById('feed-status-label');
     if (lbl) lbl.textContent = 'Submitting vote…';
-  } catch(e){}
+  } catch(e) {}
 
-  // Try server POST first. Worker expects secret (admin) normally.
   try {
-    const payload = { id: cleanId, action: v, title: "", summary: "", link: "" };
-    const res = await fetch(`${WORKER_URL}/api/thumb`, {
+    // PUBLIC voting: do not include admin secret header by default (pilot)
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/thumb`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id: cleanId, vote: v })
+    }, 10000);
 
-    if (res.ok) {
-      // server accepted the vote and processed learning / blocking
-      try {
-        const json = await res.json().catch(()=> null);
-        // If down -> server removed item from incidents/proximity; do a refresh to reflect server state
-        if (v === 'down') {
-          await manualRefresh();
-        } else {
-          // up: refresh small part of feed to show
-          setTimeout(()=> { try { const active = document.querySelector('.nav-item-custom.active'); filterNews(active ? active.textContent.trim() : 'Global'); } catch(e) {} }, 450);
-        }
-        const lbl = document.getElementById('feed-status-label');
-        if (lbl) lbl.textContent = FEED_IS_LIVE ? `LIVE • ${INCIDENTS.length} ITEMS` : 'OFFLINE';
-      } catch(e) {}
+    if (!res.ok) {
+      const txt = await res.text().catch(()=> '');
+      console.warn('voteThumb rejected', res.status, txt);
+      adminSetFeedback(`Vote rejected (HTTP ${res.status}).`, true);
       return;
     }
 
-    // If unauthorized or other rejection, fallback to local behavior
-    if (res.status === 403) {
-      // FALLBACK: public voting (local)
-      applyLocalVote(cleanId, v);
-      adminSetFeedback('Vote saved locally for this session. (Worker requires admin secret for server-side votes.)', false);
-      return;
+    if (v === 'down') {
+      // If thumbs down, let the worker learn and refresh feed
+      await manualRefresh();
     } else {
-      const txt = await res.text().catch(()=> '');
-      console.warn('voteThumb server error', res.status, txt);
-      // fallback to local anyway for resilience
-      applyLocalVote(cleanId, v);
-      adminSetFeedback(`Vote saved locally (server returned HTTP ${res.status}).`, true);
-      return;
+      const lbl = document.getElementById('feed-status-label');
+      if (lbl) lbl.textContent = 'Vote recorded.';
+      setTimeout(()=>{
+        try {
+          const active = document.querySelector('.nav-item-custom.active');
+          filterNews(active ? active.innerText.trim() : 'Global');
+        } catch(e) {}
+      }, 450);
     }
   } catch (e) {
-    // network or CORS error -> fallback to local
-    console.warn('voteThumb network error', e);
-    applyLocalVote(cleanId, v);
-    adminSetFeedback('Vote recorded locally (network error contacting worker).', true);
-    return;
-  }
-}
-
-function applyLocalVote(id, vote) {
-  try {
-    LOCAL_THUMBS.byId = LOCAL_THUMBS.byId || {};
-    LOCAL_THUMBS.blockedIds = LOCAL_THUMBS.blockedIds || [];
-    LOCAL_THUMBS.upIds = LOCAL_THUMBS.upIds || [];
-    LOCAL_THUMBS.downIds = LOCAL_THUMBS.downIds || [];
-
-    LOCAL_THUMBS.byId[id] = vote;
-
-    if (vote === 'down') {
-      if (!LOCAL_THUMBS.downIds.includes(id)) LOCAL_THUMBS.downIds.push(id);
-      if (!LOCAL_THUMBS.blockedIds.includes(id)) LOCAL_THUMBS.blockedIds.push(id);
-      // update session-specific dismissed set so proximity dismisses are consistent
-      DISMISSED_ALERT_IDS.add(String(id));
-      try { sessionStorage.setItem('dismissed_prox_alert_ids', JSON.stringify(Array.from(DISMISSED_ALERT_IDS))); } catch(e){}
-      // Remove from in-memory lists
-      INCIDENTS = INCIDENTS.filter(x => String(x.id) !== String(id));
-      PROXIMITY_INCIDENTS = PROXIMITY_INCIDENTS.filter(x => String(x.id) !== String(id));
-      // Re-render UI
-      try {
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
-      } catch(e){}
-    } else {
-      // up vote
-      if (!LOCAL_THUMBS.upIds.includes(id)) LOCAL_THUMBS.upIds.push(id);
-      try {
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
-      } catch(e){}
-    }
-
-    saveLocalThumbs();
-  } catch(e) {
-    console.error('applyLocalVote error', e);
-  } finally {
-    const lbl = document.getElementById('feed-status-label');
-    if (lbl) {
-      lbl.textContent = FEED_IS_LIVE ? `LIVE • ${INCIDENTS.length} ITEMS` : 'OFFLINE';
-    }
+    console.error('voteThumb error', e);
+    adminSetFeedback('Vote failed (network).', true);
   }
 }
 
@@ -1554,7 +1757,6 @@ function dismissAlertById(id) {
   } catch(e) {}
 }
 
-/* Admin helpers */
 function adminGetSecretFromField() {
   try {
     const el = document.getElementById('adminSecret');
@@ -1586,10 +1788,7 @@ async function adminTriggerIngest() {
 
   adminSetFeedback('Triggering ingestion…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/ingest`, {
-      method: 'POST',
-      headers: { 'secret': sec }
-    });
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/ingest`, { method: 'POST', headers: { 'secret': sec } }, 20000);
     const txt = await res.text().catch(()=> '');
     if (!res.ok) {
       adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true);
@@ -1611,11 +1810,11 @@ async function adminUnlock() {
 
   adminSetFeedback('Requesting unblock…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/thumb/unblock`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'secret': sec },
       body: JSON.stringify({ unblock: true })
-    });
+    }, 15000);
     const txt = await res.text().catch(()=> '');
     if (!res.ok) {
       adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true);
@@ -1632,10 +1831,10 @@ async function adminThumbsStatus() {
   const sec = adminGetSecret();
   adminSetFeedback('Loading thumbs status…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/thumbs/status`, {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/thumbs/status`, {
       method: 'GET',
       headers: { ...(sec ? { 'secret': sec } : {}) }
-    });
+    }, 15000);
     const data = await res.json().catch(()=> null);
     if (!res.ok) {
       adminSetFeedback(`Status failed (HTTP ${res.status}).`, true);
@@ -1654,10 +1853,10 @@ async function adminForceRefreshTravel() {
   const sec = adminGetSecret();
   adminSetFeedback('Refreshing travel cache…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/refresh`, {
       method: 'POST',
       headers: { ...(sec ? { 'secret': sec } : {}) }
-    });
+    }, 15000);
     const txt = await res.text().catch(()=> '');
     if (!res.ok) {
       adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`.trim(), true);
@@ -1686,7 +1885,7 @@ async function adminGenerateBrief() {
   adminSetFeedback('Generating brief on server…');
   try {
     const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
-    const res = await fetch(url, { method: 'POST', headers: { 'secret': sec } });
+    const res = await fetchWithTimeout(url, { method: 'POST', headers: { 'secret': sec } }, 30000);
     const txt = await res.text().catch(()=> '');
     if (!res.ok) {
       adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`.trim(), true);
@@ -1708,7 +1907,7 @@ async function adminListBriefs() {
 
   adminSetFeedback('Listing stored briefs…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } }, 15000);
     const data = await res.json().catch(()=> null);
     if (!res.ok) {
       adminSetFeedback(`List failed (HTTP ${res.status}).`, true);
@@ -1727,12 +1926,6 @@ async function adminListBriefs() {
 window.loadTravelAdvisories = loadTravelAdvisories;
 window.filterTravel = filterTravel;
 window.loadHistory = loadHistory;
-
-/* ===========================
-   NOTE: Worker script (server logic & thumbs learning)
-   Please see worker.js used by this page for server-side thumbs learning and brief generation:
-   :contentReference[oaicite:1]{index=1}
-   =========================== */
 </script>
 </body>
 </html>
