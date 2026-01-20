@@ -15,7 +15,7 @@
   ">
 
   <link rel="icon" href="data:,">
-  <title>Dell OS | INFOHUB</title> 
+  <title>Dell OS | INFOHUB</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
@@ -322,7 +322,6 @@
   </div>
 </div>
 
-<!-- REPORT MODAL -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -366,7 +365,6 @@
   </div>
 </div>
 
-<!-- ADMIN MODAL (Secret, Ingestion, Brief generation, Reports admin) -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -422,7 +420,7 @@
   </div>
 </div>
 
-<div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
+<div id="assets-debug" class="assets-debug" aria-live="polite"></div>
 
 <script>
 /* ===========================
@@ -506,7 +504,7 @@ try {
   if (rawQueue) VOTE_QUEUE = JSON.parse(rawQueue) || [];
 } catch(e){}
 
-/* Global Error Handlers (Restored) */
+/* Global Error Handlers */
 window.onerror = function(msg, url, line, col, error) {
    console.error("Global Error Caught:", { msg, url, line, col, error });
 };
@@ -1287,8 +1285,15 @@ function updateHeadline(region) {
 }
 
 /* ===========================
-   PROXIMITY / Dismiss
+   PROXIMITY / Dismiss / Update (RESTORED)
 =========================== */
+function updateProximityRadius() {
+  const el = document.getElementById("proxRadius");
+  if (el) currentRadius = parseFloat(el.value) || 50;
+  const active = document.querySelector('.nav-item-custom.active');
+  renderProximityAlerts(active ? active.textContent.trim() : "Global");
+}
+
 function dismissAlertById(id) {
   try {
     const k = String(id || '').trim();
@@ -1810,6 +1815,7 @@ window.filterTravel = filterTravel;
 window.loadHistory = loadHistory;
 window.voteThumb = voteThumb;
 window.flushVoteQueue = flushVoteQueue;
+
 </script>
 </body>
 </html>
