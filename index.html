@@ -400,8 +400,6 @@
   </div>
 </div>
 
-<!-- DEBUG OVERLAY CONTAINER -->
-
 <!-- ADMIN MODAL (Secret, Ingestion, Brief generation, Reports admin) -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
   <div class="modal-dialog">
@@ -457,53 +455,19 @@
 <script>
 /* ===========================
    CONFIG
-=========================== */
+   =========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
 
 /* DEBUG UI (overlay hidden unless enabled via ?debug=1 or localStorage flag) */
 const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
 
-/* ===========================
-   GITHUB SMARTTRAVELLER FALLBACK (simple)
-=========================== */
-const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
-const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
-const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
+/* Local thumbs fallback storage key */
+const LOCAL_THUMBS_KEY = 'local_thumbs_v1';
 
 /* ===========================
-   COUNTRY LIST (fallback)
-=========================== */
-const WORLD_COUNTRIES = [
-  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
-  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
-  "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czechia",
-  "Denmark","Djibouti","Dominica","Dominican Republic",
-  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
-  "Fiji","Finland","France",
-  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
-  "Haiti","Honduras","Hungary",
-  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
-  "Jamaica","Japan","Jordan",
-  "Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan",
-  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
-  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
-  "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Macedonia","Norway",
-  "Oman",
-  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
-  "Qatar",
-  "Romania","Russia","Rwanda",
-  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
-  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
-  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
-  "Vanuatu","Vatican City","Venezuela","Vietnam",
-  "Yemen",
-  "Zambia","Zimbabwe"
-];
-
-/* ===========================
-   DATA STATE
-=========================== */
+   STATE
+   =========================== */
 let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
 let FEED_IS_LIVE = false;
@@ -519,6 +483,20 @@ try {
   }
 } catch(e) {}
 
+// Local thumbs (used for public early voting)
+let LOCAL_THUMBS = { byId: {}, upIds: [], downIds: [], blockedIds: [] };
+function loadLocalThumbs() {
+  try {
+    const s = sessionStorage.getItem(LOCAL_THUMBS_KEY);
+    if (!s) return;
+    const obj = JSON.parse(s);
+    if (obj && typeof obj === 'object') LOCAL_THUMBS = obj;
+  } catch (e) {}
+}
+function saveLocalThumbs() {
+  try { sessionStorage.setItem(LOCAL_THUMBS_KEY, JSON.stringify(LOCAL_THUMBS)); } catch(e){}
+}
+loadLocalThumbs();
 
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
@@ -528,23 +506,25 @@ let assetsClusterGroup;
 let incidentClusterGroup;
 let criticalLayerGroup;
 
-/* Small UX helpers (debounce + detect touch) */
+/* small UX helpers */
 let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-/* ERROR MONITORING (Simple Sentry stub) */
+/* capture console errors */
 window.onerror = function(msg, url, line, col, error) {
    console.error("Global Error Caught:", { msg, url, line, col, error });
 };
-
-/* UNHANDLED PROMISE REJECTION (For fetch failures) */
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled promise rejection:', ev.reason);
 });
 
 /* ===========================
-   DELL SITES (your list)
-=========================== */
+   DELL SITES (unchanged)
+   =========================== */
+// ... (the DELL_SITES list and ASSETS mapping)
+// For brevity here, the DELL_SITES array and ASSETS object are identical to your provided list.
+// We'll re-create ASSETS mapping below after DELL_SITES definition:
+
 const DELL_SITES = [
   // AMER
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
@@ -632,7 +612,7 @@ function getCoordsForIncident(i) {
 
 /* ===========================
    INIT
-=========================== */
+   =========================== */
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     // Admin modal: auto-populate secret field from session storage
@@ -645,7 +625,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fld = document.getElementById('adminSecret');
             if (fld) fld.value = sec ? String(sec) : '';
             const fb = document.getElementById('adminFeedback');
-            if (fb) fb.style.display = 'none';
+            if (fb) { fb.style.display = 'none'; fb.className = ''; }
           } catch(e) {}
         });
       }
@@ -730,8 +710,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Start with Esri (enterprise-grade), Carto available as fallback
       esriLayer.addTo(map);
-
-      // --- End of Enhanced tile layers ---
 
       // === IMPORTANT CHANGE: use a simple LayerGroup for assets so all Dell sites render individually ===
       assetsClusterGroup = L.layerGroup();
@@ -942,7 +920,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 /* ===========================
    CLOCKS
-=========================== */
+   =========================== */
 function startClock() {
   const container = document.getElementById("multi-clock-container");
   const zones = [
@@ -959,7 +937,8 @@ function startClock() {
       <div class="clock-box">
         <div class="clock-label">${escapeHtml(z.label)}</div>
         <div class="clock-val" id="clk-${escapeAttr(z.label)}">--:--</div>
-      </div>`).join('');
+      </div>
+    `).join('');
   }
 
   setInterval(() => {
@@ -973,7 +952,7 @@ function startClock() {
 
 /* ===========================
    FETCH (Worker Data)
-=========================== */
+   =========================== */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
@@ -1021,7 +1000,15 @@ async function manualRefresh() {
 
 /* ===========================
    RENDERING (Feed + Proximity + Headline)
-=========================== */
+   =========================== */
+function isBlockedId(id) {
+  if (!id) return false;
+  if (DISMISSED_ALERT_IDS.has(String(id))) return true;
+  if (LOCAL_THUMBS && Array.isArray(LOCAL_THUMBS.blockedIds) && LOCAL_THUMBS.blockedIds.includes(String(id))) return true;
+  if (LOCAL_THUMBS && LOCAL_THUMBS.byId && LOCAL_THUMBS.byId[String(id)] === 'down') return true;
+  return false;
+}
+
 function filterNews(region) {
   renderAssetsOnMap(region);
   renderIncidentsOnMap(region, INCIDENTS);
@@ -1036,13 +1023,15 @@ function renderGeneralFeed(region) {
 
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
 
-  if (!data.length) {
+  const visible = data.filter(i => !isBlockedId(i.id));
+
+  if (!visible.length) {
     container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
     return;
   }
 
   let html = '';
-  data.forEach(i => {
+  visible.forEach(i => {
     const sev = mapSeverityToLabel(i.severity);
     const id = escapeAttr(String(i.id || (i.title + i.time)));
 
@@ -1063,20 +1052,19 @@ function renderGeneralFeed(region) {
             </a>
           </div>
 
-          <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
+          <div class="feed-meta">${safeTime(i.time)} • ${shortHost(i.source)}</div>
           <div class="feed-desc">${escapeHtml(i.summary)}</div>
 
-          <div class="vote-row">
-            <button type="button" class="btn-vote" data-action="vote" data-vote="up" data-id="${id}" aria-label="Vote up" title="Helpful">
+          <div class="vote-row" aria-label="Vote buttons">
+            <button class="btn-vote" data-action="vote" data-vote="up" data-id="${id}" aria-label="Vote Up" title="Helpful">
               <i class="fas fa-thumbs-up" aria-hidden="true"></i>
             </button>
-            <button type="button" class="btn-vote" data-action="vote" data-vote="down" data-id="${id}" aria-label="Vote down" title="Not relevant">
+            <button class="btn-vote" data-action="vote" data-vote="down" data-id="${id}" aria-label="Vote Down" title="Not Relevant">
               <i class="fas fa-thumbs-down" aria-hidden="true"></i>
             </button>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
   container.innerHTML = html;
@@ -1084,7 +1072,7 @@ function renderGeneralFeed(region) {
 
 function updateProximityRadius() {
   const el = document.getElementById("proxRadius");
-  if (el) currentRadius = parseFloat(el.value);
+  if (el) currentRadius = parseFloat(el.value) || 50;
 
   const active = document.querySelector('.nav-item-custom.active');
   renderProximityAlerts(active ? active.textContent.trim() : "Global");
@@ -1102,9 +1090,10 @@ function renderProximityAlerts(region) {
     const coords = (inc.lat && inc.lng) ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
     if (!coords) return;
 
-    // skip dismissed
+    // skip dismissed or blocked
     const key = String(inc.id || (inc.title + inc.time));
     if (DISMISSED_ALERT_IDS.has(key)) return;
+    if (isBlockedId(key)) return;
 
     let nearest = null;
 
@@ -1163,13 +1152,15 @@ function updateHeadline(region) {
   const tags = document.getElementById("headline-tags");
   if (!el || !tags) return;
 
-  if (data.length) {
-    el.textContent = data[0].title || "Headline";
-    const sev = mapSeverityToLabel(data[0].severity);
+  // pick first non-blocked headline
+  const available = (data || []).filter(i => !isBlockedId(i.id));
+  if (available.length) {
+    el.textContent = available[0].title || "Headline";
+    const sev = mapSeverityToLabel(available[0].severity);
     tags.innerHTML = `
-      <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
-      <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
-      <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
+      <span class="tag tag-crit" style="background:${(Number(available[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
+      <span class="tag tag-cat">${escapeHtml(available[0].category || 'CATEGORY')}</span>
+      <span class="tag tag-reg">${escapeHtml(available[0].region || 'REGION')}</span>
     `;
   } else {
     el.textContent = "No critical alerts.";
@@ -1179,7 +1170,7 @@ function updateHeadline(region) {
 
 /* ===========================
    REPORTING (Preview + Download)
-=========================== */
+   =========================== */
 async function previewBriefing() {
   const region = document.getElementById('reportRegion')?.value || 'Global';
   const date = document.getElementById('reportDate')?.value || '';
@@ -1198,12 +1189,15 @@ async function previewBriefing() {
     const json = await res.json();
 
     const incidents = json.incidents || [];
+    // Filter out any locally-blocked ids
+    const visible = incidents.filter(i => !isBlockedId(i.id));
+
     if (!cont) return;
 
-    if (!incidents.length) {
+    if (!visible.length) {
       cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
     } else {
-      cont.innerHTML = incidents.slice(0, 50).map(i => `
+      cont.innerHTML = visible.slice(0, 50).map(i => `
         <div style="border-bottom:1px solid #eee; padding:8px 0;">
           <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
           <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
@@ -1228,7 +1222,7 @@ async function downloadReport() {
 
 /* ===========================
    HISTORY
-=========================== */
+   =========================== */
 async function loadHistory(dateStr) {
   const status = document.getElementById('history-status');
   if (status) status.textContent = "Loading archive…";
@@ -1245,22 +1239,25 @@ async function loadHistory(dateStr) {
       return;
     }
 
+    // filter out local blocked
+    const filtered = (arr || []).filter(i => !isBlockedId(i.id || (i.title + (i.time || ""))));
+
     status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
-      arr.map(i => `
+      filtered.map(i => `
         <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
-          <strong>${escapeHtml(i.title)}</strong><br>
+          <strong>${escapeHtml(i.title || "")}</strong><br>
           <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span>
         </div>
       `).join('') +
       `</div>`;
   } catch (e) {
-    if (status) status.textContent = `Archive error: ${e.message}`;
+    if (status) status.textContent = `Archive error: ${e.message || String(e)}`;
   }
 }
 
 /* ===========================
    TRAVEL
-=========================== */
+   =========================== */
 async function loadTravelAdvisories() {
   const sel = document.getElementById('countrySelect');
   if (!sel) return;
@@ -1271,7 +1268,7 @@ async function loadTravelAdvisories() {
     const res = await fetch(`${WORKER_URL}/api/traveladvisories/live`);
     if (res.ok) {
       const data = await res.json();
-      TRAVEL_DATA = Array.isArray(data) ? data : [];
+      TRAVEL_DATA = Array.isArray(data) ? data : (Array.isArray(data.advisories) ? data.advisories : []);
       TRAVEL_UPDATED_AT = new Date().toISOString();
     }
   } catch (e) {
@@ -1293,6 +1290,7 @@ async function filterTravel() {
 
   try {
     const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
     const adv = data.advisory || data;
@@ -1311,7 +1309,7 @@ async function filterTravel() {
     `;
 
     // If worker returns related news, render it
-    const news = Array.isArray(data.news) ? data.news : [];
+    const news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
     if (newsCont && news.length) {
       newsCont.innerHTML = `
         <div class="news-box-alert">
@@ -1332,9 +1330,9 @@ async function filterTravel() {
 
 /* ===========================
    MAP RENDERING
-=========================== */
+   =========================== */
 function renderAssetsOnMap(region) {
-  if (!assetsClusterGroup) return;
+  if (!assetsClusterGroup || !map) return;
   assetsClusterGroup.clearLayers();
 
   Object.values(ASSETS).forEach(a => {
@@ -1354,13 +1352,14 @@ function renderAssetsOnMap(region) {
 }
 
 function renderIncidentsOnMap(region, list) {
-  if (!incidentClusterGroup || !criticalLayerGroup) return;
+  if (!incidentClusterGroup || !criticalLayerGroup || !map) return;
   incidentClusterGroup.clearLayers();
   criticalLayerGroup.clearLayers();
 
-  const data = (region === "Global") ? list : list.filter(i => i.region === region);
+  const data = (region === "Global") ? list : (Array.isArray(list) ? list.filter(i => i.region === region) : []);
 
   data.forEach(i => {
+    if (isBlockedId(i.id)) return; // skip blocked
     const c = (Number(i.lat) && Number(i.lng)) ? { lat:Number(i.lat), lng:Number(i.lng) } : getCoordsForIncident(i);
     if (!c) return;
 
@@ -1383,7 +1382,7 @@ function renderIncidentsOnMap(region, list) {
 
 /* ===========================
    NORMALIZATION + UTILITIES
-=========================== */
+   =========================== */
 function normaliseWorkerIncident(i) {
   if (!i || !i.title) return null;
   return {
@@ -1424,93 +1423,125 @@ function haversineKm(lat1,lon1,lat2,lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function shortHost(u){
-  try { return new URL(u).hostname.replace(/^www\./,''); }
-  catch { return "Source"; }
-}
+function shortHost(u){ try{return new URL(u).hostname.replace(/^www\./,'');}catch{return "Source";}}
+function safeHref(u){ try{return new URL(u,location.href).href;}catch{return "#";}}
+function safeTime(t){ try{ const d=new Date(t); return isNaN(d.getTime()) ? "Recently" : d.toLocaleString(); }catch{return "Recently";}}
+function escapeHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;"); }
+function escapeAttr(s){ return String(s||"").replace(/"/g,"&quot;").replace(/`/g,"&#096;"); }
 
-function safeHref(u){
-  try { return new URL(u,location.href).href; }
-  catch { return "#"; }
-}
-
-function safeTime(t){
-  try {
-    const d = new Date(t);
-    if (isNaN(d.getTime())) return "Recently";
-    return d.toLocaleString();
-  } catch { return "Recently"; }
-}
-
-function escapeHtml(s){
-  return String(s||"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/\"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-function escapeAttr(s){
-  return String(s||"").replace(/\"/g,"&quot;").replace(/`/g,"&#096;");
-}
-
-function severityLabel(s) {
-  const n = Number(s || 1);
-  if (n >= 5) return "CRITICAL";
-  if (n >= 4) return "HIGH";
-  if (n === 3) return "MEDIUM";
-  return "LOW";
-}
+function severityLabel(s) { const n = Number(s || 1); if (n >= 5) return "CRITICAL"; if (n >= 4) return "HIGH"; if (n === 3) return "MEDIUM"; return "LOW"; }
 
 /* ===========================
    VOTING / DISMISS / ADMIN
-=========================== */
+   =========================== */
 
+/**
+ * voteThumb:
+ * - attempts to POST to worker /api/thumb (server learning)
+ * - if worker rejects (403) we fallback to local, session-scoped thumbs storage so public voting works for pilot.
+ * - down vote: removes/hides item locally from feed, proximity, history and brief preview (local block)
+ * - up vote: records locally; we also try server
+ */
 async function voteThumb(id, vote) {
   const cleanId = String(id || '').trim();
   const v = String(vote || '').trim();
   if (!cleanId || (v !== 'up' && v !== 'down')) return;
 
-  const secret = sessionStorage.getItem('admin_secret') || '';
-
+  // optimistic UI
   try {
     const lbl = document.getElementById('feed-status-label');
     if (lbl) lbl.textContent = 'Submitting vote…';
-  } catch(e) {}
+  } catch(e){}
 
+  // Try server POST first. Worker expects secret (admin) normally.
   try {
+    const payload = { id: cleanId, action: v, title: "", summary: "", link: "" };
     const res = await fetch(`${WORKER_URL}/api/thumb`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(secret ? { 'secret': secret } : {})
-      },
-      body: JSON.stringify({ id: cleanId, vote: v })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) {
-      const txt = await res.text().catch(()=> '');
-      console.warn('voteThumb rejected', res.status, txt);
-      adminSetFeedback(`Vote rejected (HTTP ${res.status}).`, true);
+    if (res.ok) {
+      // server accepted the vote and processed learning / blocking
+      try {
+        const json = await res.json().catch(()=> null);
+        // If down -> server removed item from incidents/proximity; do a refresh to reflect server state
+        if (v === 'down') {
+          await manualRefresh();
+        } else {
+          // up: refresh small part of feed to show
+          setTimeout(()=> { try { const active = document.querySelector('.nav-item-custom.active'); filterNews(active ? active.textContent.trim() : 'Global'); } catch(e) {} }, 450);
+        }
+        const lbl = document.getElementById('feed-status-label');
+        if (lbl) lbl.textContent = FEED_IS_LIVE ? `LIVE • ${INCIDENTS.length} ITEMS` : 'OFFLINE';
+      } catch(e) {}
       return;
     }
 
-    if (v === 'down') {
-      await manualRefresh();
+    // If unauthorized or other rejection, fallback to local behavior
+    if (res.status === 403) {
+      // FALLBACK: public voting (local)
+      applyLocalVote(cleanId, v);
+      adminSetFeedback('Vote saved locally for this session. (Worker requires admin secret for server-side votes.)', false);
+      return;
     } else {
-      const lbl = document.getElementById('feed-status-label');
-      if (lbl) lbl.textContent = 'Vote recorded.';
-      setTimeout(()=>{
-        try {
-          const active = document.querySelector('.nav-item-custom.active');
-          filterNews(active ? active.innerText.trim() : 'Global');
-        } catch(e) {}
-      }, 450);
+      const txt = await res.text().catch(()=> '');
+      console.warn('voteThumb server error', res.status, txt);
+      // fallback to local anyway for resilience
+      applyLocalVote(cleanId, v);
+      adminSetFeedback(`Vote saved locally (server returned HTTP ${res.status}).`, true);
+      return;
     }
   } catch (e) {
-    console.error('voteThumb error', e);
-    adminSetFeedback('Vote failed (network).', true);
+    // network or CORS error -> fallback to local
+    console.warn('voteThumb network error', e);
+    applyLocalVote(cleanId, v);
+    adminSetFeedback('Vote recorded locally (network error contacting worker).', true);
+    return;
+  }
+}
+
+function applyLocalVote(id, vote) {
+  try {
+    LOCAL_THUMBS.byId = LOCAL_THUMBS.byId || {};
+    LOCAL_THUMBS.blockedIds = LOCAL_THUMBS.blockedIds || [];
+    LOCAL_THUMBS.upIds = LOCAL_THUMBS.upIds || [];
+    LOCAL_THUMBS.downIds = LOCAL_THUMBS.downIds || [];
+
+    LOCAL_THUMBS.byId[id] = vote;
+
+    if (vote === 'down') {
+      if (!LOCAL_THUMBS.downIds.includes(id)) LOCAL_THUMBS.downIds.push(id);
+      if (!LOCAL_THUMBS.blockedIds.includes(id)) LOCAL_THUMBS.blockedIds.push(id);
+      // update session-specific dismissed set so proximity dismisses are consistent
+      DISMISSED_ALERT_IDS.add(String(id));
+      try { sessionStorage.setItem('dismissed_prox_alert_ids', JSON.stringify(Array.from(DISMISSED_ALERT_IDS))); } catch(e){}
+      // Remove from in-memory lists
+      INCIDENTS = INCIDENTS.filter(x => String(x.id) !== String(id));
+      PROXIMITY_INCIDENTS = PROXIMITY_INCIDENTS.filter(x => String(x.id) !== String(id));
+      // Re-render UI
+      try {
+        const active = document.querySelector('.nav-item-custom.active');
+        filterNews(active ? active.textContent.trim() : 'Global');
+      } catch(e){}
+    } else {
+      // up vote
+      if (!LOCAL_THUMBS.upIds.includes(id)) LOCAL_THUMBS.upIds.push(id);
+      try {
+        const active = document.querySelector('.nav-item-custom.active');
+        filterNews(active ? active.textContent.trim() : 'Global');
+      } catch(e){}
+    }
+
+    saveLocalThumbs();
+  } catch(e) {
+    console.error('applyLocalVote error', e);
+  } finally {
+    const lbl = document.getElementById('feed-status-label');
+    if (lbl) {
+      lbl.textContent = FEED_IS_LIVE ? `LIVE • ${INCIDENTS.length} ITEMS` : 'OFFLINE';
+    }
   }
 }
 
@@ -1523,6 +1554,7 @@ function dismissAlertById(id) {
   } catch(e) {}
 }
 
+/* Admin helpers */
 function adminGetSecretFromField() {
   try {
     const el = document.getElementById('adminSecret');
@@ -1695,6 +1727,12 @@ async function adminListBriefs() {
 window.loadTravelAdvisories = loadTravelAdvisories;
 window.filterTravel = filterTravel;
 window.loadHistory = loadHistory;
+
+/* ===========================
+   NOTE: Worker script (server logic & thumbs learning)
+   Please see worker.js used by this page for server-side thumbs learning and brief generation:
+   :contentReference[oaicite:1]{index=1}
+   =========================== */
 </script>
 </body>
 </html>
