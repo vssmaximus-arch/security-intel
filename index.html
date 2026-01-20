@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Content Security Policy - matches previous structure (kept unsafe-inline since JS is inline).
-       When you move to app.js, remove unsafe-inline and serve app.js from same origin. -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com 'unsafe-inline';
@@ -16,10 +14,10 @@
     base-uri 'self';
   ">
 
-  <title>Dell OS | INFOHUB</title>
   <link rel="icon" href="data:,">
+  <title>Dell OS | INFOHUB</title>
 
-  <!-- CSS/Libs -->
+  <!-- Libraries -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
@@ -32,8 +30,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <style>
-    /* == Full CSS preserved and expanded from previous stable version == */
-
+    /* == FULL CSS: preserved + debug styles + voting states == */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -41,93 +38,200 @@
       --dell-blue: #0076CE;
       --bg-dark: #0f1115;
     }
-
     body {
       background-color: var(--bg-dark);
       font-family: 'Inter', sans-serif;
       padding: 24px;
       color: #333;
-      margin: 0;
     }
 
-    /* Accessibility helpers */
-    .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
-    .skip-link { position: absolute; top: -50px; left: 10px; background: #1a73e8; color: #fff; padding: 10px; z-index: 99999; font-weight: 700; border-radius: 4px; text-decoration: none; transition: top 0.2s; }
+    /* ACCESSIBILITY */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .skip-link {
+      position: absolute; top: -50px; left: 10px;
+      background: #1a73e8; color: #fff; padding: 10px;
+      z-index: 99999; font-weight: 700; border-radius: 4px;
+      text-decoration: none; transition: top 0.2s;
+    }
     .skip-link:focus { top: 10px; }
 
+    /* App shell */
     .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .header-container { padding: 15px 32px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f0f0f0; height:90px; }
-    .header-left { display:flex; align-items:center; height:100%; }
-    .logo-icon { font-size:1.6rem; color:#1a73e8; display:flex; align-items:center; }
-    .logo-text { font-size:1.2rem; font-weight:800; color:#202124; letter-spacing:-0.5px; margin-left:12px; line-height:1; padding-top:2px; }
-    .logo-text span { color:var(--dell-blue); }
+    .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 90px; }
+    .header-left { display: flex; align-items: center; height: 100%; }
+    .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
+    .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
+    .logo-text span { color: var(--dell-blue); }
 
-    .multi-clock-container { display:flex; gap:12px; margin:0 20px; padding-right:20px; border-right:1px solid #e0e0e0; height:100%; align-items:center; }
-    .clock-box { text-align:center; min-width:85px; background:#2b2b2b; border:3px solid #b0b0b0; border-radius:10px; padding:6px; box-shadow:0 3px 5px rgba(0,0,0,0.3); }
-    .clock-label { font-size:0.55rem; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
-    .clock-val { font-family:'Share Tech Mono', monospace; font-size:1.25rem; color:#4fdb5e; background:#000; padding:4px 6px; border-radius:4px; display:block; }
+    .multi-clock-container { display: flex; gap: 12px; margin: 0 20px; padding-right: 20px; border-right: 1px solid #e0e0e0; height: 100%; align-items: center; }
+    .clock-box { text-align: center; min-width: 85px; background: #2b2b2b; border: 3px solid #b0b0b0; border-radius: 10px; padding: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
+    .clock-label { font-family: 'Inter', sans-serif; font-size: 0.55rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .clock-val { font-family: 'Share Tech Mono', monospace; font-size: 1.25rem; font-weight: 400; color: #4fdb5e; line-height: 1; background: #000; padding: 4px 6px; border-radius: 4px; display: block; text-shadow: 0 0 5px rgba(79, 219, 94, 0.5); box-shadow: inset 0 0 5px rgba(0,0,0,0.8); font-variant-numeric: tabular-nums; }
 
-    .map-wrapper { position:relative; border-radius:16px; overflow:hidden; height:520px; background:#eef2f6; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
-    #map { width:100%; height:100%; }
+    /* Map & UI */
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
+    #map { width: 100%; height: 100%; z-index: 1; outline: none; }
+    #map:focus { box-shadow: inset 0 0 0 3px rgba(26,115,232,0.5); }
 
-    .leaflet-tooltip.map-tooltip { background-color:#202124; color:#fff; border:none; border-radius:4px; padding:6px 10px; font-family:'Inter',sans-serif; font-size:0.8rem; box-shadow:0 2px 5px rgba(0,0,0,0.3); }
-    .leaflet-popup-content-wrapper { border-radius:6px; padding:0; }
-    .leaflet-popup-content { margin:10px 12px; font-size:0.85rem; font-weight:600; color:#333; }
+    .leaflet-tooltip.map-tooltip { background-color: #202124; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .leaflet-tooltip-top:before { border-top-color: #202124; }
+    .leaflet-popup-content-wrapper { border-radius: 6px; padding: 0; }
+    .leaflet-popup-content { margin: 10px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; font-weight: 600; color: #333; }
 
-    .marker-pin-dell { width:30px; height:30px; background:#1a73e8; border-radius:50% 50% 50% 0; transform:rotate(-45deg); border:2px solid white; box-shadow:0 3px 6px rgba(0,0,0,0.3); display:flex; justify-content:center; align-items:center; }
-    .marker-pin-dell i { transform:rotate(45deg); color:white; font-size:14px; }
+    .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
 
     .incident-dot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 3px rgba(0,0,0,0.3); }
 
-    .cluster-icon { display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.35); border:2px solid rgba(255,255,255,0.6); }
+    .cluster-icon { display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; cursor: pointer; }
+    .cluster-icon:focus { outline: 2px solid #fff; outline-offset: 2px; }
+    .cluster-count { font-size:13px; line-height:1; }
     .cluster-blue { background: #1a73e8; }
     .cluster-amber { background: #f9ab00; }
     .cluster-red { background: #d93025; }
 
-    .btn-daily { background-color:#1a73e8; color:white; padding:9px 18px; border-radius:8px; font-weight:600; display:flex; align-items:center; gap:8px; }
-    .btn-daily:hover { background:#1557b0; color:#fff; }
+    .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; transition: opacity 0.2s; }
+    .btn-daily:hover { background-color: #1557b0; color: white; }
+    .btn-daily:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
-    .nav-pills-custom { background-color:#f1f3f4; padding:4px; border-radius:10px; display:flex; gap:2px; }
-    .nav-item-custom { padding:7px 18px; border-radius:8px; font-weight:700; font-size:0.8rem; color:#5f6368; cursor:pointer; text-transform:uppercase; }
-    .nav-item-custom.active { background:#202124; color:#fff; }
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nav-item-custom.active { background-color: #202124; color: #fff; }
+    .nav-item-custom:focus { outline: 2px solid #202124; }
 
-    .content-area { padding:30px; }
-    .sidebar-col { padding-left:30px; }
-    .side-card { background:white; border:1px solid #e0e0e0; border-radius:12px; padding:20px; margin-bottom:24px; }
+    .content-area { padding: 30px; }
+    .sidebar-col { padding-left: 30px; }
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .card-label i { color: #9aa0a6; }
 
-    .history-input { width:100%; padding:10px 10px 10px 40px; border-radius:8px; border:1px solid #dadce0; }
-    .calendar-icon { position:absolute; left:12px; top:12px; color:#5f6368; }
+    .history-input-group { position: relative; }
+    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
+    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+    .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
 
-    .travel-select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #dadce0; }
+    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
+    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+    .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
 
-    .prox-controls { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+    #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
+    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-    .feed-card { background:#fff; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:15px; display:flex; overflow:hidden; cursor:pointer; }
-    .feed-content { padding:16px 20px; width:100%; }
-    .feed-tags { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
-    .ftag { font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:4px; text-transform:uppercase; }
+    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; position: relative; }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
+    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
+    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
 
-    .vote-row { display:flex; gap:8px; margin-top:10px; justify-content:flex-end; }
-    .btn-vote { background:#fff; border:1px solid #e0e0e0; border-radius:6px; padding:3px 9px; cursor:pointer; }
-    .btn-vote.voted-up { background:#1a73e8; color:#fff; }
-    .btn-vote.voted-down { background:#d93025; color:#fff; }
+    .alert-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-dismiss { font-size: 0.72rem; padding: 3px 9px; border: 1px solid #ddd; border-radius: 6px; background: #fff; color: #5f6368; cursor: pointer; font-weight: 700; }
+    .btn-dismiss:hover { background: #f1f3f4; color: #202124; }
+    .btn-dismiss:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
-    .critical-alert-bar { background:#fce8e6; border-left:4px solid #d93025; padding:12px 20px; border-radius:6px; display:flex; gap:15px; margin-bottom:15px; }
-    .alert-icon-lg { color:#d93025; font-size:1.2rem; }
+    .stream-section { margin-top: 25px; }
+    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
+    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
 
-    .advisory-box { background:#fdf2f2; border:1px solid #fad2cf; border-radius:8px; padding:12px; margin-top:15px; }
-    .news-box-alert { background:#fff; border:1px solid #e0e0e0; border-radius:8px; margin-top:10px; overflow:hidden; }
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; position: relative; cursor: pointer; }
+    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+    .status-bar-crit { background-color: #d93025; }
+    .status-bar-warn { background-color: #f9ab00; }
+    .status-bar-info { background-color: #1a73e8; }
 
-    /* assets-debug & other debug UI */
-    .assets-debug { position:absolute; top:110px; right:18px; z-index:999999; background:#fff; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,0.2); max-width:320px; line-height:1.25; display:none; }
-    .assets-debug pre { white-space:pre-wrap; word-break:break-word; margin:0; font-size:12px; color:#222; }
+    .feed-content { padding: 16px 20px; width: 100%; }
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+    .ftag-type { background: #f1f3f4; color: #5f6368; }
+    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
 
-    /* small responsive helpers */
-    @media (max-width: 1100px) {
-      .multi-clock-container { display:none; }
-      .sidebar-col { padding-left:16px; }
+    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
+    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+    .feed-title a:hover { text-decoration: underline; }
+    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+
+    /* Voting */
+    .vote-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .btn-vote { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 3px 9px; font-size: 0.85rem; cursor: pointer; color: #5f6368; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-vote:hover { background: #f1f3f4; color: #1a73e8; }
+    .btn-vote:focus { outline: 2px solid #202124; outline-offset: 2px; }
+    .btn-vote.voted-up { background: #1a73e8; color: #fff; border-color: #1557b0; }
+    .btn-vote.voted-down { background: #d93025; color: #fff; border-color: #b71c1c; }
+
+    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
+    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
+    .tag-crit { background: #d93025; color: white; }
+    .tag-cat { background: #3c4043; color: white; }
+    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
+    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
+    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
+
+    .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
+    .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
+    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
+    .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
+
+    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
+    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
+    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
+
+    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
+    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .news-box-item:last-child { border-bottom: none; }
+    .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
+    .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+
+    .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
+    .modal-title { font-weight: 800; color: #202124; }
+    .modal-body { padding: 30px; }
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
+    .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
+    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
+    .btn-download:hover { background: #1557b0; }
+
+    .assets-debug { position: absolute; top: 110px; right: 18px; z-index: 999999; background: #fff; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); max-width: 420px; line-height: 1.25; display:none;}
+    .assets-debug pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-size: 12px; color:#222; }
+
+    /* Small responsive tweaks */
+    @media (max-width: 1200px) {
+      .multi-clock-container { display: none; }
+      .sidebar-col { padding-left: 12px; }
     }
-    /* End CSS */
   </style>
 </head>
 
@@ -152,7 +256,7 @@
           <a class="nav-item-custom" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
         </div>
 
-        <div id="btn-refresh" class="btn-daily ms-3" style="background:#1a73e8;color:#fff;padding:9px 12px;border-radius:8px;cursor:pointer" role="button" aria-label="Refresh feed" data-action="refresh" tabindex="0">
+        <div id="btn-refresh" class="btn-daily ms-3" data-action="refresh" role="button" aria-label="Refresh Data" tabindex="0">
           <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
         </div>
 
@@ -160,7 +264,7 @@
           <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
         </div>
 
-        <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Open admin controls" title="Admin">
+        <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Admin Settings">
           <i class="fas fa-cog" aria-hidden="true"></i>
         </button>
       </div>
@@ -176,7 +280,7 @@
           <div class="stream-section">
             <div class="stream-header">
               <div class="stream-label">
-                <i class="fas fa-circle live-dot-blue" aria-hidden="true"></i> Real-time Intelligence Stream
+                <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
                 <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
               </div>
               <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
@@ -185,7 +289,7 @@
             </div>
 
             <div class="critical-alert-bar" role="alert">
-              <i class="fas fa-exclamation-triangle alert-icon-lg" aria-hidden="true"></i>
+              <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
               <div class="alert-content-main" id="headline-alert">Loading headline…</div>
               <div class="alert-tags" id="headline-tags">
                 <span class="tag" id="headline-sev">SEV?</span>
@@ -202,36 +306,35 @@
 
         <div class="col-lg-3 sidebar-col">
           <div class="side-card">
-            <div class="card-label"><i class="fas fa-history" aria-hidden="true"></i> History Search</div>
+            <div class="card-label"><i class="fas fa-history"></i> History Search</div>
             <div class="history-input-group">
-              <i class="far fa-calendar-alt calendar-icon" aria-hidden="true"></i>
-              <label for="history-picker" class="form-label visually-hidden">History date</label>
+              <i class="far fa-calendar-alt calendar-icon"></i>
+              <label for="history-picker" class="form-label visually-hidden">History Date</label>
               <input type="date" class="history-input" id="history-picker" aria-label="Select history date" />
             </div>
             <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence.</div>
           </div>
 
           <div class="side-card">
-            <div class="card-label"><i class="fas fa-plane" aria-hidden="true"></i> Travel Safety Check</div>
-            <label for="countrySelect" class="form-label visually-hidden">Travel country</label>
-            <select class="travel-select" id="countrySelect" aria-label="Travel country">
+            <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+            <label for="countrySelect" class="form-label visually-hidden">Select Country</label>
+            <select class="travel-select" id="countrySelect" aria-label="Select country for travel info">
               <option selected disabled>Loading countries...</option>
             </select>
             <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
             <div id="travel-news" class="mt-2"></div>
           </div>
 
-          <div class="side-card" style="padding-bottom:10px;">
+          <div class="side-card" style="padding-bottom: 10px;">
             <div class="prox-header-row">
               <div>
                 <div class="prox-dell-label">Dell Asset</div>
                 <div class="prox-main-title">Proximity<br/>Alerts</div>
               </div>
             </div>
-
             <div class="prox-controls">
               <div class="prox-subtitle">WITHIN RADIUS</div>
-              <label for="proxRadius" class="form-label visually-hidden">Proximity radius</label>
+              <label for="proxRadius" class="form-label visually-hidden">Select Radius</label>
               <select id="proxRadius" class="radius-select" aria-label="Proximity radius">
                 <option value="5">5 KM</option>
                 <option value="10">10 KM</option>
@@ -244,8 +347,8 @@
 
             <div id="proximity-alerts-container" aria-live="polite"></div>
 
-            <div style="text-align:center;padding-top:10px;border-top:1px solid #f1f1f1;">
-              <a href="#" onclick="manualRefresh(); return false;" style="font-size:0.75rem;font-weight:700;color:#1a73e8;text-decoration:none;" role="button" tabindex="0">REFRESH ALERTS</a>
+            <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
+              <a href="#" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
             </div>
           </div>
         </div>
@@ -258,14 +361,16 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;" aria-hidden="true"></i>Daily Intelligence Briefings</h5>
+          <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label" for="reportDate">Select Date</label>
             <input type="date" class="form-control" id="reportDate" />
-            <div class="form-text" style="font-size:0.8rem;margin-top:6px;">Leave empty for the last 24 hours (live).</div>
+            <div class="form-text" style="font-size:0.8rem;margin-top:6px;">
+              Leave empty for the last 24 hours (live).
+            </div>
           </div>
 
           <div class="mb-4">
@@ -280,16 +385,16 @@
           </div>
 
           <div class="d-grid gap-2" style="margin-bottom:8px;">
-            <button class="btn-download" data-action="preview-brief" onclick="previewBriefing()" aria-label="Preview daily briefing">
+            <button class="btn-download" data-action="preview-brief" aria-label="Preview daily briefing">
               <i class="fas fa-eye me-2" aria-hidden="true"></i> Preview Briefing
             </button>
-            <button class="btn-download" data-action="download-brief" onclick="downloadReport()" aria-label="Download briefing (generated)">
+            <button class="btn-download" data-action="download-brief" aria-label="Download briefing (generated)">
               <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
             </button>
           </div>
 
           <div id="preview-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
-          <div id="briefing-preview" style="max-height:48vh;overflow:auto;margin-top:12px;"></div>
+          <div id="briefing-preview" style="max-height:48vh; overflow:auto; margin-top:12px;"></div>
         </div>
       </div>
     </div>
@@ -300,85 +405,106 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="adminModalTitle"><i class="fas fa-user-shield me-2" style="color:#1a73e8;" aria-hidden="true"></i>Admin Controls</h5>
+          <h5 class="modal-title" id="adminModalTitle"><i class="fas fa-user-shield me-2" style="color:#1a73e8;"></i>Admin Controls</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label" for="adminSecret">Admin Secret</label>
+            <label class="form-label" for="adminSecret">Admin Secret (Session)</label>
             <input type="password" id="adminSecret" class="form-control" placeholder="Enter secret" aria-label="Admin secret">
-            <div class="form-text" style="font-size:0.8rem;margin-top:6px;">Secret in memory by default. Check 'Remember for session' to store in sessionStorage.</div>
+            <div class="form-text" style="font-size:0.8rem;margin-top:6px;">Stored in sessionStorage only (clears when the tab/browser session ends).</div>
+
             <div class="form-check mt-2">
               <input class="form-check-input" type="checkbox" value="" id="adminRememberSession">
               <label class="form-check-label" for="adminRememberSession">Remember for session</label>
             </div>
           </div>
 
-          <div class="d-flex gap-2 mb-3">
-            <button class="btn btn-primary btn-sm" data-action="admin-save-secret" aria-label="Save admin secret">Save</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-action="admin-save-secret" aria-label="Save admin secret">Save (Session)</button>
             <button class="btn btn-outline-danger btn-sm" data-action="admin-clear-secret" aria-label="Clear admin secret">Clear</button>
           </div>
-
           <hr>
-          <h6 style="font-weight:800;color:#202124;">Admin Actions</h6>
 
+          <h6>Actions</h6>
           <div class="d-grid gap-2">
             <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest" aria-label="Trigger ingestion">Trigger Ingestion</button>
-            <button class="btn btn-outline-dark btn-sm" data-action="admin-unlock" aria-label="Unlock ingestion and travel locks">Unlock Locks</button>
-            <button class="btn btn-outline-secondary btn-sm" data-action="admin-force-refresh-travel" aria-label="Force refresh travel advisories">Force Refresh Travel</button>
+            <button class="btn btn-outline-dark btn-sm" data-action="admin-list-briefs" aria-label="List briefs">List Stored Briefs (Console)</button>
           </div>
 
-          <hr>
-          <h6 style="font-weight:800;color:#202124;">Briefings</h6>
-          <div class="d-grid gap-2">
-            <button class="btn btn-outline-primary btn-sm" data-action="admin-generate-brief" aria-label="Generate and store briefing">Generate &amp; Store Brief</button>
-            <button class="btn btn-outline-secondary btn-sm" data-action="admin-list-briefs" aria-label="List stored briefs">List Stored Briefs (Console)</button>
-          </div>
-
-          <hr>
-          <h6 style="font-weight:800;color:#202124;">Voting / Thumbs</h6>
-          <div class="d-grid gap-2">
-            <button class="btn btn-outline-success btn-sm" data-action="admin-thumbs-status" aria-label="Show thumbs status">Thumbs Status (Console)</button>
-          </div>
-
-          <div id="adminFeedback" class="mt-3" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
-
+          <div id="admin-feedback" class="mt-3" style="display:none;"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none;"></div>
-
-  <!-- ============================
-       Application Script - Full
-       (All functions included)
-       ============================ -->
+  <div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
 
   <script>
-  /* ===========================
-     CONFIG & INITIAL STATE
-     ============================ */
+  /*************************************************************************
+   * FULL APPLICATION SCRIPT
+   *
+   * Contains:
+   *   - Config & global state
+   *   - Map init (initMap)
+   *   - Clock (startClock)
+   *   - Worker fetch/load (loadFromWorker etc.)
+   *   - Proximity & assets rendering (renderAssetsOnMap, renderIncidentsOnMap)
+   *   - Feed rendering (renderGeneralFeed)
+   *   - Voting (optimistic + queue + flush)
+   *   - Admin controls
+   *   - Reporting and travel (with fallback news helper)
+   *
+   * NOTE: This script is intentionally verbose and defensive to match
+   *       your production needs and to prevent ReferenceErrors.
+   *************************************************************************/
 
+  /* =========================
+     CONFIG & STATE
+     ========================= */
   const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
   const AUTO_REFRESH_MS = 60_000;
 
-  // debug flag (url ?debug=1 or localStorage)
+  // Debug UI flag
   const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
 
-  // travel fallback GitHub raw (used as a fallback if worker travel fails)
-  const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
-  const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
-  const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
+  /* WORLD_COUNTRIES (fallback list) */
+  const WORLD_COUNTRIES = [
+    "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
+    "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
+    "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czechia",
+    "Denmark","Djibouti","Dominica","Dominican Republic",
+    "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
+    "Fiji","Finland","France",
+    "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+    "Haiti","Honduras","Hungary",
+    "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
+    "Jamaica","Japan","Jordan",
+    "Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan",
+    "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
+    "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
+    "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Macedonia","Norway",
+    "Oman",
+    "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
+    "Qatar",
+    "Romania","Russia","Rwanda",
+    "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+    "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
+    "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+    "Vanuatu","Vatican City","Venezuela","Vietnam",
+    "Yemen",
+    "Zambia","Zimbabwe"
+  ];
 
-  /* === Data state === */
+  // DATA STATE
   let INCIDENTS = [];
   let PROXIMITY_INCIDENTS = [];
+  let PROXIMITY_IDS = new Set(); // set of incident ids returned by /api/proximity
   let FEED_IS_LIVE = false;
   let currentRadius = 50;
   let DISMISSED_ALERT_IDS = new Set();
 
-  // Load dismissed proximity alert IDs from session storage
+  // load dismissed (session-scoped)
   try {
     const raw = sessionStorage.getItem('dismissed_prox_alert_ids');
     if (raw) {
@@ -390,33 +516,28 @@
   let TRAVEL_DATA = [];
   let TRAVEL_UPDATED_AT = null;
 
+  // map and layers
   let map;
-  let assetsClusterGroup;
-  let incidentClusterGroup;
-  let criticalLayerGroup;
+  let assetsClusterGroup, incidentClusterGroup, criticalLayerGroup;
 
-  // Admin secret: in-memory preferred; optional sessionStorage if remembered
-  let ADMIN_SECRET = '';
+  // Voting / Admin
+  let ADMIN_SECRET = ''; // in-memory secret
+  let VOTES_LOCAL = {}; // id => 'up'|'down'
+  let VOTE_QUEUE = [];
 
-  // vote persistence
-  let VOTES_LOCAL = {}; // id -> 'up' | 'down'
-  let VOTE_QUEUE = [];  // queued vote payloads
-
+  // Load persisted votes & vote queue
   try {
-    const rv = localStorage.getItem('os_v1_votes');
-    if (rv) VOTES_LOCAL = JSON.parse(rv) || {};
+    const rawVotes = localStorage.getItem('os_v1_votes');
+    if (rawVotes) VOTES_LOCAL = JSON.parse(rawVotes) || {};
+    const rawQueue = localStorage.getItem('os_v1_vote_queue');
+    if (rawQueue) VOTE_QUEUE = JSON.parse(rawQueue) || [];
   } catch(e) {}
 
-  try {
-    const rq = localStorage.getItem('os_v1_vote_queue');
-    if (rq) VOTE_QUEUE = JSON.parse(rq) || [];
-  } catch(e) {}
-
-  // small UX helpers
+  // UX helpers
   let _clusterHoverTimeout = null;
   const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-  // global error reporting (keeps console messages)
+  // Error monitoring (simple)
   window.onerror = function(msg, url, line, col, error) {
     console.error("Global Error Caught:", { msg, url, line, col, error });
   };
@@ -424,11 +545,11 @@
     console.error('Unhandled promise rejection:', ev.reason);
   });
 
-  /* ===========================
-     DELL SITES (ASSETS)
-     ============================ */
-
+  /* =========================
+     DELL SITES & ASSETS
+     ========================= */
   const DELL_SITES = [
+    // AMER
     { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
     { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
     { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
@@ -444,11 +565,13 @@
     { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
     { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
 
+    // LATAM
     { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
     { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
     { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
     { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
 
+    // EMEA
     { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
     { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
     { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
@@ -467,6 +590,7 @@
     { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
     { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
 
+    // APJC
     { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
     { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
     { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
@@ -484,7 +608,6 @@
     { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
   ];
 
-  // Build ASSETS normalized keyed index (name lowercased)
   const ASSETS = {};
   DELL_SITES.forEach(s => {
     ASSETS[s.name.toLowerCase()] = { name: s.name, lat: Number(s.lat), lng: Number(s.lon), region: s.region, country: s.country };
@@ -503,21 +626,24 @@
     "mexico city": {lat:19.4326, lng:-99.1332}, "sao paulo": {lat:-23.5505, lng:-46.6333}
   };
 
-  /* ===========================
-     Utilities
-     ============================ */
-
+  /* =========================
+     UTILITIES
+     ========================= */
   function escapeHtml(s){
     return String(s||"")
       .replace(/&/g,"&amp;")
       .replace(/</g,"&lt;")
       .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
+      .replace(/\"/g,"&quot;")
       .replace(/'/g,"&#039;");
   }
 
   function escapeAttr(s){
-    return String(s||"").replace(/"/g,"&quot;").replace(/`/g,"&#096;");
+    try {
+      return String(s||"").replace(/"/g,"&quot;").replace(/`/g,"&#096;").replace(/\]/g,"&#093;").replace(/\[/g,"&#091;");
+    } catch(e) {
+      return '';
+    }
   }
 
   function safeHref(u){
@@ -532,7 +658,8 @@
   }
 
   function shortHost(u){
-    try { return new URL(u).hostname.replace(/^www\./,''); } catch { return "Source"; }
+    try { return new URL(u).hostname.replace(/^www\./,''); }
+    catch { return "Source"; }
   }
 
   function safeTime(t){
@@ -543,26 +670,22 @@
     } catch { return "Recently"; }
   }
 
-  // Standardized ID generator
+  /* Standardized ID generator */
   function generateId(item) {
     if (!item) return '';
     if (item.id) return String(item.id);
-    // Standard fallback: title + '|' + time (consistent everywhere)
     const t = String(item.time || item.ts || item.timestamp || "");
     const title = String(item.title || item.link || "");
     return `${title}|${t}`;
   }
 
-  // Safe float parsing for coordinates
   function parseCoord(v) {
-    if (v === null || v === undefined) return NaN;
-    const n = parseFloat(String(v).trim());
+    const n = (v === null || v === undefined) ? NaN : parseFloat(String(v).trim());
     return Number.isFinite(n) ? n : NaN;
   }
 
-  // Shared cluster stats
   function getClusterStats(cluster) {
-    const children = (typeof cluster.getAllChildMarkers === 'function') ? cluster.getAllChildMarkers() : [];
+    const children = cluster.getAllChildMarkers ? cluster.getAllChildMarkers() : [];
     let counts = { critical:0, high:0, medium:0, low:0 };
     let maxSeverity = 0;
     children.forEach(m => {
@@ -570,20 +693,18 @@
       if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
       else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
       else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
-      else { counts.low++; maxSeverity = Math.max(maxSeverity,1); }
+      else { counts.low++; }
     });
     return { counts, maxSeverity, childrenCount: children.length };
   }
 
-  /* Persist local votes & queue */
   function persistVotes() {
-    try { localStorage.setItem('os_v1_votes', JSON.stringify(VOTES_LOCAL)); } catch(e) {}
+    try { localStorage.setItem('os_v1_votes', JSON.stringify(VOTES_LOCAL)); } catch(e){}
   }
   function persistVoteQueue() {
-    try { localStorage.setItem('os_v1_vote_queue', JSON.stringify(VOTE_QUEUE)); } catch(e) {}
+    try { localStorage.setItem('os_v1_vote_queue', JSON.stringify(VOTE_QUEUE)); } catch(e){}
   }
 
-  /* Apply vote UI for id */
   function applyVoteUIForId(id, vote) {
     try {
       document.querySelectorAll(`.btn-vote[data-id="${escapeAttr(id)}"]`).forEach(btn => {
@@ -599,7 +720,6 @@
     } catch(e) {}
   }
 
-  /* Mark vote locally and persist */
   function markVoteAcceptedLocally(id, vote) {
     try {
       if (!id) return;
@@ -614,91 +734,56 @@
       delete VOTES_LOCAL[id];
       persistVotes();
       applyVoteUIForId(id, null);
-    } catch(e) {}
+    } catch(e){}
   }
 
-  /* ===========================
-     Vote send & queue
-     ============================ */
-
+  /* =========================
+     VOTING: send/enqueue/flush
+     ========================= */
   async function sendVoteToServer(payload) {
-    // payload { id, vote, ts }
     if (!payload || !payload.id) return { ok:false, err:'invalid' };
-
-    // endpoints to try. public preferred.
     const tryEndpoints = [
-      `${WORKER_URL}/api/thumb/public`,
-      `${WORKER_URL}/api/thumb`
+      `${WORKER_URL}/api/thumb/public`,     // public endpoint
+      `${WORKER_URL}/api/thumb`            // authenticated
     ];
-
-    for (let i = 0; i < tryEndpoints.length; i++) {
+    for (let i=0;i<tryEndpoints.length;i++){
       const url = tryEndpoints[i];
       try {
         const headers = { 'Content-Type': 'application/json' };
-        // if endpoint is legacy /api/thumb and we have a secret, include it
-        if (url.endsWith('/api/thumb') && ADMIN_SECRET) headers.secret = ADMIN_SECRET;
-
-        const res = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })
-        });
-
-        if (res.ok) {
-          return { ok:true, status: res.status };
-        } else {
-          // If it's the public endpoint and 403, try authenticated if possible
-          if (res.status === 403 && ADMIN_SECRET && url.endsWith('/public')) {
-            // try authenticated
-            try {
-              const res2 = await fetch(`${WORKER_URL}/api/thumb`, {
-                method: 'POST',
-                headers: { 'Content-Type':'application/json', 'secret': ADMIN_SECRET },
-                body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })
-              });
-              if (res2.ok) return { ok:true, status: res2.status };
-              else return { ok:false, status: res2.status, text: (await res2.text().catch(()=>'')) };
-            } catch(e2) {
-              return { ok:false, err:e2 };
-            }
-          }
-
-          // for other statuses, return object
-          const txt = await res.text().catch(()=>'');
-          return { ok:false, status: res.status, text: txt };
+        // for authenticated endpoint, include ADMIN_SECRET if available
+        const opts = { method: 'POST', headers, body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() }) };
+        const res = await fetch(url, opts);
+        if (res.ok) return { ok:true, status: res.status };
+        if (res.status === 403 && ADMIN_SECRET) {
+          const res2 = await fetch(`${WORKER_URL}/api/thumb`, { method:'POST', headers: { 'Content-Type':'application/json', 'secret': ADMIN_SECRET }, body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })});
+          if (res2.ok) return { ok:true, status: res2.status };
+          else return { ok:false, status: res2.status, text: (await res2.text().catch(()=>'')) };
         }
-      } catch (e) {
-        // network error - if last endpoint, return error to queue
-        if (i === tryEndpoints.length - 1) {
-          return { ok:false, err:e };
-        } else {
-          // else try next endpoint
-          continue;
-        }
+        const txt = await res.text().catch(()=>'');
+        return { ok:false, status: res.status, text: txt };
+      } catch(e) {
+        if (i === tryEndpoints.length - 1) return { ok:false, err:e };
+        continue;
       }
     }
-    return { ok:false, err:'no-endpoints' };
+    return { ok:false, err:'no-endpoint' };
   }
 
   async function enqueueVote(payload) {
     try {
       VOTE_QUEUE.push(payload);
       persistVoteQueue();
-    } catch(e) {
-      console.warn('enqueueVote error', e);
-    }
+    } catch(e){}
   }
 
   async function flushVoteQueue() {
-    if (!Array.isArray(VOTE_QUEUE) || VOTE_QUEUE.length === 0) return;
-    // use shallow copy because we may modify VOTE_QUEUE while iterating
-    const copy = VOTE_QUEUE.slice();
-    for (let i = 0; i < copy.length; i++) {
-      const p = copy[i];
+    if (!VOTE_QUEUE || !VOTE_QUEUE.length) return;
+    const queueCopy = VOTE_QUEUE.slice();
+    for (let i=0;i<queueCopy.length;i++) {
+      const p = queueCopy[i];
       try {
         const r = await sendVoteToServer(p);
         if (r.ok) {
-          // remove first occurrence matching payload
           const idx = VOTE_QUEUE.findIndex(q => q.id === p.id && q.ts === p.ts && q.vote === p.vote);
           if (idx >= 0) VOTE_QUEUE.splice(idx,1);
           persistVoteQueue();
@@ -711,46 +796,36 @@
     }
   }
 
-  // schedule flushes
-  setInterval(() => {
-    try { flushVoteQueue(); } catch(e) { console.warn(e); }
-  }, 30_000);
-
-  // high-level vote function called by UI
   async function voteThumb(id, vote) {
     if (!id || !vote) return;
-
-    // optimistic UI: mark locally
     markVoteAcceptedLocally(id, vote);
-
-    const payload = { id: String(id), vote: String(vote), ts: new Date().toISOString() };
-
+    const payload = { id: String(id), vote: vote, ts: new Date().toISOString() };
     try {
-      const r = await sendVoteToServer(payload);
-      if (r.ok) {
-        console.log('Vote accepted by server', payload);
-        // try flush queued items
-        try { await flushVoteQueue(); } catch(e) {}
+      const res = await sendVoteToServer(payload);
+      if (res.ok) {
+        try { flushVoteQueue(); } catch(e){}
+        return;
       } else {
-        console.warn('voteThumb server reported not-ok', r);
         await enqueueVote(payload);
         adminSetFeedback('Vote queued (will retry).', false);
       }
     } catch(e) {
-      console.error('voteThumb error', e);
       await enqueueVote(payload);
       adminSetFeedback('Vote queued (network).', false);
     }
   }
 
-  /* ===========================
-     MAP Initialization
-     (ensures only proximity + critical supply markers)
-     ============================ */
+  setInterval(() => { try { flushVoteQueue(); } catch(e) {} }, 30_000);
 
+  /* =========================
+     MAP INITIALIZATION
+     ========================= */
   function initMap() {
     if (typeof L === 'undefined') {
-      throw new Error("Leaflet is not loaded - cannot initialize map");
+      console.warn('Leaflet not present');
+      const feed = document.getElementById('general-news-feed');
+      if (feed) feed.innerHTML = `<div style="padding:20px;color:#b00;">Map library failed to load. Check your network.</div>`;
+      return;
     }
 
     const southWest = L.latLng(-85, -179.999);
@@ -766,44 +841,45 @@
       maxBounds: bounds,
       maxBoundsViscosity: 1.0,
       worldCopyJump: false
-    }).setView([20,0],2);
+    }).setView([20, 0], 2);
 
     L.control.zoom({ position: 'topleft' }).addTo(map);
 
-    // two tile layers with fallback logic
     const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-      subdomains: 'abc',
       maxZoom: 19,
-      attribution: 'Tiles &copy; Esri',
+      attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
       noWrap: true,
       bounds: bounds,
       keepBuffer: 2
     });
 
     const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
+      subdomains: "abcd",
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
       noWrap: true,
       bounds: bounds,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
       keepBuffer: 2
     });
 
-    let esriErrCount = 0;
-    const ERR_THRESHOLD = 12;
+    let esriTileErrors = 0;
+    const ERROR_THRESHOLD = 12;
     esriLayer.on('tileerror', () => {
-      esriErrCount++;
-      if (esriErrCount >= ERR_THRESHOLD && map.hasLayer(esriLayer)) {
-        try { map.removeLayer(esriLayer); cartoLayer.addTo(map); console.warn('Switched to Carto fallback'); } catch(e){}
+      esriTileErrors++;
+      if (esriTileErrors >= ERROR_THRESHOLD) {
+        try {
+          if (map.hasLayer(esriLayer)) map.removeLayer(esriLayer);
+          if (!map.hasLayer(cartoLayer)) cartoLayer.addTo(map);
+          console.warn('Switched basemap due to Esri tile failures.');
+        } catch(e) { console.error(e); }
       }
     });
 
     esriLayer.addTo(map);
 
-    // assets (Dell sites)
-    assetsClusterGroup = L.layerGroup().addTo(map);
+    assetsClusterGroup = L.layerGroup();
+    map.addLayer(assetsClusterGroup);
 
-    // incident cluster group - we will put proximity incidents here only
     incidentClusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       spiderfyOnMaxZoom: true,
@@ -815,90 +891,100 @@
         const { counts, maxSeverity, childrenCount } = getClusterStats(cluster);
         let cls = 'cluster-blue';
         if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
-        if (maxSeverity >= 4) cls = 'cluster-red';
-        else if (maxSeverity === 3) cls = 'cluster-amber';
-
-        const ariaLabel = escapeAttr(`Cluster of ${childrenCount} incidents. Critical:${counts.critical} High:${counts.high}`);
-        const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true">${childrenCount}</div></div>`;
-        return L.divIcon({ html, className:'', iconSize:[40,40], iconAnchor:[20,20] });
+        if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+        const ariaLabel = escapeAttr(`Cluster of ${childrenCount} incidents. ${counts.critical} Critical, ${counts.high} High.`);
+        const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${childrenCount}</div></div>`;
+        return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
       }
     });
 
     incidentClusterGroup.on('clustermouseover', (e) => {
       clearTimeout(_clusterHoverTimeout);
       _clusterHoverTimeout = setTimeout(() => {
-        try {
-          const { counts, childrenCount } = getClusterStats(e.layer);
-          const summary = `<b>Cluster: ${childrenCount} Incidents</b><br/>${counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : ''}${counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : ''}${counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : ''}${counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : ''}`;
-          L.popup({ closeButton:false, offset:[0,-10], className:'map-tooltip' }).setLatLng(e.layer.getLatLng()).setContent(summary).openOn(map);
-        } catch(e) { console.warn(e); }
-      }, 80);
+        const { counts, childrenCount } = getClusterStats(e.layer);
+        const summary = `<b>Cluster: ${childrenCount} Incidents</b><br/>` +
+                        (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
+                        (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
+                        (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
+                        (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
+        L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
+          .setLatLng(e.layer.getLatLng())
+          .setContent(summary)
+          .openOn(map);
+      }, 100);
     });
 
-    incidentClusterGroup.on('clustermouseout', () => { clearTimeout(_clusterHoverTimeout); map.closePopup(); });
-    incidentClusterGroup.on('clusterclick', (e) => { if (!incidentClusterGroup.options.zoomToBoundsOnClick) map.closePopup(); });
+    incidentClusterGroup.on('clustermouseout', () => {
+      clearTimeout(_clusterHoverTimeout);
+      try { map.closePopup(); } catch(e){}
+    });
+
+    incidentClusterGroup.on('clusterclick', (e) => {
+      if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
+      try { map.closePopup(); } catch(e){}
+    });
 
     map.addLayer(incidentClusterGroup);
 
-    // separate group for critical (so we can style differently and bring to front)
-    criticalLayerGroup = L.layerGroup().addTo(map);
+    criticalLayerGroup = L.layerGroup();
+    map.addLayer(criticalLayerGroup);
   }
 
-  /* ===========================
+  /* =========================
      CLOCKS
-     ============================ */
-
+     ========================= */
   function startClock() {
-    const container = document.getElementById('multi-clock-container');
+    const container = document.getElementById("multi-clock-container");
     const zones = [
-      { label:'Austin', z:'America/Chicago' },
-      { label:'Ireland', z:'Europe/Dublin' }, // restored
-      { label:'India', z:'Asia/Kolkata' },
-      { label:'Singapore', z:'Asia/Singapore' },
-      { label:'Tokyo', z:'Asia/Tokyo' },
-      { label:'Sydney', z:'Australia/Sydney' }
+      { label: "Austin", z: "America/Chicago" },
+      { label: "Ireland", z: "Europe/Dublin" },
+      { label: "India", z: "Asia/Kolkata" },
+      { label: "Singapore", z: "Asia/Singapore" },
+      { label: "Tokyo", z: "Asia/Tokyo" },
+      { label: "Sydney", z: "Australia/Sydney" }
     ];
 
     if (container && !container.innerHTML) {
-      container.innerHTML = zones.map(z => `<div class="clock-box"><div class="clock-label">${escapeHtml(z.label)}</div><div class="clock-val" id="clk-${escapeAttr(z.label)}">--:--</div></div>`).join('');
+      container.innerHTML = zones.map(z => `
+        <div class="clock-box">
+          <div class="clock-label">${escapeHtml(z.label)}</div>
+          <div class="clock-val" id="clk-${escapeAttr(z.label)}">--:--</div>
+        </div>
+      `).join('');
     }
 
     setInterval(() => {
       const now = new Date();
       zones.forEach(z => {
         const el = document.getElementById(`clk-${z.label}`);
-        if (el) el.textContent = now.toLocaleTimeString('en-US', { timeZone: z.z, hour12:false, hour:'2-digit', minute:'2-digit' });
+        if (el) el.textContent = now.toLocaleTimeString("en-US", { timeZone: z.z, hour12: false, hour:'2-digit', minute:'2-digit' });
       });
     }, 1000);
   }
 
-  /* ===========================
-     Normalization
-     ============================ */
-
-  function normaliseWorkerIncident(item) {
+  /* =========================
+     NORMALISATION
+     ========================= */
+  function normaliseWorkerIncident(i) {
     try {
-      if (!item || !item.title) return null;
-      const title = String(item.title || '');
+      if (!i || !i.title) return null;
+      const title = String(i.title || '');
       if (!title) return null;
 
-      // parse coords (accept lat/lng or lat/lon)
-      let lat = parseCoord(item.lat);
-      let lng = parseCoord(item.lng !== undefined ? item.lng : item.lon);
+      let lat = parseCoord(i.lat);
+      let lng = parseCoord(i.lng !== undefined ? i.lng : i.lon);
 
-      // fallback: use location or city
+      // Try to derive coordinates from location text if invalid
       if (!Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001)) {
-        const locRaw = String(item.location || item.city || item.country || '').toLowerCase();
+        const locRaw = String(i.location || i.city || i.country || '').toLowerCase();
         if (locRaw) {
           const key = locRaw.split(',')[0].trim();
           if (key && key.length >= 3 && CITY_COORDS[key]) {
             lat = CITY_COORDS[key].lat;
             lng = CITY_COORDS[key].lng;
           } else {
-            // match against DELL_SITES name
             for (const s of DELL_SITES) {
-              const sname = String(s.name || '').toLowerCase();
-              if (!sname) continue;
+              const sname = s.name.toLowerCase();
               if (sname.includes(key) || key.includes(sname)) {
                 lat = Number(s.lat);
                 lng = Number(s.lon);
@@ -912,36 +998,34 @@
       if (!Number.isFinite(lat)) lat = 0;
       if (!Number.isFinite(lng)) lng = 0;
 
-      const severity = Number(item.severity || item.sev || 1) || 1;
+      const sev = Number(i.severity) || 1;
       return {
-        id: generateId(item),
-        title: title,
-        summary: item.summary || item.description || '',
-        link: item.link || item.url || '#',
-        time: item.time || item.ts || new Date().toISOString(),
-        severity,
-        severity_label: item.severity_label || (severity >=5 ? 'CRITICAL' : (severity >=4 ? 'HIGH' : (severity===3 ? 'MEDIUM' : 'LOW'))),
-        region: (String(item.region || 'GLOBAL').toUpperCase() === 'GLOBAL') ? 'Global' : String(item.region || 'GLOBAL'),
-        country: String(item.country || 'GLOBAL'),
-        location: item.location || item.city || '',
+        id: generateId(i),
+        title,
+        summary: i.summary || i.description || '',
+        link: i.link || i.url || '#',
+        time: i.time || i.ts || new Date().toISOString(),
+        severity: sev,
+        region: (String(i.region || 'GLOBAL').toUpperCase() === 'GLOBAL') ? 'Global' : String(i.region || 'GLOBAL'),
+        country: String(i.country || 'GLOBAL'),
+        category: String(i.category || 'UNKNOWN'),
         lat: lat,
         lng: lng,
-        source: item.source || item.source_name || '',
-        distance_km: (item.distance_km != null) ? Number(item.distance_km) : null,
-        nearest_site_name: item.nearest_site_name || null,
-        country_wide: !!item.country_wide,
-        category: String(item.category || item.type || 'UNKNOWN')
+        source: i.source || i.source_name || '',
+        distance_km: (i.distance_km != null) ? Number(i.distance_km) : null,
+        nearest_site_name: i.nearest_site_name || null,
+        country_wide: !!i.country_wide,
+        location: i.location || i.city || ''
       };
     } catch(e) {
-      console.error('normaliseWorkerIncident error', e, item);
+      console.error('normaliseWorkerIncident error', e, i);
       return null;
     }
   }
 
-  /* ===========================
-     Fetch helpers
-     ============================ */
-
+  /* =========================
+     FETCH HELPERS
+     ========================= */
   async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
@@ -953,16 +1037,15 @@
     }
   }
 
-  /* ===========================
-     Load data from worker
-     ============================ */
-
+  /* =========================
+     LOAD FROM WORKER
+     ========================= */
   async function loadFromWorker(silent=false) {
-    const label = document.getElementById('feed-status-label');
-    if (label && !silent) label.textContent = 'Refreshing…';
+    const label = document.getElementById("feed-status-label");
+    if (label && !silent) label.textContent = "Refreshing…";
     try {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`, {}, 15000);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
       const raw = await res.json();
       const list = Array.isArray(raw) ? raw : [];
       const cutoff = Date.now() - (48 * 3600 * 1000);
@@ -971,24 +1054,25 @@
         try {
           const t = new Date(i.time).getTime();
           return !isNaN(t) && t >= cutoff;
-        } catch(e) { return false; }
-      });
+        } catch { return false; }
+      }).sort((a,b) => new Date(b.time) - new Date(a.time));
 
-      INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
       FEED_IS_LIVE = true;
       if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
     } catch(e) {
-      console.error('Worker fetch failed:', e);
+      console.error("Worker fetch failed:", e);
       FEED_IS_LIVE = false;
-      if (label && !silent) label.textContent = 'OFFLINE • Worker unreachable';
+      if (label && !silent) label.textContent = "OFFLINE • Worker unreachable";
     }
   }
 
   async function loadProximityFromWorker(silent=false) {
     try {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`, {}, 12000);
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
       if (!res.ok) {
-        if (!silent) console.warn('Proximity endpoint returned not-ok', res.status);
+        if (!silent) console.warn('Proximity returned not-ok:', res.status);
+        PROXIMITY_INCIDENTS = [];
+        PROXIMITY_IDS = new Set();
         return;
       }
       const json = await res.json();
@@ -999,52 +1083,33 @@
         try {
           const t = new Date(i.time).getTime();
           return !isNaN(t) && t >= cutoff;
-        } catch(e) { return false; }
+        } catch { return false; }
       });
+
+      PROXIMITY_IDS = new Set(PROXIMITY_INCIDENTS.map(i => i.id));
+      if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
     } catch(e) {
-      if (!silent) console.error('Proximity load failed', e);
+      console.error('Proximity load failed', e);
+      PROXIMITY_INCIDENTS = [];
+      PROXIMITY_IDS = new Set();
     }
   }
 
-  /* ===========================
-     Renderers (map + feed + proximity)
-     ============================ */
-
-  function createAssetsDebugOverlay() {
-    let d = document.getElementById('assets-debug');
-    if (!d) {
-      d = document.createElement('div');
-      d.id = 'assets-debug';
-      d.className = 'assets-debug';
-      d.setAttribute('role','status');
-      d.setAttribute('aria-live','polite');
-      document.body.appendChild(d);
-    }
-    return d;
-  }
-
-  function updateAssetsDebugOverlay(info) {
-    if (!DEBUG_UI) return;
-    try {
-      const d = createAssetsDebugOverlay();
-      d.style.display = 'block';
-      d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div>
-        <div><strong>DELL_SITES:</strong> ${info.dellSites}</div>
-        <div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div>
-        <div><strong>assets.length:</strong> ${info.assetsLen}</div>
-        <div><strong>filtered:</strong> ${info.filteredLen}</div>
-        <div style="margin-top:6px;font-weight:700">Sample entries</div><pre>${info.sample}</pre>`;
-    } catch(e) { console.warn('updateAssetsDebugOverlay error', e); }
-  }
+  /* =========================
+     RENDER ASSETS & INCIDENTS (map)
+     Only show proximity incidents and critical incidents on the map
+     ========================= */
+  function createAssetsDebugOverlay(){ let d = document.getElementById('assets-debug'); if(!d){ d = document.createElement('div'); d.id = 'assets-debug'; d.className = 'assets-debug'; d.setAttribute('role','status'); d.setAttribute('aria-live','polite'); d.style.display = 'none'; document.body.appendChild(d); } return d; }
+  function updateAssetsDebugOverlay(info){ if (!DEBUG_UI) return; try{ const d = createAssetsDebugOverlay(); d.style.display = 'block'; d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div><div><strong>DELL_SITES:</strong> ${info.dellSites}</div><div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div><div><strong>assets.length:</strong> ${info.assetsLen}</div><div><strong>filtered:</strong> ${info.filteredLen}</div><div style="margin-top:6px;font-weight:700">Sample entries</div><pre>${info.sample}</pre>`; }catch(e){ console.log('updateAssetsDebugOverlay error', e); } }
 
   function renderAssetsOnMap(region) {
     if (!assetsClusterGroup || !map) return;
     assetsClusterGroup.clearLayers();
 
     const assets = Object.values(ASSETS);
-    const filtered = (region === 'Global') ? assets : assets.filter(a => a.region === region);
+    const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
 
-    const sampleText = filtered.slice(0,8).map(a => `${a.name} -> lat:${String(a.lat)} lng:${String(a.lng)} region:${a.region}`).join('\n');
+    const sampleText = filtered.slice(0, 8).map(a => `${a.name} -> lat:${String(a.lat)} lng:${String(a.lng)} region:${a.region}`).join('\n');
     updateAssetsDebugOverlay({
       dellSites: DELL_SITES.length,
       assetsKeys: Object.keys(ASSETS).length,
@@ -1059,94 +1124,72 @@
           icon: L.divIcon({
             className: 'custom-pin',
             html: '<div class="marker-pin-dell"><i class="fas fa-building" aria-hidden="true"></i></div>',
-            iconSize: [30,42],
-            iconAnchor: [15,42]
+            iconSize:[30,42],
+            iconAnchor:[15,42]
           })
         });
         m.bindTooltip(escapeHtml(a.name), { className: 'map-tooltip', direction: 'top' });
         assetsClusterGroup.addLayer(m);
-      } catch(e) { console.warn('renderAssetsOnMap marker create error', e); }
+      } catch(e) {}
     });
   }
 
-  // Only put proximity incidents and critical incidents on the map.
-  function renderIncidentsOnMap(region) {
+  function renderIncidentsOnMap(region, list) {
     if (!incidentClusterGroup || !criticalLayerGroup || !map) return;
     incidentClusterGroup.clearLayers();
     criticalLayerGroup.clearLayers();
 
-    // Helper to decide if an incident should be shown: it must be either:
-    //  - severity >= 4 (critical/high) OR
-    //  - present in PROXIMITY_INCIDENTS (within radius)
-    // Build a quick lookup for proximity by id (we use generateId)
-    const proxIds = new Set((PROXIMITY_INCIDENTS || []).map(p => generateId(p)));
+    const data = (region === "Global") ? list : list.filter(i => i.region === region);
 
-    // Critical incidents: from INCIDENTS where severity >=4
-    const criticals = INCIDENTS.filter(i => Number(i.severity || 1) >= 4 && (region === 'Global' || i.region === region));
-    criticals.forEach(i => {
+    data.forEach(i => {
       try {
-        const c = (Number.isFinite(Number(i.lat)) && Number.isFinite(Number(i.lng)) && Math.abs(Number(i.lat))>0.0001 && Math.abs(Number(i.lng))>0.0001) ? { lat:Number(i.lat), lng:Number(i.lng) } : getCoordsForIncident(i);
-        if (!c) return;
-        const color = '#d93025';
-        const marker = L.marker([c.lat, c.lng], {
-          severity: Number(i.severity || 5),
-          icon: L.divIcon({ html: `<div class="incident-dot" style="background:${color}"></div>`, className:'', iconSize:[16,16], iconAnchor:[8,8] })
-        }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}<br/><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener">Source</a>`);
-        criticalLayerGroup.addLayer(marker);
-      } catch(e) { console.warn('critical marker create error', e); }
-    });
-
-    // Proximity incidents: from PROXIMITY_INCIDENTS filtered by region/radius
-    // Already pre-filtered in loadProximityFromWorker but ensure region match and within radius if needed
-    const proxToShow = PROXIMITY_INCIDENTS.filter(i => {
-      if (!i) return false;
-      if (region !== 'Global' && i.region !== region) return false;
-      // If incident contains distance_km and nearest_site_name, ensure it is within radius OR country_wide flag
-      if (i.country_wide) return true;
-      if (Number(i.distance_km) && Number(i.distance_km) <= currentRadius) return true;
-      // else compute nearest asset distance if needed
-      const coords = (Number.isFinite(Number(i.lat)) && Number.isFinite(Number(i.lng))) ? { lat:Number(i.lat), lng:Number(i.lng) } : getCoordsForIncident(i);
-      if (!coords) return false;
-      // compute nearest asset
-      let nearestDist = Infinity;
-      for (const a of Object.values(ASSETS)) {
-        const d = haversineKm(coords.lat, coords.lng, Number(a.lat), Number(a.lng));
-        if (d < nearestDist) nearestDist = d;
-      }
-      return nearestDist <= currentRadius;
-    });
-
-    proxToShow.forEach(i => {
-      try {
-        const c = (Number.isFinite(Number(i.lat)) && Number.isFinite(Number(i.lng)) && Math.abs(Number(i.lat))>0.0001 && Math.abs(Number(i.lng))>0.0001) ? { lat:Number(i.lat), lng:Number(i.lng) } : getCoordsForIncident(i);
-        if (!c) return;
+        // show on map only if critical (>=4) OR in PROXIMITY_IDS
+        const inProx = PROXIMITY_IDS.has(String(i.id));
         const sev = Number(i.severity || 1);
-        const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
+        if (!(inProx || sev >= 4)) return;
+
+        let c = null;
+        if (Number.isFinite(Number(i.lat)) && Number.isFinite(Number(i.lng)) && Math.abs(Number(i.lat))>0.0001 && Math.abs(Number(i.lng))>0.0001) {
+          c = { lat: Number(i.lat), lng: Number(i.lng) };
+        } else {
+          c = getCoordsForIncident(i);
+        }
+        if (!c) return;
+
+        const color = (sev >= 5) ? '#d93025' : (sev >= 4 ? '#d93025' : (inProx ? '#1a73e8' : '#1a73e8'));
+
         const marker = L.marker([c.lat, c.lng], {
           severity: sev,
-          icon: L.divIcon({ html:`<div class="incident-dot" style="background:${color}"></div>`, className:'', iconSize:[12,12], iconAnchor:[8,8] })
-        }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}<br/><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener">Source</a>`);
-        // if severity >=4 also add to criticalLayerGroup (so it appears as both)
-        if (Number(i.severity || 1) >= 4) {
-          criticalLayerGroup.addLayer(marker);
-        } else {
-          incidentClusterGroup.addLayer(marker);
-        }
-      } catch(e) { console.warn('proximity marker error', e); }
+          icon: L.divIcon({
+            html: `<div class="incident-dot" style="background:${color}"></div>`,
+            className: '',
+            iconSize: [12,12],
+            iconAnchor: [8,8]
+          })
+        }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}<br/><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener noreferrer">Source</a>`);
+
+        if (sev >= 4) criticalLayerGroup.addLayer(marker);
+        else incidentClusterGroup.addLayer(marker);
+
+      } catch(e) {}
     });
 
     try { criticalLayerGroup.bringToFront(); } catch(e){}
     try { assetsClusterGroup.bringToBack(); } catch(e){}
   }
 
+  /* =========================
+     GENERAL FEED + HEADLINE + PROXIMITY ALERTS
+     ========================= */
   function renderGeneralFeed(region) {
-    const container = document.getElementById('general-news-feed');
+    const container = document.getElementById("general-news-feed");
     if (!container) return;
-    const data = (region === 'Global') ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+    const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
     if (!data || data.length === 0) {
       container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
       return;
     }
+
     let html = '';
     data.forEach(i => {
       const sev = mapSeverityToLabel(i.severity);
@@ -1158,13 +1201,20 @@
           <div class="feed-content">
             <div class="feed-tags">
               <span class="ftag ${sev.badgeClass}">${escapeHtml(sev.label)}</span>
-              <span class="ftag ftag-loc">${escapeHtml((String(i.country || 'GLOBAL')).toUpperCase())}</span>
+              <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
               <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
               <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
             </div>
-            <div class="feed-title"><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">${escapeHtml(i.title)}</a></div>
+
+            <div class="feed-title">
+              <a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">
+                ${escapeHtml(i.title)}
+              </a>
+            </div>
+
             <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
             <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
+
             <div class="vote-row" aria-label="Vote buttons">
               <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
                 <i class="fas fa-thumbs-up" aria-hidden="true"></i>
@@ -1177,25 +1227,43 @@
         </div>
       `;
     });
+
     container.innerHTML = html;
   }
 
+  function updateProximityRadius() {
+    try {
+      const el = document.getElementById("proxRadius");
+      if (el) currentRadius = parseFloat(el.value) || currentRadius || 50;
+      const active = document.querySelector('.nav-item-custom.active');
+      const region = active ? active.textContent.trim() : "Global";
+      renderProximityAlerts(region);
+      // Re-render incidents on map to reflect proximity consideration
+      renderIncidentsOnMap(region, INCIDENTS);
+    } catch(e) {
+      console.warn('updateProximityRadius error', e);
+    }
+  }
+
   function renderProximityAlerts(region) {
-    const container = document.getElementById('proximity-alerts-container');
+    const container = document.getElementById("proximity-alerts-container");
     if (!container) return;
-    const data = (region === 'Global') ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+
+    const data = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+
     const alerts = [];
     data.forEach(inc => {
-      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng))) ? { lat:Number(inc.lat), lng:Number(inc.lng) } : getCoordsForIncident(inc);
+      let coords = (inc.lat && inc.lng) ? {lat: inc.lat, lng: inc.lng} : getCoordsForIncident(inc);
       if (!coords) return;
       const key = generateId(inc);
       if (DISMISSED_ALERT_IDS.has(String(key))) return;
+
       let nearest = null;
-      if ((inc.distance_km != null) && inc.nearest_site_name) {
+      if (inc.distance_km && inc.nearest_site_name) {
         nearest = { dist: Number(inc.distance_km), name: inc.nearest_site_name };
       } else {
         for (const asset of Object.values(ASSETS)) {
-          const d = haversineKm(coords.lat, coords.lng, Number(asset.lat), Number(asset.lng));
+          const d = haversineKm(coords.lat, coords.lng, asset.lat, asset.lng);
           if (!nearest || d < nearest.dist) nearest = { dist: d, name: asset.name };
         }
       }
@@ -1204,260 +1272,63 @@
     });
 
     alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
+
     if (!alerts.length) {
       container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
       return;
     }
 
-    container.innerHTML = alerts.slice(0,25).map(a => {
-      const i = a.inc;
-      const sev = Number(i.severity || 1);
-      const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
-      const distStr = i.country_wide ? `Country-wide` : `${Math.round(a.nearest.dist)}km`;
+    container.innerHTML = alerts.slice(0, 25).map(item => {
+      const i = item.inc;
+      const color = i.severity >= 4 ? '#d93025' : (i.severity === 3 ? '#f9ab00' : '#1a73e8');
+      const distStr = i.country_wide ? `Country-wide` : `${Math.round(item.nearest.dist)}km`;
       return `
         <div class="alert-row">
           <div class="alert-top">
             <div class="alert-type">
-              <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i>
-              ${escapeHtml(i.title)}
+              <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i> ${escapeHtml(i.title)}
             </div>
             <div class="alert-dist" style="color:${color}">${escapeHtml(distStr)}</div>
           </div>
-          <div class="alert-site">Near: <b>${escapeHtml(a.nearest.name)}</b></div>
+          <div class="alert-site">Near: <b>${escapeHtml(item.nearest.name)}</b></div>
           <div class="alert-desc">${escapeHtml(i.summary)}</div>
           <div class="alert-actions">
-            <button type="button" class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert">Dismiss</button>
+            <button class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(item.key)}" aria-label="Dismiss this alert">Dismiss</button>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   }
 
   function updateHeadline(region) {
-    const data = (region === 'Global') ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-    const el = document.getElementById('headline-alert');
-    const tags = document.getElementById('headline-tags');
-    if (!el || !tags) return;
+    const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+    const el = document.getElementById("headline-alert");
+    const tagEl = document.getElementById("headline-tags");
+    if (!el || !tagEl) return;
+
     if (data.length) {
-      el.textContent = data[0].title || 'Headline';
+      el.textContent = data[0].title;
       const sev = mapSeverityToLabel(data[0].severity);
-      tags.innerHTML = `
+      tagEl.innerHTML = `
         <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
-        <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
-        <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
-      `;
+        <span class="tag tag-cat" style="margin-left:4px;">${escapeHtml(data[0].category)}</span>
+        <span class="tag tag-reg" style="margin-left:4px;">${escapeHtml(data[0].region)}</span>`;
     } else {
-      el.textContent = 'No critical alerts.';
-      tags.innerHTML = '';
+      el.textContent = "No critical alerts.";
+      tagEl.innerHTML = "";
     }
   }
 
-  /* ===========================
-     Proximity helpers
-     ============================ */
-
-  function updateProximityRadius() {
-    const el = document.getElementById('proxRadius');
-    if (el) currentRadius = parseFloat(el.value) || 50;
-    const active = document.querySelector('.nav-item-custom.active');
-    const region = active ? active.textContent.trim() : 'Global';
-    renderProximityAlerts(region);
-    renderIncidentsOnMap(region);
-  }
-
-  function dismissAlertById(id) {
-    try {
-      const k = String(id || '').trim();
-      if (!k) return;
-      DISMISSED_ALERT_IDS.add(k);
-      sessionStorage.setItem('dismissed_prox_alert_ids', JSON.stringify(Array.from(DISMISSED_ALERT_IDS).slice(0,500)));
-    } catch(e) {}
-  }
-
-  /* ===========================
-     Reporting (preview & download)
-     ============================ */
-
-  async function previewBriefing() {
-    const region = document.getElementById('reportRegion')?.value || 'Global';
-    const date = document.getElementById('reportDate')?.value || '';
-    const fb = document.getElementById('preview-feedback');
-    const cont = document.getElementById('briefing-preview');
-    if (fb) { fb.style.display = 'block'; fb.textContent = 'Generating preview…'; }
-    if (cont) cont.innerHTML = '';
-    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-    if (date) url += `&date=${encodeURIComponent(date)}`;
-    try {
-      const res = await fetchWithTimeout(url, {}, 20000);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const json = await res.json();
-      const incidents = json.incidents || [];
-      if (!incidents.length) {
-        cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
-      } else {
-        cont.innerHTML = incidents.slice(0,50).map(i => `
-          <div style="border-bottom:1px solid #eee; padding:8px 0;">
-            <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
-            <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
-            <div style="font-size:0.85rem;color:#333;margin-top:4px;">${escapeHtml(i.summary || '')}</div>
-          </div>
-        `).join('');
-      }
-      if (fb) fb.style.display = 'none';
-    } catch(e) {
-      if (fb) { fb.style.display = 'block'; fb.textContent = `Error: ${e.message}`; }
-    }
-  }
-
-  function downloadReport() {
-    const region = document.getElementById('reportRegion')?.value || 'Global';
-    const date = document.getElementById('reportDate')?.value || '';
-    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
-    if (date) url += `&date=${encodeURIComponent(date)}`;
-    window.open(url, '_blank', 'noopener');
-  }
-
-  /* ===========================
-     History (archive)
-     ============================ */
-
-  async function loadHistory(dateStr) {
-    const status = document.getElementById('history-status');
-    if (status) status.textContent = 'Loading archive…';
-    try {
-      const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const arr = await res.json();
-      if (!status) return;
-      if (!arr || !arr.length) {
-        status.textContent = 'No archived incidents found.';
-        return;
-      }
-      status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` + arr.map(i => `
-        <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
-          <strong>${escapeHtml(i.title)}</strong><br>
-          <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span>
-        </div>`).join('') + `</div>`;
-    } catch(e) {
-      if (status) status.textContent = `Archive error: ${e.message}`;
-    }
-  }
-
-  /* ===========================
-     Travel (advisories + news fallback)
-     ============================ */
-
-  async function loadTravelAdvisories() {
-    const sel = document.getElementById('countrySelect');
-    if (!sel) return;
-    sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-    // try worker
-    try {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
-      if (res && res.ok) {
-        const data = await res.json();
-        TRAVEL_DATA = Array.isArray(data) ? data : [];
-        TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
-      }
-    } catch(e) {
-      console.warn('worker traveladvisories/live failed', e);
-    }
-
-    // always populate with world list to keep UI responsive
-    sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
-  }
-
-  // fallback helper: derive recent travel news for a country from INCIDENTS
-  function getTravelNewsForCountry(country, maxItems=5) {
-    try {
-      if (!country) return [];
-      const lower = String(country).toLowerCase();
-      // find incidents matching country or city substring
-      const candidate = INCIDENTS.filter(i => {
-        if (!i) return false;
-        const ctry = String(i.country || '').toLowerCase();
-        const loc = String(i.location || '').toLowerCase();
-        const title = String(i.title || '').toLowerCase();
-        return ctry.includes(lower) || loc.includes(lower) || title.includes(lower);
-      });
-      // sort by time desc
-      candidate.sort((a,b) => new Date(b.time) - new Date(a.time));
-      return candidate.slice(0,maxItems).map(x => ({ title: x.title, summary: x.summary, time: x.time }));
-    } catch(e) {
-      console.warn('getTravelNewsForCountry error', e);
-      return [];
-    }
-  }
-
-  async function filterTravel() {
-    const country = document.getElementById('countrySelect')?.value || '';
-    const cont = document.getElementById('travel-advisories');
-    const newsCont = document.getElementById('travel-news');
-    if (cont) cont.innerHTML = 'Loading…';
-    if (newsCont) newsCont.innerHTML = '';
-
-    try {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      const adv = data.advisory || data || {};
-      const level = Number(adv.level || adv.risk_level || 1);
-      const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
-
-      if (cont) cont.innerHTML = `
-        <div class="advisory-box">
-          <div class="advisory-header">
-            <div class="advisory-label">OFFICIAL ADVISORY</div>
-            <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
-          </div>
-          <div class="advisory-text">${escapeHtml(adv.text || adv.advice || adv.summary || 'No major advisory.')}</div>
-          <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || 'Unknown')}</div>
-        </div>
-      `;
-      // news: worker returns data.news or data.recent_incidents; fallback to derived news
-      let news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : null);
-      if (!news || !news.length) {
-        // fallback to derived news from INCIDENTS
-        const derived = getTravelNewsForCountry(country, 6);
-        if (derived && derived.length) {
-          news = derived;
-        }
-      }
-      if (news && news.length) {
-        newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS</div>` + news.slice(0,6).map(n => {
-          const t = n.title || '';
-          const s = n.summary || n.description || '';
-          return `<div class="news-box-item"><div class="news-box-title">${escapeHtml(t)}</div><div class="news-box-summary">${escapeHtml(s)}</div></div>`;
-        }).join('') + `</div>`;
-      } else {
-        if (newsCont) newsCont.innerHTML = '';
-      }
-    } catch(e) {
-      console.warn('filterTravel failed, falling back to derived news', e);
-      // fallback: derived news
-      const derived = getTravelNewsForCountry(country, 6);
-      const contEl = document.getElementById('travel-advisories');
-      if (contEl) contEl.innerHTML = `<div class="advisory-box"><div class="advisory-header"><div class="advisory-label">OFFICIAL ADVISORY</div><div class="advisory-level-badge" style="background:#1a73e8;">LEVEL 1</div></div><div class="advisory-text">Advisory unavailable from worker. Showing derived news.</div><div class="advisory-updated">Updated: ${escapeHtml(TRAVEL_UPDATED_AT || new Date().toISOString())}</div></div>`;
-      const newsContEl = document.getElementById('travel-news');
-      if (newsContEl && derived.length) {
-        newsContEl.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS (Derived)</div>` + derived.map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title)}</div><div class="news-box-summary">${escapeHtml(n.summary)}</div></div>`).join('') + `</div>`;
-      } else if (newsContEl) {
-        newsContEl.innerHTML = '';
-      }
-    }
-  }
-
-  /* ===========================
-     Map coordinate helper
-     ============================ */
-
+  /* =========================
+     HELPERS: getCoordsForIncident & haversine
+     ========================= */
   function getCoordsForIncident(i) {
     try {
       if (!i) return null;
       const lat = parseCoord(i.lat);
       const lng = parseCoord(i.lng !== undefined ? i.lng : i.lon);
-      if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) return { lat, lng };
-
+      if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) {
+        return { lat, lng };
+      }
       const locRaw = String(i.location || i.city || '').trim().toLowerCase();
       if (locRaw && locRaw !== 'unknown') {
         const locKey = locRaw.split(',')[0].trim();
@@ -1473,18 +1344,16 @@
           }
         }
       }
-
       const countryRaw = String(i.country || '').trim().toLowerCase();
       if (countryRaw) {
-        const cc = countryRaw.split(',')[0].trim();
+        const cut = countryRaw.split(',')[0].trim();
         for (const [k, v] of Object.entries(COUNTRY_COORDS || {})) {
-          if (k === cc || k === countryRaw) return { lat: v.lat, lng: v.lng };
+          if (k === cut || k === countryRaw) return { lat: v.lat, lng: v.lng };
         }
-        // fallback to asset in same country
-        const iso = countryRaw.slice(0,2).toLowerCase();
+        const cc = countryRaw.slice(0,2).toLowerCase();
         for (const s of DELL_SITES) {
-          const code = String(s.country || '').toLowerCase();
-          if (code === countryRaw || (code === iso && countryRaw.length >= 2)) return { lat: s.lat, lng: s.lon };
+          const sCode = String(s.country || '').toLowerCase();
+          if (sCode === countryRaw || (sCode === cc && countryRaw.length >= 2)) return { lat: s.lat, lng: s.lon };
         }
       }
       return null;
@@ -1494,201 +1363,30 @@
   }
 
   const COUNTRY_COORDS = {
-    "india": { lat:20.5937, lng:78.9629 },
-    "syria": { lat:34.8021, lng:38.9968 },
-    "pakistan": { lat:30.3753, lng:69.3451 },
-    "australia": { lat:-25.2744, lng:133.7751 },
-    "united kingdom": { lat:55.3781, lng:-3.4360 },
-    "united states": { lat:37.0902, lng:-95.7129 },
-    "ukraine": { lat:48.3794, lng:31.1656 },
-    "russia": { lat:61.5240, lng:105.3188 },
-    "china": { lat:35.8617, lng:104.1954 },
-    "japan": { lat:36.2048, lng:138.2529 },
-    "singapore": { lat:1.3521, lng:103.8198 }
+    "india": { lat: 20.5937, lng: 78.9629 },
+    "syria": { lat: 34.8021, lng: 38.9968 },
+    "pakistan": { lat: 30.3753, lng: 69.3451 },
+    "australia": { lat: -25.2744, lng: 133.7751 },
+    "united kingdom": { lat: 55.3781, lng: -3.4360 },
+    "united states": { lat: 37.0902, lng: -95.7129 },
+    "usa": { lat: 37.0902, lng: -95.7129 },
+    "ukraine": { lat: 48.3794, lng: 31.1656 },
+    "russia": { lat: 61.5240, lng: 105.3188 },
+    "china": { lat: 35.8617, lng: 104.1954 },
+    "japan": { lat: 36.2048, lng: 138.2529 },
+    "singapore": { lat: 1.3521, lng: 103.8198 },
+    "thailand": { lat: 15.8700, lng: 100.9925 },
+    "new zealand": { lat: -40.9006, lng: 174.8860 },
+    "france": { lat: 46.2276, lng: 2.2137 },
+    "germany": { lat: 51.1657, lng: 10.4515 },
+    "brazil": { lat: -14.2350, lng: -51.9253 },
+    "mexico": { lat: 23.6345, lng: -102.5528 },
+    "canada": { lat: 56.1304, lng: -106.3468 },
+    "israel": { lat: 31.0461, lng: 34.8516 },
+    "uae": { lat: 23.4241, lng: 53.8478 }
   };
 
-  /* ===========================
-     Severity mapping helpers
-     ============================ */
-
-  function mapSeverityToLabel(s) {
-    const n = Number(s || 1);
-    if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-    if (n >= 4) return { label: "HIGH", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-    if (n === 3) return { label: "MEDIUM", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-    return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
-  }
-
-  function severityLabel(s) {
-    const n = Number(s || 1);
-    if (n >= 5) return "CRITICAL";
-    if (n >= 4) return "HIGH";
-    if (n === 3) return "MEDIUM";
-    return "LOW";
-  }
-
-  /* ===========================
-     Manual refresh (safe)
-     ============================ */
-
-  async function manualRefresh() {
-    const btn = document.getElementById('btn-refresh');
-    const originalHTML = btn ? btn.innerHTML : 'Refresh';
-    if (btn) {
-      btn.style.opacity = '0.7';
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-      btn.style.pointerEvents = 'none';
-    }
-    try {
-      // load all sources in parallel but we catch inside to avoid Promise.all rejection
-      await Promise.all([
-        (async () => { try { await loadFromWorker(false); } catch(e) { console.warn('loadFromWorker failed', e); }})(),
-        (async () => { try { await loadProximityFromWorker(false); } catch(e) { console.warn('loadProximityFromWorker failed', e); }})(),
-        (async () => { try { await loadTravelAdvisories(); } catch(e) { console.warn('loadTravelAdvisories failed', e); }})()
-      ]);
-      // re-render
-      const active = document.querySelector('.nav-item-custom.active');
-      const region = active ? active.textContent.trim() : 'Global';
-      filterNews(region);
-    } finally {
-      if (btn) {
-        btn.style.opacity = '1';
-        btn.innerHTML = originalHTML;
-        btn.style.pointerEvents = 'auto';
-      }
-    }
-  }
-
-  /* ===========================
-     ADMIN helpers
-     ============================ */
-
-  function adminSetFeedback(msg, isError=false) {
-    const fb = document.getElementById('adminFeedback');
-    if (!fb) return;
-    fb.style.display = 'block';
-    fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
-    fb.textContent = String(msg || '');
-  }
-
-  function adminGetSecret() {
-    // prefer in-memory ADMIN_SECRET, otherwise check session. This keeps behavior stable.
-    const s = (ADMIN_SECRET && String(ADMIN_SECRET).trim()) ? ADMIN_SECRET : (sessionStorage.getItem('admin_secret') || '');
-    return s ? String(s) : '';
-  }
-
-  function adminGetSecretFromField() {
-    try {
-      const el = document.getElementById('adminSecret');
-      return el ? String(el.value || '').trim() : '';
-    } catch(e) { return ''; }
-  }
-
-  function adminSaveSecret() {
-    const fld = document.getElementById('adminSecret');
-    const remember = document.getElementById('adminRememberSession');
-    const val = fld ? String(fld.value || '').trim() : '';
-    ADMIN_SECRET = val;
-    if (remember && remember.checked) {
-      try { sessionStorage.setItem('admin_secret', val); } catch(e) {}
-    } else {
-      try { sessionStorage.removeItem('admin_secret'); } catch(e) {}
-    }
-    if (val) adminSetFeedback('Admin secret saved in memory' + (remember && remember.checked ? ' and session.' : '.'));
-    else adminSetFeedback('Enter a secret first.', true);
-  }
-
-  function adminClearSecret() {
-    try { sessionStorage.removeItem('admin_secret'); } catch(e) {}
-    ADMIN_SECRET = '';
-    const fld = document.getElementById('adminSecret'); if (fld) fld.value = '';
-    const remember = document.getElementById('adminRememberSession'); if (remember) remember.checked = false;
-    adminSetFeedback('Admin secret cleared.', false);
-  }
-
-  async function adminTriggerIngest() {
-    const sec = adminGetSecret();
-    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-    adminSetFeedback('Triggering ingestion…');
-    try {
-      const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
-      const txt = await res.text().catch(()=>'');
-      if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-      adminSetFeedback(txt || 'Ingestion triggered.');
-    } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
-  }
-
-  async function adminUnlock() {
-    const sec = adminGetSecret();
-    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-    adminSetFeedback('Requesting unblock…');
-    try {
-      const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, { method:'POST', headers:{ 'Content-Type':'application/json', 'secret': sec }, body:JSON.stringify({ unblock:true }) });
-      const txt = await res.text().catch(()=>'');
-      if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-      adminSetFeedback(txt || 'Unblock requested.');
-    } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
-  }
-
-  async function adminThumbsStatus() {
-    const sec = adminGetSecret();
-    adminSetFeedback('Loading thumbs status…');
-    try {
-      const res = await fetch(`${WORKER_URL}/api/thumbs/status`, { method:'GET', headers: { ...(sec ? {'secret': sec} : {}) } });
-      const data = await res.json().catch(()=>null);
-      if (!res.ok) { adminSetFeedback(`Status failed (HTTP ${res.status}).`, true); console.log('thumbs status raw', data); return; }
-      adminSetFeedback('Thumbs status loaded. Check console.');
-      console.log('Thumbs status:', data);
-    } catch(e) { adminSetFeedback('Status failed (network).', true); console.error(e); }
-  }
-
-  async function adminForceRefreshTravel() {
-    const sec = adminGetSecret();
-    adminSetFeedback('Refreshing travel cache…');
-    try {
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, { method:'POST', headers: { ...(sec ? {'secret':sec} : {}) } });
-      const txt = await res.text().catch(()=>'');
-      if (!res.ok) { adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`, true); return; }
-      adminSetFeedback(txt || 'Travel refresh triggered.');
-      try { await loadTravelAdvisories(); } catch(e) {}
-    } catch(e) { adminSetFeedback('Travel refresh failed (network).', true); console.error(e); }
-  }
-
-  async function adminGenerateBrief() {
-    const sec = adminGetSecret();
-    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-    const regionEl = document.getElementById('reportRegion');
-    const dateEl = document.getElementById('reportDate');
-    const region = regionEl ? String(regionEl.value || 'Global') : 'Global';
-    const date = dateEl ? String(dateEl.value || '') : '';
-    adminSetFeedback('Generating brief on server…');
-    try {
-      const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
-      const res = await fetch(url, { method:'POST', headers:{ 'secret': sec } });
-      const txt = await res.text().catch(()=>'');
-      if (!res.ok) { adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`, true); return; }
-      adminSetFeedback(txt || 'Brief generation requested.');
-    } catch(e) { adminSetFeedback('Generate failed (network).', true); console.error(e); }
-  }
-
-  async function adminListBriefs() {
-    const sec = adminGetSecret();
-    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-    adminSetFeedback('Listing stored briefs…');
-    try {
-      const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
-      const data = await res.json().catch(()=>null);
-      if (!res.ok) { adminSetFeedback(`List failed (HTTP ${res.status}).`, true); console.log('brief list raw', data); return; }
-      adminSetFeedback('Brief list loaded. Check console.');
-      console.log('Stored briefs:', data);
-    } catch(e) { adminSetFeedback('List failed (network).', true); console.error(e); }
-  }
-
-  /* ===========================
-     Haversine utility
-     ============================ */
-
-  function haversineKm(lat1, lon1, lat2, lon2) {
+  function haversineKm(lat1,lon1,lat2,lon2) {
     const R=6371;
     const dLat=(lat2-lat1)*Math.PI/180;
     const dLon=(lon2-lon1)*Math.PI/180;
@@ -1698,153 +1396,506 @@
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
-  /* ===========================
-     Event delegation
-     ============================ */
+  /* =========================
+     REPORTING
+     ========================= */
+  async function previewBriefing() {
+    const region = document.getElementById('reportRegion')?.value || 'Global';
+    const date = document.getElementById('reportDate')?.value || '';
+    const fb = document.getElementById('preview-feedback');
+    const cont = document.getElementById('briefing-preview');
 
-  document.addEventListener('click', async (e) => {
-    const target = e.target.closest('[data-action]');
-    if (!target) return;
-    const action = target.getAttribute('data-action') || '';
-    if (!action) return;
+    if (fb) { fb.style.display = 'block'; fb.textContent = "Generating preview..."; }
+    if (cont) cont.innerHTML = "";
 
-    if (target.tagName === 'A' && (target.getAttribute('href') === '#' || target.getAttribute('href') === '')) e.preventDefault();
+    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
+    if (date) url += `&date=${encodeURIComponent(date)}`;
 
     try {
+      const res = await fetchWithTimeout(url);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const json = await res.json();
+
+      const incidents = json.incidents || [];
+      if (!incidents.length) {
+        if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon"></i><div class="safe-text">No incidents found for this period.</div></div>`;
+      } else {
+        if (cont) cont.innerHTML = incidents.slice(0, 50).map(i => `
+          <div style="border-bottom:1px solid #eee; padding:8px 0;">
+            <div style="font-weight:800;font-size:0.9rem">${escapeHtml(i.title || "")}</div>
+            <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || "")} • ${safeTime(i.time)}</div>
+          </div>
+        `).join('');
+      }
+    } catch(e) {
+      if (fb) fb.textContent = "Preview error: " + (e?.message || String(e));
+    } finally {
+      if (fb) setTimeout(()=> fb.style.display = 'none', 800);
+    }
+  }
+
+  async function downloadReport() {
+    const region = document.getElementById('reportRegion')?.value || 'Global';
+    const date = document.getElementById('reportDate')?.value || '';
+    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
+    if (date) url += `&date=${encodeURIComponent(date)}`;
+    window.open(url, '_blank');
+  }
+
+  /* =========================
+     HISTORY
+     ========================= */
+  async function loadHistory(dateStr) {
+    const status = document.getElementById('history-status');
+    if (status) status.innerHTML = "Loading archive...";
+    try {
+      const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const arr = await res.json();
+      if (!arr || !arr.length) {
+        if (status) status.innerHTML = "No archived incidents found.";
+        return;
+      }
+      if (status) {
+        status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
+          arr.map(i => `
+            <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
+              <strong>${escapeHtml(i.title || "")}</strong><br>
+              <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || "")}</span>
+            </div>
+          `).join('') + `</div>`;
+      }
+    } catch(e) {
+      if (status) status.innerHTML = "Archive error: " + (e?.message || String(e));
+    }
+  }
+
+  /* =========================
+     TRAVEL ADVISORIES + NEWS (with fallback)
+     ========================= */
+  async function loadTravelAdvisories() {
+    const sel = document.getElementById('countrySelect');
+    if (!sel) return;
+
+    sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+
+    // Try to load from worker
+    try {
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
+      if (res && res.ok) {
+        const data = await res.json();
+        TRAVEL_DATA = Array.isArray(data) ? data : [];
+        TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
+      }
+    } catch(e) {
+      console.warn('worker traveladvisories/live failed', e);
+    }
+
+    // Populate with WORLD_COUNTRIES for UI stability
+    sel.innerHTML = `<option selected disabled>Select Country...</option>` +
+      WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+  }
+
+  // Helper: returns array of N news items for country, either from worker response or fallback scanning INCIDENTS
+  function getTravelNewsForCountry(country, n = 5) {
+    const cLower = String(country || '').toLowerCase();
+    const results = [];
+    // Try TRAVEL_DATA if it's an object keyed by country (worker variants)
+    try {
+      for (const t of TRAVEL_DATA) {
+        const name = String(t.country || t.name || '').toLowerCase();
+        if (name === cLower || name.includes(cLower) || cLower.includes(name)) {
+          const news = Array.isArray(t.news) ? t.news : (Array.isArray(t.recent_incidents) ? t.recent_incidents : []);
+          if (news && news.length) return news.slice(0, n);
+        }
+      }
+    } catch(e) {}
+    // Fallback: find incidents in INCIDENTS with matching country or location or title
+    try {
+      for (const it of INCIDENTS) {
+        if (!it || !it.title) continue;
+        const cand = String((it.country || '')).toLowerCase();
+        const loc = String(it.location || '').toLowerCase();
+        const title = String(it.title || '').toLowerCase();
+        if (cand.includes(cLower) || loc.includes(cLower) || title.includes(cLower)) {
+          results.push({ title: it.title, summary: it.summary || '', time: it.time, source: it.source || '' });
+          if (results.length >= n) break;
+        }
+      }
+    } catch(e) {}
+    return results;
+  }
+
+  async function filterTravel() {
+    const country = document.getElementById('countrySelect')?.value || '';
+    const cont = document.getElementById('travel-advisories');
+    const newsCont = document.getElementById('travel-news');
+
+    if (cont) cont.innerHTML = "Loading…";
+    if (newsCont) newsCont.innerHTML = "";
+
+    try {
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
+      if (!res.ok) {
+        // fallback: build advisory UI from TRAVEL_DATA or generic
+        throw new Error('Worker returned ' + res.status);
+      }
+      const data = await res.json();
+      const adv = data.advisory || data || {};
+      const level = Number(adv.level || adv.risk_level || 1);
+      const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
+
+      if (cont) cont.innerHTML = `
+        <div class="advisory-box">
+          <div class="advisory-header">
+            <div class="advisory-label">OFFICIAL ADVISORY</div>
+            <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
+          </div>
+          <div class="advisory-text">${escapeHtml(adv.text || adv.advice || adv.summary || 'No major advisory.')}</div>
+          <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || "Unknown")}</div>
+        </div>
+      `;
+
+      // render news if provided, otherwise fallback to helper
+      let news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
+      if (!news || !news.length) {
+        news = getTravelNewsForCountry(country, 5);
+      }
+
+      if (newsCont && news && news.length) {
+        newsCont.innerHTML = `
+          <div class="news-box-alert">
+            <div class="news-box-header">RELATED NEWS</div>
+            ${news.slice(0,5).map(n => `
+              <div class="news-box-item">
+                <div class="news-box-title">${escapeHtml(n.title || n.headline || '')}</div>
+                <div class="news-box-summary">${escapeHtml(n.summary || n.excerpt || '')}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    } catch(e) {
+      // fallback UI
+      if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">Advisory unavailable.</div></div>`;
+      const news = getTravelNewsForCountry(country, 5);
+      if (newsCont && news && news.length) {
+        newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS (FALLBACK)</div>${news.slice(0,5).map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title)}</div><div class="news-box-summary">${escapeHtml(n.summary || '')}</div></div>`).join('')}</div>`;
+      }
+    }
+  }
+
+  /* =========================
+     ADMIN HELPERS
+     ========================= */
+  function adminSetFeedback(text, isError=false) {
+    const el = document.getElementById('admin-feedback');
+    if (!el) return;
+    el.style.display = 'block';
+    el.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
+    el.textContent = text;
+  }
+
+  function adminGetSecretFromField() {
+    try {
+      const el = document.getElementById('adminSecret');
+      const remember = document.getElementById('adminRememberSession');
+      const val = el ? String(el.value || '').trim() : '';
+      if (remember && remember.checked) {
+        try { sessionStorage.setItem('admin_secret', val); } catch(e){}
+      } else {
+        try { sessionStorage.removeItem('admin_secret'); } catch(e){}
+      }
+      ADMIN_SECRET = val;
+      return val;
+    } catch(e) { return ''; }
+  }
+
+  function adminSaveSecret() {
+    const sec = adminGetSecretFromField();
+    if (sec) adminSetFeedback('Admin secret saved (session).', false);
+    else adminSetFeedback('Enter a secret first.', true);
+  }
+
+  function adminClearSecret() {
+    try {
+      sessionStorage.removeItem('admin_secret');
+    } catch(e){}
+    ADMIN_SECRET = '';
+    const fld = document.getElementById('adminSecret');
+    if (fld) fld.value = '';
+    adminSetFeedback('Secret cleared.', false);
+  }
+
+  async function adminTriggerIngest() {
+    const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+    adminSetFeedback('Triggering ingestion…');
+    try {
+      const res = await fetch(`${WORKER_URL}/api/ingest`, { method: 'POST', headers: { 'secret': sec } });
+      const txt = await res.text().catch(()=>'');
+      if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`, true); return; }
+      adminSetFeedback(txt || 'Ingestion triggered.');
+    } catch(e) {
+      adminSetFeedback('Ingest failed (network).', true);
+      console.error(e);
+    }
+  }
+
+  async function adminUnlock() {
+    const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+    adminSetFeedback('Requesting unblock…');
+    try {
+      const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, { method: 'POST', headers: { 'Content-Type':'application/json', 'secret': sec }, body: JSON.stringify({ unblock: true }) });
+      const txt = await res.text().catch(()=>'');
+      if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`, true); return; }
+      adminSetFeedback(txt || 'Unblock requested.');
+    } catch(e) {
+      adminSetFeedback('Unblock failed (network).', true);
+      console.error(e);
+    }
+  }
+
+  async function adminThumbsStatus() {
+    const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+    adminSetFeedback('Loading thumbs status…');
+    try {
+      const res = await fetch(`${WORKER_URL}/api/thumbs/status`, { method: 'GET', headers: { ...(sec ? { 'secret': sec } : {}) } });
+      const data = await res.json().catch(()=>null);
+      if (!res.ok) { adminSetFeedback(`Status failed (HTTP ${res.status}).`, true); console.log('thumbs status raw', data); return; }
+      adminSetFeedback('Thumbs status loaded. Check console.');
+      console.log('Thumbs status:', data);
+    } catch(e) {
+      adminSetFeedback('Status failed (network).', true);
+      console.error(e);
+    }
+  }
+
+  async function adminForceRefreshTravel() {
+    const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+    adminSetFeedback('Refreshing travel cache…');
+    try {
+      const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, { method: 'POST', headers: { ...(sec ? { 'secret': sec } : {}) } });
+      const txt = await res.text().catch(()=>'');
+      if (!res.ok) { adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`, true); return; }
+      adminSetFeedback(txt || 'Travel refresh triggered.');
+      try { await loadTravelAdvisories(); } catch(e) {}
+    } catch(e) {
+      adminSetFeedback('Travel refresh failed (network).', true);
+      console.error(e);
+    }
+  }
+
+  async function adminGenerateBrief() {
+    const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+    const regionEl = document.getElementById('reportRegion');
+    const dateEl = document.getElementById('reportDate');
+    const region = regionEl ? String(regionEl.value || 'Global') : 'Global';
+    const date = dateEl ? String(dateEl.value || '') : '';
+    adminSetFeedback('Generating brief on server…');
+    try {
+      const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
+      const res = await fetch(url, { method: 'POST', headers: { 'secret': sec } });
+      const txt = await res.text().catch(()=>'');
+      if (!res.ok) { adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`, true); return; }
+      adminSetFeedback(txt || 'Brief generation requested.');
+    } catch(e) {
+      adminSetFeedback('Generate failed (network).', true);
+      console.error(e);
+    }
+  }
+
+  async function adminListBriefs() {
+    const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+    if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+    adminSetFeedback('Listing stored briefs…');
+    try {
+      const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
+      const data = await res.json().catch(()=>null);
+      if (!res.ok) { adminSetFeedback(`List failed (HTTP ${res.status}).`, true); console.log('brief list raw', data); return; }
+      adminSetFeedback('Brief list loaded. Check console.');
+      console.log('Stored briefs:', data);
+    } catch(e) {
+      adminSetFeedback('List failed (network).', true);
+      console.error(e);
+    }
+  }
+
+  /* =========================
+     REFRESH (robust)
+     ========================= */
+  async function manualRefresh() {
+    const btn = document.getElementById("btn-refresh");
+    const originalText = btn ? btn.innerHTML : 'Refresh';
+
+    if (btn) {
+      btn.style.opacity = "0.7";
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+      btn.style.pointerEvents = "none";
+    }
+
+    try {
+      await Promise.allSettled([
+        loadFromWorker(false),
+        loadProximityFromWorker(false),
+        loadTravelAdvisories()
+      ]);
+      const active = document.querySelector('.nav-item-custom.active');
+      const region = active ? active.textContent.trim() : "Global";
+      filterNews(region);
+    } catch(e) {
+      console.error('manualRefresh error', e);
+    } finally {
+      if (btn) {
+        btn.style.opacity = "1";
+        btn.innerHTML = originalText;
+        btn.style.pointerEvents = "auto";
+      }
+    }
+  }
+
+  /* =========================
+     BOOT & EVENT BINDING
+     ========================= */
+  document.addEventListener("DOMContentLoaded", async () => {
+    // Admin modal: preload secret if set
+    try {
+      const sec = sessionStorage.getItem('admin_secret') || '';
+      if (sec) {
+        ADMIN_SECRET = sec;
+        try { document.getElementById('adminSecret').value = sec; document.getElementById('adminRememberSession').checked = true; } catch(e){}
+      }
+    } catch(e){}
+
+    // init map (do not swallow critical failures silently)
+    initMap();
+
+    // Start clock
+    startClock();
+
+    // delegated click handler
+    document.addEventListener('click', async (e) => {
+      const target = e.target.closest('[data-action]');
+      if (!target) return;
+      // prevent default for anchors with #
+      if (target.tagName === 'A' && (target.getAttribute('href') === '#' || target.getAttribute('href') === '')) e.preventDefault();
+      const action = target.dataset.action;
+      if (!action) return;
+
       if (action === 'filter-region') {
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
         target.classList.add('active');
-        const region = target.dataset.region || target.textContent.trim();
-        filterNews(region);
-        return;
-      }
-
-      if (action === 'refresh') {
-        await manualRefresh();
-        return;
-      }
-
-      if (action === 'vote') {
+        filterNews(target.dataset.region || target.textContent.trim());
+      } else if (action === 'refresh') {
+        manualRefresh();
+      } else if (action === 'vote') {
         e.preventDefault(); e.stopPropagation();
         const id = target.getAttribute('data-id'); const v = target.getAttribute('data-vote');
-        if (id && v) await voteThumb(id, v);
-        return;
-      }
-
-      if (action === 'dismiss-alert') {
+        voteThumb(id, v);
+      } else if (action === 'dismiss-alert') {
         e.preventDefault(); e.stopPropagation();
         const id = target.getAttribute('data-id');
         if (id) dismissAlertById(id);
-        const row = target.closest('.alert-row'); if (row) row.remove();
-        return;
+        const row = target.closest('.alert-row');
+        if (row) row.remove();
+      } else if (action === 'preview-brief') {
+        previewBriefing();
+      } else if (action === 'download-brief') {
+        downloadReport();
+      } else if (action === 'admin-save-secret') {
+        adminSaveSecret();
+      } else if (action === 'admin-clear-secret') {
+        adminClearSecret();
+      } else if (action === 'admin-trigger-ingest') {
+        adminTriggerIngest();
+      } else if (action === 'admin-unlock') {
+        adminUnlock();
+      } else if (action === 'admin-thumbs-status') {
+        adminThumbsStatus();
+      } else if (action === 'admin-force-refresh-travel') {
+        adminForceRefreshTravel();
+      } else if (action === 'admin-generate-brief') {
+        adminGenerateBrief();
+      } else if (action === 'admin-list-briefs') {
+        adminListBriefs();
       }
+    });
 
-      if (action === 'preview-brief') { previewBriefing(); return; }
-      if (action === 'download-brief') { downloadReport(); return; }
+    // Open feed-card links when clicking the card body (except buttons)
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.feed-card[data-link]');
+      if (!card) return;
+      if (e.target.closest('a')) return;
+      if (e.target.closest('[data-action]')) return;
+      const href = card.getAttribute('data-link');
+      if (!href) return;
+      try { window.open(href, '_blank', 'noopener'); } catch(e){}
+    });
 
-      if (action === 'admin-save-secret') { adminSaveSecret(); return; }
-      if (action === 'admin-clear-secret') { adminClearSecret(); return; }
-      if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
-      if (action === 'admin-unlock') { adminUnlock(); return; }
-      if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
-      if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
-      if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
-      if (action === 'admin-list-briefs') { adminListBriefs(); return; }
-    } catch(err) {
-      console.error('delegated action error', action, err);
-    }
-  });
+    // wire inputs
+    const historyPicker = document.getElementById('history-picker');
+    if (historyPicker) historyPicker.addEventListener('change', (e) => loadHistory(e.target.value));
+    const countrySel = document.getElementById('countrySelect');
+    if (countrySel) countrySel.addEventListener('change', filterTravel);
+    const proxRad = document.getElementById('proxRadius');
+    if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
 
-  // open feed card link when clicking card (but not buttons/links inside)
-  document.addEventListener('click', (e) => {
-    const card = e.target.closest('.feed-card[data-link]');
-    if (!card) return;
-    if (e.target.closest('a')) return;
-    if (e.target.closest('[data-action]')) return;
-    const href = card.getAttribute('data-link');
-    if (!href) return;
-    try { window.open(href, '_blank', 'noopener'); } catch(e) {}
-  });
-
-  // input wiring
-  document.getElementById('history-picker')?.addEventListener('change', (e) => loadHistory(e.target.value));
-  document.getElementById('countrySelect')?.addEventListener('change', filterTravel);
-  document.getElementById('proxRadius')?.addEventListener('change', updateProximityRadius);
-
-  /* ===========================
-     Filter main entry
-     ============================ */
-
-  function filterNews(region) {
-    renderAssetsOnMap(region);
-    renderIncidentsOnMap(region);
-    renderGeneralFeed(region);
-    updateHeadline(region);
-    renderProximityAlerts(region);
-  }
-
-  /* ===========================
-     Boot / Init (DOMContentLoaded)
-     ============================ */
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    // preload admin secret from session if present
-    try {
-      const sec = sessionStorage.getItem('admin_secret');
-      if (sec) {
-        ADMIN_SECRET = sec;
-        const fld = document.getElementById('adminSecret');
-        if (fld) fld.value = sec;
-        const remember = document.getElementById('adminRememberSession');
-        if (remember) remember.checked = true;
-      }
-    } catch(e) {}
-
-    // init map - we intentionally do not swallow errors here so the console shows issues.
-    initMap();
-
-    // start clocks
-    startClock();
-
-    // initial loads
+    // initial load
     await loadFromWorker();
     await loadProximityFromWorker();
+    filterNews("Global");
     await loadTravelAdvisories();
 
-    // apply stored votes UI
-    try { Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k])); } catch(e){}
+    // apply stored votes to UI
+    Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
 
-    // initial render
-    filterNews('Global');
-
-    // periodic auto refresh
+    // auto refresh when live
     setInterval(async () => {
       if (FEED_IS_LIVE) {
         await loadFromWorker(true);
         await loadProximityFromWorker(true);
         const active = document.querySelector('.nav-item-custom.active');
-        const region = active ? active.textContent.trim() : 'Global';
-        filterNews(region);
+        filterNews(active ? active.textContent.trim() : 'Global');
       }
     }, AUTO_REFRESH_MS);
 
-    // try flushing vote queue once loaded
-    setTimeout(() => { try { flushVoteQueue(); } catch(e) {} }, 1000);
+    // flush vote queue shortly after load
+    setTimeout(()=> { try { flushVoteQueue(); } catch(e) {} }, 1000);
   });
 
-  /* ===========================
-     Expose debug helpers
-     ============================ */
+  /* =========================
+     FILTER NEWS (main entry)
+     ========================= */
+  function filterNews(region) {
+    renderAssetsOnMap(region);
+    renderIncidentsOnMap(region, INCIDENTS);
+    renderGeneralFeed(region);
+    updateHeadline(region);
+    renderProximityAlerts(region);
+  }
+
+  /* =========================
+     SEVERITY MAP
+     ========================= */
+  function mapSeverityToLabel(s) {
+    const n = Number(s || 1);
+    if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+    if (n >= 4) return { label: "HIGH", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+    if (n === 3) return { label: "MEDIUM", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
+    return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
+  }
+
+  /* =========================
+     EXPORT / debugging helpers
+     ========================= */
   window.loadTravelAdvisories = loadTravelAdvisories;
   window.filterTravel = filterTravel;
   window.loadHistory = loadHistory;
   window.voteThumb = voteThumb;
   window.flushVoteQueue = flushVoteQueue;
 
-  /* ===========================
-     End of script
-     ============================ */
   </script>
-
 </body>
 </html>
