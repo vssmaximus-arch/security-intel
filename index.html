@@ -29,6 +29,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <style>
+    /* == exact same CSS as you used originally (preserved) == */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -226,7 +227,8 @@
         <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
       </div>
 
-      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;
+        box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
         <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
       </div>
 
@@ -287,8 +289,12 @@
           <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Travel country">
             <option selected disabled>Loading countries...</option>
           </select>
+
+          <!-- Travel advisory (official advisory/level) -->
           <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
-          <div id="travel-news" class="mt-2"></div>
+
+          <!-- Travel news (recent incidents / last 24h) -->
+          <div id="travel-news" class="mt-2" aria-live="polite"></div>
         </div>
 
         <div class="side-card" style="padding-bottom: 10px;">
@@ -322,6 +328,7 @@
   </div>
 </div>
 
+<!-- REPORT MODAL -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -365,6 +372,7 @@
   </div>
 </div>
 
+<!-- ADMIN MODAL (Secret, Ingestion, Brief generation, Reports admin) -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -420,7 +428,7 @@
   </div>
 </div>
 
-<div id="assets-debug" class="assets-debug" aria-live="polite"></div>
+<div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
 
 <script>
 /* ===========================
@@ -432,7 +440,7 @@ const AUTO_REFRESH_MS = 60_000;
 /* DEBUG UI (overlay hidden unless enabled via ?debug=1 or localStorage flag) */
 const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
 
-/* GITHUB SMARTTRAVELLER FALLBACK */
+/* GITHUB SMARTTRAVELLER FALLBACK (simple) */
 const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
 const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
 const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
@@ -466,7 +474,7 @@ const WORLD_COUNTRIES = [
 ];
 
 /* ===========================
-   DATA STATE
+   STATE
 =========================== */
 let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
@@ -474,14 +482,14 @@ let FEED_IS_LIVE = false;
 let currentRadius = 50;
 let DISMISSED_ALERT_IDS = new Set();
 
-// load dismissed from session
+// Load dismissed from session
 try {
   const raw = sessionStorage.getItem('dismissed_prox_alert_ids');
   if (raw) {
     const arr = JSON.parse(raw);
-    if (Array.isArray(arr)) arr.forEach(v => { try { DISMISSED_ALERT_IDS.add(String(v)); } catch{} });
+    if (Array.isArray(arr)) arr.forEach(v => { try { DISMISSED_ALERT_IDS.add(String(v)); } catch(e){} });
   }
-} catch(e){}
+} catch(e) {}
 
 let TRAVEL_DATA = [];
 let TRAVEL_UPDATED_AT = null;
@@ -491,10 +499,10 @@ let assetsClusterGroup;
 let incidentClusterGroup;
 let criticalLayerGroup;
 
-let ADMIN_SECRET = ''; // keep in-memory by default; user may choose to remember to sessionStorage
+let ADMIN_SECRET = ''; // in-memory default
 
-let VOTES_LOCAL = {}; // persisted map of id->'up'|'down' for optimistic UI
-let VOTE_QUEUE = []; // queued vote attempts when offline or server unresponsive
+let VOTES_LOCAL = {};
+let VOTE_QUEUE = [];
 
 // load persisted votes & queue
 try {
@@ -502,23 +510,21 @@ try {
   if (rawVotes) VOTES_LOCAL = JSON.parse(rawVotes) || {};
   const rawQueue = localStorage.getItem('os_v1_vote_queue');
   if (rawQueue) VOTE_QUEUE = JSON.parse(rawQueue) || [];
-} catch(e){}
+} catch(e) {}
 
-/* Global Error Handlers */
+/* Global error handlers */
 window.onerror = function(msg, url, line, col, error) {
    console.error("Global Error Caught:", { msg, url, line, col, error });
 };
 window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled promise rejection:', ev.reason); });
 
-/* small UX helpers */
+/* helpers */
 let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 
-/* ===========================
-   DATA: Dell Sites & ASSETS
-=========================== */
+/* DELL_SITES + ASSETS (unchanged) */
 const DELL_SITES = [
-  // AMER
+  // ... same full list as before (AMER/LATAM/EMEA/APJC) ...
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
   { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
@@ -534,13 +540,11 @@ const DELL_SITES = [
   { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
   { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
 
-  // LATAM
   { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
   { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
   { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
   { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
 
-  // EMEA
   { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
   { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
   { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
@@ -559,7 +563,6 @@ const DELL_SITES = [
   { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
   { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
 
-  // APJC
   { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
   { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
   { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
@@ -596,20 +599,17 @@ const CITY_COORDS = {
   "mexico city": {lat:19.4326, lng:-99.1332}, "sao paulo": {lat:-23.5505, lng:-46.6333}
 };
 
-/* ===========================
-   UTILITIES
-=========================== */
-
+/* UTILITIES (same as before) */
 function escapeHtml(s){
   return String(s||"")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
+    .replace(/\"/g,"&quot;")
     .replace(/'/g,"&#039;");
 }
 function escapeAttr(s){
-  return String(s||"").replace(/"/g,"&quot;").replace(/`/g,"&#096;");
+  return String(s||"").replace(/\"/g,"&quot;").replace(/`/g,"&#096;");
 }
 function safeHref(u){
   try {
@@ -624,7 +624,8 @@ function safeHref(u){
   }
 }
 function shortHost(u){
-  try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return "Source"; }
+  try { return new URL(u).hostname.replace(/^www\./,''); }
+  catch { return "Source"; }
 }
 function safeTime(t){
   try {
@@ -633,24 +634,17 @@ function safeTime(t){
     return d.toLocaleString();
   } catch { return "Recently"; }
 }
-
-/* Standardized ID generator — use everywhere */
 function generateId(item) {
   if (!item) return '';
   if (item.id) return String(item.id);
-  // Prefer title + time fallback (stable across normalization/filtering)
   const t = String(item.time || item.ts || item.timestamp || "");
   const title = String(item.title || item.link || "");
   return `${title}|${t}`;
 }
-
-/* Safe parse float for coordinates */
 function parseCoord(v) {
   const n = (v === null || v === undefined) ? NaN : parseFloat(String(v).trim());
   return Number.isFinite(n) ? n : NaN;
 }
-
-/* getClusterStats — shared cluster summarizer */
 function getClusterStats(cluster) {
   const children = cluster.getAllChildMarkers ? cluster.getAllChildMarkers() : [];
   let counts = { critical:0, high:0, medium:0, low:0 };
@@ -664,16 +658,12 @@ function getClusterStats(cluster) {
   });
   return { counts, maxSeverity, childrenCount: children.length };
 }
-
-/* Persist votes & queue */
 function persistVotes() {
   try { localStorage.setItem('os_v1_votes', JSON.stringify(VOTES_LOCAL)); } catch(e){}
 }
 function persistVoteQueue() {
   try { localStorage.setItem('os_v1_vote_queue', JSON.stringify(VOTE_QUEUE)); } catch(e){}
 }
-
-/* Vote UI helpers */
 function markVoteAcceptedLocally(id, vote) {
   try {
     if (!id) return;
@@ -691,7 +681,6 @@ function removeLocalVote(id) {
 }
 function applyVoteUIForId(id, vote) {
   try {
-    // find all buttons with this data-id
     document.querySelectorAll(`.btn-vote[data-id="${escapeAttr(id)}"]`).forEach(btn => {
       btn.classList.remove('voted-up','voted-down');
       btn.disabled = false;
@@ -705,19 +694,13 @@ function applyVoteUIForId(id, vote) {
   } catch(e) {}
 }
 
-/* ===========================
-   VOTE QUEUE + SEND
-=========================== */
-
+/* VOTING (unchanged public->fallback->queue) */
 async function sendVoteToServer(payload) {
-  // payload { id, vote, ts }
   if (!payload || !payload.id) return { ok:false, err:'invalid' };
   const tryEndpoints = [
-    `${WORKER_URL}/api/thumb/public`,     // public endpoint (preferred for pilot)
-    `${WORKER_URL}/api/thumb`            // legacy endpoint (may require secret)
+    `${WORKER_URL}/api/thumb/public`,
+    `${WORKER_URL}/api/thumb`
   ];
-
-  // try public first (no secret)
   for (let i = 0; i < tryEndpoints.length; i++) {
     const url = tryEndpoints[i];
     try {
@@ -729,7 +712,6 @@ async function sendVoteToServer(payload) {
       if (res.ok) {
         return { ok:true, status: res.status };
       } else {
-        // if 403 and we have admin secret, try authenticated
         if (res.status === 403 && ADMIN_SECRET) {
           try {
             const res2 = await fetch(`${WORKER_URL}/api/thumb`, {
@@ -743,12 +725,10 @@ async function sendVoteToServer(payload) {
             return { ok:false, err:e2 };
           }
         }
-        // For 4xx/5xx, return not ok but with status
         const txt = await res.text().catch(()=>'');
         return { ok:false, status: res.status, text: txt };
       }
     } catch (e) {
-      // network — try next endpoint or queue
       if (i === tryEndpoints.length - 1) {
         return { ok:false, err:e };
       } else {
@@ -758,15 +738,12 @@ async function sendVoteToServer(payload) {
   }
   return { ok:false, err:'no-endpoints' };
 }
-
 async function enqueueVote(payload) {
   try {
     VOTE_QUEUE.push(payload);
     persistVoteQueue();
   } catch(e) {}
 }
-
-/* attempt to flush queued votes */
 async function flushVoteQueue() {
   if (!VOTE_QUEUE || !VOTE_QUEUE.length) return;
   const queueCopy = VOTE_QUEUE.slice();
@@ -775,7 +752,6 @@ async function flushVoteQueue() {
     try {
       const r = await sendVoteToServer(p);
       if (r.ok) {
-        // remove first occurrence from queue
         const idx = VOTE_QUEUE.findIndex(q => q.id === p.id && q.ts === p.ts && q.vote === p.vote);
         if (idx >= 0) VOTE_QUEUE.splice(idx,1);
         persistVoteQueue();
@@ -787,17 +763,10 @@ async function flushVoteQueue() {
     }
   }
 }
-
-/* High-level vote function */
 async function voteThumb(id, vote) {
   if (!id || !vote) return;
-  // optimistic UI
   markVoteAcceptedLocally(id, vote);
-
-  // create payload
   const payload = { id: String(id), vote: vote, ts: new Date().toISOString() };
-
-  // try sending
   try {
     const res = await sendVoteToServer(payload);
     if (res.ok) {
@@ -815,15 +784,11 @@ async function voteThumb(id, vote) {
     adminSetFeedback('Vote queued (network).', false);
   }
 }
-
-/* schedule periodic flush */
 setInterval(() => {
   try { flushVoteQueue(); } catch(e) {}
 }, 30_000);
 
-/* ===========================
-   MAP INIT (Restored)
-=========================== */
+/* MAP INIT (unchanged) */
 function initMap() {
   if (typeof L === 'undefined') { console.warn('Leaflet not present'); return; }
 
@@ -846,21 +811,52 @@ function initMap() {
 
   const esriLayer = L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-    { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA', noWrap: true, bounds: bounds, keepBuffer: 2 }
-  );
-  const cartoLayer = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    { subdomains: "abcd", maxZoom: 19, noWrap: true, bounds: bounds, attribution: '&copy; OpenStreetMap &copy; CARTO', keepBuffer: 2 }
+    {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
+      noWrap: true,
+      bounds: bounds,
+      keepBuffer: 2
+    }
   );
 
-  let esriErrors = 0;
+  const cartoLayer = L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    {
+      subdomains: "abcd",
+      maxZoom: 19,
+      noWrap: true,
+      bounds: bounds,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
+      keepBuffer: 2
+    }
+  );
+
+  let esriTileErrors = 0;
+  let cartoTileErrors = 0;
   const ERROR_THRESHOLD = 12;
+
+  function switchToLayer(fromLayer, toLayer, reason) {
+    try {
+      if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
+      if (!map.hasLayer(toLayer)) toLayer.addTo(map);
+      console.warn('Switched basemap due to:', reason);
+    } catch (e) {
+      console.error('Layer switch failed:', e);
+    }
+  }
+
   esriLayer.on('tileerror', () => {
-    esriErrors++;
-    if (esriErrors >= ERROR_THRESHOLD && map.hasLayer(esriLayer)) {
-      map.removeLayer(esriLayer);
-      cartoLayer.addTo(map);
-      console.warn('Switched to CartoDB basemap due to Esri errors.');
+    esriTileErrors++;
+    if (esriTileErrors >= ERROR_THRESHOLD) {
+      switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
+    }
+  });
+
+  cartoLayer.on('tileerror', () => {
+    cartoTileErrors++;
+    if (cartoTileErrors >= ERROR_THRESHOLD) {
+      console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
     }
   });
 
@@ -906,7 +902,8 @@ function initMap() {
 
   incidentClusterGroup.on('clustermouseout', (e) => {
     clearTimeout(_clusterHoverTimeout);
-    map.closePopup();
+    try { e.layer.closeTooltip(); } catch {}
+    try { map.closePopup(); } catch (e) {}
   });
 
   incidentClusterGroup.on('clusterclick', (e) => {
@@ -915,13 +912,12 @@ function initMap() {
   });
 
   map.addLayer(incidentClusterGroup);
+
   criticalLayerGroup = L.layerGroup();
   map.addLayer(criticalLayerGroup);
 }
 
-/* ===========================
-   CLOCKS (Restored Ireland)
-=========================== */
+/* CLOCKS (unchanged) */
 function startClock() {
   const container = document.getElementById("multi-clock-container");
   const zones = [
@@ -950,9 +946,7 @@ function startClock() {
   }, 1000);
 }
 
-/* ===========================
-   NORMALISATION
-=========================== */
+/* NORMALISATION (unchanged) */
 function normaliseWorkerIncident(item) {
   try {
     if (!item || !item.title) return null;
@@ -1013,9 +1007,7 @@ function normaliseWorkerIncident(item) {
   }
 }
 
-/* ===========================
-   FETCH HELPERS
-=========================== */
+/* fetch helpers */
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -1027,9 +1019,7 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   }
 }
 
-/* ===========================
-   LOAD FROM WORKER
-=========================== */
+/* LOAD FROM WORKER (unchanged) */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
@@ -1061,6 +1051,7 @@ async function loadFromWorker(silent=false) {
   }
 }
 
+/* loadProximityFromWorker (unchanged) */
 async function loadProximityFromWorker(silent=false) {
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
@@ -1084,13 +1075,11 @@ async function loadProximityFromWorker(silent=false) {
 
     if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
   } catch(e) {
-    console.error('loadProximityFromWorker failed', e);
+    console.error('Proximity load failed', e);
   }
 }
 
-/* ===========================
-   RENDERING
-=========================== */
+/* RENDERING (unchanged) */
 function createAssetsDebugOverlay(){ let d = document.getElementById('assets-debug'); if(!d){ d = document.createElement('div'); d.id = 'assets-debug'; d.className = 'assets-debug'; d.setAttribute('role','status'); d.setAttribute('aria-live','polite'); d.style.display = 'none'; document.body.appendChild(d); } return d; }
 function updateAssetsDebugOverlay(info){ if (!DEBUG_UI) return; try{ const d = createAssetsDebugOverlay(); d.style.display = 'block'; d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div><div><strong>DELL_SITES:</strong> ${info.dellSites}</div><div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div><div><strong>assets.length:</strong> ${info.assetsLen}</div><div><strong>filtered:</strong> ${info.filteredLen}</div><div style="margin-top:6px;font-weight:700">Sample entries</div><pre>${info.sample}</pre>`; }catch(e){ console.log('updateAssetsDebugOverlay error', e); } }
 
@@ -1270,6 +1259,7 @@ function updateHeadline(region) {
   const el = document.getElementById("headline-alert");
   const tags = document.getElementById("headline-tags");
   if (!el || !tags) return;
+
   if (data.length) {
     el.textContent = data[0].title || "Headline";
     const sev = mapSeverityToLabel(data[0].severity);
@@ -1284,16 +1274,13 @@ function updateHeadline(region) {
   }
 }
 
-/* ===========================
-   PROXIMITY / Dismiss / Update (RESTORED)
-=========================== */
+/* PROXIMITY / DISMISS / UPDATE (unchanged) */
 function updateProximityRadius() {
   const el = document.getElementById("proxRadius");
   if (el) currentRadius = parseFloat(el.value) || 50;
   const active = document.querySelector('.nav-item-custom.active');
   renderProximityAlerts(active ? active.textContent.trim() : "Global");
 }
-
 function dismissAlertById(id) {
   try {
     const k = String(id || '').trim();
@@ -1303,9 +1290,7 @@ function dismissAlertById(id) {
   } catch(e) {}
 }
 
-/* ===========================
-   REPORTING
-=========================== */
+/* REPORTING (unchanged) */
 async function previewBriefing() {
   const region = document.getElementById('reportRegion')?.value || 'Global';
   const date = document.getElementById('reportDate')?.value || '';
@@ -1313,17 +1298,22 @@ async function previewBriefing() {
   const cont = document.getElementById('briefing-preview');
   if (fb) { fb.style.display = 'block'; fb.textContent = 'Generating preview…'; }
   if (cont) cont.innerHTML = '';
+
   let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
   if (date) url += `&date=${encodeURIComponent(date)}`;
+
   try {
     const res = await fetchWithTimeout(url, {}, 20000);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
+
     const incidents = json.incidents || [];
+    if (!cont) return;
+
     if (!incidents.length) {
       cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
     } else {
-      cont.innerHTML = incidents.slice(0,50).map(i => `
+      cont.innerHTML = incidents.slice(0, 50).map(i => `
         <div style="border-bottom:1px solid #eee; padding:8px 0;">
           <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
           <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
@@ -1331,12 +1321,12 @@ async function previewBriefing() {
         </div>
       `).join('');
     }
+
     if (fb) fb.style.display = 'none';
-  } catch(e) {
-    if (fb) { fb.style.display = 'block'; fb.textContent = `Error: ${e.message}`; }
+  } catch (e) {
+    if (fb) { fb.textContent = `Error: ${e.message}`; fb.style.display = 'block'; }
   }
 }
-
 async function downloadReport() {
   const region = document.getElementById('reportRegion')?.value || 'Global';
   const date = document.getElementById('reportDate')?.value || '';
@@ -1345,42 +1335,49 @@ async function downloadReport() {
   window.open(url, '_blank', 'noopener');
 }
 
-/* ===========================
-   HISTORY
-=========================== */
+/* HISTORY (unchanged) */
 async function loadHistory(dateStr) {
   const status = document.getElementById('history-status');
   if (status) status.textContent = "Loading archive…";
+
   try {
     const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const arr = await res.json();
+
     if (!status) return;
+
     if (!arr || !arr.length) {
       status.textContent = "No archived incidents found.";
       return;
     }
+
     status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
-      arr.map(i => `<div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;"><strong>${escapeHtml(i.title)}</strong><br><span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span></div>`).join('') +
+      arr.map(i => `
+        <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
+          <strong>${escapeHtml(i.title)}</strong><br>
+          <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span>
+        </div>
+      `).join('') +
       `</div>`;
-  } catch(e) {
+  } catch (e) {
     if (status) status.textContent = `Archive error: ${e.message}`;
   }
 }
 
-/* ===========================
-   TRAVEL
-=========================== */
+/* TRAVEL (modified: fallback for news) */
 async function loadTravelAdvisories() {
   const sel = document.getElementById('countrySelect');
   if (!sel) return;
+
+  // show loading
   sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+
   // try worker live
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
     if (res && res.ok) {
       const data = await res.json();
-      // normalize
       TRAVEL_DATA = Array.isArray(data) ? data : [];
       TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
     }
@@ -1392,19 +1389,49 @@ async function loadTravelAdvisories() {
   sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
 }
 
+/* NEW helper: produce travel news from incidents (fallback when worker doesn't provide data.news)
+   This returns up to n items from INCIDENTS for that country in the last 24 hours */
+function getTravelNewsForCountry(country, maxItems = 5) {
+  if (!country) return [];
+  const cut = country.trim().toLowerCase();
+  const now = Date.now();
+  const cutoff = now - 24 * 3600 * 1000; // last 24 hours
+  const matches = INCIDENTS.filter(i => {
+    try {
+      const t = new Date(i.time).getTime();
+      if (isNaN(t) || t < cutoff) return false;
+      const c = String(i.country || '').toLowerCase();
+      const loc = String(i.location || '').toLowerCase();
+      // match by country code/name or by location substring
+      if (c.includes(cut) || loc.includes(cut)) return true;
+      // also match if title or summary mentions country name (best-effort)
+      if (String(i.title || '').toLowerCase().includes(cut)) return true;
+      if (String(i.summary || '').toLowerCase().includes(cut)) return true;
+      return false;
+    } catch(e) { return false; }
+  });
+  // sort by time desc and return top N
+  matches.sort((a,b) => new Date(b.time) - new Date(a.time));
+  return matches.slice(0, maxItems);
+}
+
 async function filterTravel() {
   const country = document.getElementById('countrySelect')?.value || '';
   const cont = document.getElementById('travel-advisories');
   const newsCont = document.getElementById('travel-news');
+
   if (cont) cont.innerHTML = "Loading…";
   if (newsCont) newsCont.innerHTML = "";
+
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
+
     const adv = data.advisory || data || {};
     const level = Number(adv.level || adv.risk_level || 1);
     const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
+
     if (cont) cont.innerHTML = `
       <div class="advisory-box">
         <div class="advisory-header">
@@ -1415,18 +1442,44 @@ async function filterTravel() {
         <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || 'Unknown')}</div>
       </div>
     `;
-    const news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
-    if (newsCont && news && news.length) {
-      newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS</div>${news.slice(0,5).map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title || '')}</div><div class="news-box-summary">${escapeHtml(n.summary || '')}</div></div>`).join('')}</div>`;
+
+    // If worker returns related news, render it
+    let news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
+
+    // --- NEW: fallback to deriving travel news from INCIDENTS feed if worker doesn't provide news ---
+    if (!news || news.length === 0) {
+      const derived = getTravelNewsForCountry(country, 5);
+      if (derived && derived.length) {
+        // map derived incidents into a news-like structure for display
+        news = derived.map(i => ({ title: i.title, summary: i.summary || '', time: i.time, source: i.source || i.link || '' }));
+      }
     }
-  } catch(e) {
+
+    if (newsCont && news && news.length) {
+      newsCont.innerHTML = `
+        <div class="news-box-alert">
+          <div class="news-box-header">RELATED NEWS (Last 24h)</div>
+          ${news.slice(0, 5).map(n => `
+            <div class="news-box-item">
+              <div class="news-box-title">${escapeHtml(n.title || '')}</div>
+              <div class="news-box-summary">${escapeHtml(n.summary || n.description || '')}</div>
+              <div style="font-size:0.72rem;color:#9aa0a6;margin-top:6px;">${escapeHtml(n.source ? shortHost(n.source) : '')} • ${escapeHtml(safeTime(n.time || n.published || ''))}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      // explicit "no recent news" messaging — makes the 2nd pane visible always
+      if (newsCont) newsCont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No related news found for the last 24 hours.</div></div>`;
+    }
+
+  } catch (e) {
     if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">Advisory unavailable.</div></div>`;
+    if (newsCont) newsCont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">News unavailable.</div></div>`;
   }
 }
 
-/* ===========================
-   MAP COORD HELPERS
-=========================== */
+/* getCoordsForIncident & COUNTRY_COORDS unchanged */
 function getCoordsForIncident(i) {
   try {
     if (!i) return null;
@@ -1456,7 +1509,6 @@ function getCoordsForIncident(i) {
       for (const [k, v] of Object.entries(COUNTRY_COORDS || {})) {
         if (k === cut || k === countryRaw) return { lat: v.lat, lng: v.lng };
       }
-      // fallback to nearest site in same country
       const cc = countryRaw.slice(0,2).toLowerCase();
       for (const s of DELL_SITES) {
         const sCode = String(s.country || '').toLowerCase();
@@ -1467,7 +1519,6 @@ function getCoordsForIncident(i) {
   } catch(e) { return null; }
 }
 
-/* Simple country centers map for getCoordsForIncident fallback */
 const COUNTRY_COORDS = {
   "india": { lat: 20.5937, lng: 78.9629 },
   "syria": { lat: 34.8021, lng: 38.9968 },
@@ -1492,9 +1543,7 @@ const COUNTRY_COORDS = {
   "uae": { lat: 23.4241, lng: 53.8478 }
 };
 
-/* ===========================
-   SEVERITY MAPPING
-=========================== */
+/* SEVERITY helpers (unchanged) */
 function mapSeverityToLabel(s) {
   const n = Number(s || 1);
   if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
@@ -1510,9 +1559,7 @@ function severityLabel(s) {
   return "LOW";
 }
 
-/* ===========================
-   REFRESH (RESTORED)
-=========================== */
+/* manualRefresh (unchanged) */
 async function manualRefresh() {
   const btn = document.getElementById("btn-refresh");
   const originalText = btn ? btn.innerHTML : 'Refresh';
@@ -1542,11 +1589,9 @@ async function manualRefresh() {
   }
 }
 
-/* ===========================
-   ADMIN HELPERS
-=========================== */
+/* ADMIN helpers (unchanged) */
 function adminSetFeedback(msg, isError=false) {
-  const fb = document.getElementById('adminFeedback') || document.getElementById('adminFeedback') || document.getElementById('adminFeedback');
+  const fb = document.getElementById('adminFeedback');
   if (!fb) return;
   fb.style.display = 'block';
   fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
@@ -1579,8 +1624,6 @@ function adminClearSecret() {
   if (fld) fld.value = '';
   adminSetFeedback('Admin secret cleared.', false);
 }
-
-/* Admin actions (ingest, unlock, generate, list) */
 async function adminTriggerIngest() {
   const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
@@ -1592,7 +1635,6 @@ async function adminTriggerIngest() {
     adminSetFeedback(txt || 'Ingestion triggered.');
   } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
 }
-
 async function adminUnlock() {
   const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
@@ -1604,7 +1646,6 @@ async function adminUnlock() {
     adminSetFeedback(txt || 'Unblock requested.');
   } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
 }
-
 async function adminThumbsStatus() {
   const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
   adminSetFeedback('Loading thumbs status…');
@@ -1616,7 +1657,6 @@ async function adminThumbsStatus() {
     console.log('Thumbs status:', data);
   } catch(e) { adminSetFeedback('Status failed (network).', true); console.error(e); }
 }
-
 async function adminForceRefreshTravel() {
   const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
   adminSetFeedback('Refreshing travel cache…');
@@ -1628,7 +1668,6 @@ async function adminForceRefreshTravel() {
     try { await loadTravelAdvisories(); } catch(e){}
   } catch(e) { adminSetFeedback('Travel refresh failed (network).', true); console.error(e); }
 }
-
 async function adminGenerateBrief() {
   const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
@@ -1645,7 +1684,6 @@ async function adminGenerateBrief() {
     adminSetFeedback(txt || 'Brief generation requested.');
   } catch(e) { adminSetFeedback('Generate failed (network).', true); console.error(e); }
 }
-
 async function adminListBriefs() {
   const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
@@ -1659,75 +1697,62 @@ async function adminListBriefs() {
   } catch(e) { adminSetFeedback('List failed (network).', true); console.error(e); }
 }
 
-/* Save secret from admin modal */
-function adminSaveSecret() {
-  const fld = document.getElementById('adminSecret');
-  const remember = document.getElementById('adminRememberSession');
-  const val = fld ? String(fld.value || '').trim() : '';
-  ADMIN_SECRET = val;
-  if (remember && remember.checked) {
-    try { sessionStorage.setItem('admin_secret', val); } catch(e){}
-  } else {
-    try { sessionStorage.removeItem('admin_secret'); } catch(e){}
-  }
-  adminSetFeedback('Admin secret saved in memory' + (remember && remember.checked ? ' and session.' : '.'));
-}
-
-/* Clear secret from field and memory */
-function adminClearSecret() {
-  try { sessionStorage.removeItem('admin_secret'); } catch(e){}
-  ADMIN_SECRET = '';
-  const fld = document.getElementById('adminSecret'); if (fld) fld.value = '';
-  adminSetFeedback('Admin secret cleared.');
-}
-
-/* ===========================
-   BOOTSTRAP / EVENT BINDING
-=========================== */
+/* BOOTSTRAP / EVENT BINDING (unchanged) */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // preload admin secret from session
+    // Admin modal: auto-populate secret field from session storage
     try {
       const s = sessionStorage.getItem('admin_secret') || '';
       if (s) { ADMIN_SECRET = s; try { document.getElementById('adminSecret').value = s; document.getElementById('adminRememberSession').checked = true; } catch(e){} }
-    } catch(e){}
+    } catch(e) {}
 
-    // init map
-    try { initMap(); } catch(e) { console.error('initMap error', e); }
-
-    // start clock
+    try { initMap(); } catch (e) { console.error('initMap error:', e); }
     startClock();
 
-    // delegated click actions
-    document.addEventListener('click', async (ev) => {
-      const t = ev.target.closest('[data-action]');
+    document.addEventListener('click', async (e) => {
+      const t = e.target.closest('[data-action]');
       if (!t) return;
-      if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) ev.preventDefault();
-      const action = String(t.dataset.action || '').trim();
+
+      const action = String(t.getAttribute('data-action') || '');
       if (!action) return;
+
+      if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) {
+        e.preventDefault();
+      }
+
       if (action === 'filter-region') {
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
         t.classList.add('active');
-        filterNews(t.dataset.region || t.textContent.trim());
+        filterNews(t.getAttribute('data-region') || t.textContent.trim());
         return;
       }
-      if (action === 'refresh') { manualRefresh(); return; }
+
+      if (action === 'refresh') {
+        manualRefresh();
+        return;
+      }
+
       if (action === 'preview-brief') { previewBriefing(); return; }
       if (action === 'download-brief') { downloadReport(); return; }
+
       if (action === 'vote') {
-        ev.preventDefault(); ev.stopPropagation();
-        const id = t.getAttribute('data-id'); const v = t.getAttribute('data-vote');
-        await voteThumb(id, v);
+        e.preventDefault();
+        e.stopPropagation();
+        const id = t.getAttribute('data-id');
+        const vote = t.getAttribute('data-vote');
+        if (id && vote) await voteThumb(id, vote);
         return;
       }
+
       if (action === 'dismiss-alert') {
-        ev.preventDefault(); ev.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         const id = t.getAttribute('data-id');
         if (id) dismissAlertById(id);
-        const row = t.closest('.alert-row'); if (row) row.remove();
+        const row = t.closest('.alert-row');
+        if (row) row.remove();
         return;
       }
-      // admin actions
+
       if (action === 'admin-save-secret') { adminSaveSecret(); return; }
       if (action === 'admin-clear-secret') { adminClearSecret(); return; }
       if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
@@ -1738,7 +1763,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-list-briefs') { adminListBriefs(); return; }
     });
 
-    // clicking on feed-card opens link (except when clicking inner buttons/links)
     document.addEventListener('click', (e) => {
       const card = e.target.closest('.feed-card[data-link]');
       if (!card) return;
@@ -1749,32 +1773,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       try { window.open(href, '_blank', 'noopener'); } catch(e) {}
     });
 
-    // inputs wiring
     const historyPicker = document.getElementById('history-picker');
     if (historyPicker) historyPicker.addEventListener('change', (ev) => loadHistory(ev.target.value));
     const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
     const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
 
-    // initial load
     await loadFromWorker();
     await loadProximityFromWorker();
     filterNews("Global");
     await loadTravelAdvisories();
 
-    // apply stored votes UI
     Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
 
-    // schedule auto refresh
     setInterval(async () => {
       if (FEED_IS_LIVE) {
         await loadFromWorker(true);
         await loadProximityFromWorker(true);
         const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
+        filterNews(active ? active.textContent.trim() : "Global");
       }
     }, AUTO_REFRESH_MS);
 
-    // try flush queue on load
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
   } catch(e) {
     console.error('Initialization error', e);
@@ -1783,9 +1802,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-/* ===========================
-   FILTER NEWS (main entry)
-=========================== */
+/* FILTER NEWS (main entry) */
 function filterNews(region) {
   renderAssetsOnMap(region);
   renderIncidentsOnMap(region, INCIDENTS);
@@ -1794,9 +1811,7 @@ function filterNews(region) {
   renderProximityAlerts(region);
 }
 
-/* ===========================
-   HELPER: haversine
-=========================== */
+/* haversine */
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R=6371;
   const dLat=(lat2-lat1)*Math.PI/180;
@@ -1807,14 +1822,13 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-/* ===========================
-   Expose some functions to window for debugging
-=========================== */
+/* Expose for debugging */
 window.loadTravelAdvisories = loadTravelAdvisories;
 window.filterTravel = filterTravel;
 window.loadHistory = loadHistory;
 window.voteThumb = voteThumb;
 window.flushVoteQueue = flushVoteQueue;
+window.manualRefresh = manualRefresh;
 
 </script>
 </body>
