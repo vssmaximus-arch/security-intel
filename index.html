@@ -1,3 +1,6 @@
+[Download the full integrated index.html](sandbox:/mnt/data/index_integrated_full.html)
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,8 +38,20 @@
     :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
     body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
-    /* Accessibility Helper */
-    .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+    /* Accessibility helper (Bootstrap-compatible) */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    /* Skip Link */
     .skip-link { position: absolute; top: -50px; left: 10px; background: #1a73e8; color: #fff; padding: 10px; z-index: 99999; font-weight: 700; border-radius: 4px; text-decoration: none; transition: top 0.2s; }
     .skip-link:focus { top: 10px; }
 
@@ -114,10 +129,21 @@
     .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
     .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
-    /* Dismiss Button */
+
+    /* Dismiss controls (Proximity) */
     .alert-actions { display: flex; gap: 8px; margin-top: 8px; }
-    .btn-dismiss { font-size: 0.7rem; padding: 2px 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff; color: #5f6368; cursor: pointer; }
+    .btn-dismiss {
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fff;
+      color: #5f6368;
+      cursor: pointer;
+      font-weight: 700;
+    }
     .btn-dismiss:hover { background: #f1f3f4; color: #202124; }
+    .btn-dismiss:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
     .stream-section { margin-top: 25px; }
     .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
@@ -125,7 +151,7 @@
     .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
     .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
 
-    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; position: relative; }
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; position: relative; cursor: pointer; }
     .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .feed-status-bar { width: 5px; flex-shrink: 0; }
     .status-bar-crit { background-color: #d93025; }
@@ -147,10 +173,23 @@
     .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
     .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
 
-    /* Voting Buttons */
+    /* Voting (thumbs) */
     .vote-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
-    .btn-vote { background: none; border: 1px solid #e0e0e0; border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; cursor: pointer; color: #5f6368; }
+    .btn-vote {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #5f6368;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
     .btn-vote:hover { background: #f1f3f4; color: #1a73e8; }
+    .btn-vote:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
     .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
     .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
@@ -204,7 +243,7 @@
 <div class="app-container" id="main-content">
   <div class="header-container">
     <div class="header-left">
-      <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="logo-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
       <div class="logo-text">OS <span>INFOHUB</span></div>
     </div>
 
@@ -212,22 +251,23 @@
       <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks"></div>
 
       <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
-        <a class="nav-item-custom active" data-action="filter-region" data-region="Global" role="tab" aria-selected="true" tabindex="0">Global</a>
-        <a class="nav-item-custom" data-action="filter-region" data-region="AMER" role="tab" aria-selected="false" tabindex="0">AMER</a>
-        <a class="nav-item-custom" data-action="filter-region" data-region="EMEA" role="tab" aria-selected="false" tabindex="0">EMEA</a>
-        <a class="nav-item-custom" data-action="filter-region" data-region="APJC" role="tab" aria-selected="false" tabindex="0">APJC</a>
-        <a class="nav-item-custom" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
+        <a class="nav-item-custom active" onclick="filterNews('Global')" data-action="filter-region" data-region="Global" role="tab" aria-selected="true" tabindex="0">Global</a>
+        <a class="nav-item-custom" onclick="filterNews('AMER')" data-action="filter-region" data-region="AMER" role="tab" aria-selected="false" tabindex="0">AMER</a>
+        <a class="nav-item-custom" onclick="filterNews('EMEA')" data-action="filter-region" data-region="EMEA" role="tab" aria-selected="false" tabindex="0">EMEA</a>
+        <a class="nav-item-custom" onclick="filterNews('APJC')" data-action="filter-region" data-region="APJC" role="tab" aria-selected="false" tabindex="0">APJC</a>
+        <a class="nav-item-custom" onclick="filterNews('LATAM')" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
       </div>
 
-      <div id="btn-refresh" class="btn-daily ms-3" data-action="refresh" role="button" aria-label="Refresh Data" tabindex="0">
+      <div id="btn-refresh" class="btn-daily ms-3" style="background:#1a73e8;color:#fff;padding:9px 12px;border-radius:8px;cursor:pointer" role="button" aria-label="Refresh feed" onclick="manualRefresh()" data-action="refresh" tabindex="0">
         <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
       </div>
 
-      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;
+        box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
         <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
       </div>
-      
-      <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Admin Settings">
+
+      <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Open admin controls" title="Admin">
         <i class="fas fa-cog" aria-hidden="true"></i>
       </button>
     </div>
@@ -243,16 +283,16 @@
         <div class="stream-section">
           <div class="stream-header">
              <div class="stream-label">
-              <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
+              <i class="fas fa-circle live-dot-blue" aria-hidden="true"></i> Real-time Intelligence Stream
               <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
             </div>
-            <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
+            <div class="stream-links" onclick="manualRefresh()" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0" aria-label="Refresh feed">
               VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
             </div>
           </div>
 
           <div class="critical-alert-bar" role="alert">
-            <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+            <i class="fas fa-exclamation-triangle alert-icon-lg" aria-hidden="true"></i>
             <div class="alert-content-main" id="headline-alert">Loading headline…</div>
             <div class="alert-tags" id="headline-tags">
               <span class="tag" id="headline-sev">SEV?</span>
@@ -269,19 +309,19 @@
 
       <div class="col-lg-3 sidebar-col">
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+          <div class="card-label"><i class="fas fa-history" aria-hidden="true"></i> History Search</div>
           <div class="history-input-group">
-            <i class="far fa-calendar-alt calendar-icon"></i>
-            <label for="history-picker" class="form-label visually-hidden">History Date</label>
-            <input type="date" class="history-input" id="history-picker" aria-label="Select history date" />
+            <i class="far fa-calendar-alt calendar-icon" aria-hidden="true"></i>
+            <label for="history-picker" class="form-label visually-hidden">History date</label>
+            <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" />
           </div>
           <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence.</div>
         </div>
 
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
-          <label for="countrySelect" class="form-label visually-hidden">Select Country</label>
-          <select class="travel-select" id="countrySelect" aria-label="Select country for travel info">
+          <div class="card-label"><i class="fas fa-plane" aria-hidden="true"></i> Travel Safety Check</div>
+          <label for="countrySelect" class="form-label visually-hidden">Travel country</label>
+          <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Travel country">
             <option selected disabled>Loading countries...</option>
           </select>
           <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
@@ -297,8 +337,8 @@
           </div>
           <div class="prox-controls">
             <div class="prox-subtitle">WITHIN RADIUS</div>
-            <label for="proxRadius" class="form-label visually-hidden">Select Radius</label>
-            <select id="proxRadius" class="radius-select" aria-label="Proximity radius">
+            <label for="proxRadius" class="form-label visually-hidden">Proximity radius</label>
+            <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius">
               <option value="5">5 KM</option>
               <option value="10">10 KM</option>
               <option value="25">25 KM</option>
@@ -311,7 +351,7 @@
           <div id="proximity-alerts-container" aria-live="polite"></div>
 
           <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
-            <a href="#" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
+            <a href="#" onclick="manualRefresh(); return false;" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0" aria-label="Refresh alerts">REFRESH ALERTS</a>
           </div>
         </div>
       </div>
@@ -319,11 +359,12 @@
   </div>
 </div>
 
+<!-- REPORT MODAL -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
+        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;" aria-hidden="true"></i>Daily Intelligence Briefings</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -347,10 +388,10 @@
         </div>
 
         <div class="d-grid gap-2" style="margin-bottom:8px;">
-          <button class="btn-download" data-action="preview-brief" aria-label="Preview daily briefing">
+          <button class="btn-download" id="btn-preview" data-action="preview-brief" onclick="previewBriefing()" aria-label="Preview daily briefing">
             <i class="fas fa-eye me-2" aria-hidden="true"></i> Preview Briefing
           </button>
-          <button class="btn-download" data-action="download-brief" aria-label="Download briefing (generated)">
+          <button class="btn-download" id="btn-download" data-action="download-brief" onclick="downloadReport()" aria-label="Download briefing (generated)">
             <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
           </button>
         </div>
@@ -362,28 +403,53 @@
   </div>
 </div>
 
-<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true">
+<!-- DEBUG OVERLAY CONTAINER -->
+
+<!-- ADMIN MODAL (Secret, Ingestion, Brief generation, Reports admin) -->
+<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Admin Controls</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="adminModalTitle"><i class="fas fa-user-shield me-2" aria-hidden="true" style="color:#1a73e8;"></i>Admin Controls</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+
         <div class="mb-3">
-          <label class="form-label">Admin Secret (Session)</label>
-          <input type="password" id="adminSecret" class="form-control" placeholder="Enter Secret">
+          <label class="form-label" for="adminSecret">Admin Secret (Session)</label>
+          <input type="password" id="adminSecret" class="form-control" placeholder="Enter secret" aria-label="Admin secret">
+          <div class="form-text" style="font-size:0.8rem;margin-top:6px;">Stored in sessionStorage only (clears when the tab/browser session ends).</div>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary btn-sm" data-action="admin-save-secret">Save (Session)</button>
-          <button class="btn btn-outline-danger btn-sm" data-action="admin-clear-secret">Clear</button>
+
+        <div class="d-flex gap-2 mb-3">
+          <button class="btn btn-primary btn-sm" data-action="admin-save-secret" aria-label="Save admin secret">Save</button>
+          <button class="btn btn-outline-danger btn-sm" data-action="admin-clear-secret" aria-label="Clear admin secret">Clear</button>
         </div>
+
         <hr>
-        <h6>Actions</h6>
+        <h6 style="font-weight:800;color:#202124;">Admin Actions</h6>
+
         <div class="d-grid gap-2">
-           <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest">Trigger Ingestion</button>
-           <button class="btn btn-outline-dark btn-sm" data-action="admin-list-briefs">List Stored Briefs (Console)</button>
+          <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest" aria-label="Trigger ingestion">Trigger Ingestion</button>
+          <button class="btn btn-outline-dark btn-sm" data-action="admin-unlock" aria-label="Unlock ingestion and travel locks">Unlock Locks</button>
+          <button class="btn btn-outline-secondary btn-sm" data-action="admin-force-refresh-travel" aria-label="Force refresh travel advisories">Force Refresh Travel</button>
         </div>
+
+        <hr>
+        <h6 style="font-weight:800;color:#202124;">Briefings</h6>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary btn-sm" data-action="admin-generate-brief" aria-label="Generate and store briefing">Generate &amp; Store Brief (Selected Date/Region)</button>
+          <button class="btn btn-outline-secondary btn-sm" data-action="admin-list-briefs" aria-label="List stored briefs">List Stored Briefs (Console)</button>
+        </div>
+
+        <hr>
+        <h6 style="font-weight:800;color:#202124;">Voting / Thumbs</h6>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-success btn-sm" data-action="admin-thumbs-status" aria-label="Show thumbs status">Thumbs Status (Console)</button>
+        </div>
+
+        <div id="adminFeedback" class="mt-3" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
+
       </div>
     </div>
   </div>
@@ -393,438 +459,97 @@
 
 <script>
 /* ===========================
-   CONFIG & STATE
+   CONFIG
 =========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
+
+/* DEBUG UI (overlay hidden unless enabled via ?debug=1 or localStorage flag) */
+const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
+
+/* ===========================
+   GITHUB SMARTTRAVELLER FALLBACK (simple)
+=========================== */
+const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
+const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
+const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
+
+/* ===========================
+   COUNTRY LIST (fallback)
+=========================== */
+const WORLD_COUNTRIES = [
+  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
+  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
+  "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czechia",
+  "Denmark","Djibouti","Dominica","Dominican Republic",
+  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
+  "Fiji","Finland","France",
+  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+  "Haiti","Honduras","Hungary",
+  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
+  "Jamaica","Japan","Jordan",
+  "Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan",
+  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
+  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
+  "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Macedonia","Norway",
+  "Oman",
+  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
+  "Qatar",
+  "Romania","Russia","Rwanda",
+  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
+  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+  "Vanuatu","Vatican City","Venezuela","Vietnam",
+  "Yemen",
+  "Zambia","Zimbabwe"
+];
+
+/* ===========================
+   DATA STATE
+=========================== */
 let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
 let FEED_IS_LIVE = false;
 let currentRadius = 50;
-let TRAVEL_DATA = [];
-let map;
-let assetsClusterGroup, incidentClusterGroup, criticalLayerGroup;
-const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1');
+let DISMISSED_ALERT_IDS = new Set();
 
-/* ===========================
-   INIT & EVENT DELEGATION
-=========================== */
-document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Map Init
-  try { initMap(); } catch(e) { console.error("Map init error", e); }
-  
-  // 2. Start Clock
-  startClock();
-
-  // 3. Event Delegation (Click) - The single listener for all actions
-  document.addEventListener('click', async (e) => {
-    const target = e.target.closest('[data-action]');
-    if (!target) return;
-    
-    // Allow default for some interactions if needed, but usually prevent
-    if(target.tagName === 'A' && target.getAttribute('href') === '#') e.preventDefault();
-
-    const action = target.dataset.action;
-
-    if (action === 'filter-region') {
-       document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
-       target.classList.add('active');
-       filterNews(target.dataset.region);
-    } 
-    else if (action === 'refresh') {
-       manualRefresh();
-    }
-    else if (action === 'vote') {
-       const id = target.dataset.id;
-       const voteType = target.dataset.vote; // 'up' or 'down'
-       voteThumb(id, voteType);
-    }
-    else if (action === 'dismiss-alert') {
-       const id = target.dataset.id;
-       target.closest('.alert-row').remove();
-    }
-    else if (action === 'preview-brief') {
-       previewBriefing();
-    }
-    else if (action === 'download-brief') {
-       downloadReport();
-    }
-    else if (action.startsWith('admin-')) {
-       handleAdminAction(action);
-    }
-  });
-
-  // 4. Input Wiring (Change events)
-  const historyPicker = document.getElementById('history-picker');
-  if(historyPicker) historyPicker.addEventListener('change', (e) => loadHistory(e.target.value));
-
-  const countrySel = document.getElementById('countrySelect');
-  if(countrySel) countrySel.addEventListener('change', filterTravel);
-
-  const proxRad = document.getElementById('proxRadius');
-  if(proxRad) proxRad.addEventListener('change', updateProximityRadius);
-
-  // 5. Admin Secret Loading (Populate modal on show)
-  const adminModal = document.getElementById('adminModal');
-  if(adminModal) {
-    adminModal.addEventListener('show.bs.modal', () => {
-       const sec = sessionStorage.getItem('admin_secret');
-       if(sec) document.getElementById('adminSecret').value = sec;
-    });
+// Load dismissed proximity alert IDs from session storage (session-scoped)
+try {
+  const raw = sessionStorage.getItem('dismissed_prox_alert_ids');
+  if (raw) {
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)) arr.forEach(v => { try { DISMISSED_ALERT_IDS.add(String(v)); } catch(e){} });
   }
+} catch(e) {}
 
-  // 6. Initial Load
-  await loadFromWorker();
-  await loadProximityFromWorker();
-  filterNews("Global");
-  if(window.loadTravelAdvisories) await window.loadTravelAdvisories();
 
-  setInterval(async () => {
-     if(FEED_IS_LIVE) {
-        await loadFromWorker(true);
-        await loadProximityFromWorker(true);
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.dataset.region : "Global");
-     }
-  }, AUTO_REFRESH_MS);
+let TRAVEL_DATA = [];
+let TRAVEL_UPDATED_AT = null;
+
+let map;
+let assetsClusterGroup;
+let incidentClusterGroup;
+let criticalLayerGroup;
+
+/* Small UX helpers (debounce + detect touch) */
+let _clusterHoverTimeout = null;
+const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+
+/* ERROR MONITORING (Simple Sentry stub) */
+window.onerror = function(msg, url, line, col, error) {
+   console.error("Global Error Caught:", { msg, url, line, col, error });
+};
+
+/* UNHANDLED PROMISE REJECTION (For fetch failures) */
+window.addEventListener('unhandledrejection', (ev) => {
+  console.error('Unhandled promise rejection:', ev.reason);
 });
 
 /* ===========================
-   CORE LOGIC (Data Fetch)
+   DELL SITES (your list)
 =========================== */
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById("feed-status-label");
-  if (label && !silent) label.textContent = "Refreshing…";
-  try {
-    const res = await fetch(`${WORKER_URL}/api/incidents`);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const raw = await res.json();
-    const cutoff = Date.now() - (48 * 3600 * 1000);
-    INCIDENTS = (Array.isArray(raw) ? raw : [])
-      .map(normaliseWorkerIncident)
-      .filter(i => i && new Date(i.time).getTime() >= cutoff)
-      .sort((a,b) => new Date(b.time) - new Date(a.time));
-    FEED_IS_LIVE = true;
-    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch (e) {
-    console.error("Worker fetch failed:", e);
-    FEED_IS_LIVE = false;
-    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable";
-  }
-}
-
-async function loadProximityFromWorker(silent=false) {
-  try {
-    const res = await fetch(`${WORKER_URL}/api/proximity`);
-    if (res.ok) {
-       const json = await res.json();
-       const cutoff = Date.now() - (48 * 3600 * 1000);
-       PROXIMITY_INCIDENTS = (Array.isArray(json.incidents) ? json.incidents : [])
-         .map(normaliseWorkerIncident)
-         .filter(i => i && new Date(i.time).getTime() >= cutoff);
-    }
-  } catch(e) { console.error("Proximity load failed", e); }
-}
-
-async function manualRefresh() {
-  await loadFromWorker();
-  await loadProximityFromWorker();
-  const active = document.querySelector('.nav-item-custom.active');
-  filterNews(active ? active.dataset.region : "Global");
-}
-
-/* ===========================
-   RENDERING (Feeds & Map)
-=========================== */
-function filterNews(region) {
-  renderAssetsOnMap(region);
-  renderIncidentsOnMap(region, INCIDENTS);
-  
-  // General Feed
-  const container = document.getElementById("general-news-feed");
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  
-  if (!data.length) {
-    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
-  } else {
-    // Generate Feed Cards with Voting Buttons
-    container.innerHTML = data.map(i => {
-      const sev = mapSeverityToLabel(i.severity);
-      return `
-      <div class="feed-card">
-        <div class="feed-status-bar ${sev.barClass}"></div>
-        <div class="feed-content">
-          <div class="feed-tags">
-             <span class="ftag ${sev.badgeClass}">${sev.label}</span>
-             <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
-             <span class="ftag ftag-type">${escapeHtml(i.category)}</span>
-             <span class="feed-region">${escapeHtml(i.region)}</span>
-          </div>
-          <div class="feed-title"><a href="${escapeAttr(safeHref(i.link))}" target="_blank" style="text-decoration:none;color:inherit;">${escapeHtml(i.title)}</a></div>
-          <div class="feed-meta">${safeTime(i.time)} • ${shortHost(i.source)}</div>
-          <div class="feed-desc">${escapeHtml(i.summary)}</div>
-          
-          <div class="vote-row">
-             <button class="btn-vote" data-action="vote" data-vote="up" data-id="${escapeAttr(i.id)}" aria-label="Vote Up" title="Helpful">
-               <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-             </button>
-             <button class="btn-vote" data-action="vote" data-vote="down" data-id="${escapeAttr(i.id)}" aria-label="Vote Down" title="Not Relevant">
-               <i class="fas fa-thumbs-down" aria-hidden="true"></i>
-             </button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  updateHeadline(region);
-  renderProximityAlerts(region);
-}
-
-function updateProximityRadius() {
-  const el = document.getElementById("proxRadius");
-  if(el) currentRadius = parseFloat(el.value);
-  const active = document.querySelector('.nav-item-custom.active');
-  renderProximityAlerts(active ? active.dataset.region : "Global");
-}
-
-function renderProximityAlerts(region) {
-  const container = document.getElementById("proximity-alerts-container");
-  if(!container) return;
-  const data = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
-  
-  // Calculate distances & Find Nearest
-  const alerts = [];
-  data.forEach(inc => {
-     let coords = (inc.lat && inc.lng) ? {lat: inc.lat, lng: inc.lng} : getCoordsForIncident(inc);
-     if(!coords) return;
-     
-     let nearest = null;
-     if(inc.distance_km && inc.nearest_site_name) {
-        nearest = { dist: inc.distance_km, name: inc.nearest_site_name };
-     } else {
-        // Client side calc
-        for (const [key, asset] of Object.entries(ASSETS)) {
-           const d = haversineKm(coords.lat, coords.lng, asset.lat, asset.lng);
-           if(!nearest || d < nearest.dist) nearest = { dist: d, name: asset.name };
-        }
-     }
-     
-     if(nearest && (inc.country_wide || nearest.dist <= currentRadius)) {
-        alerts.push({ inc, nearest });
-     }
-  });
-
-  alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
-
-  if(!alerts.length) {
-     container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
-     return;
-  }
-
-  container.innerHTML = alerts.slice(0, 25).map(item => {
-     const i = item.inc;
-     const color = i.severity >= 4 ? '#d93025' : (i.severity===3 ? '#f9ab00' : '#1a73e8');
-     const distStr = i.country_wide ? (item.nearest.dist > currentRadius ? "N/A" : `${Math.round(item.nearest.dist)}km`) : `${Math.round(item.nearest.dist)}km`;
-     
-     return `
-     <div class="alert-row">
-       <div class="alert-top">
-         <div class="alert-type">
-           <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i> ${escapeHtml(i.title)}
-         </div>
-         <div class="alert-dist" style="color:${color}">${distStr}</div>
-       </div>
-       <div class="alert-site">Near: <b>${escapeHtml(item.nearest.name)}</b></div>
-       <div class="alert-desc">${escapeHtml(i.summary)}</div>
-       <div class="alert-actions">
-          <button class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(i.id)}">Dismiss</button>
-       </div>
-     </div>`;
-  }).join('');
-}
-
-function updateHeadline(region) {
-   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-   const el = document.getElementById("headline-alert");
-   const tagEl = document.getElementById("headline-tags");
-   if(data.length) {
-      el.textContent = data[0].title;
-      const sev = mapSeverityToLabel(data[0].severity);
-      tagEl.innerHTML = `<span class="tag-crit" style="background:${data[0].severity>=4?'#d93025':'#5f6368'}">${sev.label}</span>
-                         <span class="tag-cat" style="margin-left:4px;">${escapeHtml(data[0].category)}</span>
-                         <span class="tag-reg" style="margin-left:4px;">${escapeHtml(data[0].region)}</span>`;
-   } else {
-      el.textContent = "No critical alerts.";
-      tagEl.innerHTML = "";
-   }
-}
-
-/* ===========================
-   ACTIONS (Vote, Admin, Report)
-=========================== */
-async function voteThumb(id, type) {
-  const secret = sessionStorage.getItem('admin_secret');
-  try {
-     const res = await fetch(`${WORKER_URL}/api/thumb`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(secret ? {'secret': secret} : {}) },
-        body: JSON.stringify({ id, vote: type })
-     });
-     if(res.ok) {
-        console.log(`Voted ${type} on ${id}`);
-        if(type === 'down') manualRefresh();
-     }
-  } catch(e) { console.error("Vote failed", e); }
-}
-
-function handleAdminAction(action) {
-  const secret = document.getElementById('adminSecret')?.value;
-  
-  if (action === 'admin-save-secret') {
-     if(secret) {
-        sessionStorage.setItem('admin_secret', secret);
-        alert("Secret saved to Session Storage.");
-     }
-  }
-  else if (action === 'admin-clear-secret') {
-     sessionStorage.removeItem('admin_secret');
-     document.getElementById('adminSecret').value = "";
-     alert("Secret cleared.");
-  }
-  else if (action === 'admin-trigger-ingest') {
-     fetch(`${WORKER_URL}/api/ingest`, { method: 'POST', headers: { secret: sessionStorage.getItem('admin_secret') }})
-     .then(r => r.text()).then(t => alert(t)).catch(e => alert(e));
-  }
-  else if (action === 'admin-list-briefs') {
-     fetch(`${WORKER_URL}/api/dailybrief?list=true`, { headers: { secret: sessionStorage.getItem('admin_secret') }})
-     .then(r => r.json()).then(d => console.log("Briefs:", d)).catch(e => console.error(e));
-     alert("Check console for list.");
-  }
-}
-
-async function previewBriefing() {
-  const region = document.getElementById('reportRegion').value;
-  const date = document.getElementById('reportDate').value;
-  const fb = document.getElementById('preview-feedback');
-  const cont = document.getElementById('briefing-preview');
-  
-  fb.style.display = 'block'; fb.textContent = "Generating preview...";
-  cont.innerHTML = "";
-  
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-  if(date) url += `&date=${date}`;
-  
-  try {
-     const res = await fetch(url);
-     if(!res.ok) throw new Error("HTTP " + res.status);
-     const json = await res.json();
-     
-     // Render Preview
-     const incidents = json.incidents || [];
-     if(!incidents.length) {
-        cont.innerHTML = `<div class="safe-box">No incidents found for this period.</div>`;
-     } else {
-        cont.innerHTML = incidents.slice(0, 20).map(i => `
-          <div style="border-bottom:1px solid #eee; padding:8px 0;">
-             <div style="font-weight:700;font-size:0.9rem">${escapeHtml(i.title)}</div>
-             <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country)} • ${safeTime(i.time)}</div>
-          </div>
-        `).join('');
-     }
-     fb.style.display = 'none';
-  } catch(e) {
-     fb.textContent = "Error: " + e.message;
-  }
-}
-
-async function downloadReport() {
-  const region = document.getElementById('reportRegion').value;
-  const date = document.getElementById('reportDate').value;
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
-  if(date) url += `&date=${date}`;
-  
-  window.open(url, '_blank');
-}
-
-async function loadHistory(dateStr) {
-  const status = document.getElementById('history-status');
-  status.innerHTML = "Loading archive...";
-  try {
-     const res = await fetch(`${WORKER_URL}/api/archive?date=${dateStr}`);
-     if(!res.ok) throw new Error("Status " + res.status);
-     const arr = await res.json();
-     
-     if(!arr || !arr.length) {
-        status.innerHTML = "No archived incidents found.";
-        return;
-     }
-     // Show simple list
-     status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` + 
-        arr.map(i => `
-          <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
-            <strong>${escapeHtml(i.title)}</strong><br>
-            <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country)}</span>
-          </div>`).join('') + 
-        `</div>`;
-  } catch(e) {
-     status.innerHTML = "Archive error: " + e.message;
-  }
-}
-
-/* ===========================
-   UTILITIES & MAP SETUP
-=========================== */
-function startClock() {
-  const container = document.getElementById("multi-clock-container");
-  const zones = [
-    { label: "Austin", z: "America/Chicago" },
-    { label: "London", z: "Europe/London" },
-    { label: "India", z: "Asia/Kolkata" },
-    { label: "Singapore", z: "Asia/Singapore" },
-    { label: "Tokyo", z: "Asia/Tokyo" },
-    { label: "Sydney", z: "Australia/Sydney" }
-  ];
-  
-  if(!container.innerHTML) {
-     container.innerHTML = zones.map(z => `
-       <div class="clock-box">
-         <div class="clock-label">${z.label}</div>
-         <div class="clock-val" id="clk-${z.label}">--:--</div>
-       </div>`).join('');
-  }
-  
-  setInterval(() => {
-     const now = new Date();
-     zones.forEach(z => {
-        const el = document.getElementById(`clk-${z.label}`);
-        if(el) el.textContent = now.toLocaleTimeString("en-US", { timeZone: z.z, hour12: false, hour:'2-digit', minute:'2-digit' });
-     });
-  }, 1000);
-}
-
-function normaliseWorkerIncident(i) {
-  if(!i || !i.title) return null;
-  return {
-    id: i.id || (i.title + i.time),
-    title: i.title,
-    summary: i.summary || i.description || "",
-    link: i.link || i.url || "#",
-    time: i.time || new Date().toISOString(),
-    severity: Number(i.severity)||1,
-    region: (i.region || "GLOBAL").toUpperCase(),
-    country: (i.country || "GLOBAL").toUpperCase(),
-    category: (i.category || "UNKNOWN").toUpperCase(),
-    lat: Number(i.lat)||0, lng: Number(i.lng)||0,
-    source: i.source || "",
-    distance_km: i.distance_km ? Number(i.distance_km) : null,
-    nearest_site_name: i.nearest_site_name || null,
-    country_wide: !!i.country_wide
-  };
-}
-
-// Map Helpers
 const DELL_SITES = [
+  // AMER
   { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
   { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
   { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
@@ -839,10 +564,14 @@ const DELL_SITES = [
   { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
   { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
   { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
+
+  // LATAM
   { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
   { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
   { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
   { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
+
+  // EMEA
   { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
   { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
   { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
@@ -860,6 +589,8 @@ const DELL_SITES = [
   { name: "Dell Casablanca", country: "MA", region: "EMEA", lat: 33.5731, lon: -7.5898 },
   { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
   { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
+
+  // APJC
   { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
   { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
   { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
@@ -876,10 +607,11 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
+
 const ASSETS = {};
 DELL_SITES.forEach(s => ASSETS[s.name.toLowerCase()] = s);
 
-// City Lookup
+/* City lookup fallback */
 const CITY_COORDS = {
   "london": {lat:51.5074, lng:-0.1278}, "paris": {lat:48.8566, lng:2.3522},
   "sydney": {lat:-33.8688, lng:151.2093}, "tokyo": {lat:35.6762, lng:139.6503},
@@ -893,121 +625,1080 @@ const CITY_COORDS = {
 };
 
 function getCoordsForIncident(i) {
-  if(i.lat && i.lng) return {lat: i.lat, lng: i.lng};
-  const loc = (i.location || "").toLowerCase();
-  for(const [city, c] of Object.entries(CITY_COORDS)) {
-     if(loc.includes(city)) return c;
+  if (i && Number(i.lat) && Number(i.lng)) return { lat: Number(i.lat), lng: Number(i.lng) };
+  const loc = String(i && (i.location || i.city || i.country || "") || "").toLowerCase();
+  for (const [city, c] of Object.entries(CITY_COORDS)) {
+    if (loc.includes(city)) return c;
   }
-  return null; 
+  return null;
 }
 
-function initMap() {
-  if(typeof L === 'undefined') return;
-  map = L.map('map', {zoomControl: false}).setView([20,0], 2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-     attribution: '&copy; OpenStreetMap &copy; CARTO'
-  }).addTo(map);
-  L.control.zoom({position: 'topleft'}).addTo(map);
-  
-  incidentClusterGroup = L.markerClusterGroup({ maxClusterRadius: 40 });
-  assetsClusterGroup = L.layerGroup();
-  criticalLayerGroup = L.layerGroup();
-  
-  map.addLayer(assetsClusterGroup);
-  map.addLayer(incidentClusterGroup);
-  map.addLayer(criticalLayerGroup);
+/* ===========================
+   INIT
+=========================== */
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    // Admin modal: auto-populate secret field from session storage
+    try {
+      const am = document.getElementById('adminModal');
+      if (am) {
+        am.addEventListener('show.bs.modal', () => {
+          try {
+            const sec = sessionStorage.getItem('admin_secret');
+            const fld = document.getElementById('adminSecret');
+            if (fld) fld.value = sec ? String(sec) : '';
+            const fb = document.getElementById('adminFeedback');
+            if (fb) fb.style.display = 'none';
+          } catch(e) {}
+        });
+      }
+    } catch(e) {}
+
+    function initMap() {
+      // Guard: ensure Leaflet loaded
+      if (typeof L === 'undefined') {
+        throw new Error("Leaflet failed to load");
+      }
+
+      // NOTE: tightened longitudes from -180/180 to -179.999/179.999 to avoid dateline tile duplication
+      const southWest = L.latLng(-85, -179.999);
+      const northEast = L.latLng(85, 179.999);
+      const bounds = L.latLngBounds(southWest, northEast);
+
+      map = L.map("map", {
+        scrollWheelZoom: false,
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: 2,
+        maxZoom: 19,
+        maxBounds: bounds,
+        maxBoundsViscosity: 1.0,
+        worldCopyJump: false
+      }).setView([20, 0], 2);
+
+      L.control.zoom({ position: "topleft" }).addTo(map);
+
+      // --- Enhanced tile layers: Esri primary + Carto fallback (bulletproofing) ---
+      const esriLayer = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
+          noWrap: true,
+          bounds: bounds,
+          keepBuffer: 2
+        }
+      );
+
+      const cartoLayer = L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        {
+          subdomains: "abcd",
+          maxZoom: 19,
+          noWrap: true,
+          bounds: bounds,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
+          keepBuffer: 2
+        }
+      );
+
+      // Track tile errors and switch after threshold
+      let esriTileErrors = 0;
+      let cartoTileErrors = 0;
+      const ERROR_THRESHOLD = 12;
+
+      function switchToLayer(fromLayer, toLayer, reason) {
+        try {
+          if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
+          if (!map.hasLayer(toLayer)) toLayer.addTo(map);
+          console.warn('Switched basemap due to:', reason);
+        } catch (e) {
+          console.error('Layer switch failed:', e);
+        }
+      }
+
+      esriLayer.on('tileerror', () => {
+        esriTileErrors++;
+        if (esriTileErrors >= ERROR_THRESHOLD) {
+          switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
+        }
+      });
+
+      cartoLayer.on('tileerror', () => {
+        cartoTileErrors++;
+        if (cartoTileErrors >= ERROR_THRESHOLD) {
+          console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
+        }
+      });
+
+      // Start with Esri (enterprise-grade), Carto available as fallback
+      esriLayer.addTo(map);
+
+      // --- End of Enhanced tile layers ---
+
+      // === IMPORTANT CHANGE: use a simple LayerGroup for assets so all Dell sites render individually ===
+      assetsClusterGroup = L.layerGroup();
+      map.addLayer(assetsClusterGroup);
+
+      incidentClusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        disableClusteringAtZoom: 13,
+        maxClusterRadius: 50,
+        zoomToBoundsOnClick: !isTouch,
+        iconCreateFunction: function(cluster) {
+          const children = cluster.getAllChildMarkers();
+          let count = children.length;
+          let maxSeverity = 0;
+          let counts = { critical:0, high:0, medium:0, low:0 };
+          children.forEach(m => {
+            const s = Number(m.options.severity || 1);
+            if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity,5); }
+            else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity,4); }
+            else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity,3); }
+            else { counts.low++; }
+          });
+
+          let cls = 'cluster-blue';
+          if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
+          if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
+
+          const ariaLabel = escapeAttr(`Cluster of ${count} incidents. ${counts.critical} Critical, ${counts.high} High, ${counts.medium} Medium, ${counts.low} Low.`);
+          const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true" tabindex="-1">${count}</div></div>`;
+          return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
+        }
+      });
+
+      incidentClusterGroup.on('clustermouseover', (e) => {
+        clearTimeout(_clusterHoverTimeout);
+        _clusterHoverTimeout = setTimeout(() => {
+          const cluster = e.layer;
+          const children = cluster.getAllChildMarkers();
+          let counts = { critical:0, high:0, medium:0, low:0 };
+          children.forEach(m => {
+            const s = Number(m.options.severity || 1);
+            if (s >= 5) counts.critical++;
+            else if (s >= 4) counts.high++;
+            else if (s === 3) counts.medium++;
+            else counts.low++;
+          });
+          const tt = `Critical: ${counts.critical}, High: ${counts.high}, Medium: ${counts.medium}, Low: ${counts.low}`;
+          cluster.bindTooltip(tt, { direction:'top', offset:[0,-10], opacity:0.95, className:'map-tooltip' }).openTooltip();
+        }, 100);
+      });
+
+      incidentClusterGroup.on('clustermouseout', (e) => {
+        clearTimeout(_clusterHoverTimeout);
+        try { e.layer.closeTooltip(); } catch {}
+      });
+
+      map.addLayer(incidentClusterGroup);
+
+      criticalLayerGroup = L.layerGroup();
+      map.addLayer(criticalLayerGroup);
+    }
+
+    initMap();
+  } catch (e) {
+    console.error("Map init error:", e);
+  }
+
+  // World clocks
+  startClock();
+
+  // Delegated click handler for CSP-safe actions (keeps existing onclick functionality intact)
+  document.addEventListener('click', async (e) => {
+    const t = e.target.closest('[data-action]');
+    if (!t) return;
+
+    const action = String(t.getAttribute('data-action') || '');
+    if (!action) return;
+
+    // prevent anchor '#' scroll / accidental navigation when button-like
+    if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) {
+      e.preventDefault();
+    }
+
+    // If clicking vote/dismiss/admin buttons inside a clickable card, stop bubbling
+    if (action === 'vote' || action === 'dismiss-alert' || action.startsWith('admin-')) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (action === 'filter-region') {
+      const region = t.getAttribute('data-region') || t.textContent.trim();
+      document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
+      t.classList.add('active');
+      filterNews(region);
+      return;
+    }
+
+    if (action === 'refresh') {
+      manualRefresh();
+      return;
+    }
+
+    if (action === 'preview-brief') {
+      previewBriefing();
+      return;
+    }
+
+    if (action === 'download-brief') {
+      downloadReport();
+      return;
+    }
+
+    if (action === 'vote') {
+      const id = t.getAttribute('data-id');
+      const vote = t.getAttribute('data-vote');
+      if (id && vote) voteThumb(id, vote);
+      return;
+    }
+
+    if (action === 'dismiss-alert') {
+      const id = t.getAttribute('data-id');
+      if (id) dismissAlertById(id);
+      const row = t.closest('.alert-row');
+      if (row) row.remove();
+      return;
+    }
+
+    // Admin actions
+    if (action === 'admin-save-secret') {
+      const sec = adminGetSecretFromField();
+      if (sec) {
+        sessionStorage.setItem('admin_secret', sec);
+        adminSetFeedback('Secret saved for this session.');
+      } else {
+        adminSetFeedback('Secret field is empty.', true);
+      }
+      return;
+    }
+
+    if (action === 'admin-clear-secret') {
+      sessionStorage.removeItem('admin_secret');
+      const fld = document.getElementById('adminSecret');
+      if (fld) fld.value = '';
+      adminSetFeedback('Secret cleared.');
+      return;
+    }
+
+    if (action === 'admin-trigger-ingest') {
+      adminTriggerIngest();
+      return;
+    }
+
+    if (action === 'admin-unlock') {
+      adminUnlock();
+      return;
+    }
+
+    if (action === 'admin-thumbs-status') {
+      adminThumbsStatus();
+      return;
+    }
+
+    if (action === 'admin-force-refresh-travel') {
+      adminForceRefreshTravel();
+      return;
+    }
+
+    if (action === 'admin-generate-brief') {
+      adminGenerateBrief();
+      return;
+    }
+
+    if (action === 'admin-list-briefs') {
+      adminListBriefs();
+      return;
+    }
+  });
+
+  // Click anywhere on feed card to open link (buttons/links inside are excluded)
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.feed-card[data-link]');
+    if (!card) return;
+    if (e.target.closest('a')) return;
+    if (e.target.closest('[data-action]')) return;
+    const href = card.getAttribute('data-link');
+    if (!href) return;
+    try { window.open(href, '_blank', 'noopener'); } catch(e2) {}
+  });
+
+  // Initial load
+  await loadFromWorker();
+  await loadProximityFromWorker();
+  filterNews("Global");
+  await loadTravelAdvisories();
+
+  // Auto refresh
+  setInterval(async () => {
+    if (FEED_IS_LIVE) {
+      await loadFromWorker(true);
+      await loadProximityFromWorker(true);
+      const active = document.querySelector('.nav-item-custom.active');
+      filterNews(active ? active.textContent.trim() : "Global");
+    }
+  }, AUTO_REFRESH_MS);
+});
+
+/* ===========================
+   CLOCKS
+=========================== */
+function startClock() {
+  const container = document.getElementById("multi-clock-container");
+  const zones = [
+    { label: "Austin", z: "America/Chicago" },
+    { label: "London", z: "Europe/London" },
+    { label: "India", z: "Asia/Kolkata" },
+    { label: "Singapore", z: "Asia/Singapore" },
+    { label: "Tokyo", z: "Asia/Tokyo" },
+    { label: "Sydney", z: "Australia/Sydney" }
+  ];
+
+  if (container && !container.innerHTML) {
+    container.innerHTML = zones.map(z => `
+      <div class="clock-box">
+        <div class="clock-label">${escapeHtml(z.label)}</div>
+        <div class="clock-val" id="clk-${escapeAttr(z.label)}">--:--</div>
+      </div>`).join('');
+  }
+
+  setInterval(() => {
+    const now = new Date();
+    zones.forEach(z => {
+      const el = document.getElementById(`clk-${z.label}`);
+      if (el) el.textContent = now.toLocaleTimeString("en-US", { timeZone: z.z, hour12: false, hour:'2-digit', minute:'2-digit' });
+    });
+  }, 1000);
 }
 
+/* ===========================
+   FETCH (Worker Data)
+=========================== */
+async function loadFromWorker(silent=false) {
+  const label = document.getElementById("feed-status-label");
+  if (label && !silent) label.textContent = "Refreshing…";
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/incidents`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const raw = await res.json();
+
+    const cutoff = Date.now() - (48 * 3600 * 1000);
+    INCIDENTS = (Array.isArray(raw) ? raw : [])
+      .map(normaliseWorkerIncident)
+      .filter(i => i && new Date(i.time).getTime() >= cutoff)
+      .sort((a,b) => new Date(b.time) - new Date(a.time));
+
+    FEED_IS_LIVE = true;
+    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
+  } catch (e) {
+    console.error("Worker fetch failed:", e);
+    FEED_IS_LIVE = false;
+    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable";
+  }
+}
+
+async function loadProximityFromWorker(silent=false) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/proximity`);
+    if (!res.ok) return;
+    const json = await res.json();
+    const cutoff = Date.now() - (48 * 3600 * 1000);
+    PROXIMITY_INCIDENTS = (Array.isArray(json.incidents) ? json.incidents : [])
+      .map(normaliseWorkerIncident)
+      .filter(i => i && new Date(i.time).getTime() >= cutoff);
+  } catch(e) {
+    console.error("Proximity load failed", e);
+  }
+}
+
+async function manualRefresh() {
+  await loadFromWorker();
+  await loadProximityFromWorker();
+  const active = document.querySelector('.nav-item-custom.active');
+  filterNews(active ? active.textContent.trim() : "Global");
+}
+
+/* ===========================
+   RENDERING (Feed + Proximity + Headline)
+=========================== */
+function filterNews(region) {
+  renderAssetsOnMap(region);
+  renderIncidentsOnMap(region, INCIDENTS);
+  renderGeneralFeed(region);
+  updateHeadline(region);
+  renderProximityAlerts(region);
+}
+
+function renderGeneralFeed(region) {
+  const container = document.getElementById("general-news-feed");
+  if (!container) return;
+
+  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+
+  if (!data.length) {
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
+    return;
+  }
+
+  let html = '';
+  data.forEach(i => {
+    const sev = mapSeverityToLabel(i.severity);
+    const id = escapeAttr(String(i.id || (i.title + i.time)));
+
+    html += `
+      <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
+        <div class="feed-status-bar ${sev.barClass}"></div>
+        <div class="feed-content">
+          <div class="feed-tags">
+            <span class="ftag ${sev.badgeClass}">${sev.label}</span>
+            <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
+            <span class="ftag ftag-type">${escapeHtml(i.category)}</span>
+            <span class="feed-region">${escapeHtml(i.region)}</span>
+          </div>
+
+          <div class="feed-title">
+            <a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">
+              ${escapeHtml(i.title)}
+            </a>
+          </div>
+
+          <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
+          <div class="feed-desc">${escapeHtml(i.summary)}</div>
+
+          <div class="vote-row">
+            <button type="button" class="btn-vote" data-action="vote" data-vote="up" data-id="${id}" aria-label="Vote up" title="Helpful">
+              <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn-vote" data-action="vote" data-vote="down" data-id="${id}" aria-label="Vote down" title="Not relevant">
+              <i class="fas fa-thumbs-down" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function updateProximityRadius() {
+  const el = document.getElementById("proxRadius");
+  if (el) currentRadius = parseFloat(el.value);
+
+  const active = document.querySelector('.nav-item-custom.active');
+  renderProximityAlerts(active ? active.textContent.trim() : "Global");
+}
+
+function renderProximityAlerts(region) {
+  const container = document.getElementById("proximity-alerts-container");
+  if (!container) return;
+
+  const data = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+
+  // Build alerts with nearest-site calculation
+  const alerts = [];
+  data.forEach(inc => {
+    const coords = (inc.lat && inc.lng) ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
+    if (!coords) return;
+
+    // skip dismissed
+    const key = String(inc.id || (inc.title + inc.time));
+    if (DISMISSED_ALERT_IDS.has(key)) return;
+
+    let nearest = null;
+
+    if (inc.distance_km && inc.nearest_site_name) {
+      nearest = { dist: Number(inc.distance_km), name: String(inc.nearest_site_name) };
+    } else {
+      for (const asset of Object.values(ASSETS)) {
+        const d = haversineKm(coords.lat, coords.lng, asset.lat, asset.lon);
+        if (!nearest || d < nearest.dist) nearest = { dist: d, name: asset.name };
+      }
+    }
+
+    if (!nearest) return;
+
+    // country wide or within radius
+    if (inc.country_wide || nearest.dist <= currentRadius) {
+      alerts.push({ inc, nearest, key });
+    }
+  });
+
+  alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
+
+  if (!alerts.length) {
+    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
+    return;
+  }
+
+  container.innerHTML = alerts.slice(0, 25).map(a => {
+    const i = a.inc;
+    const sev = Number(i.severity || 1);
+    const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
+    const distStr = i.country_wide ? `Country-wide` : `${Math.round(a.nearest.dist)}km`;
+
+    return `
+      <div class="alert-row">
+        <div class="alert-top">
+          <div class="alert-type">
+            <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i>
+            ${escapeHtml(i.title)}
+          </div>
+          <div class="alert-dist" style="color:${color}">${escapeHtml(distStr)}</div>
+        </div>
+        <div class="alert-site">Near: <b>${escapeHtml(a.nearest.name)}</b></div>
+        <div class="alert-desc">${escapeHtml(i.summary)}</div>
+        <div class="alert-actions">
+          <button type="button" class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert">Dismiss</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateHeadline(region) {
+  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  const el = document.getElementById("headline-alert");
+  const tags = document.getElementById("headline-tags");
+  if (!el || !tags) return;
+
+  if (data.length) {
+    el.textContent = data[0].title || "Headline";
+    const sev = mapSeverityToLabel(data[0].severity);
+    tags.innerHTML = `
+      <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
+      <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
+      <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
+    `;
+  } else {
+    el.textContent = "No critical alerts.";
+    tags.innerHTML = "";
+  }
+}
+
+/* ===========================
+   REPORTING (Preview + Download)
+=========================== */
+async function previewBriefing() {
+  const region = document.getElementById('reportRegion')?.value || 'Global';
+  const date = document.getElementById('reportDate')?.value || '';
+  const fb = document.getElementById('preview-feedback');
+  const cont = document.getElementById('briefing-preview');
+
+  if (fb) { fb.style.display = 'block'; fb.textContent = 'Generating preview…'; }
+  if (cont) cont.innerHTML = '';
+
+  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
+  if (date) url += `&date=${encodeURIComponent(date)}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+
+    const incidents = json.incidents || [];
+    if (!cont) return;
+
+    if (!incidents.length) {
+      cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
+    } else {
+      cont.innerHTML = incidents.slice(0, 50).map(i => `
+        <div style="border-bottom:1px solid #eee; padding:8px 0;">
+          <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
+          <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
+          <div style="font-size:0.85rem;color:#333;margin-top:4px;">${escapeHtml(i.summary || '')}</div>
+        </div>
+      `).join('');
+    }
+
+    if (fb) fb.style.display = 'none';
+  } catch (e) {
+    if (fb) { fb.textContent = `Error: ${e.message}`; fb.style.display = 'block'; }
+  }
+}
+
+async function downloadReport() {
+  const region = document.getElementById('reportRegion')?.value || 'Global';
+  const date = document.getElementById('reportDate')?.value || '';
+  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
+  if (date) url += `&date=${encodeURIComponent(date)}`;
+  window.open(url, '_blank', 'noopener');
+}
+
+/* ===========================
+   HISTORY
+=========================== */
+async function loadHistory(dateStr) {
+  const status = document.getElementById('history-status');
+  if (status) status.textContent = "Loading archive…";
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const arr = await res.json();
+
+    if (!status) return;
+
+    if (!arr || !arr.length) {
+      status.textContent = "No archived incidents found.";
+      return;
+    }
+
+    status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
+      arr.map(i => `
+        <div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">
+          <strong>${escapeHtml(i.title)}</strong><br>
+          <span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span>
+        </div>
+      `).join('') +
+      `</div>`;
+  } catch (e) {
+    if (status) status.textContent = `Archive error: ${e.message}`;
+  }
+}
+
+/* ===========================
+   TRAVEL
+=========================== */
+async function loadTravelAdvisories() {
+  const sel = document.getElementById('countrySelect');
+  if (!sel) return;
+
+  // First try Worker live
+  try {
+    sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories/live`);
+    if (res.ok) {
+      const data = await res.json();
+      TRAVEL_DATA = Array.isArray(data) ? data : [];
+      TRAVEL_UPDATED_AT = new Date().toISOString();
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // Populate dropdown (use fixed world list so UI always works)
+  sel.innerHTML = `<option selected disabled>Select Country...</option>` +
+    WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+}
+
+async function filterTravel() {
+  const country = document.getElementById('countrySelect')?.value || '';
+  const cont = document.getElementById('travel-advisories');
+  const newsCont = document.getElementById('travel-news');
+
+  if (cont) cont.innerHTML = "Loading…";
+  if (newsCont) newsCont.innerHTML = "";
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
+    const data = await res.json();
+
+    const adv = data.advisory || data;
+    const level = Number(adv.level || 1);
+    const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
+
+    if (cont) cont.innerHTML = `
+      <div class="advisory-box">
+        <div class="advisory-header">
+          <div class="advisory-label">OFFICIAL ADVISORY</div>
+          <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
+        </div>
+        <div class="advisory-text">${escapeHtml(adv.text || "No major advisory.")}</div>
+        <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || "Unknown")}</div>
+      </div>
+    `;
+
+    // If worker returns related news, render it
+    const news = Array.isArray(data.news) ? data.news : [];
+    if (newsCont && news.length) {
+      newsCont.innerHTML = `
+        <div class="news-box-alert">
+          <div class="news-box-header">RELATED NEWS</div>
+          ${news.slice(0, 5).map(n => `
+            <div class="news-box-item">
+              <div class="news-box-title">${escapeHtml(n.title || '')}</div>
+              <div class="news-box-summary">${escapeHtml(n.summary || '')}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+  } catch (e) {
+    if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">Advisory unavailable.</div></div>`;
+  }
+}
+
+/* ===========================
+   MAP RENDERING
+=========================== */
 function renderAssetsOnMap(region) {
-  if(!assetsClusterGroup) return;
+  if (!assetsClusterGroup) return;
   assetsClusterGroup.clearLayers();
+
   Object.values(ASSETS).forEach(a => {
-     if(region === "Global" || a.region === region) {
-        L.marker([a.lat, a.lon], {
-           icon: L.divIcon({className: 'custom-pin', html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>', iconSize:[30,42], iconAnchor:[15,42]})
-        }).bindTooltip(a.name).addTo(assetsClusterGroup);
-     }
+    if (region === "Global" || a.region === region) {
+      const m = L.marker([a.lat, a.lon], {
+        icon: L.divIcon({
+          className: 'custom-pin',
+          html: '<div class="marker-pin-dell"><i class="fas fa-building" aria-hidden="true"></i></div>',
+          iconSize:[30,42],
+          iconAnchor:[15,42]
+        })
+      });
+      m.bindTooltip(escapeHtml(a.name), { className: 'map-tooltip', direction: 'top' });
+      m.addTo(assetsClusterGroup);
+    }
   });
 }
 
 function renderIncidentsOnMap(region, list) {
-  if(!incidentClusterGroup) return;
+  if (!incidentClusterGroup || !criticalLayerGroup) return;
   incidentClusterGroup.clearLayers();
   criticalLayerGroup.clearLayers();
-  
+
   const data = (region === "Global") ? list : list.filter(i => i.region === region);
+
   data.forEach(i => {
-     const c = (i.lat && i.lng) ? {lat:i.lat, lng:i.lng} : getCoordsForIncident(i);
-     if(!c) return;
-     
-     const color = i.severity >= 4 ? '#d93025' : '#1a73e8';
-     const marker = L.marker([c.lat, c.lng], {
-        icon: L.divIcon({html: `<div class="incident-dot" style="background:${color}"></div>`, className:'', iconSize:[12,12]})
-     }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${safeTime(i.time)}`);
-     
-     if(i.severity >= 4) criticalLayerGroup.addLayer(marker);
-     else incidentClusterGroup.addLayer(marker);
+    const c = (Number(i.lat) && Number(i.lng)) ? { lat:Number(i.lat), lng:Number(i.lng) } : getCoordsForIncident(i);
+    if (!c) return;
+
+    const sev = Number(i.severity || 1);
+    const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
+
+    const marker = L.marker([c.lat, c.lng], {
+      severity: sev,
+      icon: L.divIcon({
+        html: `<div class="incident-dot" style="background:${color}"></div>`,
+        className: '',
+        iconSize: [12,12]
+      })
+    }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}`);
+
+    if (sev >= 4) criticalLayerGroup.addLayer(marker);
+    else incidentClusterGroup.addLayer(marker);
   });
 }
 
-function mapSeverityToLabel(s) {
-   if(s>=5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-   if(s>=4) return { label: "HIGH", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-   if(s===3) return { label: "MEDIUM", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-   return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
+/* ===========================
+   NORMALIZATION + UTILITIES
+=========================== */
+function normaliseWorkerIncident(i) {
+  if (!i || !i.title) return null;
+  return {
+    id: i.id || (i.title + (i.time || '')),
+    title: i.title,
+    summary: i.summary || i.description || "",
+    link: i.link || i.url || "#",
+    time: i.time || new Date().toISOString(),
+    severity: Number(i.severity) || 1,
+    region: String(i.region || "GLOBAL").toUpperCase(),
+    country: String(i.country || "GLOBAL").toUpperCase(),
+    category: String(i.category || "UNKNOWN").toUpperCase(),
+    lat: Number(i.lat) || 0,
+    lng: Number(i.lng) || 0,
+    source: i.source || "",
+    distance_km: (i.distance_km != null) ? Number(i.distance_km) : null,
+    nearest_site_name: i.nearest_site_name || null,
+    country_wide: !!i.country_wide,
+    location: i.location || i.city || i.country || ''
+  };
 }
 
-// CONSTANTS FOR TRAVEL
-const CONST_COUNTRIES = ["Australia","Brazil","China","France","Germany","India","Ireland","Israel","Japan","Mexico","Singapore","UK","USA"];
+function mapSeverityToLabel(s) {
+  const n = Number(s || 1);
+  if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  if (n >= 4) return { label: "HIGH", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
+  if (n === 3) return { label: "MEDIUM", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
+  return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
+}
 
-// Helpers
 function haversineKm(lat1,lon1,lat2,lon2) {
-  const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180;
-  const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  const R=6371;
+  const dLat=(lat2-lat1)*Math.PI/180;
+  const dLon=(lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) *
+            Math.sin(dLon/2)*Math.sin(dLon/2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-function shortHost(u){ try{return new URL(u).hostname.replace(/^www\./,'');}catch{return "Source";}}
-function safeHref(u){ try{return new URL(u,location.href).href;}catch{return "#";}}
-function safeTime(t){ try{return new Date(t).toLocaleString();}catch{return "Recently";}}
-function escapeHtml(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function escapeAttr(s){ return String(s||"").replace(/"/g,"&quot;"); }
 
-/* Travel Fallback (if worker endpoint fails/missing) */
-async function loadTravelAdvisories() {
-   const sel = document.getElementById('countrySelect');
-   if(!sel) return;
-   // Try worker live first
-   try {
-     const res = await fetch(`${WORKER_URL}/api/traveladvisories/live`);
-     if(res.ok) {
-       const data = await res.json();
-       TRAVEL_DATA = Array.isArray(data) ? data : [];
-     }
-   } catch(e) {}
-   
-   // Populate Dropdown
-   sel.innerHTML = `<option selected disabled>Select Country</option>` + 
-      CONST_COUNTRIES.map(c => `<option value="${c}">${c}</option>`).join('');
+function shortHost(u){
+  try { return new URL(u).hostname.replace(/^www\./,''); }
+  catch { return "Source"; }
 }
-async function filterTravel() {
-   const country = document.getElementById('countrySelect').value;
-   const cont = document.getElementById('travel-advisories');
-   cont.innerHTML = "Loading...";
-   try {
-      const res = await fetch(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`);
-      const data = await res.json();
-      const adv = data.advisory || data;
-      cont.innerHTML = `
-        <div class="advisory-box">
-           <div style="font-weight:700">Official Advisory (Level ${adv.level||1})</div>
-           <div style="font-size:0.9rem;margin-top:4px;">${escapeHtml(adv.text || "No major advisory.")}</div>
-        </div>`;
-   } catch(e) { cont.innerHTML = "Advisory unavailable."; }
+
+function safeHref(u){
+  try { return new URL(u,location.href).href; }
+  catch { return "#"; }
 }
-/* Expose functions for debugging */
+
+function safeTime(t){
+  try {
+    const d = new Date(t);
+    if (isNaN(d.getTime())) return "Recently";
+    return d.toLocaleString();
+  } catch { return "Recently"; }
+}
+
+function escapeHtml(s){
+  return String(s||"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/\"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function escapeAttr(s){
+  return String(s||"").replace(/\"/g,"&quot;").replace(/`/g,"&#096;");
+}
+
+function severityLabel(s) {
+  const n = Number(s || 1);
+  if (n >= 5) return "CRITICAL";
+  if (n >= 4) return "HIGH";
+  if (n === 3) return "MEDIUM";
+  return "LOW";
+}
+
+/* ===========================
+   VOTING / DISMISS / ADMIN
+=========================== */
+
+async function voteThumb(id, vote) {
+  const cleanId = String(id || '').trim();
+  const v = String(vote || '').trim();
+  if (!cleanId || (v !== 'up' && v !== 'down')) return;
+
+  const secret = sessionStorage.getItem('admin_secret') || '';
+
+  try {
+    const lbl = document.getElementById('feed-status-label');
+    if (lbl) lbl.textContent = 'Submitting vote…';
+  } catch(e) {}
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumb`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(secret ? { 'secret': secret } : {})
+      },
+      body: JSON.stringify({ id: cleanId, vote: v })
+    });
+
+    if (!res.ok) {
+      const txt = await res.text().catch(()=> '');
+      console.warn('voteThumb rejected', res.status, txt);
+      adminSetFeedback(`Vote rejected (HTTP ${res.status}).`, true);
+      return;
+    }
+
+    if (v === 'down') {
+      await manualRefresh();
+    } else {
+      const lbl = document.getElementById('feed-status-label');
+      if (lbl) lbl.textContent = 'Vote recorded.';
+      setTimeout(()=>{
+        try {
+          const active = document.querySelector('.nav-item-custom.active');
+          filterNews(active ? active.innerText.trim() : 'Global');
+        } catch(e) {}
+      }, 450);
+    }
+  } catch (e) {
+    console.error('voteThumb error', e);
+    adminSetFeedback('Vote failed (network).', true);
+  }
+}
+
+function dismissAlertById(id) {
+  try {
+    const k = String(id || '').trim();
+    if (!k) return;
+    DISMISSED_ALERT_IDS.add(k);
+    sessionStorage.setItem('dismissed_prox_alert_ids', JSON.stringify(Array.from(DISMISSED_ALERT_IDS).slice(0, 500)));
+  } catch(e) {}
+}
+
+function adminGetSecretFromField() {
+  try {
+    const el = document.getElementById('adminSecret');
+    return (el ? String(el.value || '').trim() : '');
+  } catch(e) {
+    return '';
+  }
+}
+
+function adminSetFeedback(msg, isError=false) {
+  const fb = document.getElementById('adminFeedback');
+  if (!fb) return;
+  fb.style.display = 'block';
+  fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
+  fb.textContent = String(msg || '');
+}
+
+function adminGetSecret() {
+  const sec = sessionStorage.getItem('admin_secret');
+  return sec ? String(sec) : '';
+}
+
+async function adminTriggerIngest() {
+  const sec = adminGetSecret();
+  if (!sec) {
+    adminSetFeedback('Set Admin Secret first.', true);
+    return;
+  }
+
+  adminSetFeedback('Triggering ingestion…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/ingest`, {
+      method: 'POST',
+      headers: { 'secret': sec }
+    });
+    const txt = await res.text().catch(()=> '');
+    if (!res.ok) {
+      adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true);
+      return;
+    }
+    adminSetFeedback(txt || 'Ingestion triggered.');
+  } catch(e) {
+    console.error('adminTriggerIngest error', e);
+    adminSetFeedback('Ingest failed (network).', true);
+  }
+}
+
+async function adminUnlock() {
+  const sec = adminGetSecret();
+  if (!sec) {
+    adminSetFeedback('Set Admin Secret first.', true);
+    return;
+  }
+
+  adminSetFeedback('Requesting unblock…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'secret': sec },
+      body: JSON.stringify({ unblock: true })
+    });
+    const txt = await res.text().catch(()=> '');
+    if (!res.ok) {
+      adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true);
+      return;
+    }
+    adminSetFeedback(txt || 'Unblock requested.');
+  } catch(e) {
+    console.error('adminUnlock error', e);
+    adminSetFeedback('Unblock failed (network).', true);
+  }
+}
+
+async function adminThumbsStatus() {
+  const sec = adminGetSecret();
+  adminSetFeedback('Loading thumbs status…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumbs/status`, {
+      method: 'GET',
+      headers: { ...(sec ? { 'secret': sec } : {}) }
+    });
+    const data = await res.json().catch(()=> null);
+    if (!res.ok) {
+      adminSetFeedback(`Status failed (HTTP ${res.status}).`, true);
+      console.log('thumbs status raw', data);
+      return;
+    }
+    adminSetFeedback('Thumbs status loaded. Check console.');
+    console.log('Thumbs status:', data);
+  } catch(e) {
+    console.error('adminThumbsStatus error', e);
+    adminSetFeedback('Status failed (network).', true);
+  }
+}
+
+async function adminForceRefreshTravel() {
+  const sec = adminGetSecret();
+  adminSetFeedback('Refreshing travel cache…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, {
+      method: 'POST',
+      headers: { ...(sec ? { 'secret': sec } : {}) }
+    });
+    const txt = await res.text().catch(()=> '');
+    if (!res.ok) {
+      adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`.trim(), true);
+      return;
+    }
+    adminSetFeedback(txt || 'Travel refresh triggered.');
+    try { await loadTravelAdvisories(); } catch(e) {}
+  } catch(e) {
+    console.error('adminForceRefreshTravel error', e);
+    adminSetFeedback('Travel refresh failed (network).', true);
+  }
+}
+
+async function adminGenerateBrief() {
+  const sec = adminGetSecret();
+  if (!sec) {
+    adminSetFeedback('Set Admin Secret first.', true);
+    return;
+  }
+
+  const regionEl = document.getElementById('reportRegion');
+  const dateEl = document.getElementById('reportDate');
+  const region = regionEl ? String(regionEl.value || 'Global') : 'Global';
+  const date = dateEl ? String(dateEl.value || '') : '';
+
+  adminSetFeedback('Generating brief on server…');
+  try {
+    const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
+    const res = await fetch(url, { method: 'POST', headers: { 'secret': sec } });
+    const txt = await res.text().catch(()=> '');
+    if (!res.ok) {
+      adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`.trim(), true);
+      return;
+    }
+    adminSetFeedback(txt || 'Brief generation requested.');
+  } catch(e) {
+    console.error('adminGenerateBrief error', e);
+    adminSetFeedback('Generate failed (network).', true);
+  }
+}
+
+async function adminListBriefs() {
+  const sec = adminGetSecret();
+  if (!sec) {
+    adminSetFeedback('Set Admin Secret first.', true);
+    return;
+  }
+
+  adminSetFeedback('Listing stored briefs…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
+    const data = await res.json().catch(()=> null);
+    if (!res.ok) {
+      adminSetFeedback(`List failed (HTTP ${res.status}).`, true);
+      console.log('brief list raw', data);
+      return;
+    }
+    adminSetFeedback('Brief list loaded. Check console.');
+    console.log('Stored briefs:', data);
+  } catch(e) {
+    console.error('adminListBriefs error', e);
+    adminSetFeedback('List failed (network).', true);
+  }
+}
+
+/* Expose small functions for debugging */
 window.loadTravelAdvisories = loadTravelAdvisories;
 window.filterTravel = filterTravel;
 window.loadHistory = loadHistory;
 </script>
 </body>
 </html>
+```
