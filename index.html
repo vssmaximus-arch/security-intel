@@ -46,8 +46,7 @@
 
     .skip-link {
       position: absolute; top: -50px; left: 10px;
-      background: #1a73e8;
-      color: #fff; padding: 10px;
+      background: #1a73e8; color: #fff; padding: 10px;
       z-index: 99999; font-weight: 700; border-radius: 4px;
       text-decoration: none; transition: top 0.2s;
     }
@@ -211,22 +210,6 @@
     .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
     .btn-download:hover { background: #1557b0; }
 
-    /* DEBUG OVERLAY */
-    .assets-debug {
-      position: absolute;
-      top: 110px;
-      right: 18px;
-      z-index: 999999;
-      background: #fff;
-      padding: 8px 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 13px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      max-width: 320px;
-      line-height: 1.25;
-    }
-    .assets-debug pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-size: 12px; color:#222; }
   </style>
 </head>
 
@@ -236,13 +219,13 @@
 <div class="app-container" id="main-content">
   <div class="header-container">
     <div class="header-left">
-      <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+      <div class="logo-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
       <div class="logo-text">OS <span>INFOHUB</span></div>
     </div>
 
     <div class="header-right d-flex align-items-center">
       <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks">
-        </div>
+      </div>
 
       <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
         <a class="nav-item-custom active" onclick="filterNews('Global')" role="tab" aria-selected="true" tabindex="0">Global</a>
@@ -252,11 +235,12 @@
         <a class="nav-item-custom" onclick="filterNews('LATAM')" role="tab" aria-selected="false" tabindex="0">LATAM</a>
       </div>
 
-      <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()" role="button" aria-label="Refresh feed" tabindex="0">
+      <div id="btn-refresh" class="btn-daily ms-3" onclick="manualRefresh()" role="button" aria-label="Refresh Data" tabindex="0">
         <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
       </div>
 
-      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124;
+        box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
         <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
       </div>
     </div>
@@ -272,23 +256,23 @@
         <div class="stream-section">
           <div class="stream-header">
 
-             <div class="stream-label">
-              <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
+            <div class="stream-label">
+              <i class="fas fa-circle live-dot-blue" aria-hidden="true"></i> Real-time Intelligence Stream
               <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
             </div>
-            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
+            <div class="stream-links" onclick="manualRefresh()" title="Refresh feed"
+              style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
               VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
             </div>
 
           </div>
 
           <div class="critical-alert-bar" role="alert">
-            <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+            <i class="fas fa-exclamation-triangle alert-icon-lg" aria-hidden="true"></i>
             <div class="alert-content-main" id="headline-alert">Loading headline…</div>
             <div class="alert-tags">
               <span class="tag" id="headline-sev">SEV?</span>
               <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-
               <span class="tag tag-reg" id="headline-reg">REGION</span>
             </div>
           </div>
@@ -302,18 +286,17 @@
       <div class="col-lg-3 sidebar-col">
 
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-history"></i> History Search</div>
+          <div class="card-label"><i class="fas fa-history" aria-hidden="true"></i> History Search</div>
           <div class="history-input-group">
-            <i class="far fa-calendar-alt calendar-icon"></i>
+            <i class="far fa-calendar-alt calendar-icon" aria-hidden="true"></i>
             <label for="history-picker" class="form-label visually-hidden">History date</label>
             <input type="date" class="history-input" id="history-picker" onchange="loadHistory(this.value)" aria-label="Select history date" />
           </div>
           <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence (simulated).</div>
         </div>
 
-
         <div class="side-card">
-          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+          <div class="card-label"><i class="fas fa-plane" aria-hidden="true"></i> Travel Safety Check</div>
           <label for="countrySelect" class="form-label visually-hidden">Travel country</label>
           <select class="travel-select" id="countrySelect" onchange="filterTravel()" aria-label="Select country for travel info">
             <option selected disabled>Loading countries...</option>
@@ -321,7 +304,6 @@
           <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
           <div id="travel-news" class="mt-2"></div>
         </div>
-
 
         <div class="side-card" style="padding-bottom: 10px;">
           <div class="prox-header-row">
@@ -331,7 +313,6 @@
             </div>
           </div>
           <div class="prox-controls">
-
             <div class="prox-subtitle">WITHIN RADIUS</div>
             <label for="proxRadius" class="form-label visually-hidden">Proximity radius</label>
             <select id="proxRadius" class="radius-select" onchange="updateProximityRadius()" aria-label="Proximity radius">
@@ -350,6 +331,7 @@
             <a href="#" onclick="manualRefresh();return false;" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
           </div>
         </div>
+
       </div>
 
     </div>
@@ -360,7 +342,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
+        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;" aria-hidden="true"></i>Daily Intelligence Briefings</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -391,10 +373,10 @@
 
         <div class="d-grid gap-2" style="margin-bottom:8px;">
           <button class="btn-download" id="btn-preview" onclick="previewBriefing()" aria-label="Preview daily briefing">
-            <i class="fas fa-eye me-2"></i> Preview Briefing
+            <i class="fas fa-eye me-2" aria-hidden="true"></i> Preview Briefing
           </button>
           <button class="btn-download" id="btn-download" onclick="downloadReport()" aria-label="Download briefing (generated)">
-            <i class="fas fa-download me-2"></i> Download Briefing
+            <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
           </button>
         </div>
 
@@ -405,53 +387,12 @@
   </div>
 </div>
 
-<div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
-
 <script>
 /* ===========================
    CONFIG
 =========================== */
 const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
 const AUTO_REFRESH_MS = 60_000;
-
-/* DEBUG UI (overlay hidden unless enabled via ?debug=1 or localStorage flag) */
-const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
-
-/* ===========================
-   GITHUB SMARTTRAVELLER FALLBACK (simple)
-=========================== */
-const GITHUB_SMARTTRAVELLER_BASE_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
-const GITHUB_SMR_ADVISORIES_JSON = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/data/advisories.json`;
-const GITHUB_SMR_ADVISORIES_JSON_ALT = `${GITHUB_SMARTTRAVELLER_BASE_RAW}/advisories.json`;
-/* ===========================
-   STATIC COUNTRIES FALLBACK
-=========================== */
-const CONST_COUNTRIES = [
-  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
-  "Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi",
-  "Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (DRC)","Congo (Republic)","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic",
-  "Denmark","Djibouti","Dominica","Dominican Republic",
-  "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia",
-  "Fiji","Finland","France",
-  "Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
-  "Haiti","Honduras","Hungary",
-  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy",
-  "Jamaica","Japan","Jordan",
-  "Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan",
-  "Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg",
-  "Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar",
-  "Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway",
-  "Oman",
-  "Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal",
-  "Qatar",
-  "Romania","Russia","Rwanda",
-  "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
-  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
-  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
-  "Vanuatu","Vatican City","Venezuela","Vietnam",
-  "Yemen",
-  "Zambia","Zimbabwe"
-];
 
 /* ===========================
    DATA STATE
@@ -472,6 +413,7 @@ let criticalLayerGroup;
 /* Small UX helpers (debounce + detect touch) */
 let _clusterHoverTimeout = null;
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+
 /* ERROR MONITORING (Simple Sentry stub) */
 window.onerror = function(msg, url, line, col, error) {
    console.error("Global Error Caught:", { msg, url, line, col, error });
@@ -481,6 +423,7 @@ window.onerror = function(msg, url, line, col, error) {
 window.addEventListener('unhandledrejection', (ev) => {
   console.error('Unhandled promise rejection:', ev.reason);
 });
+
 /* ===========================
    DELL SITES (your list)
 =========================== */
@@ -543,6 +486,7 @@ const DELL_SITES = [
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
   { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
 ];
+
 /* For proximity + map rendering we use a simple normalized list:
    keep same ASSETS mapping as your original */
 const ASSETS = {};
@@ -550,6 +494,7 @@ DELL_SITES.forEach(s => {
   const key = s.name.toLowerCase();
   ASSETS[key] = { name: s.name, lat: s.lat, lng: s.lon, region: s.region, country: s.country };
 });
+
 /* ===========================
    CITY LOOKUP (used for incident coordinate resolution)
 =========================== */
@@ -591,6 +536,7 @@ const CITY_COORDS = {
 DELL_SITES.forEach(s => {
   CITY_COORDS[s.name.toLowerCase()] = { lat: s.lat, lng: s.lon };
 });
+
 /* ===========================
    COUNTRY CENTERS (fallback)
 =========================== */
@@ -636,38 +582,6 @@ const COUNTRY_COORDS = {
   "spain": { lat: 40.4637, lng: -3.7492 },
   "italy": { lat: 41.8719, lng: 12.4964 }
 };
-/* ===========================
-   DEBUG HELPERS (non-destructive)
-=========================== */
-function createAssetsDebugOverlay(){
-  let d = document.getElementById('assets-debug');
-  if(!d){
-    d = document.createElement('div');
-    d.id = 'assets-debug';
-    d.className = 'assets-debug';
-    d.setAttribute('role','status');
-    d.setAttribute('aria-live','polite');
-    d.style.display = 'none';
-    document.body.appendChild(d);
-  }
-  return d;
-}
-function updateAssetsDebugOverlay(info){
-  if (!DEBUG_UI) return;
-  try{
-    const d = createAssetsDebugOverlay();
-    d.style.display = 'block';
-    d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div>
-      <div><strong>DELL_SITES:</strong> ${info.dellSites}</div>
-      <div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div>
-      <div><strong>assets.length:</strong> ${info.assetsLen}</div>
-      <div><strong>filtered:</strong> ${info.filteredLen}</div>
-      <div style="margin-top:6px;font-weight:700">Sample entries</div>
-      <pre>${info.sample}</pre>`;
-  }catch(e){
-    console.log('updateAssetsDebugOverlay error', e);
-  }
-}
 
 /* ===========================
    INIT (wrapped in try/catch)
@@ -675,15 +589,9 @@ function updateAssetsDebugOverlay(info){
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     function initMap() {
-      // Guard: ensure Leaflet loaded
       if (typeof L === 'undefined') {
         throw new Error("Leaflet failed to load");
       }
-
-      // NOTE: tightened longitudes from -180/180 to -179.999/179.999 to avoid dateline tile duplication
-      const southWest = L.latLng(-85, -179.999);
-      const northEast = L.latLng(85, 179.999);
-      const bounds = L.latLngBounds(southWest, northEast);
 
       map = L.map("map", {
         scrollWheelZoom: false,
@@ -691,68 +599,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         attributionControl: true,
         minZoom: 2,
         maxZoom: 19,
-        maxBounds: bounds,
-        maxBoundsViscosity: 1.0,
         worldCopyJump: false
       }).setView([20, 0], 2);
 
       L.control.zoom({ position: "topleft" }).addTo(map);
 
-      // --- Enhanced tile layers: Esri primary + Carto fallback (bulletproofing) ---
-      const esriLayer = L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-        {
-          maxZoom: 19,
-          attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA',
-          noWrap: true,
-          bounds: bounds,
-          keepBuffer: 2
-        }
-      );
       const cartoLayer = L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
         {
           subdomains: "abcd",
           maxZoom: 19,
           noWrap: true,
-          bounds: bounds,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; CARTO',
-          keepBuffer: 2
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
         }
       );
+      cartoLayer.addTo(map);
 
-      // Track tile errors and switch after threshold
-      let esriTileErrors = 0;
-      let cartoTileErrors = 0;
-      const ERROR_THRESHOLD = 12;
-
-      function switchToLayer(fromLayer, toLayer, reason) {
-        try {
-          if (map.hasLayer(fromLayer)) map.removeLayer(fromLayer);
-          if (!map.hasLayer(toLayer)) toLayer.addTo(map);
-          console.warn('Switched basemap due to:', reason);
-        } catch (e) {
-          console.error('Layer switch failed:', e);
-        }
-      }
-
-      esriLayer.on('tileerror', () => {
-        esriTileErrors++;
-        if (esriTileErrors >= ERROR_THRESHOLD) {
-          switchToLayer(esriLayer, cartoLayer, 'Esri tile failures >= threshold');
-        }
-      });
-      cartoLayer.on('tileerror', () => {
-        cartoTileErrors++;
-        if (cartoTileErrors >= ERROR_THRESHOLD) {
-          console.error('Carto tile failures >= threshold. Consider adding another fallback or cached tiles.');
-        }
-      });
-      // Start with Esri (enterprise-grade), Carto available as fallback
-      esriLayer.addTo(map);
-      // --- End of Enhanced tile layers ---
-
-      // === IMPORTANT CHANGE: use a simple LayerGroup for assets so all Dell sites render individually ===
       assetsClusterGroup = L.layerGroup();
       map.addLayer(assetsClusterGroup);
 
@@ -784,62 +646,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
         }
       });
-      incidentClusterGroup.on('clustermouseover', (e) => {
-        clearTimeout(_clusterHoverTimeout);
-        _clusterHoverTimeout = setTimeout(() => {
-          const cluster = e.layer;
-          const children = cluster.getAllChildMarkers();
-          let counts = { critical:0, high:0, medium:0, low:0 };
-          children.forEach(m => {
-            const s = Number(m.options.severity || 1);
-            if (s >= 5) counts.critical++;
-            else if (s >= 4) counts.high++;
-            else if (s === 3) counts.medium++;
-            else counts.low++;
-          });
-
-          const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
-                          (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
-                          (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
-                          (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
-                          (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
-          L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
-            .setLatLng(cluster.getLatLng())
-            .setContent(summary)
-            .openOn(map);
-        }, 80);
-      });
-
-      incidentClusterGroup.on('clustermouseout', () => {
-        clearTimeout(_clusterHoverTimeout);
-        map.closePopup();
-      });
-      incidentClusterGroup.on('clusterclick', (e) => {
-        if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
-
-        const cluster = e.layer;
-        const children = cluster.getAllChildMarkers();
-        let counts = { critical:0, high:0, medium:0, low:0 };
-        children.forEach(m => {
-          const s = Number(m.options.severity || 1);
-          if (s >= 5) counts.critical++;
-          else if (s >= 4) counts.high++;
-          else if (s === 3) counts.medium++;
-          else counts.low++;
-        });
-
-        const summary = `<b>Cluster: ${children.length} Incidents</b><br/>` +
-                        (counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : '') +
-                        (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
-                        (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
-                        (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
-
-        L.popup({ closeButton: true, offset: [0, -10], className: 'map-tooltip' })
-          .setLatLng(cluster.getLatLng())
-          .setContent(summary)
-          .openOn(map);
-        setTimeout(() => document.querySelector('.leaflet-popup-close-button')?.focus(), 50);
-      });
 
       map.addLayer(incidentClusterGroup);
 
@@ -847,17 +653,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       try { criticalLayerGroup.bringToFront(); } catch(e) {}
 
       renderAssetsOnMap("Global");
-      setTimeout(()=>{ 
-        try { 
-          map.invalidateSize(); 
-          // ensure the view is inside our tightened bounds (prevents accidental antimeridian wrap)
-          try { map.panInsideBounds(bounds, { animate: false }); } catch(e){}
-        } catch(e){} 
-      }, 200);
+      setTimeout(()=>{ try { map.invalidateSize(); } catch(e){} }, 200);
       window.addEventListener('resize', ()=>{ try { map.invalidateSize(); } catch(e){} });
     }
 
-    // Try to initialize map, with handling if Leaflet is missing or init fails
     try {
       initMap();
     } catch (mapErr) {
@@ -869,27 +668,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     startClock();
-    document.addEventListener('keydown', (e) => {
-      const el = e.target;
-      if (!el || !el.classList || !el.classList.contains('cluster-icon')) return;
-      const isActivation = e.key === 'Enter' || e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
-      if (isActivation) {
-        e.preventDefault();
-        el.click();
-      }
-    });
     await loadFromWorker();
     await loadProximityFromWorker();
     filterNews("Global");
-
-    // Simplified travel advisory loading - one sequential attempt
-    if (typeof window.loadTravelAdvisories === 'function') {
-      try {
-        await window.loadTravelAdvisories();
-      } catch (e) {
-        console.warn("loadTravelAdvisories initial call failed:", e);
-      }
-    }
 
     let scheduledRefreshInProgress = false;
     setInterval(async () => {
@@ -904,15 +685,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         scheduledRefreshInProgress = false;
       }
     }, AUTO_REFRESH_MS);
-    // initial debug console print
-    console.log('DELL_SITES.length', DELL_SITES.length, 'ASSETS keys', Object.keys(ASSETS).length);
+
   } catch (initError) {
-    // Global initialization error: show minimal fallback and log
     console.error("Initialization error:", initError);
     const feed = document.getElementById('general-news-feed');
     if (feed) feed.innerHTML = `<div style="padding:20px;color:#b00;">Application failed to initialize. See console for details.</div>`;
   }
 });
+
 /* ===========================
    CLOCK
 =========================== */
@@ -962,41 +742,20 @@ function renderAssetsOnMap(region) {
   assetsClusterGroup.clearLayers();
   const dellIcon = L.divIcon({
     className: "custom-pin",
-    html: '<div class="marker-pin-dell"><i class="fas fa-building"></i></div>',
+    html: '<div class="marker-pin-dell"><i class="fas fa-building" aria-hidden="true"></i></div>',
     iconSize: [30, 42],
     iconAnchor: [15, 42]
   });
+
   const assets = Object.entries(ASSETS).map(([name, c]) => ({ name, ...c }));
-  // debug: compute everything and show overlay
   const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
-
-  // console debug
-  console.log('renderAssetsOnMap', { region, dellSites: DELL_SITES.length, assetsKeys: Object.keys(ASSETS).length, assetsLen: assets.length, filteredLen: filtered.length });
-  console.log('assets sample', assets.slice(0, 8));
-  console.log('filtered sample', filtered.slice(0, 8));
-
-  // update the on-page debug overlay
-  const sampleText = filtered.slice(0, 8).map(a => {
-    return `${a.name} -> lat:${String(a.lat)} lng:${String(a.lng)} region:${a.region}`;
-  }).join('\n');
-  updateAssetsDebugOverlay({
-    dellSites: DELL_SITES.length,
-    assetsKeys: Object.keys(ASSETS).length,
-    assetsLen: assets.length,
-    filteredLen: filtered.length,
-    sample: sampleText || '(no entries)'
-  });
-  // If any entries have missing coords, log them
-  const missing = filtered.filter(a => !Number.isFinite(Number(a.lat)) || !Number.isFinite(Number(a.lng)));
-  if (missing.length) {
-    console.warn('Some assets have missing coords', missing.slice(0,8));
-  }
 
   filtered.forEach(a => {
     const m = L.marker([a.lat, a.lng], { icon: dellIcon });
     m.bindTooltip(`<b>${escapeHtml(a.name.toUpperCase())}</b>`, { permanent:false, direction:"top", className:"map-tooltip" });
     assetsClusterGroup.addLayer(m);
   });
+
   if (!map) return;
   if (region === "AMER") map.setView([30, -90], 3);
   else if (region === "EMEA") map.setView([45, 15], 3);
@@ -1125,10 +884,6 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
   }
 }
 
-/* ===========================
-   LOAD + 48H FILTERING
-=========================== */
-
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
@@ -1143,17 +898,7 @@ async function loadFromWorker(silent=false) {
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
 
-    // --- enforce 48-hour cutoff ---
-    const cutoffMs = Date.now() - (48 * 3600 * 1000);
-    INCIDENTS = list
-      .map(normaliseWorkerIncident)
-      .filter(Boolean)
-      .filter(i => {
-        try {
-          const t = new Date(i.time).getTime();
-          return !isNaN(t) && t >= cutoffMs;
-        } catch (e) { return false; }
-      });
+    INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
     INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
 
     FEED_IS_LIVE = true;
@@ -1174,27 +919,12 @@ async function loadProximityFromWorker(silent = false) {
     }
     const json = await res.json();
     const list = Array.isArray(json?.incidents) ? json.incidents : [];
-
-    // --- enforce 48-hour cutoff on proximity items too ---
-    const cutoffMs = Date.now() - (48 * 3600 * 1000);
-    PROXIMITY_INCIDENTS = list
-      .map(normaliseWorkerIncident)
-      .filter(Boolean)
-      .filter(i => {
-        try {
-          const t = new Date(i.time).getTime();
-          return !isNaN(t) && t >= cutoffMs;
-        } catch (e) { return false; }
-      });
+    PROXIMITY_INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean);
     if (!silent) console.log("Loaded proximity items:", PROXIMITY_INCIDENTS.length);
   } catch (e) {
     console.error("loadProximityFromWorker failed:", e);
   }
 }
-
-/* ===========================
-   REST/UTILS (normaliser + helpers)
-=========================== */
 
 function normaliseWorkerIncident(item) {
   if (!item) return null;
@@ -1203,6 +933,7 @@ function normaliseWorkerIncident(item) {
 
   const region = (item.region || "GLOBAL").toUpperCase();
   const severity = Number(item.severity || 1) || 1;
+
   const normalized = {
     id: item.id || (title + "|" + (item.link||"")),
     title,
@@ -1266,8 +997,6 @@ function renderGeneralFeed(region) {
     const when = safeTime(i.time);
     const src = i.source ? shortHost(i.source) : "Source";
 
-    const wideBadge = i.country_wide ? `<span class="ftag ftag-type" style="margin-left:6px;font-size:0.65rem;background:#000;color:#fff;">COUNTRY-WIDE</span>` : "";
-
     html += `
       <a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener noreferrer" class="feed-card">
         <div class="feed-status-bar ${barClass}"></div>
@@ -1277,7 +1006,6 @@ function renderGeneralFeed(region) {
             <span class="ftag ftag-loc">${escapeHtml((i.country || "GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
             <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
-            ${wideBadge}
           </div>
           <div class="feed-title">${escapeHtml(i.title)}</div>
           <div class="feed-meta">${escapeHtml(src)} • ${escapeHtml(when)}</div>
@@ -1315,7 +1043,6 @@ function updateHeadline(region) {
     sevEl.textContent = sevMeta.label;
     sevEl.className = `tag ${sevMeta.cls}`;
   }
-
   if (catEl) catEl.textContent = top.category || "UNKNOWN";
   if (regEl) regEl.textContent = (top.region || "Global").toUpperCase();
 }
@@ -1363,7 +1090,7 @@ function renderProximityAlerts(region) {
   alerts.sort((x, y) => (x.nearest.dist - y.nearest.dist) || (Number(y.inc.severity) - Number(x.inc.severity)));
   if (alerts.length === 0) {
     container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">
-      <i class="fas fa-check-circle" style="color:#ceead6;font-size:1.5rem;margin-bottom:10px;"></i><br/>
+      <i class="fas fa-check-circle" style="color:#ceead6;font-size:1.5rem;margin-bottom:10px;" aria-hidden="true"></i><br/>
       No threats within ${currentRadius}km.
     </div>`;
     return;
@@ -1375,12 +1102,7 @@ function renderProximityAlerts(region) {
     const sev = Number(a.inc.severity || 1);
     const color = sev >= 4 ? "#d93025" : (sev === 3 ? "#f9ab00" : "#1a73e8");
     const title = a.inc.title || "Incident";
-
-    const wideBadge = a.inc.country_wide ? `<span class="ftag ftag-type" style="margin-left:6px;font-size:0.65rem;background:#000;color:#fff;">COUNTRY-WIDE</span>` : "";
-
-    let distDisplay = `${Math.round(a.nearest.dist)}km`;
-    if (a.inc.country_wide && a.nearest.dist > currentRadius) distDisplay = "N/A";
-
+    const distDisplay = `${Math.round(a.nearest.dist)}km`;
     const assetDisplay = (a.nearest.assetName || "").toUpperCase();
     const desc = (a.inc.summary && String(a.inc.summary).trim()) ? String(a.inc.summary).trim() : "No details available.";
 
@@ -1388,13 +1110,13 @@ function renderProximityAlerts(region) {
       <div class="alert-row">
         <div class="alert-top">
           <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;"></i>
-            ${escapeHtml(title)} ${wideBadge}
+            <i class="fas fa-exclamation-circle" style="color:${color};margin-right:8px;" aria-hidden="true"></i>
+            ${escapeHtml(title)}
           </div>
           <div class="alert-dist" style="color:${color}">${distDisplay}</div>
         </div>
         <div class="alert-site">
-          <i class="far fa-building"></i> Near: <b>${escapeHtml(assetDisplay)}</b>
+          <i class="far fa-building" aria-hidden="true"></i> Near: <b>${escapeHtml(assetDisplay)}</b>
         </div>
         <div class="alert-desc">${escapeHtml(desc)}</div>
       </div>`;
@@ -1403,246 +1125,6 @@ function renderProximityAlerts(region) {
   container.innerHTML = html;
 }
 
-/* ===========================
-   TRAVEL SAFETY CHECK (simplified, sequential fallback)
-=========================== */
-
-function getTravelCountryName(item) {
-  const c =
-    (typeof item?.country === "string" && item.country.trim()) ? item.country.trim() :
-    (typeof item?.country_name === "string" && item.country_name.trim()) ? item.country_name.trim() :
-    (typeof item?.name === "string" && item.name.trim()) ? item.name.trim() :
-    "";
-  return c;
-}
-
-function recursivelyExtractAdvisories(obj) {
-  const out = [];
-  const seenObjs = new WeakSet();
-  function walk(x) {
-    if (!x) return;
-    if (typeof x === "string" || typeof x === "number" || typeof x === "boolean") return;
-    if (Array.isArray(x)) {
-      for (const it of x) walk(it);
-      return;
-    }
-    if (typeof x === "object") {
-      if (seenObjs.has(x)) return;
-      seenObjs.add(x);
-      const name = getTravelCountryName(x);
-      const hasText = (typeof x?.text === "string" && x.text.trim()) || (typeof x?.advice === "string" && x.advice.trim()) || (typeof x?.summary === "string" && x.summary.trim());
-      if (name || hasText || (typeof x?.level === "number")) {
-        out.push(x);
-      }
-      for (const v of Object.values(x)) {
-        walk(v);
-      }
-    }
-  }
-
-  walk(obj);
-  return out;
-}
-
-function cleanTravelAdvisories(list) {
-  const map = new Map();
-  for (const item of (list || [])) {
-    if (!item || typeof item !== "object") continue;
-    const name = getTravelCountryName(item);
-    if (!name) continue;
-    const key = name.toLowerCase().trim();
-    if (!map.has(key)) map.set(key, item);
-  }
-  return Array.from(map.values());
-}
-
-/* Simplified sequential loadTravelAdvisories:
-   Try worker/live → worker/cached → GitHub raw.
-*/
-async function loadTravelAdvisories() {
-  const sel = document.getElementById("countrySelect");
-  if (!sel) return;
-
-  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-  let fetchedData = [];
-
-  // 1) Try worker live
-  try {
-    const liveRes = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
-    if (liveRes && liveRes.ok) {
-      const json = await liveRes.json();
-      const normalized = recursivelyExtractAdvisories(json);
-      fetchedData = cleanTravelAdvisories(normalized);
-      TRAVEL_UPDATED_AT = json?.updated_at || TRAVEL_UPDATED_AT;
-    }
-  } catch (e) {
-    console.warn("Worker live traveladvisories failed:", e);
-  }
-
-  // 2) If empty, try worker cached
-  if (!fetchedData || fetchedData.length === 0) {
-    try {
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories`, {}, 10000);
-      if (res && res.ok) {
-        const json = await res.json();
-        const normalized = recursivelyExtractAdvisories(json);
-        fetchedData = cleanTravelAdvisories(normalized);
-        TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || json?.updated_at || TRAVEL_UPDATED_AT;
-      }
-    } catch (e) {
-      console.warn("Worker cached traveladvisories failed:", e);
-    }
-  }
-
-  // 3) GitHub fallback (simple)
-  if (!fetchedData || fetchedData.length === 0) {
-    try {
-      const r = await fetchWithTimeout(GITHUB_SMR_ADVISORIES_JSON, {}, 9000);
-      if (r && r.ok) {
-        const payload = await r.json();
-        const normalized = recursivelyExtractAdvisories(payload);
-        fetchedData = cleanTravelAdvisories(normalized);
-        TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || new Date().toISOString();
-      } else {
-        // try alternate path
-        const r2 = await fetchWithTimeout(GITHUB_SMR_ADVISORIES_JSON_ALT, {}, 9000);
-        if (r2 && r2.ok) {
-          const payload = await r2.json();
-          const normalized = recursivelyExtractAdvisories(payload);
-          fetchedData = cleanTravelAdvisories(normalized);
-          TRAVEL_UPDATED_AT = TRAVEL_UPDATED_AT || new Date().toISOString();
-        }
-      }
-    } catch (e) {
-      console.warn("GitHub fallback failed:", e);
-    }
-  }
-
-  TRAVEL_DATA = (fetchedData || []).slice();
-
-  // Merge with static list so dropdown always populated
-  const countrySet = new Set(CONST_COUNTRIES);
-  TRAVEL_DATA.forEach(item => {
-    const name = getTravelCountryName(item);
-    if (name) countrySet.add(name);
-  });
-  const sortedCountries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
-  if (sortedCountries.length === 0) {
-    sel.innerHTML = `<option selected disabled>Advisories unavailable</option>`;
-    return;
-  }
-
-  sel.innerHTML = `<option selected disabled>Select Country...</option>`;
-  sortedCountries.forEach(cName => {
-    const opt = document.createElement("option");
-    opt.value = cName;
-    opt.innerText = cName;
-    sel.appendChild(opt);
-  });
-}
-
-/* Render advisory + recent incidents */
-function renderAdvisoryAndIncidents(payload) {
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!advContainer || !newsContainer) return;
-
-  try {
-    const advisory = payload.advisory || payload || {};
-    const incidents = Array.isArray(payload.recent_incidents) ? payload.recent_incidents :
-                      Array.isArray(payload.incidents) ? payload.incidents : [];
-
-    const level = Number(advisory.level || advisory.risk_level || 1);
-    let advColor = "#1a73e8", advBg = "#e8f0fe", advBorder = "#d2e3fc", levelText = "LEVEL 1";
-    if (level === 2) { advColor="#f9ab00"; advBg="#fef7e0"; advBorder="#feebc8"; levelText="LEVEL 2"; }
-    else if (level === 3) { advColor="#e37400"; advBg="#fff5e5"; advBorder="#ffdecb"; levelText="LEVEL 3"; }
-    else if (level === 4) { advColor="#d93025"; advBg="#fce8e6"; advBorder="#fad2cf"; levelText="LEVEL 4"; }
-
-    const updated = payload.cached_at || payload.updated_at || advisory.updated_at || null;
-    const updatedStr = updated ? new Date(updated).toLocaleString() : "Unknown";
-
-    advContainer.innerHTML = `
-      <div class="advisory-box" style="background:${advBg};border-color:${advBorder}">
-        <div class="advisory-header">
-          <span class="advisory-label">OFFICIAL TRAVEL RISK (LIVE)</span>
-          <span class="advisory-level-badge" style="background:${advColor}">${levelText}</span>
-        </div>
-        <div class="advisory-text">${escapeHtml(advisory.text || advisory.advice || advisory.summary || "No advisory available")}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(updatedStr)}</div>
-      </div>`;
-    if (incidents.length > 0) {
-      let newsHtml = `<div class="news-box-alert"><div class="news-box-header">RECENT HIGH-SEVERITY INCIDENTS (LAST 72H)</div>`;
-      incidents.forEach(n => {
-        const sevLabel = (n.severity_label || severityLabel(n.severity || 0)).toUpperCase();
-        const when = (n.time) ? new Date(n.time).toLocaleString() : "Unknown";
-        newsHtml += `
-          <div class="news-box-item">
-            <div class="news-box-title">${escapeHtml(n.title || "Untitled")}</div>
-            <div class="news-box-summary">${escapeHtml(n.summary || n.description || "")}</div>
-            <div style="font-size:0.72rem;color:#666;margin-top:6px;"><strong>${escapeHtml(String(sevLabel))}</strong> • ${escapeHtml(String(n.location || n.country || ""))} • ${escapeHtml(when)}</div>
-          </div>`;
-      });
-      newsHtml += `</div>`;
-      newsContainer.innerHTML = newsHtml;
-    } else {
-      newsContainer.innerHTML = `
-        <div class="safe-box">
-          <i class="fas fa-check-circle safe-icon"></i>
-          <div class="safe-text">No high-severity incidents in the last 72 hours</div>
-        </div>`;
-    }
-
-  } catch (e) {
-    advContainer.innerHTML = `<div class="safe-box"><div class="safe-text">Advisory unavailable</div></div>`;
-    newsContainer.innerHTML = "";
-  }
-}
-
-/* Filter travel: try worker then fallback to TRAVEL_DATA or GitHub */ 
-async function filterTravel() {
-  const countrySelect = document.getElementById("countrySelect");
-  if (!countrySelect) return;
-  const country = countrySelect.value;
-
-  const advContainer = document.getElementById("travel-advisories");
-  const newsContainer = document.getElementById("travel-news");
-  if (!country || !advContainer || !newsContainer) return;
-
-  advContainer.innerHTML = '<div class="advisory-box" style="background:#f1f3f4;border-color:#e6e6e6">Loading…</div>';
-  newsContainer.innerHTML = '';
-  try {
-    // Try worker first
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
-    if (res && res.ok) {
-      const json = await res.json();
-      // If worker returned usable advisory, render
-      const text = json?.advisory?.text || json?.text || "";
-      const incidents = Array.isArray(json?.recent_incidents) ? json.recent_incidents : (Array.isArray(json?.incidents) ? json.incidents : []);
-      const level = Number(json?.advisory?.level || json?.level || 0);
-      if ((text && text.trim().length > 10) || (incidents && incidents.length > 0) || level > 1) {
-        renderAdvisoryAndIncidents(json);
-        return;
-      }
-    }
-  } catch (e) {
-    console.warn("Worker single advisory fetch failed:", e);
-  }
-
-  // If worker did not provide useful info, fall back to TRAVEL_DATA candidate
-  const candidate = TRAVEL_DATA.find(x => getTravelCountryName(x)?.toLowerCase() === country.toLowerCase());
-  if (candidate) {
-    const advisory = candidate.advisory || candidate || { text: candidate.text || "No advisory available", level: candidate.level || 1 };
-    renderAdvisoryAndIncidents({ advisory, recent_incidents: candidate.recent_incidents || [] });
-    return;
-  }
-
-  // Otherwise tell user no advisory
-  renderAdvisoryAndIncidents({ advisory: { level: 1, text: "No advisory available" }, recent_incidents: [] });
-}
-
-/* ===========================
-   HISTORY (archive)
-=========================== */
 async function loadHistory(dateStr) {
   if (!dateStr) return;
   const statusDiv = document.getElementById("history-status");
@@ -1661,7 +1143,6 @@ async function loadHistory(dateStr) {
       return;
     }
 
-    // show a compact list (first 20)
     const items = arr.slice(0, 20).map(i => {
       const when = i.time ? new Date(i.time).toLocaleString() : "";
       return `<div style="padding:8px;border-bottom:1px solid #eee;">
@@ -1674,160 +1155,6 @@ async function loadHistory(dateStr) {
   } catch (e) {
     console.error('loadHistory failed', e);
     statusDiv.innerHTML = `<span class="text-danger">Error loading archive for ${escapeHtml(dateStr)}</span>`;
-  }
-}
-
-/* ===========================
-   DAILY BRIEF PREVIEW & DOWNLOAD
-=========================== */
-// PREVIEW
-async function previewBriefing() {
-  const dateVal = document.getElementById('reportDate').value;
-  const region = (document.getElementById('reportRegion').value || 'Global').trim();
-  const feedback = document.getElementById('preview-feedback');
-  const container = document.getElementById('briefing-preview');
-  if (!feedback || !container) return;
-  feedback.style.display = "block";
-  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Generating preview…';
-  container.innerHTML = "";
-  try {
-    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-    if (dateVal) url += `&date=${encodeURIComponent(dateVal)}`;
-    const res = await fetchWithTimeout(url, {}, 20000);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const json = await res.json();
-    renderBriefingPreview(json, container);
-    feedback.style.display = "none";
-  } catch (err) {
-    console.error("previewBriefing error", err);
-    feedback.style.display = "block";
-    feedback.innerHTML = `<div class="text-danger">Preview failed: ${escapeHtml(String(err.message || err))}</div>`;
-  }
-}
-
-function renderBriefingPreview(payload, container) {
-  container.innerHTML = "";
-  const counts = payload && payload.counts ? payload.counts : { total: 0, critical: 0 };
-  const incidents = Array.isArray(payload && payload.incidents) ? payload.incidents : [];
-  let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <div><strong>Total incidents (24h):</strong> ${Number(counts.total || 0)}</div>
-    <div><strong>Critical:</strong> ${Number(counts.critical || 0)}</div>
-  </div>`;
-  if (!incidents.length) {
-    html += `<div class="safe-box" style="margin-top:8px;">
-      <i class="fas fa-check-circle safe-icon"></i>
-      <div class="safe-text">No incidents in this 24-hour window for the selected region.</div>
-    </div>`;
-    container.innerHTML = html;
-    return;
-  }
-
-  html += '<div>';
-  incidents.slice(0, 50).forEach(i => {
-    const sevMeta = mapSeverityToLabel(i.severity || 1);
-    const when = safeTime(i.time);
-    const src = i.source ? shortHost(i.source) : "Source";
-    const summary = escapeHtml(i.summary || "");
-    html += `
-      <div class="feed-card" style="margin-bottom:10px;">
-        <div class="feed-status-bar ${sevMeta.barClass}"></div>
-        <div class="feed-content">
-          <div class="feed-tags">
-            <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
-            <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
-            <span class="ftag ftag-type">${escapeHtml(i.category || "UNKNOWN")}</span>
-            <span class="feed-region">${escapeHtml(i.region || "Global")}</span>
-          </div>
-          <div class="feed-title">${escapeHtml(i.title || "Untitled")}</div>
-          <div class="feed-meta">${escapeHtml(src)} • ${escapeHtml(when)}</div>
-          <div class="feed-desc">${summary}</div>
-        </div>
-      </div>`;
-  });
-  html += '</div>';
-
-  container.innerHTML = html;
-}
-
-// DOWNLOAD
-async function downloadReport() {
-  const regionInput = document.getElementById("reportRegion");
-  const dateInput = document.getElementById("reportDate");
-  const feedback = document.getElementById("preview-feedback");
-  if (!feedback || !regionInput) return;
-
-  const region = (regionInput.value || "Global").trim();
-  const date = (dateInput && dateInput.value) ? dateInput.value : null;
-
-  feedback.style.display = "block";
-  feedback.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Preparing download…';
-  try {
-    let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-    if (date) url += `&date=${encodeURIComponent(date)}`;
-    const res = await fetchWithTimeout(url, {}, 20000);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const json = await res.json();
-    const counts = json.counts || { total: 0, critical: 0 };
-    const incidents = Array.isArray(json.incidents) ? json.incidents : [];
-    const title = `Daily Briefing - ${region} ${date ? date : '(last 24h)'}`;
-    let html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>
-      <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <style>
-        body{font-family:Inter,Arial,Helvetica,sans-serif;padding:20px;color:#222}
-        h1{font-size:20px;color:#0f3f74}
-        .meta{margin-bottom:10px;color:#444}
-        .incident{border-left:4px solid #d1d1d1;padding:10px;margin:12px 0;border-radius:4px;background:#fff}
-        .sev{font-weight:800;padding:3px 6px;border-radius:4px;color:#fff}
-        .sev-high{background:#d93025}
-        .sev-medium{background:#f9ab00;color:#000}
-        .sev-low{background:#1a73e8}
-        .summary{color:#333}
-      </style>
-      </head><body>
-      <h1>${escapeHtml(title)}</h1>
-      <div class="meta">Total incidents: <strong>${counts.total}</strong> &nbsp; | &nbsp; Critical: <strong>${counts.critical}</strong></div>`;
-
-    if (!incidents.length) {
-      html += `<p>No incidents in this period.</p>`;
-    } else {
-      incidents.forEach(i => {
-        const sev = Number(i.severity || 1);
-        let sevClass = 'sev-low', sevLabel = 'LOW';
-        if (sev >= 5) { sevClass = 'sev-high'; sevLabel = 'CRITICAL'; }
-        else if (sev >= 4) { sevClass = 'sev-high'; sevLabel = 'HIGH'; }
-        else if (sev === 3) { sevClass = 'sev-medium'; sevLabel = 'MEDIUM'; }
-
-        html += `<div class="incident">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div><strong>${escapeHtml(i.title || 'Untitled')}</strong></div>
-              <div><span class="sev ${sevClass}">${escapeHtml(sevLabel)}</span></div>
-            </div>
-            <div style="margin-top:6px;color:#666;font-size:0.9rem">${escapeHtml(i.country || '')} • ${escapeHtml(i.location || '')} • ${escapeHtml(safeTime(i.time))}</div>
-            <div class="summary" style="margin-top:8px">${escapeHtml(i.summary || '')}</div>
-            <div style="margin-top:8px"><a href="${escapeAttr(safeHref(i.link||'#'))}" target="_blank" rel="noopener noreferrer">Source</a></div>
-          </div>`;
-      });
-    }
-
-    html += `<footer style="margin-top:20px;color:#666;font-size:0.8rem">Generated: ${new Date().toLocaleString()}</footer></body></html>`;
-
-    const blob = new Blob([html], { type: "text/html" });
-    const fname = `briefing_${region.toLowerCase().replace(/\s+/g,'_')}_${date ? date : 'latest'}.html`;
-    const urlBlob = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = urlBlob;
-    a.download = fname;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(urlBlob);
-
-    feedback.style.display = "block";
-    feedback.innerHTML = `<div class="alert alert-success mt-2 text-start" style="font-size:0.8rem">Downloaded: <strong>${escapeHtml(fname)}</strong></div>`;
-  } catch (err) {
-    console.error("downloadReport error", err);
-    feedback.style.display = "block";
-    feedback.innerHTML = `<div class="text-danger">Failed to generate briefing: ${escapeHtml(String(err.message || err))}</div>`;
   }
 }
 
@@ -1865,8 +1192,7 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 function shortHost(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source";
-  }
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "source"; }
 }
 
 function safeHref(u) {
@@ -1887,8 +1213,7 @@ function safeTime(iso) {
     const d = new Date(iso);
     if (isNaN(d.getTime())) return "Recently";
     return d.toLocaleString();
-  } catch { return "Recently";
-  }
+  } catch { return "Recently"; }
 }
 
 function escapeHtml(s) {
@@ -1903,19 +1228,6 @@ function escapeHtml(s) {
 function escapeAttr(s) {
   return escapeHtml(String(s || "")).replaceAll("`", "&#096;");
 }
-
-function severityLabel(s) {
-  const n = Number(s || 1);
-  if (n >= 5) return "CRITICAL";
-  if (n >= 4) return "HIGH";
-  if (n === 3) return "MEDIUM";
-  return "LOW";
-}
-
-/* Expose small functions for debugging */
-window.loadTravelAdvisories = loadTravelAdvisories;
-window.filterTravel = filterTravel;
-window.loadHistory = loadHistory;
 </script>
 </body>
 </html>
