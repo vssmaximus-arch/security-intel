@@ -1267,6 +1267,23 @@ function renderProximityAlerts(region) {
   }).join('');
 }
 
+function updateProximityRadius() {
+  try {
+    const select = document.getElementById('proxRadius');
+    if (!select) return;
+    const newRadius = parseInt(select.value, 10);
+    if (!isNaN(newRadius) && newRadius > 0) {
+      currentRadius = newRadius;
+      // Re-render proximity alerts with the new radius
+      const active = document.querySelector('.nav-item-custom.active');
+      const region = active ? active.textContent.trim() : "Global";
+      renderProximityAlerts(region);
+    }
+  } catch(e) {
+    console.error('updateProximityRadius error', e);
+  }
+}
+
 function updateHeadline(region) {
   const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
   const el = document.getElementById("headline-alert");
