@@ -1,1595 +1,893 @@
-/* ===========================
-   app.js - Full Application JS
-   Dell OS INFOHUB (Single File App JS)
-   - Put this file as app.js and reference from index.html
-   - Includes full mapping, travel, voting, admin helpers
-   =========================== */
+ <!DOCTYPE html>
 
-/* ===========================
-   CONFIG & GLOBALS
-=========================== */
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
-const AUTO_REFRESH_MS = 60_000;
+<html lang="en">
 
-// debug toggle via ?debug=1 or localStorage flag
-const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
+<head>
 
-/* ===========================
-   STATE
-=========================== */
-let INCIDENTS = [];
-let PROXIMITY_INCIDENTS = [];
-let FEED_IS_LIVE = false;
-let currentRadius = 50;
-let DISMISSED_ALERT_IDS = new Set();
+  <meta charset="UTF-8" />
 
-try {
-  const raw = sessionStorage.getItem('dismissed_prox_alert_ids');
-  if (raw) {
-    const arr = JSON.parse(raw);
-    if (Array.isArray(arr)) arr.forEach(v => DISMISSED_ALERT_IDS.add(String(v)));
-  }
-} catch(e) { /* ignore */ }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-let TRAVEL_DATA = [];
-let TRAVEL_UPDATED_AT = null;
 
-let map = null;
-let assetsClusterGroup = null;
-let incidentClusterGroup = null;
-let criticalLayerGroup = null;
 
-let ADMIN_SECRET = ''; // in-memory admin secret recommended
-let VOTES_LOCAL = {};  // persisted optimistic votes id -> 'up'|'down'
-let VOTE_QUEUE = [];   // queued payloads for retries
+  <meta http-equiv="Content-Security-Policy" content="
 
-try {
-  const rawVotes = localStorage.getItem('os_v1_votes');
-  if (rawVotes) VOTES_LOCAL = JSON.parse(rawVotes) || {};
-  const rawQueue = localStorage.getItem('os_v1_vote_queue');
-  if (rawQueue) VOTE_QUEUE = JSON.parse(rawQueue) || [];
-} catch(e) {}
+    default-src 'self';
 
-/* small UX helpers */
-let _clusterHoverTimeout = null;
-const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+    script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com 'unsafe-inline';
 
-/* ===========================
-   DELL SITES + ASSETS
-=========================== */
-const DELL_SITES = [
-  { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
-  { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
-  { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
-  { name: "Dell Franklin", country: "US", region: "AMER", lat: 42.0834, lon: -71.3967 },
-  { name: "Dell Apex", country: "US", region: "AMER", lat: 35.7327, lon: -78.8503 },
-  { name: "Dell Eden Prairie", country: "US", region: "AMER", lat: 44.8617, lon: -93.4168 },
-  { name: "Dell Draper", country: "US", region: "AMER", lat: 40.5240, lon: -111.8950 },
-  { name: "Dell Nashville Hub", country: "US", region: "AMER", lat: 36.1627, lon: -86.7816 },
-  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164 },
-  { name: "Dell Santa Clara", country: "US", region: "AMER", lat: 37.3541, lon: -121.9552 },
-  { name: "Dell McLean", country: "US", region: "AMER", lat: 38.9295, lon: -77.2268 },
-  { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
-  { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
-  { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
+    style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
 
-  // LATAM
-  { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
-  { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
-  { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
-  { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
+    font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
 
-  // EMEA
-  { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
-  { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
-  { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
-  { name: "Dell Cork Campus", country: "IE", region: "EMEA", lat: 51.8985, lon: -8.4756 },
-  { name: "Dell Herzliya", country: "IL", region: "EMEA", lat: 32.1644, lon: 34.7961 },
-  { name: "Dell Haifa", country: "IL", region: "EMEA", lat: 32.7940, lon: 34.9896 },
-  { name: "Dell Beer Sheva", country: "IL", region: "EMEA", lat: 31.2626, lon: 34.8016 },
-  { name: "Dell Bracknell", country: "GB", region: "EMEA", lat: 51.4160, lon: -0.7540 },
-  { name: "Dell Glasgow", country: "GB", region: "EMEA", lat: 55.8642, lon: -4.2518 },
-  { name: "Dell Montpellier", country: "FR", region: "EMEA", lat: 43.6108, lon: 3.8767 },
-  { name: "Dell Paris / Bezons", country: "FR", region: "EMEA", lat: 48.8566, lon: 2.3522 },
-  { name: "Dell Frankfurt", country: "DE", region: "EMEA", lat: 50.1109, lon: 8.6821 },
-  { name: "Dell Halle", country: "DE", region: "EMEA", lat: 51.4820, lon: 11.9700 },
-  { name: "Dell Amsterdam", country: "NL", region: "EMEA", lat: 52.3676, lon: 4.9041 },
-  { name: "Dell Casablanca", country: "MA", region: "EMEA", lat: 33.5731, lon: -7.5898 },
-  { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
-  { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
+    img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
 
-  // APJC
-  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
-  { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
-  { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
-  { name: "Dell Sriperumbudur Mfg", country: "IN", region: "APJC", lat: 12.9560, lon: 79.9410 },
-  { name: "Dell Singapore", country: "SG", region: "APJC", lat: 1.3521, lon: 103.8198 },
-  { name: "Dell Penang", country: "MY", region: "APJC", lat: 5.4164, lon: 100.3327 },
-  { name: "Dell Cyberjaya", country: "MY", region: "APJC", lat: 2.9213, lon: 101.6559 },
-  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894 },
-  { name: "Dell Chengdu Mfg", country: "CN", region: "APJC", lat: 30.5728, lon: 104.0668 },
-  { name: "Dell Shanghai", country: "CN", region: "APJC", lat: 31.2304, lon: 121.4737 },
-  { name: "Dell Taipei", country: "TW", region: "APJC", lat: 25.0330, lon: 121.5654 },
-  { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
-  { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
-  { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
-];
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
 
-const ASSETS = {};
-DELL_SITES.forEach(s => {
-  ASSETS[s.name.toLowerCase()] = { name: s.name, lat: Number(s.lat), lng: Number(s.lon), region: s.region, country: s.country };
-});
+    base-uri 'self';
 
-/* ===========================
-   CITY COORDS (fallback)
-   -- Common cities and capitals used for location parsing
-=========================== */
-const CITY_COORDS = {
-  "london": {lat:51.5074, lng:-0.1278},
-  "paris": {lat:48.8566, lng:2.3522},
-  "sydney": {lat:-33.8688, lng:151.2093},
-  "tokyo": {lat:35.6762, lng:139.6503},
-  "new york": {lat:40.7128, lng:-74.0060},
-  "beijing": {lat:39.9042, lng:116.4074},
-  "singapore": {lat:1.3521, lng:103.8198},
-  "dubai": {lat:25.2048, lng:55.2708},
-  "mumbai": {lat:19.0760, lng:72.8777},
-  "delhi": {lat:28.6139, lng:77.2090},
-  "bangalore": {lat:12.9716, lng:77.5946},
-  "moscow": {lat:55.7558, lng:37.6173},
-  "kyiv": {lat:50.4501, lng:30.5234},
-  "shanghai": {lat:31.2304, lng:121.4737},
-  "hong kong": {lat:22.3193, lng:114.1694},
-  "taipei": {lat:25.0330, lng:121.5654},
-  "mexico city": {lat:19.4326, lng:-99.1332},
-  "sao paulo": {lat:-23.5505, lng:-46.6333},
-  "berlin": {lat:52.52, lng:13.405},
-  "madrid": {lat:40.4168, lng:-3.7038},
-  "rome": {lat:41.9028, lng:12.4964},
-  "toronto": {lat:43.6532, lng:-79.3832},
-  "vancouver": {lat:49.2827, lng:-123.1207},
-  "los angeles": {lat:34.0522, lng:-118.2437},
-  "chicago": {lat:41.8781, lng:-87.6298},
-  "buenos aires": {lat:-34.6037, lng:-58.3816},
-  "cape town": {lat:-33.9249, lng:18.4241},
-  "nairobi": {lat:-1.2921, lng:36.8219},
-  "ankara": {lat:39.9334, lng:32.8597},
-  "riyadh": {lat:24.7136, lng:46.6753},
-  "tehran": {lat:35.6892, lng:51.3890},
-  "jakarta": {lat:-6.2088, lng:106.8456},
-  "manila": {lat:14.5995, lng:120.9842},
-  "seoul": {lat:37.5665, lng:126.9780},
-  "bangkok": {lat:13.7563, lng:100.5018},
-  "helsinki": {lat:60.1699, lng:24.9384},
-  "oslo": {lat:59.9139, lng:10.7522},
-  "stockholm": {lat:59.3293, lng:18.0686},
-  "lisbon": {lat:38.7223, lng:-9.1393},
-  "athens": {lat:37.9838, lng:23.7275}
-  // Add more cities as needed...
-};
+  ">
 
-/* ===========================
-   COUNTRY COORDS
-   (Centroids / capital-like points for fallback)
-   -- Extensive list for most countries (capitals / approximate centers)
-=========================== */
-const COUNTRY_COORDS = {
-  "afghanistan": { lat: 33.93911, lng: 67.709953 },
-  "albania": { lat: 41.153332, lng: 20.168331 },
-  "algeria": { lat: 28.033886, lng: 1.659626 },
-  "andorra": { lat: 42.506285, lng: 1.521801 },
-  "angola": { lat: -11.202692, lng: 17.873887 },
-  "antigua and barbuda": { lat: 17.060816, lng: -61.796428 },
-  "argentina": { lat: -38.416097, lng: -63.616672 },
-  "armenia": { lat: 40.069099, lng: 45.038189 },
-  "australia": { lat: -25.274398, lng: 133.775136 },
-  "austria": { lat: 47.516231, lng: 14.550072 },
-  "azerbaijan": { lat: 40.143105, lng: 47.576927 },
-  "bahamas": { lat: 25.03428, lng: -77.39628 },
-  "bahrain": { lat: 25.930414, lng: 50.637772 },
-  "bangladesh": { lat: 23.684994, lng: 90.356331 },
-  "barbados": { lat: 13.193887, lng: -59.543198 },
-  "belarus": { lat: 53.709807, lng: 27.953389 },
-  "belgium": { lat: 50.503887, lng: 4.469936 },
-  "belize": { lat: 17.189877, lng: -88.49765 },
-  "benin": { lat: 9.30769, lng: 2.315834 },
-  "bhutan": { lat: 27.514162, lng: 90.433601 },
-  "bolivia": { lat: -16.290154, lng: -63.588653 },
-  "bosnia and herzegovina": { lat: 43.915886, lng: 17.679076 },
-  "botswana": { lat: -22.328474, lng: 24.684866 },
-  "brazil": { lat: -14.235004, lng: -51.92528 },
-  "brunei": { lat: 4.535277, lng: 114.727669 },
-  "bulgaria": { lat: 42.733883, lng: 25.48583 },
-  "burkina faso": { lat: 12.238333, lng: -1.561593 },
-  "burundi": { lat: -3.373056, lng: 29.918886 },
-  "cabo verde": { lat: 16.002082, lng: -24.013197 },
-  "cambodia": { lat: 12.565679, lng: 104.990963 },
-  "cameroon": { lat: 7.369722, lng: 12.354722 },
-  "canada": { lat: 56.130366, lng: -106.346771 },
-  "central african republic": { lat: 6.611111, lng: 20.939444 },
-  "chad": { lat: 15.454166, lng: 18.732207 },
-  "chile": { lat: -35.675147, lng: -71.542969 },
-  "china": { lat: 35.86166, lng: 104.195397 },
-  "colombia": { lat: 4.570868, lng: -74.297333 },
-  "comoros": { lat: -11.875001, lng: 43.872219 },
-  "congo": { lat: -0.228021, lng: 15.827659 },
-  "costa rica": { lat: 9.748917, lng: -83.753428 },
-  "croatia": { lat: 45.1, lng: 15.2 },
-  "cuba": { lat: 21.521757, lng: -77.781167 },
-  "cyprus": { lat: 35.126413, lng: 33.429859 },
-  "czechia": { lat: 49.817492, lng: 15.472962 },
-  "denmark": { lat: 56.26392, lng: 9.501785 },
-  "djibouti": { lat: 11.825138, lng: 42.590275 },
-  "dominica": { lat: 15.414999, lng: -61.370976 },
-  "dominican republic": { lat: 18.735693, lng: -70.162651 },
-  "ecuador": { lat: -1.831239, lng: -78.183406 },
-  "egypt": { lat: 26.820553, lng: 30.802498 },
-  "el salvador": { lat: 13.794185, lng: -88.896533 },
-  "equatorial guinea": { lat: 1.650801, lng: 10.267895 },
-  "eritrea": { lat: 15.179384, lng: 39.782334 },
-  "estonia": { lat: 58.595272, lng: 25.013607 },
-  "eswatini": { lat: -26.522503, lng: 31.465866 },
-  "ethiopia": { lat: 9.145, lng: 40.489673 },
-  "fiji": { lat: -17.713371, lng: 178.065032 },
-  "finland": { lat: 61.92411, lng: 25.748151 },
-  "france": { lat: 46.227638, lng: 2.213749 },
-  "gabon": { lat: -0.803689, lng: 11.609444 },
-  "gambia": { lat: 13.443182, lng: -15.310139 },
-  "georgia": { lat: 42.315407, lng: 43.356892 },
-  "germany": { lat: 51.165691, lng: 10.451526 },
-  "ghana": { lat: 7.946527, lng: -1.023194 },
-  "greece": { lat: 39.074208, lng: 21.824312 },
-  "grenada": { lat: 12.116501, lng: -61.6790 },
-  "guatemala": { lat: 15.783471, lng: -90.230759 },
-  "guinea": { lat: 9.945587, lng: -9.696645 },
-  "guinea-bissau": { lat: 11.803749, lng: -15.180413 },
-  "guyana": { lat: 4.860416, lng: -58.93018 },
-  "haiti": { lat: 18.971187, lng: -72.285215 },
-  "honduras": { lat: 15.199999, lng: -86.241905 },
-  "hungary": { lat: 47.162494, lng: 19.503304 },
-  "iceland": { lat: 64.963051, lng: -19.020835 },
-  "india": { lat: 20.593684, lng: 78.96288 },
-  "indonesia": { lat: -0.789275, lng: 113.921327 },
-  "iran": { lat: 32.427908, lng: 53.688046 },
-  "iraq": { lat: 33.223191, lng: 43.679291 },
-  "ireland": { lat: 53.41291, lng: -8.24389 },
-  "israel": { lat: 31.046051, lng: 34.851612 },
-  "italy": { lat: 41.87194, lng: 12.56738 },
-  "jamaica": { lat: 18.109581, lng: -77.297508 },
-  "japan": { lat: 36.204824, lng: 138.252924 },
-  "jordan": { lat: 30.585164, lng: 36.238414 },
-  "kazakhstan": { lat: 48.019573, lng: 66.923684 },
-  "kenya": { lat: -0.023559, lng: 37.906193 },
-  "kiribati": { lat: -3.370417, lng: -168.734039 },
-  "kuwait": { lat: 29.31166, lng: 47.481766 },
-  "kyrgyzstan": { lat: 41.20438, lng: 74.766098 },
-  "laos": { lat: 19.85627, lng: 102.495496 },
-  "latvia": { lat: 56.879635, lng: 24.603189 },
-  "lebanon": { lat: 33.854721, lng: 35.862285 },
-  "lesotho": { lat: -29.609988, lng: 28.233608 },
-  "liberia": { lat: 6.428055, lng: -9.429499 },
-  "libya": { lat: 26.3351, lng: 17.228331 },
-  "liechtenstein": { lat: 47.166, lng: 9.555373 },
-  "lithuania": { lat: 55.169438, lng: 23.881275 },
-  "luxembourg": { lat: 49.815273, lng: 6.129583 },
-  "madagascar": { lat: -18.766947, lng: 46.869107 },
-  "malawi": { lat: -13.254308, lng: 34.301525 },
-  "malaysia": { lat: 4.210484, lng: 101.975766 },
-  "maldives": { lat: 3.202778, lng: 73.22068 },
-  "mali": { lat: 17.570692, lng: -3.996166 },
-  "malta": { lat: 35.937496, lng: 14.375416 },
-  "marshall islands": { lat: 7.131474, lng: 171.184478 },
-  "mauritania": { lat: 21.00789, lng: -10.940835 },
-  "mauritius": { lat: -20.348404, lng: 57.552152 },
-  "mexico": { lat: 23.634501, lng: -102.552784 },
-  "micronesia": { lat: 7.425554, lng: 150.550812 },
-  "moldova": { lat: 47.411631, lng: 28.369885 },
-  "monaco": { lat: 43.750298, lng: 7.412841 },
-  "mongolia": { lat: 46.862496, lng: 103.846656 },
-  "montenegro": { lat: 42.708678, lng: 19.37439 },
-  "morocco": { lat: 31.791702, lng: -7.09262 },
-  "mozambique": { lat: -18.665695, lng: 35.529562 },
-  "myanmar": { lat: 21.913965, lng: 95.956223 },
-  "namibia": { lat: -22.95764, lng: 18.49041 },
-  "nauru": { lat: -0.522778, lng: 166.931503 },
-  "nepal": { lat: 28.394857, lng: 84.124008 },
-  "netherlands": { lat: 52.132633, lng: 5.291266 },
-  "new zealand": { lat: -40.900557, lng: 174.885971 },
-  "nicaragua": { lat: 12.865416, lng: -85.207229 },
-  "niger": { lat: 17.607789, lng: 8.081666 },
-  "nigeria": { lat: 9.081999, lng: 8.675277 },
-  "north macedonia": { lat: 41.608635, lng: 21.745273 },
-  "norway": { lat: 60.472024, lng: 8.468946 },
-  "oman": { lat: 21.512583, lng: 55.923255 },
-  "pakistan": { lat: 30.375321, lng: 69.345116 },
-  "palau": { lat: 7.51498, lng: 134.58252 },
-  "panama": { lat: 8.537981, lng: -80.782127 },
-  "papua new guinea": { lat: -6.314993, lng: 143.95555 },
-  "paraguay": { lat: -23.442503, lng: -58.443832 },
-  "peru": { lat: -9.189967, lng: -75.015152 },
-  "philippines": { lat: 12.879721, lng: 121.774017 },
-  "poland": { lat: 51.919438, lng: 19.145136 },
-  "portugal": { lat: 39.399872, lng: -8.224454 },
-  "qatar": { lat: 25.354826, lng: 51.183884 },
-  "romania": { lat: 45.943161, lng: 24.96676 },
-  "russia": { lat: 61.52401, lng: 105.318756 },
-  "rwanda": { lat: -1.940278, lng: 29.873888 },
-  "saint kitts and nevis": { lat: 17.357822, lng: -62.782998 },
-  "saint lucia": { lat: 13.909444, lng: -60.978893 },
-  "saint vincent and the grenadines": { lat: 12.984305, lng: -61.287228 },
-  "samoa": { lat: -13.759029, lng: -172.104629 },
-  "san marino": { lat: 43.94236, lng: 12.457777 },
-  "sao tome and principe": { lat: 0.18636, lng: 6.613081 },
-  "saudi arabia": { lat: 23.885942, lng: 45.079162 },
-  "senegal": { lat: 14.497401, lng: -14.452362 },
-  "serbia": { lat: 44.016521, lng: 21.005859 },
-  "seychelles": { lat: -4.679574, lng: 55.491977 },
-  "sierra leone": { lat: 8.460555, lng: -11.779889 },
-  "singapore": { lat: 1.352083, lng: 103.819836 },
-  "slovakia": { lat: 48.669026, lng: 19.699024 },
-  "slovenia": { lat: 46.151241, lng: 14.995463 },
-  "solomon islands": { lat: -9.64571, lng: 160.156194 },
-  "somalia": { lat: 5.152149, lng: 46.199616 },
-  "south africa": { lat: -30.559482, lng: 22.937506 },
-  "south korea": { lat: 35.907757, lng: 127.766922 },
-  "south sudan": { lat: 6.876991, lng: 31.306979 },
-  "spain": { lat: 40.463667, lng: -3.74922 },
-  "sri lanka": { lat: 7.873054, lng: 80.771797 },
-  "sudan": { lat: 12.862807, lng: 30.217636 },
-  "suriname": { lat: 3.919305, lng: -56.027783 },
-  "sweden": { lat: 60.128161, lng: 18.643501 },
-  "switzerland": { lat: 46.818188, lng: 8.227512 },
-  "syria": { lat: 34.802075, lng: 38.996815 },
-  "taiwan": { lat: 23.69781, lng: 120.960515 },
-  "tajikistan": { lat: 38.861034, lng: 71.276093 },
-  "tanzania": { lat: -6.369028, lng: 34.888822 },
-  "thailand": { lat: 15.870032, lng: 100.992541 },
-  "timor-leste": { lat: -8.874217, lng: 125.727539 },
-  "togo": { lat: 8.619543, lng: 0.824782 },
-  "tonga": { lat: -21.178986, lng: -175.198242 },
-  "trinidad and tobago": { lat: 10.691803, lng: -61.222503 },
-  "tunisia": { lat: 33.886917, lng: 9.537499 },
-  "turkey": { lat: 38.963745, lng: 35.243322 },
-  "turkmenistan": { lat: 38.969719, lng: 59.556278 },
-  "tuvalu": { lat: -7.109535, lng: 177.64933 },
-  "uganda": { lat: 1.373333, lng: 32.290275 },
-  "ukraine": { lat: 48.379433, lng: 31.16558 },
-  "united arab emirates": { lat: 23.424076, lng: 53.847818 },
-  "united kingdom": { lat: 55.378051, lng: -3.435973 },
-  "united states": { lat: 37.09024, lng: -95.712891 },
-  "uruguay": { lat: -32.522779, lng: -55.765835 },
-  "uzbekistan": { lat: 41.377491, lng: 64.585262 },
-  "vanuatu": { lat: -15.376706, lng: 166.959158 },
-  "vatican city": { lat: 41.902916, lng: 12.453389 },
-  "venezuela": { lat: 6.42375, lng: -66.58973 },
-  "vietnam": { lat: 14.058324, lng: 108.277199 },
-  "yemen": { lat: 15.552727, lng: 48.516388 },
-  "zambia": { lat: -13.133897, lng: 27.849332 },
-  "zimbabwe": { lat: -19.015438, lng: 29.154857 }
-};
 
-/* ===========================
-   UTILITIES
-=========================== */
 
-function escapeHtml(s){
-  return String(s||"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-function escapeAttr(s){
-  return String(s||"").replace(/"/g,"&quot;").replace(/`/g,"&#096;");
-}
-function safeHref(u){
-  try {
-    const s = String(u||"").trim();
-    if (!s) return "#";
-    if (/^(mailto:|tel:)/i.test(s)) return s;
-    const url = new URL(s, location.href);
-    if (!["http:", "https:"].includes(url.protocol)) return "#";
-    return url.href;
-  } catch {
-    return "#";
-  }
-}
-function shortHost(u){
-  try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return "Source"; }
-}
-function safeTime(t){
-  try {
-    const d = new Date(t);
-    if (isNaN(d.getTime())) return "Recently";
-    return d.toLocaleString();
-  } catch { return "Recently"; }
-}
+  <link rel="icon" href="data:,">
 
-function generateId(item) {
-  if (!item) return '';
-  if (item.id) return String(item.id);
-  const t = String(item.time || item.ts || item.timestamp || "");
-  const title = String(item.title || item.link || "");
-  return `${title}|${t}`;
-}
+  <title>Dell OS | INFOHUB</title>
 
-function parseCoord(v) {
-  if (v === null || v === undefined) return NaN;
-  const n = parseFloat(String(v).trim());
-  return Number.isFinite(n) ? n : NaN;
-}
 
-/* ===========================
-   ADMIN SECRET HELPER
-   (Fix: required by many admin functions + sendVoteToServer)
-=========================== */
-function adminGetSecret() {
-  try {
-    const session = (typeof sessionStorage !== 'undefined') ? (sessionStorage.getItem('admin_secret') || '') : '';
-    return ADMIN_SECRET || session || '';
-  } catch(e) {
-    return ADMIN_SECRET || '';
-  }
-}
 
-/* Admin UI helpers */
-function adminSetFeedback(msg, isError=false) {
-  const fb = document.getElementById('adminFeedback') || document.getElementById('admin-feedback') || document.getElementById('admin_feedback');
-  if (!fb) return;
-  fb.style.display = 'block';
-  fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
-  fb.textContent = String(msg || '');
-}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
 
-/* Save / clear admin secret handlers (used by UI) */
-function adminGetSecretFromField() {
-  try {
-    const el = document.getElementById('adminSecret');
-    const remember = document.getElementById('adminRememberSession');
-    const val = el ? String(el.value || '').trim() : '';
-    if (remember && remember.checked) {
-      try { sessionStorage.setItem('admin_secret', val); } catch(e){}
-    } else {
-      try { sessionStorage.removeItem('admin_secret'); } catch(e){}
-    }
-    ADMIN_SECRET = val;
-    return val;
-  } catch(e) { return ''; }
-}
-function adminSaveSecret() {
-  const sec = adminGetSecretFromField();
-  if (sec) adminSetFeedback('Admin secret set (in-memory).', false);
-  else adminSetFeedback('Enter a secret first.', true);
-}
-function adminClearSecret() {
-  try { sessionStorage.removeItem('admin_secret'); } catch(e){}
-  ADMIN_SECRET = '';
-  const fld = document.getElementById('adminSecret');
-  if (fld) fld.value = '';
-  adminSetFeedback('Admin secret cleared.', false);
-}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
-/* Admin actions */
-async function adminTriggerIngest() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Triggering ingestion…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-    adminSetFeedback(txt || 'Ingestion triggered.');
-  } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
-}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 
-async function adminUnlock() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Requesting unblock…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, { method:'POST', headers: { 'Content-Type':'application/json', 'secret': sec }, body: JSON.stringify({ unblock: true }) });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-    adminSetFeedback(txt || 'Unblock requested.');
-  } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
-}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 
-async function adminThumbsStatus() {
-  const sec = adminGetSecret();
-  adminSetFeedback('Loading thumbs status…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/thumbs/status`, { method:'GET', headers: { ...(sec ? {'secret': sec} : {}) } });
-    const data = await res.json().catch(()=>null);
-    if (!res.ok) { adminSetFeedback(`Status failed (HTTP ${res.status}).`, true); console.log('thumbs status raw', data); return; }
-    adminSetFeedback('Thumbs status loaded. Check console.');
-    console.log('Thumbs status:', data);
-  } catch(e) { adminSetFeedback('Status failed (network).', true); console.error(e); }
-}
 
-async function adminForceRefreshTravel() {
-  const sec = adminGetSecret();
-  adminSetFeedback('Refreshing travel cache…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, { method:'POST', headers: { ...(sec ? {'secret': sec} : {}) } });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`, true); return; }
-    adminSetFeedback(txt || 'Travel refresh triggered.');
-    try { await loadTravelAdvisories(); } catch(e){}
-  } catch(e) { adminSetFeedback('Travel refresh failed (network).', true); console.error(e); }
-}
 
-async function adminGenerateBrief() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  const regionEl = document.getElementById('reportRegion');
-  const dateEl = document.getElementById('reportDate');
-  const region = regionEl ? String(regionEl.value || 'Global') : 'Global';
-  const date = dateEl ? String(dateEl.value || '') : '';
-  adminSetFeedback('Generating brief on server…');
-  try {
-    const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
-    const res = await fetch(url, { method:'POST', headers: { 'secret': sec } });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`, true); return; }
-    adminSetFeedback(txt || 'Brief generation requested.');
-  } catch(e) { adminSetFeedback('Generate failed (network).', true); console.error(e); }
-}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
 
-async function adminListBriefs() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Listing stored briefs…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
-    const data = await res.json().catch(()=>null);
-    if (!res.ok) { adminSetFeedback(`List failed (HTTP ${res.status}).`, true); console.log('brief list raw', data); return; }
-    adminSetFeedback('Brief list loaded. Check console.');
-    console.log('Stored briefs:', data);
-  } catch(e) { adminSetFeedback('List failed (network).', true); console.error(e); }
-}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
 
-/* ===========================
-   VOTING (Optimistic UI + Queue)
-=========================== */
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 
-function persistVotes() {
-  try { localStorage.setItem('os_v1_votes', JSON.stringify(VOTES_LOCAL)); } catch(e){}
-}
-function persistVoteQueue() {
-  try { localStorage.setItem('os_v1_vote_queue', JSON.stringify(VOTE_QUEUE)); } catch(e){}
-}
 
-function applyVoteUIForId(id, vote) {
-  try {
-    document.querySelectorAll(`.btn-vote[data-id="${escapeAttr(id)}"]`).forEach(btn => {
-      btn.classList.remove('voted-up','voted-down');
-      btn.disabled = false;
-    });
-    if (!vote) return;
-    const selector = `.btn-vote[data-id="${escapeAttr(id)}"][data-vote="${vote}"]`;
-    document.querySelectorAll(selector).forEach(b => {
-      if (vote === 'up') b.classList.add('voted-up');
-      if (vote === 'down') b.classList.add('voted-down');
-    });
-  } catch(e){}
-}
 
-function markVoteAcceptedLocally(id, vote) {
-  try {
-    if (!id) return;
-    VOTES_LOCAL[id] = vote;
-    persistVotes();
-    applyVoteUIForId(id, vote);
-  } catch(e){}
-}
-function removeLocalVote(id) {
-  try {
-    delete VOTES_LOCAL[id];
-    persistVotes();
-    applyVoteUIForId(id, null);
-  } catch(e){}
-}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-/* Send to worker public endpoint, fallback to authenticated endpoint */
-async function sendVoteToServer(payload) {
-  if (!payload || !payload.id) return { ok:false, err:'invalid' };
-  const tryEndpoints = [
-    `${WORKER_URL}/api/thumb/public`,
-    `${WORKER_URL}/api/thumb`
-  ];
 
-  for (let i = 0; i < tryEndpoints.length; i++) {
-    const url = tryEndpoints[i];
-    try {
-      const hdrs = { 'Content-Type': 'application/json' };
-      // if we're trying authenticated endpoint and have secret, add it later
-      let body = JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() });
-      const res = await fetch(url, { method:'POST', headers: hdrs, body });
-      if (res.ok) return { ok:true, status: res.status };
-      // If 403 on public, try authenticated if we have a secret
-      if (res.status === 403) {
-        const sec = adminGetSecret();
-        if (sec) {
-          try {
-            const res2 = await fetch(`${WORKER_URL}/api/thumb`, { method:'POST', headers: { 'Content-Type':'application/json', 'secret': sec }, body });
-            if (res2.ok) return { ok:true, status: res2.status };
-            else {
-              const txt = await res2.text().catch(()=>'');
-              return { ok:false, status: res2.status, text: txt };
-            }
-          } catch(e2) {
-            return { ok:false, err:e2 };
-          }
-        } else {
-          const txt = await res.text().catch(()=>'');
-          return { ok:false, status: res.status, text: txt };
-        }
-      } else {
-        const txt = await res.text().catch(()=>'');
-        return { ok:false, status: res.status, text: txt };
-      }
-    } catch(e) {
-      if (i === tryEndpoints.length - 1) return { ok:false, err:e };
-      // else continue to next endpoint
-    }
-  }
-  return { ok:false, err:'no-endpoints' };
-}
 
-async function enqueueVote(payload) {
-  try {
-    VOTE_QUEUE.push(payload);
-    persistVoteQueue();
-  } catch(e){}
-}
+  <style>
 
-async function flushVoteQueue() {
-  if (!VOTE_QUEUE || !VOTE_QUEUE.length) return;
-  const copy = VOTE_QUEUE.slice();
-  for (let i=0;i<copy.length;i++){
-    const p = copy[i];
-    try {
-      const r = await sendVoteToServer(p);
-      if (r.ok) {
-        const idx = VOTE_QUEUE.findIndex(q => q.id === p.id && q.ts === p.ts && q.vote === p.vote);
-        if (idx >= 0) VOTE_QUEUE.splice(idx,1);
-        persistVoteQueue();
-      } else {
-        console.warn('Queued vote not accepted yet', p, r);
-      }
-    } catch(e) {
-      console.warn('flushVoteQueue error', e);
-    }
-  }
-}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-// High-level vote function: public voting allowed (pilot). Use optimistic UI; queue when failing.
-async function voteThumb(id, vote) {
-  if (!id || !vote) return;
-  markVoteAcceptedLocally(id, vote);
-  const payload = { id: String(id), vote: vote, ts: new Date().toISOString() };
-  try {
-    const res = await sendVoteToServer(payload);
-    if (res.ok) {
-      try { flushVoteQueue(); } catch(e){}
-      return;
-    } else {
-      await enqueueVote(payload);
-      adminSetFeedback('Vote queued (will retry).', false);
-    }
-  } catch(e) {
-    await enqueueVote(payload);
-    adminSetFeedback('Vote queued (network).', false);
-  }
-}
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
-// try to flush periodically
-setInterval(() => { try { flushVoteQueue(); } catch(e){} }, 30_000);
 
-/* ===========================
-   MAP INIT
-=========================== */
-function getClusterStats(cluster) {
-  const children = (cluster.getAllChildMarkers && typeof cluster.getAllChildMarkers === 'function') ? cluster.getAllChildMarkers() : [];
-  let counts = { critical:0, high:0, medium:0, low:0 };
-  let maxSeverity = 0;
-  children.forEach(m => {
-    const s = Number(m.options.severity || 1);
-    if (s >= 5) { counts.critical++; maxSeverity = Math.max(maxSeverity, 5); }
-    else if (s >= 4) { counts.high++; maxSeverity = Math.max(maxSeverity, 4); }
-    else if (s === 3) { counts.medium++; maxSeverity = Math.max(maxSeverity, 3); }
-    else { counts.low++; maxSeverity = Math.max(maxSeverity, 1); }
-  });
-  return { counts, maxSeverity, childrenCount: children.length };
-}
 
-function initMap() {
-  if (typeof L === 'undefined') {
-    console.error('Leaflet not loaded. Map will not initialize.');
-    const container = document.getElementById('map');
-    if (container) container.innerHTML = '<div style="padding:20px;color:#b00;">Map failed to load (Leaflet missing)</div>';
-    return;
-  }
+    :root { --dell-blue: #0076CE; --bg-dark: #0f1115; }
 
-  const southWest = L.latLng(-85, -179.999);
-  const northEast = L.latLng(85, 179.999);
-  const bounds = L.latLngBounds(southWest, northEast);
+    body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; padding: 24px; color: #333; }
 
-  map = L.map("map", {
-    scrollWheelZoom: false,
-    zoomControl: false,
-    attributionControl: true,
-    minZoom: 2,
-    maxZoom: 19,
-    maxBounds: bounds,
-    maxBoundsViscosity: 1.0,
-    worldCopyJump: false
-  }).setView([20,0], 2);
 
-  L.control.zoom({ position: 'topleft' }).addTo(map);
 
-  const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 19,
-    attribution: 'Tiles © Esri — Esri, USGS, NOAA',
-    noWrap: true, bounds, keepBuffer: 2
-  });
+    /* Accessibility helper (Bootstrap-compatible) */
 
-  const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd', maxZoom: 19, noWrap: true, bounds, attribution: '&copy; OpenStreetMap &copy; CARTO', keepBuffer: 2
-  });
+    .visually-hidden {
 
-  let esriErrors = 0;
-  const ERROR_THRESHOLD = 12;
-  esriLayer.on('tileerror', () => {
-    esriErrors++;
-    if (esriErrors >= ERROR_THRESHOLD && map.hasLayer(esriLayer)) {
-      map.removeLayer(esriLayer);
-      cartoLayer.addTo(map);
-      console.warn('Switched to CartoDB basemap due to Esri tile errors.');
-    }
-  });
+      position: absolute !important;
 
-  esriLayer.addTo(map);
+      width: 1px !important;
 
-  assetsClusterGroup = L.layerGroup();
-  map.addLayer(assetsClusterGroup);
+      height: 1px !important;
 
-  incidentClusterGroup = L.markerClusterGroup({
-    chunkedLoading: true,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    disableClusteringAtZoom: 13,
-    maxClusterRadius: 50,
-    zoomToBoundsOnClick: !isTouch,
-    iconCreateFunction: function(cluster) {
-      const { counts, maxSeverity, childrenCount } = getClusterStats(cluster);
-      let cls = 'cluster-blue';
-      if (counts.critical + counts.high > 0) cls = (counts.critical > 0) ? 'cluster-red' : 'cluster-amber';
-      if (maxSeverity >= 4) cls = 'cluster-red'; else if (maxSeverity === 3) cls = 'cluster-amber';
-      const ariaLabel = escapeAttr(`Cluster of ${childrenCount} incidents. C:${counts.critical} H:${counts.high} M:${counts.medium} L:${counts.low}`);
-      const html = `<div class="cluster-icon ${cls}" tabindex="0" role="button" aria-label="${ariaLabel}" title="${ariaLabel}" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><div class="cluster-count" aria-hidden="true">${childrenCount}</div></div>`;
-      return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
-    }
-  });
+      padding: 0 !important;
 
-  incidentClusterGroup.on('clustermouseover', (e) => {
-    clearTimeout(_clusterHoverTimeout);
-    _clusterHoverTimeout = setTimeout(() => {
-      const { counts, childrenCount } = getClusterStats(e.layer);
-      const summary = `<b>Cluster: ${childrenCount} Incidents</b><br/>${counts.critical ? `<span style="color:#d93025">Critical: ${counts.critical}</span><br/>` : ''}${counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : ''}${counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : ''}${counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : ''}`;
-      L.popup({ closeButton:false, offset:[0,-10], className:'map-tooltip' }).setLatLng(e.layer.getLatLng()).setContent(summary).openOn(map);
-    }, 80);
-  });
+      margin: -1px !important;
 
-  incidentClusterGroup.on('clustermouseout', (e) => {
-    clearTimeout(_clusterHoverTimeout);
-    try { map.closePopup(); } catch(e) {}
-  });
+      overflow: hidden !important;
 
-  incidentClusterGroup.on('clusterclick', (e) => {
-    if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
-    try { map.closePopup(); } catch(e){}
-  });
+      clip: rect(0, 0, 0, 0) !important;
 
-  map.addLayer(incidentClusterGroup);
-  criticalLayerGroup = L.layerGroup();
-  map.addLayer(criticalLayerGroup);
-}
+      white-space: nowrap !important;
 
-/* ===========================
-   NORMALISATION
-=========================== */
+      border: 0 !important;
 
-function normaliseWorkerIncident(item) {
-  try {
-    if (!item || !item.title) return null;
-    const title = String(item.title || '');
-    if (!title) return null;
-
-    let lat = parseCoord(item.lat);
-    let lng = parseCoord(item.lng !== undefined ? item.lng : item.lon);
-
-    if (!Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001)) {
-      const locRaw = String(item.location || item.city || item.country || '').toLowerCase();
-      if (locRaw) {
-        const key = locRaw.split(',')[0].trim();
-        if (key && key.length >= 3 && CITY_COORDS[key]) {
-          lat = CITY_COORDS[key].lat; lng = CITY_COORDS[key].lng;
-        } else {
-          for (const s of DELL_SITES) {
-            const sname = s.name.toLowerCase();
-            if (sname.includes(key) || key.includes(sname)) {
-              lat = Number(s.lat); lng = Number(s.lon); break;
-            }
-          }
-        }
-      }
     }
 
-    if (!Number.isFinite(lat)) lat = 0;
-    if (!Number.isFinite(lng)) lng = 0;
 
-    const severity = Number(item.severity || 1) || 1;
 
-    return {
-      id: generateId(item),
-      title,
-      summary: item.summary || item.description || '',
-      link: item.link || item.url || '#',
-      time: item.time || item.ts || new Date().toISOString(),
-      severity,
-      severity_label: item.severity_label || (severity >= 5 ? 'CRITICAL' : (severity >= 4 ? 'HIGH' : (severity === 3 ? 'MEDIUM' : 'LOW'))),
-      region: (String(item.region || 'Global') || 'Global'),
-      country: String(item.country || 'GLOBAL'),
-      location: item.location || item.city || '',
-      lat: lat,
-      lng: lng,
-      source: item.source || item.source_name || '',
-      distance_km: (item.distance_km != null) ? Number(item.distance_km) : null,
-      nearest_site_name: item.nearest_site_name || null,
-      country_wide: !!item.country_wide,
-      category: item.category || item.type || 'UNKNOWN'
-    };
-  } catch(e) {
-    console.error('normaliseWorkerIncident error', e, item);
-    return null;
-  }
-}
+    /* Skip Link */
 
-/* ===========================
-   FETCH HELPERS
-=========================== */
+    .skip-link { position: absolute; top: -50px; left: 10px; background: #1a73e8; color: #fff; padding: 10px; z-index: 99999; font-weight: 700; border-radius: 4px; text-decoration: none; transition: top 0.2s; }
 
-async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  try {
-    const res = await fetch(url, { ...opts, signal: controller.signal });
-    return res;
-  } finally {
-    clearTimeout(id);
-  }
-}
+    .skip-link:focus { top: 10px; }
 
-/* ===========================
-   LOADING FROM WORKER
-=========================== */
 
-async function loadFromWorker(silent=false) {
-  const label = document.getElementById('feed-status-label');
-  if (label && !silent) label.textContent = 'Refreshing…';
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : [];
-    const cutoffMs = Date.now() - (48 * 3600 * 1000);
 
-    INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean).filter(i => {
-      try {
-        const t = new Date(i.time).getTime();
-        return !isNaN(t) && t >= cutoffMs;
-      } catch { return false; }
-    });
+    .app-container { background-color: #fff; border-radius: 24px; min-height: 92vh; padding: 0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
-    FEED_IS_LIVE = true;
-    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
-  } catch(e) {
-    console.error('Worker fetch failed:', e);
-    FEED_IS_LIVE = false;
-    if (label && !silent) label.textContent = 'OFFLINE • Worker unreachable';
-  }
-}
+    .header-container { padding: 15px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f0f0f0; height: 90px; }
 
-async function loadProximityFromWorker(silent=false) {
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
-    if (!res.ok) {
-      if (!silent) console.warn('Proximity endpoint returned not-ok:', res.status);
-      return;
-    }
-    const json = await res.json();
-    const list = Array.isArray(json.incidents) ? json.incidents : [];
-    const cutoffMs = Date.now() - (48 * 3600 * 1000);
+    .header-left { display: flex; align-items: center; height: 100%; }
 
-    PROXIMITY_INCIDENTS = list.map(normaliseWorkerIncident).filter(Boolean).filter(i => {
-      try {
-        const t = new Date(i.time).getTime();
-        return !isNaN(t) && t >= cutoffMs;
-      } catch { return false; }
-    });
+    .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
 
-    if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
-  } catch(e) {
-    console.error('loadProximityFromWorker failed', e);
-  }
-}
+    .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
 
-/* ===========================
-   RENDERING: Assets, Incidents, Feed, Proximity
-=========================== */
+    .logo-text span { color: var(--dell-blue); }
 
-function createAssetsDebugOverlay() {
-  let d = document.getElementById('assets-debug');
-  if (!d) {
-    d = document.createElement('div');
-    d.id = 'assets-debug';
-    d.className = 'assets-debug';
-    d.setAttribute('role','status');
-    d.setAttribute('aria-live','polite');
-    d.style.display = 'none';
-    document.body.appendChild(d);
-  }
-  return d;
-}
-function updateAssetsDebugOverlay(info) {
-  if (!DEBUG_UI) return;
-  try {
-    const d = createAssetsDebugOverlay();
-    d.style.display = 'block';
-    d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div>
-      <div><strong>DELL_SITES:</strong> ${info.dellSites}</div>
-      <div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div>
-      <div><strong>assets.length:</strong> ${info.assetsLen}</div>
-      <div><strong>filtered:</strong> ${info.filteredLen}</div>
-      <div style="margin-top:6px;font-weight:700">Sample entries</div>
-      <pre>${escapeHtml(info.sample)}</pre>`;
-  } catch(e) { console.log('updateAssetsDebugOverlay error', e); }
-}
 
-function renderAssetsOnMap(region) {
-  if (!assetsClusterGroup || !map) return;
-  assetsClusterGroup.clearLayers();
 
-  const assets = Object.values(ASSETS);
-  const filtered = (region === 'Global') ? assets : assets.filter(a => a.region === region);
+    .multi-clock-container { display: flex; gap: 12px; margin: 0 20px; padding-right: 20px; border-right: 1px solid #e0e0e0; height: 100%; align-items: center; }
 
-  const sampleText = filtered.slice(0, 8).map(a => `${a.name} -> lat:${String(a.lat)} lng:${String(a.lng)} region:${a.region}`).join('\n');
-  updateAssetsDebugOverlay({
-    dellSites: DELL_SITES.length,
-    assetsKeys: Object.keys(ASSETS).length,
-    assetsLen: assets.length,
-    filteredLen: filtered.length,
-    sample: sampleText || '(no entries)'
-  });
+    .clock-box { text-align: center; min-width: 85px; background: #2b2b2b; border: 3px solid #b0b0b0; border-radius: 10px; padding: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
 
-  filtered.forEach(a => {
-    try {
-      const m = L.marker([Number(a.lat), Number(a.lng)], {
-        icon: L.divIcon({
-          className: 'custom-pin',
-          html: '<div class="marker-pin-dell"><i class="fas fa-building" aria-hidden="true"></i></div>',
-          iconSize:[30,42],
-          iconAnchor:[15,42]
-        })
-      });
-      m.bindTooltip(escapeHtml(a.name), { className: 'map-tooltip', direction: 'top' });
-      assetsClusterGroup.addLayer(m);
-    } catch(e) {}
-  });
-}
+    .clock-label { font-family: 'Inter', sans-serif; font-size: 0.55rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
 
-function renderIncidentsOnMap(region, list) {
-  if (!incidentClusterGroup || !criticalLayerGroup || !map) return;
-  incidentClusterGroup.clearLayers();
-  criticalLayerGroup.clearLayers();
+    .clock-val { font-family: 'Share Tech Mono', monospace; font-size: 1.25rem; font-weight: 400; color: #4fdb5e; line-height: 1; background: #000; padding: 4px 6px; border-radius: 4px; display: block; text-shadow: 0 0 5px rgba(79, 219, 94, 0.5); box-shadow: inset 0 0 5px rgba(0,0,0,0.8); font-variant-numeric: tabular-nums; }
 
-  const data = (region === 'Global') ? list : list.filter(i => i.region === region);
 
-  // Only render proximity incidents and critical incidents on map
-  // Proximity incidents are coming from PROXIMITY_INCIDENTS; ensure we don't render every feed item.
-  // We'll render critical incidents (severity >=4) and proximity incidents (present in PROXIMITY_INCIDENTS)
-  const proximityKeys = new Set(PROXIMITY_INCIDENTS.map(i => generateId(i)));
 
-  data.forEach(i => {
-    try {
-      const id = generateId(i);
-      // Only proceed if critical or in proximity
-      const sev = Number(i.severity || 1);
-      if (sev < 4 && !proximityKeys.has(id)) return;
+    .map-wrapper { position: relative; border-radius: 16px; overflow: hidden; height: 520px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); background: #eef2f6; }
 
-      let c = null;
-      if (Number.isFinite(Number(i.lat)) && Number.isFinite(Number(i.lng)) && Math.abs(Number(i.lat)) > 0.0001 && Math.abs(Number(i.lng)) > 0.0001) {
-        c = { lat: Number(i.lat), lng: Number(i.lng) };
-      } else {
-        c = getCoordsForIncident(i);
-      }
-      if (!c) return;
+    #map { width: 100%; height: 100%; z-index: 1; outline: none; }
 
-      const color = (sev >= 5) ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
+    #map:focus { box-shadow: inset 0 0 0 3px rgba(26,115,232,0.5); }
 
-      const marker = L.marker([c.lat, c.lng], {
-        severity: sev,
-        icon: L.divIcon({
-          html: `<div class="incident-dot" style="background:${color}"></div>`,
-          className: '',
-          iconSize: [12,12],
-          iconAnchor: [8,8]
-        })
-      }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}<br/><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener noreferrer">Source</a>`);
 
-      if (sev >= 4) criticalLayerGroup.addLayer(marker);
-      else incidentClusterGroup.addLayer(marker);
-    } catch(e) {}
-  });
 
-  try { criticalLayerGroup.bringToFront(); } catch(e){}
-  try { assetsClusterGroup.bringToBack(); } catch(e){}
-}
+    .leaflet-tooltip.map-tooltip { background-color: #202124; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; font-family: 'Inter', sans-serif; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
-function mapSeverityToLabel(s) {
-  const n = Number(s || 1);
-  if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  if (n >= 4) return { label: "HIGH", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
-  if (n === 3) return { label: "MEDIUM", badgeClass: "ftag-warn", barClass: "status-bar-warn" };
-  return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
-}
+    .leaflet-tooltip-top:before { border-top-color: #202124; }
 
-function renderGeneralFeed(region) {
-  const container = document.getElementById('general-news-feed');
-  if (!container) return;
-  const data = (region === 'Global') ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  if (!data || data.length === 0) {
-    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
-    return;
-  }
+    .leaflet-popup-content-wrapper { border-radius: 6px; padding: 0; }
 
-  let html = '';
-  data.forEach(i => {
-    const sevMeta = mapSeverityToLabel(i.severity);
-    const id = generateId(i);
-    const localVote = VOTES_LOCAL[id] || null;
-    html += `
-      <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
-        <div class="feed-status-bar ${sevMeta.barClass}"></div>
-        <div class="feed-content">
-          <div class="feed-tags">
-            <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
-            <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
-            <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
-            <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
-          </div>
+    .leaflet-popup-content { margin: 10px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; font-weight: 600; color: #333; }
 
-          <div class="feed-title">
-            <a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">
-              ${escapeHtml(i.title)}
-            </a>
-          </div>
 
-          <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
-          <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
 
-          <div class="vote-row" aria-label="Vote buttons">
-            <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
-              <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="btn-vote ${localVote === 'down' ? 'voted-down' : ''}" data-action="vote" data-vote="down" data-id="${escapeAttr(id)}" aria-label="Vote down" title="Not relevant">
-              <i class="fas fa-thumbs-down" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>
+    .marker-pin-dell { width: 30px; height: 30px; background: #1a73e8; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+
+    .marker-pin-dell i { transform: rotate(45deg); color: white; font-size: 14px; margin-top: 2px; margin-left: 2px; }
+
+
+
+    .incident-dot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 3px rgba(0,0,0,0.3); }
+
+
+
+    .cluster-icon { display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; cursor: pointer; }
+
+    .cluster-icon:focus { outline: 2px solid #fff; outline-offset: 2px; }
+
+    .cluster-count { font-size:13px; line-height:1; }
+
+    .cluster-blue { background: #1a73e8; }
+
+    .cluster-amber { background: #f9ab00; }
+
+    .cluster-red { background: #d93025; }
+
+
+
+    .btn-daily { background-color: #1a73e8; color: white; padding: 9px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; transition: opacity 0.2s; }
+
+    .btn-daily:hover { background-color: #1557b0; color: white; }
+
+    .btn-daily:focus { outline: 2px solid #202124; outline-offset: 2px; }
+
+
+
+    .nav-pills-custom { background-color: #f1f3f4; padding: 4px; border-radius: 10px; display: flex; gap: 2px; }
+
+    .nav-item-custom { padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; color: #5f6368; cursor: pointer; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .nav-item-custom.active { background-color: #202124; color: #fff; }
+
+    .nav-item-custom:focus { outline: 2px solid #202124; }
+
+
+
+    .content-area { padding: 30px; }
+
+    .sidebar-col { padding-left: 30px; }
+
+    .side-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+
+    .card-label { font-size: 0.95rem; font-weight: 700; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+
+    .card-label i { color: #9aa0a6; }
+
+
+
+    .history-input-group { position: relative; }
+
+    .history-input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #333; font-weight: 500; }
+
+    .calendar-icon { position: absolute; left: 12px; top: 12px; color: #5f6368; }
+
+    .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
+
+
+
+    .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
+
+    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+
+    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
+
+    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
+
+    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+
+    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+
+    .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
+
+
+
+    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+
+    #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
+
+    #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
+
+    #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+
+    #proximity-alerts-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+
+
+    .alert-row { padding: 15px 0; border-bottom: 1px solid #f1f1f1; position: relative; }
+
+    .alert-row:last-child { border-bottom: none; }
+
+    .alert-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 10px; width: 100%; }
+
+    .alert-type { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: #202124; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .alert-dist { font-weight: 700; font-size: 0.85rem; color: #d93025; white-space: nowrap; flex-shrink: 0; }
+
+    .alert-site { font-size: 0.85rem; font-weight: 600; color: #5f6368; display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+
+    .alert-desc { font-size: 0.8rem; color: #5f6368; line-height: 1.4; }
+
+
+
+    .alert-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+    .btn-dismiss { font-size: 0.72rem; padding: 3px 9px; border: 1px solid #ddd; border-radius: 6px; background: #fff; color: #5f6368; cursor: pointer; font-weight: 700; }
+
+    .btn-dismiss:hover { background: #f1f3f4; color: #202124; }
+
+    .btn-dismiss:focus { outline: 2px solid #202124; outline-offset: 2px; }
+
+
+
+    .stream-section { margin-top: 25px; }
+
+    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+
+    .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+
+    .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
+
+    .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+
+
+    .feed-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 0; display: flex; overflow: hidden; transition: transform 0.2s; text-decoration: none; color: inherit; position: relative; cursor: pointer; }
+
+    .feed-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+    .feed-status-bar { width: 5px; flex-shrink: 0; }
+
+    .status-bar-crit { background-color: #d93025; }
+
+    .status-bar-warn { background-color: #f9ab00; }
+
+    .status-bar-info { background-color: #1a73e8; }
+
+
+
+    .feed-content { padding: 16px 20px; width: 100%; }
+
+    .feed-tags { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+
+    .ftag { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid #eee; letter-spacing: 0.5px; }
+
+    .ftag-crit { background: #fce8e6; color: #c5221f; border-color: #fad2cf; }
+
+    .ftag-warn { background: #fef7e0; color: #e37400; border-color: #feebc8; }
+
+    .ftag-info { background: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
+
+    .ftag-type { background: #f1f3f4; color: #5f6368; }
+
+    .ftag-loc { background: #202124; color: #fff; border-color: #202124; }
+
+
+
+    .feed-region { margin-left: auto; font-size: 0.75rem; font-weight: 700; color: #9aa0a6; }
+
+    .feed-title { font-size: 1rem; font-weight: 700; color: #202124; margin-bottom: 6px; line-height: 1.4; }
+
+    .feed-title a:hover { text-decoration: underline; }
+
+    .feed-meta { font-size: 0.8rem; color: #5f6368; margin-bottom: 8px; font-weight: 500; }
+
+    .feed-desc { font-size: 0.85rem; color: #3c4043; line-height: 1.5; }
+
+
+
+    .vote-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+
+    .btn-vote { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 3px 9px; font-size: 0.85rem; cursor: pointer; color: #5f6368; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+    .btn-vote:hover { background: #f1f3f4; color: #1a73e8; }
+
+    .btn-vote:focus { outline: 2px solid #202124; outline-offset: 2px; }
+
+    .btn-vote.voted-up { background: #1a73e8; color: #fff; border-color: #1557b0; }
+
+    .btn-vote.voted-down { background: #d93025; color: #fff; border-color: #b71c1c; }
+
+
+
+    .critical-alert-bar { background: #fce8e6; border-left: 4px solid #d93025; padding: 12px 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; }
+
+    .alert-icon-lg { color: #d93025; font-size: 1.2rem; }
+
+    .alert-content-main { flex-grow: 1; font-weight: 700; color: #202124; font-size: 0.95rem; }
+
+    .alert-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .tag { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: white; }
+
+    .tag-crit { background: #d93025; color: white; }
+
+    .tag-cat { background: #3c4043; color: white; }
+
+    .tag-reg { background: #3c4043; color: white; opacity: 0.8; }
+
+    .tag-low { background: #e8f0fe; color: #1a73e8; border: 1px solid #d2e3fc; }
+
+    .tag-medium { background: #fef7e0; color: #e37400; border: 1px solid #feebc8; }
+
+    .tag-high { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+
+    .tag-critical { background: #d93025; color: #fff; border: 1px solid #d93025; }
+
+
+
+    .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
+
+    .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+
+    .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
+
+    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+
+    .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
+
+    .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
+
+
+
+    .safe-box { background: #e6f4ea; border: 1px solid #ceead6; border-radius: 8px; padding: 12px; margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; }
+
+    .safe-icon { color: #1e8e3e; font-size: 1rem; margin-top: 2px; }
+
+    .safe-text { font-size: 0.85rem; color: #137333; font-weight: 600; line-height: 1.4; }
+
+
+
+    .news-box-alert { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+
+    .news-box-header { background: #f8f9fa; padding: 8px 12px; font-size: 0.75rem; font-weight: 700; color: #5f6368; border-bottom: 1px solid #eee; }
+
+    .news-box-item { padding: 10px 12px; border-bottom: 1px solid #eee; }
+
+    .news-box-item:last-child { border-bottom: none; }
+
+    .news-box-title { font-size: 0.85rem; font-weight: 700; color: #202124; margin-bottom: 4px; }
+
+    .news-box-summary { font-size: 0.75rem; color: #5f6368; }
+
+
+
+    .modal-content { border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+    .modal-header { border-bottom: 1px solid #f0f0f0; padding: 20px; }
+
+    .modal-title { font-weight: 800; color: #202124; }
+
+    .modal-body { padding: 30px; }
+
+    .form-label { font-size: 0.85rem; font-weight: 700; color: #5f6368; margin-bottom: 8px; }
+
+    .form-select, .form-control { border-radius: 8px; padding: 10px; font-size: 0.9rem; border: 1px solid #dadce0; }
+
+    .btn-download { width: 100%; background: #1a73e8; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; margin-top: 10px; }
+
+    .btn-download:hover { background: #1557b0; }
+
+
+
+    .assets-debug { position: absolute; top: 110px; right: 18px; z-index: 999999; background: #fff; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); max-width: 320px; line-height: 1.25; display:none;}
+
+    .assets-debug pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-size: 12px; color:#222; }
+
+  </style>
+
+</head>
+
+
+
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to Main Content</a>
+
+
+
+<div class="app-container" id="main-content">
+
+  <div class="header-container">
+
+    <div class="header-left">
+
+      <div class="logo-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
+
+      <div class="logo-text">OS <span>INFOHUB</span></div>
+
+    </div>
+
+
+
+    <div class="header-right d-flex align-items-center">
+
+      <div class="multi-clock-container" id="multi-clock-container" role="timer" aria-label="World Clocks"></div>
+
+
+
+      <div class="nav-pills-custom" role="tablist" aria-label="Region Filter">
+
+        <!-- Removed inline onclick handlers. Delegated event listener uses data-action/data-region -->
+
+        <a class="nav-item-custom active" data-action="filter-region" data-region="Global" role="tab" aria-selected="true" tabindex="0">Global</a>
+
+        <a class="nav-item-custom" data-action="filter-region" data-region="AMER" role="tab" aria-selected="false" tabindex="0">AMER</a>
+
+        <a class="nav-item-custom" data-action="filter-region" data-region="EMEA" role="tab" aria-selected="false" tabindex="0">EMEA</a>
+
+        <a class="nav-item-custom" data-action="filter-region" data-region="APJC" role="tab" aria-selected="false" tabindex="0">APJC</a>
+
+        <a class="nav-item-custom" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
+
       </div>
-    `;
-  });
 
-  container.innerHTML = html;
-}
 
-function renderProximityAlerts(region) {
-  const container = document.getElementById('proximity-alerts-container');
-  if (!container) return;
-  const data = (region === 'Global') ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
-  const alerts = [];
 
-  data.forEach(inc => {
-    const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng))) ? { lat:Number(inc.lat), lng:Number(inc.lng) } : getCoordsForIncident(inc);
-    if (!coords) return;
+      <div id="btn-refresh" class="btn-daily ms-3" style="background:#1a73e8;color:#fff;padding:9px 12px;border-radius:8px;cursor:pointer" role="button" aria-label="Refresh feed" data-action="refresh" tabindex="0">
 
-    const key = generateId(inc);
-    if (DISMISSED_ALERT_IDS.has(String(key))) return;
+        <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
 
-    let nearest = null;
-    if ((inc.distance_km != null) && inc.nearest_site_name) {
-      nearest = { dist: Number(inc.distance_km), name: inc.nearest_site_name };
-    } else {
-      for (const asset of Object.values(ASSETS)) {
-        const d = haversineKm(coords.lat, coords.lng, asset.lat, asset.lng);
-        if (!nearest || d < nearest.dist) nearest = { dist: d, name: asset.name };
-      }
-    }
-    if (!nearest) return;
-    if (inc.country_wide || nearest.dist <= currentRadius) alerts.push({ inc, nearest, key });
-  });
+      </div>
 
-  alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
 
-  if (!alerts.length) {
-    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
-    return;
-  }
 
-  container.innerHTML = alerts.slice(0,25).map(a => {
-    const i = a.inc;
-    const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
-    const distStr = i.country_wide ? `Country-wide` : `${Math.round(a.nearest.dist)}km`;
-    return `
-      <div class="alert-row">
-        <div class="alert-top">
-          <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i>
-            ${escapeHtml(i.title)}
+      <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
+
+        <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
+
+      </div>
+
+
+
+      <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Open admin controls" title="Admin">
+
+        <i class="fas fa-cog" aria-hidden="true"></i>
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="content-area">
+
+    <div class="row g-4">
+
+      <div class="col-lg-9">
+
+        <div class="map-wrapper" aria-label="Incident Map" role="application">
+
+          <div id="map" tabindex="0"></div>
+
+        </div>
+
+
+
+        <div class="stream-section">
+
+          <div class="stream-header">
+
+             <div class="stream-label">
+
+              <i class="fas fa-circle live-dot-blue" aria-hidden="true"></i> Real-time Intelligence Stream
+
+              <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
+
+            </div>
+
+            <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0" aria-label="Refresh feed">
+
+              VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+
+            </div>
+
           </div>
-          <div class="alert-dist" style="color:${color}">${escapeHtml(distStr)}</div>
+
+
+
+          <div class="critical-alert-bar" role="alert">
+
+            <i class="fas fa-exclamation-triangle alert-icon-lg" aria-hidden="true"></i>
+
+            <div class="alert-content-main" id="headline-alert">Loading headline…</div>
+
+            <div class="alert-tags" id="headline-tags">
+
+              <span class="tag" id="headline-sev">SEV?</span>
+
+              <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
+
+              <span class="tag tag-reg" id="headline-reg">REGION</span>
+
+            </div>
+
+          </div>
+
+
+
+          <div id="general-news-feed" aria-live="polite">
+
+            <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
+
+          </div>
+
         </div>
-        <div class="alert-site">Near: <b>${escapeHtml(a.nearest.name)}</b></div>
-        <div class="alert-desc">${escapeHtml(i.summary)}</div>
-        <div class="alert-actions">
-          <button type="button" class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert">Dismiss</button>
-        </div>
+
       </div>
-    `;
-  }).join('');
-}
 
-function updateHeadline(region) {
-  const data = (region === 'Global') ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  const el = document.getElementById('headline-alert');
-  const tags = document.getElementById('headline-tags');
-  if (!el || !tags) return;
-  if (data && data.length) {
-    el.textContent = data[0].title || 'Headline';
-    const sev = mapSeverityToLabel(data[0].severity);
-    tags.innerHTML = `
-      <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
-      <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
-      <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
-    `;
-  } else {
-    el.textContent = 'No critical alerts.';
-    tags.innerHTML = '';
-  }
-}
 
-/* ===========================
-   PROXIMITY DISMISS
-=========================== */
-function dismissAlertById(id) {
-  try {
-    const k = String(id || '').trim();
-    if (!k) return;
-    DISMISSED_ALERT_IDS.add(k);
-    sessionStorage.setItem('dismissed_prox_alert_ids', JSON.stringify(Array.from(DISMISSED_ALERT_IDS).slice(0,500)));
-  } catch(e){}
-}
 
-/* ===========================
-   REPORTING (Preview / Download)
-=========================== */
-async function previewBriefing() {
-  const region = document.getElementById('reportRegion')?.value || 'Global';
-  const date = document.getElementById('reportDate')?.value || '';
-  const fb = document.getElementById('preview-feedback');
-  const cont = document.getElementById('briefing-preview');
+      <div class="col-lg-3 sidebar-col">
 
-  if (fb) { fb.style.display = 'block'; fb.textContent = 'Generating preview…'; }
-  if (cont) cont.innerHTML = '';
+        <div class="side-card">
 
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-  if (date) url += `&date=${encodeURIComponent(date)}`;
+          <div class="card-label"><i class="fas fa-history" aria-hidden="true"></i> History Search</div>
 
-  try {
-    const res = await fetchWithTimeout(url, {}, 20000);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    const incidents = json.incidents || [];
-    if (!incidents.length) {
-      cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
-    } else {
-      cont.innerHTML = incidents.slice(0,50).map(i => `
-        <div style="border-bottom:1px solid #eee; padding:8px 0;">
-          <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
-          <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
-          <div style="font-size:0.85rem;color:#333;margin-top:4px;">${escapeHtml(i.summary || '')}</div>
+          <div class="history-input-group">
+
+            <i class="far fa-calendar-alt calendar-icon" aria-hidden="true"></i>
+
+            <label for="history-picker" class="form-label visually-hidden">History date</label>
+
+            <!-- no inline onchange; app.js wires the history-picker change -->
+
+            <input type="date" class="history-input" id="history-picker" aria-label="Select history date" />
+
+          </div>
+
+          <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence.</div>
+
         </div>
-      `).join('');
-    }
-    if (fb) fb.style.display = 'none';
-  } catch(e) {
-    if (fb) { fb.style.display = 'block'; fb.textContent = `Error: ${e.message}`; }
-  }
-}
 
-function downloadReport() {
-  const region = document.getElementById('reportRegion')?.value || 'Global';
-  const date = document.getElementById('reportDate')?.value || '';
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
-  if (date) url += `&date=${encodeURIComponent(date)}`;
-  window.open(url, '_blank', 'noopener');
-}
 
-/* ===========================
-   HISTORY
-=========================== */
-async function loadHistory(dateStr) {
-  const status = document.getElementById('history-status');
-  if (status) status.textContent = 'Loading archive…';
-  try {
-    const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const arr = await res.json();
-    if (!status) return;
-    if (!arr || !arr.length) {
-      status.textContent = 'No archived incidents found.';
-      return;
-    }
-    status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` + arr.map(i => `<div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;"><strong>${escapeHtml(i.title)}</strong><br><span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span></div>`).join('') + `</div>`;
-  } catch(e) {
-    if (status) status.textContent = `Archive error: ${e.message}`;
-  }
-}
 
-/* ===========================
-   TRAVEL ADVISORIES + NEWS (with fallback)
-=========================== */
+        <div class="side-card">
 
-async function loadTravelAdvisories() {
-  const sel = document.getElementById('countrySelect');
-  if (!sel) return;
-  sel.innerHTML = `<option selected disabled>Loading advisories...</option>`;
-  // Try worker
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
-    if (res && res.ok) {
-      const data = await res.json();
-      TRAVEL_DATA = Array.isArray(data) ? data : [];
-      TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
-    }
-  } catch(e) {
-    console.warn('worker traveladvisories/live failed', e);
-  }
+          <div class="card-label"><i class="fas fa-plane" aria-hidden="true"></i> Travel Safety Check</div>
 
-  // populate with world list to ensure UI always works
-  sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
-}
+          <label for="countrySelect" class="form-label visually-hidden">Travel country</label>
 
-/* Helper: derive travel news from INCIDENTS if worker doesn't return news */
-function getTravelNewsForCountry(country, topN=5) {
-  try {
-    if (!country) return [];
-    const lower = String(country).toLowerCase();
-    const hits = INCIDENTS.filter(i => {
-      try {
-        if (i.country && String(i.country).toLowerCase().includes(lower)) return true;
-        if (i.location && String(i.location).toLowerCase().includes(lower)) return true;
-        if (i.title && String(i.title).toLowerCase().includes(lower)) return true;
-        return false;
-      } catch(e) { return false; }
-    }).sort((a,b) => new Date(b.time) - new Date(a.time));
-    return hits.slice(0, topN).map(n => ({ title: n.title, summary: n.summary || '', time: n.time }));
-  } catch(e) { return []; }
-}
+          <!-- no inline onchange; app.js wires the countrySelect change -->
 
-async function filterTravel() {
-  const country = document.getElementById('countrySelect')?.value || '';
-  const cont = document.getElementById('travel-advisories');
-  const newsCont = document.getElementById('travel-news');
-  if (cont) cont.innerHTML = 'Loading…';
-  if (newsCont) newsCont.innerHTML = '';
+          <select class="travel-select" id="countrySelect" aria-label="Travel country">
 
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories?country=${encodeURIComponent(country)}`, {}, 12000);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+            <option selected disabled>Loading countries...</option>
 
-    const adv = data.advisory || data || {};
-    const level = Number(adv.level || adv.risk_level || 1);
-    const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
+          </select>
 
-    if (cont) cont.innerHTML = `
-      <div class="advisory-box">
-        <div class="advisory-header">
-          <div class="advisory-label">OFFICIAL ADVISORY</div>
-          <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
+          <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
+
+          <div id="travel-news" class="mt-2"></div>
+
         </div>
-        <div class="advisory-text">${escapeHtml(adv.text || adv.advice || adv.summary || 'No major advisory.')}</div>
-        <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || 'Unknown')}</div>
+
+
+
+        <div class="side-card" style="padding-bottom: 10px;">
+
+          <div class="prox-header-row">
+
+            <div>
+
+              <div class="prox-dell-label">Dell Asset</div>
+
+              <div class="prox-main-title">Proximity<br/>Alerts</div>
+
+            </div>
+
+          </div>
+
+          <div class="prox-controls">
+
+            <div class="prox-subtitle">WITHIN RADIUS</div>
+
+            <label for="proxRadius" class="form-label visually-hidden">Proximity radius</label>
+
+            <!-- no inline onchange; app.js wires proxRadius change -->
+
+            <select id="proxRadius" class="radius-select" aria-label="Proximity radius">
+
+              <option value="5">5 KM</option>
+
+              <option value="10">10 KM</option>
+
+              <option value="25">25 KM</option>
+
+              <option value="50" selected>50 KM</option>
+
+              <option value="100">100 KM</option>
+
+              <option value="500">500 KM</option>
+
+            </select>
+
+          </div>
+
+
+
+          <div id="proximity-alerts-container" aria-live="polite"></div>
+
+
+
+          <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1;">
+
+            <!-- changed to data-action refresh, removed onclick -->
+
+            <a href="#" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0" aria-label="Refresh alerts">REFRESH ALERTS</a>
+
+          </div>
+
+        </div>
+
       </div>
-    `;
 
-    // If the worker returned news, use it; otherwise fallback to getTravelNewsForCountry
-    let news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
-    if ((!news || !news.length) && country) {
-      // fallback scanning INCIDENTS
-      news = getTravelNewsForCountry(country, 5);
-    }
+    </div>
 
-    if (news && news.length) {
-      newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS</div>${news.slice(0,5).map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title || '')}</div><div class="news-box-summary">${escapeHtml(n.summary || '')}</div></div>`).join('')}</div>`;
-    }
-  } catch(e) {
-    if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">Advisory unavailable.</div></div>`;
-  }
-}
+  </div>
 
-/* ===========================
-   MAP COORD HELPERS
-=========================== */
+</div>
 
-function getCoordsForIncident(i) {
-  try {
-    if (!i) return null;
-    const lat = parseCoord(i.lat);
-    const lng = parseCoord(i.lng !== undefined ? i.lng : i.lon);
-    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) > 0.0001 && Math.abs(lng) > 0.0001) return { lat, lng };
 
-    const locRaw = String(i.location || i.city || i.country || '').trim().toLowerCase();
-    if (locRaw && locRaw !== 'unknown') {
-      const locKey = locRaw.split(',')[0].trim();
-      if (locKey.length >= 3) {
-        if (CITY_COORDS[locKey]) return { lat: CITY_COORDS[locKey].lat, lng: CITY_COORDS[locKey].lng };
-        for (const k of Object.keys(CITY_COORDS)) {
-          if (k.length < 3) continue;
-          if (locKey.includes(k) || k.includes(locKey)) return { lat: CITY_COORDS[k].lat, lng: CITY_COORDS[k].lng };
-        }
-        for (const s of DELL_SITES) {
-          const sname = s.name.toLowerCase();
-          if (sname.includes(locKey) || locKey.includes(sname)) return { lat: s.lat, lng: s.lon };
-        }
-      }
-    }
 
-    const countryRaw = String(i.country || '').trim().toLowerCase();
-    if (countryRaw) {
-      const cut = countryRaw.split(',')[0].trim();
-      if (COUNTRY_COORDS[cut]) return { lat: COUNTRY_COORDS[cut].lat, lng: COUNTRY_COORDS[cut].lng };
-      // fallback to asset in country
-      const cc = countryRaw.slice(0,2).toLowerCase();
-      for (const s of DELL_SITES) {
-        const sCode = String(s.country || '').toLowerCase();
-        if (sCode === countryRaw || (sCode === cc && countryRaw.length >= 2)) return { lat: s.lat, lng: s.lon };
-      }
-    }
+<!-- REPORT MODAL -->
 
-    return null;
-  } catch(e) { return null; }
-}
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
 
-/* ===========================
-   GEODESIC (Haversine)
-=========================== */
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
+  <div class="modal-dialog modal-dialog-centered">
 
-/* ===========================
-   REFRESH (robust: ensures UI reset)
-=========================== */
-async function manualRefresh() {
-  const btn = document.getElementById('btn-refresh');
-  const originalText = btn ? btn.innerHTML : 'Refresh';
-  if (btn) {
-    btn.style.opacity = '0.7';
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-    btn.style.pointerEvents = 'none';
-  }
+    <div class="modal-content">
 
-  try {
-    await Promise.all([
-      loadFromWorker(false),
-      loadProximityFromWorker(false),
-      loadTravelAdvisories()
-    ]);
-    const active = document.querySelector('.nav-item-custom.active');
-    const region = active ? active.textContent.trim() : 'Global';
-    filterNews(region);
-  } catch(e) {
-    console.error('manualRefresh error', e);
-    // Ensure UI still updates and feed shows error if necessary
-    const label = document.getElementById('feed-status-label');
-    if (label) label.textContent = 'REFRESH ERROR';
-  } finally {
-    if (btn) {
-      btn.style.opacity = '1';
-      btn.innerHTML = originalText;
-      btn.style.pointerEvents = 'auto';
-    }
-  }
-}
+      <div class="modal-header">
 
-/* ===========================
-   BOOTSTRAP / EVENT BINDING
-=========================== */
+        <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;" aria-hidden="true"></i>Daily Intelligence Briefings</h5>
 
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    // Preload admin secret from session
-    try {
-      const s = sessionStorage.getItem('admin_secret') || '';
-      if (s) {
-        ADMIN_SECRET = s;
-        const fld = document.getElementById('adminSecret');
-        const rem = document.getElementById('adminRememberSession');
-        if (fld) fld.value = s; if (rem) rem.checked = true;
-      }
-    } catch(e){}
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
-    // init map (do not swallow error silently; report to UI)
-    initMap();
+      </div>
 
-    // start clocks
-    startClock();
+      <div class="modal-body">
 
-    // delegate clicks to data-action attributes (keeps CSP-friendly)
-    document.addEventListener('click', async (e) => {
-      const t = e.target.closest('[data-action]');
-      if (!t) return;
+        <div class="mb-3">
 
-      const action = String(t.dataset.action || '').trim();
-      if (!action) return;
+          <label class="form-label" for="reportDate">Select Date</label>
 
-      // prevent default anchor '#' behavior
-      if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) e.preventDefault();
+          <input type="date" class="form-control" id="reportDate" />
 
-      // stop propagation for buttons that should not let the card open
-      if (action === 'vote' || action === 'dismiss-alert' || action.startsWith('admin-')) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+          <div class="form-text" style="font-size:0.8rem;margin-top:6px;">
 
-      if (action === 'filter-region') {
-        document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
-        t.classList.add('active');
-        filterNews(t.dataset.region || t.textContent.trim());
-        return;
-      }
+            Leave empty for the last 24 hours (live).
 
-      if (action === 'refresh') {
-        manualRefresh(); return;
-      }
+          </div>
 
-      if (action === 'preview-brief') { previewBriefing(); return; }
-      if (action === 'download-brief') { downloadReport(); return; }
+        </div>
 
-      if (action === 'vote') {
-        const id = t.getAttribute('data-id'); const v = t.getAttribute('data-vote');
-        if (id && v) await voteThumb(id, v);
-        return;
-      }
 
-      if (action === 'dismiss-alert') {
-        const id = t.getAttribute('data-id'); if (id) dismissAlertById(id);
-        const row = t.closest('.alert-row'); if (row) row.remove();
-        return;
-      }
 
-      // admin actions
-      if (action === 'admin-save-secret') { adminSaveSecret(); return; }
-      if (action === 'admin-clear-secret') { adminClearSecret(); return; }
-      if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
-      if (action === 'admin-unlock') { adminUnlock(); return; }
-      if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
-      if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
-      if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
-      if (action === 'admin-list-briefs') { adminListBriefs(); return; }
-    });
+        <div class="mb-4">
 
-    // Clicking feed-card opens link (but ignore inner interactive elements)
-    document.addEventListener('click', (e) => {
-      const card = e.target.closest('.feed-card[data-link]');
-      if (!card) return;
-      if (e.target.closest('a')) return;
-      if (e.target.closest('[data-action]')) return;
-      const href = card.getAttribute('data-link');
-      if (!href) return;
-      try { window.open(href, '_blank', 'noopener'); } catch(e){}
-    });
+          <label class="form-label" for="reportRegion">Select Region / Report Profile</label>
 
-    // wire input changes
-    const historyPicker = document.getElementById('history-picker');
-    if (historyPicker) historyPicker.addEventListener('change', (ev) => loadHistory(ev.target.value));
-    const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
-    const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
+          <select class="form-select" id="reportRegion">
 
-    // initial load
-    await loadFromWorker();
-    await loadProximityFromWorker();
-    filterNews('Global');
-    await loadTravelAdvisories();
+            <option value="Global">Global</option>
 
-    // apply stored votes UI
-    Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
+            <option value="APJC">APJC</option>
 
-    // schedule auto refresh
-    setInterval(async () => {
-      if (FEED_IS_LIVE) {
-        await loadFromWorker(true);
-        await loadProximityFromWorker(true);
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
-      }
-    }, AUTO_REFRESH_MS);
+            <option value="AMER">AMER</option>
 
-    // try flush queue once on load
-    setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1500);
-  } catch(e) {
-    console.error('Initialization error', e);
-    const feed = document.getElementById('general-news-feed');
-    if (feed) feed.innerHTML = `<div style="padding:20px;color:#b00;">Application failed to initialize. See console for details.</div>`;
-  }
-});
+            <option value="EMEA">EMEA</option>
 
-/* ===========================
-   CLOCKS (World Clocks)
-=========================== */
-function startClock() {
-  const container = document.getElementById('multi-clock-container');
-  const zones = [
-    { label: 'Austin', z: 'America/Chicago' },
-    { label: 'Ireland', z: 'Europe/Dublin' },
-    { label: 'India', z: 'Asia/Kolkata' },
-    { label: 'Singapore', z: 'Asia/Singapore' },
-    { label: 'Tokyo', z: 'Asia/Tokyo' },
-    { label: 'Sydney', z: 'Australia/Sydney' }
-  ];
-  if (container && !container.innerHTML) {
-    container.innerHTML = zones.map(z => `<div class="clock-box"><div class="clock-label">${escapeHtml(z.label)}</div><div class="clock-val" id="clk-${escapeAttr(z.label)}">--:--</div></div>`).join('');
-  }
-  setInterval(() => {
-    const now = new Date();
-    zones.forEach(z => {
-      const el = document.getElementById(`clk-${z.label}`);
-      if (el) el.textContent = now.toLocaleTimeString('en-US', { timeZone: z.z, hour12: false, hour:'2-digit', minute:'2-digit' });
-    });
-  }, 1000);
-}
+            <option value="LATAM">LATAM</option>
 
-/* ===========================
-   FILTER NEWS (entry point)
-=========================== */
-function filterNews(region) {
-  renderAssetsOnMap(region);
-  renderIncidentsOnMap(region, INCIDENTS);
-  renderGeneralFeed(region);
-  updateHeadline(region);
-  renderProximityAlerts(region);
-}
+          </select>
 
-/* ===========================
-   Expose debugging functions
-=========================== */
-window.loadTravelAdvisories = loadTravelAdvisories;
-window.filterTravel = filterTravel;
-window.loadHistory = loadHistory;
-window.voteThumb = voteThumb;
-window.flushVoteQueue = flushVoteQueue;
-window.adminGetSecret = adminGetSecret;
+        </div>
+
+
+
+        <div class="d-grid gap-2" style="margin-bottom:8px;">
+
+          <!-- Removed onclick attributes; use data-action delegated listeners -->
+
+          <button class="btn-download" id="btn-preview" data-action="preview-brief" aria-label="Preview daily briefing">
+
+            <i class="fas fa-eye me-2" aria-hidden="true"></i> Preview Briefing
+
+          </button>
+
+          <button class="btn-download" id="btn-download" data-action="download-brief" aria-label="Download briefing (generated)">
+
+            <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
+
+          </button>
+
+        </div>
+
+
+
+        <div id="preview-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
+
+        <div id="briefing-preview" style="max-height:48vh; overflow:auto; margin-top:12px;"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ADMIN MODAL -->
+
+<div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
+
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <h5 class="modal-title" id="adminModalTitle"><i class="fas fa-user-shield me-2" aria-hidden="true" style="color:#1a73e8;"></i>Admin Controls</h5>
+
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+      </div>
+
+      <div class="modal-body">
+
+
+
+        <div class="mb-3">
+
+          <label class="form-label" for="adminSecret">Admin Secret</label>
+
+          <input type="password" id="adminSecret" class="form-control" placeholder="Enter secret" aria-label="Admin secret">
+
+          <div class="form-text" style="font-size:0.8rem;margin-top:6px;">
+
+            Secret is stored in memory by default (recommended). Check "Remember for session" to save it in sessionStorage for convenience.
+
+          </div>
+
+          <div class="form-check mt-2">
+
+            <input class="form-check-input" type="checkbox" value="" id="adminRememberSession">
+
+            <label class="form-check-label" for="adminRememberSession">Remember for session</label>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="d-flex gap-2 mb-3">
+
+          <button class="btn btn-primary btn-sm" data-action="admin-save-secret" aria-label="Save admin secret">Save</button>
+
+          <button class="btn btn-outline-danger btn-sm" data-action="admin-clear-secret" aria-label="Clear admin secret">Clear</button>
+
+        </div>
+
+
+
+        <hr>
+
+        <h6 style="font-weight:800;color:#202124;">Admin Actions</h6>
+
+
+
+        <div class="d-grid gap-2">
+
+          <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest" aria-label="Trigger ingestion">Trigger Ingestion</button>
+
+          <button class="btn btn-outline-dark btn-sm" data-action="admin-unlock" aria-label="Unlock ingestion and travel locks">Unlock Locks</button>
+
+          <button class="btn btn-outline-secondary btn-sm" data-action="admin-force-refresh-travel" aria-label="Force refresh travel advisories">Force Refresh Travel</button>
+
+        </div>
+
+
+
+        <hr>
+
+        <h6 style="font-weight:800;color:#202124;">Briefings</h6>
+
+        <div class="d-grid gap-2">
+
+          <button class="btn btn-outline-primary btn-sm" data-action="admin-generate-brief" aria-label="Generate and store briefing">Generate &amp; Store Brief (Selected Date/Region)</button>
+
+          <button class="btn btn-outline-secondary btn-sm" data-action="admin-list-briefs" aria-label="List stored briefs">List Stored Briefs (Console)</button>
+
+        </div>
+
+
+
+        <hr>
+
+        <h6 style="font-weight:800;color:#202124;">Voting / Thumbs</h6>
+
+        <div class="d-grid gap-2">
+
+          <button class="btn btn-outline-success btn-sm" data-action="admin-thumbs-status" aria-label="Show thumbs status">Thumbs Status (Console)</button>
+
+        </div>
+
+
+
+        <div id="adminFeedback" class="mt-3" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
+
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
+
+
+
+<!-- load your app.js here (no inline handlers, app.js will bind events) -->
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
