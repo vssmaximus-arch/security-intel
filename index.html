@@ -322,6 +322,7 @@
   </div>
 </div>
 
+<!-- REPORT MODAL -->
 <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -365,6 +366,7 @@
   </div>
 </div>
 
+<!-- ADMIN MODAL (Secret, Ingestion, Brief generation, Reports admin) -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-hidden="true" aria-labelledby="adminModalTitle">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -420,7 +422,7 @@
   </div>
 </div>
 
-<div id="assets-debug" class="assets-debug" aria-live="polite"></div>
+<div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
 
 <script>
 /* ===========================
@@ -1533,6 +1535,145 @@ async function manualRefresh() {
     btn.innerHTML = originalText;
     btn.style.pointerEvents = "auto";
   }
+}
+
+/* ===========================
+   ADMIN HELPERS
+=========================== */
+function adminSetFeedback(msg, isError=false) {
+  const fb = document.getElementById('adminFeedback') || document.getElementById('adminFeedback') || document.getElementById('adminFeedback');
+  if (!fb) return;
+  fb.style.display = 'block';
+  fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
+  fb.textContent = String(msg || '');
+}
+function adminGetSecretFromField() {
+  try {
+    const el = document.getElementById('adminSecret');
+    const remember = document.getElementById('adminRememberSession');
+    const val = el ? String(el.value || '').trim() : '';
+    if (remember && remember.checked) {
+      try { sessionStorage.setItem('admin_secret', val); } catch(e){}
+    } else {
+      try { sessionStorage.removeItem('admin_secret'); } catch(e){}
+    }
+    ADMIN_SECRET = val;
+    return val;
+  } catch(e){ return ''; }
+}
+function adminSaveSecret() {
+  const sec = adminGetSecretFromField();
+  if (sec) {
+    adminSetFeedback('Admin secret set (in-memory).', false);
+  } else adminSetFeedback('Enter a secret first.', true);
+}
+function adminClearSecret() {
+  try { sessionStorage.removeItem('admin_secret'); } catch(e){}
+  ADMIN_SECRET = '';
+  const fld = document.getElementById('adminSecret');
+  if (fld) fld.value = '';
+  adminSetFeedback('Admin secret cleared.', false);
+}
+
+/* Admin actions (ingest, unlock, generate, list) */
+async function adminTriggerIngest() {
+  const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  adminSetFeedback('Triggering ingestion…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
+    adminSetFeedback(txt || 'Ingestion triggered.');
+  } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
+}
+
+async function adminUnlock() {
+  const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  adminSetFeedback('Requesting unblock…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, { method:'POST', headers: { 'Content-Type':'application/json', 'secret': sec }, body: JSON.stringify({ unblock: true }) });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
+    adminSetFeedback(txt || 'Unblock requested.');
+  } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
+}
+
+async function adminThumbsStatus() {
+  const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+  adminSetFeedback('Loading thumbs status…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumbs/status`, { method:'GET', headers: { ...(sec ? {'secret': sec} : {}) } });
+    const data = await res.json().catch(()=>null);
+    if (!res.ok) { adminSetFeedback(`Status failed (HTTP ${res.status}).`, true); console.log('thumbs status raw', data); return; }
+    adminSetFeedback('Thumbs status loaded. Check console.');
+    console.log('Thumbs status:', data);
+  } catch(e) { adminSetFeedback('Status failed (network).', true); console.error(e); }
+}
+
+async function adminForceRefreshTravel() {
+  const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+  adminSetFeedback('Refreshing travel cache…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, { method:'POST', headers: { ...(sec ? {'secret': sec} : {}) } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`, true); return; }
+    adminSetFeedback(txt || 'Travel refresh triggered.');
+    try { await loadTravelAdvisories(); } catch(e){}
+  } catch(e) { adminSetFeedback('Travel refresh failed (network).', true); console.error(e); }
+}
+
+async function adminGenerateBrief() {
+  const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  const regionEl = document.getElementById('reportRegion');
+  const dateEl = document.getElementById('reportDate');
+  const region = regionEl ? String(regionEl.value || 'Global') : 'Global';
+  const date = dateEl ? String(dateEl.value || '') : '';
+  adminSetFeedback('Generating brief on server…');
+  try {
+    const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
+    const res = await fetch(url, { method:'POST', headers: { 'secret': sec } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`, true); return; }
+    adminSetFeedback(txt || 'Brief generation requested.');
+  } catch(e) { adminSetFeedback('Generate failed (network).', true); console.error(e); }
+}
+
+async function adminListBriefs() {
+  const sec = ADMIN_SECRET || sessionStorage.getItem('admin_secret') || '';
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  adminSetFeedback('Listing stored briefs…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
+    const data = await res.json().catch(()=>null);
+    if (!res.ok) { adminSetFeedback(`List failed (HTTP ${res.status}).`, true); console.log('brief list raw', data); return; }
+    adminSetFeedback('Brief list loaded. Check console.');
+    console.log('Stored briefs:', data);
+  } catch(e) { adminSetFeedback('List failed (network).', true); console.error(e); }
+}
+
+/* Save secret from admin modal */
+function adminSaveSecret() {
+  const fld = document.getElementById('adminSecret');
+  const remember = document.getElementById('adminRememberSession');
+  const val = fld ? String(fld.value || '').trim() : '';
+  ADMIN_SECRET = val;
+  if (remember && remember.checked) {
+    try { sessionStorage.setItem('admin_secret', val); } catch(e){}
+  } else {
+    try { sessionStorage.removeItem('admin_secret'); } catch(e){}
+  }
+  adminSetFeedback('Admin secret saved in memory' + (remember && remember.checked ? ' and session.' : '.'));
+}
+
+/* Clear secret from field and memory */
+function adminClearSecret() {
+  try { sessionStorage.removeItem('admin_secret'); } catch(e){}
+  ADMIN_SECRET = '';
+  const fld = document.getElementById('adminSecret'); if (fld) fld.value = '';
+  adminSetFeedback('Admin secret cleared.');
 }
 
 /* ===========================
