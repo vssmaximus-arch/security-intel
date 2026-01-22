@@ -1,10 +1,9 @@
 /* app.js - Dell OS | INFOHUB (FINAL FIXED)
    - Restores full CITY_COORDS & COUNTRY_COORDS
    - Restores WORLD_COUNTRIES
-   - Restores getRegionByCountry with False Positive Fix (k.length > 2)
+   - Restores getRegionByCountry with False Positive Fix
    - Fixes dismissAlertById, updateProximityRadius, manualRefresh robustness
-   - Fixes admin-feedback DOM ID reference
-   - Exposes functions to window for legacy calls
+   - FIX: Actually uses correct 'admin-feedback' ID (GPT missed this)
 */
 
 /* ===========================
@@ -61,7 +60,6 @@ let _clusterHoverTimeout = null;
 
 /* ===========================
    WORLD COUNTRIES (fallback list)
-   (used for travel select fallback)
 =========================== */
 const WORLD_COUNTRIES = [
   "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
@@ -151,7 +149,6 @@ DELL_SITES.forEach(s => { ASSETS[s.name.toLowerCase()] = { name: s.name, lat: Nu
 
 /* ===========================
    CITY_COORDS (common cities; extendable)
-   - kept comprehensive (several additional cities).
 =========================== */
 const CITY_COORDS = {
   "london": {lat:51.5074, lng:-0.1278}, "paris": {lat:48.8566, lng:2.3522},
@@ -173,12 +170,10 @@ const CITY_COORDS = {
   "karachi": {lat:24.8607, lng:67.0011}, "istanbul": {lat:41.0082, lng:28.9784},
   "berlin": {lat:52.52, lng:13.405}, "madrid": {lat:40.4168, lng:-3.7038},
   "rome": {lat:41.9028, lng:12.4964}, "toronto": {lat:43.6532, lng:-79.3832}
-  /* extendable */
 };
 
 /* ===========================
    COUNTRY_COORDS (restored full list)
-   (kept full for robust fallback)
 =========================== */
 const COUNTRY_COORDS = {
   "afghanistan": { lat: 33.93911, lng: 67.709953 },
