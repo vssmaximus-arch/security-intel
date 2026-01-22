@@ -1,9 +1,6 @@
-/* app.js - Dell OS | INFOHUB (FINAL FIXED)
-   - Restores full CITY_COORDS & COUNTRY_COORDS
-   - Restores WORLD_COUNTRIES
-   - Restores getRegionByCountry
-   - Fixes dismissAlertById, updateProximityRadius, manualRefresh robustness
-   - Exposes functions to window for legacy calls
+/* app.js - Dell OS | INFOHUB (FIXED & FULL DATA)
+   - Preserves all original Geolocation/Site data
+   - Fixes API calls for Unlock and Voting
 */
 
 /* ===========================
@@ -60,7 +57,6 @@ let _clusterHoverTimeout = null;
 
 /* ===========================
    WORLD COUNTRIES (fallback list)
-   (used for travel select fallback)
 =========================== */
 const WORLD_COUNTRIES = [
   "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
@@ -149,8 +145,7 @@ const ASSETS = {};
 DELL_SITES.forEach(s => { ASSETS[s.name.toLowerCase()] = { name: s.name, lat: Number(s.lat), lng: Number(s.lon), region: s.region, country: s.country }; });
 
 /* ===========================
-   CITY_COORDS (common cities; extendable)
-   - kept comprehensive (several additional cities).
+   CITY_COORDS
 =========================== */
 const CITY_COORDS = {
   "london": {lat:51.5074, lng:-0.1278}, "paris": {lat:48.8566, lng:2.3522},
@@ -172,204 +167,63 @@ const CITY_COORDS = {
   "karachi": {lat:24.8607, lng:67.0011}, "istanbul": {lat:41.0082, lng:28.9784},
   "berlin": {lat:52.52, lng:13.405}, "madrid": {lat:40.4168, lng:-3.7038},
   "rome": {lat:41.9028, lng:12.4964}, "toronto": {lat:43.6532, lng:-79.3832}
-  /* extendable */
 };
 
 /* ===========================
-   COUNTRY_COORDS (restored full list)
-   (kept full for robust fallback)
+   COUNTRY_COORDS
 =========================== */
 const COUNTRY_COORDS = {
-  "afghanistan": { lat: 33.93911, lng: 67.709953 },
-  "albania": { lat: 41.153332, lng: 20.168331 },
-  "algeria": { lat: 28.033886, lng: 1.659626 },
-  "andorra": { lat: 42.506285, lng: 1.521801 },
-  "angola": { lat: -11.202692, lng: 17.873887 },
-  "argentina": { lat: -38.416097, lng: -63.616672 },
-  "armenia": { lat: 40.069099, lng: 45.038189 },
-  "australia": { lat: -25.274398, lng: 133.775136 },
-  "austria": { lat: 47.516231, lng: 14.550072 },
-  "azerbaijan": { lat: 40.143105, lng: 47.576927 },
-  "bahamas": { lat: 25.03428, lng: -77.39628 },
-  "bahrain": { lat: 25.930414, lng: 50.637772 },
-  "bangladesh": { lat: 23.684994, lng: 90.356331 },
-  "barbados": { lat: 13.193887, lng: -59.543198 },
-  "belarus": { lat: 53.709807, lng: 27.953389 },
-  "belgium": { lat: 50.503887, lng: 4.469936 },
-  "belize": { lat: 17.189877, lng: -88.49765 },
-  "benin": { lat: 9.30769, lng: 2.315834 },
-  "bhutan": { lat: 27.514162, lng: 90.433601 },
-  "bolivia": { lat: -16.290154, lng: -63.588653 },
-  "bosnia and herzegovina": { lat: 43.915886, lng: 17.679076 },
-  "botswana": { lat: -22.328474, lng: 24.684866 },
-  "brazil": { lat: -14.235004, lng: -51.92528 },
-  "brunei": { lat: 4.535277, lng: 114.727669 },
-  "bulgaria": { lat: 42.733883, lng: 25.48583 },
-  "burkina faso": { lat: 12.238333, lng: -1.561593 },
-  "burundi": { lat: -3.373056, lng: 29.918886 },
-  "cabo verde": { lat: 16.002082, lng: -24.013197 },
-  "cambodia": { lat: 12.565679, lng: 104.990963 },
-  "cameroon": { lat: 7.369722, lng: 12.354722 },
-  "canada": { lat: 56.130366, lng: -106.346771 },
-  "central african republic": { lat: 6.611111, lng: 20.939444 },
-  "chad": { lat: 15.454166, lng: 18.732207 },
-  "chile": { lat: -35.675147, lng: -71.542969 },
-  "china": { lat: 35.86166, lng: 104.195397 },
-  "colombia": { lat: 4.570868, lng: -74.297333 },
-  "comoros": { lat: -11.875001, lng: 43.872219 },
-  "congo": { lat: -0.228021, lng: 15.827659 },
-  "costa rica": { lat: 9.748917, lng: -83.753428 },
-  "croatia": { lat: 45.1, lng: 15.2 },
-  "cuba": { lat: 21.521757, lng: -77.781167 },
-  "cyprus": { lat: 35.126413, lng: 33.429859 },
-  "czechia": { lat: 49.817492, lng: 15.472962 },
-  "denmark": { lat: 56.26392, lng: 9.501785 },
-  "djibouti": { lat: 11.825138, lng: 42.590275 },
-  "dominica": { lat: 15.414999, lng: -61.370976 },
-  "dominican republic": { lat: 18.735693, lng: -70.162651 },
-  "ecuador": { lat: -1.831239, lng: -78.183406 },
-  "egypt": { lat: 26.820553, lng: 30.802498 },
-  "el salvador": { lat: 13.794185, lng: -88.896533 },
-  "equatorial guinea": { lat: 1.650801, lng: 10.267895 },
-  "eritrea": { lat: 15.179384, lng: 39.782334 },
-  "estonia": { lat: 58.595272, lng: 25.013607 },
-  "eswatini": { lat: -26.522503, lng: 31.465866 },
-  "ethiopia": { lat: 9.145, lng: 40.489673 },
-  "fiji": { lat: -17.713371, lng: 178.065032 },
-  "finland": { lat: 61.92411, lng: 25.748151 },
-  "france": { lat: 46.227638, lng: 2.213749 },
-  "gabon": { lat: -0.803689, lng: 11.609444 },
-  "gambia": { lat: 13.443182, lng: -15.310139 },
-  "georgia": { lat: 42.315407, lng: 43.356892 },
-  "germany": { lat: 51.165691, lng: 10.451526 },
-  "ghana": { lat: 7.946527, lng: -1.023194 },
-  "greece": { lat: 39.074208, lng: 21.824312 },
-  "grenada": { lat: 12.116501, lng: -61.6790 },
-  "guatemala": { lat: 15.783471, lng: -90.230759 },
-  "guinea": { lat: 9.945587, lng: -9.696645 },
-  "guinea-bissau": { lat: 11.803749, lng: -15.180413 },
-  "guyana": { lat: 4.860416, lng: -58.93018 },
-  "haiti": { lat: 18.971187, lng: -72.285215 },
-  "honduras": { lat: 15.199999, lng: -86.241905 },
-  "hungary": { lat: 47.162494, lng: 19.503304 },
-  "iceland": { lat: 64.963051, lng: -19.020835 },
-  "india": { lat: 20.593684, lng: 78.96288 },
-  "indonesia": { lat: -0.789275, lng: 113.921327 },
-  "iran": { lat: 32.427908, lng: 53.688046 },
-  "iraq": { lat: 33.223191, lng: 43.679291 },
-  "ireland": { lat: 53.41291, lng: -8.24389 },
-  "israel": { lat: 31.046051, lng: 34.851612 },
-  "italy": { lat: 41.87194, lng: 12.56738 },
-  "jamaica": { lat: 18.109581, lng: -77.297508 },
-  "japan": { lat: 36.204824, lng: 138.252924 },
-  "jordan": { lat: 30.585164, lng: 36.238414 },
-  "kazakhstan": { lat: 48.019573, lng: 66.923684 },
-  "kenya": { lat: -0.023559, lng: 37.906193 },
-  "kuwait": { lat: 29.31166, lng: 47.481766 },
-  "kyrgyzstan": { lat: 41.20438, lng: 74.766098 },
-  "laos": { lat: 19.85627, lng: 102.495496 },
-  "latvia": { lat: 56.879635, lng: 24.603189 },
-  "lebanon": { lat: 33.854721, lng: 35.862285 },
-  "lesotho": { lat: -29.609988, lng: 28.233608 },
-  "liberia": { lat: 6.428055, lng: -9.429499 },
-  "libya": { lat: 26.3351, lng: 17.228331 },
-  "liechtenstein": { lat: 47.166, lng: 9.555373 },
-  "lithuania": { lat: 55.169438, lng: 23.881275 },
-  "luxembourg": { lat: 49.815273, lng: 6.129583 },
-  "madagascar": { lat: -18.766947, lng: 46.869107 },
-  "malawi": { lat: -13.254308, lng: 34.301525 },
-  "malaysia": { lat: 4.210484, lng: 101.975766 },
-  "maldives": { lat: 3.202778, lng: 73.22068 },
-  "mali": { lat: 17.570692, lng: -3.996166 },
-  "malta": { lat: 35.937496, lng: 14.375416 },
-  "marshall islands": { lat: 7.131474, lng: 171.184478 },
-  "mauritania": { lat: 21.00789, lng: -10.940835 },
-  "mauritius": { lat: -20.348404, lng: 57.552152 },
-  "mexico": { lat: 23.634501, lng: -102.552784 },
-  "micronesia": { lat: 7.425554, lng: 150.550812 },
-  "moldova": { lat: 47.411631, lng: 28.369885 },
-  "monaco": { lat: 43.750298, lng: 7.412841 },
-  "mongolia": { lat: 46.862496, lng: 103.846653 },
-  "montenegro": { lat: 42.708678, lng: 19.37439 },
-  "morocco": { lat: 31.791702, lng: -7.09262 },
-  "mozambique": { lat: -18.665695, lng: 35.529562 },
-  "myanmar": { lat: 21.913965, lng: 95.956223 },
-  "namibia": { lat: -22.95764, lng: 18.49041 },
-  "nauru": { lat: -0.522778, lng: 166.931503 },
-  "nepal": { lat: 28.394857, lng: 84.124008 },
-  "netherlands": { lat: 52.132633, lng: 5.291266 },
-  "new zealand": { lat: -40.900557, lng: 174.885971 },
-  "nicaragua": { lat: 12.865416, lng: -85.207229 },
-  "niger": { lat: 17.607789, lng: 8.081666 },
-  "nigeria": { lat: 9.081999, lng: 8.675277 },
-  "north macedonia": { lat: 41.608635, lng: 21.745273 },
-  "norway": { lat: 60.472024, lng: 8.468946 },
-  "oman": { lat: 21.512583, lng: 55.923255 },
-  "pakistan": { lat: 30.375321, lng: 69.345116 },
-  "palau": { lat: 7.51498, lng: 134.58252 },
-  "panama": { lat: 8.537981, lng: -80.782127 },
-  "papua new guinea": { lat: -6.314993, lng: 143.95555 },
-  "paraguay": { lat: -23.442503, lng: -58.443832 },
-  "peru": { lat: -9.189967, lng: -75.015152 },
-  "philippines": { lat: 12.879721, lng: 121.774017 },
-  "poland": { lat: 51.919438, lng: 19.145136 },
-  "portugal": { lat: 39.399872, lng: -8.224454 },
-  "qatar": { lat: 25.354826, lng: 51.183884 },
-  "romania": { lat: 45.943161, lng: 24.96676 },
-  "russia": { lat: 61.52401, lng: 105.318756 },
-  "rwanda": { lat: -1.940278, lng: 29.873888 },
-  "saint kitts and nevis": { lat: 17.357822, lng: -62.783 },
-  "saint lucia": { lat: 13.909444, lng: -60.978893 },
-  "saint vincent and the grenadines": { lat: 13.252817, lng: -61.197749 },
-  "samoa": { lat: -13.759029, lng: -172.104629 },
-  "san marino": { lat: 43.94236, lng: 12.457777 },
-  "sao tome and principe": { lat: 0.18636, lng: 6.613081 },
-  "saudi arabia": { lat: 23.885942, lng: 45.079162 },
-  "senegal": { lat: 14.497401, lng: -14.452362 },
-  "serbia": { lat: 44.016521, lng: 21.005859 },
-  "seychelles": { lat: -4.679574, lng: 55.491977 },
-  "sierra leone": { lat: 8.460555, lng: -11.779889 },
-  "singapore": { lat: 1.352083, lng: 103.819836 },
-  "slovakia": { lat: 48.669026, lng: 19.699024 },
-  "slovenia": { lat: 46.151241, lng: 14.995463 },
-  "solomon islands": { lat: -9.64571, lng: 160.156194 },
-  "somalia": { lat: 5.152149, lng: 46.199616 },
-  "south africa": { lat: -30.559482, lng: 22.937506 },
-  "south korea": { lat: 35.907757, lng: 127.766922 },
-  "south sudan": { lat: 6.876991, lng: 31.306978 },
-  "spain": { lat: 40.463667, lng: -3.74922 },
-  "sri lanka": { lat: 7.873054, lng: 80.771797 },
-  "sudan": { lat: 12.862807, lng: 30.217636 },
-  "suriname": { lat: 3.919305, lng: -56.027783 },
-  "sweden": { lat: 60.128161, lng: 18.643501 },
-  "switzerland": { lat: 46.818188, lng: 8.227512 },
-  "syria": { lat: 34.802074, lng: 38.996815 },
-  "taiwan": { lat: 23.69781, lng: 120.960515 },
-  "tajikistan": { lat: 38.861034, lng: 71.276093 },
-  "tanzania": { lat: -6.369028, lng: 34.888822 },
-  "thailand": { lat: 15.870032, lng: 100.992541 },
-  "timor-leste": { lat: -8.874217, lng: 125.727539 },
-  "togo": { lat: 8.619543, lng: 0.824782 },
-  "tonga": { lat: -21.178986, lng: -175.198242 },
-  "trinidad and tobago": { lat: 10.691803, lng: -61.222503 },
-  "tunisia": { lat: 33.886917, lng: 9.537499 },
-  "turkey": { lat: 38.963745, lng: 35.243322 },
-  "turkmenistan": { lat: 38.969719, lng: 59.556278 },
-  "tuvalu": { lat: -7.109535, lng: 177.64933 },
-  "uganda": { lat: 1.373333, lng: 32.290275 },
-  "ukraine": { lat: 48.379433, lng: 31.16558 },
-  "united arab emirates": { lat: 23.424076, lng: 53.847818 },
-  "united kingdom": { lat: 55.378051, lng: -3.435973 },
-  "united states": { lat: 37.09024, lng: -95.712891 },
-  "uruguay": { lat: -32.522779, lng: -55.765835 },
-  "uzbekistan": { lat: 41.377491, lng: 64.585262 },
-  "vanuatu": { lat: -15.376706, lng: 166.959158 },
-  "vatican city": { lat: 41.902916, lng: 12.453389 },
-  "venezuela": { lat: 6.42375, lng: -66.58973 },
-  "vietnam": { lat: 14.058324, lng: 108.277199 },
-  "yemen": { lat: 15.552727, lng: 48.516388 },
-  "zambia": { lat: -13.133897, lng: 27.849332 },
-  "zimbabwe": { lat: -19.015438, lng: 29.154857 }
+  "afghanistan": { lat: 33.93911, lng: 67.709953 }, "albania": { lat: 41.153332, lng: 20.168331 }, "algeria": { lat: 28.033886, lng: 1.659626 }, "andorra": { lat: 42.506285, lng: 1.521801 },
+  "angola": { lat: -11.202692, lng: 17.873887 }, "argentina": { lat: -38.416097, lng: -63.616672 }, "armenia": { lat: 40.069099, lng: 45.038189 }, "australia": { lat: -25.274398, lng: 133.775136 },
+  "austria": { lat: 47.516231, lng: 14.550072 }, "azerbaijan": { lat: 40.143105, lng: 47.576927 }, "bahamas": { lat: 25.03428, lng: -77.39628 }, "bahrain": { lat: 25.930414, lng: 50.637772 },
+  "bangladesh": { lat: 23.684994, lng: 90.356331 }, "barbados": { lat: 13.193887, lng: -59.543198 }, "belarus": { lat: 53.709807, lng: 27.953389 }, "belgium": { lat: 50.503887, lng: 4.469936 },
+  "belize": { lat: 17.189877, lng: -88.49765 }, "benin": { lat: 9.30769, lng: 2.315834 }, "bhutan": { lat: 27.514162, lng: 90.433601 }, "bolivia": { lat: -16.290154, lng: -63.588653 },
+  "bosnia and herzegovina": { lat: 43.915886, lng: 17.679076 }, "botswana": { lat: -22.328474, lng: 24.684866 }, "brazil": { lat: -14.235004, lng: -51.92528 }, "brunei": { lat: 4.535277, lng: 114.727669 },
+  "bulgaria": { lat: 42.733883, lng: 25.48583 }, "burkina faso": { lat: 12.238333, lng: -1.561593 }, "burundi": { lat: -3.373056, lng: 29.918886 }, "cabo verde": { lat: 16.002082, lng: -24.013197 },
+  "cambodia": { lat: 12.565679, lng: 104.990963 }, "cameroon": { lat: 7.369722, lng: 12.354722 }, "canada": { lat: 56.130366, lng: -106.346771 }, "central african republic": { lat: 6.611111, lng: 20.939444 },
+  "chad": { lat: 15.454166, lng: 18.732207 }, "chile": { lat: -35.675147, lng: -71.542969 }, "china": { lat: 35.86166, lng: 104.195397 }, "colombia": { lat: 4.570868, lng: -74.297333 },
+  "comoros": { lat: -11.875001, lng: 43.872219 }, "congo": { lat: -0.228021, lng: 15.827659 }, "costa rica": { lat: 9.748917, lng: -83.753428 }, "croatia": { lat: 45.1, lng: 15.2 },
+  "cuba": { lat: 21.521757, lng: -77.781167 }, "cyprus": { lat: 35.126413, lng: 33.429859 }, "czechia": { lat: 49.817492, lng: 15.472962 }, "denmark": { lat: 56.26392, lng: 9.501785 },
+  "djibouti": { lat: 11.825138, lng: 42.590275 }, "dominica": { lat: 15.414999, lng: -61.370976 }, "dominican republic": { lat: 18.735693, lng: -70.162651 }, "ecuador": { lat: -1.831239, lng: -78.183406 },
+  "egypt": { lat: 26.820553, lng: 30.802498 }, "el salvador": { lat: 13.794185, lng: -88.896533 }, "equatorial guinea": { lat: 1.650801, lng: 10.267895 }, "eritrea": { lat: 15.179384, lng: 39.782334 },
+  "estonia": { lat: 58.595272, lng: 25.013607 }, "eswatini": { lat: -26.522503, lng: 31.465866 }, "ethiopia": { lat: 9.145, lng: 40.489673 }, "fiji": { lat: -17.713371, lng: 178.065032 },
+  "finland": { lat: 61.92411, lng: 25.748151 }, "france": { lat: 46.227638, lng: 2.213749 }, "gabon": { lat: -0.803689, lng: 11.609444 }, "gambia": { lat: 13.443182, lng: -15.310139 },
+  "georgia": { lat: 42.315407, lng: 43.356892 }, "germany": { lat: 51.165691, lng: 10.451526 }, "ghana": { lat: 7.946527, lng: -1.023194 }, "greece": { lat: 39.074208, lng: 21.824312 },
+  "grenada": { lat: 12.116501, lng: -61.6790 }, "guatemala": { lat: 15.783471, lng: -90.230759 }, "guinea": { lat: 9.945587, lng: -9.696645 }, "guinea-bissau": { lat: 11.803749, lng: -15.180413 },
+  "guyana": { lat: 4.860416, lng: -58.93018 }, "haiti": { lat: 18.971187, lng: -72.285215 }, "honduras": { lat: 15.199999, lng: -86.241905 }, "hungary": { lat: 47.162494, lng: 19.503304 },
+  "iceland": { lat: 64.963051, lng: -19.020835 }, "india": { lat: 20.593684, lng: 78.96288 }, "indonesia": { lat: -0.789275, lng: 113.921327 }, "iran": { lat: 32.427908, lng: 53.688046 },
+  "iraq": { lat: 33.223191, lng: 43.679291 }, "ireland": { lat: 53.41291, lng: -8.24389 }, "israel": { lat: 31.046051, lng: 34.851612 }, "italy": { lat: 41.87194, lng: 12.56738 },
+  "jamaica": { lat: 18.109581, lng: -77.297508 }, "japan": { lat: 36.204824, lng: 138.252924 }, "jordan": { lat: 30.585164, lng: 36.238414 }, "kazakhstan": { lat: 48.019573, lng: 66.923684 },
+  "kenya": { lat: -0.023559, lng: 37.906193 }, "kuwait": { lat: 29.31166, lng: 47.481766 }, "kyrgyzstan": { lat: 41.20438, lng: 74.766098 }, "laos": { lat: 19.85627, lng: 102.495496 },
+  "latvia": { lat: 56.879635, lng: 24.603189 }, "lebanon": { lat: 33.854721, lng: 35.862285 }, "lesotho": { lat: -29.609988, lng: 28.233608 }, "liberia": { lat: 6.428055, lng: -9.429499 },
+  "libya": { lat: 26.3351, lng: 17.228331 }, "liechtenstein": { lat: 47.166, lng: 9.555373 }, "lithuania": { lat: 55.169438, lng: 23.881275 }, "luxembourg": { lat: 49.815273, lng: 6.129583 },
+  "madagascar": { lat: -18.766947, lng: 46.869107 }, "malawi": { lat: -13.254308, lng: 34.301525 }, "malaysia": { lat: 4.210484, lng: 101.975766 }, "maldives": { lat: 3.202778, lng: 73.22068 },
+  "mali": { lat: 17.570692, lng: -3.996166 }, "malta": { lat: 35.937496, lng: 14.375416 }, "marshall islands": { lat: 7.131474, lng: 171.184478 }, "mauritania": { lat: 21.00789, lng: -10.940835 },
+  "mauritius": { lat: -20.348404, lng: 57.552152 }, "mexico": { lat: 23.634501, lng: -102.552784 }, "micronesia": { lat: 7.425554, lng: 150.550812 }, "moldova": { lat: 47.411631, lng: 28.369885 },
+  "monaco": { lat: 43.750298, lng: 7.412841 }, "mongolia": { lat: 46.862496, lng: 103.846653 }, "montenegro": { lat: 42.708678, lng: 19.37439 }, "morocco": { lat: 31.791702, lng: -7.09262 },
+  "mozambique": { lat: -18.665695, lng: 35.529562 }, "myanmar": { lat: 21.913965, lng: 95.956223 }, "namibia": { lat: -22.95764, lng: 18.49041 }, "nauru": { lat: -0.522778, lng: 166.931503 },
+  "nepal": { lat: 28.394857, lng: 84.124008 }, "netherlands": { lat: 52.132633, lng: 5.291266 }, "new zealand": { lat: -40.900557, lng: 174.885971 }, "nicaragua": { lat: 12.865416, lng: -85.207229 },
+  "niger": { lat: 17.607789, lng: 8.081666 }, "nigeria": { lat: 9.081999, lng: 8.675277 }, "north macedonia": { lat: 41.608635, lng: 21.745273 }, "norway": { lat: 60.472024, lng: 8.468946 },
+  "oman": { lat: 21.512583, lng: 55.923255 }, "pakistan": { lat: 30.375321, lng: 69.345116 }, "palau": { lat: 7.51498, lng: 134.58252 }, "panama": { lat: 8.537981, lng: -80.782127 },
+  "papua new guinea": { lat: -6.314993, lng: 143.95555 }, "paraguay": { lat: -23.442503, lng: -58.443832 }, "peru": { lat: -9.189967, lng: -75.015152 }, "philippines": { lat: 12.879721, lng: 121.774017 },
+  "poland": { lat: 51.919438, lng: 19.145136 }, "portugal": { lat: 39.399872, lng: -8.224454 }, "qatar": { lat: 25.354826, lng: 51.183884 }, "romania": { lat: 45.943161, lng: 24.96676 },
+  "russia": { lat: 61.52401, lng: 105.318756 }, "rwanda": { lat: -1.940278, lng: 29.873888 }, "saint kitts and nevis": { lat: 17.357822, lng: -62.783 }, "saint lucia": { lat: 13.909444, lng: -60.978893 },
+  "saint vincent and the grenadines": { lat: 13.252817, lng: -61.197749 }, "samoa": { lat: -13.759029, lng: -172.104629 }, "san marino": { lat: 43.94236, lng: 12.457777 }, "sao tome and principe": { lat: 0.18636, lng: 6.613081 },
+  "saudi arabia": { lat: 23.885942, lng: 45.079162 }, "senegal": { lat: 14.497401, lng: -14.452362 }, "serbia": { lat: 44.016521, lng: 21.005859 }, "seychelles": { lat: -4.679574, lng: 55.491977 },
+  "sierra leone": { lat: 8.460555, lng: -11.779889 }, "singapore": { lat: 1.352083, lng: 103.819836 }, "slovakia": { lat: 48.669026, lng: 19.699024 }, "slovenia": { lat: 46.151241, lng: 14.995463 },
+  "solomon islands": { lat: -9.64571, lng: 160.156194 }, "somalia": { lat: 5.152149, lng: 46.199616 }, "south africa": { lat: -30.559482, lng: 22.937506 }, "south korea": { lat: 35.907757, lng: 127.766922 },
+  "south sudan": { lat: 6.876991, lng: 31.306978 }, "spain": { lat: 40.463667, lng: -3.74922 }, "sri lanka": { lat: 7.873054, lng: 80.771797 }, "sudan": { lat: 12.862807, lng: 30.217636 },
+  "suriname": { lat: 3.919305, lng: -56.027783 }, "sweden": { lat: 60.128161, lng: 18.643501 }, "switzerland": { lat: 46.818188, lng: 8.227512 }, "syria": { lat: 34.802074, lng: 38.996815 },
+  "taiwan": { lat: 23.69781, lng: 120.960515 }, "tajikistan": { lat: 38.861034, lng: 71.276093 }, "tanzania": { lat: -6.369028, lng: 34.888822 }, "thailand": { lat: 15.870032, lng: 100.992541 },
+  "timor-leste": { lat: -8.874217, lng: 125.727539 }, "togo": { lat: 8.619543, lng: 0.824782 }, "tonga": { lat: -21.178986, lng: -175.198242 }, "trinidad and tobago": { lat: 10.691803, lng: -61.222503 },
+  "tunisia": { lat: 33.886917, lng: 9.537499 }, "turkey": { lat: 38.963745, lng: 35.243322 }, "turkmenistan": { lat: 38.969719, lng: 59.556278 }, "tuvalu": { lat: -7.109535, lng: 177.64933 },
+  "uganda": { lat: 1.373333, lng: 32.290275 }, "ukraine": { lat: 48.379433, lng: 31.16558 }, "united arab emirates": { lat: 23.424076, lng: 53.847818 }, "united kingdom": { lat: 55.378051, lng: -3.435973 },
+  "united states": { lat: 37.09024, lng: -95.712891 }, "uruguay": { lat: -32.522779, lng: -55.765835 }, "uzbekistan": { lat: 41.377491, lng: 64.585262 }, "vanuatu": { lat: -15.376706, lng: 166.959158 },
+  "vatican city": { lat: 41.902916, lng: 12.453389 }, "venezuela": { lat: 6.42375, lng: -66.58973 }, "vietnam": { lat: 14.058324, lng: 108.277199 }, "yemen": { lat: 15.552727, lng: 48.516388 },
+  "zambia": { lat: -13.133897, lng: 27.849332 }, "zimbabwe": { lat: -19.015438, lng: 29.154857 },
+  // shortcodes
+  "usa": { lat: 37.09024, lng: -95.712891 }, "us": { lat: 37.09024, lng: -95.712891 }, "uk": { lat: 55.378051, lng: -3.435973 }, "uae": { lat: 23.424076, lng: 53.847818 },
+  "south korea": { lat: 35.907757, lng: 127.766922 }
 };
 
 /* ===========================
@@ -402,7 +256,6 @@ const COUNTRY_TO_REGION = (function(){
   ['cn','china','jp','japan','kr','korea','in','india','sg','singapore','au','australia','nz','new zealand','my','malaysia','id','indonesia','ph','philippines','th','thailand','vn','vietnam'].forEach(k => m[k] = 'APJC');
   return m;
 })();
-
 function normalizeRegion(raw){
   if (!raw) return 'Global';
   const s = String(raw).trim().toUpperCase();
@@ -414,36 +267,21 @@ function normalizeRegion(raw){
   return s;
 }
 
-/* ===== RESTORED: getRegionByCountry =====
-   Robust inference by country name or code.
-*/
 function getRegionByCountry(c) {
   if (!c) return null;
   const lower = String(c).toLowerCase().trim();
   if (!lower) return null;
-
-  // direct match
   if (COUNTRY_TO_REGION[lower]) return COUNTRY_TO_REGION[lower];
-
-  // two-letter code fallback (US, IN, CN, etc.)
   const two = lower.length === 2 ? lower : lower.slice(0,2);
   if (COUNTRY_TO_REGION[two]) return COUNTRY_TO_REGION[two];
-
-  // scan keys for substrings (handles "united states of america", "u.s.", etc.)
-  for (const k of Object.keys(COUNTRY_TO_REGION)) {
-    if (lower.includes(k)) return COUNTRY_TO_REGION[k];
-  }
-
-  // try country coords names
+  for (const k of Object.keys(COUNTRY_TO_REGION)) { if (lower.includes(k)) return COUNTRY_TO_REGION[k]; }
   const cut = lower.split(',')[0].trim();
   if (COUNTRY_COORDS[cut]) {
-    // heuristics for region mapping
     if (['china','japan','india','australia','singapore','south korea','new zealand','indonesia','philippines','thailand','vietnam','malaysia'].includes(cut)) return 'APJC';
     if (['brazil','argentina','colombia','peru','chile'].includes(cut)) return 'LATAM';
     if (['united states','canada','mexico'].includes(cut)) return 'AMER';
     return 'EMEA';
   }
-
   return null;
 }
 
@@ -466,7 +304,6 @@ function normaliseWorkerIncident(item) {
 
     let lat = parseCoord(item.lat);
     let lng = parseCoord(item.lng !== undefined ? item.lng : item.lon);
-
     if (!Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001)) {
       const locRaw = String(item.location || item.city || item.country || '').toLowerCase();
       if (locRaw) {
@@ -478,9 +315,7 @@ function normaliseWorkerIncident(item) {
         } else {
           for (const s of DELL_SITES) {
             const sname = s.name.toLowerCase();
-            if (sname.includes(key) || key.includes(sname)) {
-              lat = Number(s.lat); lng = Number(s.lon); break;
-            }
+            if (sname.includes(key) || key.includes(sname)) { lat = Number(s.lat); lng = Number(s.lon); break; }
           }
         }
       }
@@ -500,11 +335,9 @@ function normaliseWorkerIncident(item) {
       if (inferred) regionCanonical = inferred;
     }
     if ((!regionCanonical || regionCanonical === 'Global') && (Number.isFinite(lat) && Number.isFinite(lng))) {
-      // rough longitudinal heuristic for APJC
       if (lng >= 60 && lng <= 160) regionCanonical = 'APJC';
     }
     if (!regionCanonical || regionCanonical === '') regionCanonical = 'Global';
-
     return {
       id: generateId(item),
       title,
@@ -556,14 +389,12 @@ async function loadFromWorker(silent=false) {
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
     const cutoffMs = Date.now() - (48 * 3600 * 1000);
-
     INCIDENTS = list
       .map(normaliseWorkerIncident)
       .filter(Boolean)
       .filter(i => {
         try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
       });
-
     INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
     FEED_IS_LIVE = true;
     if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
@@ -621,7 +452,6 @@ function initMap() {
   const southWest = L.latLng(-85, -179.999);
   const northEast = L.latLng(85, 179.999);
   const bounds = L.latLngBounds(southWest, northEast);
-
   map = L.map("map", {
     scrollWheelZoom: false,
     zoomControl: false,
@@ -632,7 +462,6 @@ function initMap() {
     maxBoundsViscosity: 1.0,
     worldCopyJump: false
   }).setView([20, 0], 2);
-
   L.control.zoom({ position: "topleft" }).addTo(map);
 
   const esriLayer = L.tileLayer(
@@ -643,7 +472,6 @@ function initMap() {
     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
     { subdomains: "abcd", maxZoom: 19, noWrap: true, bounds: bounds, attribution: '&copy; OpenStreetMap &copy; CARTO', keepBuffer: 2 }
   );
-
   let esriErrors = 0;
   const ERROR_THRESHOLD = 12;
   esriLayer.on('tileerror', () => {
@@ -654,7 +482,6 @@ function initMap() {
       console.warn('Switched to CartoDB basemap due to Esri errors.');
     }
   });
-
   esriLayer.addTo(map);
 
   assetsClusterGroup = L.layerGroup();
@@ -678,7 +505,6 @@ function initMap() {
       return L.divIcon({ html, className: '', iconSize: [40,40], iconAnchor: [20,20] });
     }
   });
-
   incidentClusterGroup.on('clustermouseover', (e) => {
     clearTimeout(_clusterHoverTimeout);
     _clusterHoverTimeout = setTimeout(() => {
@@ -694,12 +520,10 @@ function initMap() {
         .openOn(map);
     }, 80);
   });
-
   incidentClusterGroup.on('clustermouseout', (e) => {
     clearTimeout(_clusterHoverTimeout);
     map.closePopup();
   });
-
   incidentClusterGroup.on('clusterclick', (e) => {
     if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
     map.closePopup();
@@ -714,7 +538,8 @@ function initMap() {
    DEBUG OVERLAY
 =========================== */
 function createAssetsDebugOverlay(){ let d = document.getElementById('assets-debug'); if(!d){ d = document.createElement('div'); d.id = 'assets-debug'; d.className = 'assets-debug'; d.setAttribute('role','status'); d.setAttribute('aria-live','polite'); d.style.display = 'none'; document.body.appendChild(d); } return d; }
-function updateAssetsDebugOverlay(info){ if (!DEBUG_UI) return; try{ const d = createAssetsDebugOverlay(); d.style.display = 'block'; d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div><div><strong>DELL_SITES:</strong> ${info.dellSites}</div><div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div><div><strong>assets.length:</strong> ${info.assetsLen}</div><div><strong>filtered:</strong> ${info.filteredLen}</div><div style="margin-top:6px;font-weight:700">Sample entries</div><pre>${info.sample}</pre>`; }catch(e){ console.log('updateAssetsDebugOverlay error', e); } }
+function updateAssetsDebugOverlay(info){ if (!DEBUG_UI) return;
+  try{ const d = createAssetsDebugOverlay(); d.style.display = 'block'; d.innerHTML = `<div style="font-weight:700;margin-bottom:6px;">Map asset diagnostics</div><div><strong>DELL_SITES:</strong> ${info.dellSites}</div><div><strong>ASSETS keys:</strong> ${info.assetsKeys}</div><div><strong>assets.length:</strong> ${info.assetsLen}</div><div><strong>filtered:</strong> ${info.filteredLen}</div><div style="margin-top:6px;font-weight:700">Sample entries</div><pre>${info.sample}</pre>`; }catch(e){ console.log('updateAssetsDebugOverlay error', e); } }
 
 /* ===========================
    RENDERERS
@@ -722,10 +547,8 @@ function updateAssetsDebugOverlay(info){ if (!DEBUG_UI) return; try{ const d = c
 function renderAssetsOnMap(region) {
   if (!assetsClusterGroup || !map) return;
   assetsClusterGroup.clearLayers();
-
   const assets = Object.values(ASSETS);
   const filtered = (region === "Global") ? assets : assets.filter(a => a.region === region);
-
   const sampleText = filtered.slice(0, 8).map(a => `${a.name} -> lat:${String(a.lat)} lng:${String(a.lng)} region:${a.region}`).join('\n');
   updateAssetsDebugOverlay({
     dellSites: DELL_SITES.length,
@@ -734,7 +557,6 @@ function renderAssetsOnMap(region) {
     filteredLen: filtered.length,
     sample: sampleText || '(no entries)'
   });
-
   filtered.forEach(a => {
     try {
       const m = L.marker([Number(a.lat), Number(a.lng)], {
@@ -755,9 +577,7 @@ function renderIncidentsOnMap(region, list) {
   if (!incidentClusterGroup || !criticalLayerGroup || !map) return;
   incidentClusterGroup.clearLayers();
   criticalLayerGroup.clearLayers();
-
   const data = (region === "Global") ? list : list.filter(i => i.region === region);
-
   const proxIds = new Set(PROXIMITY_INCIDENTS.map(i => String(i.id)));
 
   data.forEach(i => {
@@ -784,7 +604,6 @@ function renderIncidentsOnMap(region, list) {
           iconAnchor: [8,8]
         })
       }).bindPopup(`<b>${escapeHtml(i.title)}</b><br>${escapeHtml(safeTime(i.time))}<br/><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener noreferrer">Source</a>`);
-
       if (sev >= 4) criticalLayerGroup.addLayer(marker);
       else incidentClusterGroup.addLayer(marker);
     } catch(e) {}
@@ -863,7 +682,6 @@ function updateProximityRadius() {
   const active = document.querySelector('.nav-item-custom.active');
   const region = active ? active.textContent.trim() : "Global";
   renderProximityAlerts(region);
-  // re-render map to reflect radius change
   renderIncidentsOnMap(region, INCIDENTS);
 }
 
@@ -907,7 +725,6 @@ function renderProximityAlerts(region) {
       if (inc.country_wide || nearest.dist <= currentRadius) alerts.push({ inc, nearest, key });
     } catch(e){}
   });
-
   alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
   if (!alerts.length) {
     container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
@@ -1101,49 +918,42 @@ function removeLocalVote(id) {
   } catch(e){}
 }
 
+/* FIXED: sendVoteToServer with public/admin split */
 async function sendVoteToServer(payload) {
   if (!payload || !payload.id) return { ok:false, err:'invalid' };
-  const tryEndpoints = [
-    `${WORKER_URL}/api/thumb/public`,
-    `${WORKER_URL}/api/thumb`
-  ];
-
-  for (let i = 0; i < tryEndpoints.length; i++) {
-    const url = tryEndpoints[i];
-    try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (i === 1 && adminGetSecret()) headers.secret = adminGetSecret();
-      const res = await fetch(url, {
+  
+  // 1. Try Public Endpoint
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumb/public`, {
         method: 'POST',
-        headers,
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })
-      });
-      if (res.ok) {
-        return { ok:true, status: res.status };
-      } else {
-        if (res.status === 403 && ADMIN_SECRET) {
-          try {
-            const res2 = await fetch(`${WORKER_URL}/api/thumb`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'secret': ADMIN_SECRET },
-              body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })
-            });
-            if (res2.ok) return { ok:true, status: res2.status };
-            else return { ok:false, status: res2.status, text: (await res2.text().catch(()=>'')) };
-          } catch(e2) { return { ok:false, err:e2 }; }
-        }
-        const txt = await res.text().catch(()=>'');
-        return { ok:false, status: res.status, text: txt };
-      }
-    } catch (e) {
-      if (i === tryEndpoints.length - 1) {
-        return { ok:false, err:e };
-      } else {
-        continue;
-      }
+    });
+    if (res.ok) return { ok:true, status: res.status };
+    
+    // If public fails (e.g. 403), we might try admin if we have secret
+    if (res.status !== 403) {
+         const txt = await res.text().catch(()=>'');
+         return { ok:false, status: res.status, text: txt };
     }
+  } catch(e) { /* ignore network error on public, try admin */ }
+
+  // 2. Try Admin Endpoint (if secret exists)
+  const sec = adminGetSecret();
+  if (sec) {
+    try {
+        const res = await fetch(`${WORKER_URL}/api/thumb`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'secret': sec},
+            body: JSON.stringify({ id: payload.id, action: payload.vote, ts: payload.ts || new Date().toISOString() }) // use 'action', not 'vote'
+        });
+        const txt = await res.text().catch(()=>'');
+        if (res.ok) return { ok:true, status: res.status };
+        return { ok:false, status: res.status, text: txt };
+    } catch(e) { return { ok:false, err: e }; }
   }
-  return { ok:false, err:'no-endpoints' };
+  
+  return { ok: false, err: 'public failed and no admin secret' };
 }
 
 async function enqueueVote(payload) {
@@ -1176,9 +986,7 @@ async function flushVoteQueue() {
 async function voteThumb(id, vote) {
   if (!id || !vote) return;
   markVoteAcceptedLocally(id, vote);
-
   const payload = { id: String(id), vote: vote, ts: new Date().toISOString() };
-
   try {
     const res = await sendVoteToServer(payload);
     if (res.ok) {
@@ -1209,7 +1017,7 @@ function adminGetSecret() {
 }
 
 function adminSetFeedback(msg, isError=false) {
-  const fb = document.getElementById('adminFeedback');
+  const fb = document.getElementById('adminFeedback') || document.getElementById('admin-feedback');
   if (!fb) return;
   fb.style.display = 'block';
   fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
@@ -1250,16 +1058,47 @@ async function adminTriggerIngest() {
   } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
 }
 
+/* FIXED: adminUnlock calls /api/unlock */
 async function adminUnlock() {
   const sec = adminGetSecret();
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Requesting unblock…');
+  adminSetFeedback('Requesting unlock of ingestion/travel locks…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, { method:'POST', headers: { 'Content-Type':'application/json', 'secret': sec }, body: JSON.stringify({ unblock: true }) });
+    const res = await fetch(`${WORKER_URL}/api/unlock`, {
+      method: 'POST',
+      headers: { 'secret': sec }
+    });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) {
+      adminSetFeedback(`Unlock failed (HTTP ${res.status}). ${txt}`.trim(), true);
+      return;
+    }
+    adminSetFeedback(txt || 'Unlock successful.');
+  } catch (e) {
+    adminSetFeedback('Unlock failed (network).', true);
+    console.error('adminUnlock error', e);
+  }
+}
+
+/* ADDED: adminUnblockItem helper */
+async function adminUnblockItem(id) {
+  const sec = adminGetSecret();
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  if (!id) { adminSetFeedback('Missing id to unblock.', true); return; }
+  adminSetFeedback('Unblocking item...');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/thumb/unblock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'secret': sec },
+      body: JSON.stringify({ id: String(id) })
+    });
     const txt = await res.text().catch(()=>'');
     if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-    adminSetFeedback(txt || 'Unblock requested.');
-  } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
+    adminSetFeedback(txt || 'Item unblocked.');
+  } catch (e) {
+    adminSetFeedback('Unblock failed (network).', true);
+    console.error('adminUnblockItem error', e);
+  }
 }
 
 async function adminThumbsStatus() {
@@ -1397,7 +1236,6 @@ async function manualRefresh() {
       loadProximityFromWorker(false),
       loadTravelAdvisories()
     ]);
-
     const active = document.querySelector('.nav-item-custom.active');
     const region = active ? active.textContent.trim() : "Global";
     filterNews(region);
@@ -1425,7 +1263,6 @@ function startClock() {
     { label: "Tokyo", z: "Asia/Tokyo" },
     { label: "Sydney", z: "Australia/Sydney" }
   ];
-
   if (container && !container.innerHTML) {
     container.innerHTML = zones.map(z => `
       <div class="clock-box">
@@ -1528,7 +1365,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
       if (action === 'admin-list-briefs') { adminListBriefs(); return; }
     });
-
     // clicking on feed-card opens link (except when clicking inner buttons/links)
     document.addEventListener('click', (e) => {
       const card = e.target.closest('.feed-card[data-link]');
@@ -1539,11 +1375,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!href) return;
       try { window.open(href, '_blank', 'noopener'); } catch(e) {}
     });
-
     // inputs wiring
     const historyPicker = document.getElementById('history-picker');
     if (historyPicker) historyPicker.addEventListener('change', (ev) => loadHistory(ev.target.value));
-    const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
+    const countrySel = document.getElementById('countrySelect');
+    if (countrySel) countrySel.addEventListener('change', filterTravel);
     const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
 
     // initial load
@@ -1554,7 +1390,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // apply stored votes UI
     Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
-
     // schedule auto refresh
     setInterval(async () => {
       if (FEED_IS_LIVE) {
@@ -1564,7 +1399,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         filterNews(active ? active.textContent.trim() : 'Global');
       }
     }, AUTO_REFRESH_MS);
-
     // try flush queue on load
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
   } catch(e) {
@@ -1587,4 +1421,3 @@ window.dismissAlertById = dismissAlertById;
 window.manualRefresh = manualRefresh;
 window.filterNews = filterNews;
 window.adminGetSecret = adminGetSecret;
-
