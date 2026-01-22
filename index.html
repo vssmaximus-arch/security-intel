@@ -465,8 +465,9 @@
 
   window.onerror = function(msg, url, line, col, error) {
     console.error("Global Error Caught:", { msg, url, line, col, error });
+    showToast(`Error: ${String(msg||'')}`, true);
   };
-  window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled promise rejection:', ev.reason); });
+  window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled promise rejection:', ev.reason); showToast('Unhandled rejection: see console', true); });
 
   const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
   let _clusterHoverTimeout = null;
@@ -1035,41 +1036,45 @@
   }
 
   function renderGeneralFeed(region) {
-    const container = document.getElementById("general-news-feed");
-    if (!container) return;
-    const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-    if (!data || data.length === 0) { container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`; return; }
-    let html = '';
-    data.forEach(i => {
-      const sev = mapSeverityToLabel(i.severity);
-      const id = generateId(i);
-      const localVote = VOTES_LOCAL[id] || null;
-      html += `
-        <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
-          <div class="feed-status-bar ${sev.barClass}"></div>
-          <div class="feed-content">
-            <div class="feed-tags">
-              <span class="ftag ${sev.badgeClass}">${escapeHtml(sev.label)}</span>
-              <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
-              <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
-              <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
-            </div>
-            <div class="feed-title"><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">${escapeHtml(i.title)}</a></div>
-            <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
-            <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
-            <div class="vote-row" aria-label="Vote buttons">
-              <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
-                <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-              </button>
-              <button type="button" class="btn-vote ${localVote === 'down' ? 'voted-down' : ''}" data-action="vote" data-vote="down" data-id="${escapeAttr(id)}" aria-label="Vote down" title="Not relevant">
-                <i class="fas fa-thumbs-down" aria-hidden="true"></i>
-              </button>
+    try {
+      const container = document.getElementById("general-news-feed");
+      if (!container) return;
+      const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+      if (!data || data.length === 0) { container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`; return; }
+      let html = '';
+      data.forEach(i => {
+        const sev = mapSeverityToLabel(i.severity);
+        const id = generateId(i);
+        const localVote = VOTES_LOCAL[id] || null;
+        html += `
+          <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
+            <div class="feed-status-bar ${sev.barClass}"></div>
+            <div class="feed-content">
+              <div class="feed-tags">
+                <span class="ftag ${sev.badgeClass}">${escapeHtml(sev.label)}</span>
+                <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
+                <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
+                <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
+              </div>
+              <div class="feed-title"><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">${escapeHtml(i.title)}</a></div>
+              <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
+              <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
+              <div class="vote-row" aria-label="Vote buttons">
+                <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
+                  <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn-vote ${localVote === 'down' ? 'voted-down' : ''}" data-action="vote" data-vote="down" data-id="${escapeAttr(id)}" aria-label="Vote down" title="Not relevant">
+                  <i class="fas fa-thumbs-down" aria-hidden="true"></i>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    });
-    container.innerHTML = html;
+        `;
+      });
+      container.innerHTML = html;
+    } catch (e) {
+      console.error('renderGeneralFeed error', e);
+    }
   }
 
   function updateProximityRadius() {
@@ -1141,8 +1146,8 @@
         TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
       }
     } catch(e) { console.warn('worker traveladvisories/live failed', e); }
-    // FIX: Use original capitalization for option values to match likely backend expectations.
-    sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+    // Use lowercase values previously — worker normalizes inputs. Keep human label capitalized.
+    sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c.toLowerCase())}">${escapeHtml(c)}</option>`).join('');
   }
 
   function getTravelNewsForCountry(country, limit=5) {
@@ -1453,6 +1458,8 @@
         // If no server data, do not clear existing incidents; mark not live
         FEED_IS_LIVE = false;
         const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Offline';
+        showToast('Live incidents unavailable (server)', true);
+        console.warn('loadFromWorker: non-ok response', res && res.status);
         return;
       }
       const data = await res.json().catch(()=>null);
@@ -1460,23 +1467,31 @@
       if (Array.isArray(data)) arr = data;
       else if (data && Array.isArray(data.incidents)) arr = data.incidents;
       else if (data && Array.isArray(data.items)) arr = data.items;
+
       // normalize
       INCIDENTS = (arr.map(normaliseWorkerIncident).filter(Boolean)).sort((a,b) => new Date(b.time) - new Date(a.time));
 
-      // FIX: Ensure we only keep the most recent 48 hours of incidents in the client
+      // Ensure we only keep the most recent 48 hours of incidents in the client (defensive)
       try {
         const cutoff = Date.now() - (48 * 60 * 60 * 1000); // 48 hours ago
+        const before = INCIDENTS.length;
         INCIDENTS = INCIDENTS.filter(i => {
           try { const t = new Date(i.time).getTime(); return Number.isFinite(t) ? t >= cutoff : false; } catch(e) { return false; }
         });
+        if (DEBUG_UI) console.debug(`loadFromWorker: filtered ${before - INCIDENTS.length} incidents older than 48h`);
       } catch(e) { console.warn('48h filter failed', e); }
 
       FEED_IS_LIVE = true;
       const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Live';
+
+      // Diagnostic feedback
+      console.info('loadFromWorker: loaded', INCIDENTS.length, 'incidents (normalized).');
+      if (!INCIDENTS.length) showToast('No live incidents returned', true);
     } catch (e) {
       console.error('loadFromWorker error', e);
       FEED_IS_LIVE = false;
       const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Offline';
+      showToast('Failed to load live incidents', true);
     }
   }
 
@@ -1487,6 +1502,7 @@
       const res = await fetchWithTimeout(url, {}, 12000);
       if (!res || !res.ok) {
         // fallback: empty list but keep existing
+        console.warn('loadProximityFromWorker: non-ok response', res && res.status);
         return;
       }
       const data = await res.json().catch(()=>null);
@@ -1495,8 +1511,10 @@
       else if (data && Array.isArray(data.incidents)) arr = data.incidents;
       PROXIMITY_INCIDENTS = (arr.map(normaliseWorkerIncident).filter(Boolean));
       PROXIMITY_IDS = new Set(PROXIMITY_INCIDENTS.map(i => String(generateId(i))));
+      console.info('loadProximityFromWorker: loaded', PROXIMITY_INCIDENTS.length, 'proximity incidents.');
     } catch (e) {
       console.error('loadProximityFromWorker error', e);
+      showToast('Failed to load proximity incidents', true);
     }
   }
 
@@ -1532,6 +1550,7 @@
         filterNews("Global");
         if (statusEl) statusEl.textContent = `Loaded history for ${dateIso}.`;
         showToast(`History loaded for ${dateIso}`);
+        console.info('loadHistory: loaded', INCIDENTS.length, 'history incidents for', dateIso);
       } catch (e) {
         console.error('loadHistory error', e);
         if (statusEl) statusEl.textContent = 'History load failed.';
@@ -1628,7 +1647,7 @@
     initMap(); 
     startClock(); // Function now exists
 
-    // Single structured click handler
+    // SingleStructured click handler
     document.addEventListener('click', async (ev) => {
       const t = ev.target.closest('[data-action]'); if (!t) return;
       if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) ev.preventDefault();
@@ -1701,9 +1720,43 @@
     const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
     const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
 
-    await loadFromWorker(); await loadProximityFromWorker(); filterNews("Global"); await loadTravelAdvisories();
+    // STARTUP: defensive, report diagnostics
+    try {
+      await loadFromWorker();
+      await loadProximityFromWorker();
+      filterNews("Global");
+      await loadTravelAdvisories();
+
+      // If there are zero incidents, log and show a toast (helps debugging)
+      if (!INCIDENTS || INCIDENTS.length === 0) {
+        console.info('Startup: no incidents returned after initial load.');
+        showToast('No incidents to display (check server).', true);
+      } else {
+        console.info('Startup: incidents loaded:', INCIDENTS.length);
+      }
+    } catch(startErr) {
+      console.error('Startup error', startErr);
+      showToast('Startup failed — see console', true);
+    }
+
     Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
-    setInterval(async () => { if (FEED_IS_LIVE) { await loadFromWorker(true); await loadProximityFromWorker(true); const active = document.querySelector('.nav-item-custom.active'); filterNews(active ? active.textContent.trim() : 'Global'); } }, AUTO_REFRESH_MS);
+
+    // Auto-refresh loop (defensive)
+    setInterval(async () => {
+      if (!FEED_IS_LIVE) return;
+      try {
+        await loadFromWorker(true);
+        await loadProximityFromWorker(true);
+        const active = document.querySelector('.nav-item-custom.active');
+        filterNews(active ? active.textContent.trim() : 'Global');
+      } catch(e) {
+        console.error('Auto-refresh error', e);
+        FEED_IS_LIVE = false;
+        const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Offline';
+        showToast('Auto-refresh failed — live feed paused', true);
+      }
+    }, AUTO_REFRESH_MS);
+
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
   });
 
