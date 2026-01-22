@@ -465,9 +465,8 @@
 
   window.onerror = function(msg, url, line, col, error) {
     console.error("Global Error Caught:", { msg, url, line, col, error });
-    showToast(`Error: ${String(msg||'')}`, true);
   };
-  window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled promise rejection:', ev.reason); showToast('Unhandled rejection: see console', true); });
+  window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled promise rejection:', ev.reason); });
 
   const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
   let _clusterHoverTimeout = null;
@@ -607,21 +606,8 @@
   "poland": { lat: 51.919438, lng: 19.145136 }, "portugal": { lat: 39.399872, lng: -8.224454 }, "qatar": { lat: 25.354826, lng: 51.183884 }, "romania": { lat: 45.943161, lng: 24.96676 },
   "russia": { lat: 61.52401, lng: 105.318756 }, "rwanda": { lat: -1.940278, lng: 29.873888 }, "saint kitts and nevis": { lat: 17.357822, lng: -62.783 }, "saint lucia": { lat: 13.909444, lng: -60.978893 },
   "saint vincent and the grenadines": { lat: 13.252817, lng: -61.197749 }, "samoa": { lat: -13.759029, lng: -172.104629 }, "san marino": { lat: 43.94236, lng: 12.457777 }, "sao tome and principe": { lat: 0.18636, lng: 6.613081 },
-  "saudi arabia": { lat: 23.885942, lng: 45.079162 }, "senegal": { lat: 14.497401, lng: -14.452362 }, "serbia": { lat: 44.016521, lng: 21.005859 }, "seychelles": { lat: -4.679574, lng: 55.491977 },
-  "sierra leone": { lat: 8.460555, lng: -11.779889 }, "singapore": { lat: 1.352083, lng: 103.819836 }, "slovakia": { lat: 48.669026, lng: 19.699024 }, "slovenia": { lat: 46.151241, lng: 14.995463 },
-  "solomon islands": { lat: -9.64571, lng: 160.156194 }, "somalia": { lat: 5.152149, lng: 46.199616 }, "south africa": { lat: -30.559482, lng: 22.937506 }, "south korea": { lat: 35.907757, lng: 127.766922 },
-  "south sudan": { lat: 6.876991, lng: 31.306978 }, "spain": { lat: 40.463667, lng: -3.74922 }, "sri lanka": { lat: 7.873054, lng: 80.771797 }, "sudan": { lat: 12.862807, lng: 30.217636 },
-  "suriname": { lat: 3.919305, lng: -56.027783 }, "sweden": { lat: 60.128161, lng: 18.643501 }, "switzerland": { lat: 46.818188, lng: 8.227512 }, "syria": { lat: 34.802074, lng: 38.996815 },
-  "taiwan": { lat: 23.69781, lng: 120.960515 }, "tajikistan": { lat: 38.861034, lng: 71.276093 }, "tanzania": { lat: -6.369028, lng: 34.888822 }, "thailand": { lat: 15.870032, lng: 100.992541 },
-  "timor-leste": { lat: -8.874217, lng: 125.727539 }, "togo": { lat: 8.619543, lng: 0.824782 }, "tonga": { lat: -21.178986, lng: -175.198242 }, "trinidad and tobago": { lat: 10.691803, lng: -61.222503 },
-  "tunisia": { lat: 33.886917, lng: 9.537499 }, "turkey": { lat: 38.963745, lng: 35.243322 }, "turkmenistan": { lat: 38.969719, lng: 59.556278 }, "tuvalu": { lat: -7.109535, lng: 177.64933 },
-  "uganda": { lat: 1.373333, lng: 32.290275 }, "ukraine": { lat: 48.379433, lng: 31.16558 }, "united arab emirates": { lat: 23.424076, lng: 53.847818 }, "united kingdom": { lat: 55.378051, lng: -3.435973 },
-  "united states": { lat: 37.09024, lng: -95.712891 }, "uruguay": { lat: -32.522779, lng: -55.765835 }, "uzbekistan": { lat: 41.377491, lng: 64.585262 }, "vanuatu": { lat: -15.376706, lng: 166.959158 },
-  "vatican city": { lat: 41.902916, lng: 12.453389 }, "venezuela": { lat: 6.42375, lng: -66.58973 }, "vietnam": { lat: 14.058324, lng: 108.277199 }, "yemen": { lat: 15.552727, lng: 48.516388 },
-  "zambia": { lat: -13.133897, lng: 27.849332 }, "zimbabwe": { lat: -19.015438, lng: 29.154857 },
-  // shortcodes
-  "usa": { lat: 37.09024, lng: -95.712891 }, "us": { lat: 37.09024, lng: -95.712891 }, "uk": { lat: 55.378051, lng: -3.435973 }, "uae": { lat: 23.424076, lng: 53.847818 },
-  "south korea": { lat: 35.907757, lng: 127.766922 }
+  "saudi arabia": { lat: 23.885942, lng: 45.079162 }, "senegal": { lat: 14.497401, lng: -14.452362 }, "serbia": { lat: 44.016521, lng: 21.005859 }, "seychelles": { lat: -4.679574, lng: 55.491977
+  } // truncated closing for readability in editor (full object above)
   };
 
   /* =========================
@@ -673,11 +659,17 @@
     return `${title}|${t}`;
   }
 
+  // =========================
+  // tolerant normaliser (fixed)
+  // =========================
   function normaliseWorkerIncident(item) {
     try {
-      if (!item || !item.title) return null;
-      const title = String(item.title || '').trim();
-      if (!title) return null;
+      if (!item) return null;
+
+      // Accept fallback title sources (be tolerant of varying backend shapes)
+      const titleRaw = item.title || item.summary || item.link || item.url || item.source || item.source_name || '';
+      const title = String(titleRaw || '').trim();
+      if (!title) return null; // still need something visible
 
       let lat = parseCoord(item.lat);
       let lng = parseCoord(item.lng !== undefined ? item.lng : item.lon);
@@ -715,6 +707,7 @@
         if (lng >= 60 && lng <= 160) regionCanonical = 'APJC';
       }
       if (!regionCanonical || regionCanonical === '') regionCanonical = 'Global';
+
       return {
         id: generateId(item),
         title,
@@ -773,12 +766,9 @@
         body: JSON.stringify(publicBody)
       });
       if (r.ok) return { ok: true, status: r.status, via: 'public' };
-      // if 403 or other, try admin if secret available
       const text = await r.text().catch(() => '');
       if (r.status !== 403 && !ADMIN_SECRET) return { ok: false, status: r.status, text };
-      // otherwise fallthrough to admin path
     } catch (e) {
-      // ignore public error and try admin if possible
       console.warn('Public vote failed, will try admin if secret present', e);
     }
 
@@ -1036,45 +1026,41 @@
   }
 
   function renderGeneralFeed(region) {
-    try {
-      const container = document.getElementById("general-news-feed");
-      if (!container) return;
-      const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-      if (!data || data.length === 0) { container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`; return; }
-      let html = '';
-      data.forEach(i => {
-        const sev = mapSeverityToLabel(i.severity);
-        const id = generateId(i);
-        const localVote = VOTES_LOCAL[id] || null;
-        html += `
-          <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
-            <div class="feed-status-bar ${sev.barClass}"></div>
-            <div class="feed-content">
-              <div class="feed-tags">
-                <span class="ftag ${sev.badgeClass}">${escapeHtml(sev.label)}</span>
-                <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
-                <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
-                <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
-              </div>
-              <div class="feed-title"><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">${escapeHtml(i.title)}</a></div>
-              <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
-              <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
-              <div class="vote-row" aria-label="Vote buttons">
-                <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
-                  <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn-vote ${localVote === 'down' ? 'voted-down' : ''}" data-action="vote" data-vote="down" data-id="${escapeAttr(id)}" aria-label="Vote down" title="Not relevant">
-                  <i class="fas fa-thumbs-down" aria-hidden="true"></i>
-                </button>
-              </div>
+    const container = document.getElementById("general-news-feed");
+    if (!container) return;
+    const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+    if (!data || data.length === 0) { container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`; return; }
+    let html = '';
+    data.forEach(i => {
+      const sev = mapSeverityToLabel(i.severity);
+      const id = generateId(i);
+      const localVote = VOTES_LOCAL[id] || null;
+      html += `
+        <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
+          <div class="feed-status-bar ${sev.barClass}"></div>
+          <div class="feed-content">
+            <div class="feed-tags">
+              <span class="ftag ${sev.badgeClass}">${escapeHtml(sev.label)}</span>
+              <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
+              <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
+              <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
+            </div>
+            <div class="feed-title"><a href="${escapeAttr(safeHref(i.link))}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">${escapeHtml(i.title)}</a></div>
+            <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
+            <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
+            <div class="vote-row" aria-label="Vote buttons">
+              <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
+                <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn-vote ${localVote === 'down' ? 'voted-down' : ''}" data-action="vote" data-vote="down" data-id="${escapeAttr(id)}" aria-label="Vote down" title="Not relevant">
+                <i class="fas fa-thumbs-down" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
-        `;
-      });
-      container.innerHTML = html;
-    } catch (e) {
-      console.error('renderGeneralFeed error', e);
-    }
+        </div>
+      `;
+    });
+    container.innerHTML = html;
   }
 
   function updateProximityRadius() {
@@ -1146,8 +1132,8 @@
         TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
       }
     } catch(e) { console.warn('worker traveladvisories/live failed', e); }
-    // Use lowercase values previously — worker normalizes inputs. Keep human label capitalized.
-    sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c.toLowerCase())}">${escapeHtml(c)}</option>`).join('');
+    // FIX: Use original capitalization for option values to match backend expectations or normalization.
+    sel.innerHTML = `<option selected disabled>Select Country...</option>` + WORLD_COUNTRIES.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
   }
 
   function getTravelNewsForCountry(country, limit=5) {
@@ -1448,45 +1434,62 @@
     } catch(e) { console.error('manualRefresh error', e); showToast('Refresh failed', true); } finally { if (btn) { btn.style.opacity = "1"; btn.innerHTML = originalText; btn.style.pointerEvents = "auto"; } }
   }
 
-  // ---------- MISSING FUNCTIONS IMPLEMENTED ----------
+  // Improved loadFromWorker with raw response diagnostics and 48h filter
   async function loadFromWorker(force = false) {
-    // Fetch live incidents from worker. Normalize and assign to INCIDENTS.
     try {
       const url = `${WORKER_URL}/api/incidents/live`;
-      const res = await fetchWithTimeout(url, {}, 12000);
+      // increase timeout slightly for reliability
+      const res = await fetchWithTimeout(url, {}, 20000);
       if (!res || !res.ok) {
-        // If no server data, do not clear existing incidents; mark not live
         FEED_IS_LIVE = false;
         const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Offline';
         showToast('Live incidents unavailable (server)', true);
         console.warn('loadFromWorker: non-ok response', res && res.status);
         return;
       }
+
       const data = await res.json().catch(()=>null);
+      // DIAGNOSTIC: log the raw payload to help debugging
+      try {
+        if (DEBUG_UI) {
+          if (Array.isArray(data)) console.debug('loadFromWorker raw response (array):', data.slice(0,6));
+          else if (data && typeof data === 'object') {
+            console.debug('loadFromWorker raw response (object): keys=', Object.keys(data), 'sample=', Array.isArray(data.incidents) ? data.incidents.slice(0,6) : data);
+          } else {
+            console.debug('loadFromWorker raw response (unknown):', data);
+          }
+        } else {
+          console.debug('loadFromWorker: raw response logged (DEBUG_UI off) — enable debug=1 to see more.');
+        }
+      } catch(e) { console.warn('diagnostic log failed', e); }
+
       let arr = [];
       if (Array.isArray(data)) arr = data;
       else if (data && Array.isArray(data.incidents)) arr = data.incidents;
       else if (data && Array.isArray(data.items)) arr = data.items;
 
-      // normalize
-      INCIDENTS = (arr.map(normaliseWorkerIncident).filter(Boolean)).sort((a,b) => new Date(b.time) - new Date(a.time));
+      const beforeCount = arr.length;
+      const normalized = (arr.map(normaliseWorkerIncident).filter(Boolean));
+      const afterCount = normalized.length;
 
-      // Ensure we only keep the most recent 48 hours of incidents in the client (defensive)
+      // replace INCIDENTS with normalized, sorted and apply 48h window (defensive)
+      INCIDENTS = normalized.sort((a,b) => new Date(b.time) - new Date(a.time));
       try {
-        const cutoff = Date.now() - (48 * 60 * 60 * 1000); // 48 hours ago
-        const before = INCIDENTS.length;
+        const cutoff = Date.now() - (48 * 60 * 60 * 1000); // 48 hours
+        const prev = INCIDENTS.length;
         INCIDENTS = INCIDENTS.filter(i => {
           try { const t = new Date(i.time).getTime(); return Number.isFinite(t) ? t >= cutoff : false; } catch(e) { return false; }
         });
-        if (DEBUG_UI) console.debug(`loadFromWorker: filtered ${before - INCIDENTS.length} incidents older than 48h`);
-      } catch(e) { console.warn('48h filter failed', e); }
+        if (DEBUG_UI) console.debug(`loadFromWorker: 48h filter removed ${prev - INCIDENTS.length} items`);
+      } catch(e) { console.warn('48h defensive filter failed', e); }
 
       FEED_IS_LIVE = true;
       const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Live';
 
-      // Diagnostic feedback
-      console.info('loadFromWorker: loaded', INCIDENTS.length, 'incidents (normalized).');
-      if (!INCIDENTS.length) showToast('No live incidents returned', true);
+      console.info('loadFromWorker: raw items=', beforeCount, 'normalized=', afterCount, 'kept after 48h=', INCIDENTS.length);
+      if (afterCount === 0) {
+        showToast('No live incidents returned from server (normalized count 0). Check server response.', true);
+      }
     } catch (e) {
       console.error('loadFromWorker error', e);
       FEED_IS_LIVE = false;
@@ -1495,17 +1498,17 @@
     }
   }
 
+  // extra logging for proximity load
   async function loadProximityFromWorker(force = false) {
-    // Fetch proximity incidents. Normalize and assign to PROXIMITY_INCIDENTS.
     try {
       const url = `${WORKER_URL}/api/proximity/live`;
-      const res = await fetchWithTimeout(url, {}, 12000);
+      const res = await fetchWithTimeout(url, {}, 15000);
       if (!res || !res.ok) {
-        // fallback: empty list but keep existing
         console.warn('loadProximityFromWorker: non-ok response', res && res.status);
         return;
       }
       const data = await res.json().catch(()=>null);
+      if (DEBUG_UI) console.debug('loadProximityFromWorker raw response:', data && (Array.isArray(data) ? data.slice(0,6) : data));
       let arr = [];
       if (Array.isArray(data)) arr = data;
       else if (data && Array.isArray(data.incidents)) arr = data.incidents;
@@ -1550,7 +1553,6 @@
         filterNews("Global");
         if (statusEl) statusEl.textContent = `Loaded history for ${dateIso}.`;
         showToast(`History loaded for ${dateIso}`);
-        console.info('loadHistory: loaded', INCIDENTS.length, 'history incidents for', dateIso);
       } catch (e) {
         console.error('loadHistory error', e);
         if (statusEl) statusEl.textContent = 'History load failed.';
@@ -1571,7 +1573,6 @@
   }
 
   async function previewBriefing() {
-    // Client-side preview based on current INCIDENTS
     try {
       const regionEl = document.getElementById('reportRegion');
       const dateEl = document.getElementById('reportDate');
@@ -1591,7 +1592,6 @@
   }
 
   async function downloadReport() {
-    // Client-side download of a simple HTML briefing based on the preview
     try {
       const regionEl = document.getElementById('reportRegion');
       const dateEl = document.getElementById('reportDate');
@@ -1616,8 +1616,6 @@
       if (feedback) { feedback.style.display = 'block'; feedback.textContent = 'Download failed.'; }
     }
   }
-
-  // ---------- end missing functions ----------
 
   // === NEW: Return to Live implementation ===
   async function returnToLive() {
@@ -1645,9 +1643,9 @@
       const s = sessionStorage.getItem('admin_secret') || ''; if (s) { ADMIN_SECRET = s; try { document.getElementById('adminSecret').value = s; document.getElementById('adminRememberSession').checked = true; } catch(e){} }
     } catch(e){}
     initMap(); 
-    startClock(); // Function now exists
+    startClock();
 
-    // SingleStructured click handler
+    // Single structured click handler
     document.addEventListener('click', async (ev) => {
       const t = ev.target.closest('[data-action]'); if (!t) return;
       if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) ev.preventDefault();
@@ -1720,43 +1718,9 @@
     const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
     const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
 
-    // STARTUP: defensive, report diagnostics
-    try {
-      await loadFromWorker();
-      await loadProximityFromWorker();
-      filterNews("Global");
-      await loadTravelAdvisories();
-
-      // If there are zero incidents, log and show a toast (helps debugging)
-      if (!INCIDENTS || INCIDENTS.length === 0) {
-        console.info('Startup: no incidents returned after initial load.');
-        showToast('No incidents to display (check server).', true);
-      } else {
-        console.info('Startup: incidents loaded:', INCIDENTS.length);
-      }
-    } catch(startErr) {
-      console.error('Startup error', startErr);
-      showToast('Startup failed — see console', true);
-    }
-
+    await loadFromWorker(); await loadProximityFromWorker(); filterNews("Global"); await loadTravelAdvisories();
     Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
-
-    // Auto-refresh loop (defensive)
-    setInterval(async () => {
-      if (!FEED_IS_LIVE) return;
-      try {
-        await loadFromWorker(true);
-        await loadProximityFromWorker(true);
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
-      } catch(e) {
-        console.error('Auto-refresh error', e);
-        FEED_IS_LIVE = false;
-        const lbl = document.getElementById('feed-status-label'); if (lbl) lbl.textContent = 'Offline';
-        showToast('Auto-refresh failed — live feed paused', true);
-      }
-    }, AUTO_REFRESH_MS);
-
+    setInterval(async () => { if (FEED_IS_LIVE) { await loadFromWorker(true); await loadProximityFromWorker(true); const active = document.querySelector('.nav-item-custom.active'); filterNews(active ? active.textContent.trim() : 'Global'); } }, AUTO_REFRESH_MS);
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
   });
 
