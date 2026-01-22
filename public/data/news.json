@@ -4,7 +4,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-crowdstrike-trains-genai-models-at-scale-using-distributed-computing/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186263+00:00",
+    "time": "2026-01-22T23:24:58.560247+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -14,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/streamline-security-operations-falcon-for-it-automations/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186231+00:00",
+    "time": "2026-01-22T23:24:58.560213+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-journey-in-customizing-nvidia-nemotron-models/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186198+00:00",
+    "time": "2026-01-22T23:24:58.560177+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-crowdstrike-detects-malware-at-machine-speed/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186162+00:00",
+    "time": "2026-01-22T23:24:58.560137+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-sgnl/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186127+00:00",
+    "time": "2026-01-22T23:24:58.560100+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/ai-tool-poisoning/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186093+00:00",
+    "time": "2026-01-22T23:24:58.560065+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-january-2026/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186059+00:00",
+    "time": "2026-01-22T23:24:58.560031+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-seraphic/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.186021+00:00",
+    "time": "2026-01-22T23:24:58.559994+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +84,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/architecture-of-agentic-defense-inside-the-falcon-platform/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.185984+00:00",
+    "time": "2026-01-22T23:24:58.559956+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,98 +94,8 @@
     "url": "https://www.crowdstrike.com/en-us/blog/usb-drives-threaten-enterprise-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-22T22:27:40.185936+00:00",
+    "time": "2026-01-22T23:24:58.559911+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.5 Quarry Blast - 7 km NE of Drumright, Oklahoma",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ok2026bnzu",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.228535+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 0.7 - 7 km NE of Anza, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41168623",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.228253+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.2 - 31 km NW of Toyah, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026boezgb",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.227974+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.6 - 50 km NW of Toyah, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026bofaml",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.227675+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.1 - 4 km WNW of Orinda, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75300111",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.227391+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 0.9 - 7 km NW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75300121",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.227009+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 2.0 - 11 km N of Pāhala, Hawaii",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74882832",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.226697+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.9 - 64 km WNW of Anchor Point, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bofwxf",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.226411+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.7 - 22 km N of Karluk, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bogkhy",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.226120+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -194,28 +104,98 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75300136",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-22T22:27:34.225799+00:00",
+    "time": "2026-01-22T23:24:54.048904+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "China rare-earth stocks soar as market bets dominance will continue",
-    "url": "https://asia.nikkei.com/business/markets/commodities/china-rare-earth-stocks-soar-as-market-bets-dominance-will-continue",
+    "title": "M 1.9 - 31 km SW of South Dos Palos, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75300146",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.404165+00:00",
-    "region": "APJC",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.048610+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Japan steel output falls to 56-year low on influx of cheap China imports",
-    "url": "https://asia.nikkei.com/business/markets/commodities/japan-steel-output-falls-to-56-year-low-on-influx-of-cheap-china-imports",
+    "title": "M 1.4 - 18 km NNE of Indio, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41168687",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.404137+00:00",
-    "region": "APJC",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.048337+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.6 - 8 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75300151",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.048064+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.7 - 20 km E of Julian, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41168719",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.047790+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.1 - 16 km W of Johannesburg, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41168711",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.047497+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.9 - 20 km E of Julian, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41168727",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.047223+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.9 - 13 km SE of Pāhala, Hawaii",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74882862",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.046938+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.6 - 10 km N of Anza, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41168759",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.046620+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.5 - 52 km WNW of Tatitlek, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026boinku",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-22T23:24:54.046320+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -224,7 +204,7 @@
     "url": "https://asia.nikkei.com/business/automobiles/electric-vehicles/mazda-elevates-china-made-evs-in-global-strategy-rethink",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.404107+00:00",
+    "time": "2026-01-22T23:24:40.836499+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +214,7 @@
     "url": "https://asia.nikkei.com/business/construction/japan-s-tokyu-eyes-further-growth-for-vietnam-garden-city",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.404080+00:00",
+    "time": "2026-01-22T23:24:40.836471+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +224,7 @@
     "url": "https://asia.nikkei.com/opinion/takaichi-s-japan-first-is-a-recalibration-of-abe-s-vision-of-openness",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.404051+00:00",
+    "time": "2026-01-22T23:24:40.836443+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +234,7 @@
     "url": "https://asia.nikkei.com/spotlight/policy-asia/estate-tax-standoff-puts-squeeze-on-south-korea-s-middle-class",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.404020+00:00",
+    "time": "2026-01-22T23:24:40.836411+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +244,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/japan-china-tensions/japan-diplomatic-post-in-chongqing-sits-unfilled-as-china-feud-drags-on",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.403989+00:00",
+    "time": "2026-01-22T23:24:40.836381+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +254,7 @@
     "url": "https://asia.nikkei.com/business/electronics/china-s-tcl-sees-sony-deal-as-way-to-topple-global-tv-leader-samsung",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.403956+00:00",
+    "time": "2026-01-22T23:24:40.836350+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/transportation/japan-s-narita-airport-speeds-up-driving-permits-for-foreign-ground-crew",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.403921+00:00",
+    "time": "2026-01-22T23:24:40.836317+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,8 +274,28 @@
     "url": "https://asia.nikkei.com/business/food-beverage/kyoto-style-beef-cutlet-restaurant-hungry-for-piece-of-us-europe",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-22T22:27:16.403873+00:00",
+    "time": "2026-01-22T23:24:40.836285+00:00",
     "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Asia is only 5th-most-important region for Americans: poll",
+    "url": "https://asia.nikkei.com/politics/international-relations/indo-pacific/asia-is-only-5th-most-important-region-for-americans-poll",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-01-22T23:24:40.836248+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Taiwan's 'China Monitoring Report' warns of social friction as economy sags",
+    "url": "https://asia.nikkei.com/economy/taiwan-s-china-monitoring-report-warns-of-social-friction-as-economy-sags",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-01-22T23:24:40.836205+00:00",
+    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -304,8 +304,88 @@
     "url": "https://www.nytimes.com/live/2026/01/22/us/trump-davos-news",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
-    "time": "2026-01-22T22:19:13+00:00",
+    "time": "2026-01-22T23:20:32+00:00",
     "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "ICE detains five-year-old and father in Minnesota, lawyer says",
+    "url": "https://www.bbc.com/news/articles/cwyrrqwxpz7o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-22T23:16:39+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump Could Begin Flying on Jet Donated by Qatar by This Summer",
+    "url": "https://www.nytimes.com/2026/01/22/us/politics/trump-qatar-air-force-one.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-01-22T23:09:37+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump sues JPMorgan Chase and Jamie Dimon for at least $5bn",
+    "url": "https://www.theguardian.com/us-news/2026/jan/22/trump-sues-jpmorgan-jamie-dimon-debanking",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theguardian.com",
+    "time": "2026-01-22T23:08:44+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US letting China buy Venezuela oil but not at ‘unfair’ Maduro prices, official says",
+    "url": "https://www.scmp.com/news/world/americas/article/3340912/us-letting-china-buy-venezuela-oil-not-unfair-maduro-prices-official-says?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-22T22:54:42+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "After Trump’s Ultimatum, Greenland Talks Include Sovereign U.S. Bases, No Drilling for Russia",
+    "url": "https://www.nytimes.com/2026/01/22/world/europe/trump-greenland-deal-framework.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-01-22T22:52:30+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UN to take over al-Hol camp for IS families in Syria after unrest",
+    "url": "https://www.bbc.com/news/articles/clyzzzd2y7do?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-22T22:46:15+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Turbine Installation Begins at Coastal Virginia Offshore Wind Farm After Court Lifts Federal Halt",
+    "url": "https://gcaptain.com/turbine-installation-begins-at-coastal-virginia-offshore-wind-farm-after-court-lifts-federal-halt/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "gcaptain.com",
+    "time": "2026-01-22T22:45:03+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "China reliance and tariff wars emerge as top risks for the global defence industry: report",
+    "url": "https://www.scmp.com/news/china/article/3340911/china-reliance-and-tariff-wars-emerge-top-risks-global-defence-industry-report?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-22T22:33:31+00:00",
+    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -336,16 +416,6 @@
     "source": "scmp.com",
     "time": "2026-01-22T22:00:09+00:00",
     "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Venezuela: Orientaciones para la preparación ante el cierre o interrupción de servicios y programas de protección de la niñez y adolescencia",
-    "url": "https://reliefweb.int/report/venezuela-bolivarian-republic/orientaciones-para-la-preparacion-ante-el-cierre-o-interrupcion-de-servicios-y-programas-de-proteccion-de-la-ninez-y-adolescencia",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T21:59:45+00:00",
-    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -510,16 +580,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "After Trump’s Ultimatum, Greenland Talks Include Sovereign U.S. Bases, No Drilling for Russia",
-    "url": "https://www.nytimes.com/2026/01/22/world/europe/trump-greenland-deal-framework.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-01-22T20:59:53+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Trump’s ‘master plan’ for Gaza contrasts with reality on the ground",
     "url": "https://www.washingtonpost.com/world/2026/01/22/trump-kushner-gaza-plan/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -556,16 +616,6 @@
     "source": "washingtonpost.com",
     "time": "2026-01-22T20:27:42+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "PRESS RELEASE: Government of Nigeria, humanitarian partners launch urgent appeal for US$516 million to provide lifesaving support to 2.5 million people in north-east Nigeria in 2026",
-    "url": "https://reliefweb.int/report/nigeria/press-release-government-nigeria-humanitarian-partners-launch-urgent-appeal-us516-million-provide-lifesaving-support-25-million-people-north-east-nigeria-2026",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T20:20:50+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -686,16 +736,6 @@
     "source": "joc.com",
     "time": "2026-01-22T19:45:16+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Trump sues JPMorgan Chase and Jamie Dimon for at least $5bn",
-    "url": "https://www.theguardian.com/us-news/2026/jan/22/trump-sues-jpmorgan-jamie-dimon-debanking",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theguardian.com",
-    "time": "2026-01-22T19:44:49+00:00",
-    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -950,26 +990,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Briefing to the Security Council on the humanitarian situation in Syria by Ms. Edem Wosornu, Director, Crisis Response Division, OCHA, on behalf of Tom Fletcher, USG and Emergency Relief Coordinator",
-    "url": "https://reliefweb.int/report/syrian-arab-republic/briefing-security-council-humanitarian-situation-syria-ms-edem-wosornu-director-crisis-response-division-ocha-behalf-tom-fletcher-usg-and-emergency-relief-coordinator",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T17:15:55+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Democratic Republic of the Congo: Humanitarian Dashboard (January to November 2025)",
-    "url": "https://reliefweb.int/report/democratic-republic-congo/democratic-republic-congo-humanitarian-dashboard-january-november-2025",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T17:03:02+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Ukraine’s Zelensky slams ‘fragmented’ Europe, says it looks lost facing Trump",
     "url": "https://www.scmp.com/news/world/europe/article/3340905/ukraines-zelensky-says-fragmented-europe-looks-lost-facing-trump?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
@@ -985,16 +1005,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-01-22T16:59:08+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "DR Congo: République démocratique du Congo : Tableau de bord humanitaire (période de rapportage : novembre 2025)",
-    "url": "https://reliefweb.int/report/democratic-republic-congo/republique-democratique-du-congo-tableau-de-bord-humanitaire-periode-de-rapportage-novembre-2025",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T16:55:35+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1020,31 +1030,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Indonesia’s Prabowo pitches stability at Davos amid rising global tensions",
-    "url": "https://www.scmp.com/week-asia/economics/article/3340904/indonesias-prabowo-pitches-stability-davos-amid-rising-global-tensions?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-22T16:35:58+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Drewry: Carriers ‘Drip-Feed’ Capacity Back Into Suez as Container Rates Slide",
     "url": "https://gcaptain.com/drewry-carriers-drip-feed-capacity-back-into-suez-as-container-rates-slide/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "gcaptain.com",
     "time": "2026-01-22T16:34:47+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Hong Kong won’t pursue carbon-based taxes under bid to go green: Paul Chan",
-    "url": "https://www.scmp.com/news/hong-kong/health-environment/article/3340903/hong-kong-wont-pursue-carbon-based-taxes-under-bid-go-green-paul-chan?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-22T16:32:15+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1110,16 +1100,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "ICE detains 5-year-old and father in Minnesota, lawyer says",
-    "url": "https://www.bbc.com/news/articles/cwyrrqwxpz7o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-22T16:04:08+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "The Supreme Court’s looming decision on broker liability and the future of freight brokerage",
     "url": "https://www.freightwaves.com/news/the-supreme-courts-looming-decision-on-broker-liability-and-the-future-of-freight-brokerage",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1166,16 +1146,6 @@
     "source": "freightwaves.com",
     "time": "2026-01-22T15:39:22+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Benin: West and Central Africa: Upcoming Elections (As of 22 January 2026)",
-    "url": "https://reliefweb.int/report/benin/west-and-central-africa-upcoming-elections-22-january-2026",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T15:33:17+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1250,16 +1220,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "WFP Moldova Country Brief, November 2025",
-    "url": "https://reliefweb.int/report/moldova/wfp-moldova-country-brief-november-2025",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T14:33:43+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Three Dead After Shooting in Rural Australian Town",
     "url": "https://www.nytimes.com/2026/01/22/world/australia/australia-lake-cargelligo-shooting.html",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1320,51 +1280,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Education at the Heart of Syria’s Recovery - The Role of Schools in Return, Resilience, and Social Cohesion in a Changing Syria",
-    "url": "https://reliefweb.int/report/syrian-arab-republic/education-heart-syrias-recovery-role-schools-return-resilience-and-social-cohesion-changing-syria",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T14:17:58+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "World | DG ECHO ReliefEU Capacities in 2025 - DG ECHO Daily Map | 22/01/2026",
-    "url": "https://reliefweb.int/map/world/world-dg-echo-reliefeu-capacities-2025-dg-echo-daily-map-22012026",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T14:17:17+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "After Vanishing From View, Two US-Seized Venezuela Oil Tankers Reappear Near Puerto Rico",
-    "url": "https://gcaptain.com/after-vanishing-from-view-two-us-seized-venezuela-oil-tankers-reappear-near-puerto-rico/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "gcaptain.com",
-    "time": "2026-01-22T14:16:05+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Labor takes back seat on trucking advisory panel",
     "url": "https://www.freightwaves.com/news/labor-takes-back-seat-on-trucking-advisory-panel",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "freightwaves.com",
     "time": "2026-01-22T14:00:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Syria: Rapid Multi-Sectoral Assessment – Al-Ashrafieh and Sheikh Maqsoud, Aleppo (18 January 2026)",
-    "url": "https://reliefweb.int/report/syrian-arab-republic/rapid-multi-sectoral-assessment-al-ashrafieh-and-sheikh-maqsoud-aleppo-18-january-2026",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-01-22T13:48:37+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1455,16 +1375,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theloadstar.com",
     "time": "2026-01-22T12:18:10+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Rapid rollback of Kurdish-led forces reshapes Sharaa's Syria",
-    "url": "https://www.bbc.com/news/articles/c9311l0d40qo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-22T12:08:12+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1665,16 +1575,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "thehackernews.com",
     "time": "2026-01-22T10:04:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Two Ohio Nursing Programs Show What Could Happen as US Limits Student Borrowing",
-    "url": "https://www.nytimes.com/2026/01/22/business/student-loan-cap-graduate-nursing.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-01-22T10:02:23+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
