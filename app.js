@@ -4,6 +4,7 @@
    - Restores getRegionByCountry
    - Fixes dismissAlertById, updateProximityRadius, manualRefresh robustness
    - Exposes functions to window for legacy calls
+   - FIX: Prevents false positive region matching (e.g., Russia matching 'us')
 */
 
 /* ===========================
@@ -414,8 +415,9 @@ function normalizeRegion(raw){
   return s;
 }
 
-/* ===== RESTORED: getRegionByCountry =====
+/* ===== RESTORED & FIXED: getRegionByCountry =====
    Robust inference by country name or code.
+   FIX: Added length check > 2 to avoid aggressive substring matching (e.g. Russia matches 'us')
 */
 function getRegionByCountry(c) {
   if (!c) return null;
@@ -429,9 +431,10 @@ function getRegionByCountry(c) {
   const two = lower.length === 2 ? lower : lower.slice(0,2);
   if (COUNTRY_TO_REGION[two]) return COUNTRY_TO_REGION[two];
 
-  // scan keys for substrings (handles "united states of america", "u.s.", etc.)
+  // scan keys for substrings (handles "united states of america", etc.)
+  // FIX: Skip 2-letter codes here to prevent false positives
   for (const k of Object.keys(COUNTRY_TO_REGION)) {
-    if (lower.includes(k)) return COUNTRY_TO_REGION[k];
+    if (k.length > 2 && lower.includes(k)) return COUNTRY_TO_REGION[k];
   }
 
   // try country coords names
