@@ -1,10 +1,9 @@
-/* app.js - Dell OS | INFOHUB (FINAL FIXED)
-   - Restores full CITY_COORDS & COUNTRY_COORDS
+/* app.js - Dell OS | INFOHUB (FINAL FIXED - admin-feedback id + region substring fix)
+   - Restores CITY_COORDS & COUNTRY_COORDS
    - Restores WORLD_COUNTRIES
-   - Restores getRegionByCountry
-   - Fixes dismissAlertById, updateProximityRadius, manualRefresh robustness
-   - Exposes functions to window for legacy calls
-   - FIX: Prevents false positive region matching (e.g., Russia matching 'us')
+   - getRegionByCountry avoids 2-letter substring false positives
+   - adminSetFeedback uses 'admin-feedback' id
+   - Voting, proximity, map, and worker compatibility fixes
 */
 
 /* ===========================
@@ -61,7 +60,6 @@ let _clusterHoverTimeout = null;
 
 /* ===========================
    WORLD COUNTRIES (fallback list)
-   (used for travel select fallback)
 =========================== */
 const WORLD_COUNTRIES = [
   "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan",
@@ -150,8 +148,7 @@ const ASSETS = {};
 DELL_SITES.forEach(s => { ASSETS[s.name.toLowerCase()] = { name: s.name, lat: Number(s.lat), lng: Number(s.lon), region: s.region, country: s.country }; });
 
 /* ===========================
-   CITY_COORDS (common cities; extendable)
-   - kept comprehensive (several additional cities).
+   CITY_COORDS
 =========================== */
 const CITY_COORDS = {
   "london": {lat:51.5074, lng:-0.1278}, "paris": {lat:48.8566, lng:2.3522},
@@ -173,12 +170,11 @@ const CITY_COORDS = {
   "karachi": {lat:24.8607, lng:67.0011}, "istanbul": {lat:41.0082, lng:28.9784},
   "berlin": {lat:52.52, lng:13.405}, "madrid": {lat:40.4168, lng:-3.7038},
   "rome": {lat:41.9028, lng:12.4964}, "toronto": {lat:43.6532, lng:-79.3832}
-  /* extendable */
 };
 
 /* ===========================
-   COUNTRY_COORDS (restored full list)
-   (kept full for robust fallback)
+   COUNTRY_COORDS
+   (full list)
 =========================== */
 const COUNTRY_COORDS = {
   "afghanistan": { lat: 33.93911, lng: 67.709953 },
@@ -417,7 +413,7 @@ function normalizeRegion(raw){
 
 /* ===== RESTORED & FIXED: getRegionByCountry =====
    Robust inference by country name or code.
-   FIX: Added length check > 2 to avoid aggressive substring matching (e.g. Russia matches 'us')
+   FIX: Skip 2-letter keys during substring scan to avoid false positives.
 */
 function getRegionByCountry(c) {
   if (!c) return null;
@@ -432,9 +428,10 @@ function getRegionByCountry(c) {
   if (COUNTRY_TO_REGION[two]) return COUNTRY_TO_REGION[two];
 
   // scan keys for substrings (handles "united states of america", etc.)
-  // FIX: Skip 2-letter codes here to prevent false positives
+  // Skip two-letter codes here to prevent false positives like "russia" matching "us"
   for (const k of Object.keys(COUNTRY_TO_REGION)) {
-    if (k.length > 2 && lower.includes(k)) return COUNTRY_TO_REGION[k];
+    if (k.length <= 2) continue;
+    if (lower.includes(k)) return COUNTRY_TO_REGION[k];
   }
 
   // try country coords names
@@ -1211,8 +1208,9 @@ function adminGetSecret() {
   } catch(e) { return ADMIN_SECRET || ''; }
 }
 
+/* FIXED: use the correct DOM id 'admin-feedback' (matches index.html) */
 function adminSetFeedback(msg, isError=false) {
-  const fb = document.getElementById('adminFeedback');
+  const fb = document.getElementById('admin-feedback');
   if (!fb) return;
   fb.style.display = 'block';
   fb.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
@@ -1283,310 +1281,4 @@ async function adminForceRefreshTravel() {
   try {
     const res = await fetch(`${WORKER_URL}/api/traveladvisories/refresh`, { method:'POST', headers: { ...(sec ? {'secret': sec} : {}) } });
     const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Travel refresh failed (HTTP ${res.status}). ${txt}`, true); return; }
-    adminSetFeedback(txt || 'Travel refresh triggered.');
-    try { await loadTravelAdvisories(); } catch(e){}
-  } catch(e) { adminSetFeedback('Travel refresh failed (network).', true); console.error(e); }
-}
 
-async function adminGenerateBrief() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  const regionEl = document.getElementById('reportRegion');
-  const dateEl = document.getElementById('reportDate');
-  const region = regionEl ? String(regionEl.value || 'Global') : 'Global';
-  const date = dateEl ? String(dateEl.value || '') : '';
-  adminSetFeedback('Generating brief on server…');
-  try {
-    const url = `${WORKER_URL}/api/dailybrief/generate?region=${encodeURIComponent(region)}${date ? `&date=${encodeURIComponent(date)}` : ''}`;
-    const res = await fetch(url, { method:'POST', headers: { 'secret': sec } });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Generate failed (HTTP ${res.status}). ${txt}`, true); return; }
-    adminSetFeedback(txt || 'Brief generation requested.');
-  } catch(e) { adminSetFeedback('Generate failed (network).', true); console.error(e); }
-}
-
-async function adminListBriefs() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Listing stored briefs…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/dailybrief/list`, { headers: { 'secret': sec } });
-    const data = await res.json().catch(()=>null);
-    if (!res.ok) { adminSetFeedback(`List failed (HTTP ${res.status}).`, true); console.log('brief list raw', data); return; }
-    adminSetFeedback('Brief list loaded. Check console.');
-    console.log('Stored briefs:', data);
-  } catch(e) { adminSetFeedback('List failed (network).', true); console.error(e); }
-}
-
-/* ===========================
-   REPORTS / HISTORY
-=========================== */
-async function previewBriefing() {
-  const region = document.getElementById('reportRegion')?.value || 'Global';
-  const date = document.getElementById('reportDate')?.value || '';
-  const fb = document.getElementById('preview-feedback');
-  const cont = document.getElementById('briefing-preview');
-  if (fb) { fb.style.display = 'block'; fb.textContent = 'Generating preview…'; }
-  if (cont) cont.innerHTML = '';
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-  if (date) url += `&date=${encodeURIComponent(date)}`;
-  try {
-    const res = await fetchWithTimeout(url, {}, 20000);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    const incidents = json.incidents || [];
-    if (!incidents.length) {
-      cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
-    } else {
-      cont.innerHTML = incidents.slice(0,50).map(i => `
-        <div style="border-bottom:1px solid #eee; padding:8px 0;">
-          <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
-          <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
-          <div style="font-size:0.85rem;color:#333;margin-top:4px;">${escapeHtml(i.summary || '')}</div>
-        </div>
-      `).join('');
-    }
-    if (fb) fb.style.display = 'none';
-  } catch(e) {
-    if (fb) { fb.style.display = 'block'; fb.textContent = `Error: ${e.message}`; }
-  }
-}
-
-async function downloadReport() {
-  const region = document.getElementById('reportRegion')?.value || 'Global';
-  const date = document.getElementById('reportDate')?.value || '';
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
-  if (date) url += `&date=${encodeURIComponent(date)}`;
-  window.open(url, '_blank', 'noopener');
-}
-
-async function loadHistory(dateStr) {
-  const status = document.getElementById('history-status');
-  if (status) status.textContent = "Loading archive…";
-  try {
-    const res = await fetch(`${WORKER_URL}/api/archive?date=${encodeURIComponent(dateStr)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const arr = await res.json();
-    if (!status) return;
-    if (!arr || !arr.length) {
-      status.textContent = "No archived incidents found.";
-      return;
-    }
-    status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
-      arr.map(i => `<div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;"><strong>${escapeHtml(i.title)}</strong><br><span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span></div>`).join('') +
-      `</div>`;
-  } catch(e) {
-    if (status) status.textContent = `Archive error: ${e.message}`;
-  }
-}
-
-/* ===========================
-   manualRefresh - robust
-=========================== */
-async function manualRefresh() {
-  const btn = document.getElementById("btn-refresh");
-  const originalText = btn ? btn.innerHTML : 'Refresh';
-
-  if (btn) {
-    btn.style.opacity = "0.7";
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-    btn.style.pointerEvents = "none";
-  }
-
-  try {
-    await Promise.allSettled([
-      loadFromWorker(false),
-      loadProximityFromWorker(false),
-      loadTravelAdvisories()
-    ]);
-
-    const active = document.querySelector('.nav-item-custom.active');
-    const region = active ? active.textContent.trim() : "Global";
-    filterNews(region);
-  } catch (e) {
-    console.error('manualRefresh error', e);
-  } finally {
-    if (btn) {
-      btn.style.opacity = "1";
-      btn.innerHTML = originalText;
-      btn.style.pointerEvents = "auto";
-    }
-  }
-}
-
-/* ===========================
-   CLOCKS
-=========================== */
-function startClock() {
-  const container = document.getElementById("multi-clock-container");
-  const zones = [
-    { label: "Austin", z: "America/Chicago" },
-    { label: "Ireland", z: "Europe/Dublin" },
-    { label: "India", z: "Asia/Kolkata" },
-    { label: "Singapore", z: "Asia/Singapore" },
-    { label: "Tokyo", z: "Asia/Tokyo" },
-    { label: "Sydney", z: "Australia/Sydney" }
-  ];
-
-  if (container && !container.innerHTML) {
-    container.innerHTML = zones.map(z => `
-      <div class="clock-box">
-        <div class="clock-label">${escapeHtml(z.label)}</div>
-        <div class="clock-val" id="clk-${escapeAttr(z.label)}">--:--</div>
-      </div>`).join('');
-  }
-
-  setInterval(() => {
-    const now = new Date();
-    zones.forEach(z => {
-      const el = document.getElementById(`clk-${z.label}`);
-      if (el) el.textContent = now.toLocaleTimeString("en-US", { timeZone: z.z, hour12: false, hour:'2-digit', minute:'2-digit' });
-    });
-  }, 1000);
-}
-
-/* ===========================
-   Filter news (main entry)
-=========================== */
-function filterNews(region) {
-  renderAssetsOnMap(region);
-  renderIncidentsOnMap(region, INCIDENTS);
-  renderGeneralFeed(region);
-  updateHeadline(region);
-  renderProximityAlerts(region);
-}
-
-/* ===========================
-   Update headline
-=========================== */
-function updateHeadline(region) {
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  const el = document.getElementById("headline-alert");
-  const tags = document.getElementById("headline-tags");
-  if (!el || !tags) return;
-  if (data.length) {
-    el.textContent = data[0].title || "Headline";
-    const sev = mapSeverityToLabel(data[0].severity);
-    tags.innerHTML = `
-      <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
-      <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
-      <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
-    `;
-  } else {
-    el.textContent = "No critical alerts.";
-    tags.innerHTML = "";
-  }
-}
-
-/* ===========================
-   BOOTSTRAP / EVENT BINDING
-=========================== */
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    // preload admin secret from sessionStorage
-    try {
-      const s = sessionStorage.getItem('admin_secret') || '';
-      if (s) { ADMIN_SECRET = s; try { document.getElementById('adminSecret').value = s; document.getElementById('adminRememberSession').checked = true; } catch(e){} }
-    } catch(e){}
-
-    initMap();
-    startClock();
-
-    // delegated click actions
-    document.addEventListener('click', async (ev) => {
-      const t = ev.target.closest('[data-action]');
-      if (!t) return;
-      if (t.tagName === 'A' && (t.getAttribute('href') === '#' || t.getAttribute('href') === '')) ev.preventDefault();
-      const action = String(t.dataset.action || '').trim();
-      if (!action) return;
-
-      if (action === 'filter-region') {
-        document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
-        t.classList.add('active');
-        filterNews(t.dataset.region || t.textContent.trim());
-        return;
-      }
-      if (action === 'refresh') { manualRefresh(); return; }
-      if (action === 'preview-brief') { previewBriefing(); return; }
-      if (action === 'download-brief') { downloadReport(); return; }
-      if (action === 'vote') {
-        ev.preventDefault(); ev.stopPropagation();
-        const id = t.getAttribute('data-id'); const v = t.getAttribute('data-vote');
-        await voteThumb(id, v);
-        return;
-      }
-      if (action === 'dismiss-alert') {
-        ev.preventDefault(); ev.stopPropagation();
-        const id = t.getAttribute('data-id');
-        if (id) dismissAlertById(id);
-        return;
-      }
-      if (action === 'admin-save-secret') { adminSaveSecret(); return; }
-      if (action === 'admin-clear-secret') { adminClearSecret(); return; }
-      if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
-      if (action === 'admin-unlock') { adminUnlock(); return; }
-      if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
-      if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
-      if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
-      if (action === 'admin-list-briefs') { adminListBriefs(); return; }
-    });
-
-    // clicking on feed-card opens link (except when clicking inner buttons/links)
-    document.addEventListener('click', (e) => {
-      const card = e.target.closest('.feed-card[data-link]');
-      if (!card) return;
-      if (e.target.closest('a')) return;
-      if (e.target.closest('[data-action]')) return;
-      const href = card.getAttribute('data-link');
-      if (!href) return;
-      try { window.open(href, '_blank', 'noopener'); } catch(e) {}
-    });
-
-    // inputs wiring
-    const historyPicker = document.getElementById('history-picker');
-    if (historyPicker) historyPicker.addEventListener('change', (ev) => loadHistory(ev.target.value));
-    const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
-    const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
-
-    // initial load
-    await loadFromWorker();
-    await loadProximityFromWorker();
-    filterNews("Global");
-    await loadTravelAdvisories();
-
-    // apply stored votes UI
-    Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
-
-    // schedule auto refresh
-    setInterval(async () => {
-      if (FEED_IS_LIVE) {
-        await loadFromWorker(true);
-        await loadProximityFromWorker(true);
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
-      }
-    }, AUTO_REFRESH_MS);
-
-    // try flush queue on load
-    setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
-  } catch(e) {
-    console.error('Initialization error', e);
-    const feed = document.getElementById('general-news-feed');
-    if (feed) feed.innerHTML = `<div style="padding:20px;color:#b00;">Application failed to initialize. See console for details.</div>`;
-  }
-});
-
-/* ===========================
-   Expose functions for debugging/legacy
-=========================== */
-window.loadTravelAdvisories = loadTravelAdvisories;
-window.filterTravel = filterTravel;
-window.loadHistory = loadHistory;
-window.voteThumb = voteThumb;
-window.flushVoteQueue = flushVoteQueue;
-window.updateProximityRadius = updateProximityRadius;
-window.dismissAlertById = dismissAlertById;
-window.manualRefresh = manualRefresh;
-window.filterNews = filterNews;
-window.adminGetSecret = adminGetSecret;
