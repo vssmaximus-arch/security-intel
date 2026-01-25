@@ -4,7 +4,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-crowdstrike-trains-genai-models-at-scale-using-distributed-computing/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942526+00:00",
+    "time": "2026-01-25T09:25:28.349410+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -14,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/streamline-security-operations-falcon-for-it-automations/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942494+00:00",
+    "time": "2026-01-25T09:25:28.349357+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-journey-in-customizing-nvidia-nemotron-models/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942462+00:00",
+    "time": "2026-01-25T09:25:28.349302+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-crowdstrike-detects-malware-at-machine-speed/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942425+00:00",
+    "time": "2026-01-25T09:25:28.349242+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-sgnl/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942390+00:00",
+    "time": "2026-01-25T09:25:28.349185+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/ai-tool-poisoning/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942356+00:00",
+    "time": "2026-01-25T09:25:28.349128+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-january-2026/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942322+00:00",
+    "time": "2026-01-25T09:25:28.349075+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-seraphic/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942286+00:00",
+    "time": "2026-01-25T09:25:28.349012+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +84,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/architecture-of-agentic-defense-inside-the-falcon-platform/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942249+00:00",
+    "time": "2026-01-25T09:25:28.348957+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,107 +94,107 @@
     "url": "https://www.crowdstrike.com/en-us/blog/usb-drives-threaten-enterprise-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-25T08:32:10.942203+00:00",
+    "time": "2026-01-25T09:25:28.348876+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.5 - 7 km S of Willow, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bsqngy",
+    "title": "M 2.2 - 53 km SSW of Whites City, New Mexico",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026bssxil",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.131039+00:00",
+    "time": "2026-01-25T09:25:23.443196+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.7 - 6 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301401",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-25T09:25:23.442911+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.3 - 19 km NNE of Indio, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41171599",
+    "title": "M 0.5 - 6 km NNW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301406",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.130735+00:00",
+    "time": "2026-01-25T09:25:23.442510+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.0 - 5 km NNW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301356",
+    "title": "M 0.8 - 6 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301411",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.130451+00:00",
+    "time": "2026-01-25T09:25:23.442231+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.4 - 18 km W of Trapper Creek, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bsqsau",
+    "title": "M 0.9 - 5 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301416",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.130165+00:00",
+    "time": "2026-01-25T09:25:23.441947+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.7 - 6 km NNW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301361",
+    "title": "M 2.2 - 15 km W of Karluk, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bstetr",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.129755+00:00",
+    "time": "2026-01-25T09:25:23.441641+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 3.7 - 67 km SSE of Halibut Cove, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bsttbc",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-25T09:25:23.441360+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.9 - 2 km SE of Adjuntas, Puerto Rico",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/pr71505878",
+    "title": "M 1.0 - 7 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301421",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.129466+00:00",
+    "time": "2026-01-25T09:25:23.440969+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.1 - 6 km NW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301366",
+    "title": "M 1.2 - 19 km S of Tatitlek, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bstzrn",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.129183+00:00",
+    "time": "2026-01-25T09:25:23.440654+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.4 - 6 km NW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301376",
+    "title": "M 1.2 - 34 km NNW of Valdez, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bsubub",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.128896+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 0.8 - 5 km WNW of Cobb, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301381",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.128586+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 0.8 - 4 km NW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75301396",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-25T08:32:05.128277+00:00",
+    "time": "2026-01-25T09:25:23.440338+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -204,7 +204,7 @@
     "url": "https://asia.nikkei.com/business/travel-leisure/fewer-chinese-tourists-cause-weaker-outlook-for-japanese-retailers-in-2026",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087704+00:00",
+    "time": "2026-01-25T09:25:10.926619+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -214,7 +214,7 @@
     "url": "https://asia.nikkei.com/business/food-beverage/japan-s-oyakodon-chicken-rice-bowls-roll-into-philippines",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087676+00:00",
+    "time": "2026-01-25T09:25:10.926590+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +224,7 @@
     "url": "https://asia.nikkei.com/business/energy/tepco-to-sell-assets-worth-1.3bn-in-restructuring-plan",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087648+00:00",
+    "time": "2026-01-25T09:25:10.926561+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +234,7 @@
     "url": "https://asia.nikkei.com/spotlight/trump-administration/donroe-doctrine-aims-to-weaken-china-trump-s-inner-circle-says",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087616+00:00",
+    "time": "2026-01-25T09:25:10.926529+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +244,7 @@
     "url": "https://asia.nikkei.com/editor-s-picks/interview/australia-social-media-ban-is-driving-healthy-public-debate-expert-says",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087588+00:00",
+    "time": "2026-01-25T09:25:10.926501+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +254,7 @@
     "url": "https://asia.nikkei.com/life-arts/life/india-tunes-in-as-podcasts-go-mainstream",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087558+00:00",
+    "time": "2026-01-25T09:25:10.926471+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/media-entertainment/taipei-101-free-solo-climb-on-netflix-grabs-global-spotlight",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087530+00:00",
+    "time": "2026-01-25T09:25:10.926442+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +274,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/uk-leader-starmer-set-to-visit-china-to-boost-trade-ties",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087495+00:00",
+    "time": "2026-01-25T09:25:10.926406+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +284,7 @@
     "url": "https://asia.nikkei.com/spotlight/your-week-in-asia/japan-election-debate-india-budget-asean-foreign-ministers-summit",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087462+00:00",
+    "time": "2026-01-25T09:25:10.926373+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,7 +294,47 @@
     "url": "https://asia.nikkei.com/business/consumer/overseas-customers-set-their-sights-on-japan-s-inexpensive-eyewear",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-25T08:31:32.087418+00:00",
+    "time": "2026-01-25T09:25:10.926328+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Korea begins investigation into Grok, sexually exploitative images",
+    "url": "https://www.scmp.com/news/asia/east-asia/article/3341158/korea-begins-investigation-grok-sexually-exploitative-images?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-25T09:11:51+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Gaza is not a real estate fantasy",
+    "url": "https://www.aljazeera.com/opinions/2026/1/25/gaza-is-not-a-real-estate-fantasy?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-25T08:54:10+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Protesters demand immigration agents leave Minneapolis",
+    "url": "https://www.aljazeera.com/gallery/2026/1/25/protesters-demand-immigration-agents-leave-minneapolis?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-25T08:50:41+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Chinese carmaker BYD chases 24% export growth with new models, more showrooms abroad",
+    "url": "https://www.scmp.com/business/china-business/article/3341156/chinese-carmaker-byd-chases-24-export-growth-new-models-more-showrooms-abroad?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-25T08:30:30+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -325,6 +365,16 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "washingtonpost.com",
     "time": "2026-01-25T08:06:56+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Climber Alex Honnold scales 101-floor skyscraper without safety gear",
+    "url": "https://www.bbc.com/news/articles/c4gl0njzxjdo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-25T08:06:16+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -370,7 +420,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "The Henderson among 3 buildings in Hong Kong to win major design awards",
+    "title": "The Henderson named ‘World’s Best Property’ as Hong Kong shines in building awards",
     "url": "https://www.scmp.com/news/hong-kong/hong-kong-economy/article/3341155/henderson-among-3-buildings-hong-kong-win-major-design-awards?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
@@ -450,52 +500,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Sudan’s women break ‘traditional rules’ to survive",
-    "url": "https://www.aljazeera.com/news/2026/1/25/sudans-women-break-traditional-rules-to-survive?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-25T06:23:35+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "65-year-old Hong Kong woman dies after taxi overturns in early morning crash",
     "url": "https://www.scmp.com/news/hong-kong/law-and-crime/article/3341147/65-year-old-hong-kong-woman-dies-after-taxi-overturns-early-morning-crash?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
     "time": "2026-01-25T06:17:43+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Gaza’s tent life between illness and daily despair",
-    "url": "https://www.aljazeera.com/features/2026/1/25/gaza-tent-life-pollution-illness-daily-despair?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-25T06:03:04+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Chinese boy saves US$28 for 6 months to buy mum birthday gift, touches shop owner",
-    "url": "https://www.scmp.com/news/people-culture/trending-china/article/3341145/chinese-boy-saves-us28-6-months-buy-mum-birthday-gift-touches-shop-owner?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-25T06:00:11+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "How Johor-Singapore SEZ is delivering for businesses a year on",
-    "url": "https://www.scmp.com/week-asia/economics/article/3341140/how-johor-singapore-sez-delivering-businesses-year?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-25T05:30:08+00:00",
-    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -515,16 +525,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "gcaptain.com",
     "time": "2026-01-25T04:18:02+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Myanmar holds final election round, military-backed party set to win",
-    "url": "https://www.aljazeera.com/news/2026/1/25/myanmar-holds-final-election-round-military-backed-party-set-to-win?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-25T04:17:31+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -795,16 +795,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-01-24T15:47:17+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Climber delays rope-free skyscraper challenge over rain",
-    "url": "https://www.bbc.com/news/articles/c8rm135lnneo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-24T15:39:05+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1846,16 +1836,6 @@
     "source": "splash247.com",
     "time": "2026-01-23T08:10:32+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "The rollercoaster years that led to the US-TikTok deal",
-    "url": "https://www.bbc.com/news/articles/c6200mz054yo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-23T08:08:54+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
