@@ -4,7 +4,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/streamline-security-operations-falcon-for-it-automations/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.909041+00:00",
+    "time": "2026-01-28T13:52:45.082485+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -14,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-journey-in-customizing-nvidia-nemotron-models/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.909007+00:00",
+    "time": "2026-01-28T13:52:45.082453+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-crowdstrike-detects-malware-at-machine-speed/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908970+00:00",
+    "time": "2026-01-28T13:52:45.082417+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-sgnl/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908935+00:00",
+    "time": "2026-01-28T13:52:45.082382+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/ai-tool-poisoning/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908899+00:00",
+    "time": "2026-01-28T13:52:45.082349+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-january-2026/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908865+00:00",
+    "time": "2026-01-28T13:52:45.082317+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-seraphic/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908829+00:00",
+    "time": "2026-01-28T13:52:45.082282+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/architecture-of-agentic-defense-inside-the-falcon-platform/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908792+00:00",
+    "time": "2026-01-28T13:52:45.082247+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +84,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/usb-drives-threaten-enterprise-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908749+00:00",
+    "time": "2026-01-28T13:52:45.082210+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,117 +94,107 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-protection-day-2026-from-compliance-to-resilience/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-01-28T12:56:50.908686+00:00",
+    "time": "2026-01-28T13:52:45.082164+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 5.0 - South Sandwich Islands region",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000s4z9",
+    "title": "M 4.6 - 31 km SW of Sangay, Philippines",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000s4zg",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.013216+00:00",
+    "time": "2026-01-28T13:52:34.154837+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 1.3 - 2 km WNW of Anderson Springs, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303086",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-01-28T13:52:34.154565+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.2 - 112 km S of McCarthy, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bylpnm",
+    "title": "M 1.5 - 8 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303096",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.012928+00:00",
+    "time": "2026-01-28T13:52:34.154283+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.8 - 80 km NNW of Karluk, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026bylxwq",
+    "title": "M 2.0 - 2 km NE of Dibble, Oklahoma",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ok2026byis",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.012611+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 0.9 - 6 km NW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303066",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.012323+00:00",
+    "time": "2026-01-28T13:52:34.153980+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.4 - 25 km SSE of Fern Forest, Hawaii",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74887132",
+    "title": "M 1.1 - 19 km NNE of Indio, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41174823",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.012024+00:00",
+    "time": "2026-01-28T13:52:34.153603+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.3 - 23 km SW of Snyder, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026byncjb",
+    "title": "M 1.0 - 7 km NW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303101",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.011707+00:00",
+    "time": "2026-01-28T13:52:34.153323+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.6 - 14 km ENE of Indio, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41174807",
+    "title": "M 0.8 - 4 km WNW of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303106",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.011413+00:00",
+    "time": "2026-01-28T13:52:34.153022+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.6 - 18 km N of Indio, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41174815",
+    "title": "M 2.3 - 34 km NW of Beluga, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026byplgi",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.011111+00:00",
+    "time": "2026-01-28T13:52:34.152740+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.8 - 7 km WNW of Cobb, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303076",
+    "title": "M 1.1 - 8 km W of Cobb, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75303111",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.010792+00:00",
+    "time": "2026-01-28T13:52:34.152453+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.8 - 0 km SW of Hilo, Hawaii",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74887152",
+    "title": "M 0.7 - 3 km SW of Idyllwild, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41174839",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-01-28T12:56:42.010447+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "UN warns of 'lost generation' in Myanmar over low vaccination rates",
-    "url": "https://asia.nikkei.com/spotlight/myanmar-crisis/un-warns-of-lost-generation-in-myanmar-over-low-vaccination-rates",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.493030+00:00",
+    "time": "2026-01-28T13:52:34.152149+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -214,7 +204,7 @@
     "url": "https://asia.nikkei.com/business/energy/japan-utility-weighs-building-lng-power-plant-in-hokkaido",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492998+00:00",
+    "time": "2026-01-28T13:52:19.573615+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +214,7 @@
     "url": "https://asia.nikkei.com/business/automobiles/chery-s-south-africa-deal-highlights-global-push-as-it-ditches-russia",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492972+00:00",
+    "time": "2026-01-28T13:52:19.573589+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +224,7 @@
     "url": "https://asia.nikkei.com/politics/bangladesh-election/bangladesh-s-first-post-uprising-election-5-things-to-know",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492935+00:00",
+    "time": "2026-01-28T13:52:19.573557+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +234,7 @@
     "url": "https://asia.nikkei.com/business/automobiles/vinfast-autobrains-aim-for-cheap-self-driving-tech-without-lidar",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492904+00:00",
+    "time": "2026-01-28T13:52:19.573526+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +244,7 @@
     "url": "https://asia.nikkei.com/business/technology/malaysia-s-data-center-capacity-set-to-double-by-end-2026",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492870+00:00",
+    "time": "2026-01-28T13:52:19.573493+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +254,7 @@
     "url": "https://asia.nikkei.com/business/markets/equities/indonesia-stocks-dive-nearly-9-as-msci-freezes-new-inclusions",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492840+00:00",
+    "time": "2026-01-28T13:52:19.573465+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +264,7 @@
     "url": "https://asia.nikkei.com/announcements/nikkei-to-launch-new-index-tracking-major-japanese-bank-stocks",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492804+00:00",
+    "time": "2026-01-28T13:52:19.573435+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +274,7 @@
     "url": "https://asia.nikkei.com/politics/international-relations/taiwan-tensions/taiwan-s-kmt-chinese-communist-party-to-hold-think-tank-exchange",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492724+00:00",
+    "time": "2026-01-28T13:52:19.573406+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,8 +284,228 @@
     "url": "https://asia.nikkei.com/business/tech/semiconductors/asml-sees-ai-chip-and-memory-growth-exceeding-20-in-coming-years",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-01-28T12:56:27.492666+00:00",
+    "time": "2026-01-28T13:52:19.573371+00:00",
     "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Washington's Asia experts shift from think tanks to private power firms",
+    "url": "https://asia.nikkei.com/politics/washington-s-asia-experts-shift-from-think-tanks-to-private-power-firms",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-01-28T13:52:19.573324+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "The Military Doesn’t Just Train Drivers. It Builds Citizens. Maybe That’s What We’re Missing.",
+    "url": "https://www.freightwaves.com/news/the-military-doesnt-just-train-drivers-it-builds-citizens-maybe-thats-what-were-missing",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "freightwaves.com",
+    "time": "2026-01-28T13:50:33+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "oPt: Settler violence drives forced displacement in the West Bank [EN/AR]",
+    "url": "https://reliefweb.int/report/occupied-palestinian-territory/settler-violence-drives-forced-displacement-west-bank-enar",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T13:42:56+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Fed Meeting Comes at Pivotal Moment for Central Bank’s Independence",
+    "url": "https://www.nytimes.com/2026/01/28/business/economy/fed-trump-powell-interest-rates.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-01-28T13:32:34+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "What we know about plane crash that killed Ajit Pawar",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/1/28/what-we-know-about-plane-crash-that-killed-ajit-pawar?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-28T13:32:33+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Starbucks Says Turnaround ‘Ahead of Schedule’ as Sales Rebound",
+    "url": "https://www.nytimes.com/2026/01/28/business/starbucks-sales-earnings-turnaround.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-01-28T13:31:23+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "What haunts China’s investors? US geopolitics and a birth dearth, survey finds",
+    "url": "https://www.scmp.com/economy/global-economy/article/3341567/what-haunts-chinas-investors-us-geopolitics-and-birth-dearth-survey-finds?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-28T13:30:08+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Amazon cuts 16,000 jobs amid AI shift, post-pandemic restructuring",
+    "url": "https://www.scmp.com/news/world/united-states-canada/article/3341581/amazon-cuts-16000-jobs-amid-ai-shift-post-pandemic-restructuring?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-28T13:24:47+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Nigeria: Disability Working Group: 2025 Annual Report",
+    "url": "https://reliefweb.int/report/nigeria/disability-working-group-2025-annual-report",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T13:23:14+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Buoyant SITC increases intra-Asia market share and profits",
+    "url": "https://theloadstar.com/buoyant-sitc-increases-intra-asia-market-share-and-profits/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theloadstar.com",
+    "time": "2026-01-28T13:21:07+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Five Questions for Jerome Powell, the Fed Chair",
+    "url": "https://www.nytimes.com/2026/01/28/business/dealbook/powell-federal-reserve-rates.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-01-28T13:20:13+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Clay, an A.I. Sales Start-Up, Lets Employees Cash Out. Again.",
+    "url": "https://www.nytimes.com/2026/01/28/business/dealbook/clay-start-up-tender-offers.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-01-28T13:15:59+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hackers hijack exposed LLM endpoints in Bizarre Bazaar operation",
+    "url": "https://www.bleepingcomputer.com/news/security/hackers-hijack-exposed-llm-endpoints-in-bizarre-bazaar-operation/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bleepingcomputer.com",
+    "time": "2026-01-28T13:15:03+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Amazon confirms 16,000 job cuts after accidental email",
+    "url": "https://www.bbc.com/news/articles/cx2ywzxlxnlo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-28T13:11:09+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "China pitches itself as a reliable partner as Trump alienates US allies",
+    "url": "https://www.aljazeera.com/news/2026/1/28/china-pitches-itself-as-a-reliable-partner-as-trump-alienates-us-allies?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-28T13:09:11+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "FMC launches probe into liners and shipper choice on chassis",
+    "url": "https://theloadstar.com/fmc-launches-probe-into-liners-and-shipper-choice-on-chassis/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theloadstar.com",
+    "time": "2026-01-28T13:05:38+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump says government will 'de-escalate' in Minnesota following Pretti shooting",
+    "url": "https://www.bbc.com/news/articles/c0q425vg4qzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-28T13:05:30+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Sudan Emergency: Population movements from Sudan (26 January, 2026)",
+    "url": "https://reliefweb.int/report/sudan/sudan-emergency-population-movements-sudan-26-january-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T13:03:05+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "World: The 10 most under-reported humanitarian crises of 2025 - CARE",
+    "url": "https://reliefweb.int/report/world/10-most-under-reported-humanitarian-crises-2025-care",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T13:03:03+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "'I don't let bullies win,' says US congresswoman Omar after substance thrown at her",
+    "url": "https://www.bbc.com/news/articles/cn9zpee3llxo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-28T13:01:10+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Moonshot’s newest release narrows US-China AI model development gap: analysts",
+    "url": "https://www.scmp.com/tech/tech-trends/article/3341580/moonshots-newest-release-narrows-us-china-ai-model-development-gap-analysts?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-01-28T13:00:10+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Venezuela and Mexico: How Trump is trying to choke Cuba’s oil supplies",
+    "url": "https://www.aljazeera.com/news/2026/1/28/venezuela-and-mexico-how-trump-is-trying-to-choke-cubas-oil-supplies?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-28T12:59:28+00:00",
+    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -305,6 +515,36 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "bleepingcomputer.com",
     "time": "2026-01-28T12:49:05+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "QRCS distributes winter clothes to Yemeni children [EN/AR]",
+    "url": "https://reliefweb.int/report/yemen/qrcs-distributes-winter-clothes-yemeni-children-enar",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T12:44:22+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How Israeli destruction of Gaza fertility clinics erased parenthood dreams",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/1/28/how-israeli-destruction-of-gaza-fertility-clinics-erased-parenthood-dreams?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-28T12:43:01+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Two High-Severity n8n Flaws Allow Authenticated Remote Code Execution",
+    "url": "https://thehackernews.com/2026/01/two-high-severity-n8n-flaws-allow.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "thehackernews.com",
+    "time": "2026-01-28T12:43:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -320,7 +560,27 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Make deal or face ‘far worse’ attack, Trump tells Iran in new threat",
+    "title": "Somalia - Humanitarian Response Dashboard, December 2025",
+    "url": "https://reliefweb.int/report/somalia/somalia-humanitarian-response-dashboard-december-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T12:41:45+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hungary charges Budapest mayor for allowing banned pride march",
+    "url": "https://www.aljazeera.com/news/2026/1/28/hungary-charges-budapest-mayor-for-allowing-banned-pride-march?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-01-28T12:41:34+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump reiterates threat of military action with demand for Iran deal",
     "url": "https://www.aljazeera.com/news/2026/1/28/make-deal-or-face-far-worse-attack-trump-tells-iran-in-new-threat?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "aljazeera.com",
@@ -340,11 +600,31 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "EU and CESVI Foster Cross-Sector Partnerships Through CSR Forum in Libya (24 January 2026)",
+    "url": "https://reliefweb.int/report/libya/eu-and-cesvi-foster-cross-sector-partnerships-through-csr-forum-libya-24-january-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T12:36:56+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "My dog's treatment cost £1,600 - vet bills are shocking",
     "url": "https://www.bbc.com/news/articles/cd7zpgn5n47o?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "bbc.com",
     "time": "2026-01-28T12:31:39+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Jamaica: WFP Caribbean MCO Situation Report, 26 January 2026",
+    "url": "https://reliefweb.int/report/jamaica/wfp-caribbean-mco-situation-report-26-january-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T12:30:17+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -360,12 +640,42 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Nigeria – Demolition causing displacement, Lagos (UNICEF, IOM, media) (ECHO Daily Flash of 28 January 2026)",
+    "url": "https://reliefweb.int/report/nigeria/nigeria-demolition-causing-displacement-lagos-unicef-iom-media-echo-daily-flash-28-january-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T12:29:19+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Somalia – 2026 Humanitarian Needs and Response Plan (UN) (ECHO Daily Flash of 28 January 2026)",
+    "url": "https://reliefweb.int/report/somalia/somalia-2026-humanitarian-needs-and-response-plan-un-echo-daily-flash-28-january-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-01-28T12:29:18+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "The Rise and Fall of South Korean First Lady Kim Keon Hee",
     "url": "https://www.nytimes.com/2026/01/28/world/asia/korea-first-lady-kim-keon-hee-jail.html",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-01-28T12:23:05+00:00",
     "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Amazon tells workers it will cut 16,000 jobs worldwide in second big wave of layoffs",
+    "url": "https://www.theguardian.com/technology/2026/jan/28/amazon-global-job-cuts-email-error-workers-sent",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theguardian.com",
+    "time": "2026-01-28T12:23:03+00:00",
+    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -430,7 +740,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Three brothers die after falling in frozen Texas pond",
+    "title": "'I couldn't save them' - US mum's horror as three sons die falling through pond ice",
     "url": "https://www.bbc.com/news/articles/cvg1z091melo?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "bbc.com",
@@ -470,6 +780,26 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "‘Shameful’: Trump’s EPA accused of prioritizing big business over public health",
+    "url": "https://www.theguardian.com/us-news/2026/jan/28/trump-epa-environmental-rollbacks",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theguardian.com",
+    "time": "2026-01-28T12:00:10+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "From Triage to Threat Hunts: How AI Accelerates SecOps",
+    "url": "https://thehackernews.com/2026/01/from-triage-to-threat-hunts-how-ai.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "thehackernews.com",
+    "time": "2026-01-28T11:55:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "India revokes failed ‘game-changing’ cabotage reform",
     "url": "https://theloadstar.com/india-revokes-failed-game-changing-cabotage-reform/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -486,6 +816,16 @@
     "source": "aljazeera.com",
     "time": "2026-01-28T11:51:29+00:00",
     "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Government offers UK adults free AI training for work",
+    "url": "https://www.bbc.com/news/articles/cp37prvp072o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-01-28T11:50:21+00:00",
+    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -520,16 +860,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Hong Kong police arrest 7 over bogus HK$10 million bankruptcy loan scheme",
-    "url": "https://www.scmp.com/news/hong-kong/law-and-crime/article/3341575/hong-kong-police-arrest-7-over-bogus-hk10-million-bankruptcy-loan-scheme?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-28T11:46:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Ecuador says ICE agent attempted to enter its Minneapolis consulate",
     "url": "https://www.bbc.com/news/articles/c4g40k40xndo?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -550,22 +880,22 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Mustang Panda Deploys Updated COOLCLIENT Backdoor in Government Cyber Attacks",
+    "url": "https://thehackernews.com/2026/01/mustang-panda-deploys-updated.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "thehackernews.com",
+    "time": "2026-01-28T11:40:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Amazon: ‘Update on our organization’ – 16,000 employees impacted",
     "url": "https://theloadstar.com/amazon-update-on-our-organization-16000-employees-impacted/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theloadstar.com",
     "time": "2026-01-28T11:35:21+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Bank Indonesia’s autonomy under scrutiny as Prabowo’s nephew joins leadership",
-    "url": "https://www.scmp.com/week-asia/economics/article/3341563/bank-indonesias-autonomy-under-scrutiny-prabowos-nephew-joins-leadership?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-28T11:30:07+00:00",
-    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -580,42 +910,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Who was Ajit Pawar, the Indian politician killed in plane crash?",
-    "url": "https://www.aljazeera.com/news/2026/1/28/who-was-ajit-pawar-the-indian-politician-killed-in-plane-crash?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-28T11:25:36+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Marten’s fourth quarter was better than the third",
     "url": "https://www.freightwaves.com/news/martens-fourth-quarter-was-better-than-the-third",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "freightwaves.com",
     "time": "2026-01-28T11:24:55+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Amazon confirms 16,000 job cuts after accidental email",
-    "url": "https://www.bbc.com/news/articles/cx2ywzxlxnlo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-28T11:21:38+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Communist Party and KMT revive forum stalled by decade of cross-strait tensions",
-    "url": "https://www.scmp.com/news/china/politics/article/3341569/communist-party-and-kmt-revive-forum-stalled-decade-cross-strait-tensions?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-01-28T11:21:11+00:00",
-    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -660,42 +960,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "ICE, Ilhan Omar and Somalis: Unpacking Trump’s obsession with Minnesota",
-    "url": "https://www.aljazeera.com/news/2026/1/28/ice-ilhan-omar-and-somalis-unpacking-trumps-obsession-with-minnesota?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-28T10:54:25+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Veteran Indian Politician Among 5 Killed in Plane Crash",
     "url": "https://www.nytimes.com/2026/01/28/world/asia/india-plane-crash.html",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-01-28T10:52:13+00:00",
     "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Tech giant ASML announces record orders in boost for AI boom",
-    "url": "https://www.aljazeera.com/economy/2026/1/28/tech-giant-asml-announces-record-orders-in-boost-for-ai-boom?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-28T10:35:44+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Israel’s attacks on Gaza fertility clinics shatter dreams of parenthood",
-    "url": "https://www.aljazeera.com/news/2026/1/28/israels-attacks-on-gaza-fertility-clinics-shatter-dreams-of-parenthood?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-28T10:30:20+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -720,31 +990,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "At least three people killed in Russian attacks on Ukraine",
-    "url": "https://www.aljazeera.com/news/2026/1/28/russia-launches-new-deadly-strikes-across-ukraine?traffic_source=rss",
+    "title": "US dollar sinks to its lowest level in four years",
+    "url": "https://www.theguardian.com/business/2026/jan/28/us-dollar-sinks-lowest-level-four-years",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-01-28T10:12:49+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "'I don't let bullies win,' says US congresswoman Omar after substance thrown at her",
-    "url": "https://www.bbc.com/news/articles/cn9zpee3llxo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-28T10:11:19+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Fed Meeting Comes at Pivotal Moment for Central Bank’s Independence",
-    "url": "https://www.nytimes.com/2026/01/28/business/economy/fed-trump-powell-interest-rates.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-01-28T10:04:08+00:00",
+    "source": "theguardian.com",
+    "time": "2026-01-28T10:23:50+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -990,16 +1240,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump says government will 'de-escalate' in Minnesota following Pretti shooting",
-    "url": "https://www.bbc.com/news/articles/c0q425vg4qzo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-28T05:38:48+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Fortinet Patches CVE-2026-24858 After Active FortiOS SSO Exploitation Detected",
     "url": "https://thehackernews.com/2026/01/fortinet-patches-cve-2026-24858-after.html",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1210,16 +1450,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Microsoft Pledged to Save Water. In the A.I. Era, It Expects Water Use to Soar.",
-    "url": "https://www.nytimes.com/2026/01/27/technology/microsoft-water-ai-data-centers.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-01-27T23:30:19+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Fortinet blocks exploited FortiCloud SSO zero day until patch is ready",
     "url": "https://www.bleepingcomputer.com/news/security/fortinet-blocks-exploited-forticloud-sso-zero-day-until-patch-is-ready/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1290,16 +1520,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Meta Campaigns to Change Opinions on Data Centers",
-    "url": "https://www.nytimes.com/2026/01/27/technology/meta-data-center-ads.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-01-27T21:23:06+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Trucking Alliance’s safety agenda 3: broad regulatory changes on English, ELDs and insurance",
     "url": "https://www.freightwaves.com/news/trucking-alliances-safety-agenda-3-broad-regulatory-changes-on-english-elds-and-insurance",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1346,16 +1566,6 @@
     "source": "bbc.com",
     "time": "2026-01-27T20:30:27+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "TikTok US pushes back on claims it is censoring content",
-    "url": "https://www.bbc.com/news/articles/ckgjedpn8p8o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-01-27T20:25:11+00:00",
-    "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1456,16 +1666,6 @@
     "source": "theguardian.com",
     "time": "2026-01-27T18:57:59+00:00",
     "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Union Pacific reports record financial results",
-    "url": "https://www.freightwaves.com/news/union-pacific-reports-record-financial-results",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "freightwaves.com",
-    "time": "2026-01-27T18:47:50+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1660,16 +1860,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "From Cipher to Fear: The psychology behind modern ransomware extortion",
-    "url": "https://www.bleepingcomputer.com/news/security/from-cipher-to-fear-the-psychology-behind-modern-ransomware-extortion/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bleepingcomputer.com",
-    "time": "2026-01-27T15:02:12+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "US tech workers call on CEOs to demand Trump remove ICE from cities",
     "url": "https://www.theguardian.com/us-news/2026/jan/27/us-tech-workers-ice-petition-cancel-contracts-ceo",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1685,16 +1875,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "thehackernews.com",
     "time": "2026-01-27T14:38:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "She’s the Face of Trump’s Aviation Safety Board, and She’s a Democrat",
-    "url": "https://www.nytimes.com/2026/01/27/us/politics/jennifer-homendy-trump-transportation-safety-board.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-01-27T14:35:53+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1780,16 +1960,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Workers may become ‘a liability’ as benefits improve and AI moves in",
-    "url": "https://theloadstar.com/workers-may-be-seen-as-a-liability-as-benefits-improve-and-ai-moves-in/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theloadstar.com",
-    "time": "2026-01-27T13:16:20+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Man, 29, races against time to preserve voices of Holocaust survivors",
     "url": "https://www.washingtonpost.com/lifestyle/2026/01/27/holocaust-survivors-interviews-jiri-kluc/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1805,16 +1975,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theguardian.com",
     "time": "2026-01-27T12:57:48+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Nuclear box ships ‘not just a vision’, but ‘technically feasible’",
-    "url": "https://theloadstar.com/nuclear-box-ships-not-just-a-vision-but-technically-feasible/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theloadstar.com",
-    "time": "2026-01-27T12:56:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1870,16 +2030,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "CTEM in Practice: Prioritization, Validation, and Outcomes That Matter",
-    "url": "https://thehackernews.com/2026/01/ctem-in-practice-prioritization.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "thehackernews.com",
-    "time": "2026-01-27T11:50:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Hamas took 251 hostages from Israel into Gaza. What happened to them?",
     "url": "https://www.washingtonpost.com/world/interactive/hamas-hostages-israel-war-gaza/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1896,26 +2046,6 @@
     "source": "gdacs.org",
     "time": "2026-01-27T10:38:22+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Microsoft Office Zero-Day (CVE-2026-21509) - Emergency Patch Issued for Active Exploitation",
-    "url": "https://thehackernews.com/2026/01/microsoft-issues-emergency-patch-for.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "thehackernews.com",
-    "time": "2026-01-27T10:37:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Critical Grist-Core Vulnerability Allows RCE Attacks via Spreadsheet Formulas",
-    "url": "https://thehackernews.com/2026/01/critical-grist-core-vulnerability.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "thehackernews.com",
-    "time": "2026-01-27T10:36:00+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -2180,16 +2310,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Canada has no intention of pursuing free trade with China, says Carney",
-    "url": "https://www.theguardian.com/world/2026/jan/25/canada-has-no-intention-of-pursuing-free-trade-with-china-says-carney",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theguardian.com",
-    "time": "2026-01-25T18:33:31+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Minnesota workers pressure employers to take action against ICE operations",
     "url": "https://www.theguardian.com/business/2026/jan/25/target-delta-hilton-minnesota-ice-trump",
     "snippet": "Gemini unavailable – default relevance.",
@@ -2206,26 +2326,6 @@
     "source": "supplychaindive.com",
     "time": "2026-01-24T18:14:00+00:00",
     "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Is the supreme court ready to stand up to Trump over Federal Reserve attack?",
-    "url": "https://www.theguardian.com/business/2026/jan/24/trump-supreme-court-federal-reserve",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theguardian.com",
-    "time": "2026-01-24T12:00:39+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "‘Repatriate the gold’: German economists advise withdrawal from US vaults",
-    "url": "https://www.theguardian.com/world/2026/jan/24/repatriate-the-gold-german-economists-advise-withdrawal-from-us-vaults",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theguardian.com",
-    "time": "2026-01-24T08:00:34+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
