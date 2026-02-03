@@ -1,20 +1,10 @@
 [
   {
-    "title": "January 2026 Patch Tuesday: 114 CVEs Patched Including 3 Zero-Days",
-    "url": "https://www.crowdstrike.com/en-us/blog/patch-tuesday-analysis-january-2026/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304832+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "CrowdStrike to Acquire Seraphic to Secure Work in Any Browser",
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-to-acquire-seraphic/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304767+00:00",
+    "time": "2026-02-03T17:56:17.049994+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/architecture-of-agentic-defense-inside-the-falcon-platform/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304715+00:00",
+    "time": "2026-02-03T17:56:17.049964+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/usb-drives-threaten-enterprise-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304672+00:00",
+    "time": "2026-02-03T17:56:17.049936+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-protection-day-2026-from-compliance-to-resilience/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304604+00:00",
+    "time": "2026-02-03T17:56:17.049908+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-named-customers-choice-2026-gartner-voice-of-the-customer-for-epp-report/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304538+00:00",
+    "time": "2026-02-03T17:56:17.049881+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/labyrinth-chollima-evolves-into-three-adversaries/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304442+00:00",
+    "time": "2026-02-03T17:56:17.049845+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-agentic-tool-chain-attacks-threaten-ai-agent-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304395+00:00",
+    "time": "2026-02-03T17:56:17.049816+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +74,17 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-three-companies-secure-ai-with-crowdstrike/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304358+00:00",
+    "time": "2026-02-03T17:56:17.049785+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CrowdStrike Falcon Scores Perfect 100% in SE Labs&rsquo; Most Challenging Ransomware Test",
+    "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-falcon-scores-100-percent-in-se-labs-ransomware-test/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "crowdstrike.com",
+    "time": "2026-02-03T17:56:17.049750+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,127 +94,107 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-named-customers-choice-2026-gartner-peer-insights-voice-of-the-customer-for-aspm/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-03T16:57:32.304275+00:00",
+    "time": "2026-02-03T17:56:17.049702+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 5.1 - western Indian-Antarctic Ridge",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000s65l",
+    "title": "M 2.8 - 4 km ESE of San Ramon, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75306796",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.209274+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.4 - 13 km W of Toms Place, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75306756",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.208997+00:00",
+    "time": "2026-02-03T17:56:12.711671+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 5.2 - 88 km W of Yenangyaung, Burma (Myanmar)",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000s65j",
+    "title": "M 2.6 - 64 km E of Port Alsworth, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026cjwvxc",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.208712+00:00",
+    "time": "2026-02-03T17:56:12.711343+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.1 - 7 km ESE of Pearsall, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026cjusqd",
+    "title": "M 0.6 - 24 km N of Borrego Springs, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41390960",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.208321+00:00",
+    "time": "2026-02-03T17:56:12.711105+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.3 - 3 km SE of San Ramon, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75306766",
+    "title": "M 1.5 - 3 km W of San Ramon, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75306806",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.208044+00:00",
+    "time": "2026-02-03T17:56:12.710865+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.3 - 53 km W of Happy Valley, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026cjvlbm",
+    "title": "M 1.7 - 2 km ESE of The Geysers, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75306816",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.207763+00:00",
+    "time": "2026-02-03T17:56:12.710625+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.3 - 3 km SSW of Centerville, South Carolina",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/se60617271",
+    "title": "M 1.1 - 88 km SE of McCarthy, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026cjxlvi",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.207473+00:00",
+    "time": "2026-02-03T17:56:12.710371+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.4 - 10 km SE of Winchester, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41178863",
+    "title": "M 1.6 - 3 km NNW of Redway, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75307767",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.207078+00:00",
+    "time": "2026-02-03T17:56:12.710127+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.6 - 44 km NW of Toyah, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026cjvsvk",
+    "title": "M 2.1 - 25 km WSW of Petersville, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026cjxurw",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.206789+00:00",
+    "time": "2026-02-03T17:56:12.709879+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.2 - 23 km NNW of Borrego Springs, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41178871",
+    "title": "M 1.6 - 6 km SE of Sunol, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75307772",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-03T16:57:27.206475+00:00",
+    "time": "2026-02-03T17:56:12.709626+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Indian firms welcome US trade deal after 50% tariffs dented profits",
-    "url": "https://asia.nikkei.com/economy/trade-war/trump-tariffs/indian-firms-welcome-us-trade-deal-after-50-tariffs-dented-profits",
+    "title": "M 0.7 - 5 km WNW of Cobb, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75307777",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162214+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Nintendo shrugs off higher chip costs, sticks to profit forecast",
-    "url": "https://asia.nikkei.com/business/media-entertainment/nintendo-shrugs-off-higher-chip-costs-sticks-to-profit-forecast",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162173+00:00",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-02-03T17:56:12.709247+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -224,7 +204,7 @@
     "url": "https://asia.nikkei.com/business/business-deals/japan-s-renesas-to-sell-timing-solution-segment-to-us-based-sitime-for-3bn",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162130+00:00",
+    "time": "2026-02-03T17:55:59.619344+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +214,7 @@
     "url": "https://asia.nikkei.com/business/aerospace-defense-industries/singapore-airshow-highlights-shift-to-sustainable-fuel",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162099+00:00",
+    "time": "2026-02-03T17:55:59.619318+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +224,7 @@
     "url": "https://asia.nikkei.com/economy/trade-war/trump-tariffs/indian-shares-and-rupee-soar-after-trump-modi-trade-deal2",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162071+00:00",
+    "time": "2026-02-03T17:55:59.619295+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +234,7 @@
     "url": "https://asia.nikkei.com/spotlight/trump-administration/eurasian-states-recruit-high-priced-us-lobbyists-in-trump-outreach",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162041+00:00",
+    "time": "2026-02-03T17:55:59.619270+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,7 +244,7 @@
     "url": "https://asia.nikkei.com/economy/trade-war/trump-tariffs/modi-and-trump-finally-reach-a-trade-deal-5-things-to-know",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.162010+00:00",
+    "time": "2026-02-03T17:55:59.619245+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -274,7 +254,7 @@
     "url": "https://asia.nikkei.com/business/transportation/panama-canal-ports-what-s-next-after-ck-hutchison-s-concession-loss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.161973+00:00",
+    "time": "2026-02-03T17:55:59.619215+00:00",
     "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -284,7 +264,7 @@
     "url": "https://asia.nikkei.com/business/companies/adani-profit-doubles-as-airports-unit-sees-strong-growth",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.161933+00:00",
+    "time": "2026-02-03T17:55:59.619184+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,8 +274,158 @@
     "url": "https://asia.nikkei.com/business/pharmaceuticals/takeda-kyoto-university-end-10-year-stem-cell-tie-up-with-no-new-drugs",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-03T16:57:13.161868+00:00",
+    "time": "2026-02-03T17:55:59.619156+00:00",
     "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "China's Honor touts phone battery with double iPhone's capacity",
+    "url": "https://asia.nikkei.com/business/electronics/china-s-honor-touts-phone-battery-with-double-iphone-s-capacity",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-02-03T17:55:59.619118+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "China starts paying interest on digital yuan in latest bid extend its reach",
+    "url": "https://asia.nikkei.com/business/finance/china-starts-paying-interest-on-digital-yuan-in-latest-bid-extend-its-reach",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-02-03T17:55:59.619074+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Clintons agree to testify on Epstein as vote looms to hold them in contempt of Congress",
+    "url": "https://www.bbc.com/news/articles/c14r685mne4o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-03T17:53:38+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "PepsiCo to cut some US snack prices after backlash",
+    "url": "https://www.bbc.com/news/articles/cm2y38v4prvo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-03T17:36:48+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Disney Names Josh D’Amaro as Next C.E.O.",
+    "url": "https://www.nytimes.com/2026/02/03/business/disney-damaro-ceo.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-02-03T17:36:46+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "American Great Lakes Ports Launch Study to Expand Cargo Shipments Between Great Lakes and Inland Waterways",
+    "url": "https://gcaptain.com/american-great-lakes-ports-launch-study-to-expand-cargo-shipments-between-great-lakes-and-inland-waterways/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "gcaptain.com",
+    "time": "2026-02-03T17:35:25+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Gemini’s India-Med Loop to resume full Suez transits this month",
+    "url": "https://theloadstar.com/geminis-india-med-loop-to-resume-full-suez-transits-this-month/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "theloadstar.com",
+    "time": "2026-02-03T17:22:37+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Diesel benchmark and futures move up again, but with possible signs of a peak",
+    "url": "https://www.freightwaves.com/news/diesel-benchmark-and-futures-move-up-again-but-with-possible-signs-of-a-peak",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "freightwaves.com",
+    "time": "2026-02-03T17:14:57+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Spain Aims to Ban Social Media for Children Under 16",
+    "url": "https://www.nytimes.com/2026/02/03/world/europe/spain-social-media-ban-under-16.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-02-03T17:14:04+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Watch: BBC joins Colombian commandos fighting 'never-ending battle' against drug gangs",
+    "url": "https://www.bbc.com/news/articles/c04105ywkkqo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-03T17:12:42+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Iran's president says it is ready to negotiate with the US",
+    "url": "https://www.bbc.com/news/articles/c4gw10mkz0yo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-03T17:05:06+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Echo embraces bottom-up AI strategy to transform operations",
+    "url": "https://www.freightwaves.com/news/echo-embraces-bottom-up-ai-strategy-to-transform-operations",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "freightwaves.com",
+    "time": "2026-02-03T17:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Jeffrey Epstein’s Trust Reveals Beneficiaries of His Fortune",
+    "url": "https://www.nytimes.com/2026/02/03/business/jeffrey-epstein-trust-inherit-karyna-shuliak.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-02-03T16:58:44+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "‘Don Colossus,’ a Golden Statue of President Trump, Waits for Its Home",
+    "url": "https://www.nytimes.com/2026/02/03/technology/trump-statue-don-colossus.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-02-03T16:58:03+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Solid January demand to largely mute Lunar New Year air freight rush",
+    "url": "https://joc.com/article/solid-january-demand-to-largely-mute-lunar-new-year-air-freight-rush-6163435",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "joc.com",
+    "time": "2026-02-03T16:55:14+00:00",
+    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -350,11 +480,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Jeffrey Epstein’s Trust Reveals Beneficiaries of His Fortune",
-    "url": "https://www.nytimes.com/2026/02/03/business/jeffrey-epstein-trust-inherit-karyna-shuliak.html",
+    "title": "Docker Fixes Critical Ask Gordon AI Flaw Allowing Code Execution via Image Metadata",
+    "url": "https://thehackernews.com/2026/02/docker-fixes-critical-ask-gordon-ai.html",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-02-03T16:43:02+00:00",
+    "source": "thehackernews.com",
+    "time": "2026-02-03T16:41:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -400,22 +530,22 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Two arrested over attempted sabotage of German naval vessels",
-    "url": "https://www.bbc.com/news/articles/crkryz35246o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-03T16:30:11+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Panama could pay heavy price over CK Hutchison ports ruling, Beijing warns",
     "url": "https://www.scmp.com/news/hong-kong/politics/article/3342287/panama-could-pay-heavy-price-over-ck-hutchison-ports-ruling-beijing-warns?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
     "time": "2026-02-03T16:28:29+00:00",
     "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "What's going on with the price of gold?",
+    "url": "https://www.bbc.com/news/articles/c87r2700dq8o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-03T16:23:12+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -500,17 +630,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Disney Names Josh D’Amaro as Next C.E.O.",
-    "url": "https://www.nytimes.com/2026/02/03/business/disney-damaro-ceo.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-02-03T16:05:33+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Israel-Palestine head of Human Right Watch quits over ‘blocked’ report",
+    "title": "Israel-Palestine head of Human Rights Watch quits over ‘blocked’ report",
     "url": "https://www.aljazeera.com/news/2026/2/3/israel-palestine-head-of-human-right-watch-quits-over-blocked-report?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "aljazeera.com",
@@ -600,6 +720,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "South Sudan: Conflict in Jonglei State - Flash Update No. 4, as of 3 February 2026",
+    "url": "https://reliefweb.int/report/south-sudan/south-sudan-conflict-jonglei-state-flash-update-no-4-3-february-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:53:29+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "After Years of Increases, PepsiCo Pledges to Cut Prices on Snacks",
     "url": "https://www.nytimes.com/2026/02/03/business/pepsi-doritos-cheetos-prices.html",
     "snippet": "Gemini unavailable – default relevance.",
@@ -626,6 +756,16 @@
     "source": "nytimes.com",
     "time": "2026-02-03T15:45:06+00:00",
     "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Stop watching Netflix and go to the pub, Welsh first minister says",
+    "url": "https://www.bbc.com/news/articles/cpv7gj30vgmo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-03T15:37:42+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -660,16 +800,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Clintons agree to testify on Epstein as vote looms to hold them in contempt of Congress",
-    "url": "https://www.bbc.com/news/articles/c14r685mne4o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-03T15:26:03+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Epstein audio with former Israeli PM sheds new light on relationship",
     "url": "https://www.aljazeera.com/video/newsfeed/2026/2/3/epstein-audio-with-former-israeli-pm-sheds-new-light-on-relationship?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -685,6 +815,56 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
     "time": "2026-02-03T15:24:54+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UNHCR India Factsheet - October 2025",
+    "url": "https://reliefweb.int/report/india/unhcr-india-factsheet-october-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:23:09+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "DR Congo: Afrique de l’Ouest et centrale : Derniers événements en bref (27 janvier – 2 février 2026)",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/afrique-de-louest-et-centrale-derniers-evenements-en-bref-27-janvier-2-fevrier-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:19:29+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "DR Congo: West and Central Africa: Latest Events at a glance (27 January–2 February 2026)",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/west-and-central-africa-latest-events-glance-27-january-2-february-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:17:30+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Russia’s War on Ukraine | Generators and transformers offered to Ukraine - DG ECHO Daily Map | 03/02/2026",
+    "url": "https://reliefweb.int/map/ukraine/russias-war-ukraine-generators-and-transformers-offered-ukraine-dg-echo-daily-map-03022026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:17:15+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "DR Congo: UNHCR Democratic Rep of the Congo: 2025 Funding Update (as of 31 December 2025)",
+    "url": "https://reliefweb.int/report/democratic-republic-congo/unhcr-democratic-rep-congo-2025-funding-update-31-december-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:13:20+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -710,11 +890,21 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "UNHCR Ecuador: 2025 Funding Update (as of 31 December 2025)",
+    "url": "https://reliefweb.int/report/ecuador/unhcr-ecuador-2025-funding-update-31-december-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:08:31+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "This is How Hard It Will Be to Get Around Italy’s Winter Olympics",
     "url": "https://www.nytimes.com/2026/02/03/world/europe/italy-winter-olympics-logistical-nightmare.html",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
-    "time": "2026-02-03T15:08:12+00:00",
+    "time": "2026-02-03T15:08:13+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -740,6 +930,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Mauritania: MSF provides care to Malian refugees fleeing immense violence",
+    "url": "https://reliefweb.int/report/mauritania/mauritania-msf-provides-care-malian-refugees-fleeing-immense-violence",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T15:00:39+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "UPS expands RFID deployment to woo shippers, up productivity",
     "url": "https://www.supplychaindive.com/news/ups-store-rfid-labeling-tag-smart-package/811117/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -750,12 +950,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Spain Aims to Ban Social Media for Children Under 16",
-    "url": "https://www.nytimes.com/2026/02/03/world/europe/spain-social-media-ban-under-16.html",
+    "title": "Guyana: Location Map (2026)",
+    "url": "https://reliefweb.int/map/guyana/guyana-location-map-2026",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-02-03T14:55:13+00:00",
-    "region": "EMEA",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T14:48:01+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -776,6 +976,16 @@
     "source": "nytimes.com",
     "time": "2026-02-03T14:44:45+00:00",
     "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UNHCR Situation in northeast Syria - Flash update (31 January 2026)",
+    "url": "https://reliefweb.int/report/syrian-arab-republic/unhcr-situation-northeast-syria-flash-update-31-january-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-03T14:39:17+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -840,7 +1050,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump-Petro live: US, Colombia leaders to meet at White House amid tensions",
+    "title": "Trump-Petro live: US, Colombia leaders meet at White House amid tensions",
     "url": "https://www.aljazeera.com/news/liveblog/2026/2/3/live-trump-petro-to-meet-at-the-white-house-after-months-of-tensions?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "aljazeera.com",
@@ -970,6 +1180,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Deere to open two facilities in $20B U.S. manufacturing drive",
+    "url": "https://www.supplychaindive.com/news/deere-open-two-facilities-20b-commitment-us-manufacturing/811055/",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "supplychaindive.com",
+    "time": "2026-02-03T13:25:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Investigation Finds Credit Suisse Had Wider Nazi Ties Than Previously Known",
     "url": "https://www.nytimes.com/2026/02/03/us/politics/senate-credit-suisse-nazis.html",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1060,16 +1280,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "No defect found in switch of jet grounded by Air India - regulator",
-    "url": "https://www.bbc.com/news/articles/c8e5zwndddyo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-03T13:02:11+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "1 month after Maduro abduction, Venezuela moves to reassure China its investments are safe",
     "url": "https://www.scmp.com/news/china/diplomacy/article/3342261/month-after-maduro-abduction-venezuela-moves-reassure-china-its-investments-are-safe?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1110,16 +1320,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "South Korea’s inheritance tax sparks millionaire exodus",
-    "url": "https://www.scmp.com/news/asia/east-asia/article/3342272/south-koreas-inheritance-tax-sparks-millionaire-exodus?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-03T12:42:39+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Stepson of Norwegian crown prince stands trial on rape, other charges",
     "url": "https://www.washingtonpost.com/world/2026/02/03/norway-rape-trial-stepson-prince/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1156,6 +1356,46 @@
     "source": "freightwaves.com",
     "time": "2026-02-03T12:00:00+00:00",
     "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Synectix LAN 232 TRIO",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-034-04",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "cisa.gov",
+    "time": "2026-02-03T12:00:00+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Avation Light Engine Pro",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-034-02",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "cisa.gov",
+    "time": "2026-02-03T12:00:00+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "RISS SRL MOMA Seismic Station",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-034-03",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "cisa.gov",
+    "time": "2026-02-03T12:00:00+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Mitsubishi Electric FREQSHIP-mini for Windows",
+    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-034-01",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "cisa.gov",
+    "time": "2026-02-03T12:00:00+00:00",
+    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1275,16 +1515,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-02-03T10:03:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "The Global Economy’s Warning Signals Are Broken",
-    "url": "https://www.nytimes.com/2026/02/03/business/economy/global-economy-forecasts.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-02-03T10:02:41+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1470,31 +1700,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump Slashes Tariffs on Indian Goods in Trade Deal Linked to Russian Oil Exit",
-    "url": "https://gcaptain.com/trump-slashes-tariffs-on-indian-goods-in-trade-deal-linked-to-russian-oil-exit/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "gcaptain.com",
-    "time": "2026-02-03T00:32:01+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Olympic ceasefire calls lay bare the scale of global conflict",
     "url": "https://www.washingtonpost.com/world/2026/02/02/olympics-ceasefire-winter-games-italy-ukraine-gaza-sudan/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "washingtonpost.com",
     "time": "2026-02-03T00:05:44+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "The yachting industry searches for alternatives to teak",
-    "url": "https://www.bbc.com/news/articles/clygdez8d41o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-03T00:04:19+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1560,16 +1770,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "NFI’s Brown, others win another round in dismissed New Jersey indictment",
-    "url": "https://www.freightwaves.com/news/nfis-brown-others-win-another-round-in-dismissed-new-jersey-indictment",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "freightwaves.com",
-    "time": "2026-02-02T21:03:46+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Israel 2 February 2026 #1",
     "url": "https://www.crisisgroup.org/content/israel-2-february-2026-1",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1630,16 +1830,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Leaner inventories weaken ocean demand, a harbinger for higher tender rejections, increased truck rates",
-    "url": "https://www.freightwaves.com/news/leaner-inventories-weaken-ocean-demand-a-harbinger-for-higher-tender-rejections-increased-truck-rates",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "freightwaves.com",
-    "time": "2026-02-02T20:41:50+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "US agrees to slash tariffs on imports from India after reaching trade deal",
     "url": "https://joc.com/article/us-agrees-to-slash-tariffs-on-imports-from-india-after-reaching-trade-deal-6162939",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1685,16 +1875,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theguardian.com",
     "time": "2026-02-02T19:46:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Gold and silver prices fall but FTSE 100 hits record high",
-    "url": "https://www.bbc.com/news/articles/cpdy0y3jle4o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-02T19:28:14+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1880,16 +2060,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Avia Solutions Group hits out at financial health ‘smear campaign’",
-    "url": "https://theloadstar.com/asg-hits-out-at-financial-health-smear-campaign/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "theloadstar.com",
-    "time": "2026-02-02T13:48:52+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Walmart readies cross-border shipping program for sellers",
     "url": "https://www.supplychaindive.com/news/walmart-exports-program-wfs-sellers/810858/",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1935,16 +2105,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "gdacs.org",
     "time": "2026-02-02T12:00:07+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "⚡ Weekly Recap: Proxy Botnet, Office Zero-Day, MongoDB Ransoms, AI Hijacks & New Threats",
-    "url": "https://thehackernews.com/2026/02/weekly-recap-proxy-botnet-office-zero.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "thehackernews.com",
-    "time": "2026-02-02T11:59:00+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -2100,22 +2260,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump targets countries selling oil to Cuba with potential tariffs",
-    "url": "https://www.supplychaindive.com/news/trump-tariffs-cuba-oil-sellers/810969/",
+    "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
+    "url": "https://www.cisa.gov/news-events/alerts/2026/01/29/cisa-adds-one-known-exploited-vulnerability-catalog",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "supplychaindive.com",
-    "time": "2026-01-30T15:26:45+00:00",
+    "source": "cisa.gov",
+    "time": "2026-01-29T12:00:00+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Frontloading drags ONE to a loss in its fiscal third quarter",
-    "url": "https://joc.com/article/frontloading-drags-one-to-a-loss-in-its-fiscal-third-quarter-6161263",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "joc.com",
-    "time": "2026-01-30T15:01:12+00:00",
-    "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -2140,16 +2290,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "CISA Adds One Known Exploited Vulnerability to Catalog",
-    "url": "https://www.cisa.gov/news-events/alerts/2026/01/29/cisa-adds-one-known-exploited-vulnerability-catalog",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "cisa.gov",
-    "time": "2026-01-29T12:00:00+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Rockwell Automation ControlLogix",
     "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-029-03",
     "snippet": "Gemini unavailable – default relevance.",
@@ -2166,46 +2306,6 @@
     "source": "cisa.gov",
     "time": "2026-01-28T12:00:00+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "iba Systems ibaPDA",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-027-01",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "cisa.gov",
-    "time": "2026-01-27T12:00:00+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Johnson Controls Metasys Products",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-027-04",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "cisa.gov",
-    "time": "2026-01-27T12:00:00+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Festo Didactic SE MES PC",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-027-02",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "cisa.gov",
-    "time": "2026-01-27T12:00:00+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Schneider Electric Zigbee Products",
-    "url": "https://www.cisa.gov/news-events/ics-advisories/icsa-26-027-03",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "cisa.gov",
-    "time": "2026-01-27T12:00:00+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   }
