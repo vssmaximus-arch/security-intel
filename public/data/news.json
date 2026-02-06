@@ -1,20 +1,10 @@
 [
   {
-    "title": "The Architecture of Agentic Defense: Inside the Falcon Platform",
-    "url": "https://www.crowdstrike.com/en-us/blog/architecture-of-agentic-defense-inside-the-falcon-platform/",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891268+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Small Devices, Big Risk: USB Drives Threaten Enterprise Security",
     "url": "https://www.crowdstrike.com/en-us/blog/usb-drives-threaten-enterprise-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891237+00:00",
+    "time": "2026-02-06T04:49:28.645244+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -24,7 +14,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/data-protection-day-2026-from-compliance-to-resilience/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891205+00:00",
+    "time": "2026-02-06T04:49:28.645211+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -34,7 +24,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-named-customers-choice-2026-gartner-voice-of-the-customer-for-epp-report/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891174+00:00",
+    "time": "2026-02-06T04:49:28.645178+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -44,7 +34,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/labyrinth-chollima-evolves-into-three-adversaries/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891134+00:00",
+    "time": "2026-02-06T04:49:28.645137+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -54,7 +44,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-agentic-tool-chain-attacks-threaten-ai-agent-security/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891103+00:00",
+    "time": "2026-02-06T04:49:28.645106+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -64,7 +54,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/how-three-companies-secure-ai-with-crowdstrike/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891069+00:00",
+    "time": "2026-02-06T04:49:28.645074+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -74,7 +64,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-falcon-scores-100-percent-in-se-labs-ransomware-test/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.891032+00:00",
+    "time": "2026-02-06T04:49:28.645036+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -84,7 +74,7 @@
     "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-named-customers-choice-2026-gartner-peer-insights-voice-of-the-customer-for-aspm/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.890993+00:00",
+    "time": "2026-02-06T04:49:28.644993+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -94,137 +84,117 @@
     "url": "https://www.crowdstrike.com/en-us/blog/what-security-teams-need-to-know-about-openclaw-ai-super-agent/",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crowdstrike.com",
-    "time": "2026-02-06T02:23:15.890936+00:00",
+    "time": "2026-02-06T04:49:28.644928+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.0 - 9 km WNW of Cobb, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309257",
+    "title": "Advanced Web Shell Detection and Prevention: A Deep Dive into CrowdStrike's Linux Sensor Capabilities",
+    "url": "https://www.crowdstrike.com/en-us/blog/advanced-web-shell-detection-and-prevention/",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.375482+00:00",
+    "source": "crowdstrike.com",
+    "time": "2026-02-06T04:49:28.644880+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.5 - 35 km SSE of Hope, New Mexico",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000s6uj",
+    "title": "M 0.7 - 6 km WNW of Cobb, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309347",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.375187+00:00",
-    "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 1.7 - 14 km NNW of Midland, Texas",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/tx2026coefqf",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.374907+00:00",
+    "time": "2026-02-06T04:49:24.083259+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.8 - 23 km N of Trout Lake, Washington",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/uw62225876",
+    "title": "M 1.2 - 3 km SSW of Brawley, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41392640",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.374625+00:00",
+    "time": "2026-02-06T04:49:24.082974+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.2 - 60 km NNW of Rachel, Nevada",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nn00910438",
+    "title": "M 2.1 - 8 km SE of Point MacKenzie, Alaska",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ak2026cokcru",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.374322+00:00",
+    "time": "2026-02-06T04:49:24.082689+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.6 - 9 km NW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309282",
+    "title": "M 1.3 - 18 km N of Indio, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41392648",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.374033+00:00",
+    "time": "2026-02-06T04:49:24.082415+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.9 - 2 km NNE of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309292",
+    "title": "M 0.3 - 15 km S of Anza, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41392656",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.373745+00:00",
+    "time": "2026-02-06T04:49:24.082138+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 2.0 - 15 km WNW of Progreso, B.C., MX",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41392600",
+    "title": "M 0.9 - 19 km E of Julian, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/ci41392664",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.373449+00:00",
+    "time": "2026-02-06T04:49:24.081843+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 1.1 - 3 km W of Cobb, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309297",
+    "title": "M 5.1 - 81 km E of Petropavlovsk-Kamchatsky, Russia",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000s6ve",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.373144+00:00",
+    "time": "2026-02-06T04:49:24.081566+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 0.2 - 5 km WNW of Cobb, CA",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309362",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-02-06T04:49:24.081276+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "M 0.9 - 3 km NNW of The Geysers, CA",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nc75309307",
+    "title": "M 2.3 - 6 km SSW of Pāhala, Hawaii",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/hv74895247",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-02-06T02:22:55.372839+00:00",
+    "time": "2026-02-06T04:49:24.080979+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Japan railway operator Nishitetsu to build homes in Manila suburbs",
-    "url": "https://asia.nikkei.com/business/markets/property/japan-railway-operator-nishitetsu-to-build-homes-in-manila-suburbs",
+    "title": "M 1.7 - 10 km E of Mina, Nevada",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/nn00910443",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.971122+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Japan's Aisin to make aluminum EV parts in Canada via tie-up",
-    "url": "https://asia.nikkei.com/business/automobiles/japan-s-aisin-to-make-aluminum-ev-parts-in-canada-via-tie-up",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.971094+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Warsh pick for Fed chair shows regard for independence: ex-BOJ official",
-    "url": "https://asia.nikkei.com/editor-s-picks/interview/warsh-pick-for-fed-chair-shows-regard-for-independence-ex-boj-official",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.971065+00:00",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-02-06T04:49:24.080648+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -234,7 +204,7 @@
     "url": "https://asia.nikkei.com/business/business-deals/japan-plant-engineering-peers-eye-merger-to-join-ranks-of-industry-leaders",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.971032+00:00",
+    "time": "2026-02-06T04:49:12.200665+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -244,7 +214,7 @@
     "url": "https://asia.nikkei.com/spotlight/comment/the-next-nvidia-will-be-found-by-the-market-not-by-government-policy",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.971003+00:00",
+    "time": "2026-02-06T04:49:12.200637+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -254,7 +224,7 @@
     "url": "https://asia.nikkei.com/business/business-deals/kirin-to-sell-four-roses-bourbon-to-us-winemaker-in-deal-worth-up-to-775m",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.970968+00:00",
+    "time": "2026-02-06T04:49:12.200601+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -264,27 +234,7 @@
     "url": "https://asia.nikkei.com/editor-s-picks/interview/kikkoman-bets-on-organic-growth-in-most-critical-indian-market",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.970932+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "CP Group-backed pork producer Muyuan opens flat in $1.4bn Hong Kong IPO",
-    "url": "https://asia.nikkei.com/business/markets/ipo/cp-group-backed-pork-producer-muyuan-opens-flat-in-1.4bn-hong-kong-ipo",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.970902+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Moody's cuts Indonesia outlook to 'negative' on 'reduced predictability'",
-    "url": "https://asia.nikkei.com/economy/moody-s-cuts-indonesia-outlook-to-negative-on-reduced-predictability",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.970864+00:00",
+    "time": "2026-02-06T04:49:12.200565+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -294,48 +244,318 @@
     "url": "https://asia.nikkei.com/business/technology/south-korea-s-battery-makers-eye-robot-market-as-evs-slump",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "asia.nikkei.com",
-    "time": "2026-02-06T02:22:40.970825+00:00",
+    "time": "2026-02-06T04:49:12.200537+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "oPt: Humanitarian Situation Update #356 | West Bank",
-    "url": "https://reliefweb.int/report/occupied-palestinian-territory/humanitarian-situation-update-356-west-bank",
+    "title": "Indonesia's stocks tumble as Moody's revises outlook to negative",
+    "url": "https://asia.nikkei.com/economy/indonesia-s-stocks-tumble-as-moody-s-revises-outlook-to-negative",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-02-06T02:20:51+00:00",
+    "source": "asia.nikkei.com",
+    "time": "2026-02-06T04:49:12.200507+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Thai election battle shows Anutin pushing ultra-patriotic credentials",
+    "url": "https://asia.nikkei.com/politics/thai-election/thai-election-battle-shows-anutin-pushing-ultra-patriotic-credentials",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-02-06T04:49:12.200455+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "CP Group-backed pork producer Muyuan opens flat in $1.4bn Hong Kong IPO",
+    "url": "https://asia.nikkei.com/business/markets/ipo/cp-group-backed-pork-producer-muyuan-opens-flat-in-1.4bn-hong-kong-ipo",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-02-06T04:49:12.200420+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "India's central bank holds key rates after US tariff relief",
+    "url": "https://asia.nikkei.com/business/markets/india-s-central-bank-holds-key-rates-after-us-tariff-relief",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "asia.nikkei.com",
+    "time": "2026-02-06T04:49:12.200368+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US destroys another alleged drug-trafficking boat in Pacific, killing 2",
+    "url": "https://www.scmp.com/news/world/americas/article/3342605/us-destroys-another-alleged-drug-trafficking-boat-pacific-killing-2?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T04:39:39+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "China’s expat pilots; Indonesian woman faints after 140 lashes: SCMP’s 7 highlights",
+    "url": "https://www.scmp.com/news/world/article/3342453/chinas-expat-pilots-indonesian-woman-faints-after-140-lashes-scmps-7-highlights?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T04:12:08+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Danantara Indonesia urges reform, policy consistency after Moody’s ‘warning shot’",
+    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3342597/danantara-indonesia-urges-reform-policy-consistency-after-moodys-warning-shot?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T04:01:02+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How can China react to Panama Canal ruling that boosts US push to counter its influence?",
+    "url": "https://www.scmp.com/news/china/diplomacy/article/3342545/how-can-china-react-panama-canal-ruling-boosts-us-push-counter-its-influence?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T04:00:22+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US-Iran talks live: Critical talks to begin in Oman in push to prevent war",
+    "url": "https://www.aljazeera.com/news/liveblog/2026/2/6/us-iran-talks-live-critical-negotiations-set-to-begin-in-oman?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-02-06T04:00:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Russia-Ukraine war: List of key events, day 1,443",
+    "url": "https://www.aljazeera.com/news/2026/2/6/russia-ukraine-war-list-of-key-events-day-1443?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-02-06T03:46:52+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "oPt: Reported impact snapshot | Gaza Strip, 4 February 2026 at 15:00",
-    "url": "https://reliefweb.int/report/occupied-palestinian-territory/reported-impact-snapshot-gaza-strip-4-february-2026-1500",
+    "title": "World: Innovation-led multi-purpose cash programming: practitioner reflections from the Horn of Africa",
+    "url": "https://reliefweb.int/report/world/innovation-led-multi-purpose-cash-programming-practitioner-reflections-horn-africa",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "reliefweb.int",
-    "time": "2026-02-06T02:19:16+00:00",
+    "time": "2026-02-06T03:46:36+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Guns Are Fueling Sexual Violence in Haiti—Arms Control Must Be Part of the Response",
-    "url": "https://reliefweb.int/report/haiti/guns-are-fueling-sexual-violence-haiti-arms-control-must-be-part-response",
+    "title": "SAMS Northeast Syria Emergency Response – January 2026",
+    "url": "https://reliefweb.int/report/syrian-arab-republic/sams-northeast-syria-emergency-response-january-2026",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "reliefweb.int",
-    "time": "2026-02-06T02:17:07+00:00",
+    "time": "2026-02-06T03:44:39+00:00",
     "region": "AMER",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Ukraine war situation update | 17 – 23 January 2026",
-    "url": "https://reliefweb.int/report/ukraine/ukraine-war-situation-update-17-23-january-2026",
+    "title": "Kenya - Northern Kenya: Drought Severity and Population Exposure in Wajir County (28 Jan 2026)",
+    "url": "https://reliefweb.int/map/kenya/kenya-northern-kenya-drought-severity-and-population-exposure-wajir-county-28-jan-2026",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "reliefweb.int",
-    "time": "2026-02-06T02:14:06+00:00",
-    "region": "EMEA",
+    "time": "2026-02-06T03:39:48+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Kenya - Northern Kenya: Drought Severity and Population Exposure in Turkana County (28 Jan 2026)",
+    "url": "https://reliefweb.int/map/kenya/kenya-northern-kenya-drought-severity-and-population-exposure-turkana-county-28-jan-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:39:14+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Kenya - Northern Kenya: Drought Severity and Population Exposure in Samburu County (28 Jan 2026)",
+    "url": "https://reliefweb.int/map/kenya/kenya-northern-kenya-drought-severity-and-population-exposure-samburu-county-28-jan-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:38:34+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Kenya - Northern Kenya: Drought Severity and Population Exposure in Marsabit County (28 Jan 2026)",
+    "url": "https://reliefweb.int/map/kenya/kenya-northern-kenya-drought-severity-and-population-exposure-marsabit-county-28-jan-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:38:00+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Kenya - Northern Kenya: Drought Severity and Population Exposure in Mandera County (28 Jan 2026)",
+    "url": "https://reliefweb.int/map/kenya/kenya-northern-kenya-drought-severity-and-population-exposure-mandera-county-28-jan-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:37:27+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Kenya - Northern Kenya: Drought Severity and Population Exposure in Isiolo County (28 Jan 2026)",
+    "url": "https://reliefweb.int/map/kenya/kenya-northern-kenya-drought-severity-and-population-exposure-isiolo-county-28-jan-2026",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:36:39+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Uganda: Living with climate-related hazards - Impacts on Unpaid Household Labour in Nyumanzi Refugee Settlement - Adjumani District (December 2025)",
+    "url": "https://reliefweb.int/report/uganda/uganda-living-climate-related-hazards-impacts-unpaid-household-labour-nyumanzi-refugee-settlement-adjumani-district-december-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:34:30+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Uganda: Living with climate-related hazards - Impacts on Agriculture in Nyumanzi Refugee Settlement - Adjumani District (December 2025)",
+    "url": "https://reliefweb.int/report/uganda/uganda-living-climate-related-hazards-impacts-agriculture-nyumanzi-refugee-settlement-adjumani-district-december-2025",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "reliefweb.int",
+    "time": "2026-02-06T03:30:59+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US military kills two people in latest attack on vessel in the Pacific",
+    "url": "https://www.aljazeera.com/news/2026/2/6/us-military-kills-two-people-in-latest-attack-on-vessel-in-the-pacific?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-02-06T03:30:23+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump endorses Japan's Takaichi ahead of snap election",
+    "url": "https://www.bbc.com/news/articles/c5yd14r2mgno?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-06T03:25:51+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "400 evacuated after power bank catches fire on Hong Kong MTR train",
+    "url": "https://www.scmp.com/news/hong-kong/society/article/3342593/400-evacuated-after-power-bank-catches-fire-hong-kong-mtr-train?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T03:21:08+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Uber Found Liable in Rape by Driver, Setting Stage for Thousands of Cases",
+    "url": "https://www.nytimes.com/2026/02/05/business/uber-safety-rape-verdict.html",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "nytimes.com",
+    "time": "2026-02-06T03:01:27+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "As Japan enters hay fever season, pollen levels may surge due to ‘horribly high’ summer",
+    "url": "https://www.scmp.com/week-asia/health-environment/article/3342548/japan-enters-hay-fever-season-pollen-levels-may-surge-due-horribly-high-summer?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T03:00:09+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Jimmy Lai to be sentenced on Monday in Hong Kong national security trial",
+    "url": "https://www.scmp.com/news/hong-kong/law-and-crime/article/3342589/jimmy-lai-sentencing-set-monday-hong-kong-national-security-trial?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T02:46:41+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Bitcoin plummets in value again after week of heavy losses",
+    "url": "https://www.aljazeera.com/economy/2026/2/6/bitcoin-plummets-in-value-again-after-week-of-heavy-losses?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-02-06T02:45:29+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Green notification for tropical cyclone TWENTY-26. Population affected by Category 1 (120 km/h) wind speeds or higher is 1398 .",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001257",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "gdacs.org",
+    "time": "2026-02-06T02:39:04+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Thai election alcohol ban hits tourism revenue during peak season",
+    "url": "https://www.scmp.com/news/asia/southeast-asia/article/3342584/thai-election-alcohol-ban-hits-tourism-revenue-during-peak-season?utm_source=rss_feed",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "scmp.com",
+    "time": "2026-02-06T02:30:20+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Orange notification for tropical cyclone 10-20252026-26. Population affected by Category 1 (120 km/h) wind speeds or higher is 0.207 million .",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001256",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "gdacs.org",
+    "time": "2026-02-06T02:21:39+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "‘TrumpRx’ website launches in US with promise to lower price of medicine",
+    "url": "https://www.aljazeera.com/news/2026/2/6/trumprx-website-launches-in-us-with-promise-to-lower-price-of-medicine?traffic_source=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "aljazeera.com",
+    "time": "2026-02-06T02:15:29+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -350,31 +570,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Yemen Market and Trade Bulletin December 2025 - Issued on 5th February 2026",
-    "url": "https://reliefweb.int/report/yemen/yemen-market-and-trade-bulletin-december-2025-issued-5th-february-2026",
+    "title": "US healthcare needs fixing, but there's no agreement on how to do it",
+    "url": "https://www.bbc.com/news/articles/cn0k6d6z7j3o?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-02-06T02:07:24+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "South Sudan: Country Climate and Development Report (January 2026)",
-    "url": "https://reliefweb.int/report/south-sudan/south-sudan-country-climate-and-development-report-january-2026",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-02-06T02:06:18+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Haiti: Haïti : Snapshot sur les incidents de violences basees sur la genre (VBG) - Rapport 2025",
-    "url": "https://reliefweb.int/report/haiti/haiti-snapshot-sur-les-incidents-de-violences-basees-sur-la-genre-vbg-rapport-2025",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-02-06T02:00:34+00:00",
+    "source": "bbc.com",
+    "time": "2026-02-06T02:01:12+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -390,26 +590,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "oPt: Pushed Beyond Their Limits: The survival of older people in Gaza",
-    "url": "https://reliefweb.int/report/occupied-palestinian-territory/pushed-beyond-their-limits-survival-older-people-gaza",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-02-06T02:00:05+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Uber Is Responsible for Rape by Driver, Jury Finds",
-    "url": "https://www.nytimes.com/2026/02/05/business/uber-safety-rape-verdict.html",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "nytimes.com",
-    "time": "2026-02-06T01:50:58+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Democrats demand reforms to Homeland Security over immigration operations",
     "url": "https://www.aljazeera.com/news/2026/2/6/democrats-demand-reforms-to-homeland-security-over-immigration-operations?traffic_source=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -420,31 +600,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "UNICEF Cameroon Humanitarian Situation Report No. 4 (End of Year), 31 December 2025",
-    "url": "https://reliefweb.int/report/cameroon/unicef-cameroon-humanitarian-situation-report-no-4-end-year-31-december-2025",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "reliefweb.int",
-    "time": "2026-02-06T01:33:24+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "US-China orbital arms race is forging a trillion-dollar space economy",
     "url": "https://www.scmp.com/opinion/china-opinion/article/3342254/us-china-orbital-arms-race-forging-trillion-dollar-space-economy?utm_source=rss_feed",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "scmp.com",
     "time": "2026-02-06T01:30:09+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "China’s humanoid robot makers pivot from ‘body’ to ‘brain’ as commercial race heats up",
-    "url": "https://www.scmp.com/tech/tech-trends/article/3342505/chinas-humanoid-robot-makers-pivot-body-brain-commercial-race-heats?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-06T01:15:09+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -460,31 +620,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "China rallies neighbours against Japan in rare meeting. Will it work?",
-    "url": "https://www.scmp.com/news/china/diplomacy/article/3342540/china-rallies-neighbours-against-japan-rare-meeting-will-it-work?utm_source=rss_feed",
+    "title": "US police believe Savannah Guthrie's missing mother is 'still out there'",
+    "url": "https://www.bbc.com/news/articles/c2e18wvrx9xo?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-06T01:00:18+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "China farmer uses drone to transport pigs, causing power outage when cables get ensnared",
-    "url": "https://www.scmp.com/news/people-culture/trending-china/article/3341649/china-farmer-uses-drone-transport-pigs-causing-power-outage-when-cables-get-ensnared?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-06T01:00:10+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Is Hong Kong barking up the wrong tree with dog-friendly restaurants?",
-    "url": "https://www.scmp.com/news/hong-kong/hong-kong-economy/article/3342526/hong-kong-barking-wrong-tree-dog-friendly-restaurants?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-06T00:30:10+00:00",
+    "source": "bbc.com",
+    "time": "2026-02-06T00:44:49+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -550,41 +690,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump balks at nuclear limit extension, calls for new US-China-Russia deal",
-    "url": "https://www.scmp.com/news/china/diplomacy/article/3342576/trump-balks-nuclear-limit-extension-calls-new-us-china-russia-deal?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-06T00:02:50+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Green forest fire notification in Benin",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1027342",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "gdacs.org",
-    "time": "2026-02-06T00:00:23+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Green forest fire notification in Central African Republic",
     "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1027339",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "gdacs.org",
     "time": "2026-02-06T00:00:09+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Ahead of talks, Iran deploys ballistic missile at underground ‘missile city’",
-    "url": "https://www.scmp.com/news/world/middle-east/article/3342575/iran-media-says-projectile-deployed-revolutionary-guards-underground-missile-city?utm_source=rss_feed",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-05T23:49:41+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -610,11 +720,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump’s South America threats fizzle as China’s trade surges, powered by Peru port",
-    "url": "https://www.scmp.com/economy/china-economy/article/3342512/trumps-south-america-threats-fizzle-chinas-trade-surges-powered-peru-port?utm_source=rss_feed",
+    "title": "For Thailand's popular progressives, winning the vote is only the first hurdle",
+    "url": "https://www.bbc.com/news/articles/cp820jrq3yvo?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
-    "source": "scmp.com",
-    "time": "2026-02-05T23:30:07+00:00",
+    "source": "bbc.com",
+    "time": "2026-02-05T23:36:16+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -676,16 +786,6 @@
     "source": "washingtonpost.com",
     "time": "2026-02-05T22:26:49+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Starmer apologises to Epstein victims for believing Mandelson's 'lies'",
-    "url": "https://www.bbc.com/news/articles/cp37v4kyv3eo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-05T22:24:27+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -780,32 +880,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Cuba to introduce plan to address fuel shortage amid US blockade",
-    "url": "https://www.aljazeera.com/economy/2026/2/5/cuba-to-introduce-plan-to-address-fuel-shortage-amid-us-blockade?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-02-05T20:56:56+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Iranian Nobel Peace Laureate Starts New Hunger Strike in Prison",
     "url": "https://www.nytimes.com/2026/02/05/world/middleeast/iran-narges-mohammadi-prison-hunger-strike.html",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-02-05T20:47:21+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "‘Sorry for being away’: Ukraine, Russia swap prisoners of war",
-    "url": "https://www.aljazeera.com/video/newsfeed/2026/2/5/sorry-for-being-away-ukraine-russia-swap-prisoners-of-war?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-02-05T20:38:44+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -820,32 +900,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Trump endorses Prime Minister Viktor Orban for Hungary’s April election",
-    "url": "https://www.aljazeera.com/news/2026/2/5/trump-endorses-prime-minister-viktor-orban-for-hungarys-april-election?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-02-05T20:31:04+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Mayor of Tequila, Mexico, Is Accused of Shaking Down Tequila Companies",
     "url": "https://www.nytimes.com/2026/02/05/world/americas/mexico-tequila-mayor-arrested.html",
     "snippet": "Gemini unavailable – default relevance.",
     "source": "nytimes.com",
     "time": "2026-02-05T20:25:17+00:00",
     "region": "AMER",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Activists announce new, bigger aid flotilla to set sail for Gaza in March",
-    "url": "https://www.aljazeera.com/news/2026/2/5/activists-announce-new-bigger-aid-flotilla-to-set-sail-for-gaza-in-march?traffic_source=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "aljazeera.com",
-    "time": "2026-02-05T20:24:27+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1060,6 +1120,16 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Louvre Museum crown left crushed but 'intact' after raid",
+    "url": "https://www.bbc.com/news/articles/cn40ev200yjo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Gemini unavailable – default relevance.",
+    "source": "bbc.com",
+    "time": "2026-02-05T18:19:53+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Jobs set to be cut at Wedgwood",
     "url": "https://www.bbc.com/news/articles/ckgl5xrx4y9o?at_medium=RSS&at_campaign=rss",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1086,16 +1156,6 @@
     "source": "bleepingcomputer.com",
     "time": "2026-02-05T18:07:41+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Israeli intelligence chief's brother charged with smuggling cigarettes into Gaza",
-    "url": "https://www.bbc.com/news/articles/c86v8y4ppd9o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-05T17:58:08+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -1360,16 +1420,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Dozens of Muslims 'massacred' in Nigeria for refusing to join jihadists, says governor",
-    "url": "https://www.bbc.com/news/articles/ckgvllk3lx9o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-05T14:37:14+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Maersk posts Q4 pre-tax loss, will cut 1,000 jobs",
     "url": "https://www.freightwaves.com/news/maersk-posts-q4-loss-on-weaker-container-rates",
     "snippet": "Gemini unavailable – default relevance.",
@@ -1465,16 +1515,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "theloadstar.com",
     "time": "2026-02-05T13:15:50+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Japanese city cancels cherry blossom festival over badly behaved tourists",
-    "url": "https://www.bbc.com/news/articles/c1wzrlndzjro?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-05T13:07:45+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -1775,16 +1815,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "splash247.com",
     "time": "2026-02-05T07:00:33+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Suspect identified in disappearance of four-year-old in Australian outback",
-    "url": "https://www.bbc.com/news/articles/c368g5l33xzo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "bbc.com",
-    "time": "2026-02-05T06:42:41+00:00",
     "region": "APJC",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -2175,16 +2205,6 @@
     "snippet": "Gemini unavailable – default relevance.",
     "source": "crisisgroup.org",
     "time": "2026-02-03T20:58:10+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Green forest fire notification in Sudan",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1027316",
-    "snippet": "Gemini unavailable – default relevance.",
-    "source": "gdacs.org",
-    "time": "2026-02-03T20:00:20+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
