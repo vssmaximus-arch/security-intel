@@ -2521,6 +2521,10 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/traveladvisories')) {
       const r = await handleApiTravel(env, url.searchParams);
       return _responseFromResult(r);
+    } else if (p.startsWith('/api/archive')) {
+      return handleApiArchive(env, req);
+    } else if (p.startsWith('/api/dailybrief')) {
+      return handleApiDailyBrief(env, req);
     } else if (p.startsWith('/api/thumb/public') || p.startsWith('/api/thumb')) {
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
       const r = await handleApiThumb(env, req, ctx);
@@ -2539,6 +2543,74 @@ async function handleRequest(req, env, ctx) {
   } catch (e) {
     debug("handleRequest err", e?.message || e);
     return new Response("error", { status: 500, headers: CORS_HEADERS });
+  }
+}
+
+/* ===========================
+   Archive / Daily Briefing handlers (safe JSON shapes, client-compatible)
+   =========================== */
+async function handleApiArchive(env, req) {
+  try {
+    const url = new URL(req.url);
+    const date = url.searchParams.get('date');
+    if (!date) {
+      const dates = await listArchiveDates(env);
+      return new Response(JSON.stringify(Array.isArray(dates) ? dates : []), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+    const key = `${ARCHIVE_PREFIX}${date}`;
+    let items = [];
+    try { items = await kvGetJson(env, key, []); } catch (e) { items = []; }
+    return new Response(JSON.stringify(Array.isArray(items) ? items : []), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e) }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function handleApiDailyBrief(env, req) {
+  try {
+    const url = new URL(req.url);
+    const p = url.pathname || '';
+    if (p.endsWith('/list')) {
+      const briefs = await kvGetJson(env, 'DAILY_BRIEFS', []);
+      return new Response(JSON.stringify(Array.isArray(briefs) ? briefs : []), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+    if (req.method === 'POST' && p.endsWith('/generate')) {
+      return new Response('Brief generation scheduled.', {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'text/plain' },
+      });
+    }
+    const date = url.searchParams.get('date');
+    if (date) {
+      const key = `DAILY_BRIEF_${date}`;
+      const brief = await kvGetJson(env, key, null);
+      const incidents = (brief && Array.isArray(brief.incidents)) ? brief.incidents : [];
+      return new Response(JSON.stringify({ incidents }), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+    return new Response(JSON.stringify([]), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e) }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
   }
 }
 

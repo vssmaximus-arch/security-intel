@@ -56,6 +56,7 @@
 - [x] **Dislike persistence flow**: added `recordUserDislike(env, userId, incidentId)` helper (KV key `DISLIKES:<userId>`, 90-day TTL, capped at 500); modified `handlePublicThumb` to extract `X-User-Id` header, call `recordUserDislike` on `vote==='down'`, return `{ id, vote, hide: true }` on dislike; updated `handleApiIncidents` and `handleApiProximity` to accept `req`, read `X-User-Id`, filter out disliked IDs from response; updated `CORS_HEADERS` to expose `X-User-Id`; added `getOrCreateUserId()`/`OSINFO_USER_ID`/`DISLIKED_IDS` in app.js, `hideDislikedArticle()` for immediate DOM removal + localStorage persistence, and `DISLIKED_IDS` filter in SSE `incidents`/`proximity` handlers and `loadFromWorker`/`loadProximityFromWorker`.
   > **Next Session Tip**: Deploy worker, open DevTools → Network → XHR, dislike an article, confirm the `/api/thumb/public` response contains `"hide":true`, confirm the card disappears immediately, and confirm it stays hidden after a hard-refresh.
   > TBD: Verify dislike flow via wrangler tail — filter for "debug('dislike','recorded')" and "debug('dislike','filtered')" after a dislike action.
+  > TBD: Verify archive/daily JSON via wrangler tail — run curl '${WORKER_URL}/api/archive?date=YYYY-MM-DD' and confirm Content-Type: application/json and response is a JSON array (or empty array); test daily brief preview with curl '${WORKER_URL}/api/dailybrief?date=YYYY-MM-DD' and confirm JSON `{ "incidents": [...] }`.
 
 ---
 
