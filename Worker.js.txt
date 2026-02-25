@@ -2445,9 +2445,11 @@ async function handleApiTravel(env, urlParams) {
     const q = urlParams.get('country');
     const cached = await kvGetJson(env, TRAVEL_CACHE_KEY, { advisories: STATIC_TRAVEL_FALLBACK, updated_at: new Date().toISOString() });
     const best = findBestAdvisoryForCountry(cached.advisories || [], q);
+    typeof debug === 'function' && debug('travel', 'served', { country: q, ts: new Date().toISOString() });
     return { ok: true, status: 200, body: { advisory: best || null, news: [] } };
   } else {
     const cached = await kvGetJson(env, TRAVEL_CACHE_KEY, { advisories: STATIC_TRAVEL_FALLBACK, updated_at: new Date().toISOString() });
+    typeof debug === 'function' && debug('travel', 'served', { country: 'all', ts: new Date().toISOString() });
     return { ok: true, status: 200, body: cached };
   }
 }
