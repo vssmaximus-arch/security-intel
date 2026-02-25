@@ -29,10 +29,14 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
+  <!-- Google Fonts: loaded via <link> to avoid CSP @import restriction -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+
   <style>
     /* == FULL CSS: preserved + debug styles + voting states == */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
     :root {
       --dell-blue: #0076CE;
@@ -429,6 +433,10 @@
           <h6>Actions</h6>
           <div class="d-grid gap-2">
             <button class="btn btn-warning btn-sm" data-action="admin-trigger-ingest" aria-label="Trigger ingestion">Trigger Ingestion</button>
+            <button class="btn btn-secondary btn-sm" data-action="admin-unlock" aria-label="Unblock thumbs">Unblock Thumbs</button>
+            <button class="btn btn-outline-secondary btn-sm" data-action="admin-thumbs-status" aria-label="Thumbs status">Thumbs Status (Console)</button>
+            <button class="btn btn-info btn-sm text-white" data-action="admin-force-refresh-travel" aria-label="Force refresh travel advisories">Force Refresh Travel Advisories</button>
+            <button class="btn btn-outline-primary btn-sm" data-action="admin-generate-brief" aria-label="Generate brief">Generate Brief</button>
             <button class="btn btn-outline-dark btn-sm" data-action="admin-list-briefs" aria-label="List briefs">List Stored Briefs (Console)</button>
           </div>
 
