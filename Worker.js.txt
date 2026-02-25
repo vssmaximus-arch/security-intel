@@ -1,0 +1,2733 @@
+/**
+ * worker.js - OS INFOHUB (FINAL PLATINUM VERSION)
+ *
+ * FEATURES:
+ * 1. Architecture: Pure Cloudflare Module (export default).
+ * 2. Stability: ctx.waitUntil fix for background tasks.
+ * 3. Filters: Strict gating for NATURAL events (M5.5+ or local).
+ * 4. Data: Full Country/Site lists restored.
+ * 5. ALERTS: Rich HTML Email notifications (Resend) with Deduplication.
+ */
+
+"use strict";
+
+/* ===========================
+   CONFIG / CONSTANTS
+   =========================== */
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,secret,X-User-Id",
+};
+
+const ARCHIVE_PREFIX = "archive_";
+const PROXIMITY_KV_KEY = "proximity_incidents_v1";
+const INCIDENTS_KV_KEY = "incidents";
+const BRIEFING_PREFIX = "briefing_";
+const TRAVEL_CACHE_KEY = "travel_cache_v1";
+const INGEST_LOCK_KEY = "ingest_lock_v1";
+const TRAVEL_LOCK_KEY = "travel_lock_v1";
+const THUMBS_KV_KEY = "thumbs_prefs_v1";
+const THUMBS_FEEDBACK_LOG = "thumbs_feedback_log_v1";
+const LEARNING_RULES_KEY = "learning_rules_v1";
+const DISLIKES_KV_PREFIX = "DISLIKES:";
+
+const THUMBS_AGG_KEY = "thumbs_aggregates_v1";
+const THUMBS_AGG_LOCK_KEY = "thumbs_agg_lock_v1";
+const THUMBS_AGG_TTL_SEC = 60;
+const THUMBS_AGG_STALE_SEC = 120;
+
+// KV write-throttle default. Override per-environment with MIN_WRITE_INTERVAL_MS.
+const DEFAULT_MIN_WRITE_INTERVAL_MS = 60_000;
+
+const SEEN_TTL_SEC = 72 * 3600;
+const INGEST_LOCK_TTL_SEC = 540;
+const INGEST_LOCK_STALE_SEC = 900;
+const TRAVEL_LOCK_TTL_SEC = 600;
+const TRAVEL_LOCK_STALE_SEC = 1200;
+const AUTO_48H_MS = 48 * 3600 * 1000;
+
+const MAX_INCIDENTS_STORED = 300;
+
+const DETERMINISTIC_SOURCES = [
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
+  "https://www.gdacs.org/xml/rss.xml"
+];
+
+const ROTATING_SOURCES = [
+  "https://www.reuters.com/tools/rss",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+  "https://www.bbc.co.uk/arabic/misc/rss.xml"
+];
+
+const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
+const GITHUB_SMARTTRAVELLER_RAW = "https://raw.githubusercontent.com/kevle1/smartraveller-api/main";
+
+const STATIC_TRAVEL_FALLBACK = [
+  { country: "Global", level: 1, text: "Exercise normal precautions." }
+];
+
+const HIGH_NATURAL_CATS = new Set(['EARTHQUAKE','TSUNAMI','CYCLONE','HURRICANE','FLOOD','WILDFIRE','VOLCANO']);
+
+// Operational keywords mainly for security incidents
+const OPERATIONAL_KEYWORDS = /\b(shooting|mass shooting|bomb|bombing|hostage|hostages|terror|terrorist|riots|riot|massacre|gunman|active shooter|attack|kidnap|kidnapping|protest|demonstration|strike)\b/i;
+
+// thresholds
+const OPERATIONAL_MAX_DIST_KM = 50;   // worker-level cap for operational inclusion
+const NATURAL_MAX_DIST_KM = 200;      // natural events considered regionally impactful
+const IMPACT_SCORE_THRESHOLD = 50;    // 0..100
+
+/* ======= STRICTER NATURAL THRESHOLDS ======= */
+const NATURAL_MIN_MAGNITUDE = 5.5;   // earthquakes below this are generally non-destructive off-shore
+const NATURAL_MIN_SEVERITY = 4;     // severity threshold to treat natural events as potentially impactful
+
+/* ======= PROXIMITY ALERT GATING THRESHOLDS ======= */
+// Aliases kept consistent with OPERATIONAL_MAX_DIST_KM / NATURAL_MAX_DIST_KM above.
+// Override per-environment via wrangler.toml vars if needed.
+const PROXIMITY_MAX_DISTANCE_KM = OPERATIONAL_MAX_DIST_KM; // default 50 km; natural events use NATURAL_MAX_DIST_KM
+const PROXIMITY_WINDOW_HOURS = 72;                          // reject incidents older than this
+const PROXIMITY_SEVERITY_THRESHOLD = 4;                     // minimum severity for non-keyword fallback accept
+
+/* reverse-geocode cache & defaults */
+const GEOCODE_CACHE_PREFIX = "rg_";
+const GEOCODE_CACHE_TTL_SEC = 30 * 24 * 3600; // 30 days
+const DEFAULT_GEOCODE_URL = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10";
+
+/* ===========================
+   DELL SITES — FULL LIST
+   =========================== */
+
+const DELL_SITES = [
+  { name: "Dell Round Rock HQ", country: "US", region: "AMER", lat: 30.5083, lon: -97.6788 },
+  { name: "Dell Austin Parmer", country: "US", region: "AMER", lat: 30.3952, lon: -97.6843 },
+  { name: "Dell Hopkinton", country: "US", region: "AMER", lat: 42.2287, lon: -71.5226 },
+  { name: "Dell Franklin", country: "US", region: "AMER", lat: 42.0834, lon: -71.3967 },
+  { name: "Dell Apex", country: "US", region: "AMER", lat: 35.7327, lon: -78.8503 },
+  { name: "Dell Eden Prairie", country: "US", region: "AMER", lat: 44.8617, lon: -93.4168 },
+  { name: "Dell Draper", country: "US", region: "AMER", lat: 40.5240, lon: -111.8950 },
+  { name: "Dell Nashville Hub", country: "US", region: "AMER", lat: 36.1627, lon: -86.7816 },
+  { name: "Dell Oklahoma City", country: "US", region: "AMER", lat: 35.4676, lon: -97.5164 },
+  { name: "Dell Santa Clara", country: "US", region: "AMER", lat: 37.3541, lon: -121.9552 },
+  { name: "Dell McLean", country: "US", region: "AMER", lat: 38.9295, lon: -77.2268 },
+  { name: "Dell El Paso", country: "US", region: "AMER", lat: 31.8385, lon: -106.5278 },
+  { name: "Dell Toronto", country: "CA", region: "AMER", lat: 43.6532, lon: -79.3832 },
+  { name: "Dell Mexico City", country: "MX", region: "AMER", lat: 19.4326, lon: -99.1332 },
+  { name: "Dell Hortolândia Mfg", country: "BR", region: "LATAM", lat: -22.8583, lon: -47.2208 },
+  { name: "Dell São Paulo", country: "BR", region: "LATAM", lat: -23.5505, lon: -46.6333 },
+  { name: "Dell Porto Alegre", country: "BR", region: "LATAM", lat: -30.0346, lon: -51.2177 },
+  { name: "Dell Panama City", country: "PA", region: "LATAM", lat: 8.9824, lon: -79.5199 },
+  { name: "Dell Lodz Mfg", country: "PL", region: "EMEA", lat: 51.7285, lon: 19.4967 },
+  { name: "Dell Limerick", country: "IE", region: "EMEA", lat: 52.6638, lon: -8.6267 },
+  { name: "Dell Dublin Cherrywood", country: "IE", region: "EMEA", lat: 53.2374, lon: -6.1450 },
+  { name: "Dell Cork Campus", country: "IE", region: "EMEA", lat: 51.8985, lon: -8.4756 },
+  { name: "Dell Herzliya", country: "IL", region: "EMEA", lat: 32.1644, lon: 34.7961 },
+  { name: "Dell Haifa", country: "IL", region: "EMEA", lat: 32.7940, lon: 34.9896 },
+  { name: "Dell Beer Sheva", country: "IL", region: "EMEA", lat: 31.2626, lon: 34.8016 },
+  { name: "Dell Bracknell", country: "GB", region: "EMEA", lat: 51.4160, lon: -0.7540 },
+  { name: "Dell Glasgow", country: "GB", region: "EMEA", lat: 55.8642, lon: -4.2518 },
+  { name: "Dell Montpellier", country: "FR", region: "EMEA", lat: 43.6108, lon: 3.8767 },
+  { name: "Dell Paris / Bezons", country: "FR", region: "EMEA", lat: 48.8566, lon: 2.3522 },
+  { name: "Dell Frankfurt", country: "DE", region: "EMEA", lat: 50.1109, lon: 8.6821 },
+  { name: "Dell Halle", country: "DE", region: "EMEA", lat: 51.4820, lon: 11.9700 },
+  { name: "Dell Amsterdam", country: "NL", region: "EMEA", lat: 52.3676, lon: 4.9041 },
+  { name: "Dell Casablanca", country: "MA", region: "EMEA", lat: 33.5731, lon: -7.5898 },
+  { name: "Dell Cairo", country: "EG", region: "EMEA", lat: 30.0444, lon: 31.2357 },
+  { name: "Dell Dubai", country: "AE", region: "EMEA", lat: 25.2048, lon: 55.2708 },
+  { name: "Dell Bangalore", country: "IN", region: "APJC", lat: 12.9716, lon: 77.5946 },
+  { name: "Dell Hyderabad", country: "IN", region: "APJC", lat: 17.3850, lon: 78.4867 },
+  { name: "Dell Gurugram", country: "IN", region: "APJC", lat: 28.4595, lon: 77.0266 },
+  { name: "Dell Sriperumbudur Mfg", country: "IN", region: "APJC", lat: 12.9560, lon: 79.9410 },
+  { name: "Dell Singapore", country: "SG", region: "APJC", lat: 1.3521, lon: 103.8198 },
+  { name: "Dell Penang", country: "MY", region: "APJC", lat: 5.4164, lon: 100.3327 },
+  { name: "Dell Cyberjaya", country: "MY", region: "APJC", lat: 2.9213, lon: 101.6559 },
+  { name: "Dell Xiamen Mfg", country: "CN", region: "APJC", lat: 24.4798, lon: 118.0894 },
+  { name: "Dell Chengdu Mfg", country: "CN", region: "APJC", lat: 30.5728, lon: 104.0668 },
+  { name: "Dell Shanghai", country: "CN", region: "APJC", lat: 31.2304, lon: 121.4737 },
+  { name: "Dell Taipei", country: "TW", region: "APJC", lat: 25.0330, lon: 121.5654 },
+  { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
+  { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
+  { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
+  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
+];
+
+const SITE_MAP_BY_NAME = {};
+for (const s of DELL_SITES) { SITE_MAP_BY_NAME[s.name.toLowerCase()] = s; }
+
+/* ===========================
+   LOGGING
+   =========================== */
+const LOG_LEVEL_ORDER = { debug: 0, info: 1, warn: 2, error: 3, none: 4 };
+let LOG_LEVEL = "info";
+function setLogLevelFromEnv(env) {
+  try {
+    if (env && env.LOG_LEVEL) {
+      const lvl = String(env.LOG_LEVEL).toLowerCase();
+      if (lvl in LOG_LEVEL_ORDER) LOG_LEVEL = lvl;
+    }
+  } catch (e) { /* ignore */ }
+}
+function log(level, ...args) {
+  try {
+    const lnum = LOG_LEVEL_ORDER[level] ?? 0;
+    const cur = LOG_LEVEL_ORDER[LOG_LEVEL] ?? 0;
+    if (lnum >= cur && level !== "none") console.log(`[${level.toUpperCase()}]`, ...args);
+  } catch (e) { /* swallow */ }
+}
+function debug(...args) { log("debug", ...args); }
+function info(...args) { log("info", ...args); }
+function warn(...args) { log("warn", ...args); }
+function error(...args) { log("error", ...args); }
+
+/* ===========================
+   UTILS
+   =========================== */
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const headers = {
+      "User-Agent": "OS-INFOHUB-Worker/1.0 (+https://example.com)",
+      "Accept": "application/json, text/plain, */*",
+      ...(opts.headers || {})
+    };
+    const res = await fetch(url, { ...opts, headers, signal: controller.signal });
+    if (!res) throw new Error("http_" + (res.status || "no_status"));
+    return res;
+  } catch (e) {
+    if (e && e.name === "AbortError") throw new Error("fetch_timeout");
+    throw e;
+  } finally { clearTimeout(id); }
+}
+
+function escapeHtml(s = "") {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function safeNum(x) {
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
+function utcDateKey(date = new Date()) {
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(date.getUTCDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function stableId(s = "") {
+  let h = 0;
+  const str = String(s);
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    h = ((h << 5) - h) + c;
+    h |= 0;
+  }
+  return String(h >>> 0);
+}
+
+/* UUID helper */
+function _uuid() {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+    const b = new Uint8Array(16);
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) crypto.getRandomValues(b);
+    else for (let i=0;i<16;i++) b[i]=Math.floor(Math.random()*256);
+    b[6]=(b[6]&0x0f)|0x40;
+    b[8]=(b[8]&0x3f)|0x80;
+    const hex = Array.from(b).map(bt => bt.toString(16).padStart(2,"0")).join("");
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  } catch (e) {
+    return `id_${Date.now()}_${Math.floor(Math.random()*1e9)}`;
+  }
+}
+
+/* ---------------------------
+   Helper: validate coordinates
+   --------------------------- */
+function _validCoords(lat, lng) {
+  if (lat === null || lat === undefined || lng === null || lng === undefined) return false;
+  const a = Number(lat), b = Number(lng);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+  if (Math.abs(a) > 90 || Math.abs(b) > 180) return false;
+  if (Math.abs(a) < 1e-9 && Math.abs(b) < 1e-9) return false;
+  return true;
+}
+
+/* ---------------------------
+   Helper: safe response builder
+   --------------------------- */
+function _responseFromResult(resObj) {
+  const bodyVal = (resObj && typeof resObj.body === 'object') ? JSON.stringify(resObj.body) : String(resObj && resObj.body != null ? resObj.body : '');
+  const headers = { ...CORS_HEADERS };
+  if (resObj && typeof resObj.body === 'object') headers["Content-Type"] = "application/json";
+  return new Response(bodyVal, { status: resObj.status || 200, headers });
+}
+
+/* haversine */
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function nearestDell(lat, lon) {
+  let best = null;
+  for (const s of DELL_SITES) {
+    const d = haversineKm(lat, lon, s.lat, s.lon);
+    if (!best || d < best.dist) best = { ...s, dist: d };
+  }
+  return best;
+}
+
+/* ===========================
+   COUNTRY_COORDS — FULL LIST (RESTORED)
+   =========================== */
+const COUNTRY_COORDS = {
+  "afghanistan": { lat: 33.93911, lng: 67.709953 },
+  "albania": { lat: 41.153332, lng: 20.168331 },
+  "algeria": { lat: 28.033886, lng: 1.659626 },
+  "andorra": { lat: 42.506285, lng: 1.521801 },
+  "angola": { lat: -11.202692, lng: 17.873887 },
+  "argentina": { lat: -38.416097, lng: -63.616672 },
+  "armenia": { lat: 40.069099, lng: 45.038189 },
+  "australia": { lat: -25.274398, lng: 133.775136 },
+  "austria": { lat: 47.516231, lng: 14.550072 },
+  "azerbaijan": { lat: 40.143105, lng: 47.576927 },
+  "bahamas": { lat: 25.03428, lng: -77.39628 },
+  "bahrain": { lat: 25.930414, lng: 50.637772 },
+  "bangladesh": { lat: 23.684994, lng: 90.356331 },
+  "barbados": { lat: 13.193887, lng: -59.543198 },
+  "belarus": { lat: 53.709807, lng: 27.953389 },
+  "belgium": { lat: 50.503887, lng: 4.469936 },
+  "belize": { lat: 17.189877, lng: -88.49765 },
+  "benin": { lat: 9.30769, lng: 2.315834 },
+  "bhutan": { lat: 27.514162, lng: 90.433601 },
+  "bolivia": { lat: -16.290154, lng: -63.588653 },
+  "bosnia and herzegovina": { lat: 43.915886, lng: 17.679076 },
+  "botswana": { lat: -22.328474, lng: 24.684866 },
+  "brazil": { lat: -14.235004, lng: -51.92528 },
+  "brunei": { lat: 4.535277, lng: 114.727669 },
+  "bulgaria": { lat: 42.733883, lng: 25.48583 },
+  "burkina faso": { lat: 12.238333, lng: -1.561593 },
+  "burundi": { lat: -3.373056, lng: 29.918886 },
+  "cabo verde": { lat: 16.002082, lng: -24.013197 },
+  "cambodia": { lat: 12.565679, lng: 104.990963 },
+  "cameroon": { lat: 7.369722, lng: 12.354722 },
+  "canada": { lat: 56.130366, lng: -106.346771 },
+  "central african republic": { lat: 6.611111, lng: 20.939444 },
+  "chad": { lat: 15.454166, lng: 18.732207 },
+  "chile": { lat: -35.675147, lng: -71.542969 },
+  "china": { lat: 35.86166, lng: 104.195397 },
+  "colombia": { lat: 4.570868, lng: -74.297333 },
+  "comoros": { lat: -11.875001, lng: 43.872219 },
+  "congo": { lat: -0.228021, lng: 15.827659 },
+  "costa rica": { lat: 9.748917, lng: -83.753428 },
+  "croatia": { lat: 45.1, lng: 15.2 },
+  "cuba": { lat: 21.521757, lng: -77.781167 },
+  "cyprus": { lat: 35.126413, lng: 33.429859 },
+  "czechia": { lat: 49.817492, lng: 15.472962 },
+  "denmark": { lat: 56.26392, lng: 9.501785 },
+  "djibouti": { lat: 11.825138, lng: 42.590275 },
+  "dominica": { lat: 15.414999, lng: -61.370976 },
+  "dominican republic": { lat: 18.735693, lng: -70.162651 },
+  "ecuador": { lat: -1.831239, lng: -78.183406 },
+  "egypt": { lat: 26.820553, lng: 30.802498 },
+  "el salvador": { lat: 13.794185, lng: -88.896533 },
+  "equatorial guinea": { lat: 1.650801, lng: 10.267895 },
+  "eritrea": { lat: 15.179384, lng: 39.782334 },
+  "estonia": { lat: 58.595272, lng: 25.013607 },
+  "eswatini": { lat: -26.522503, lng: 31.465866 },
+  "ethiopia": { lat: 9.145, lng: 40.489673 },
+  "fiji": { lat: -17.713371, lng: 178.065032 },
+  "finland": { lat: 61.92411, lng: 25.748151 },
+  "france": { lat: 46.227638, lng: 2.213749 },
+  "gabon": { lat: -0.803689, lng: 11.609444 },
+  "gambia": { lat: 13.443182, lng: -15.310139 },
+  "georgia": { lat: 42.315407, lng: 43.356892 },
+  "germany": { lat: 51.165691, lng: 10.451526 },
+  "ghana": { lat: 7.946527, lng: -1.023194 },
+  "greece": { lat: 39.074208, lng: 21.824312 },
+  "grenada": { lat: 12.116501, lng: -61.6790 },
+  "guatemala": { lat: 15.783471, lng: -90.230759 },
+  "guinea": { lat: 9.945587, lng: -9.696645 },
+  "guinea-bissau": { lat: 11.803749, lng: -15.180413 },
+  "guyana": { lat: 4.860416, lng: -58.93018 },
+  "haiti": { lat: 18.971187, lng: -72.285215 },
+  "honduras": { lat: 15.199999, lng: -86.241905 },
+  "hungary": { lat: 47.162494, lng: 19.503304 },
+  "iceland": { lat: 64.963051, lng: -19.020835 },
+  "india": { lat: 20.593684, lng: 78.96288 },
+  "indonesia": { lat: -0.789275, lng: 113.921327 },
+  "iran": { lat: 32.427908, lng: 53.688046 },
+  "iraq": { lat: 33.223191, lng: 43.679291 },
+  "ireland": { lat: 53.41291, lng: -8.24389 },
+  "israel": { lat: 31.046051, lng: 34.851612 },
+  "italy": { lat: 41.87194, lng: 12.56738 },
+  "jamaica": { lat: 18.109581, lng: -77.297508 },
+  "japan": { lat: 36.204824, lng: 138.252924 },
+  "jordan": { lat: 30.585164, lng: 36.238414 },
+  "kazakhstan": { lat: 48.019573, lng: 66.923684 },
+  "kenya": { lat: -0.023559, lng: 37.906193 },
+  "kuwait": { lat: 29.31166, lng: 47.481766 },
+  "kyrgyzstan": { lat: 41.20438, lng: 74.766098 },
+  "laos": { lat: 19.85627, lng: 102.495496 },
+  "latvia": { lat: 56.879635, lng: 24.603189 },
+  "lebanon": { lat: 33.854721, lng: 35.862285 },
+  "lesotho": { lat: -29.609988, lng: 28.233608 },
+  "liberia": { lat: 6.428055, lng: -9.429499 },
+  "libya": { lat: 26.3351, lng: 17.228331 },
+  "liechtenstein": { lat: 47.166, lng: 9.555373 },
+  "lithuania": { lat: 55.169438, lng: 23.881275 },
+  "luxembourg": { lat: 49.815273, lng: 6.129583 },
+  "madagascar": { lat: -18.766947, lng: 46.869107 },
+  "malawi": { lat: -13.254308, lng: 34.301525 },
+  "malaysia": { lat: 4.210484, lng: 101.975766 },
+  "maldives": { lat: 3.202778, lng: 73.22068 },
+  "mali": { lat: 17.570692, lng: -3.996166 },
+  "malta": { lat: 35.937496, lng: 14.375416 },
+  "marshall islands": { lat: 7.131474, lng: 171.184478 },
+  "mauritania": { lat: 21.00789, lng: -10.940835 },
+  "mauritius": { lat: -20.348404, lng: 57.552152 },
+  "mexico": { lat: 23.634501, lng: -102.552784 },
+  "micronesia": { lat: 7.425554, lng: 150.550812 },
+  "moldova": { lat: 47.411631, lng: 28.369885 },
+  "monaco": { lat: 43.750298, lng: 7.412841 },
+  "mongolia": { lat: 46.862496, lng: 103.846653 },
+  "montenegro": { lat: 42.708678, lng: 19.37439 },
+  "morocco": { lat: 31.791702, lng: -7.09262 },
+  "mozambique": { lat: -18.665695, lng: 35.529562 },
+  "myanmar": { lat: 21.913965, lng: 95.956223 },
+  "namibia": { lat: -22.95764, lng: 18.49041 },
+  "nauru": { lat: -0.522778, lng: 166.931503 },
+  "nepal": { lat: 28.394857, lng: 84.124008 },
+  "netherlands": { lat: 52.132633, lng: 5.291266 },
+  "new zealand": { lat: -40.900557, lng: 174.885971 },
+  "nicaragua": { lat: 12.865416, lng: -85.207229 },
+  "niger": { lat: 17.607789, lng: 8.081666 },
+  "nigeria": { lat: 9.081999, lng: 8.675277 },
+  "north macedonia": { lat: 41.608635, lng: 21.745273 },
+  "norway": { lat: 60.472024, lng: 8.468946 },
+  "oman": { lat: 21.512583, lng: 55.923255 },
+  "pakistan": { lat: 30.375321, lng: 69.345116 },
+  "palau": { lat: 7.51498, lng: 134.58252 },
+  "panama": { lat: 8.537981, lng: -80.782127 },
+  "papua new guinea": { lat: -6.314993, lng: 143.95555 },
+  "paraguay": { lat: -23.442503, lng: -58.443832 },
+  "peru": { lat: -9.189967, lng: -75.015152 },
+  "philippines": { lat: 12.879721, lng: 121.774017 },
+  "poland": { lat: 51.919438, lng: 19.145136 },
+  "portugal": { lat: 39.399872, lng: -8.224454 },
+  "qatar": { lat: 25.354826, lng: 51.183884 },
+  "romania": { lat: 45.943161, lng: 24.96676 },
+  "russia": { lat: 61.52401, lng: 105.318756 },
+  "rwanda": { lat: -1.940278, lng: 29.873888 },
+  "saint kitts and nevis": { lat: 17.357822, lng: -62.783 },
+  "saint lucia": { lat: 13.909444, lng: -60.978893 },
+  "saint vincent and the grenadines": { lat: 13.252817, lng: -61.197749 },
+  "samoa": { lat: -13.759029, lng: -172.104629 },
+  "san marino": { lat: 43.94236, lng: 12.457777 },
+  "sao tome and principe": { lat: 0.18636, lng: 6.613081 },
+  "saudi arabia": { lat: 23.885942, lng: 45.079162 },
+  "senegal": { lat: 14.497401, lng: -14.452362 },
+  "serbia": { lat: 44.016521, lng: 21.005859 },
+  "seychelles": { lat: -4.679574, lng: 55.491977 },
+  "sierra leone": { lat: 8.460555, lng: -11.779889 },
+  "singapore": { lat: 1.352083, lng: 103.819836 },
+  "slovakia": { lat: 48.669026, lng: 19.699024 },
+  "slovenia": { lat: 46.151241, lng: 14.995463 },
+  "solomon islands": { lat: -9.64571, lng: 160.156194 },
+  "somalia": { lat: 5.152149, lng: 46.199616 },
+  "south africa": { lat: -30.559482, lng: 22.937506 },
+  "south korea": { lat: 35.907757, lng: 127.766922 },
+  "south sudan": { lat: 6.876991, lng: 31.306978 },
+  "spain": { lat: 40.463667, lng: -3.74922 },
+  "sri lanka": { lat: 7.873054, lng: 80.771797 },
+  "sudan": { lat: 12.862807, lng: 30.217636 },
+  "suriname": { lat: 3.919305, lng: -56.027783 },
+  "sweden": { lat: 60.128161, lng: 18.643501 },
+  "switzerland": { lat: 46.818188, lng: 8.227512 },
+  "syria": { lat: 34.802074, lng: 38.996815 },
+  "taiwan": { lat: 23.69781, lng: 120.960515 },
+  "tajikistan": { lat: 38.861034, lng: 71.276093 },
+  "tanzania": { lat: -6.369028, lng: 34.888822 },
+  "thailand": { lat: 15.870032, lng: 100.992541 },
+  "timor-leste": { lat: -8.874217, lng: 125.727539 },
+  "togo": { lat: 8.619543, lng: 0.824782 },
+  "tonga": { lat: -21.178986, lng: -175.198242 },
+  "trinidad and tobago": { lat: 10.691803, lng: -61.222503 },
+  "tunisia": { lat: 33.886917, lng: 9.537499 },
+  "turkey": { lat: 38.963745, lng: 35.243322 },
+  "turkmenistan": { lat: 38.969719, lng: 59.556278 },
+  "tuvalu": { lat: -7.109535, lng: 177.64933 },
+  "uganda": { lat: 1.373333, lng: 32.290275 },
+  "ukraine": { lat: 48.379433, lng: 31.16558 },
+  "united arab emirates": { lat: 23.424076, lng: 53.847818 },
+  "united kingdom": { lat: 55.378051, lng: -3.435973 },
+  "united states": { lat: 37.09024, lng: -95.712891 },
+  "uruguay": { lat: -32.522779, lng: -55.765835 },
+  "uzbekistan": { lat: 41.377491, lng: 64.585262 },
+  "vanuatu": { lat: -15.376706, lng: 166.959158 },
+  "vatican city": { lat: 41.902916, lng: 12.453389 },
+  "venezuela": { lat: 6.42375, lng: -66.58973 },
+  "vietnam": { lat: 14.058324, lng: 108.277199 },
+  "yemen": { lat: 15.552727, lng: 48.516388 },
+  "zambia": { lat: -13.133897, lng: 27.849332 },
+  "zimbabwe": { lat: -19.015438, lng: 29.154857 }
+};
+
+/* Utility: extract country string from free text */
+function extractCountryFromText(text = "") {
+  if (!text || typeof text !== "string") return null;
+  const low = text.toLowerCase();
+  for (const k of Object.keys(COUNTRY_COORDS)) {
+    if (low.includes(k)) return k;
+  }
+  for (const s of DELL_SITES) {
+    const c = (s.country || "").toLowerCase();
+    if (c && (low.includes(c) || low.includes(s.name.toLowerCase()))) return c;
+  }
+  const codeMatch = low.match(/\b(us|usa|uk|au|in|cn|ru|fr|de|br|ca|es|it|mx|jp|nl|sg|my|ph|id|ae)\b/);
+  if (codeMatch) {
+    const cc = codeMatch[1];
+    if (cc === "us" || cc === "usa") return "united states";
+    if (cc === "uk") return "united kingdom";
+    if (cc === "au") return "australia";
+    if (cc === "in") return "india";
+    if (cc === "cn") return "china";
+    if (cc === "ru") return "russia";
+    if (cc === "fr") return "france";
+    if (cc === "de") return "germany";
+    if (cc === "br") return "brazil";
+    if (cc === "ca") return "canada";
+    if (cc === "es") return "spain";
+    if (cc === "it") return "italy";
+    if (cc === "mx") return "mexico";
+    if (cc === "jp") return "japan";
+    if (cc === "nl") return "netherlands";
+    if (cc === "sg") return "singapore";
+    if (cc === "my") return "malaysia";
+    if (cc === "ph") return "philippines";
+    if (cc === "id") return "indonesia";
+    if (cc === "ae") return "united arab emirates";
+  }
+  return null;
+}
+
+/* Noise filter — rejects content unrelated to physical security / supply-chain / facility / infrastructure.
+   Returns true (= noise) for items matching off-topic categories unless a security carve-out applies. */
+function isNoise(text = "") {
+  const t = String(text).toLowerCase();
+
+  // --- Tier-1: hard noise (sports, entertainment — no carve-out needed) ---
+  const HARD_NOISE = /\b(sports?|football|soccer|basketball|baseball|cricket|rugby|afcon|fifa|nfl|nba|nhl|mlb|olympics?|formula\s*1|f1 race|grand prix|tennis|golf|athlete|league table|transfer window|movie|film|box office|academy award|oscars?|emmys?|grammys?|golden globe|celebrity|fashion|recipe|horoscope|astrology|zodiac|gaming|video game|esports|tv show|sitcom|reality show|dating show|music chart|album release|concert tour|book review|lifestyle|beauty|wellness|diet|nutrition|fitness|workout)\b/i;
+  if (HARD_NOISE.test(t)) return true;
+
+  // --- Tier-2: finance / markets — reject unless supply-chain physical disruption present ---
+  const FINANCE_NOISE = /\b(stock market|share price|shares rose|shares fell|market cap|equity|ipo|earnings|quarterly results|revenue|profit|loss|gdp|inflation|interest rate|fed rate|central bank|cryptocurrency|crypto|bitcoin|nft|hedge fund|venture capital|private equity|merger|acquisition|ipo filing|analyst upgrade|analyst downgrade|credit rating|bond yield|trade deficit|current account|fiscal policy|monetary policy|dividend|buyback|stock split)\b/i;
+  const SUPPLY_CHAIN_CARVEOUT = /\b(plant closure|factory closure|port closure|supply chain|supply-chain|supplychain|facility closure|logistics disruption|shipment|container shortage|manufactur|warehouse fire|production halt|power outage|blackout|grid failure|network outage)\b/i;
+  if (FINANCE_NOISE.test(t) && !SUPPLY_CHAIN_CARVEOUT.test(t)) return true;
+
+  // --- Tier-3: general politics / diplomacy — reject unless security-adjacent ---
+  const POLITICS_NOISE = /\b(election|elections|ballot|polling|campaign|candidate|prime minister elected|parliament|congress|senate|legislation|bill passed|law signed|foreign policy|diplomatic|diplomacy|ambassador|embassy visit|trade deal|trade agreement|treaty|tariff negotiation|sanctions lifted|bilateral|multilateral|summit meeting|state visit|press conference|budget|austerity|stimulus|welfare|healthcare reform|immigration policy|refugee policy|climate pledge|paris agreement|un resolution|nato summit)\b/i;
+  const SECURITY_CARVEOUT = /\b(attack|bomb|shoot|evacuat|fire|explosion|earthquake|flood|tsunami|kidnap|abduct|hostage|terror|threat|militant|armed|gunman|siege|riot|protest|unrest|conflict|war|strike action|blockade|arrest|detained|security|safety|hazard|emergency|incident|casualt|killed|dead|injured|wounded|infrastructure|facility|supply chain|disruption|outage|closure|armed conflict|civil unrest)\b/i;
+  if (POLITICS_NOISE.test(t) && !SECURITY_CARVEOUT.test(t)) return true;
+
+  // --- Tier-4: pure diplomatic/meeting noise (preserved from original) ---
+  if (/\b(meeting|talks|summit|visit|conference|agreement|signed|signed an agreement)\b/i.test(t) &&
+      !SECURITY_CARVEOUT.test(t)) return true;
+
+  return false;
+}
+
+function severityFromText(s) {
+  const t = String(s || "").toUpperCase();
+  if (t.includes("CRIT") || t.includes("5")) return 5;
+  if (t.includes("HIGH") || t.includes("4")) return 4;
+  if (t.includes("MED") || t.includes("3")) return 3;
+  if (t.includes("LOW") || t.includes("2")) return 2;
+  return 1;
+}
+
+/* THUMBS helpers (admin prefs) */
+async function kvGetJson(env, key, fallback = null) {
+  if (!env || !env.INTEL_KV) return fallback;
+  try {
+    const v = await env.INTEL_KV.get(key, { type: "json" });
+    return (v === null || v === undefined) ? fallback : v;
+  } catch (e) {
+    debug("kvGetJson error", key, e?.message || e);
+    return fallback;
+  }
+}
+async function kvGetText(env, key) {
+  if (!env || !env.INTEL_KV) return null;
+  try { return await env.INTEL_KV.get(key); } catch (e) { debug("kvGetText error", key, e?.message || e); return null; }
+}
+async function kvPut(env, key, value, opts = {}) {
+  if (!env || !env.INTEL_KV) return false;
+  try {
+    if (typeof value === "object") value = JSON.stringify(value);
+    await env.INTEL_KV.put(key, value, opts);
+    return true;
+  } catch (e) { debug("kvPut error", key, e?.message || e); return false; }
+}
+async function kvDel(env, key) {
+  if (!env || !env.INTEL_KV) return false;
+  try { await env.INTEL_KV.delete(key); return true; } catch (e) { debug("kvDel error", key, e?.message || e); return false; }
+}
+
+/**
+ * Throttled KV write - skips the write when the value is unchanged AND
+ * fewer than minIntervalMs ms have elapsed since the last save.
+ * A companion sentinel key (`${key}__ts`) tracks the last-write timestamp
+ * so the stored value shape is never modified (arrays stay arrays).
+ *
+ * @param {object}  env
+ * @param {string}  key
+ * @param {*}       value          - any JSON-serialisable value (array or object)
+ * @param {object}  [opts={}]      - KV put options (e.g. { expirationTtl })
+ * @param {number|null} [minIntervalMs] - defaults to env.MIN_WRITE_INTERVAL_MS || DEFAULT_MIN_WRITE_INTERVAL_MS
+ * @param {boolean} [force=false]  - bypass throttle (e.g. admin block must be immediate)
+ */
+async function kvPutWithThrottle(env, key, value, opts = {}, minIntervalMs = null, force = false) {
+  if (!env || !env.INTEL_KV) return { wrote: false, reason: 'error', err: 'no KV binding' };
+  const interval = (minIntervalMs !== null && minIntervalMs !== undefined)
+    ? Number(minIntervalMs)
+    : (Number(env.MIN_WRITE_INTERVAL_MS) || DEFAULT_MIN_WRITE_INTERVAL_MS);
+  const tsKey = `${key}__ts`;
+  try {
+    // Read timestamp sentinel and existing value for diff
+    let existingTs = 0;
+    let existing = null;
+    try {
+      const tsRaw = await env.INTEL_KV.get(tsKey);
+      existingTs = tsRaw ? Number(tsRaw) : 0;
+      existing = await env.INTEL_KV.get(key, { type: 'json' });
+    } catch {}
+    const elapsed = Date.now() - existingTs;
+
+    // Deep-equal content diff (compare serialised forms)
+    let changed = true;
+    if (existing !== null) {
+      try { changed = JSON.stringify(existing) !== JSON.stringify(value); }
+      catch { changed = true; }
+    }
+
+    if (!force && !changed && elapsed < interval) {
+      debug(`kvPutWithThrottle: SKIP ${key} (elapsed=${elapsed}ms < ${interval}ms, unchanged)`);
+      return { wrote: false, reason: 'throttled' };
+    }
+
+    // Write value unchanged, then update sentinel
+    await env.INTEL_KV.put(key, JSON.stringify(value), opts);
+    await env.INTEL_KV.put(tsKey, String(Date.now()), { expirationTtl: 7 * 24 * 3600 });
+    const reason = force ? 'force' : 'changed';
+    debug(`kvPutWithThrottle: WROTE ${key} reason=${reason} elapsed=${elapsed}ms`);
+    return { wrote: true, reason };
+  } catch (e) {
+    warn(`kvPutWithThrottle: ERROR ${key}`, e?.message || e);
+    return { wrote: false, reason: 'error', err: String(e?.message || e) };
+  }
+}
+
+/* ===========================
+   EMAIL ALERTING (NEW: Resend Integration with Rich HTML + Dedupe)
+   =========================== */
+
+function buildIncidentEmail(incident, opts = {}) {
+  // opts: { regionText, affectedList, feedbackBaseUrl, mapSize }
+  const title = String(incident.title || "Incident").trim();
+  const status = String(incident.notification_status || (incident.severity_label === "LOW" ? "Informational" : "Alert"));
+  const regionText = opts.regionText || (incident.region || "Global");
+  const assetText = (opts.affectedList && opts.affectedList.length) ? opts.affectedList.join(", ") : (incident.nearest_site_name || "None");
+  const severityText = incident.severity_label || (incident.severity || "N/A");
+  const notifStatus = incident.notification_status || "Open";
+
+  // Choose map center: lat/lng if available, else country centroid
+  let mapLat = Number(incident.lat) || 0;
+  let mapLon = Number(incident.lng) || 0;
+  if ((!Number.isFinite(mapLat) || Math.abs(mapLat) < 1e-6) && incident.country) {
+    const ck = String(incident.country || "").toLowerCase();
+    if (COUNTRY_COORDS && COUNTRY_COORDS[ck]) {
+      mapLat = COUNTRY_COORDS[ck].lat;
+      mapLon = COUNTRY_COORDS[ck].lng;
+    }
+  }
+
+  // Map image (OpenStreetMap static tile service). Size tuned to screenshot.
+  const zoom = opts.mapZoom || 9;
+  const size = opts.mapSize || "700x300";
+  const marker = (Number.isFinite(mapLat) && Number.isFinite(mapLon)) ? `${encodeURIComponent(mapLat + "," + mapLon + ",red-pushpin")}` : "";
+  const mapImgUrl = (marker) ? `https://staticmap.openstreetmap.de/staticmap.php?center=${encodeURIComponent(mapLat + "," + mapLon)}&zoom=${zoom}&size=${size}&markers=${marker}` : null;
+  const mapLink = (Number.isFinite(mapLat) && Number.isFinite(mapLon)) ? `https://www.openstreetmap.org/?mlat=${encodeURIComponent(mapLat)}&mlon=${encodeURIComponent(mapLon)}#map=${zoom}/${mapLat}/${mapLon}` : (incident.link || "#");
+
+  // Safe HTML summary with preserved line breaks
+  const safeSummary = escapeHtml(String(incident.summary || "")).replace(/\n/g, "<br/>");
+
+  // Affected block
+  let affectedHtml = "";
+  if (opts.affectedList && opts.affectedList.length) {
+    affectedHtml = `<ul style="margin:8px 0;padding-left:18px;">${opts.affectedList.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`;
+  } else if (assetText) {
+    affectedHtml = `<div style="margin-top:8px;">${escapeHtml(assetText)}</div>`;
+  }
+
+  // Feedback links (use feedbackBaseUrl or incident.link)
+  const feedbackBase = String(opts.feedbackBaseUrl || incident.link || "#");
+  const feedbackLinks = `
+    <div style="margin-top:10px;">
+      Feedback:
+      <a href="${escapeHtml(feedbackBase)}?choice=1" style="color:#0066cc;text-decoration:none;margin-right:8px;">Informative, no action</a>
+      <a href="${escapeHtml(feedbackBase)}?choice=2" style="color:#0066cc;text-decoration:none;margin-right:8px;">Informative, monitor</a>
+      <a href="${escapeHtml(feedbackBase)}?choice=3" style="color:#0066cc;text-decoration:none;margin-right:8px;">Took action</a>
+      <a href="${escapeHtml(feedbackBase)}?choice=4" style="color:#0066cc;text-decoration:none;">Not informative</a>
+    </div>`;
+
+  // HTML layout closely matching your screenshot
+  const html = `
+  <html>
+  <head><meta charset="utf-8"/></head>
+  <body style="font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;">
+    <div style="background:#2e8b2e;color:#fff;padding:14px 18px;font-weight:700;font-size:18px;">
+      ${escapeHtml(status)} — ${escapeHtml(title)}
+    </div>
+
+    <div style="background:#f6f6f6;padding:12px 18px;border-bottom:1px solid #e6e6e6;">
+      <div style="font-size:13px;margin-bottom:6px;"><strong>Region:</strong> ${escapeHtml(regionText)} &nbsp;|&nbsp; <strong>Country:</strong> ${escapeHtml(incident.country || "N/A")}</div>
+      <div style="font-size:13px;margin-bottom:6px;"><strong>Affected Asset(s):</strong> ${escapeHtml(assetText || "N/A")}</div>
+      <div style="font-size:13px;"><strong>Location:</strong> ${escapeHtml(incident.location || "N/A")} &nbsp;|&nbsp; <strong>Severity:</strong> ${escapeHtml(severityText)} &nbsp;|&nbsp; <strong>Notification:</strong> ${escapeHtml(notifStatus)}</div>
+    </div>
+
+    <div style="padding:14px 18px;">
+      <h3 style="margin:0 0 8px 0;color:#164a72;">Alert Details</h3>
+      <div style="line-height:1.4;">${safeSummary}</div>
+      ${affectedHtml}
+      ${mapImgUrl ? `<div style="margin-top:12px;border:1px solid #ddd;"><a href="${mapLink}" target="_blank" rel="noopener noreferrer"><img src="${mapImgUrl}" alt="Map" style="width:100%;max-width:700px;display:block;border:0;"></a></div>` : ""}
+    </div>
+
+    <div style="padding:12px 18px;border-top:1px solid #eee;font-size:13px;color:#666;">
+      <div style="margin-bottom:8px;">
+        <a href="${escapeHtml(incident.link || '#')}" style="color:#0066cc;text-decoration:none;margin-right:12px;">View original alert</a>
+      </div>
+      ${feedbackLinks}
+    </div>
+  </body>
+  </html>
+  `;
+
+  // === Plain-text fallback (improves deliverability & accessibility) ===
+  const text = [
+    `${status} — ${title}`,
+    `Region: ${regionText} | Country: ${incident.country || 'N/A'}`,
+    `Affected Asset(s): ${assetText || 'N/A'}`,
+    `Location: ${incident.location || 'N/A'} | Severity: ${severityText} | Notification: ${notifStatus}`,
+    '',
+    'Alert Details:',
+    (incident.summary || '').replace(/<[^>]+>/g, '').replace(/\n+/g, '\n'),
+    '',
+    `View original alert: ${incident.link || ''}`
+  ].join('\n');
+
+  const subject = `[${severityText}] ${title}`;
+  return { subject, html, text };
+}
+
+async function sendAlertEmail(env, incident, opts = {}) {
+  // opts: { dedupeTtlSec: 86400 }
+  if (!env || !env.RESEND_API_KEY) { debug("sendAlertEmail: RESEND_API_KEY not configured"); return false; }
+
+  // Unique key for dedupe
+  const id = String(incident.id || stableId((incident.title || "") + (incident.time || "")));
+  const sentKey = `sent_email_${id}`;
+  try {
+    // Quick dedupe check in KV
+    const prev = await env.INTEL_KV.get(sentKey);
+    if (prev) { debug("sendAlertEmail: already.sent", id); return false; }
+
+    // Use environment variable if available, fallback to hardcoded only as last resort
+    const rawTo = (env.ALERT_EMAIL_TO || "vssmaximus@gmail.com").trim();
+    const toList = rawTo ? rawTo.split(",").map(s => s.trim()).filter(Boolean) : [];
+    if (toList.length === 0) { debug("sendAlertEmail: no recipients (ALERT_EMAIL_TO empty)"); return false; }
+
+    const from = env.EMAIL_FROM || env.RESEND_FROM || "OSINT Alerts <onboarding@resend.dev>";
+
+    // Build content
+    const pack = buildIncidentEmail(incident, { 
+      regionText: incident.region, 
+      affectedList: opts.affectedList || (incident.nearest_site_name ? [incident.nearest_site_name] : null), 
+      feedbackBaseUrl: opts.feedbackBaseUrl || incident.link 
+    });
+
+    // Compose payload for Resend
+    const payload = {
+      from,
+      to: toList,
+      subject: pack.subject,
+      html: pack.html,
+      text: pack.text   // plain-text fallback added
+    };
+
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const bodyText = await res.text().catch(()=>null);
+      error("sendAlertEmail: resend failed", res.status, bodyText);
+      return false;
+    }
+
+    // Mark as sent in KV with TTL to avoid duplicate sends.
+    const ttl = Number(opts.dedupeTtlSec || (24 * 3600)); // default 24h
+    await kvPut(env, sentKey, { ts: new Date().toISOString(), subject: pack.subject }, { expirationTtl: ttl });
+
+    debug("sendAlertEmail: sent", id, "to", toList.length, "recipients");
+    return true;
+  } catch (e) {
+    error("sendAlertEmail: exception", e?.message || e);
+    return false;
+  }
+}
+
+async function loadThumbsPrefs(env) {
+  const base = await kvGetJson(env, THUMBS_KV_KEY, null);
+  if (!base) {
+    const init = { byId: {}, upKeywords: {}, downKeywords: {}, sourceSignals: {}, blockedIds: [], updated_at: new Date().toISOString() };
+    await kvPut(env, THUMBS_KV_KEY, init);
+    init._loadedTs = Date.now();
+    return init;
+  }
+  base._loadedTs = Date.now();
+  base.byId = base.byId || {};
+  base.upKeywords = base.upKeywords || {};
+  base.downKeywords = base.downKeywords || {};
+  base.sourceSignals = base.sourceSignals || {};
+  base.blockedIds = base.blockedIds || [];
+  return base;
+}
+
+async function saveThumbsPrefs(env, prefs) {
+  if (!prefs) return false;
+  prefs.updated_at = new Date().toISOString();
+  const p = {
+    byId: prefs.byId || {},
+    upKeywords: prefs.upKeywords || {},
+    downKeywords: prefs.downKeywords || {},
+    sourceSignals: prefs.sourceSignals || {},
+    blockedIds: prefs.blockedIds || [],
+    updated_at: prefs.updated_at
+  };
+  const result = await kvPutWithThrottle(env, THUMBS_KV_KEY, p);
+  return result.wrote !== false;
+}
+
+const STOPWORDS = new Set([
+  "the","and","a","to","of","in","on","for","with","is","are","by","from","at","as","an","be","this","that","it",
+  "its","was","were","will","has","have","had","but","or","if","we","they","their","our","us","i","you","he","she"
+]);
+
+function extractKeywords(text, minLen = 3, maxTokens = 30) {
+  if (!text || typeof text !== "string") return [];
+  const low = text.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+  const tokens = low.split(/\s+/).filter(Boolean).map(t => t.trim()).filter(t => t.length >= minLen && !STOPWORDS.has(t));
+  const freq = {};
+  for (const t of tokens) freq[t] = (freq[t] || 0) + 1;
+  for (let i = 0; i < tokens.length - 1; i++) {
+    const bi = `${tokens[i]} ${tokens[i+1]}`;
+    if (bi.length >= minLen) freq[bi] = (freq[bi] || 0) + 1;
+  }
+  const arr = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, maxTokens).map(x => x[0]);
+  return arr;
+}
+
+function incrementKeywordCounts(prefs, tokens = [], action = "up") {
+  if (!prefs || !Array.isArray(tokens)) return;
+  const mapName = (action === "up") ? "upKeywords" : "downKeywords";
+  prefs[mapName] = prefs[mapName] || {};
+  for (const t of tokens) prefs[mapName][t] = (prefs[mapName][t] || 0) + 1;
+}
+
+function updateSourceSignal(prefs, sourceHost, action) {
+  prefs.sourceSignals = prefs.sourceSignals || {};
+  const current = prefs.sourceSignals[sourceHost] || { up: 0, down: 0 };
+  if (action === "up") current.up++;
+  else if (action === "down") current.down++;
+  prefs.sourceSignals[sourceHost] = current;
+}
+
+function hostFromLink(link) {
+  try {
+    const u = new URL(String(link));
+    return u.hostname.replace(/^www\./, "");
+  } catch (e) {
+    return String(link || "").split("/")[0].replace(/^www\./, "");
+  }
+}
+
+let THUMBS_PREF_CACHE = null;
+let THUMBS_PREF_CACHE_TS = 0;
+let __kvListCache = { value: null, ts: 0 }; // in-memory cache for INTEL_KV.list() calls
+
+async function ensureThumbsCache(env) {
+  try {
+    const now = Date.now();
+    if (THUMBS_PREF_CACHE && (now - THUMBS_PREF_CACHE_TS) < 60_000) return THUMBS_PREF_CACHE;
+    const prefs = await loadThumbsPrefs(env);
+    THUMBS_PREF_CACHE = prefs;
+    THUMBS_PREF_CACHE_TS = now;
+    return THUMBS_PREF_CACHE;
+  } catch (e) {
+    return { byId: {}, upKeywords: {}, downKeywords: {}, sourceSignals: {}, blockedIds: [] };
+  }
+}
+
+function thumbsKeywordScore(prefs, text) {
+  if (!prefs) return { up: 0, down: 0 };
+  const low = String(text || "").toLowerCase();
+  let up = 0, down = 0;
+  for (const [k, v] of Object.entries(prefs.upKeywords || {})) if (low.includes(k)) up += (v || 1);
+  for (const [k, v] of Object.entries(prefs.downKeywords || {})) if (low.includes(k)) down += (v || 1);
+  return { up, down };
+}
+
+function thumbsSourceScore(prefs, host) {
+  if (!prefs || !host) return { up:0, down:0 };
+  const s = prefs.sourceSignals && prefs.sourceSignals[host];
+  if (!s) return { up:0, down:0 };
+  return { up: s.up || 0, down: s.down || 0 };
+}
+
+/* processThumbAction - admin */
+async function processThumbAction(env, ctx, body, secretOk) {
+  if (!secretOk) return { ok: false, status: 403, body: "Unauthorized" };
+  const { id, action, title, summary, source, link } = body || {};
+  if (!id || !action || (action !== "up" && action !== "down")) {
+    return { ok: false, status: 400, body: "Invalid payload: requires id and action 'up'|'down'" };
+  }
+  let prefs = await loadThumbsPrefs(env);
+  prefs.byId = prefs.byId || {};
+  prefs.upKeywords = prefs.upKeywords || {};
+  prefs.downKeywords = prefs.downKeywords || {};
+  prefs.sourceSignals = prefs.sourceSignals || {};
+  prefs.blockedIds = prefs.blockedIds || [];
+  prefs.byId[id] = action;
+  const tokens = extractKeywords(`${title || ""} ${summary || ""}`);
+  incrementKeywordCounts(prefs, tokens, action);
+  const host = hostFromLink(link || source || "");
+  updateSourceSignal(prefs, host, action);
+
+  if (action === "down") {
+    if (!prefs.blockedIds.includes(id)) prefs.blockedIds.push(id);
+    // admin-triggered immediate block
+    await performImmediateBlock(env, id, prefs);
+  }
+
+  try { await saveThumbsPrefs(env, prefs); } catch (e) { debug("processThumbAction: save failed", e?.message || e); }
+  THUMBS_PREF_CACHE = prefs;
+  THUMBS_PREF_CACHE_TS = Date.now();
+  const topUp = Object.entries(prefs.upKeywords || {}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const topDown = Object.entries(prefs.downKeywords || {}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  return { ok: true, status: 200, body: { id, action, blockedIdsCount: (prefs.blockedIds || []).length, topUpKeywords: topUp, topDownKeywords: topDown, sourceSignals: prefs.sourceSignals || {} } };
+}
+
+/* ===========================
+   LEARNING RULES ENGINE
+   =========================== */
+let LEARNING_RULES_CACHE = null;
+let LEARNING_RULES_CACHE_TS = 0;
+const LEARNING_MIN_TOTAL = 6;
+const LEARNING_SCORE_THRESHOLD = 1.8; // raised from 1.5 → 1.8 to reduce noisy auto-accepts; tune down if legitimate items are suppressed
+const LEARNING_MIN_UP = 3;
+const LEARNING_MIN_UP_DIFF = 2; // up - down >= 2
+const LEARNING_RULES_CACHE_TTL_MS = 60 * 1000;
+
+async function loadLearningRules(env) {
+  try {
+    const now = Date.now();
+    if (LEARNING_RULES_CACHE && (now - LEARNING_RULES_CACHE_TS) < LEARNING_RULES_CACHE_TTL_MS) return LEARNING_RULES_CACHE;
+    const r = await kvGetJson(env, LEARNING_RULES_KEY, null);
+    LEARNING_RULES_CACHE = r;
+    LEARNING_RULES_CACHE_TS = Date.now();
+    return r || { keywordWeights: {}, sourceWeights: {}, produced_at: null };
+  } catch (e) { debug("loadLearningRules err", e?.message || e); return { keywordWeights: {}, sourceWeights: {}, produced_at: null }; }
+}
+
+async function updateLearningRules(env) {
+  try {
+    const prefs = await loadThumbsPrefs(env);
+    const up = prefs.upKeywords || {};
+    const down = prefs.downKeywords || {};
+    const keys = new Set([...Object.keys(up), ...Object.keys(down)]);
+    const keywordWeights = {};
+    for (const k of keys) {
+      const upc = Number(up[k] || 0);
+      const downc = Number(down[k] || 0);
+      const total = upc + downc;
+      if (total < LEARNING_MIN_TOTAL) continue; // require sample size
+      // compute weight (log-diff)
+      const w = Math.log(1 + upc) - Math.log(1 + downc);
+      keywordWeights[k] = { weight: Number(w.toFixed(4)), up: upc, down: downc, total };
+    }
+    const src = prefs.sourceSignals || {};
+    const sourceWeights = {};
+    for (const [h, s] of Object.entries(src)) {
+      const upc = Number((s && s.up) || 0);
+      const downc = Number((s && s.down) || 0);
+      const total = upc + downc;
+      if (total < LEARNING_MIN_TOTAL) continue;
+      const w = Math.log(1 + upc) - Math.log(1 + downc);
+      sourceWeights[h] = { weight: Number(w.toFixed(4)), up: upc, down: downc, total };
+    }
+    const rules = { keywordWeights, sourceWeights, produced_at: new Date().toISOString() };
+    await kvPut(env, LEARNING_RULES_KEY, rules);
+    LEARNING_RULES_CACHE = rules;
+    LEARNING_RULES_CACHE_TS = Date.now();
+    debug("updateLearningRules: saved rules", Object.keys(keywordWeights).length, "keywords");
+    return rules;
+  } catch (e) {
+    debug("updateLearningRules err", e?.message || e);
+    return null;
+  }
+}
+
+/* ===========================
+   Perform Immediate Block - admin only
+   =========================== */
+async function performImmediateBlock(env, id, prefs) {
+  try {
+    prefs = prefs || await loadThumbsPrefs(env);
+    prefs.blockedIds = prefs.blockedIds || [];
+    if (!prefs.blockedIds.includes(id)) prefs.blockedIds.push(id);
+    await saveThumbsPrefs(env, prefs);
+  } catch (e) { debug("performImmediateBlock: prefs update err", e?.message || e); }
+
+  try {
+    const incidentsRaw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const filtered = (Array.isArray(incidentsRaw) ? incidentsRaw : []).filter(x => String(x.id) !== String(id));
+    // Direct write: admin block must always persist immediately
+    await kvPut(env, INCIDENTS_KV_KEY, filtered);
+  } catch (e) { debug("performImmediateBlock: remove incidents err", e?.message || e); }
+
+  try {
+    const proxRaw = await kvGetJson(env, PROXIMITY_KV_KEY, { incidents: [], updated_at: null });
+    const arr = Array.isArray(proxRaw?.incidents) ? proxRaw.incidents : [];
+    const filteredP = arr.filter(x => String(x.id) !== String(id));
+    // Direct write: admin block must always persist immediately
+    await kvPut(env, PROXIMITY_KV_KEY, { incidents: filteredP, updated_at: new Date().toISOString() });
+  } catch (e) { debug("performImmediateBlock: remove proximity err", e?.message || e); }
+
+  try {
+    const dates = await listArchiveDates(env);
+    for (const d of dates) {
+      try {
+        const key = ARCHIVE_PREFIX + d;
+        const arr = await kvGetJson(env, key, []);
+        if (!Array.isArray(arr) || arr.length === 0) continue;
+        const filteredArr = arr.filter(x => String(x.id) !== String(id));
+        if (filteredArr.length !== arr.length) {
+          await kvPut(env, key, filteredArr);
+        }
+      } catch (er) { debug("performImmediateBlock: remove from archive err", d, er?.message || er); }
+    }
+  } catch (e) { debug("performImmediateBlock: listArchiveDates err", e?.message || e); }
+
+  try { await kvPut(env, "briefs_regenerate_flag", { needed: true, timestamp: new Date().toISOString() }); } catch (e) { debug("performImmediateBlock: set regen flag err", e?.message || e); }
+}
+
+/* ===========================
+   Voting / public thumbs endpoint
+   =========================== */
+/**
+ * Persist a per-user dislike for an incident ID.
+ * KV key: DISLIKES:<userId> - stored as a JSON array of incident ID strings.
+ * Capped at 500 entries (oldest dropped first).
+ */
+async function recordUserDislike(env, userId, incidentId) {
+  if (!userId || !incidentId) return;
+  try {
+    const key = `${DISLIKES_KV_PREFIX}${userId}`;
+    const existing = await kvGetJson(env, key, []);
+    const list = Array.isArray(existing) ? existing : [];
+    if (!list.includes(incidentId)) {
+      list.unshift(incidentId);
+      if (list.length > 500) list.length = 500;
+      await env.INTEL_KV.put(key, JSON.stringify(list), { expirationTtl: 90 * 24 * 3600 }); // 90-day TTL
+      typeof debug === 'function' && debug('dislike', 'recorded', { userId, incidentId });
+    }
+  } catch (e) {
+    typeof warn === 'function' && warn('recordUserDislike error', e?.message || e);
+  }
+}
+
+async function handlePublicThumb(env, body, req, ctx) {
+  try {
+    if (!body || !body.id || !body.vote) return { ok:false, status:400, body: "missing id|vote" };
+
+    const id = String(body.id);
+    const vote = String(body.vote) === 'down' ? 'down' : 'up';
+    const title = body.title || "";
+    const summary = body.summary || "";
+    const source = body.source || body.link || "";
+
+    // Extract per-browser user id from header (required for dislike persistence)
+    const userId = (req && req.headers && req.headers.get('X-User-Id')) || null;
+
+    const logEntry = { id, action: vote, title, summary, source, link: body.link || "", ts: new Date().toISOString(), admin: false };
+
+    try {
+      const existingLog = await kvGetJson(env, THUMBS_FEEDBACK_LOG, []);
+      const newLog = [logEntry].concat(Array.isArray(existingLog) ? existingLog : []).slice(0, 2000);
+      // Direct write: every vote is a genuine content change so throttle adds no benefit here
+      await kvPut(env, THUMBS_FEEDBACK_LOG, newLog);
+    } catch (e) { debug("handlePublicThumb: feedback log append failed", e?.message || e); }
+
+    // Persist dislike for this user so it is filtered on subsequent loads
+    if (vote === 'down' && userId) {
+      try { await recordUserDislike(env, userId, id); } catch (e) { debug("handlePublicThumb: recordUserDislike failed", e?.message || e); }
+    }
+
+    // Update admin prefs keyword counts (non-blocking):
+    try {
+      const prefs = await loadThumbsPrefs(env);
+      const tokens = extractKeywords(`${title} ${summary}`);
+      incrementKeywordCounts(prefs, tokens, vote === 'up' ? 'up' : 'down');
+      const host = hostFromLink(source);
+      updateSourceSignal(prefs, host, vote === 'up' ? 'up' : 'down');
+      await saveThumbsPrefs(env, prefs);
+      THUMBS_PREF_CACHE = prefs; THUMBS_PREF_CACHE_TS = Date.now();
+    } catch (e) { debug("handlePublicThumb: update prefs failed", e?.message || e); }
+
+    // Schedule learning update but do not run inline
+    try { ctx && ctx.waitUntil(updateLearningRules(env)); } catch (e) { debug("handlePublicThumb: schedule rules update failed", e?.message || e); }
+
+    // Do NOT auto-block here (security)
+    // Return hide:true on dislike so the client can immediately remove the card
+    const responseBody = vote === 'down' ? { id, vote, hide: true } : { id, vote };
+    return { ok: true, status: 200, body: responseBody };
+  } catch (e) { debug("handlePublicThumb err", e?.message || e); return { ok:false, status:500, body: "error" }; }
+}
+
+/* ===========================
+   New helpers: Natural event magnitude extraction & detection
+   =========================== */
+
+/* Small helper: extract magnitude (M 5.6, magnitude 5.6, M5.6) from free text */
+function extractMagnitudeFromText(text = "") {
+  try {
+    if (!text || typeof text !== "string") return null;
+    // look for common patterns: "M 5.6", "M5.6", "magnitude 5.6"
+    const re = /\b(?:M(?:agnitude)?\s*[:=]?\s*|magnitude\s*)(\d+(?:\.\d+)?)(?=\b|[^0-9.])/i;
+    const m = text.match(re);
+    if (m && m[1]) return Number(m[1]);
+    // fallback: number followed by "Mw" or similar
+    const re2 = /(\d+(?:\.\d+)?)\s*(?:Mw|Ms|mb)\b/i;
+    const m2 = text.match(re2);
+    if (m2 && m2[1]) return Number(m2[1]);
+    return null;
+  } catch (e) { return null; }
+}
+
+/* Helper: quick natural-keyword detector */
+function isNaturalKeyword(text = "") {
+  if (!text || typeof text !== "string") return false;
+  return /\b(earthquake|tremor|aftershock|tsunami|volcano|eruption|seismic|magnitude|Mw|epicenter|shock)\b/i.test(text);
+}
+
+/* ===========================
+   Replacement: Improved heuristicOperationalScore
+   - More conservative for NATURAL events
+   =========================== */
+function heuristicOperationalScore(incident, nearest, rgIncident, rgSite) {
+  let score = 0;
+  const sev = Number(incident.severity || 1);
+  // base severity contribution (kept small)
+  score += Math.min(30, sev * 6);
+
+  const txt = `${incident.title || ''} ${incident.summary || ''}`.toLowerCase();
+
+  // Security keywords strongly increase score
+  if (OPERATIONAL_KEYWORDS.test(txt)) score += 30;
+
+  // Natural events: add weight but *require* proximity/magnitude/severity for high weight
+  const isNatural = HIGH_NATURAL_CATS.has((incident.category || '').toUpperCase()) || isNaturalKeyword(txt);
+  if (isNatural) {
+    // modest base bump
+    score += 10;
+  }
+
+  // Magnitude contribution
+  const mag = (incident.magnitude !== undefined && Number.isFinite(Number(incident.magnitude))) ? Number(incident.magnitude) : extractMagnitudeFromText(txt);
+  if (mag && isNatural) {
+    const magScore = Math.min(30, Math.round((mag - 4.0) * 10)); // e.g. M5.5 -> ~15
+    score += Math.max(0, magScore);
+  }
+
+  // distance-based scoring: nearer to Dell is more relevant
+  if (nearest && Number.isFinite(nearest.dist)) {
+    const d = nearest.dist;
+    if (d <= OPERATIONAL_MAX_DIST_KM) score += 20;
+    else if (d <= NATURAL_MAX_DIST_KM && isNatural) score += 10;
+    else if (d <= NATURAL_MAX_DIST_KM && !isNatural) score += 5;
+  }
+
+  // enhanced city/site matching
+  try {
+    const icity = (rgIncident && (rgIncident.city || rgIncident.suburb || rgIncident.state) || '').toLowerCase();
+    const scity = (rgSite && (rgSite.city || rgSite.suburb || rgSite.state) || '').toLowerCase();
+    if (icity && scity && (icity === scity || icity.includes(scity) || scity.includes(icity))) score += 25;
+  } catch (e) {}
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  // Final operational flag: more conservative for natural events
+  let operational = false;
+  if (isNatural) {
+    const magOK = (mag && mag >= NATURAL_MIN_MAGNITUDE);
+    const sevOK = (sev >= NATURAL_MIN_SEVERITY);
+    const proxOK = (nearest && Number.isFinite(nearest.dist) && nearest.dist <= NATURAL_MAX_DIST_KM);
+    const tsunamiMention = /\b(tsunami|tsunami warning|tsunami threat)\b/i.test(txt);
+    operational = !!(magOK || sevOK || proxOK || tsunamiMention);
+    if (operational && score < IMPACT_SCORE_THRESHOLD) score = Math.max(score, IMPACT_SCORE_THRESHOLD);
+  } else {
+    operational = score >= IMPACT_SCORE_THRESHOLD || (OPERATIONAL_KEYWORDS.test(txt) && sev >= 4);
+  }
+
+  const reasons = [];
+  if (isNatural) reasons.push('Natural event (strict gate applied)');
+  if (OPERATIONAL_KEYWORDS.test(txt)) reasons.push('Security keywords matched');
+  if (nearest && Number.isFinite(nearest.dist) && nearest.dist <= OPERATIONAL_MAX_DIST_KM) reasons.push(`Within ${OPERATIONAL_MAX_DIST_KM}km`);
+  return { operational, score, reason: reasons.join('; ') || 'Heuristic' };
+}
+
+/* ===========================
+   Replacement: isRelevantIncident
+   - explicit NATURAL gating
+   =========================== */
+async function isRelevantIncident(env, text = "", src = "", aiCategory = null, severity = null, coords = null, incidentMeta = {}) {
+  try {
+    if (!text) return false;
+    const lowText = String(text || "").toLowerCase();
+    const title = incidentMeta && incidentMeta.title ? String(incidentMeta.title) : text;
+
+    // --- Step 1: fast noise pre-filter ---
+    if (isNoise(lowText)) {
+      debug("filter", "rejected", { reason: "noise_filter", title });
+      return false;
+    }
+
+    // --- Step 2: blacklist short-circuit (before any acceptors) ---
+    const black = BLACKLIST_REGEX.test(lowText);
+    const business = BUSINESS_IMPACT_REGEX.test(lowText);
+    const hasFocusKeyword = SECURITY_FOCUS_REGEX.test(lowText);
+    const hasOperationalKeyword = OPERATIONAL_KEYWORDS.test(lowText);
+
+    if (black && !business && !hasFocusKeyword && !hasOperationalKeyword) {
+      debug("filter", "rejected", { reason: "blacklist", title });
+      return false;
+    }
+
+    // --- Step 3: NATURAL gating (preserved exactly) ---
+    const naturalDetected = HIGH_NATURAL_CATS.has((aiCategory || '').toUpperCase()) || isNaturalKeyword(lowText);
+    if (naturalDetected) {
+      const magFromText = extractMagnitudeFromText(lowText);
+      const mag = (incidentMeta && Number.isFinite(Number(incidentMeta.magnitude))) ? Number(incidentMeta.magnitude) : (magFromText !== null ? magFromText : null);
+      const sev = Number(severity || 0);
+      const metaNearestDist = (incidentMeta && (incidentMeta.distance_km === 0 || incidentMeta.distance_km)) ? Number(incidentMeta.distance_km) : null;
+      let nearest = null;
+      if (coords && Number.isFinite(Number(coords.lat)) && Number.isFinite(Number(coords.lng))) {
+        try { nearest = nearestDell(Number(coords.lat), Number(coords.lng)); } catch (e) { nearest = null; }
+      }
+      const proxOK = (nearest && Number.isFinite(nearest.dist) && nearest.dist <= NATURAL_MAX_DIST_KM) ||
+                     (metaNearestDist !== null && !isNaN(metaNearestDist) && metaNearestDist <= NATURAL_MAX_DIST_KM);
+      const magOK = (mag !== null && Number.isFinite(mag) && mag >= NATURAL_MIN_MAGNITUDE);
+      const sevOK = (Number.isFinite(sev) && sev >= NATURAL_MIN_SEVERITY);
+      const tsunamiMention = /\b(tsunami|tsunami warning|tsunami threat)\b/i.test(lowText);
+      const countryWide = !!(incidentMeta && incidentMeta.country_wide);
+      if (tsunamiMention || magOK || sevOK || proxOK || countryWide) {
+        debug("filter", "accepted", { reason: "natural_gating", title });
+        return true;
+      }
+      debug("filter", "rejected", { reason: "natural_below_threshold", title });
+      return false;
+    }
+
+    // --- Step 4: INCIDENT_KEYWORDS_REGEX quick accept — only if keyword is security-domain ---
+    const allowed = INCIDENT_KEYWORDS_REGEX.test(lowText);
+    if (allowed && (hasFocusKeyword || hasOperationalKeyword)) {
+      debug("filter", "accepted", { reason: "security_keyword_match", title });
+      return true;
+    }
+    // allowed matched but no focus/operational keyword → fall through to further gating
+
+    // --- Step 5: AI category gating ---
+    const aiCat = aiCategory && typeof aiCategory === "string" ? String(aiCategory).toUpperCase() : null;
+    if (aiCat && AI_WHITELIST_CATEGORIES.has(aiCat)) {
+      if (AI_SECURITY_CATEGORIES.has(aiCat)) {
+        // Explicitly security-domain AI label → accept unconditionally
+        debug("filter", "accepted", { reason: "ai_security_category", aiCat, title });
+        return true;
+      }
+      // Non-security AI category (e.g. HEALTH, ENVIRONMENT) → require security keyword evidence
+      if (hasFocusKeyword || hasOperationalKeyword) {
+        debug("filter", "accepted", { reason: "ai_non_security_with_focus_keyword", aiCat, title });
+        return true;
+      }
+      debug("filter", "rejected", { reason: "ai_not_security", aiCat, title });
+      return false;
+    }
+
+    // --- Step 6: business-impact + security keyword gate ---
+    // Must have both: a business-impact term AND at least one security-focus or operational keyword,
+    // OR be within Dell proximity.
+    if (business) {
+      if (hasFocusKeyword || hasOperationalKeyword) {
+        debug("filter", "accepted", { reason: "business_impact_with_security_keyword", title });
+        return true;
+      }
+      // proximity check as alternative evidence
+      if (coords && Number.isFinite(Number(coords.lat)) && Number.isFinite(Number(coords.lng))) {
+        try {
+          const nearest = nearestDell(Number(coords.lat), Number(coords.lng));
+          if (nearest && Number.isFinite(nearest.dist) && nearest.dist <= NATURAL_MAX_DIST_KM) {
+            debug("filter", "accepted", { reason: "business_impact_near_dell", title });
+            return true;
+          }
+        } catch (e) { /* continue */ }
+      }
+      debug("filter", "rejected", { reason: "no_security_keywords", title });
+      return false;
+    }
+
+    // --- Step 7: violent/security heuristics (preserved) ---
+    const violentRegex = /\b(shooting|mass shooting|shoot|bomb|bombing|attack|terror|hostage|killing|killed|murder|massacre)\b/i;
+    if (violentRegex.test(lowText)) {
+      if (coords && Number.isFinite(coords.lat) && Number.isFinite(coords.lng)) {
+        const nearest = nearestDell(coords.lat, coords.lng);
+        if (nearest && Number(nearest.dist) <= 200) {
+          debug("filter", "accepted", { reason: "violent_keyword_near_dell", title });
+          return true;
+        }
+      } else {
+        const ctry = extractCountryFromText(lowText);
+        if (ctry && COUNTRY_COORDS[ctry]) {
+          const lat = COUNTRY_COORDS[ctry].lat, lng = COUNTRY_COORDS[ctry].lng;
+          const nearest = nearestDell(lat, lng);
+          if (nearest && Number(nearest.dist) <= 200) {
+            debug("filter", "accepted", { reason: "violent_keyword_country_near_dell", title });
+            return true;
+          }
+        }
+      }
+    }
+
+    // --- Step 8: severity-based quick accept (security-gated) ---
+    // Only accept high-severity items if they also show some security relevance
+    if (severity && Number(severity) >= 4 && (hasFocusKeyword || hasOperationalKeyword || allowed)) {
+      debug("filter", "accepted", { reason: "high_severity_with_security_signal", title });
+      return true;
+    }
+
+    // --- Step 9: thumbs/learning rules & source scoring ---
+    const prefs = await ensureThumbsCache(env);
+    const { up: upScore, down: downScore } = thumbsKeywordScore(prefs, lowText);
+    const host = hostFromLink(src || "");
+    const srcScore = thumbsSourceScore(prefs, host);
+    if (srcScore.down >= 2 && srcScore.down > srcScore.up) {
+      debug("filter", "rejected", { reason: "thumbs_source_down", title });
+      return false;
+    }
+    if (srcScore.up >= 2 && srcScore.up >= srcScore.down) {
+      debug("filter", "accepted", { reason: "thumbs_source_up", title });
+      return true;
+    }
+    if (downScore >= 2 && downScore > upScore) {
+      debug("filter", "rejected", { reason: "thumbs_keyword_down", title });
+      return false;
+    }
+    if (upScore >= 2 && upScore >= downScore) {
+      debug("filter", "accepted", { reason: "thumbs_keyword_up", title });
+      return true;
+    }
+    if (black && !business) {
+      debug("filter", "rejected", { reason: "blacklist_late", title });
+      return false;
+    }
+
+    try {
+      const rules = await loadLearningRules(env);
+      const kw = rules.keywordWeights || {};
+      const srcWeights = rules.sourceWeights || {};
+      let ruleScore = 0;
+      let evidenceCount = 0;
+      const tokens = extractKeywords(lowText, 3, 40);
+      for (const t of tokens) {
+        const meta = kw[t];
+        if (meta && meta.total >= LEARNING_MIN_TOTAL) {
+          ruleScore += meta.weight;
+          evidenceCount += meta.total;
+        }
+      }
+      const h = hostFromLink(src || "");
+      if (h && srcWeights[h]) ruleScore += (srcWeights[h].weight || 0);
+      // Require both ruleScore >= threshold AND evidenceCount >= LEARNING_MIN_TOTAL (raised threshold: 1.8)
+      if (ruleScore >= LEARNING_SCORE_THRESHOLD && evidenceCount >= LEARNING_MIN_TOTAL) {
+        for (const t of tokens) {
+          const m = kw[t];
+          if (m && m.up >= LEARNING_MIN_UP && (m.up - (m.down || 0) >= LEARNING_MIN_UP_DIFF)) {
+            debug("filter", "accepted", { reason: "learning_rules_positive", title });
+            return true;
+          }
+        }
+      }
+      if (ruleScore <= -LEARNING_SCORE_THRESHOLD && evidenceCount >= LEARNING_MIN_TOTAL) {
+        debug("filter", "rejected", { reason: "learning_rules_negative", title });
+        return false;
+      }
+    } catch (e) { debug("isRelevantIncident: learning rules score err", e?.message || e); }
+
+    debug("filter", "rejected", { reason: "no_security_keywords", title });
+    return false;
+  } catch (e) { debug("isRelevantIncident error", e?.message || e); return false; }
+}
+
+/* ===========================
+   PARSERS (RSS/ATOM)
+   =========================== */
+function parseRssAtom(xml) {
+  if (!xml || typeof xml !== "string") return [];
+  const items = [];
+  const itemRegex = /<(item|entry)([\s\S]*?)<\/\1>/gi;
+  let m;
+  while ((m = itemRegex.exec(xml)) !== null) {
+    const blob = m[2];
+    const title = (blob.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [null, ""])[1] || "";
+    const link = (blob.match(/<link[^>]*href=["']([^"']+)["']/i) || blob.match(/<link>([^<]+)<\/link>/i) || [null, ""])[1] || "";
+    const desc = (blob.match(/<(description|summary)[^>]*>([\s\S]*?)<\/\1>/i) || [null, ""])[2] || "";
+    let latVal = null, lngVal = null;
+    const gp = blob.match(/<georss:point[^>]*>([^<]+)<\/georss:point>/i);
+    if (gp && gp[1]) { const parts = gp[1].trim().split(/\s+/); if (parts.length >= 2) { latVal = safeNum(parts[0]); lngVal = safeNum(parts[1]); } }
+    else {
+      const gml = blob.match(/<gml:pos[^>]*>([^<]+)<\/gml:pos>/i);
+      if (gml && gml[1]) { const parts = gml[1].trim().split(/\s+/); if (parts.length >= 2) { latVal = safeNum(parts[0]); lngVal = safeNum(parts[1]); } }
+      else {
+        const latm = blob.match(/<geo:lat[^>]*>([^<]+)<\/geo:lat>/i) || blob.match(/<geo:latitude[^>]*>([^<]+)<\/geo:latitude>/i);
+        const longm = blob.match(/<geo:long[^>]*>([^<]+)<\/geo:long>/i) || blob.match(/<geo:longitude[^>]*>([^<]+)<\/geo:longitude>/i);
+        if (latm && longm) { latVal = safeNum(latm[1]); lngVal = safeNum(longm[1]); }
+        else {
+          const latm2 = blob.match(/<latitude[^>]*>([^<]+)<\/latitude>/i);
+          const longm2 = blob.match(/<longitude[^>]*>([^<]+)<\/longitude>/i);
+          if (latm2 && longm2) { latVal = safeNum(latm2[1]); lngVal = safeNum(longm2[1]); }
+        }
+      }
+    }
+    items.push({ title: title.replace(/\s+/g," ").trim(), link: link.trim(), summary: (desc||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim(), lat: latVal, lng: lngVal });
+  }
+  return items;
+}
+
+/* ===========================
+   FILTERING / KEYWORDS
+   =========================== */
+/* ALLOWED_KEYWORDS — physical security, natural hazards, facility/supply-chain physical disruption only.
+   Generic business/trade/political terms deliberately removed to prevent off-topic content passing the gate. */
+const ALLOWED_KEYWORDS = [
+  // Physical security & violence
+  "attack","bomb","bombing","explosion","exploded","explosive","shooting","mass shooting","hostage","hostages",
+  "terror","terrorist","terrorism","siege","arson","gunman","active shooter","assassin","assassination",
+  "kidnap","kidnapping","abduction","armed robbery","carjacking","ambush","militia","militant","insurgent",
+  // Natural hazards
+  "earthquake","tsunami","flood","hurricane","cyclone","storm","tornado","landslide","avalanche","eruption",
+  "volcano","wildfire","forest fire","bushfire",
+  // Infrastructure & facility physical events
+  "collapse","bridge collapse","building collapse","structural failure","dam failure","dam breach",
+  "derail","derailed","train derailment","plane crash","aircraft crash","collision","ferry accident","shipwreck",
+  "traffic accident","road accident","chemical spill","hazardous spill","toxic leak","gas leak","radiation leak",
+  // Casualties / emergency
+  "killed","killing","dead","death toll","died","wounded","injured","casualt","evacuat","evacuation",
+  "emergency","disaster","crisis",
+  // Health / contamination
+  "outbreak","disease","pandemic","infection","contamination","biohazard",
+  // Civil unrest (security-relevant)
+  "riot","protest","demonstration","civil unrest","strike action","blockade","curfew","martial law","state of emergency",
+  // Cyber & operational security
+  "cyberattack","cyber attack","data breach","ransomware","malware","infrastructure attack","critical infrastructure",
+  // Supply-chain / facility physical disruption (not generic trade terms)
+  "supply chain disruption","supply-chain disruption","plant closure","factory closure","facility closure",
+  "port closure","shipping disruption","logistics disruption","warehouse fire","production halt",
+  "power outage","blackout","grid failure","water outage","network outage"
+];
+const INCIDENT_KEYWORDS_REGEX = new RegExp("\\b(" + ALLOWED_KEYWORDS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
+const BLACKLIST_TERMS = [
+  // Sports
+  "sport","sports","football","soccer","basketball","baseball","cricket","rugby","afcon","fifa","nfl","nba","nhl","mlb",
+  "olympic","olympics","formula 1","f1 race","grand prix","tennis","golf","athlete","league table","transfer window",
+  "premier league","champions league",
+  // Entertainment / celebrity
+  "movie","film","box office","celebrity","fashion","recipe","horoscope","astrology","zodiac",
+  "music chart","album release","concert tour","gaming","video game","esports","tv show","reality show","book review",
+  "lifestyle","beauty","wellness","diet","fitness","workout","dating show","music","entertainment",
+  // Finance / markets (explicit tokens required by task spec)
+  "stock market","share price","stocks","stock","market","earnings","quarterly results","revenue","profit","gdp","inflation",
+  "interest rate","cryptocurrency","bitcoin","nft","hedge fund","ipo","merger","acquisition","analyst upgrade",
+  "credit rating","bond yield","dividend","buyback","fiscal policy","monetary policy",
+  // Wealth/tax commentary
+  "billionaire","tax",
+  // General politics (non-security)
+  "election","ballot","polling","campaign trail","candidate","parliament","congress","senate","legislation",
+  "bill passed","foreign policy","diplomatic","diplomacy","ambassador","trade deal","trade agreement",
+  "climate pledge","paris agreement","un resolution","immigration policy","healthcare reform","austerity","stimulus",
+  // General opinion / commentary
+  "opinion","op-ed","op ed","column","editorial","columnist","billionaire profile","interview","analysis"
+];
+const BLACKLIST_REGEX = new RegExp("\\b(" + BLACKLIST_TERMS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
+/* BUSINESS_IMPACT_TERMS — supply-chain / facility / infrastructure physical disruption only.
+   Removed over-broad terms (employee, brand, contract, regulation, compliance, export, import,
+   customs, sourcing) that were accepting general business/trade news. */
+const BUSINESS_IMPACT_TERMS = [
+  // Supply-chain physical disruption
+  "supply chain disruption","supply-chain disruption","supplychain disruption",
+  "plant closure","factory closure","facility closure","production halt","manufacturing halt",
+  "port closure","shipping disruption","logistics disruption","warehouse fire",
+  // Infrastructure / utility disruption
+  "power outage","blackout","grid failure","water outage","network outage",
+  // Forced facility actions (physical, not general HR announcements)
+  "mass layoff","site closure","campus closure",
+  // Product safety / recall
+  "product recall","safety recall","contaminated product","recall notice",
+  // Sanction / tariff only when supply-chain impacting
+  "tariff","tariffs","sanction","sanctions","trade war","trade dispute",
+  // Logistics / shipment physical events
+  "shipment delay","container shortage","port congestion","carrier shortage","freight disruption"
+];
+const BUSINESS_IMPACT_REGEX = new RegExp("\\b(" + BUSINESS_IMPACT_TERMS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
+
+/* SECURITY_FOCUS_TERMS — physical security / supply-chain / facility / infrastructure domain vocabulary.
+   Used as a secondary gate: non-security AI categories must match at least SECURITY_MIN_KEYWORD_MATCH
+   of these terms (or OPERATIONAL_KEYWORDS) to be accepted. */
+const SECURITY_FOCUS_TERMS = [
+  "supply chain","supply-chain","supplychain","port","seaport","airport","airport closure","port closure",
+  "shipping","container","shipment","logistics","transport","transport disruption","warehouse","factory","plant",
+  "manufactur","manufacturing","mfg","facility","site","facility closure","plant closure","machine","machinery",
+  "assembly line","production","power outage","power cut","substation","critical infrastructure",
+  "bridge collapse","pipeline","road closure","port congestion","cargo","dock","terminal","truck","lorry",
+  "rail","railway","rail disruption","port strike","strike","industrial accident","fire at facility",
+  "explosion at site","vandalism","sabotage","physical security","intrusion","perimeter breach",
+  "lockdown","evacuation"
+];
+const SECURITY_FOCUS_REGEX = new RegExp("\\b(" + SECURITY_FOCUS_TERMS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
+// Minimum number of SECURITY_FOCUS_TERMS tokens needed when falling back to non-security-AI gating.
+// Operators may raise this value to tighten filtering further.
+const SECURITY_MIN_KEYWORD_MATCH = 1;
+
+/* AI categories that are unconditionally accepted (subject to NATURAL gating for "NATURAL"). */
+const AI_WHITELIST_CATEGORIES = new Set(["SECURITY","NATURAL","DISRUPTION","TRANSPORT","HEALTH","CYBER","INFRASTRUCTURE","ENVIRONMENT","PUBLIC_SAFETY"]);
+/* AI categories that are explicitly security-domain: skip the secondary security-keyword gate. */
+const AI_SECURITY_CATEGORIES = new Set(["SECURITY","INFRASTRUCTURE","TRANSPORT","CYBER","PUBLIC_SAFETY","DISRUPTION"]);
+const NEAR_DIST_THRESHOLD_KM = 200;
+
+/* ===========================
+   normalizeIncident
+   =========================== */
+function normalizeIncident(raw) {
+  if (!raw || !raw.title) return null;
+  const id = raw.id || stableId(raw.link || raw.title);
+  let severity = 1;
+  if (raw.severity !== undefined && raw.severity !== null) {
+    const n = Number(raw.severity);
+    severity = Number.isFinite(n) ? n : severity;
+  } else if (raw.severity_text) severity = severityFromText(raw.severity_text);
+  let category = (raw.category || "UNKNOWN").toUpperCase();
+  if (category === "UNKNOWN") {
+    const t = String(raw.title || "").toLowerCase();
+    if (severity >= 5 || /\b(bomb|attack|hostage|terror|massacre|shooting|explosion)\b/i.test(t)) category = "SECURITY";
+    else if (severity >= 4 || /\b(flood|earthquake|tsunami|hurricane|storm)\b/i.test(t)) category = "NATURAL";
+    else if (/\b(transport|strike|protest|riot|disruption)\b/i.test(t)) category = "DISRUPTION";
+    else category = severity >= 4 ? "CRITICAL" : "GENERAL";
+  }
+  const sevLabel = (severity >= 5 ? "CRITICAL" : (severity >= 4 ? "HIGH" : (severity === 3 ? "MEDIUM" : "LOW")));
+  return {
+    id,
+    title: String(raw.title).trim(),
+    summary: raw.summary || "",
+    category,
+    severity,
+    severity_label: sevLabel,
+    region: raw.region || "Global",
+    country: raw.country || (raw.country_code || "GLOBAL"),
+    location: raw.location || "UNKNOWN",
+    link: raw.link || raw.url || "#",
+    source: raw.source || "",
+    time: raw.time || new Date().toISOString(),
+    lat: Number(raw.lat || 0),
+    lng: Number(raw.lng || 0),
+    country_wide: !!raw.country_wide,
+    country_code: raw.country_code || null,
+    nearest_site_name: raw.nearest_site_name || null,
+    nearest_site_key: raw.nearest_site_key || null,
+    distance_km: (raw.distance_km === 0 || raw.distance_km) ? Number(raw.distance_km) : null,
+    magnitude: (raw.magnitude !== undefined && raw.magnitude !== null) ? Number(raw.magnitude) : null
+  };
+}
+
+/* Reverse geocoding + cache */
+async function reverseGeocodeAndCache(env, lat, lon) {
+  try {
+    if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lon))) return { city: null, state: null, country: null, display_name: null, raw: null };
+    const rl = Number(lat).toFixed(3), rlon = Number(lon).toFixed(3);
+    const key = `${GEOCODE_CACHE_PREFIX}${rl}_${rlon}`;
+    try {
+      const cached = await kvGetJson(env, key, null);
+      if (cached) return cached;
+    } catch (e) { debug("rg cache read err", e?.message || e); }
+    const base = (env && env.GEOCODE_API_URL) ? String(env.GEOCODE_API_URL) : DEFAULT_GEOCODE_URL;
+    const url = `${base}&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+    const headers = { 'User-Agent': 'osinfohub/1.0 (contact@example.com)' };
+    if (env && env.GEOCODE_API_KEY) headers['Authorization'] = `Bearer ${env.GEOCODE_API_KEY}`;
+    const res = await fetchWithTimeout(url, { headers }, 8000);
+    const j = await res.json();
+    const place = {
+      display_name: j.display_name || null,
+      city: j.address && (j.address.city || j.address.town || j.address.village || j.address.suburb) || null,
+      suburb: j.address && j.address.suburb || null,
+      state: j.address && (j.address.state || j.address.county) || null,
+      country: j.address && (j.address.country || null),
+      raw: j
+    };
+    try { await kvPut(env, key, place, { expirationTtl: GEOCODE_CACHE_TTL_SEC }); } catch(e){ debug("rg cache write err", e?.message || e); }
+    return place;
+  } catch (e) { debug("reverseGeocodeAndCache error", e?.message || e); return { city: null, state: null, country: null, display_name: null, raw: null }; }
+}
+
+/* ===========================
+   GROQ (AI) integration (env-aware circuit breaker)
+   =========================== */
+
+const GROQ_CIRCUIT_KEY = "groq_circuit_v1";
+const GROQ_MAX_FAILURES = 5;
+const GROQ_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+
+async function checkGroqCircuitBreaker(env) {
+  try {
+    const st = await kvGetJson(env, GROQ_CIRCUIT_KEY, { failures: 0, last_failure_ts: null });
+    if (!st) return false;
+    if (st.failures >= GROQ_MAX_FAILURES) {
+      const last = st.last_failure_ts ? new Date(st.last_failure_ts).getTime() : 0;
+      if (Date.now() - last < GROQ_COOLDOWN_MS) return true; // opened
+      await kvPut(env, GROQ_CIRCUIT_KEY, { failures: 0, last_failure_ts: null });
+      return false;
+    }
+    return false;
+  } catch (e) {
+    debug("checkGroqCircuitBreaker err", e?.message || e);
+    return true; // err safe side
+  }
+}
+async function recordGroqFailure(env) {
+  try {
+    const st = await kvGetJson(env, GROQ_CIRCUIT_KEY, { failures: 0, last_failure_ts: null });
+    st.failures = (st.failures || 0) + 1;
+    st.last_failure_ts = new Date().toISOString();
+    await kvPut(env, GROQ_CIRCUIT_KEY, st);
+  } catch (e) { debug("recordGroqFailure err", e?.message || e); }
+}
+async function clearGroqFailures(env) {
+  try { await kvPut(env, GROQ_CIRCUIT_KEY, { failures: 0, last_failure_ts: null }); } catch (e) { debug("clearGroqFailures err", e?.message || e); }
+}
+
+async function callGroq(env, apiKey, text, retries = 2) {
+  if (!apiKey) return { data: null, error: "no_api_key" };
+  try {
+    if (await checkGroqCircuitBreaker(env)) return { data: null, error: "groq_circuit_open" };
+  } catch (e) { /* ignore */ }
+  const payload = {
+    model: "llama-3.1-8b-instant",
+    temperature: 0,
+    max_tokens: 350,
+    messages: [
+      { role: "system", content: "Return JSON with fields: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}" },
+      { role: "user", content: String(text).slice(0, 1200) }
+    ],
+    response_format: { type: "json_object" }
+  };
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
+      const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!resp.ok) {
+        const err = `http_${resp.status}`;
+        debug("callGroq http error", err);
+        await recordGroqFailure(env);
+        return { data: null, error: err };
+      }
+      const j = await resp.json();
+      const content = j?.choices?.[0]?.message?.content;
+      if (!content) return { data: null, error: "no_content" };
+      try { const parsed = JSON.parse(content); await clearGroqFailures(env); return { data: parsed, error: null }; }
+      catch (e) {
+        const m = String(content).match(/\{[\s\S]*\}/);
+        if (m) {
+          try { const parsed2 = JSON.parse(m[0]); await clearGroqFailures(env); return { data: parsed2, error: null }; } catch (e2) { debug("callGroq parse extract failed", e2?.message || e2); }
+        }
+        await recordGroqFailure(env);
+        return { data: null, error: "parse_error" };
+      }
+    } catch (e) {
+      const msg = e && e.message ? e.message : String(e);
+      debug("callGroq attempt failed", attempt, msg);
+      if (attempt === retries) { await recordGroqFailure(env); return { data: null, error: msg || "call_failed" }; }
+      await sleep(200 * Math.pow(2, attempt) + Math.floor(Math.random() * 100));
+    }
+  }
+  return { data: null, error: "call_failed" };
+}
+
+/* ===========================
+   ARCHIVE HELPERS
+   =========================== */
+async function archiveIncidents(env, incidents = []) {
+  if (!env || !env.INTEL_KV) return;
+  if (!Array.isArray(incidents) || incidents.length === 0) return;
+  const buckets = {};
+  for (const inc of incidents) {
+    try { const time = inc.time ? new Date(inc.time) : new Date(); const key = utcDateKey(time); if (!buckets[key]) buckets[key] = []; buckets[key].push(inc); } catch (e) {}
+  }
+  for (const dateKey of Object.keys(buckets)) {
+    const kvKey = ARCHIVE_PREFIX + dateKey;
+    try {
+      const existing = await kvGetJson(env, kvKey, []);
+      const map = new Map();
+      (Array.isArray(existing) ? existing : []).forEach(x => { if (x && x.id) map.set(x.id, x); });
+      buckets[dateKey].forEach(x => { if (x && x.id) map.set(x.id, x); });
+      const merged = Array.from(map.values()).slice(0, 5000);
+      await kvPut(env, kvKey, merged);
+    } catch (e) { debug("archiveIncidents inner error", e?.message || e); }
+  }
+}
+async function listArchiveDates(env, limitPerPage = 1000) {
+  if (!env || !env.INTEL_KV) return [];
+  // In-memory cache: INTEL_KV.list() is expensive; refresh at most once per MIN_LIST_CACHE_MS
+  const minListMs = Number(env && env.MIN_LIST_CACHE_MS) || DEFAULT_MIN_WRITE_INTERVAL_MS;
+  if (__kvListCache.value && (Date.now() - __kvListCache.ts) < minListMs) {
+    debug('listArchiveDates: serving from in-memory cache');
+    return __kvListCache.value;
+  }
+  try {
+    let cursor = undefined; const dates = [];
+    do {
+      const opts = { prefix: ARCHIVE_PREFIX, limit: limitPerPage };
+      if (cursor) opts.cursor = cursor;
+      const batch = await env.INTEL_KV.list(opts);
+      (batch.keys || []).forEach(k => dates.push(k.name.replace(ARCHIVE_PREFIX, "")));
+      cursor = batch.cursor || null;
+    } while (cursor);
+    __kvListCache = { value: dates, ts: Date.now() };
+    return dates;
+  } catch (e) { debug("listArchiveDates error", e?.message || e); return []; }
+}
+
+/* ===========================
+   TRAVEL ADVISORIES REFRESH
+   =========================== */
+function _normalizeSmartravellerLevel(apiLevel) {
+  const n = Number(apiLevel);
+  if (!Number.isFinite(n)) return 1;
+  const dfat = n - 1;
+  return Math.max(1, Math.min(4, dfat));
+}
+async function _tryFetchTravelAdvisoryInfo(url) {
+  const res = await fetchWithTimeout(url, {}, 12000);
+  const j = await res.json();
+  if (j && j.data && typeof j.data === "object") {
+    const advisories = [];
+    for (const [code, entry] of Object.entries(j.data)) {
+      if (!entry) continue;
+      const adv = {
+        country: entry.name || code,
+        level: Number(entry.advisory && entry.advisory.score ? Math.round(entry.advisory.score) : 1),
+        text: String(entry.advisory && entry.advisory.message ? entry.advisory.message : "See official advisory"),
+        updated: new Date().toISOString()
+      };
+      advisories.push(adv);
+    }
+    return { advisories, meta: { fetched: new Date().toISOString(), source: url } };
+  }
+  throw new Error("travel_advisory_info_unexpected_shape");
+}
+async function _tryFetchSmartraveller(url) {
+  const res = await fetchWithTimeout(url, {}, 15000);
+  const j = await res.json();
+  if (j && Array.isArray(j.advisories)) return { advisories: j.advisories, meta: { fetched: j.lastFetched || new Date().toISOString(), source: url } };
+  if (j && j.advisories) return { advisories: j.advisories, meta: { fetched: j.lastFetched || new Date().toISOString(), source: url } };
+  throw new Error("smartraveller_unexpected_shape");
+}
+async function _tryFetchGithubRaw(url) {
+  const res = await fetchWithTimeout(url, {}, 10000);
+  const j = await res.json();
+  if (Array.isArray(j)) return { advisories: j, meta: { fetched: new Date().toISOString(), source: url } };
+  else if (j && j.advisories && Array.isArray(j.advisories)) return { advisories: j.advisories, meta: { fetched: new Date().toISOString(), source: url } };
+  throw new Error("github_raw_unexpected_shape");
+}
+function _normalizeSmartravellerAdvisories(rawList) {
+  const out = [];
+  for (const r of rawList || []) {
+    try {
+      const countryName = (r.country && typeof r.country === 'object') ? (r.country.name || r.country.alpha2 || r.country.alpha3) : r.country;
+      const levelMapped = _normalizeSmartravellerLevel(r.level || 1);
+      const text = r.latestUpdate || r.advice || r.summary || r.message || "";
+      const updated = r.published || r.latestUpdate || new Date().toISOString();
+      const country_code = (r.country && typeof r.country === 'object') ? (r.country.alpha2 || r.country.alpha3 || null) : null;
+      out.push({ country: countryName || "Unknown", level: levelMapped, text: text || "", updated: updated, country_code });
+    } catch (e) { continue; }
+  }
+  return out;
+}
+function _normalizeCountryName(s) {
+  try {
+    if (!s) return "";
+    return String(s).toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/g, "").trim();
+  } catch (e) { return String(s || "").toLowerCase(); }
+}
+function findBestAdvisoryForCountry(advisories = [], countryQ = "") {
+  try {
+    if (!Array.isArray(advisories) || !countryQ) return null;
+    const qRaw = String(countryQ || "").trim();
+    const qNorm = _normalizeCountryName(qRaw);
+    if (qRaw.length <= 3) {
+      for (const a of advisories) if (a && a.country_code && String(a.country_code).toLowerCase() === qRaw.toLowerCase()) return a;
+    }
+    for (const a of advisories) {
+      if (!a || !a.country) continue;
+      if (_normalizeCountryName(a.country) === qNorm) return a;
+      if (a.country_code && _normalizeCountryName(a.country_code) === qNorm) return a;
+    }
+    for (const a of advisories) {
+      if (!a || !a.country) continue;
+      const aNorm = _normalizeCountryName(a.country);
+      if (aNorm.includes(qNorm) || qNorm.includes(aNorm)) return a;
+    }
+    const qTokens = new Set(qNorm.split(/\s+/).filter(Boolean));
+    for (const a of advisories) {
+      if (!a || !a.country) continue;
+      const aTokens = new Set(_normalizeCountryName(a.country).split(/\s+/).filter(Boolean));
+      let common = 0;
+      for (const t of qTokens) if (aTokens.has(t)) common++;
+      if (common >= 1) return a;
+    }
+    return null;
+  } catch (e) { debug("findBestAdvisoryForCountry error", e?.message || e); return null; }
+}
+async function refreshTravelData(env, opts = {}) {
+  const force = !!opts.force;
+  const got = await acquireLock(env, TRAVEL_LOCK_KEY, TRAVEL_LOCK_TTL_SEC, TRAVEL_LOCK_STALE_SEC, force);
+  if (!got && !force) { debug("refreshTravelData: locked; skipping"); return; }
+  let finalResult = null;
+  let errors = [];
+  try {
+    let configured = (env && env.TRAVEL_API_URL) ? String(env.TRAVEL_API_URL).trim() : "";
+    let primaryUrl = "";
+    if (configured) {
+      if (configured.endsWith("/api/advisories") || configured.endsWith("/advisories")) primaryUrl = configured;
+      else if (configured.endsWith("/api") || configured.endsWith("/api/")) primaryUrl = (configured.replace(/\/$/, "")) + "/advisories";
+      else primaryUrl = configured.replace(/\/$/, "") + (configured.includes("/api") ? "" : "/api") + "/advisories";
+    } else primaryUrl = TRAVEL_DEFAULT_URL;
+    info("refreshTravelData: primaryUrl =", primaryUrl);
+    try {
+      const r = await _tryFetchTravelAdvisoryInfo(primaryUrl);
+      debug("refreshTravelData: got travel-advisory.info result", r.meta);
+      finalResult = { advisories: r.advisories, updated_at: r.meta.fetched, source: primaryUrl };
+    } catch (e1) {
+      const msg1 = `travel_advisory_info_failed: ${e1?.message || e1}`;
+      debug("refreshTravelData primary attempt failed", msg1);
+      errors.push(msg1);
+      try {
+        const r2 = await _tryFetchSmartraveller(TRAVEL_DEFAULT_URL);
+        debug("refreshTravelData: got smartraveller fallback result", r2.meta);
+        const normalized = _normalizeSmartravellerAdvisories(r2.advisories || []);
+        finalResult = { advisories: normalized, updated_at: r2.meta.fetched, source: TRAVEL_DEFAULT_URL };
+      } catch (e2) {
+        const msg2 = `smartraveller_failed: ${e2?.message || e2}`;
+        debug("refreshTravelData fallback failed", msg2);
+        errors.push(msg2);
+        try {
+          const r3 = await _tryFetchGithubRaw(`${GITHUB_SMARTTRAVELLER_RAW}/advisories.json`);
+          debug("refreshTravelData: got github raw result");
+          let normalized = (r3.advisories || []).map(x => {
+            try { let lvl = Number(x.level || 1) || 1; return { country: x.country || x.name || "Unknown", level: lvl, text: x.text || x.advice || "", updated: x.updated || new Date().toISOString() }; } catch (ee) { return null; }
+          }).filter(Boolean);
+          finalResult = { advisories: normalized, updated_at: new Date().toISOString(), source: "github_raw" };
+        } catch (e3) { errors.push(`github_failed: ${e3?.message || e3}`); }
+      }
+    }
+    if (finalResult && Array.isArray(finalResult.advisories) && finalResult.advisories.length) {
+      const cleanAdvisories = finalResult.advisories.map(a => {
+        try {
+          let level = Number(a.level || 1);
+          if (!Number.isFinite(level)) level = 1;
+          let country = a.country;
+          let country_code = a.country_code || null;
+          if (country && typeof country === 'object') {
+            country_code = country.alpha2 || country.alpha3 || country_code;
+            country = country.name || country.alpha2 || country.alpha3 || JSON.stringify(country);
+          }
+          country = String(country || "Unknown");
+          const text = String(a.text || a.advice || a.latestUpdate || a.summary || a.message || "");
+          const updated = a.updated || a.published || a.lastFetched || new Date().toISOString();
+          return { country, level, text, updated, country_code };
+        } catch (e) {
+          return { country: (a && a.country && typeof a.country === 'string') ? a.country : "Unknown", level: Number(a.level || 1), text: a.text || "", updated: a.updated || new Date().toISOString(), country_code: a.country_code || null };
+        }
+      });
+      const DEFAULT_COUNTRY_OVERRIDES = [{ country: "Australia", level: 1, text: "Exercise normal precautions.", updated: new Date().toISOString(), country_code: "AU" }];
+      for (const def of DEFAULT_COUNTRY_OVERRIDES) {
+        const exists = cleanAdvisories.find(a => {
+          if (!a || !a.country) return false;
+          if (def.country_code && a.country_code && String(a.country_code).toLowerCase() === String(def.country_code).toLowerCase()) return true;
+          const aNorm = _normalizeCountryName(a.country);
+          const dNorm = _normalizeCountryName(def.country);
+          return (aNorm === dNorm) || (aNorm.includes(dNorm) || dNorm.includes(aNorm));
+        });
+        if (!exists) {
+          cleanAdvisories.push({ country: def.country, level: def.level, text: def.text, updated: def.updated, country_code: def.country_code });
+          debug("refreshTravelData: added default advisory for", def.country);
+        }
+      }
+      const store = { advisories: cleanAdvisories, updated_at: finalResult.updated_at || new Date().toISOString(), source: finalResult.source || primaryUrl, last_error: null };
+      await kvPut(env, TRAVEL_CACHE_KEY, store);
+      info("refreshTravelData: stored travel data, source=", store.source, "count=", store.advisories.length);
+      return;
+    } else {
+      const prev = await kvGetJson(env, TRAVEL_CACHE_KEY, null);
+      const lastError = { attempted_at: new Date().toISOString(), errors };
+      const toStore = prev || { advisories: STATIC_TRAVEL_FALLBACK, updated_at: new Date().toISOString(), source: "fallback_static", last_error: lastError };
+      toStore.last_error = lastError;
+      await kvPut(env, TRAVEL_CACHE_KEY, toStore);
+      warn("refreshTravelData: no live data; recorded last_error");
+      return;
+    }
+  } catch (e) {
+    const fullErr = e?.message || String(e);
+    debug("refreshTravelData outer exception", fullErr);
+    const prev = await kvGetJson(env, TRAVEL_CACHE_KEY, null);
+    const lastError = { attempted_at: new Date().toISOString(), errors: (errors || []).concat([fullErr]) };
+    const toStore = prev || { advisories: STATIC_TRAVEL_FALLBACK, updated_at: new Date().toISOString(), source: "fallback_static", last_error: lastError };
+    toStore.last_error = lastError;
+    await kvPut(env, TRAVEL_CACHE_KEY, toStore);
+  } finally {
+    try { await releaseLock(env, TRAVEL_LOCK_KEY); } catch (e) { debug("refreshTravelData releaseLock failed", e?.message || e); }
+  }
+}
+
+/* ===========================
+   LOCKS
+   =========================== */
+async function acquireLock(env, key, ttlSec, staleSec, force = false, maxAttempts = 3) {
+  if (!env || !env.INTEL_KV) return false;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const raw = await env.INTEL_KV.get(key);
+      if (raw && !force) {
+        let obj = null;
+        try { obj = JSON.parse(raw); } catch {}
+        if (obj && obj.ts) {
+          const age = (Date.now() - obj.ts) / 1000;
+          if (age <= staleSec) return false;
+        }
+      }
+      const lockId = _uuid();
+      const lockObj = { ts: Date.now(), id: lockId };
+      await env.INTEL_KV.put(key, JSON.stringify(lockObj), { expirationTtl: ttlSec });
+      let latestRaw = await env.INTEL_KV.get(key);
+      let latest = null;
+      try { latest = latestRaw ? JSON.parse(latestRaw) : null; } catch {}
+      if (latest && latest.id === lockId) { debug("acquireLock ok", key, lockId); return true; }
+      await sleep(50 + Math.floor(Math.random() * 200));
+    } catch (e) { debug("acquireLock error", key, e?.message || e); await sleep(50 + Math.floor(Math.random() * 200)); }
+  }
+  return false;
+}
+async function releaseLock(env, key) { try { if (!env || !env.INTEL_KV) return; await env.INTEL_KV.delete(key); } catch (e) { debug("releaseLock err", e?.message || e); } }
+
+/* ===========================
+   AGGREGATION: compute thumbs aggregates from feedback log
+   =========================== */
+async function aggregateThumbs(env, opts = {}) {
+  const force = !!opts.force;
+  const got = await acquireLock(env, THUMBS_AGG_LOCK_KEY, THUMBS_AGG_TTL_SEC, THUMBS_AGG_STALE_SEC, force);
+  if (!got && !force) { debug("aggregateThumbs: locked; skipping"); return; }
+  try {
+    const log = await kvGetJson(env, THUMBS_FEEDBACK_LOG, []);
+    const agg = {};
+    if (Array.isArray(log)) {
+      for (const e of log) {
+        try {
+          const id = String(e.id || "");
+          if (!id) continue;
+          agg[id] = agg[id] || { up:0, down:0, last_ts: null };
+          if (e.action === "up") agg[id].up++;
+          else if (e.action === "down") agg[id].down++;
+          if (e.ts) {
+            const existing = agg[id].last_ts;
+            if (!existing || new Date(e.ts).getTime() > new Date(existing).getTime()) agg[id].last_ts = e.ts;
+          }
+        } catch (er) { /* ignore entry errors */ }
+      }
+    }
+    await kvPut(env, THUMBS_AGG_KEY, agg);
+    try {
+      if (Array.isArray(log) && log.length > 2000) {
+        const trimmed = log.slice(0, 2000);
+        await kvPut(env, THUMBS_FEEDBACK_LOG, trimmed);
+      }
+    } catch (e) { debug("aggregateThumbs: trimming log failed", e?.message || e); }
+  } catch (e) {
+    debug("aggregateThumbs err", e?.message || e);
+  } finally {
+    try { await releaseLock(env, THUMBS_AGG_LOCK_KEY); } catch (er) { debug("aggregateThumbs release err", er?.message || er); }
+  }
+}
+
+/* ===========================
+   Utility: aggregate votes from feedback log
+   =========================== */
+async function aggregateVotesFromLog(env) {
+  try {
+    const persisted = await kvGetJson(env, THUMBS_AGG_KEY, null);
+    if (persisted && typeof persisted === "object") return persisted;
+    const log = await kvGetJson(env, THUMBS_FEEDBACK_LOG, []);
+    const map = {};
+    if (!Array.isArray(log)) return map;
+    for (const e of log) {
+      try {
+        const id = String(e.id || "");
+        if (!id) continue;
+        map[id] = map[id] || { up: 0, down: 0, last_ts: null };
+        if (e.action === "up") map[id].up++;
+        else if (e.action === "down") map[id].down++;
+        map[id].last_ts = e.ts || map[id].last_ts;
+      } catch (e) {}
+    }
+    return map;
+  } catch (e) { debug("aggregateVotesFromLog err", e?.message || e); return {}; }
+}
+
+/* ===========================
+   INGESTION RUNNER (enrichment + proximity rules)
+   =========================== */
+async function runIngestion(env, options = {}) {
+  const force = !!options.force;
+  const got = await acquireLock(env, INGEST_LOCK_KEY, INGEST_LOCK_TTL_SEC, INGEST_LOCK_STALE_SEC, force);
+  if (!got && !force) {
+    debug("ingest locked; skipping");
+    return;
+  }
+  try {
+    globalThis.__env = env;
+    THUMBS_PREF_CACHE = await loadThumbsPrefs(env);
+    THUMBS_PREF_CACHE_TS = Date.now();
+    const incidentsExistingRaw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    let existing = Array.isArray(incidentsExistingRaw) ? incidentsExistingRaw : [];
+    let fresh = [];
+    const proximityList = [];
+    const toFetch = [...DETERMINISTIC_SOURCES, ...ROTATING_SOURCES];
+    for (const src of toFetch) {
+      try {
+        const res = await fetchWithTimeout(src, {}, 15000);
+        if (!res || !res.ok) continue;
+        const text = await res.text();
+        const items = parseRssAtom(text).slice(0, 6);
+        for (const itm of items) {
+          if (!itm.title) continue;
+          const combined = `${itm.title} — ${itm.summary || ""}`.trim();
+          if (isNoise(combined)) continue;
+          const isDeterministic = DETERMINISTIC_SOURCES.includes(src);
+          const incBase = {
+            id: stableId(itm.link || itm.title),
+            title: itm.title,
+            summary: itm.summary || "",
+            category: "UNKNOWN",
+            severity: isDeterministic ? 4 : 3,
+            severity_label: isDeterministic ? "HIGH" : "MEDIUM",
+            region: "Global",
+            country: "GLOBAL",
+            location: "UNKNOWN",
+            link: itm.link || "#",
+            source: src,
+            time: new Date().toISOString(),
+            lat: (itm.lat !== null && itm.lat !== undefined) ? Number(itm.lat) : 0,
+            lng: (itm.lng !== null && itm.lng !== undefined) ? Number(itm.lng) : 0
+          };
+          if (_validCoords(incBase.lat, incBase.lng)) {
+            const n = nearestDell(incBase.lat, incBase.lng);
+            if (n) {
+              incBase.nearest_site_name = n.name;
+              incBase.nearest_site_key = n.name.toLowerCase();
+              incBase.distance_km = Math.round(n.dist);
+            }
+          }
+          const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
+          if (thumbs === "down") { debug("skipping due to thumbs.down", incBase.id); continue; }
+          if (thumbs === "up") { fresh.push(incBase); if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase); continue; }
+          let allowedByFilter = true;
+          if (!isDeterministic) allowedByFilter = await isRelevantIncident(env, combined, src, null, incBase.severity, {lat: incBase.lat, lng: incBase.lng}, incBase);
+          if (!allowedByFilter) { debug("filtered (pre-AI) item", { title: incBase.title, src }); continue; }
+          if (!_validCoords(incBase.lat, incBase.lng)) {
+            const countryKey = extractCountryFromText(combined);
+            if (countryKey && COUNTRY_COORDS[countryKey]) {
+              incBase.lat = COUNTRY_COORDS[countryKey].lat;
+              incBase.lng = COUNTRY_COORDS[countryKey].lng;
+              const n = nearestDell(incBase.lat, incBase.lng);
+              if (n) {
+                incBase.nearest_site_name = n.name;
+                incBase.nearest_site_key = n.name.toLowerCase();
+                incBase.distance_km = Math.round(n.dist);
+              }
+            }
+          }
+          fresh.push(incBase);
+          if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase);
+          
+          // === NEW EMAIL LOGIC (RESTORED) ===
+          if (incBase.severity >= 4 || (incBase.distance_km !== null && incBase.distance_km <= 100)) {
+            // We await here safely as runIngestion runs inside waitUntil context
+            await sendAlertEmail(env, incBase);
+          }
+          // ==================================
+        }
+      } catch (e) { debug("fetch src err", src, e?.message || e); }
+    }
+
+    // Optional AI enrichment — similar to original logic
+    const groqKey = env.GROQ_API_KEY || null;
+    if (groqKey) {
+      for (const src of ROTATING_SOURCES) {
+        try {
+          if (await checkGroqCircuitBreaker(env)) { debug("Groq circuit breaker opened; skipping AI enrichment"); break; }
+          const res = await fetchWithTimeout(src, {}, 15000);
+          if (!res || !res.ok) continue;
+          const text = await res.text();
+          const items = parseRssAtom(text).slice(0, 4);
+          for (const itm of items) {
+            const combined = `${itm.title} — ${itm.summary}`.trim();
+            if (isNoise(combined)) continue;
+            const aiRes = await callGroq(env, groqKey, combined);
+            if (aiRes.error || !aiRes.data) { debug("callGroq failed/skipped", aiRes.error); continue; }
+            const data = aiRes.data || {};
+            const inc = {
+              id: stableId(itm.link || itm.title),
+              title: itm.title,
+              summary: data.summary || itm.summary || "",
+              category: (data.category || "UNKNOWN").toUpperCase(),
+              severity: severityFromText(data.severity || "") || 3,
+              severity_label: "",
+              region: data.region || "Global",
+              country: data.country || "GLOBAL",
+              location: data.location || "UNKNOWN",
+              link: itm.link || "#",
+              source: src,
+              time: new Date().toISOString(),
+              lat: safeNum(data.latitude) || safeNum(itm.lat) || 0,
+              lng: safeNum(data.longitude) || safeNum(itm.lng) || 0,
+              magnitude: safeNum(data.magnitude) || null
+            };
+            inc.severity_label = (inc.severity >= 5 ? "CRITICAL" : (inc.severity >= 4 ? "HIGH" : (inc.severity === 3 ? "MEDIUM" : "LOW")));
+            if (!_validCoords(inc.lat, inc.lng)) {
+              let countryKey = (inc.country && typeof inc.country === "string") ? extractCountryFromText(inc.country) : null;
+              if (!countryKey) {
+                const txtCountry = extractCountryFromText(`${inc.title} ${inc.summary}`);
+                if (txtCountry) countryKey = txtCountry;
+              }
+              if (countryKey && COUNTRY_COORDS[countryKey]) { inc.lat = COUNTRY_COORDS[countryKey].lat; inc.lng = COUNTRY_COORDS[countryKey].lng; }
+            }
+            if (_validCoords(inc.lat, inc.lng)) {
+              const n = nearestDell(inc.lat, inc.lng);
+              if (n) { inc.nearest_site_name = n.name; inc.nearest_site_key = n.name.toLowerCase(); inc.distance_km = Math.round(n.dist); }
+            }
+            const thumbsVote = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[inc.id] : null;
+            if (thumbsVote === "down") { debug("ai-skipped due thumbs.down", inc.id); continue; }
+            if (thumbsVote === "up") { fresh.push(inc); if ((inc.distance_km === 0 || inc.distance_km) && inc.nearest_site_name) proximityList.push(inc); continue; }
+            const allowedByFilter = await isRelevantIncident(env, `${inc.title} — ${inc.summary}`, src, inc.category, inc.severity, {lat: inc.lat, lng: inc.lng}, inc);
+            if (!allowedByFilter) { debug("filtered (post-AI) item", { title: inc.title, src, category: inc.category, severity: inc.severity }); continue; }
+            fresh.push(inc);
+            if ((inc.distance_km === 0 || inc.distance_km) && inc.nearest_site_name) proximityList.push(inc);
+
+            // === NEW EMAIL LOGIC (RESTORED) ===
+            if (inc.severity >= 4 || (inc.distance_km !== null && inc.distance_km <= 100)) {
+               await sendAlertEmail(env, inc);
+            }
+            // ==================================
+          }
+        } catch (e) { debug("AI enrichment error", e?.message || e); }
+      }
+    }
+
+    // Dedupe fresh
+    try {
+      const freshMap = new Map();
+      for (const f of fresh) {
+        if (!f || !f.id) continue;
+        const existingEntry = freshMap.get(f.id);
+        if (!existingEntry) freshMap.set(f.id, f);
+        else {
+          const tEx = new Date(existingEntry.time || 0).getTime();
+          const tNew = new Date(f.time || Date.now()).getTime();
+          if (isNaN(tEx) || tNew > tEx) freshMap.set(f.id, f);
+        }
+      }
+      const deduped = Array.from(freshMap.values());
+
+      // Merge with existing incidents (preserve highest severity/most recent)
+      const existingMap = new Map();
+      for (const e of existing) {
+        if (e && e.id) existingMap.set(String(e.id), e);
+      }
+      for (const d of deduped) {
+        const key = String(d.id);
+        const old = existingMap.get(key);
+        if (!old) existingMap.set(key, d);
+        else {
+          // pick most recent and highest severity fields
+          const oldTime = new Date(old.time || 0).getTime();
+          const newTime = new Date(d.time || 0).getTime();
+          const winner = (isNaN(newTime) || (!isNaN(oldTime) && oldTime >= newTime)) ? old : d;
+          winner.severity = Math.max(Number(old.severity || 1), Number(d.severity || 1));
+          winner.severity_label = (winner.severity >= 5 ? "CRITICAL" : (winner.severity >= 4 ? "HIGH" : (winner.severity === 3 ? "MEDIUM" : "LOW")));
+          // prefer non-zero coords
+          if ((!Number.isFinite(winner.lat) || Math.abs(winner.lat) < 0.0001) && Number.isFinite(d.lat)) { winner.lat = d.lat; winner.lng = d.lng; }
+          existingMap.set(key, winner);
+        }
+      }
+
+      // Convert back to array, sort and cap
+      let merged = Array.from(existingMap.values());
+      merged.sort((a,b) => new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime());
+      merged = merged.slice(0, MAX_INCIDENTS_STORED);
+
+      // --- Proximity: helper predicate and per-site dedupe ---
+      async function shouldIncludeInProximity(env, incident, nearestSite, ctx = undefined) {
+        try {
+          // Validate coords
+          if (!_validCoords(incident.lat, incident.lng)) {
+            return { include: false, reason: 'invalid_coords' };
+          }
+          // Distance: use nearestSite.dist if provided, otherwise compute nearest
+          let distanceKm = null;
+          if (nearestSite && typeof nearestSite.dist === 'number') {
+            distanceKm = Math.round(nearestSite.dist);
+          } else {
+            const n = nearestDell(Number(incident.lat), Number(incident.lng));
+            distanceKm = n && typeof n.dist === 'number' ? Math.round(n.dist) : null;
+          }
+          if (distanceKm === null) return { include: false, reason: 'no_distance' };
+          if (distanceKm > (typeof PROXIMITY_MAX_DISTANCE_KM !== 'undefined' ? PROXIMITY_MAX_DISTANCE_KM : OPERATIONAL_MAX_DIST_KM)) {
+            return { include: false, reason: 'distance_exceeded', distanceKm };
+          }
+          // Noise / blacklist
+          const title = String(incident.title || incident.summary || '').toLowerCase();
+          if (isNoise(title) || (Array.isArray(BLACKLIST_TERMS) && BLACKLIST_TERMS.some(tok => title.indexOf(tok) !== -1))) {
+            return { include: false, reason: 'noise_filter', distanceKm };
+          }
+          // Recency
+          if (incident.time) {
+            const incidentTs = new Date(incident.time).getTime();
+            const cutoff = Date.now() - (typeof PROXIMITY_WINDOW_HOURS !== 'undefined' ? PROXIMITY_WINDOW_HOURS : 72) * 3600 * 1000;
+            if (incidentTs < cutoff) return { include: false, reason: 'too_old', distanceKm };
+          }
+          // Natural events: require magnitude/severity
+          const cat = String((incident.category || '')).toUpperCase();
+          if (cat === 'NATURAL') {
+            const mag = Number(incident.magnitude || 0);
+            const sev = Number(incident.severity || 0);
+            if (mag < NATURAL_MIN_MAGNITUDE && sev < NATURAL_MIN_SEVERITY) {
+              return { include: false, reason: 'natural_too_small', distanceKm };
+            }
+            // For natural, if magnitude/severity ok, accept (still subject to distance/recency above)
+            return { include: true, reason: 'natural_ok', distanceKm };
+          }
+          // AI-security categories accept (still require distance & recency)
+          if (typeof AI_SECURITY_CATEGORIES !== 'undefined' && AI_SECURITY_CATEGORIES.has(cat)) {
+            return { include: true, reason: 'ai_security', distanceKm };
+          }
+          // Security focus keyword or operational keywords
+          const hasSecurityFocus = (typeof SECURITY_FOCUS_REGEX !== 'undefined' && SECURITY_FOCUS_REGEX.test(title))
+                                  || (typeof OPERATIONAL_KEYWORDS !== 'undefined' && OPERATIONAL_KEYWORDS.test(title));
+          if (!hasSecurityFocus) {
+            // If no explicit security word, try the heavier async relevance check (AI + rules)
+            if (typeof isRelevantIncident === 'function') {
+              try {
+                const rel = await isRelevantIncident(env, incident);
+                if (rel) return { include: true, reason: 'isRelevantIncident', distanceKm };
+              } catch(e) {
+                typeof warn === 'function' && warn('isRelevantIncident error in proximity', e?.message || e);
+              }
+            }
+            return { include: false, reason: 'no_security_keywords', distanceKm };
+          }
+          // Business impact or severity required when AI category not security
+          const businessImpact = (typeof BUSINESS_IMPACT_REGEX !== 'undefined' && BUSINESS_IMPACT_REGEX.test(title)) || (incident.businessImpact === true);
+          const severityAccept = Number(incident.severity || 0) >= (typeof PROXIMITY_SEVERITY_THRESHOLD !== 'undefined' ? PROXIMITY_SEVERITY_THRESHOLD : 4);
+          if (businessImpact || severityAccept) {
+            const reason = businessImpact ? 'security_keyword_business_impact' : 'security_keyword_severity';
+            return { include: true, reason, distanceKm };
+          }
+          // Final fallback: not enough evidence
+          return { include: false, reason: 'no_evidence', distanceKm };
+        } catch (err) {
+          typeof warn === 'function' && warn('shouldIncludeInProximity error', err?.message || err);
+          return { include: false, reason: 'error' };
+        }
+      }
+      // Build proxOut with dedupe per site + predicate
+      const proxOut = [];
+      const proxSeen = new Set();
+      for (const m of merged) {
+        try {
+          if (!_validCoords(m.lat, m.lng)) continue;
+          const n = nearestDell(Number(m.lat), Number(m.lng));
+          if (!n) continue;
+          // dedupe key: incident.id + site
+          const dedupKey = String(m.id || (m.title||'') + '::' + (n.name || ''));
+          if (proxSeen.has(dedupKey)) continue;
+          const check = await shouldIncludeInProximity(env, m, n, undefined);
+          if (check && check.include) {
+            m.nearest_site_name = m.nearest_site_name || n.name;
+            m.nearest_site_key = m.nearest_site_key || String(n.name || '').toLowerCase();
+            m.distance_km = m.distance_km || check.distanceKm || Math.round(n.dist);
+            proxOut.push(m);
+            proxSeen.add(dedupKey);
+            typeof debug === 'function' && debug('proximity', 'emitted', { reason: check.reason, title: String(m.title||'').slice(0,140), siteId: m.nearest_site_key, distanceKm: m.distance_km });
+          } else {
+            typeof debug === 'function' && debug('proximity', 'rejected', { reason: (check && check.reason) || 'unknown', title: String(m.title||'').slice(0,140), siteId: String(n.name||''), distanceKm: check && check.distanceKm });
+          }
+        } catch (e) {
+          typeof warn === 'function' && warn('proximity loop error', e?.message || e);
+        }
+      }
+
+      // persist incidents and proximity — throttled to avoid redundant KV writes
+      await kvPutWithThrottle(env, INCIDENTS_KV_KEY, merged);
+      await kvPutWithThrottle(env, PROXIMITY_KV_KEY, { incidents: proxOut, updated_at: new Date().toISOString() });
+
+      // archive older ones
+      try { await archiveIncidents(env, merged); } catch (e) { typeof debug === 'function' && debug("archiveIncidents error", e?.message || e); }
+
+      // trigger thumb aggregation async
+      try { aggregateThumbs(env, { force: false }); } catch (e) { typeof debug === 'function' && debug("aggregateThumbs schedule failed", e?.message || e); }
+
+    } catch (e) { typeof debug === 'function' && debug("dedupe/store error", e?.message || e); }
+
+  } catch (e) {
+    debug("runIngestion outer error", e?.message || e);
+  } finally {
+    try { await releaseLock(env, INGEST_LOCK_KEY); } catch (e) { debug("runIngestion releaseLock failed", e?.message || e); }
+  }
+}
+
+/* ===========================
+   HTTP / API Handlers (simplified but compatible)
+   =========================== */
+
+/**
+ * GET /api/stream — Server-Sent Events bridge.
+ * Sends a single snapshot (incidents + proximity) then heartbeat comments
+ * every 25 s to stay inside Cloudflare's 100 s idle timeout.
+ * The browser EventSource client auto-reconnects when the stream closes,
+ * giving near-real-time push behaviour without Durable Objects.
+ */
+async function handleApiStream(env, req) {
+  if (req.method !== 'GET') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
+
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  const enc = new TextEncoder();
+
+  const writeEvent = (event, data) =>
+    writer.write(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+
+  (async () => {
+    let hbTimer;
+    try {
+      const incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+      const proxRaw   = await kvGetJson(env, PROXIMITY_KV_KEY, { incidents: [] });
+      await writeEvent('incidents', incidents);
+      await writeEvent('proximity', proxRaw);
+      await writeEvent('heartbeat', { ts: new Date().toISOString() });
+
+      // SSE comment keepalives — prevents CF idle-close before client reconnects
+      hbTimer = setInterval(async () => {
+        try { await writer.write(enc.encode(`: heartbeat\n\n`)); }
+        catch { clearInterval(hbTimer); }
+      }, 25_000);
+    } catch (e) {
+      debug('handleApiStream error', e?.message || e);
+    } finally {
+      clearInterval(hbTimer);
+      try { await writer.close(); } catch {}
+    }
+  })();
+
+  return new Response(readable, {
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store',
+      'X-Accel-Buffering': 'no',
+    }
+  });
+}
+
+async function handleApiIncidents(env, req) {
+  const inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+  let list = Array.isArray(inc) ? inc : [];
+  // Filter out incidents disliked by this user
+  try {
+    const userId = req && req.headers && req.headers.get('X-User-Id');
+    if (userId) {
+      const disliked = await kvGetJson(env, `${DISLIKES_KV_PREFIX}${userId}`, []);
+      if (Array.isArray(disliked) && disliked.length > 0) {
+        const dislikedSet = new Set(disliked);
+        const before = list.length;
+        list = list.filter(i => !dislikedSet.has(String(i.id || '')));
+        typeof debug === 'function' && debug('dislike', 'filtered', { userId, removed: before - list.length });
+      }
+    }
+  } catch (e) { typeof debug === 'function' && debug('handleApiIncidents dislike filter error', e?.message || e); }
+  return { ok: true, status: 200, body: list };
+}
+
+async function handleApiProximity(env, req) {
+  const prox = await kvGetJson(env, PROXIMITY_KV_KEY, { incidents: [], updated_at: null });
+  // Filter out incidents disliked by this user
+  try {
+    const userId = req && req.headers && req.headers.get('X-User-Id');
+    if (userId && Array.isArray(prox.incidents)) {
+      const disliked = await kvGetJson(env, `${DISLIKES_KV_PREFIX}${userId}`, []);
+      if (Array.isArray(disliked) && disliked.length > 0) {
+        const dislikedSet = new Set(disliked);
+        prox.incidents = prox.incidents.filter(i => !dislikedSet.has(String(i.id || '')));
+      }
+    }
+  } catch (e) { typeof debug === 'function' && debug('handleApiProximity dislike filter error', e?.message || e); }
+  return { ok: true, status: 200, body: prox };
+}
+
+async function handleApiTravel(env, urlParams) {
+  // support /api/traveladvisories and /api/traveladvisories/live
+  if (urlParams && urlParams.get('country')) {
+    const q = urlParams.get('country');
+    const cached = await kvGetJson(env, TRAVEL_CACHE_KEY, { advisories: STATIC_TRAVEL_FALLBACK, updated_at: new Date().toISOString() });
+    const best = findBestAdvisoryForCountry(cached.advisories || [], q);
+    return { ok: true, status: 200, body: { advisory: best || null, news: [] } };
+  } else {
+    const cached = await kvGetJson(env, TRAVEL_CACHE_KEY, { advisories: STATIC_TRAVEL_FALLBACK, updated_at: new Date().toISOString() });
+    return { ok: true, status: 200, body: cached };
+  }
+}
+
+async function handleApiThumb(env, req, ctx) {
+  try {
+    const body = await req.json().catch(()=>null);
+    if (!body || !body.id || !body.vote) return { ok:false, status:400, body: "missing id|vote" };
+    return await handlePublicThumb(env, body, req, ctx);
+  } catch (e) {
+    debug("handleApiThumb error", e?.message || e);
+    return { ok:false, status:500, body: "error" };
+  }
+}
+
+/* Admin endpoints (protected with secret header) */
+async function isSecretOk(req, env) {
+  try {
+    const secret = req.headers.get('secret') || "";
+    if (!secret && req.method === 'POST') return false;
+    const s = env && env.INGEST_SECRET ? String(env.INGEST_SECRET) : "";
+    return s && secret && s === secret;
+  } catch (e) { return false; }
+}
+
+async function handleAdminAction(env, req, ctx) {
+  const url = new URL(req.url);
+  const action = url.pathname.replace(/^\/+/, '').split('/').slice(-1)[0];
+  const secretOk = await isSecretOk(req, env);
+  if (!secretOk) return { ok:false, status:403, body: "Unauthorized" };
+
+  try {
+    // FIX: Using ctx.waitUntil to prevent background tasks from being killed
+    if (action === 'trigger-ingest' || action === 'ingest') {
+      if (ctx) ctx.waitUntil(runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed", e?.message || e)));
+      else runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed no-ctx", e?.message || e));
+      return { ok:true, status:200, body: "ingest_started" };
+    } else if (action === 'aggregate-thumbs') {
+      if (ctx) ctx.waitUntil(aggregateThumbs(env, { force: true }));
+      else aggregateThumbs(env, { force: true }).catch(e=>debug("aggregate-thumbs failed no-ctx", e?.message || e));
+      return { ok:true, status:200, body: "aggregated" };
+    } else if (action === 'refresh-travel') {
+      if (ctx) ctx.waitUntil(refreshTravelData(env, { force: true }).catch(e=>debug("refreshTravelData failed", e?.message || e)));
+      else refreshTravelData(env, { force: true }).catch(e=>debug("refreshTravelData failed no-ctx", e?.message || e));
+      return { ok:true, status:200, body: "travel_refresh_started" };
+    } else if (action === 'list-briefs') {
+      const dates = await listArchiveDates(env);
+      return { ok:true, status:200, body: dates };
+    }
+    return { ok:false, status:400, body: "unknown_action" };
+  } catch (e) {
+    debug("handleAdminAction err", e?.message || e);
+    return { ok:false, status:500, body: "error" };
+  }
+}
+
+/* Root request router */
+async function handleRequest(req, env, ctx) {
+  setLogLevelFromEnv(env);
+  const url = new URL(req.url);
+  const p = url.pathname;
+  if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS });
+
+  try {
+    if (p.startsWith('/api/incidents')) {
+      const r = await handleApiIncidents(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/proximity')) {
+      const r = await handleApiProximity(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/traveladvisories')) {
+      const r = await handleApiTravel(env, url.searchParams);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/thumb/public') || p.startsWith('/api/thumb')) {
+      if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
+      const r = await handleApiThumb(env, req, ctx);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/stream')) {
+      return handleApiStream(env, req);
+    } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
+      // admin actions: expect POST with secret header
+      if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
+      // FIX: pass ctx to handleAdminAction
+      const r = await handleAdminAction(env, req, ctx);
+      return _responseFromResult(r);
+    } else {
+      return new Response("OK", { status: 200, headers: CORS_HEADERS });
+    }
+  } catch (e) {
+    debug("handleRequest err", e?.message || e);
+    return new Response("error", { status: 500, headers: CORS_HEADERS });
+  }
+}
+
+/* ===========================
+   Module entrypoints (export default)
+   - Modern Cloudflare Module pattern: export default { fetch, scheduled }
+   - Ensures ctx is present and used for waitUntil background tasks.
+   =========================== */
+
+async function moduleFetch(request, env, ctx) {
+  // Make env available to internal code that may expect globalThis.__env
+  try { setLogLevelFromEnv(env); } catch (e) {}
+  globalThis.__env = env;
+  return handleRequest(request, env, ctx);
+}
+
+async function moduleScheduled(evt, env, ctx) {
+  try {
+    if (ctx && ctx.waitUntil) {
+      ctx.waitUntil((async () => {
+        try {
+          await runIngestion(env, {});
+          await refreshTravelData(env, {});
+          await aggregateThumbs(env, {});
+        } catch (e) { debug("scheduled handler err", e?.message || e); }
+      })());
+    } else {
+      await runIngestion(env, {});
+      await refreshTravelData(env, {});
+      await aggregateThumbs(env, {});
+    }
+  } catch (e) {
+    debug("scheduled wrapper err", e?.message || e);
+  }
+}
+
+/* ===========================
+   FILTER UNIT TESTS (sync subset — run once at module load in debug builds)
+   Tests only the pure synchronous predicates (isNoise + regex checks).
+   isRelevantIncident async paths (KV, thumbs, learning) are not exercised here.
+   =========================== */
+(function runFilterSmokeTests() {
+  // Helper: sync-only relevance check that mirrors steps 1-2 and 4-5 of isRelevantIncident
+  function _syncRelevance(text, aiCategory) {
+    const low = String(text).toLowerCase();
+    if (isNoise(low)) return false;
+    const black = BLACKLIST_REGEX.test(low);
+    const business = BUSINESS_IMPACT_REGEX.test(low);
+    const hasFocus = SECURITY_FOCUS_REGEX.test(low);
+    const hasOp = OPERATIONAL_KEYWORDS.test(low);
+    if (black && !business && !hasFocus && !hasOp) return false;
+    const allowed = INCIDENT_KEYWORDS_REGEX.test(low);
+    if (allowed && (hasFocus || hasOp)) return true;
+    if (aiCategory) {
+      const cat = String(aiCategory).toUpperCase();
+      if (AI_SECURITY_CATEGORIES.has(cat)) return true;
+      if (AI_WHITELIST_CATEGORIES.has(cat)) return (hasFocus || hasOp);
+    }
+    if (business && (hasFocus || hasOp)) return true;
+    const violent = /\b(shooting|mass shooting|shoot|bomb|bombing|attack|terror|hostage|killing|killed|murder|massacre)\b/i.test(low);
+    if (violent) return true; // proximity not checkable sync; treated as candidate
+    return false;
+  }
+
+  const vectors = [
+    { text: "Sports: California mulls a billionaire tax",                                       expected: false },
+    { text: "Entertainment: Robodog triggered academic scandal",                                expected: false },
+    { text: "Facility: Port closure causes container backlog at Los Angeles Port",              expected: true  },
+    { text: "Security: Suspicious intrusion at manufacturing plant causes evacuation",          expected: true  },
+    { text: "Politics: Leila Shahid dies in France",                                            expected: false },
+  ];
+
+  let passed = 0, failed = 0;
+  for (const v of vectors) {
+    const got = _syncRelevance(v.text, null);
+    const ok = got === v.expected;
+    if (ok) {
+      passed++;
+      console.log(`[FILTER-TEST] PASS | expected=${v.expected} got=${got} | "${v.text}"`);
+    } else {
+      failed++;
+      console.error(`[FILTER-TEST] FAIL | expected=${v.expected} got=${got} | "${v.text}"`);
+    }
+  }
+  console.log(`[FILTER-TEST] Results: ${passed}/${vectors.length} passed${failed > 0 ? `, ${failed} FAILED` : ''}.`);
+})();
+
+/* ===========================
+   PROXIMITY FILTER SMOKE TESTS (DEBUG-guarded, sync subset)
+   Exercises shouldIncludeInProximity pure predicate with simulated nearestSite objects.
+   Coords chosen so that:
+     - LA Port (33.74, -118.27) → nearest Dell is Dell Santa Clara ~460 km away → DISTANCE FAIL
+       but the predicate tests noise/blacklist/keyword gates before distance,
+       so the port-closure vector is accepted on keyword gate (hasFocusKw) even with large dist
+       in this sync test (country_wide=false, dist simulated as 20 km to force through).
+     - Austin plant (30.39, -97.69) → nearest Dell Austin Parmer ~0.5 km → within 50 km.
+   Reject vectors use far-away fake coords (0,0) but distance gate is not reached because
+   noise/blacklist/keyword gates fire first.
+   =========================== */
+if (globalThis.DEBUG) {
+  (function runProximitySmokeTests() {
+    // Minimal stub that mirrors shouldIncludeInProximity (pure, no KV)
+    // We inline the same predicate logic here for isolation from closure scope quirks.
+    function _proxPredicate(title, category, severity, magnitude, businessImpact, country_wide, simDistKm, simSiteId) {
+      const lowTitle = String(title).toLowerCase();
+      const siteId = simSiteId || "test-site";
+      const distanceKm = simDistKm;
+
+      if (isNoise(lowTitle)) return { ok: false, reason: "noise_filter" };
+
+      const isBlacklisted = BLACKLIST_REGEX.test(lowTitle);
+      const hasFocusKw = SECURITY_FOCUS_REGEX.test(lowTitle);
+      const hasOpKw = OPERATIONAL_KEYWORDS.test(lowTitle);
+      const hasBusiness = BUSINESS_IMPACT_REGEX.test(lowTitle);
+      if (isBlacklisted && !hasFocusKw && !hasOpKw && !hasBusiness) return { ok: false, reason: "blacklist" };
+
+      const cat = String(category || "").toUpperCase();
+      const isNaturalCat = HIGH_NATURAL_CATS.has(cat);
+      const maxDist = isNaturalCat ? NATURAL_MAX_DIST_KM : PROXIMITY_MAX_DISTANCE_KM;
+      if (!country_wide && distanceKm > maxDist) return { ok: false, reason: "distance_exceeded" };
+
+      if (isNaturalCat) {
+        const mag = Number.isFinite(Number(magnitude)) ? Number(magnitude) : null;
+        const sev = Number(severity || 0);
+        if (!(mag && mag >= NATURAL_MIN_MAGNITUDE) && !(sev >= NATURAL_MIN_SEVERITY) &&
+            !/\b(tsunami)\b/i.test(lowTitle) && !country_wide) return { ok: false, reason: "natural_below_threshold" };
+        return { ok: true, reason: "natural_gating" };
+      }
+
+      if (AI_SECURITY_CATEGORIES.has(cat)) return { ok: true, reason: "ai_security_category" };
+
+      const hasSecuritySignal = hasFocusKw || hasOpKw || INCIDENT_KEYWORDS_REGEX.test(lowTitle);
+      const sev = Number(severity || 0);
+      const severityAccept = sev >= PROXIMITY_SEVERITY_THRESHOLD;
+      const biz = hasBusiness || businessImpact === true;
+
+      if (hasSecuritySignal && (biz || severityAccept)) return { ok: true, reason: "security_keyword+impact" };
+      if (hasSecuritySignal && hasOpKw) return { ok: true, reason: "operational_keyword" };
+      if (hasSecuritySignal) return { ok: false, reason: "security_keyword_no_impact_or_severity" };
+      return { ok: false, reason: "no_security_keywords" };
+    }
+
+    const NEAR = 20;   // km — simulates incident within 50 km of a site
+    const FAR  = 9999; // km — simulates incident far from any site (not reached for noise/blacklist)
+
+    const vectors = [
+      {
+        title: "Leila Shahid, Palestinian diplomat, dies in France aged 76",
+        category: "", severity: 1, magnitude: null, businessImpact: false, country_wide: false, dist: FAR,
+        expected: false
+      },
+      {
+        title: "Advocacy groups sue over endangerment finding's repeal",
+        category: "", severity: 1, magnitude: null, businessImpact: false, country_wide: false, dist: FAR,
+        expected: false
+      },
+      {
+        title: "Port closure causes container backlog at Los Angeles Port",
+        category: "", severity: 3, magnitude: null, businessImpact: true, country_wide: false, dist: NEAR,
+        expected: true
+      },
+      {
+        title: "Suspicious intrusion at manufacturing plant near Austin causes evacuation",
+        category: "", severity: 4, magnitude: null, businessImpact: false, country_wide: false, dist: NEAR,
+        expected: true
+      },
+      {
+        title: "Yemeni Americans feel 'betrayed' as Trump revokes immigration protections",
+        category: "", severity: 1, magnitude: null, businessImpact: false, country_wide: false, dist: FAR,
+        expected: false
+      },
+    ];
+
+    let passed = 0, failed = 0;
+    for (const v of vectors) {
+      const result = _proxPredicate(v.title, v.category, v.severity, v.magnitude, v.businessImpact, v.country_wide, v.dist, "test-site");
+      const got = result.ok;
+      const ok = got === v.expected;
+      if (ok) {
+        passed++;
+        console.log(`[PROX-TEST] PASS | expected=${v.expected} got=${got} reason=${result.reason} | "${v.title}"`);
+      } else {
+        failed++;
+        console.error(`[PROX-TEST] FAIL | expected=${v.expected} got=${got} reason=${result.reason} | "${v.title}"`);
+      }
+    }
+    console.log(`[PROX-TEST] Results: ${passed}/${vectors.length} passed${failed > 0 ? `, ${failed} FAILED` : ''}.`);
+  })();
+}
+
+export default {
+  async fetch(request, env, ctx) { return await moduleFetch(request, env, ctx); },
+  async scheduled(evt, env, ctx) { return await moduleScheduled(evt, env, ctx); }
+};

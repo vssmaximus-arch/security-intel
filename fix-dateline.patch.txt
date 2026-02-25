@@ -1,0 +1,115 @@
+*** Begin Patch
+*** Update File: app.js
+@@
+ function parseCoord(v){ const n = (v===null||v===undefined) ? NaN : parseFloat(String(v).trim()); return Number.isFinite(n) ? n : NaN; }
++/* Normalize longitude into [-180, 180] to prevent duplicated markers across the dateline */
++function wrapLongitude(lng) {
++  if (lng === null || lng === undefined) return lng;
++  let l = Number(lng);
++  if (!Number.isFinite(l)) return lng;
++  while (l < -180) l += 360;
++  while (l > 180) l -= 360;
++  return l;
++}
+@@
+   map = L.map("map", {
+     scrollWheelZoom: false,
+     zoomControl: false,
+     attributionControl: true,
+     minZoom: 2,
+     maxZoom: 19,
+     maxBounds: bounds,
+     maxBoundsViscosity: 1.0,
+-    worldCopyJump: false
++    worldCopyJump: true
+   }).setView([20, 0], 2);
+@@
+   const esriLayer = L.tileLayer(
+     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+-    { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA', noWrap: true, bounds: bounds, keepBuffer: 2 }
++    { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Esri, USGS, NOAA', noWrap: false, bounds: bounds, keepBuffer: 2 }
+   );
+   const cartoLayer = L.tileLayer(
+     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+-    { subdomains: "abcd", maxZoom: 19, noWrap: true, bounds: bounds, attribution: '&copy; OpenStreetMap &copy; CARTO', keepBuffer: 2 }
++    { subdomains: "abcd", maxZoom: 19, noWrap: false, bounds: bounds, attribution: '&copy; OpenStreetMap &copy; CARTO', keepBuffer: 2 }
+   );
+@@
+ function renderAssetsOnMap(region) {
+   if (!assetsClusterGroup || !map) return;
+   assetsClusterGroup.clearLayers();
+@@
+-  filtered.forEach(a => {
+-    try {
+-      const m = L.marker([Number(a.lat), Number(a.lng)], {
++  filtered.forEach(a => {
++    try {
++      const latVal = Number(a.lat);
++      const lngVal = wrapLongitude(Number(a.lng));
++      const m = L.marker([latVal, lngVal], {
+         icon: L.divIcon({
+           className: 'custom-pin',
+           html: '<div class="marker-pin-dell"><i class="fas fa-building" aria-hidden="true"></i></div>',
+           iconSize:[30,42],
+           iconAnchor:[15,42]
+         })
+       });
+       m.bindTooltip(escapeHtml(a.name), { className: 'map-tooltip', direction: 'top' });
+       assetsClusterGroup.addLayer(m);
+     } catch(e) {}
+   });
+ }
+ 
+ function renderIncidentsOnMap(region, list) {
+   if (!incidentClusterGroup || !criticalLayerGroup || !map) return;
+   incidentClusterGroup.clearLayers();
+   criticalLayerGroup.clearLayers();
+ 
+   // Clear any existing highlight circle when switching regions
+   if (mapHighlightLayer) {
+     map.removeLayer(mapHighlightLayer);
+     mapHighlightLayer = null;
+   }
+ 
+   const data = (region === "Global") ? list : list.filter(i => i.region === region);
+   const proxIds = new Set(PROXIMITY_INCIDENTS.map(i => String(i.id)));
+ 
+   data.forEach(i => {
+     try {
+       const sev = Number(i.severity || 1);
+       const isProx = proxIds.has(String(i.id));
+ 
+       // Filter: Only show High/Critical OR Proximity items on the map
+       if (sev < 4 && !isProx) return;
+ 
+-      let lat = Number(i.lat), lng = Number(i.lng);
++      let lat = Number(i.lat), lng = Number(i.lng);
++      if (Number.isFinite(lng)) lng = wrapLongitude(lng);
+       // Fallback coords logic
+       if (!Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001)) {
+         const c = getCoordsForIncident(i);
+         if (!c) return;
+-        lat = c.lat; lng = c.lng;
++        lat = c.lat; lng = wrapLongitude(c.lng);
+       }
+@@
+-      const marker = L.marker([lat, lng], {
++      const marker = L.marker([lat, lng], {
+         severity: sev,
+         icon: L.divIcon({
+           html: `<div class="incident-dot" style="background:${color}; box-shadow: 0 0 5px ${color};"></div>`,
+           className: '',
+           iconSize: [14, 14], 
+           iconAnchor: [7, 7]
+         })
+       });
+@@
+-        mapHighlightLayer = L.circle([lat, lng], {
++        mapHighlightLayer = L.circle([lat, wrapLongitude(lng)], {
+           color: '#d93025',       // Red border
+           fillColor: '#d93025',   // Red fill
+           fillOpacity: 0.15,      // Light transparency
+           weight: 1,
+           radius: radiusMeters
+         }).addTo(map);
+*** End Patch
