@@ -52,6 +52,32 @@ try {
   if (ssec) ADMIN_SECRET = ssec;
 } catch(e){}
 
+// --- Persistent per-browser user identity for dislike personalisation ---
+let OSINFO_USER_ID = '';
+let DISLIKED_IDS = new Set();
+
+function getOrCreateUserId() {
+  try {
+    let uid = localStorage.getItem('osinfohub_user_id');
+    if (!uid) {
+      // Generate a random opaque UUID-like token — no PII, no fingerprinting
+      uid = 'u_' + Array.from(crypto.getRandomValues(new Uint8Array(16)))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+      localStorage.setItem('osinfohub_user_id', uid);
+    }
+    return uid;
+  } catch(e) { return ''; }
+}
+
+try {
+  OSINFO_USER_ID = getOrCreateUserId();
+  const rawDisliked = localStorage.getItem('osinfohub_disliked_ids');
+  if (rawDisliked) {
+    const arr = JSON.parse(rawDisliked);
+    if (Array.isArray(arr)) arr.forEach(id => DISLIKED_IDS.add(String(id)));
+  }
+} catch(e) {}
+
 /* Global error handlers */
 window.onerror = function(msg, url, line, col, error) {
   console.error("Global Error Caught:", { msg, url, line, col, error });
@@ -61,6 +87,17 @@ window.addEventListener('unhandledrejection', (ev) => { console.error('Unhandled
 /* small helpers */
 const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
 let _clusterHoverTimeout = null;
+
+/**
+ * Normalize a longitude into [-180, 180).
+ * wrapLongitude(190)  === -170
+ * wrapLongitude(-190) ===  170
+ * wrapLongitude(180)  === -180
+ */
+function wrapLongitude(lng) {
+  const x = ((Number(lng) + 180) % 360 + 360) % 360;
+  return x - 180;
+}
 
 /* ===========================
    WORLD COUNTRIES (fallback list)
@@ -563,7 +600,8 @@ async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing…";
   try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`);
+    const fetchOpts = OSINFO_USER_ID ? { headers: { 'X-User-Id': OSINFO_USER_ID } } : {};
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`, fetchOpts);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
@@ -574,7 +612,8 @@ async function loadFromWorker(silent=false) {
       .filter(Boolean)
       .filter(i => {
         try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
-      });
+      })
+      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard (covers offline/SSE path)
 
     INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
     FEED_IS_LIVE = true;
@@ -588,7 +627,8 @@ async function loadFromWorker(silent=false) {
 
 async function loadProximityFromWorker(silent=false) {
   try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`);
+    const fetchOpts = OSINFO_USER_ID ? { headers: { 'X-User-Id': OSINFO_USER_ID } } : {};
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/proximity`, fetchOpts);
     if (!res.ok) {
       if (!silent) console.warn('Proximity endpoint returned not-ok:', res.status);
       PROXIMITY_INCIDENTS = [];
@@ -602,7 +642,8 @@ async function loadProximityFromWorker(silent=false) {
       .filter(Boolean)
       .filter(i => {
         try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
-      });
+      })
+      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
     if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
   } catch(e) {
     console.error('loadProximityFromWorker failed', e);
@@ -801,12 +842,12 @@ function renderIncidentsOnMap(region, list) {
       // Filter: Only show High/Critical OR Proximity items on the map
       if (sev < 4 && !isProx) return;
 
-      let lat = Number(i.lat), lng = Number(i.lng);
+      let lat = Number(i.lat), lng = wrapLongitude(Number(i.lng));
       // Fallback coords logic
       if (!Number.isFinite(lat) || !Number.isFinite(lng) || (Math.abs(lat) < 0.0001 && Math.abs(lng) < 0.0001)) {
         const c = getCoordsForIncident(i);
         if (!c) return;
-        lat = c.lat; lng = c.lng;
+        lat = c.lat; lng = wrapLongitude(c.lng);
       }
 
       // Marker Color
@@ -852,7 +893,7 @@ function renderIncidentsOnMap(region, list) {
         radiusMeters = Math.max(2000, Math.min(radiusMeters, 500000));
 
         // 3. Draw Red Circle
-        mapHighlightLayer = L.circle([lat, lng], {
+        mapHighlightLayer = L.circle([lat, wrapLongitude(lng)], {
           color: '#d93025',       // Red border
           fillColor: '#d93025',   // Red fill
           fillOpacity: 0.15,      // Light transparency
@@ -1191,6 +1232,9 @@ function persistVotes() {
 function persistVoteQueue() {
   try { localStorage.setItem('os_v1_vote_queue', JSON.stringify(VOTE_QUEUE)); } catch(e){}
 }
+function persistDislikedIds() {
+  try { localStorage.setItem('osinfohub_disliked_ids', JSON.stringify([...DISLIKED_IDS])); } catch(e){}
+}
 
 function applyVoteUIForId(id, vote) {
   try {
@@ -1234,6 +1278,7 @@ async function sendVoteToServer(payload) {
     const url = tryEndpoints[i];
     try {
       const headers = { 'Content-Type': 'application/json' };
+      if (OSINFO_USER_ID) headers['X-User-Id'] = OSINFO_USER_ID;
       if (i === 1 && adminGetSecret()) headers.secret = adminGetSecret();
       const res = await fetch(url, {
         method: 'POST',
@@ -1241,16 +1286,22 @@ async function sendVoteToServer(payload) {
         body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })
       });
       if (res.ok) {
-        return { ok:true, status: res.status };
+        // Parse JSON to detect hide:true signal on dislike
+        try {
+          const json = await res.clone().json();
+          return { ok:true, status: res.status, hide: !!json.hide };
+        } catch(e) { return { ok:true, status: res.status }; }
       } else {
         if (res.status === 403 && ADMIN_SECRET) {
           try {
             const res2 = await fetch(`${WORKER_URL}/api/thumb`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'secret': ADMIN_SECRET },
+              headers: { 'Content-Type': 'application/json', 'secret': ADMIN_SECRET, ...(OSINFO_USER_ID ? {'X-User-Id': OSINFO_USER_ID} : {}) },
               body: JSON.stringify({ id: payload.id, vote: payload.vote, ts: payload.ts || new Date().toISOString() })
             });
-            if (res2.ok) return { ok:true, status: res2.status };
+            if (res2.ok) {
+              try { const j2 = await res2.clone().json(); return { ok:true, status: res2.status, hide: !!j2.hide }; } catch(e) { return { ok:true, status: res2.status }; }
+            }
             else return { ok:false, status: res2.status, text: (await res2.text().catch(()=>'')) };
           } catch(e2) { return { ok:false, err:e2 }; }
         }
@@ -1304,6 +1355,10 @@ async function voteThumb(id, vote) {
   try {
     const res = await sendVoteToServer(payload);
     if (res.ok) {
+      // If the server flagged this article as hidden (dislike), remove it immediately
+      if (vote === 'down' && res.hide) {
+        hideDislikedArticle(String(id));
+      }
       try { flushVoteQueue(); } catch(e){}
       return;
     } else {
@@ -1314,6 +1369,28 @@ async function voteThumb(id, vote) {
     await enqueueVote(payload);
     adminSetFeedback('Vote queued (network).', false);
   }
+}
+
+/**
+ * Immediately hide an article card from the feed UI and persist the dislike
+ * in localStorage so it stays hidden after a page reload (before SSE data arrives).
+ */
+function hideDislikedArticle(id) {
+  try {
+    // Add to in-memory set + persist
+    DISLIKED_IDS.add(id);
+    persistDislikedIds();
+    // Remove from INCIDENTS so it won't re-render on next filterNews() call
+    INCIDENTS = INCIDENTS.filter(i => String(i.id) !== id);
+    PROXIMITY_INCIDENTS = PROXIMITY_INCIDENTS.filter(i => String(i.id) !== id);
+    // Remove the DOM card immediately without a full re-render
+    document.querySelectorAll(`[data-incident-id="${CSS.escape(id)}"]`).forEach(el => {
+      el.remove();
+    });
+    // Also remove by data-id on vote buttons (captures card wrappers that use data-id)
+    const card = document.querySelector(`.news-card[data-id="${CSS.escape(id)}"]`);
+    if (card) card.remove();
+  } catch(e) { console.warn('hideDislikedArticle error', e); }
 }
 
 setInterval(() => {
@@ -1600,6 +1677,74 @@ function updateHeadline(region) {
 }
 
 /* ===========================
+   SSE REAL-TIME BRIDGE
+=========================== */
+let _sseRetryCount = 0;
+const SSE_MAX_RETRY_DELAY_MS = 30_000;
+
+/**
+ * Connect to /api/stream via EventSource for near-real-time updates.
+ * Falls back to the original AUTO_REFRESH_MS setInterval when EventSource
+ * is unavailable (e.g., older Safari, some enterprise proxies).
+ * Reconnects automatically with exponential back-off on failure.
+ */
+function connectSSE() {
+  if (typeof EventSource === 'undefined') {
+    // Fallback: legacy polling
+    setInterval(async () => {
+      if (FEED_IS_LIVE) {
+        await loadFromWorker(true);
+        await loadProximityFromWorker(true);
+        const active = document.querySelector('.nav-item-custom.active');
+        filterNews(active ? active.textContent.trim() : 'Global');
+      }
+    }, AUTO_REFRESH_MS);
+    return;
+  }
+
+  const es = new EventSource(`${WORKER_URL}/api/stream`);
+
+  es.addEventListener('incidents', (ev) => {
+    try {
+      const raw = JSON.parse(ev.data);
+      const cutoffMs = Date.now() - 48 * 3600 * 1000;
+      INCIDENTS = (Array.isArray(raw) ? raw : [])
+        .map(normaliseWorkerIncident).filter(Boolean)
+        .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
+        .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
+      INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
+      FEED_IS_LIVE = true;
+      const label = document.getElementById('feed-status-label');
+      if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
+      const active = document.querySelector('.nav-item-custom.active');
+      filterNews(active ? active.textContent.trim() : 'Global');
+      _sseRetryCount = 0;
+    } catch (e) { console.error('SSE incidents parse error', e); }
+  });
+
+  es.addEventListener('proximity', (ev) => {
+    try {
+      const json = JSON.parse(ev.data);
+      const cutoffMs = Date.now() - 48 * 3600 * 1000;
+      PROXIMITY_INCIDENTS = (Array.isArray(json.incidents) ? json.incidents : [])
+        .map(normaliseWorkerIncident).filter(Boolean)
+        .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
+        .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
+    } catch (e) { console.error('SSE proximity parse error', e); }
+  });
+
+  es.onerror = () => {
+    FEED_IS_LIVE = false;
+    const label = document.getElementById('feed-status-label');
+    if (label) label.textContent = 'OFFLINE \u2022 Reconnecting\u2026';
+    es.close();
+    const delay = Math.min(1000 * Math.pow(2, _sseRetryCount), SSE_MAX_RETRY_DELAY_MS);
+    _sseRetryCount++;
+    setTimeout(connectSSE, delay);
+  };
+}
+
+/* ===========================
    BOOTSTRAP / EVENT BINDING
 =========================== */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1678,15 +1823,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // apply stored votes UI
     Object.keys(VOTES_LOCAL).forEach(k => applyVoteUIForId(k, VOTES_LOCAL[k]));
 
-    // schedule auto refresh
-    setInterval(async () => {
-      if (FEED_IS_LIVE) {
-        await loadFromWorker(true);
-        await loadProximityFromWorker(true);
-        const active = document.querySelector('.nav-item-custom.active');
-        filterNews(active ? active.textContent.trim() : 'Global');
-      }
-    }, AUTO_REFRESH_MS);
+    // Real-time bridge: SSE (EventSource) with polling fallback
+    connectSSE();
 
     // try flush queue on load
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
@@ -1710,3 +1848,27 @@ window.dismissAlertById = dismissAlertById;
 window.manualRefresh = manualRefresh;
 window.filterNews = filterNews;
 window.adminGetSecret = adminGetSecret;
+
+/* --- wrapLongitude unit tests (run once at load, no framework) --- */
+(function _testWrapLongitude() {
+  const cases = [
+    [190,    -170],
+    [-190,    170],
+    [180,    -180],
+    [-180,   -180],
+    [0,         0],
+    [360,    -180],
+    [-360,   -180],
+    [179.9,  179.9],
+    [-179.9,-179.9],
+  ];
+  let pass = 0, fail = 0;
+  cases.forEach(([input, expected]) => {
+    const got = wrapLongitude(input);
+    const ok = Math.abs(got - expected) < 1e-9;
+    if (ok) { pass++; }
+    else { fail++; console.error(`wrapLongitude(${input}) expected ${expected} got ${got}`); }
+  });
+  if (fail === 0) console.log(`[wrapLongitude] All ${pass} unit tests passed.`);
+  else            console.error(`[wrapLongitude] ${fail} test(s) FAILED.`);
+})();
