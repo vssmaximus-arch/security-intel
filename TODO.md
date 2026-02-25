@@ -3,7 +3,7 @@
 ## 🎯 Current Milestone: Core API Integration
 > **Active Status**: Phase 2, Task S2.4
 > **Current Context**: High-precision noise filter deployed — `isNoise()` now rejects sports/entertainment (hard), finance/markets (with supply-chain carve-out), and general politics/diplomacy (with security carve-out); `ALLOWED_KEYWORDS` tightened to physical-security + facility disruption only; `BLACKLIST_TERMS` expanded; `BUSINESS_IMPACT_TERMS` narrowed to physical supply-chain disruption; `"GENERAL"` removed from `AI_WHITELIST_CATEGORIES`.
-> **Next Session Tip**: After deploying worker, trigger a manual ingestion and check worker logs for `isNoise: true` hits on known noisy feeds (e.g., Reuters business wires, sports RSS); confirm incident count drops and only security/facility/natural events remain.
+> **Next Session Tip**: Deploy worker + app.js; dislike an article in DevTools, confirm `/api/thumb/public` returns `"hide":true`, card disappears immediately, and stays hidden after hard-refresh; run `wrangler tail` and verify `debug('dislike','recorded')` + `debug('dislike','filtered')` log lines appear.
 
 ---
 
@@ -55,6 +55,7 @@
   > TBD: Verify proximity predicate fixes via wrangler tail for proximity logs.
 - [x] **Dislike persistence flow**: added `recordUserDislike(env, userId, incidentId)` helper (KV key `DISLIKES:<userId>`, 90-day TTL, capped at 500); modified `handlePublicThumb` to extract `X-User-Id` header, call `recordUserDislike` on `vote==='down'`, return `{ id, vote, hide: true }` on dislike; updated `handleApiIncidents` and `handleApiProximity` to accept `req`, read `X-User-Id`, filter out disliked IDs from response; updated `CORS_HEADERS` to expose `X-User-Id`; added `getOrCreateUserId()`/`OSINFO_USER_ID`/`DISLIKED_IDS` in app.js, `hideDislikedArticle()` for immediate DOM removal + localStorage persistence, and `DISLIKED_IDS` filter in SSE `incidents`/`proximity` handlers and `loadFromWorker`/`loadProximityFromWorker`.
   > **Next Session Tip**: Deploy worker, open DevTools → Network → XHR, dislike an article, confirm the `/api/thumb/public` response contains `"hide":true`, confirm the card disappears immediately, and confirm it stays hidden after a hard-refresh.
+  > TBD: Verify dislike flow via wrangler tail — filter for "debug('dislike','recorded')" and "debug('dislike','filtered')" after a dislike action.
 
 ---
 
