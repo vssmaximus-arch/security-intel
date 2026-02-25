@@ -2430,7 +2430,9 @@ async function handleApiProximity(env, req) {
       const disliked = await kvGetJson(env, `${DISLIKES_KV_PREFIX}${userId}`, []);
       if (Array.isArray(disliked) && disliked.length > 0) {
         const dislikedSet = new Set(disliked);
+        const before = prox.incidents.length;
         prox.incidents = prox.incidents.filter(i => !dislikedSet.has(String(i.id || '')));
+        typeof debug === 'function' && debug('dislike', 'filtered', { userId, removed: before - prox.incidents.length });
       }
     }
   } catch (e) { typeof debug === 'function' && debug('handleApiProximity dislike filter error', e?.message || e); }
