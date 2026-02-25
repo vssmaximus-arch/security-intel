@@ -1378,7 +1378,7 @@ async function voteThumb(id, vote) {
 function hideDislikedArticle(id) {
   try {
     // Add to in-memory set + persist
-    DISLIKED_IDS.add(id);
+    DISLIKED_IDS.add(String(id));
     persistDislikedIds();
     // Remove from INCIDENTS so it won't re-render on next filterNews() call
     INCIDENTS = INCIDENTS.filter(i => String(i.id) !== id);
