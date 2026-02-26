@@ -2112,6 +2112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               picker.value = '';                // clear Edge's stale 'D' day-slot placeholder value
               picker.removeAttribute('min');    // flatpickr manages range constraints via enable:[]
               picker.removeAttribute('max');
+              picker.removeAttribute('list');   // detach datalist — its dropdown conflicts with flatpickr
               flatpickr(picker, {
                 enable: dates,
                 dateFormat: 'Y-m-d',
