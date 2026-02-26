@@ -1968,6 +1968,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     // inputs wiring
     const historyPicker = document.getElementById('history-picker');
     if (historyPicker) historyPicker.addEventListener('change', (ev) => loadHistory(ev.target.value));
+    // Populate date-picker with available archive dates from worker
+    (async function populateArchiveDates() {
+      try {
+        const res = await fetchWithTimeout(`${WORKER_URL}/api/archive`);
+        if (!res.ok) return;
+        const dates = await res.json();
+        if (!Array.isArray(dates) || dates.length === 0) return;
+        const dl = document.getElementById('archive-dates') || (() => {
+          const d = document.createElement('datalist');
+          d.id = 'archive-dates';
+          document.body.appendChild(d);
+          return d;
+        })();
+        dl.innerHTML = '';
+        dates.sort((a, b) => b.localeCompare(a)); // newest first
+        for (const dt of dates) {
+          const opt = document.createElement('option');
+          opt.value = dt;
+          dl.appendChild(opt);
+        }
+        const picker = document.getElementById('history-picker');
+        if (picker) {
+          picker.setAttribute('list', 'archive-dates');
+          picker.setAttribute('min', dates[dates.length - 1]);
+          picker.setAttribute('max', dates[0]);
+        }
+      } catch (e) { typeof debug === 'function' && debug('populateArchiveDates', e?.message || e); }
+    })();
     const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
     const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
 

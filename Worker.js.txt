@@ -1726,7 +1726,7 @@ async function archiveIncidents(env, incidents = []) {
       (Array.isArray(existing) ? existing : []).forEach(x => { if (x && x.id) map.set(x.id, x); });
       buckets[dateKey].forEach(x => { if (x && x.id) map.set(x.id, x); });
       const merged = Array.from(map.values()).slice(0, 5000);
-      await kvPut(env, kvKey, merged);
+      await kvPut(env, kvKey, merged, { expirationTtl: 90 * 24 * 3600 }); // 90-day retention
     } catch (e) { debug("archiveIncidents inner error", e?.message || e); }
   }
 }
@@ -2945,6 +2945,8 @@ async function handleApiDailyBrief(env, req) {
   try {
     const url = new URL(req.url);
     const p = url.pathname || '';
+
+    /* --- /api/dailybrief/list (admin) --- */
     if (p.endsWith('/list')) {
       const briefs = await kvGetJson(env, 'DAILY_BRIEFS', []);
       return new Response(JSON.stringify(Array.isArray(briefs) ? briefs : []), {
@@ -2952,18 +2954,95 @@ async function handleApiDailyBrief(env, req) {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
+
+    /* --- POST /api/dailybrief/generate (admin, protected) --- */
     if (req.method === 'POST' && p.endsWith('/generate')) {
-      return new Response('Brief generation scheduled.', {
+      const secretOk = await isSecretOk(req, env);
+      if (!secretOk) {
+        return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), {
+          status: 403,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const date     = url.searchParams.get('date') || '';
+      const region   = url.searchParams.get('region') || '';
+      const download = url.searchParams.get('download') === 'true';
+      typeof debug === 'function' && debug('archive:generate', date, region, download);
+
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return new Response(JSON.stringify({ ok: false, error: 'date param required (YYYY-MM-DD)' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Load archive; fall back to live incidents when date is today
+      let rawItems = await kvGetJson(env, `${ARCHIVE_PREFIX}${date}`, null);
+      if (!Array.isArray(rawItems)) {
+        if (date === utcDateKey(new Date())) {
+          rawItems = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+        } else {
+          rawItems = [];
+        }
+      }
+
+      // Optional region filter (case-insensitive)
+      let items = Array.isArray(rawItems) ? rawItems : [];
+      if (region) {
+        const rq = region.toLowerCase();
+        items = items.filter(i => i && typeof i.region === 'string' && i.region.toLowerCase() === rq);
+      }
+
+      const brief = {
+        date,
+        region: region || null,
+        generated_at: new Date().toISOString(),
+        items,
+      };
+
+      const briefKey = `DAILY_BRIEF_${date}`;
+      await kvPut(env, briefKey, brief, { expirationTtl: 90 * 24 * 3600 });
+      typeof debug === 'function' && debug('archive:generate:saved', briefKey, items.length);
+
+      if (download) {
+        return new Response(JSON.stringify(brief), {
+          status: 200,
+          headers: {
+            ...CORS_HEADERS,
+            'Content-Type': 'application/json',
+            'Content-Disposition': `attachment; filename="brief-${date}.json"`,
+          },
+        });
+      }
+      return new Response(JSON.stringify({ ok: true, key: briefKey, items: items.length }), {
         status: 200,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'text/plain' },
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
-    const date = url.searchParams.get('date');
+
+    /* --- GET /api/dailybrief?date=YYYY-MM-DD[&download=true] --- */
+    const date     = url.searchParams.get('date');
+    const download = url.searchParams.get('download') === 'true';
     if (date) {
-      const key = `DAILY_BRIEF_${date}`;
+      const key   = `DAILY_BRIEF_${date}`;
       const brief = await kvGetJson(env, key, null);
-      const incidents = (brief && Array.isArray(brief.incidents)) ? brief.incidents : [];
-      return new Response(JSON.stringify({ incidents }), {
+      // Support both old shape (incidents) and new shape (items)
+      const incidents = (brief && Array.isArray(brief.items))     ? brief.items
+                      : (brief && Array.isArray(brief.incidents)) ? brief.incidents
+                      : [];
+      const body = JSON.stringify({ incidents });
+      if (download) {
+        return new Response(body, {
+          status: 200,
+          headers: {
+            ...CORS_HEADERS,
+            'Content-Type': 'application/json',
+            'Content-Disposition': `attachment; filename="brief-${date}.json"`,
+          },
+        });
+      }
+      return new Response(body, {
         status: 200,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });

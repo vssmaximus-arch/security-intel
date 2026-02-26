@@ -1,9 +1,9 @@
 # OS InfoHub Dashboard - Implementation Roadmap (TODO.md)
 
-## 🎯 Current Milestone: AI Brain Upgrade — Initiative 1 DONE
-> **Active Status**: Phase 2, Task S2.4
-> **Current Context**: Initiative 1 (Relevancy Engine) deployed — `GET /api/ai/rank` + `POST /api/ai/feedback` live in worker; TF-IDF + cosine similarity scoring with 40/30/10/10/10 hybrid formula; `ai:rules` KV key for feedback loop; `loadAiRankedFeed` + `sendAiFeedback` hooks in app.js. Travel advisory UI also fixed (Level colour map, TRAVEL_DATA unpack, SSE OFFLINE suppression).
-> **Next Session Tip**: `wrangler publish` then `curl https://osinfohub.vssmaximus.workers.dev/api/ai/rank?limit=5` — confirm `items[]` sorted by `relevance_score`, each item has `operational_score`, `semantic_score`. Then `POST /api/ai/feedback` with `{"id":"<id>","action":"up"}` and re-rank — verify the upvoted incident's `thumbs_score` increases.
+## 🎯 Current Milestone: S2.4 — Historical Data Archival DONE
+> **Active Status**: Phase 2, Task S2.5 (next)
+> **Current Context**: S2.4 complete — archive writes now carry 90-day KV TTL; `POST /api/dailybrief/generate` (admin-auth) reads `archive_{date}` or falls back to live INCIDENTS_KV, filters by region, persists `DAILY_BRIEF_{date}` with 90-day TTL, returns JSON download with `Content-Disposition` when `?download=true`; `GET /api/dailybrief?date=&download=true` also returns attachment header; `populateArchiveDates` IIFE in app.js populates the `#history-picker` datalist from `GET /api/archive` on boot.
+> **Next Session Tip**: After `wrangler publish`, run `wrangler kv:key get --binding INTEL_KV archive_$(date +%F)` and check the metadata TTL is ~7776000 s. Then call `curl -X POST -H "secret: $SECRET" "$WORKER_URL/api/dailybrief/generate?date=$(date +%F)&region=Global"` and confirm `{ ok:true, key:..., items:N }`. Finally open the History sidebar tab and verify the date-picker autocompletes to real archive dates.
 
 ---
 
@@ -26,7 +26,8 @@
 - [x] **S2.1**: DB Schema for Global Security Events
 - [/] **S2.2**: Threat Feed Aggregator (API connectors)
 - [x] **S2.3**: Real-time SSE bridge for live alerts (GET /api/stream + EventSource client)
-- [NEXT] **S2.4**: Historical Data Archival
+- [x] **S2.4**: Historical Data Archival
+- [NEXT] **S2.5**: Alert Escalation & Notification Pipeline
 
 ## 📅 Phase 3: Visualization & Analytics
 - [ ] **S3.1**: Interactive SVG Global Map (D3.js) — DEP_APPROVAL
