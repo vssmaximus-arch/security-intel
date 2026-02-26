@@ -1349,6 +1349,59 @@ async function sendVoteToServer(payload) {
   return { ok:false, err:'no-endpoints' };
 }
 
+/* ===========================
+   AI RANK CLIENT HOOKS (Initiative 1 — Relevancy Engine)
+   =========================== */
+
+/**
+ * Fetch AI-ranked incidents from GET /api/ai/rank.
+ * Falls back to the existing INCIDENTS array if the endpoint is unavailable.
+ * @param {object} [opts] - { region, country, limit }
+ * @returns {Promise<Array>} - sorted incidents array with relevance_score fields
+ */
+async function loadAiRankedFeed(opts = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (opts.region)  params.set('region',  opts.region);
+    if (opts.country) params.set('country', opts.country);
+    if (opts.limit)   params.set('limit',   String(opts.limit));
+    const url = `${WORKER_URL}/api/ai/rank${params.toString() ? '?' + params.toString() : ''}`;
+    const headers = {};
+    if (typeof OSINFO_USER_ID !== 'undefined' && OSINFO_USER_ID) headers['X-User-Id'] = OSINFO_USER_ID;
+    const res = await fetch(url, { headers });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && Array.isArray(data.items)) return data.items;
+    return [];
+  } catch (e) {
+    console.warn('[AI] loadAiRankedFeed fallback:', e?.message || e);
+    return [];
+  }
+}
+
+/**
+ * Send AI feedback (up/down/hide) to POST /api/ai/feedback.
+ * @param {string} id     - incident id
+ * @param {'up'|'down'|'hide'} action
+ * @returns {Promise<{ok:boolean}>}
+ */
+async function sendAiFeedback(id, action) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (typeof OSINFO_USER_ID !== 'undefined' && OSINFO_USER_ID) headers['X-User-Id'] = OSINFO_USER_ID;
+    const res = await fetch(`${WORKER_URL}/api/ai/feedback`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ id: String(id), user_id: (typeof OSINFO_USER_ID !== 'undefined' ? OSINFO_USER_ID : null), action }),
+    });
+    if (!res.ok) return { ok: false, status: res.status };
+    return await res.json();
+  } catch (e) {
+    console.warn('[AI] sendAiFeedback error:', e?.message || e);
+    return { ok: false, err: String(e?.message || e) };
+  }
+}
+
 async function enqueueVote(payload) {
   try {
     VOTE_QUEUE.push(payload);

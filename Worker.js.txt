@@ -2506,6 +2506,346 @@ async function handleAdminAction(env, req, ctx) {
   }
 }
 
+/* ===========================
+   INITIATIVE 1 — RELEVANCY ENGINE (TF-IDF, zero external cost)
+   AI_MODE='tfidf' (default): no external API calls; pure JS scoring.
+   Formula: relevance = 40% heuristic + 30% semantic + 10% severity + 10% recency + 10% thumbs
+   =========================== */
+
+// KV keys for AI engine (separate from LEARNING_RULES_KEY to avoid shape conflicts)
+const AI_RULES_KEY   = 'ai:rules';   // { keywordWeights, sourceWeights, produced_at }
+const AI_META_PREFIX = 'ai:meta:';   // per-incident cache: relevance_score, canonical_summary, …
+
+// Stopwords stripped before tokenisation
+const AI_STOPWORDS = new Set([
+  'the','a','an','and','or','but','in','on','at','to','for','of','with','by',
+  'is','was','are','were','be','been','being','have','has','had','do','does',
+  'did','will','would','could','should','may','might','that','this','these',
+  'those','it','its','from','as','into','than','then','when','where','which',
+  'who','what','how','all','each','both','some','any','no','not','more','also',
+  'about','up','out','if','over','after','before','under','during','said',
+  'report','reported','via','per','amid','according','near','new','local',
+]);
+
+// Hardcoded IDF weights — encodes domain knowledge so high-impact terms score higher.
+// Terms absent from this map receive IDF=1.0 (neutral).
+const AI_SECURITY_IDF = {
+  bomb:2.8, bombing:3.0, blast:2.8, explosion:2.8, explosive:2.8,
+  shoot:3.0, shooting:3.0, gunfire:3.0, gunman:3.2, armed:2.5,
+  attack:2.5, attacker:2.8, terror:3.2, terrorist:3.2, militia:3.0, militant:3.0,
+  kidnap:3.4, kidnapping:3.4, hostage:3.4, abduction:3.2, ransom:3.0,
+  massacre:3.5, assassination:3.5, assassin:3.4,
+  riot:2.8, unrest:2.5, protest:2.0, clashes:2.8, coup:3.0, siege:3.0,
+  strike:1.8, walkout:2.5, blockade:2.8, military:2.0, conflict:2.2, combat:2.8,
+  tsunami:3.2, earthquake:2.2, eruption:3.0, volcano:2.8, cyclone:2.5, hurricane:2.5,
+  flood:2.0, wildfire:2.5, evacuation:2.5, disaster:2.2,
+  fatalities:3.0, casualties:2.8, wounded:2.5, killed:2.8, dead:2.2, deaths:2.5,
+  disruption:2.0, shutdown:2.5, closure:2.0, outage:2.5, infrastructure:2.0,
+  piracy:3.0, hijack:3.0, maritime:2.0, port:1.8, cargo:1.8,
+  threat:2.0, warning:1.8, danger:2.0, security:1.5,
+  pipeline:2.2, facility:1.8, factory:1.8, plant:1.6, depot:2.0,
+  border:2.0, checkpoint:2.5, convoy:2.2, crackdown:2.8, detention:2.5, arrest:2.0,
+};
+
+// Security seed corpus — defines the "ideal security incident" reference vector
+const SECURITY_SEED_PHRASES = [
+  'port blockade shipping route disruption cargo maritime',
+  'facility fire explosion industrial plant warehouse damage',
+  'civil unrest protest riot violence manufacturing supply chain disruption',
+  'armed attack shooting gunfire casualties fatalities',
+  'bomb explosion blast terrorist threat attack',
+  'kidnapping hostage abduction ransom security breach',
+  'military conflict operation combat zone troops',
+  'labor strike walkout work stoppage supply chain',
+  'terrorism attack security incident threat armed',
+  'earthquake flood tsunami hurricane cyclone natural disaster evacuation',
+  'road closure airport transport disruption infrastructure blocked',
+  'power outage grid failure infrastructure shutdown facility',
+  'crackdown detention arrest security forces suppression',
+  'coup political collapse government instability military takeover',
+  'maritime piracy vessel hijack shipping lane cargo',
+];
+
+/** Tokenise text to lowercase unigrams, stripping punctuation and stopwords. */
+function aiTokenize(text) {
+  if (!text) return [];
+  return String(text)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length >= 3 && !AI_STOPWORDS.has(t));
+}
+
+/**
+ * Build a TF-IDF weighted sparse vector for `text`.
+ * TF = count/total; IDF = AI_SECURITY_IDF[term] || 1.0
+ */
+function aiTfIdfVector(text) {
+  const tokens = aiTokenize(text);
+  if (!tokens.length) return {};
+  const freq = {};
+  for (const t of tokens) freq[t] = (freq[t] || 0) + 1;
+  const total = tokens.length;
+  const vec = {};
+  for (const [t, c] of Object.entries(freq)) {
+    vec[t] = (c / total) * (AI_SECURITY_IDF[t] || 1.0);
+  }
+  return vec;
+}
+
+/** Cosine similarity between two sparse TF-IDF vectors. Returns [0,1]. */
+function aiCosineSim(a, b) {
+  let dot = 0, normA = 0, normB = 0;
+  for (const [k, v] of Object.entries(a)) {
+    if (b[k] !== undefined) dot += v * b[k];
+    normA += v * v;
+  }
+  for (const v of Object.values(b)) normB += v * v;
+  if (!normA || !normB) return 0;
+  return Math.min(1, dot / (Math.sqrt(normA) * Math.sqrt(normB)));
+}
+
+// Pre-compute reference seed vector once at module load (zero per-request cost)
+const AI_SEED_VECTOR = (() => aiTfIdfVector(SECURITY_SEED_PHRASES.join(' ')))();
+
+/**
+ * Heuristic (operational) sub-score — contributes 40% of relevance_score.
+ * Tier 1: direct violence (0.8). Tier 2: civil unrest (0.6). Tier 3: infrastructure (0.45).
+ * Boosted/damped ±10% by existing learning-rules keyword weights.
+ */
+function computeOperationalScore(incident, rules) {
+  const text = String(incident.title || '') + ' ' + String(incident.summary || '');
+  let score = 0.25; // neutral baseline
+  if (/\b(shoot|shooting|bomb|blast|explos|attack|terror|hostage|kidnap|massacre|assassin|gunman|armed attack)\b/i.test(text)) {
+    score = 0.8; // tier 1 — direct violence
+  } else if (/\b(riot|unrest|clashes|coup|militant|militia|siege|demonstrat)\b/i.test(text)) {
+    score = 0.6; // tier 2 — civil instability
+  } else if (/\b(fire|flood|quake|earthquake|disruption|evacuat|closure|shutdown|hurricane|cyclone|tsunami|strike|blockade|outage)\b/i.test(text)) {
+    score = 0.45; // tier 3 — infrastructure / natural hazard
+  }
+  // Learning-rules keyword boost (±10%, damped average)
+  const kw = (rules && rules.keywordWeights) || {};
+  const tokens = aiTokenize(text);
+  let kwSum = 0, kwN = 0;
+  for (const tok of tokens) {
+    if (kw[tok]) { kwSum += Number(kw[tok].weight || 0); kwN++; }
+  }
+  if (kwN > 0) score = Math.min(1, Math.max(0, score + (kwSum / kwN) * 0.1));
+  return Math.min(1, Math.max(0, score));
+}
+
+/**
+ * Thumbs/feedback sub-score — contributes 10% of relevance_score.
+ * Maps log-diff keyword weights [-3,+3] → [0,1] via linear sigmoid around 0.5.
+ */
+function computeThumbsScore(incident, rules) {
+  if (!rules) return 0.5;
+  const kw = rules.keywordWeights || {};
+  const tokens = aiTokenize(String(incident.title || '') + ' ' + String(incident.summary || ''));
+  let sum = 0, n = 0;
+  for (const tok of tokens) {
+    if (kw[tok]) { sum += Number(kw[tok].weight || 0); n++; }
+  }
+  if (n === 0) return 0.5; // neutral when no signal
+  return Math.min(1, Math.max(0, 0.5 + (sum / n) * 0.15));
+}
+
+/**
+ * Full hybrid relevance score for one incident.
+ * Formula: 40% heuristic + 30% semantic + 10% severity + 10% recency + 10% thumbs
+ */
+function computeRelevanceForIncident(incident, rules, seedVec, windowMs) {
+  const text = String(incident.title || '') + ' ' + String(incident.summary || '');
+
+  // 40% — heuristic / operational
+  const operationalScore = computeOperationalScore(incident, rules);
+
+  // 30% — semantic TF-IDF cosine similarity vs. security seed corpus
+  const semanticScore = aiCosineSim(aiTfIdfVector(text), seedVec);
+
+  // 10% — severity
+  const SEV_MAP = { critical: 1.0, high: 0.8, medium: 0.5, low: 0.2 };
+  const severityScore = SEV_MAP[String(incident.severity || '').toLowerCase()] ?? 0.3;
+
+  // 10% — recency (linear decay over windowMs; defaults 0.5 if timestamp invalid)
+  let recencyScore = 0.5;
+  try {
+    const ageMs = Date.now() - new Date(incident.time).getTime();
+    if (!isNaN(ageMs)) recencyScore = Math.max(0, 1 - ageMs / windowMs);
+  } catch {}
+
+  // 10% — feedback / thumbs
+  const thumbsScore = computeThumbsScore(incident, rules);
+
+  const raw = 0.4 * operationalScore + 0.3 * semanticScore +
+              0.1 * severityScore  + 0.1 * recencyScore + 0.1 * thumbsScore;
+  const round = v => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
+  return {
+    operational_score: round(operationalScore),
+    semantic_score:    round(semanticScore),
+    severity_score:    round(severityScore),
+    recency_score:     round(recencyScore),
+    thumbs_score:      round(thumbsScore),
+    relevance_score:   round(raw),
+  };
+}
+
+/**
+ * GET /api/ai/rank?region=&limit=&country=
+ * Returns incidents sorted by relevance_score desc.
+ * AI_MODE='tfidf' (default) — zero external API calls.
+ */
+async function handleApiAiRank(env, req, ctx) {
+  try {
+    const t0 = Date.now();
+    const url     = new URL(req.url);
+    const region  = (url.searchParams.get('region')  || '').toLowerCase();
+    const country = (url.searchParams.get('country') || '').toLowerCase();
+    const limit   = Math.min(50, Math.max(1, Number(url.searchParams.get('limit') || 20)));
+
+    // Cost gate — default tfidf: never call external embeddings/LLM APIs
+    const aiMode      = String((env && env.AI_MODE) || 'tfidf').toLowerCase();
+    const recentHours = Number((env && env.RECENT_WINDOW_HOURS) || 72);
+    const windowMs    = recentHours * 3600 * 1000;
+    const cutoffMs    = Date.now() - windowMs;
+
+    // Load incidents + both rule sets in parallel
+    let incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    if (!Array.isArray(incidents)) incidents = [];
+    const [learnRules, aiRulesRaw] = await Promise.all([
+      loadLearningRules(env),
+      kvGetJson(env, AI_RULES_KEY, { keywordWeights: {}, sourceWeights: {}, produced_at: null }),
+    ]);
+    // Merge so both feedback loops inform the scorer
+    const mergedRules = {
+      keywordWeights: { ...(learnRules.keywordWeights || {}), ...(aiRulesRaw.keywordWeights || {}) },
+      sourceWeights:  { ...(learnRules.sourceWeights  || {}), ...(aiRulesRaw.sourceWeights  || {}) },
+    };
+
+    // Filter: recency, region, country
+    let filtered = incidents.filter(i => {
+      try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; }
+    });
+    if (region)  filtered = filtered.filter(i => String(i.region || '').toLowerCase() === region);
+    if (country) filtered = filtered.filter(i =>
+      String(i.country || '').toLowerCase().includes(country) ||
+      String(typeof i.location === 'string' ? i.location : '').toLowerCase().includes(country)
+    );
+
+    // Score every filtered incident
+    const scored = filtered.map(i => {
+      const scores = computeRelevanceForIncident(i, mergedRules, AI_SEED_VECTOR, windowMs);
+      typeof debug === 'function' && debug('ai:rank:scored', {
+        id: i.id, title: String(i.title || '').slice(0, 60), ...scores,
+      });
+      // Extractive canonical summary (LLM path: replace with callGroq stub when AI_MODE='hybrid')
+      const canonical_summary = String(i.summary || i.title || '').slice(0, 200).trim();
+      return {
+        id: i.id, title: i.title, time: i.time, severity: i.severity,
+        region: i.region, country: i.country, link: i.link,
+        canonical_summary, ...scores,
+      };
+    });
+
+    scored.sort((a, b) => b.relevance_score - a.relevance_score);
+    const items = scored.slice(0, limit);
+
+    // Background: persist ai:meta per returned item (TTL 7d)
+    if (ctx && ctx.waitUntil && items.length > 0) {
+      ctx.waitUntil((async () => {
+        for (const item of items) {
+          try {
+            await kvPut(env, `${AI_META_PREFIX}${item.id}`, {
+              relevance_score:   item.relevance_score,
+              operational_score: item.operational_score,
+              semantic_score:    item.semantic_score,
+              canonical_summary: item.canonical_summary,
+              last_scored_at:    new Date().toISOString(),
+              mode: aiMode,
+            }, { expirationTtl: 7 * 24 * 3600 });
+          } catch {}
+        }
+      })());
+    }
+
+    const ms = Date.now() - t0;
+    typeof debug === 'function' && debug('ai:rank:timing', {
+      ms, total: filtered.length, returned: items.length, mode: aiMode,
+    });
+    return { ok: true, status: 200, body: { ok: true, mode: aiMode, scored_at: new Date().toISOString(), items } };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiRank error', e?.message || e);
+    return { ok: false, status: 500, body: { ok: false, error: String(e?.message || e) } };
+  }
+}
+
+/**
+ * POST /api/ai/feedback  body: { id, user_id, action: 'up'|'down'|'hide' }
+ * Updates keyword counters in ai:rules and triggers updateLearningRules in background.
+ */
+async function handleApiAiFeedback(env, req, ctx) {
+  try {
+    let body;
+    try { body = await req.json(); } catch {
+      return { ok: false, status: 400, body: { ok: false, error: 'invalid JSON body' } };
+    }
+    const { id, user_id, action } = body || {};
+    if (!id || !action)
+      return { ok: false, status: 400, body: { ok: false, error: 'id and action required' } };
+    if (!['up','down','hide'].includes(action))
+      return { ok: false, status: 400, body: { ok: false, error: 'action must be up|down|hide' } };
+
+    // Load ai:rules and incident list in parallel
+    const [aiRules, incidents] = await Promise.all([
+      kvGetJson(env, AI_RULES_KEY, { keywordWeights: {}, sourceWeights: {}, produced_at: null }),
+      kvGetJson(env, INCIDENTS_KV_KEY, []),
+    ]);
+    const kw = aiRules.keywordWeights || {};
+
+    // Extract keywords from the referenced incident to update counters
+    const incident = Array.isArray(incidents)
+      ? incidents.find(i => String(i.id) === String(id))
+      : null;
+    let tokensUpdated = 0;
+    if (incident) {
+      const tokens = [...new Set(
+        aiTokenize(String(incident.title || '') + ' ' + String(incident.summary || ''))
+      )].slice(0, 20); // cap at 20 unique tokens per feedback event
+      for (const tok of tokens) {
+        if (!kw[tok]) kw[tok] = { up: 0, down: 0, weight: 0 };
+        if (action === 'up')
+          kw[tok].up   = (kw[tok].up   || 0) + 1;
+        else // 'down' or 'hide' both count as negative signal
+          kw[tok].down = (kw[tok].down || 0) + 1;
+        // Same log-diff formula as updateLearningRules for consistency
+        const u = kw[tok].up, d = kw[tok].down;
+        kw[tok].weight = Number((Math.log(1 + u) - Math.log(1 + d)).toFixed(4));
+        tokensUpdated++;
+      }
+    }
+
+    aiRules.keywordWeights = kw;
+    aiRules.produced_at    = new Date().toISOString();
+    aiRules.last_feedback  = { id, user_id: user_id || null, action, ts: new Date().toISOString() };
+
+    // Force-write: admin feedback must take effect immediately (bypass throttle)
+    await kvPutWithThrottle(env, AI_RULES_KEY, aiRules, {}, null, true);
+
+    // Background: propagate to broader learning rules
+    if (ctx && ctx.waitUntil) {
+      try { ctx.waitUntil(updateLearningRules(env)); } catch {}
+    }
+
+    typeof debug === 'function' && debug('ai:feedback', {
+      id, user_id: user_id || null, action, tokensUpdated,
+    });
+    return { ok: true, status: 200, body: { ok: true, id, action, tokens_updated: tokensUpdated } };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiFeedback error', e?.message || e);
+    return { ok: false, status: 500, body: { ok: false, error: String(e?.message || e) } };
+  }
+}
+
 /* Root request router */
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
@@ -2514,7 +2854,14 @@ async function handleRequest(req, env, ctx) {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS });
 
   try {
-    if (p.startsWith('/api/incidents')) {
+    if (p.startsWith('/api/ai/rank')) {
+      const r = await handleApiAiRank(env, req, ctx);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/ai/feedback')) {
+      if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
+      const r = await handleApiAiFeedback(env, req, ctx);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/incidents')) {
       const r = await handleApiIncidents(env, req);
       return _responseFromResult(r);
     } else if (p.startsWith('/api/proximity')) {
