@@ -1133,9 +1133,9 @@ function getTravelNewsForCountry(country, limit=5) {
         const tMs = new Date(i.time).getTime();
         if (isNaN(tMs) || tMs < cutoffMs) return false;
       } catch (e) { return false; }
-      const incCountry = (i.country || '').toLowerCase();
-      const loc = (i.location || '').toLowerCase();
-      const title = (i.title || '').toLowerCase();
+      const incCountry = (typeof i.country === 'string' ? i.country : '').toLowerCase();
+      const loc = (typeof i.location === 'string' ? i.location : '').toLowerCase();
+      const title = (typeof i.title === 'string' ? i.title : '').toLowerCase();
       return incCountry.includes(c) || loc.includes(c) || title.includes(c);
     })
     .sort((a, b) => new Date(b.time) - new Date(a.time))
@@ -1181,7 +1181,7 @@ async function filterTravel() {
     // Try client-side fallback from TRAVEL_DATA (populated by loadTravelAdvisories)
     const cq = (country || '').toLowerCase();
     const fallbackAdv = (TRAVEL_DATA.length && cq)
-      ? TRAVEL_DATA.find(a => a && a.country && a.country.toLowerCase().includes(cq)) || null
+      ? TRAVEL_DATA.find(a => a && typeof a.country === 'string' && a.country.toLowerCase().includes(cq)) || null
       : null;
     const fLvl = Number((fallbackAdv && fallbackAdv.level) || 1);
     const fBadge = (fLvl >= 4) ? '#d93025' : (fLvl === 3 ? '#f9ab00' : (fLvl === 2 ? '#1a73e8' : '#137333'));
