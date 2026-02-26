@@ -52,6 +52,10 @@ try {
   if (ssec) ADMIN_SECRET = ssec;
 } catch(e){}
 
+// AI Relevancy Engine (Initiative 1) — toggle state persisted across sessions
+let AI_ENABLED = false;
+try { AI_ENABLED = localStorage.getItem('os_ai_enabled') === '1'; } catch(e) {}
+
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
 let DISLIKED_IDS = new Set();
@@ -598,30 +602,46 @@ async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
 =========================== */
 async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
-  if (label && !silent) label.textContent = "Refreshing…";
+  if (label && !silent) label.textContent = "Refreshing\u2026";
   try {
-    const fetchOpts = OSINFO_USER_ID ? { headers: { 'X-User-Id': OSINFO_USER_ID } } : {};
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`, fetchOpts);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : [];
     const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
+    let list;
+
+    if (AI_ENABLED) {
+      // AI path: /api/ai/rank returns items pre-sorted by relevance_score desc
+      const items = await loadAiRankedFeed({ limit: 50 });
+      list = items.map(item => {
+        const norm = normaliseWorkerIncident(item);
+        if (!norm) return null;
+        // Preserve AI scoring fields so renderGeneralFeed can display the badge + brief
+        norm.relevance_score   = item.relevance_score;
+        norm.canonical_summary = item.canonical_summary || '';
+        return norm;
+      });
+      // AI rank is pre-sorted; do not re-sort by time
+    } else {
+      // Standard path: /api/incidents sorted by time
+      const fetchOpts = OSINFO_USER_ID ? { headers: { 'X-User-Id': OSINFO_USER_ID } } : {};
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`, fetchOpts);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const raw = await res.json();
+      list = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident);
+    }
 
     INCIDENTS = list
-      .map(normaliseWorkerIncident)
       .filter(Boolean)
       .filter(i => {
         try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
       })
-      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard (covers offline/SSE path)
+      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
 
-    INCIDENTS.sort((a,b) => new Date(b.time) - new Date(a.time));
+    if (!AI_ENABLED) INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
     FEED_IS_LIVE = true;
-    if (label) label.textContent = `LIVE • ${INCIDENTS.length} ITEMS`;
+    if (label) label.textContent = `${AI_ENABLED ? 'AI \u2022' : 'LIVE \u2022'} ${INCIDENTS.length} ITEMS`;
   } catch (e) {
     console.error("Worker fetch failed:", e);
     FEED_IS_LIVE = false;
-    if (label && !silent) label.textContent = "OFFLINE • Worker unreachable";
+    if (label && !silent) label.textContent = "OFFLINE \u2022 Worker unreachable";
   }
 }
 
@@ -982,6 +1002,20 @@ function renderGeneralFeed(region) {
     const sevMeta = mapSeverityToLabel(i.severity);
     const id = generateId(i);
     const localVote = VOTES_LOCAL[id] || null;
+
+    // AI badge: shown when AI mode is ON and relevance_score is present
+    const aiBadge = (AI_ENABLED && i.relevance_score !== undefined)
+      ? `<span class="ai-badge" title="AI relevance score"><i class="fas fa-brain" aria-hidden="true"></i> ${Math.round(i.relevance_score * 100)}%</span>`
+      : '';
+
+    // AI brief: shown when canonical_summary meaningfully differs from the displayed summary
+    // (in tfidf mode they match; in hybrid/llm mode the LLM summary will differ)
+    const canonNorm = (i.canonical_summary || '').trim().slice(0, 200);
+    const summNorm  = (i.summary || '').trim().slice(0, 200);
+    const aiBrief   = (AI_ENABLED && canonNorm && canonNorm !== summNorm)
+      ? `<div class="ai-brief">${escapeHtml(canonNorm)}</div>`
+      : '';
+
     html += `
       <div class="feed-card" role="article" data-link="${escapeAttr(safeHref(i.link))}" tabindex="0">
         <div class="feed-status-bar ${sevMeta.barClass}"></div>
@@ -991,6 +1025,7 @@ function renderGeneralFeed(region) {
             <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
             <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
+            ${aiBadge}
           </div>
 
           <div class="feed-title">
@@ -1001,6 +1036,7 @@ function renderGeneralFeed(region) {
 
           <div class="feed-meta">${escapeHtml(safeTime(i.time))} • ${escapeHtml(shortHost(i.source))}</div>
           <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
+          ${aiBrief}
 
           <div class="vote-row" aria-label="Vote buttons">
             <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
@@ -1349,6 +1385,59 @@ async function sendVoteToServer(payload) {
   return { ok:false, err:'no-endpoints' };
 }
 
+/* ===========================
+   AI RANK CLIENT HOOKS (Initiative 1 — Relevancy Engine)
+   =========================== */
+
+/**
+ * Fetch AI-ranked incidents from GET /api/ai/rank.
+ * Falls back to the existing INCIDENTS array if the endpoint is unavailable.
+ * @param {object} [opts] - { region, country, limit }
+ * @returns {Promise<Array>} - sorted incidents array with relevance_score fields
+ */
+async function loadAiRankedFeed(opts = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (opts.region)  params.set('region',  opts.region);
+    if (opts.country) params.set('country', opts.country);
+    if (opts.limit)   params.set('limit',   String(opts.limit));
+    const url = `${WORKER_URL}/api/ai/rank${params.toString() ? '?' + params.toString() : ''}`;
+    const headers = {};
+    if (typeof OSINFO_USER_ID !== 'undefined' && OSINFO_USER_ID) headers['X-User-Id'] = OSINFO_USER_ID;
+    const res = await fetch(url, { headers });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && Array.isArray(data.items)) return data.items;
+    return [];
+  } catch (e) {
+    console.warn('[AI] loadAiRankedFeed fallback:', e?.message || e);
+    return [];
+  }
+}
+
+/**
+ * Send AI feedback (up/down/hide) to POST /api/ai/feedback.
+ * @param {string} id     - incident id
+ * @param {'up'|'down'|'hide'} action
+ * @returns {Promise<{ok:boolean}>}
+ */
+async function sendAiFeedback(id, action) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (typeof OSINFO_USER_ID !== 'undefined' && OSINFO_USER_ID) headers['X-User-Id'] = OSINFO_USER_ID;
+    const res = await fetch(`${WORKER_URL}/api/ai/feedback`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ id: String(id), user_id: (typeof OSINFO_USER_ID !== 'undefined' ? OSINFO_USER_ID : null), action }),
+    });
+    if (!res.ok) return { ok: false, status: res.status };
+    return await res.json();
+  } catch (e) {
+    console.warn('[AI] sendAiFeedback error:', e?.message || e);
+    return { ok: false, err: String(e?.message || e) };
+  }
+}
+
 async function enqueueVote(payload) {
   try {
     VOTE_QUEUE.push(payload);
@@ -1388,6 +1477,10 @@ async function voteThumb(id, vote) {
       // If the server flagged this article as hidden (dislike), remove it immediately
       if (vote === 'down' && res.hide) {
         hideDislikedArticle(String(id));
+      }
+      // Train the AI relevancy model in the background when AI mode is active
+      if (AI_ENABLED) {
+        sendAiFeedback(String(id), vote === 'up' ? 'up' : 'down').catch(() => {});
       }
       try { flushVoteQueue(); } catch(e){}
       return;
@@ -1802,6 +1895,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     startClock();
 
+    // Restore AI toggle button visual state from persisted preference
+    (() => {
+      const aiBtn = document.getElementById('btn-ai-toggle');
+      const aiLbl = document.getElementById('ai-toggle-label');
+      if (aiBtn) { aiBtn.classList.toggle('ai-on', AI_ENABLED); aiBtn.setAttribute('aria-pressed', String(AI_ENABLED)); }
+      if (aiLbl) aiLbl.textContent = AI_ENABLED ? 'AI: ON' : 'AI: OFF';
+    })();
+
     // delegated click actions
     document.addEventListener('click', async (ev) => {
       const t = ev.target.closest('[data-action]');
@@ -1817,6 +1918,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
       if (action === 'refresh') { manualRefresh(); return; }
+      if (action === 'toggle-ai') {
+        AI_ENABLED = !AI_ENABLED;
+        try { localStorage.setItem('os_ai_enabled', AI_ENABLED ? '1' : '0'); } catch(e) {}
+        const aiBtn = document.getElementById('btn-ai-toggle');
+        const aiLbl = document.getElementById('ai-toggle-label');
+        if (aiBtn) { aiBtn.classList.toggle('ai-on', AI_ENABLED); aiBtn.setAttribute('aria-pressed', String(AI_ENABLED)); }
+        if (aiLbl) aiLbl.textContent = AI_ENABLED ? 'AI: ON' : 'AI: OFF';
+        await loadFromWorker(false);
+        const active = document.querySelector('.nav-item-custom.active');
+        filterNews(active ? (active.dataset.region || 'Global') : 'Global');
+        return;
+      }
       if (action === 'preview-brief') { previewBriefing(); return; }
       if (action === 'download-brief') { downloadReport(); return; }
       if (action === 'vote') {
