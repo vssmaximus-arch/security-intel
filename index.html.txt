@@ -27,6 +27,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 
+  <!-- flatpickr: calendar date-picker with archive-date constraints -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- leaflet.heat: severity-weighted heatmap layer -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <!-- html2canvas + jsPDF: client-side PDF export (no server-side rendering) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <!-- Google Fonts: loaded via <link> to avoid CSP @import restriction -->
@@ -243,6 +252,10 @@
     .ai-toggle-btn:focus { outline: 2px solid #202124; outline-offset: 2px; }
     .ai-badge { display: inline-block; font-size: 0.67rem; font-weight: 800; color: #fff; background: #137333; border-radius: 4px; padding: 1px 6px; margin-left: 5px; vertical-align: middle; letter-spacing: 0.2px; white-space: nowrap; }
     .ai-brief { font-size: 0.78rem; color: #5f6368; margin-top: 5px; font-style: italic; border-left: 2px solid #34a853; padding-left: 8px; line-height: 1.4; }
+    .heatmap-legend { position: absolute; bottom: 30px; right: 10px; z-index: 1000; background: rgba(32,33,36,0.85); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.72rem; pointer-events: none; line-height: 1.6; }
+    .btn-toggle { background: #3c4043; color: #9aa0a6; border: none; border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.15s, color 0.15s; position: absolute; top: 10px; right: 10px; z-index: 1000; }
+    .btn-toggle.active { background: #b31412; color: #fff; box-shadow: 0 0 0 2px #cc000044; }
+    .btn-toggle:focus { outline: 2px solid #202124; outline-offset: 2px; }
   </style>
 </head>
 
@@ -291,6 +304,13 @@
         <div class="col-lg-9">
           <div class="map-wrapper" aria-label="Incident Map" role="application">
             <div id="map" tabindex="0"></div>
+            <button class="btn-toggle" id="heatmap-toggle" data-action="toggle-heatmap"
+              aria-pressed="false" aria-label="Toggle severity heatmap" tabindex="0">
+              <i class="fas fa-fire" aria-hidden="true"></i> Heatmap
+            </button>
+            <div class="heatmap-legend" id="heatmap-legend" style="display:none;">
+              <div><span style="color:#38761d">■</span> Low &nbsp;<span style="color:#f1c232">■</span> Med &nbsp;<span style="color:#cc0000">■</span> High &nbsp;<span style="color:#9900ff">■</span> Critical</div>
+            </div>
           </div>
 
           <div class="stream-section">
@@ -406,6 +426,10 @@
             </button>
             <button class="btn-download" data-action="download-brief" aria-label="Download briefing (generated)">
               <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
+            </button>
+            <button class="btn-download" id="download-brief-pdf" data-action="download-brief-pdf"
+              aria-label="Download brief as PDF" style="display:none;">
+              <i class="fas fa-file-pdf me-2" aria-hidden="true"></i> Download Brief PDF
             </button>
           </div>
 
