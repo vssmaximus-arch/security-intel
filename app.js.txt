@@ -2107,11 +2107,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           // Init flatpickr if loaded — disables non-archive dates in the calendar
           if (typeof flatpickr !== 'undefined') {
             try {
-              picker.type = 'text'; // suppress native browser datepicker — flatpickr takes over
+              try { picker.blur(); } catch(e){} // close any open native picker first
+              picker.type = 'text';             // must precede flatpickr to suppress native calendar
+              picker.value = '';                // clear Edge's stale 'D' day-slot placeholder value
+              picker.removeAttribute('min');    // flatpickr manages range constraints via enable:[]
+              picker.removeAttribute('max');
               flatpickr(picker, {
                 enable: dates,
                 dateFormat: 'Y-m-d',
                 allowInput: true,
+                placeholder: 'Select archive date…',
                 onClose(selectedDates, dateStr) { if (dateStr) loadHistory(dateStr); },
               });
             } catch (fe) { typeof debug === 'function' && debug('flatpickr init', fe?.message || fe); }
