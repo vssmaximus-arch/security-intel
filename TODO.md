@@ -1,9 +1,9 @@
 # OS InfoHub Dashboard - Implementation Roadmap (TODO.md)
 
-## 🎯 Current Milestone: Core API Integration
+## 🎯 Current Milestone: AI Brain Upgrade — Initiative 1 DONE
 > **Active Status**: Phase 2, Task S2.4
-> **Current Context**: High-precision noise filter deployed — `isNoise()` now rejects sports/entertainment (hard), finance/markets (with supply-chain carve-out), and general politics/diplomacy (with security carve-out); `ALLOWED_KEYWORDS` tightened to physical-security + facility disruption only; `BLACKLIST_TERMS` expanded; `BUSINESS_IMPACT_TERMS` narrowed to physical supply-chain disruption; `"GENERAL"` removed from `AI_WHITELIST_CATEGORIES`.
-> **Next Session Tip**: Deploy worker + app.js; dislike an article in DevTools, confirm `/api/thumb/public` returns `"hide":true`, card disappears immediately, and stays hidden after hard-refresh; run `wrangler tail` and verify `debug('dislike','recorded')` + `debug('dislike','filtered')` log lines appear.
+> **Current Context**: Initiative 1 (Relevancy Engine) deployed — `GET /api/ai/rank` + `POST /api/ai/feedback` live in worker; TF-IDF + cosine similarity scoring with 40/30/10/10/10 hybrid formula; `ai:rules` KV key for feedback loop; `loadAiRankedFeed` + `sendAiFeedback` hooks in app.js. Travel advisory UI also fixed (Level colour map, TRAVEL_DATA unpack, SSE OFFLINE suppression).
+> **Next Session Tip**: `wrangler publish` then `curl https://osinfohub.vssmaximus.workers.dev/api/ai/rank?limit=5` — confirm `items[]` sorted by `relevance_score`, each item has `operational_score`, `semantic_score`. Then `POST /api/ai/feedback` with `{"id":"<id>","action":"up"}` and re-rank — verify the upvoted incident's `thumbs_score` increases.
 
 ---
 
