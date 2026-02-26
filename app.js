@@ -56,6 +56,10 @@ try {
 let AI_ENABLED = false;
 try { AI_ENABLED = localStorage.getItem('os_ai_enabled') === '1'; } catch(e) {}
 
+// --- Heatmap state ---
+let heatLayer = null;
+let heatmapEnabled = false;
+
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
 let DISLIKED_IDS = new Set();
@@ -637,6 +641,7 @@ async function loadFromWorker(silent=false) {
 
     if (!AI_ENABLED) INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
     FEED_IS_LIVE = true;
+    refreshHeatLayerIfEnabled();
     if (label) label.textContent = `${AI_ENABLED ? 'AI \u2022' : 'LIVE \u2022'} ${INCIDENTS.length} ITEMS`;
   } catch (e) {
     console.error("Worker fetch failed:", e);
@@ -686,6 +691,35 @@ function getClusterStats(cluster) {
     else { counts.low++; }
   });
   return { counts, maxSeverity, childrenCount: children.length };
+}
+
+/* ===========================
+   HEATMAP HELPERS (Phase 3)
+=========================== */
+function SEVERITY_WEIGHT(s) {
+  const n = Number(s) || 0;
+  return n >= 5 ? 5 : n >= 4 ? 4 : n === 3 ? 2 : 1;
+}
+
+function createHeatLayerFromIncidents(list) {
+  if (!window.L || !L.heatLayer) return null;
+  const points = [];
+  for (const i of (list || [])) {
+    const lat = Number(i.lat), lng = wrapLongitude(Number(i.lng));
+    if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) continue;
+    points.push([lat, lng, SEVERITY_WEIGHT(i.severity)]);
+  }
+  return L.heatLayer(points, {
+    radius: 25, blur: 15, minOpacity: 0.35,
+    gradient: { 0.2: '#38761d', 0.4: '#f1c232', 0.6: '#e69138', 0.8: '#cc0000', 1.0: '#9900ff' },
+  });
+}
+
+function refreshHeatLayerIfEnabled() {
+  if (!heatmapEnabled || !window.map) return;
+  if (heatLayer) { try { map.removeLayer(heatLayer); } catch(e){} }
+  heatLayer = createHeatLayerFromIncidents(INCIDENTS);
+  if (heatLayer) heatLayer.addTo(map);
 }
 
 function initMap() {
@@ -1667,8 +1701,12 @@ async function previewBriefing() {
         </div>
       `).join('');
     }
+    const pdfBtn = document.getElementById('download-brief-pdf');
+    if (pdfBtn) pdfBtn.style.display = incidents.length ? 'block' : 'none';
     if (fb) fb.style.display = 'none';
   } catch(e) {
+    const pdfBtn = document.getElementById('download-brief-pdf');
+    if (pdfBtn) pdfBtn.style.display = 'none';
     if (fb) { fb.style.display = 'block'; fb.textContent = `Error: ${e.message}`; }
   }
 }
@@ -1679,6 +1717,46 @@ async function downloadReport() {
   let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&download=true`;
   if (date) url += `&date=${encodeURIComponent(date)}`;
   window.open(url, '_blank', 'noopener');
+}
+
+async function downloadBriefAsPDF(date) {
+  const fb = document.getElementById('preview-feedback');
+  if (fb) { fb.style.display = 'block'; fb.textContent = 'Building PDF…'; }
+  try {
+    if (!window.html2canvas || !window.jspdf) throw new Error('PDF libraries not loaded yet.');
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/dailybrief?date=${encodeURIComponent(date)}`, {}, 15000);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const incidents = json.incidents || json.items || [];
+    if (!incidents.length) throw new Error('No incidents for this date.');
+    const el = document.createElement('div');
+    el.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;background:#fff;color:#000;font-family:Arial,sans-serif;padding:24px;font-size:12px;';
+    el.innerHTML = `<h2 style="font-size:16px;margin:0 0 16px;">Daily Intelligence Brief — ${escapeHtml(date)}</h2>` +
+      incidents.slice(0, 100).map(i => {
+        const href = safeHref(i.link);
+        const titleEl = href !== '#'
+          ? `<a href="${escapeAttr(href)}" style="color:#0076ce;text-decoration:none;font-weight:700;">${escapeHtml(i.title)}</a>`
+          : `<strong>${escapeHtml(i.title)}</strong>`;
+        return `<div style="margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:8px;">
+          <div>${titleEl}</div>
+          <div style="color:#555;font-size:10px;">${escapeHtml(i.country||'')} &bull; ${escapeHtml(safeTime(i.time||''))}</div>
+          <div style="margin-top:4px;">${escapeHtml(i.summary||'')}</div>
+        </div>`;
+      }).join('');
+    document.body.appendChild(el);
+    const canvas = await window.html2canvas(el, { scale: 1.5, useCORS: true, logging: false });
+    document.body.removeChild(el);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const imgData = canvas.toDataURL('image/jpeg', 0.85);
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    pdf.save(`brief-${date}.pdf`);
+    if (fb) fb.style.display = 'none';
+  } catch(e) {
+    if (fb) { fb.style.display = 'block'; fb.textContent = `PDF error: ${e.message}`; }
+  }
 }
 
 async function loadHistory(dateStr) {
@@ -1694,7 +1772,13 @@ async function loadHistory(dateStr) {
       return;
     }
     status.innerHTML = `<div style="max-height:300px;overflow:auto;margin-top:10px;">` +
-      arr.map(i => `<div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;"><strong>${escapeHtml(i.title)}</strong><br><span style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')}</span></div>`).join('') +
+      arr.map(i => {
+        const href = safeHref(i.link);
+        const titleHtml = href !== '#'
+          ? `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" style="color:#0076ce;text-decoration:none;font-weight:700;">${escapeHtml(i.title)}</a>`
+          : `<strong>${escapeHtml(i.title)}</strong> <span style="font-size:0.72rem;color:#999;">(Source unavailable)</span>`;
+        return `<div style="margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;">${titleHtml}<br><span style="font-size:0.8rem;color:#666;">${escapeHtml(i.country || '')}</span></div>`;
+      }).join('') +
       `</div>`;
   } catch(e) {
     if (status) status.textContent = `Archive error: ${e.message}`;
@@ -1839,6 +1923,7 @@ function connectSSE() {
         .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
       INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
       FEED_IS_LIVE = true;
+      refreshHeatLayerIfEnabled();
       _lastSSEDataMs = Date.now(); // record last successful data receipt
       const label = document.getElementById('feed-status-label');
       if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
@@ -1932,6 +2017,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (action === 'preview-brief') { previewBriefing(); return; }
       if (action === 'download-brief') { downloadReport(); return; }
+      if (action === 'download-brief-pdf') {
+        const dateEl = document.getElementById('reportDate');
+        const d = dateEl ? dateEl.value : '';
+        if (!d) {
+          const fb = document.getElementById('preview-feedback');
+          if (fb) { fb.style.display = 'block'; fb.textContent = 'Select a date first.'; }
+          return;
+        }
+        await downloadBriefAsPDF(d);
+        return;
+      }
+      if (action === 'toggle-heatmap') {
+        heatmapEnabled = !heatmapEnabled;
+        typeof debug === 'function' && debug('heatmap:toggle', heatmapEnabled);
+        const btn = document.getElementById('heatmap-toggle');
+        const legend = document.getElementById('heatmap-legend');
+        if (btn) { btn.classList.toggle('active', heatmapEnabled); btn.setAttribute('aria-pressed', String(heatmapEnabled)); }
+        if (legend) legend.style.display = heatmapEnabled ? 'block' : 'none';
+        if (heatmapEnabled) {
+          heatLayer = createHeatLayerFromIncidents(INCIDENTS);
+          if (heatLayer) heatLayer.addTo(map);
+        } else {
+          if (heatLayer) { try { map.removeLayer(heatLayer); } catch(e){} heatLayer = null; }
+        }
+        return;
+      }
       if (action === 'vote') {
         ev.preventDefault(); ev.stopPropagation();
         const id = t.getAttribute('data-id'); const v = t.getAttribute('data-vote');
@@ -1993,6 +2104,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           picker.setAttribute('list', 'archive-dates');
           picker.setAttribute('min', dates[dates.length - 1]);
           picker.setAttribute('max', dates[0]);
+          // Init flatpickr if loaded — disables non-archive dates in the calendar
+          if (typeof flatpickr !== 'undefined') {
+            try {
+              flatpickr(picker, {
+                enable: dates,
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+                onClose(selectedDates, dateStr) { if (dateStr) loadHistory(dateStr); },
+              });
+            } catch (fe) { typeof debug === 'function' && debug('flatpickr init', fe?.message || fe); }
+          }
         }
       } catch (e) { typeof debug === 'function' && debug('populateArchiveDates', e?.message || e); }
     })();
