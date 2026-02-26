@@ -236,6 +236,13 @@
       .multi-clock-container { display: none; }
       .sidebar-col { padding-left: 12px; }
     }
+
+    /* AI Relevancy Engine — Initiative 1 */
+    .ai-toggle-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
+    .ai-toggle-btn.ai-on { background: #137333; color: #fff; box-shadow: 0 0 0 2px #34a85344; }
+    .ai-toggle-btn:focus { outline: 2px solid #202124; outline-offset: 2px; }
+    .ai-badge { display: inline-block; font-size: 0.67rem; font-weight: 800; color: #fff; background: #137333; border-radius: 4px; padding: 1px 6px; margin-left: 5px; vertical-align: middle; letter-spacing: 0.2px; white-space: nowrap; }
+    .ai-brief { font-size: 0.78rem; color: #5f6368; margin-top: 5px; font-style: italic; border-left: 2px solid #34a853; padding-left: 8px; line-height: 1.4; }
   </style>
 </head>
 
@@ -267,6 +274,11 @@
         <div class="btn-daily ms-2" data-bs-toggle="modal" data-bs-target="#reportModal" style="background:#202124; box-shadow:none;" role="button" aria-label="Open Reports" tabindex="0">
           <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Briefings
         </div>
+
+        <button id="btn-ai-toggle" class="ai-toggle-btn ms-2" data-action="toggle-ai" aria-label="Toggle AI ranking" aria-pressed="false" tabindex="0">
+          <i class="fas fa-brain" aria-hidden="true"></i>
+          <span id="ai-toggle-label">AI: OFF</span>
+        </button>
 
         <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Admin Settings">
           <i class="fas fa-cog" aria-hidden="true"></i>
