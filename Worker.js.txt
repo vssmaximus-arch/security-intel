@@ -2654,13 +2654,26 @@ function computeThumbsScore(incident, rules) {
  * Full hybrid relevance score for one incident.
  * Formula: 40% heuristic + 30% semantic + 10% severity + 10% recency + 10% thumbs
  */
-function computeRelevanceForIncident(incident, rules, seedVec, windowMs) {
+/**
+ * @param {object} [opts]       - optional weight overrides
+ * @param {number} [opts.opW]   - operational weight (default 0.4 for hybrid/llm, 0.5 for tfidf)
+ * @param {number} [opts.semW]  - semantic weight   (default 0.3 for hybrid/llm, 0.2 for tfidf)
+ * In tfidf mode the semantic ceiling is ~0.4 (hardcoded IDF, fixed seeds) vs. ~0.9 with real
+ * embeddings, so the spec's 30% allocation over-credits a weak signal. Redistributing 10pp
+ * to the heuristic column restores intended ranking fidelity without breaking the API shape.
+ */
+function computeRelevanceForIncident(incident, rules, seedVec, windowMs, opts = {}) {
   const text = String(incident.title || '') + ' ' + String(incident.summary || '');
 
-  // 40% — heuristic / operational
+  // Operational weight: 50% in tfidf mode (compensates for capped semantic), 40% otherwise
+  const opW  = (opts.opW  !== undefined) ? opts.opW  : 0.4;
+  // Semantic weight:   20% in tfidf mode, 30% in hybrid/llm mode
+  const semW = (opts.semW !== undefined) ? opts.semW : 0.3;
+
+  // opW% — heuristic / operational
   const operationalScore = computeOperationalScore(incident, rules);
 
-  // 30% — semantic TF-IDF cosine similarity vs. security seed corpus
+  // semW% — semantic TF-IDF cosine similarity vs. security seed corpus
   const semanticScore = aiCosineSim(aiTfIdfVector(text), seedVec);
 
   // 10% — severity
@@ -2677,7 +2690,7 @@ function computeRelevanceForIncident(incident, rules, seedVec, windowMs) {
   // 10% — feedback / thumbs
   const thumbsScore = computeThumbsScore(incident, rules);
 
-  const raw = 0.4 * operationalScore + 0.3 * semanticScore +
+  const raw = opW * operationalScore + semW * semanticScore +
               0.1 * severityScore  + 0.1 * recencyScore + 0.1 * thumbsScore;
   const round = v => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
   return {
@@ -2708,6 +2721,10 @@ async function handleApiAiRank(env, req, ctx) {
     const recentHours = Number((env && env.RECENT_WINDOW_HOURS) || 72);
     const windowMs    = recentHours * 3600 * 1000;
     const cutoffMs    = Date.now() - windowMs;
+    // Weight reallocation: in tfidf mode TF-IDF cosine is capped ~0.4 (vs ~0.9 with embeddings).
+    // Shift 10pp from semantic → operational so rankings reflect actual incident severity.
+    const opW  = aiMode === 'tfidf' ? 0.5 : 0.4;
+    const semW = aiMode === 'tfidf' ? 0.2 : 0.3;
 
     // Load incidents + both rule sets in parallel
     let incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
@@ -2734,7 +2751,7 @@ async function handleApiAiRank(env, req, ctx) {
 
     // Score every filtered incident
     const scored = filtered.map(i => {
-      const scores = computeRelevanceForIncident(i, mergedRules, AI_SEED_VECTOR, windowMs);
+      const scores = computeRelevanceForIncident(i, mergedRules, AI_SEED_VECTOR, windowMs, { opW, semW });
       typeof debug === 'function' && debug('ai:rank:scored', {
         id: i.id, title: String(i.title || '').slice(0, 60), ...scores,
       });
