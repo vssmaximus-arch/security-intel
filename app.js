@@ -1110,7 +1110,8 @@ async function loadTravelAdvisories() {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/traveladvisories/live`, {}, 12000);
     if (res && res.ok) {
       const data = await res.json();
-      TRAVEL_DATA = Array.isArray(data) ? data : [];
+      // Worker returns { advisories: [...], updated_at: "..." } — unpack the array
+      TRAVEL_DATA = Array.isArray(data.advisories) ? data.advisories : (Array.isArray(data) ? data : []);
       TRAVEL_UPDATED_AT = (data && data.updated_at) ? data.updated_at : new Date().toISOString();
     }
   } catch(e){
@@ -1176,8 +1177,26 @@ async function filterTravel() {
       }
     }
   } catch(e) {
-    if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">Advisory unavailable.</div></div>`;
-    console.error('filterTravel error', e);
+    console.error('filterTravel error:', e?.message || e);
+    // Try client-side fallback from TRAVEL_DATA (populated by loadTravelAdvisories)
+    const cq = (country || '').toLowerCase();
+    const fallbackAdv = (TRAVEL_DATA.length && cq)
+      ? TRAVEL_DATA.find(a => a && a.country && a.country.toLowerCase().includes(cq)) || null
+      : null;
+    const fLvl = Number((fallbackAdv && fallbackAdv.level) || 1);
+    const fBadge = (fLvl >= 4) ? '#d93025' : (fLvl === 3 ? '#f9ab00' : (fLvl === 2 ? '#1a73e8' : '#137333'));
+    const fBg = (fLvl === 1) ? '#e6f4ea' : (fLvl >= 4 ? '#fce8e6' : (fLvl === 3 ? '#fff4e5' : '#eef7ff'));
+    if (cont) cont.innerHTML = `
+      <div class="advisory-box" style="background:${fBg}; border-color:${fBadge};">
+        <div class="advisory-header">
+          <div class="advisory-label">OFFICIAL ADVISORY${fallbackAdv ? ' (CACHED)' : ' — SERVICE DEGRADED'}</div>
+          <div class="advisory-level-badge" style="background:${fBadge};">LEVEL ${fLvl}</div>
+        </div>
+        <div class="advisory-text">${escapeHtml((fallbackAdv && fallbackAdv.text) || 'Advisory service temporarily unreachable. Exercise normal precautions and check official government sources.')}</div>
+        <div class="advisory-updated" style="color:#c5221f;font-size:0.72rem;">⚠ Live data unavailable — ${escapeHtml(e?.message || 'network error')}</div>
+      </div>
+    `;
+    if (newsCont) newsCont.innerHTML = '';
   }
 }
 
@@ -1691,7 +1710,9 @@ function updateHeadline(region) {
    SSE REAL-TIME BRIDGE
 =========================== */
 let _sseRetryCount = 0;
+let _lastSSEDataMs = 0; // timestamp of last successful incidents/proximity event
 const SSE_MAX_RETRY_DELAY_MS = 30_000;
+const SSE_RECENT_DATA_MS = 30_000; // suppress OFFLINE label if data arrived within this window
 
 /**
  * Connect to /api/stream via EventSource for near-real-time updates.
@@ -1725,6 +1746,7 @@ function connectSSE() {
         .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
       INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
       FEED_IS_LIVE = true;
+      _lastSSEDataMs = Date.now(); // record last successful data receipt
       const label = document.getElementById('feed-status-label');
       if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
       const active = document.querySelector('.nav-item-custom.active');
@@ -1747,9 +1769,20 @@ function connectSSE() {
   es.onerror = () => {
     FEED_IS_LIVE = false;
     const label = document.getElementById('feed-status-label');
-    if (label) label.textContent = 'OFFLINE \u2022 Reconnecting\u2026';
+    // Suppress "OFFLINE" if incidents were received within the last SSE_RECENT_DATA_MS —
+    // the worker closes the stream after each snapshot, so this is a normal reconnect cycle.
+    const recentData = (Date.now() - _lastSSEDataMs) < SSE_RECENT_DATA_MS;
+    if (label) {
+      if (recentData && _sseRetryCount === 0) {
+        // Keep the LIVE label; silently reconnect in background
+        label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
+      } else {
+        label.textContent = 'OFFLINE \u2022 Reconnecting\u2026';
+      }
+    }
     es.close();
-    const delay = Math.min(1000 * Math.pow(2, _sseRetryCount), SSE_MAX_RETRY_DELAY_MS);
+    // Use minimal delay (1 s) when data was recently received — this is just a stream flush
+    const delay = recentData ? 1000 : Math.min(1000 * Math.pow(2, _sseRetryCount), SSE_MAX_RETRY_DELAY_MS);
     _sseRetryCount++;
     setTimeout(connectSSE, delay);
   };
