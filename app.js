@@ -2107,6 +2107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           // Init flatpickr if loaded — disables non-archive dates in the calendar
           if (typeof flatpickr !== 'undefined') {
             try {
+              picker.type = 'text'; // suppress native browser datepicker — flatpickr takes over
               flatpickr(picker, {
                 enable: dates,
                 dateFormat: 'Y-m-d',
