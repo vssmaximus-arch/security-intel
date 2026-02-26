@@ -204,7 +204,7 @@
     .advisory-box { background: #fdf2f2; border: 1px solid #fad2cf; border-radius: 8px; padding: 12px; margin-top: 15px; }
     .advisory-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .advisory-label { font-size: 0.7rem; font-weight: 800; color: #5f6368; letter-spacing: 0.5px; }
-    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; }
+    .advisory-level-badge { font-size: 0.7rem; font-weight: 800; color: white; padding: 2px 8px; border-radius: 4px; background: #137333; }
     .advisory-text { font-size: 0.85rem; font-weight: 600; color: #333; line-height: 1.3; }
     .advisory-updated { font-size: 0.72rem; color: #5f6368; margin-top: 8px; font-weight: 600; }
 

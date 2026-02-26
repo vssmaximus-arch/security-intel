@@ -605,7 +605,7 @@ async function loadFromWorker(silent=false) {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const raw = await res.json();
     const list = Array.isArray(raw) ? raw : [];
-    const cutoffMs = Date.now() - (48 * 3600 * 1000);
+    const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
 
     INCIDENTS = list
       .map(normaliseWorkerIncident)
@@ -636,7 +636,7 @@ async function loadProximityFromWorker(silent=false) {
     }
     const json = await res.json();
     const list = Array.isArray(json.incidents) ? json.incidents : [];
-    const cutoffMs = Date.now() - (48 * 3600 * 1000);
+    const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
     PROXIMITY_INCIDENTS = list
       .map(normaliseWorkerIncident)
       .filter(Boolean)
@@ -1124,12 +1124,22 @@ async function loadTravelAdvisories() {
 function getTravelNewsForCountry(country, limit=5) {
   if (!country) return [];
   const c = String(country || '').toLowerCase();
-  const matches = INCIDENTS.filter(i => {
-    const incCountry = (i.country || '').toLowerCase();
-    const loc = (i.location || '').toLowerCase();
-    return incCountry.includes(c) || loc.includes(c) || (i.title||'').toLowerCase().includes(c);
-  }).slice(0,limit);
-  return matches.map(i => ({ title: i.title, summary: i.summary }));
+  // Client-side 72h guard — matches worker PROXIMITY_WINDOW_HOURS
+  const cutoffMs = Date.now() - (72 * 3600 * 1000);
+  const matches = INCIDENTS
+    .filter(i => {
+      try {
+        const tMs = new Date(i.time).getTime();
+        if (isNaN(tMs) || tMs < cutoffMs) return false;
+      } catch (e) { return false; }
+      const incCountry = (i.country || '').toLowerCase();
+      const loc = (i.location || '').toLowerCase();
+      const title = (i.title || '').toLowerCase();
+      return incCountry.includes(c) || loc.includes(c) || title.includes(c);
+    })
+    .sort((a, b) => new Date(b.time) - new Date(a.time))
+    .slice(0, limit);
+  return matches.map(i => ({ title: i.title, summary: i.summary, time: i.time, severity: i.severity, link: i.link }));
 }
 
 async function filterTravel() {
@@ -1144,9 +1154,11 @@ async function filterTravel() {
     const data = await res.json();
     const adv = data.advisory || data || {};
     const level = Number(adv.level || adv.risk_level || 1);
-    const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : '#1a73e8');
+    // Color mapping: Level 1 = green, 2 = blue, 3 = amber, 4+ = red
+    const badgeColor = (level >= 4) ? '#d93025' : (level === 3 ? '#f9ab00' : (level === 2 ? '#1a73e8' : '#137333'));
+    const bgColor = (level === 1) ? '#e6f4ea' : (level >= 4 ? '#fce8e6' : (level === 3 ? '#fff4e5' : '#eef7ff'));
     if (cont) cont.innerHTML = `
-      <div class="advisory-box">
+      <div class="advisory-box" style="background:${bgColor}; border-color:${badgeColor};">
         <div class="advisory-header">
           <div class="advisory-label">OFFICIAL ADVISORY</div>
           <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
@@ -1155,13 +1167,12 @@ async function filterTravel() {
         <div class="advisory-updated">Updated: ${escapeHtml(adv.updated || TRAVEL_UPDATED_AT || 'Unknown')}</div>
       </div>
     `;
-    const news = Array.isArray(data.news) ? data.news : (Array.isArray(data.recent_incidents) ? data.recent_incidents : []);
-    if (news && news.length) {
-      newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS</div>${news.slice(0,5).map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title || '')}</div><div class="news-box-summary">${escapeHtml(n.summary || '')}</div></div>`).join('')}</div>`;
-    } else {
-      const fallback = getTravelNewsForCountry(country, 5);
-      if (fallback && fallback.length) {
-        newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RELATED NEWS</div>${fallback.slice(0,5).map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title || '')}</div><div class="news-box-summary">${escapeHtml(n.summary || '')}</div></div>`).join('')}</div>`;
+    const news = getTravelNewsForCountry(country, 5);
+    if (newsCont) {
+      if (!news || news.length === 0) {
+        newsCont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No specific active incidents logged for ${escapeHtml(country || 'this country')} in the last 72h.</div></div>`;
+      } else {
+        newsCont.innerHTML = `<div class="news-box-alert"><div class="news-box-header">RECENT INCIDENTS (72h)</div>${news.map(n => `<div class="news-box-item"><div class="news-box-title">${escapeHtml(n.title || '')}</div><div class="news-box-summary">${escapeHtml(n.summary || '')}</div><div style="font-size:11px;color:#6b6b6b;margin-top:4px;">${escapeHtml(safeTime(n.time))}</div></div>`).join('')}</div>`;
       }
     }
   } catch(e) {
@@ -1707,7 +1718,7 @@ function connectSSE() {
   es.addEventListener('incidents', (ev) => {
     try {
       const raw = JSON.parse(ev.data);
-      const cutoffMs = Date.now() - 48 * 3600 * 1000;
+      const cutoffMs = Date.now() - 72 * 3600 * 1000;
       INCIDENTS = (Array.isArray(raw) ? raw : [])
         .map(normaliseWorkerIncident).filter(Boolean)
         .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
@@ -1725,7 +1736,7 @@ function connectSSE() {
   es.addEventListener('proximity', (ev) => {
     try {
       const json = JSON.parse(ev.data);
-      const cutoffMs = Date.now() - 48 * 3600 * 1000;
+      const cutoffMs = Date.now() - 72 * 3600 * 1000;
       PROXIMITY_INCIDENTS = (Array.isArray(json.incidents) ? json.incidents : [])
         .map(normaliseWorkerIncident).filter(Boolean)
         .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
