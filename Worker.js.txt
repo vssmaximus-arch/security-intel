@@ -155,6 +155,23 @@ const SITE_MAP_BY_NAME = {};
 for (const s of DELL_SITES) { SITE_MAP_BY_NAME[s.name.toLowerCase()] = s; }
 
 /* ===========================
+   S2.5 — LOGISTICS HUB GEOFENCES
+   7 Priority Dell Logistics Hubs (IATA/port code, lat/lon, radius)
+=========================== */
+const DELL_LOGISTICS_HUBS = [
+  { code: 'PEN', name: 'Dell Penang Logistics Hub',   lat:  5.4164, lon: 100.3327, radiusKm:  50 },
+  { code: 'SIN', name: 'Dell Singapore Hub',           lat:  1.3521, lon: 103.8198, radiusKm:  50 },
+  { code: 'ROT', name: 'Dell Rotterdam Hub',           lat: 51.9244, lon:   4.4777, radiusKm:  60 },
+  { code: 'SNN', name: 'Dell Shannon/Limerick Hub',    lat: 52.7019, lon:  -8.9205, radiusKm:  60 },
+  { code: 'AUS', name: 'Dell Austin Hub',              lat: 30.2672, lon: -97.7431, radiusKm:  60 },
+  { code: 'BNA', name: 'Dell Nashville Hub',           lat: 36.1627, lon: -86.7816, radiusKm:  60 },
+  { code: 'POA', name: 'Dell Porto Alegre Hub',        lat:-30.0346, lon: -51.2177, radiusKm:  60 },
+];
+const OPENSKY_TOKEN_META_KEY = 'opensky_token_meta';
+const LOG_ALERT_DEDUP_PREFIX = 'LOG_ALERT_DEDUP_';
+const LOGISTICS_WATCH_PREFIX = 'logistics_watch_';
+
+/* ===========================
    LOGGING
    =========================== */
 const LOG_LEVEL_ORDER = { debug: 0, info: 1, warn: 2, error: 3, none: 4 };
@@ -2337,6 +2354,14 @@ async function runIngestion(env, options = {}) {
       // archive older ones
       try { await archiveIncidents(env, merged); } catch (e) { typeof debug === 'function' && debug("archiveIncidents error", e?.message || e); }
 
+      // S2.5: logistics proximity alert for fresh incidents (fire-and-forget; dedup prevents repeat alerts)
+      if (fresh.length > 0) {
+        const freshSnap = fresh.slice();
+        Promise.all(freshSnap.map(inc =>
+          checkLogisticsProximity(env, inc).catch(e => typeof debug === 'function' && debug('checkLogisticsProximity err', e?.message || e))
+        )).catch(() => {});
+      }
+
       // trigger thumb aggregation async
       try { aggregateThumbs(env, { force: false }); } catch (e) { typeof debug === 'function' && debug("aggregateThumbs schedule failed", e?.message || e); }
 
@@ -2346,6 +2371,137 @@ async function runIngestion(env, options = {}) {
     debug("runIngestion outer error", e?.message || e);
   } finally {
     try { await releaseLock(env, INGEST_LOCK_KEY); } catch (e) { debug("runIngestion releaseLock failed", e?.message || e); }
+  }
+}
+
+/* ===========================
+   S2.5 — OPENSKY OAUTH2 TOKEN (process-global in-memory + KV cache)
+=========================== */
+let _openskyTokenCache = null; // { access_token, expires_at }
+
+async function getOpenSkyToken(env) {
+  if (!env || !env.OPENSKY_CLIENT_ID || !env.OPENSKY_CLIENT_SECRET) return null;
+  // Fast path: process-global in-memory cache
+  if (_openskyTokenCache && _openskyTokenCache.expires_at > Date.now() + 5000) {
+    return _openskyTokenCache.access_token;
+  }
+  // KV cache: cheap cross-request persistence within same worker instance
+  try {
+    const meta = await kvGetJson(env, OPENSKY_TOKEN_META_KEY, null);
+    if (meta && meta.access_token && meta.expires_at > Date.now() + 5000) {
+      _openskyTokenCache = meta;
+      typeof debug === 'function' && debug('getOpenSkyToken: KV hit');
+      return meta.access_token;
+    }
+  } catch(e) { typeof debug === 'function' && debug('getOpenSkyToken: KV read error', e?.message || e); }
+  // Fetch fresh token from OpenSky OAuth2
+  try {
+    const creds = btoa(`${env.OPENSKY_CLIENT_ID}:${env.OPENSKY_CLIENT_SECRET}`);
+    const res = await fetch('https://opensky-network.org/api/auth/token', {
+      method: 'POST',
+      headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=client_credentials',
+    });
+    if (!res.ok) { typeof debug === 'function' && debug('getOpenSkyToken: upstream failed', res.status); return null; }
+    const data = await res.json();
+    const ttlSec = Math.max(60, (Number(data.expires_in) || 3600) - 60);
+    const meta = { access_token: data.access_token, expires_at: Date.now() + ttlSec * 1000 };
+    _openskyTokenCache = meta;
+    await kvPut(env, OPENSKY_TOKEN_META_KEY, meta, { expirationTtl: ttlSec });
+    typeof debug === 'function' && debug('getOpenSkyToken: refreshed, ttl', ttlSec);
+    return meta.access_token;
+  } catch(e) { typeof debug === 'function' && debug('getOpenSkyToken: exception', e?.message || e); return null; }
+}
+
+/* ===========================
+   S2.5 — LOGISTICS PROXIMITY ALERT (1-hour dedup per incident+hub)
+=========================== */
+async function checkLogisticsProximity(env, incident) {
+  if (!incident || !incident.id) return;
+  const lat = Number(incident.lat);
+  const lon = Number(incident.lng || incident.lon);
+  if (isNaN(lat) || isNaN(lon) || (Math.abs(lat) < 1e-6 && Math.abs(lon) < 1e-6)) return;
+  for (const hub of DELL_LOGISTICS_HUBS) {
+    const distKm = haversineKm(lat, lon, hub.lat, hub.lon);
+    if (distKm > hub.radiusKm) continue;
+    const dedupKey = `${LOG_ALERT_DEDUP_PREFIX}${incident.id}_${hub.code}`;
+    try {
+      const existing = await env.INTEL_KV.get(dedupKey);
+      if (existing) { typeof debug === 'function' && debug('checkLogisticsProximity: dedup', hub.code, incident.id); continue; }
+    } catch(e) {}
+    await sendAlertEmail(env, incident, {
+      affectedList: [`${hub.name} (${hub.code}) — ${Math.round(distKm)} km from hub`],
+      dedupeTtlSec: 3600,
+    });
+    try { await kvPut(env, dedupKey, { ts: new Date().toISOString() }, { expirationTtl: 3600 }); } catch(e) {}
+    typeof debug === 'function' && debug('checkLogisticsProximity: alerted', hub.code, incident.id, Math.round(distKm) + 'km');
+  }
+}
+
+/* ===========================
+   S2.5 — LOGISTICS WORKER PROXY ENDPOINTS
+=========================== */
+async function handleApiLogisticsTrack(env, req) {
+  try {
+    const url = new URL(req.url);
+    const id = (url.searchParams.get('id') || '').trim().toLowerCase();
+    if (!id) return { ok: false, status: 400, body: 'id param required' };
+    const cacheKey = `logistics_track_${id}`;
+    try {
+      const cached = await kvGetJson(env, cacheKey, null);
+      if (cached) { typeof debug === 'function' && debug('logistics:track:cache', id); return { ok: true, status: 200, body: { ...cached, _cached: true } }; }
+    } catch(e) {}
+    const token = await getOpenSkyToken(env);
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const osRes = await fetch(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(id)}`, { headers });
+    if (!osRes.ok) return { ok: false, status: osRes.status, body: 'OpenSky upstream error' };
+    const data = await osRes.json();
+    const states = (data.states || []).map(s => ({
+      icao24: s[0], callsign: (s[1] || '').trim(), origin_country: s[2],
+      longitude: s[5], latitude: s[6], baro_altitude: s[7],
+      on_ground: s[8], velocity: s[9], true_track: s[10], vertical_rate: s[11],
+    }));
+    const result = { icao24: id, states, fetched_at: new Date().toISOString() };
+    await kvPut(env, cacheKey, result, { expirationTtl: 60 });
+    typeof debug === 'function' && debug('logistics:track:fetched', id, states.length, 'states');
+    return { ok: true, status: 200, body: result };
+  } catch(e) {
+    typeof debug === 'function' && debug('handleApiLogisticsTrack error', e?.message || e);
+    return { ok: false, status: 500, body: String(e?.message || e) };
+  }
+}
+
+async function handleApiLogisticsWatch(env, req) {
+  try {
+    const userId = (req.headers.get('X-User-Id') || '').trim();
+    if (!userId) return { ok: false, status: 400, body: 'X-User-Id header required' };
+    const watchKey = `${LOGISTICS_WATCH_PREFIX}${userId}`;
+    if (req.method === 'GET') {
+      const list = await kvGetJson(env, watchKey, []);
+      return { ok: true, status: 200, body: Array.isArray(list) ? list : [] };
+    }
+    if (req.method === 'POST') {
+      const body = await req.json().catch(() => ({}));
+      const id     = String(body.id     || '').trim().toLowerCase();
+      const label  = String(body.label  || id).trim().slice(0, 80);
+      const action = String(body.action || 'add').toLowerCase();
+      let list = await kvGetJson(env, watchKey, []);
+      if (!Array.isArray(list)) list = [];
+      if (action === 'remove') {
+        list = list.filter(w => w.id !== id);
+      } else {
+        if (!id) return { ok: false, status: 400, body: 'id required in body' };
+        if (!list.some(w => w.id === id)) list.push({ id, label, added_at: new Date().toISOString() });
+      }
+      list = list.slice(-100);
+      await kvPut(env, watchKey, list, { expirationTtl: 90 * 24 * 3600 });
+      typeof debug === 'function' && debug('logistics:watch:saved', userId, list.length);
+      return { ok: true, status: 200, body: { items: list.length } };
+    }
+    return { ok: false, status: 405, body: 'method not allowed' };
+  } catch(e) {
+    typeof debug === 'function' && debug('handleApiLogisticsWatch error', e?.message || e);
+    return { ok: false, status: 500, body: String(e?.message || e) };
   }
 }
 
@@ -2877,6 +3033,12 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/ai/feedback')) {
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
       const r = await handleApiAiFeedback(env, req, ctx);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/logistics/track')) {
+      const r = await handleApiLogisticsTrack(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/logistics/watch')) {
+      const r = await handleApiLogisticsWatch(env, req);
       return _responseFromResult(r);
     } else if (p.startsWith('/api/incidents')) {
       const r = await handleApiIncidents(env, req);

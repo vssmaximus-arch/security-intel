@@ -60,6 +60,9 @@ try { AI_ENABLED = localStorage.getItem('os_ai_enabled') === '1'; } catch(e) {}
 let heatLayer = null;
 let heatmapEnabled = false;
 
+// --- S2.5 Logistics Drawer state ---
+let logisticsDrawerOpen = false;
+
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
 let DISLIKED_IDS = new Set();
@@ -1967,6 +1970,194 @@ function connectSSE() {
 }
 
 /* ===========================
+   S2.5 LOGISTICS DRAWER
+=========================== */
+
+function openLogisticsDrawer() {
+  logisticsDrawerOpen = true;
+  const drawer = document.getElementById('logistics-drawer');
+  const backdrop = document.getElementById('drawer-backdrop');
+  if (drawer) drawer.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+  renderLogisticsAssets();
+  loadLogisticsWatchlist();
+}
+
+function closeLogisticsDrawer() {
+  logisticsDrawerOpen = false;
+  const drawer = document.getElementById('logistics-drawer');
+  const backdrop = document.getElementById('drawer-backdrop');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+}
+
+function switchLogisticsTab(tabName) {
+  document.querySelectorAll('.drawer-tab').forEach(btn => {
+    const active = btn.dataset.tab === tabName;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', String(active));
+  });
+  document.querySelectorAll('.drawer-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.id === `tab-${tabName}`);
+  });
+}
+
+function renderLogisticsAssets() {
+  const container = document.getElementById('logistics-assets-list');
+  if (!container) return;
+  // Pull incidents that overlap a logistics hub radius
+  const hubs = [
+    { code: 'PEN', name: 'Penang',       lat:  5.4164, lon: 100.3327, radiusKm:  50 },
+    { code: 'SIN', name: 'Singapore',    lat:  1.3521, lon: 103.8198, radiusKm:  50 },
+    { code: 'ROT', name: 'Rotterdam',    lat: 51.9244, lon:   4.4777, radiusKm:  60 },
+    { code: 'SNN', name: 'Shannon',      lat: 52.7019, lon:  -8.9205, radiusKm:  60 },
+    { code: 'AUS', name: 'Austin',       lat: 30.2672, lon: -97.7431, radiusKm:  60 },
+    { code: 'BNA', name: 'Nashville',    lat: 36.1627, lon: -86.7816, radiusKm:  60 },
+    { code: 'POA', name: 'Porto Alegre', lat:-30.0346, lon: -51.2177, radiusKm:  60 },
+  ];
+  const cards = hubs.map(hub => {
+    const nearby = INCIDENTS.filter(inc => {
+      if (!inc.lat || !inc.lon) return false;
+      const dx = (inc.lon - hub.lon) * Math.cos(hub.lat * Math.PI / 180) * 111.32;
+      const dy = (inc.lat - hub.lat) * 111.32;
+      return Math.sqrt(dx * dx + dy * dy) <= hub.radiusKm;
+    });
+    const badgeClass = nearby.length > 0 ? 'style="color:#f28b82;font-weight:700;"' : 'style="color:#81c995;"';
+    return `<div class="drawer-hub-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;">${escapeHtml(hub.code)} — ${escapeHtml(hub.name)}</span>
+        <span ${badgeClass}>${nearby.length} incident${nearby.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div style="font-size:0.75rem;color:#9aa0a6;margin-top:4px;">${hub.radiusKm} km radius</div>
+      <button class="radar-btn mt-1" data-action="logistics-radar" data-hub="${escapeAttr(hub.code)}"
+        data-lat="${hub.lat}" data-lon="${hub.lon}"
+        aria-label="Live radar for ${escapeHtml(hub.code)}">
+        <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
+      </button>
+      <div class="drawer-radar-result" id="radar-result-${escapeAttr(hub.code)}"></div>
+    </div>`;
+  }).join('');
+  container.innerHTML = cards || '<div class="drawer-empty">No hub data.</div>';
+}
+
+async function loadLogisticsWatchlist() {
+  const container = document.getElementById('logistics-watchlist-list');
+  if (!container) return;
+  container.innerHTML = '<div class="drawer-empty">Loading…</div>';
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
+      headers: { 'X-User-Id': OSINFO_USER_ID },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { watchlist = [] } = await res.json();
+    if (watchlist.length === 0) {
+      container.innerHTML = '<div class="drawer-empty">No flights in watchlist.</div>';
+      return;
+    }
+    container.innerHTML = watchlist.map(icao => `
+      <div class="drawer-watch-card" id="watch-card-${escapeAttr(icao)}">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;font-family:monospace;">${escapeHtml(icao.toUpperCase())}</span>
+          <button class="remove-btn" data-action="logistics-remove-watch" data-icao="${escapeAttr(icao)}"
+            aria-label="Remove ${escapeHtml(icao)} from watchlist">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <button class="radar-btn mt-1" data-action="logistics-track" data-icao="${escapeAttr(icao)}"
+          aria-label="Track ${escapeHtml(icao)}">
+          <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
+        </button>
+        <div class="drawer-radar-result" id="track-result-${escapeAttr(icao)}"></div>
+      </div>`).join('');
+  } catch (e) {
+    container.innerHTML = `<div class="drawer-empty">Error: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function trackFlight(icao24, resultElId) {
+  const el = document.getElementById(resultElId);
+  if (!el) return;
+  el.textContent = 'Fetching…';
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`, {
+      headers: { 'X-User-Id': OSINFO_USER_ID },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data || !data.icao24) {
+      el.textContent = 'No live data for this aircraft.';
+      return;
+    }
+    el.innerHTML = `
+      <div>Alt: <strong>${data.geo_altitude != null ? data.geo_altitude.toFixed(0) + ' m' : 'N/A'}</strong> &nbsp;|&nbsp;
+       Vel: <strong>${data.velocity != null ? data.velocity.toFixed(0) + ' m/s' : 'N/A'}</strong></div>
+      <div style="font-size:0.72rem;color:#9aa0a6;">
+        ${data.origin_country || ''} &mdash; ${data.callsign || icao24.toUpperCase()}
+        ${data.on_ground ? ' &mdash; <em>On ground</em>' : ''}
+      </div>`;
+  } catch (e) {
+    el.textContent = `Error: ${escapeHtml(e.message)}`;
+  }
+}
+
+async function addToWatchlist(icao24) {
+  if (!icao24 || icao24.length < 3 || icao24.length > 6) {
+    alert('Enter a valid ICAO24 code (3–6 hex characters).');
+    return;
+  }
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
+      body: JSON.stringify({ action: 'add', icao24: icao24.toLowerCase() }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const input = document.getElementById('watch-icao-input');
+    if (input) input.value = '';
+    await loadLogisticsWatchlist();
+  } catch (e) {
+    alert(`Failed to add to watchlist: ${e.message}`);
+  }
+}
+
+async function removeFromWatchlist(icao24) {
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
+      body: JSON.stringify({ action: 'remove', icao24: icao24.toLowerCase() }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await loadLogisticsWatchlist();
+  } catch (e) {
+    alert(`Failed to remove from watchlist: ${e.message}`);
+  }
+}
+
+async function sendTestAlert() {
+  const btn = document.querySelector('[data-action="logistics-test-alert"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  try {
+    const secret = typeof getAdminSecret === 'function' ? getAdminSecret() : '';
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID, ...(secret ? { secret } : {}) },
+      body: JSON.stringify({ action: 'test-alert' }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      alert(`Test alert sent: ${data.message || 'Check your inbox.'}`);
+    } else {
+      alert(`Failed: ${data.error || res.status}`);
+    }
+  } catch (e) {
+    alert(`Error: ${e.message}`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bell me-1" aria-hidden="true"></i> Test Alert'; }
+  }
+}
+
+/* ===========================
    BOOTSTRAP / EVENT BINDING
 =========================== */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2063,6 +2254,53 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
       if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
       if (action === 'admin-list-briefs') { adminListBriefs(); return; }
+
+      // S2.5 — Logistics Drawer actions
+      if (action === 'open-logistics') { openLogisticsDrawer(); return; }
+      if (action === 'close-logistics') { closeLogisticsDrawer(); return; }
+      if (action === 'logistics-tab') {
+        const tab = t.dataset.tab;
+        if (tab) switchLogisticsTab(tab);
+        return;
+      }
+      if (action === 'logistics-add-watch') {
+        const input = document.getElementById('watch-icao-input');
+        const icao = (input ? input.value : '').trim().toLowerCase();
+        await addToWatchlist(icao);
+        return;
+      }
+      if (action === 'logistics-remove-watch') {
+        const icao = (t.dataset.icao || '').trim().toLowerCase();
+        if (icao) await removeFromWatchlist(icao);
+        return;
+      }
+      if (action === 'logistics-track') {
+        const icao = (t.dataset.icao || '').trim().toLowerCase();
+        if (icao) await trackFlight(icao, `track-result-${icao}`);
+        return;
+      }
+      if (action === 'logistics-radar') {
+        const hub = (t.dataset.hub || '').trim();
+        if (!hub) return;
+        // Live Radar for a hub shows surrounding flights via bbox query
+        const lat = parseFloat(t.dataset.lat);
+        const lon = parseFloat(t.dataset.lon);
+        const el = document.getElementById(`radar-result-${hub}`);
+        if (el) el.textContent = 'Fetching radar…';
+        try {
+          const delta = 0.5; // ~55 km box
+          const url = `${WORKER_URL}/api/logistics/track?lamin=${(lat - delta).toFixed(4)}&lamax=${(lat + delta).toFixed(4)}&lomin=${(lon - delta).toFixed(4)}&lomax=${(lon + delta).toFixed(4)}`;
+          const res = await fetchWithTimeout(url, { headers: { 'X-User-Id': OSINFO_USER_ID } });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const count = Array.isArray(data) ? data.length : (data.count || 0);
+          if (el) el.innerHTML = `<span style="color:#81c995;">${count} aircraft in airspace</span>`;
+        } catch (e) {
+          if (el) el.textContent = `Error: ${escapeHtml(e.message)}`;
+        }
+        return;
+      }
+      if (action === 'logistics-test-alert') { await sendTestAlert(); return; }
     });
 
     // clicking on feed-card opens link (except when clicking inner buttons/links)
@@ -2142,6 +2380,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // try flush queue on load
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
+
+    // S2.5 — close logistics drawer on backdrop click
+    const drawerBackdrop = document.getElementById('drawer-backdrop');
+    if (drawerBackdrop) {
+      drawerBackdrop.addEventListener('click', () => closeLogisticsDrawer());
+    }
   } catch(e) {
     console.error('Initialization error', e);
     const feed = document.getElementById('general-news-feed');

@@ -256,6 +256,40 @@
     .btn-toggle { background: #3c4043; color: #9aa0a6; border: none; border-radius: 6px; padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background 0.15s, color 0.15s; position: absolute; top: 10px; right: 10px; z-index: 1000; }
     .btn-toggle.active { background: #b31412; color: #fff; box-shadow: 0 0 0 2px #cc000044; }
     .btn-toggle:focus { outline: 2px solid #202124; outline-offset: 2px; }
+    /* S2.5 — Logistics Drawer */
+    .logistics-open-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
+    .logistics-open-btn:hover { background: #4a4c50; color: #fff; }
+    .logistics-drawer { position: fixed; top: 0; right: -400px; width: 380px; height: 100vh; background: #202124; color: #e8eaed; z-index: 2000; box-shadow: -4px 0 24px rgba(0,0,0,0.55); transition: right 0.28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; font-family: 'Inter', sans-serif; font-size: 0.82rem; }
+    .logistics-drawer.open { right: 0; }
+    .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1999; display: none; }
+    .drawer-backdrop.open { display: block; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #292a2d; font-weight: 700; font-size: 0.88rem; border-bottom: 1px solid #3c4043; flex-shrink: 0; }
+    .drawer-close { background: none; border: none; color: #9aa0a6; font-size: 1.2rem; cursor: pointer; padding: 0 4px; line-height: 1; }
+    .drawer-close:hover { color: #fff; }
+    .drawer-tabs { display: flex; background: #292a2d; border-bottom: 1px solid #3c4043; flex-shrink: 0; }
+    .drawer-tab { flex: 1; background: none; border: none; color: #9aa0a6; padding: 10px 0; font-size: 0.75rem; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; letter-spacing: 0.3px; transition: color 0.12s; }
+    .drawer-tab.active { color: #8ab4f8; border-bottom-color: #8ab4f8; }
+    .drawer-panel { flex: 1; overflow-y: auto; padding: 12px; display: none; flex-direction: column; gap: 8px; }
+    .drawer-panel.active { display: flex; }
+    .drawer-hub-card { background: #292a2d; border-radius: 6px; padding: 8px 10px; border-left: 3px solid #3c4043; }
+    .drawer-hub-card.near { border-left-color: #fbbc04; }
+    .drawer-hub-name { font-weight: 700; color: #e8eaed; }
+    .drawer-hub-meta { font-size: 0.72rem; color: #9aa0a6; margin-top: 2px; }
+    .drawer-watch-card { background: #292a2d; border-radius: 6px; padding: 8px 10px; display: flex; align-items: center; gap: 8px; }
+    .drawer-watch-label { flex: 1; font-weight: 600; color: #e8eaed; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .radar-btn { background: #1a73e8; color: #fff; border: none; border-radius: 4px; padding: 3px 8px; font-size: 0.7rem; cursor: pointer; white-space: nowrap; }
+    .radar-btn:hover { background: #1558b0; }
+    .remove-btn { background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 1rem; padding: 0 2px; }
+    .remove-btn:hover { color: #ea4335; }
+    .drawer-add-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
+    .drawer-input { flex: 1; background: #292a2d; border: 1px solid #3c4043; border-radius: 4px; color: #e8eaed; padding: 5px 8px; font-size: 0.78rem; min-width: 0; }
+    .drawer-btn { background: #3c4043; color: #e8eaed; border: none; border-radius: 4px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
+    .drawer-btn:hover { background: #4a4c50; }
+    .drawer-btn-warn { background: #b31412 !important; }
+    .drawer-btn-warn:hover { background: #cc0000 !important; }
+    .drawer-footer { padding: 10px 12px; border-top: 1px solid #3c4043; background: #292a2d; flex-shrink: 0; }
+    .drawer-radar-result { background: #1a1b1e; border-radius: 4px; padding: 6px 8px; font-size: 0.7rem; color: #8ab4f8; margin-top: 4px; white-space: pre-wrap; word-break: break-all; }
+    .drawer-empty { color: #5f6368; font-style: italic; font-size: 0.78rem; text-align: center; padding: 20px 0; }
   </style>
 </head>
 
@@ -295,6 +329,11 @@
 
         <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#adminModal" aria-label="Admin Settings">
           <i class="fas fa-cog" aria-hidden="true"></i>
+        </button>
+
+        <!-- S2.5 — Logistics Drawer trigger -->
+        <button class="logistics-open-btn ms-2" data-action="open-logistics" aria-label="Open Logistics Tracker" tabindex="0">
+          <i class="fas fa-route" aria-hidden="true"></i> Logistics
         </button>
       </div>
     </div>
@@ -481,6 +520,57 @@
       </div>
     </div>
   </div>
+
+  <!-- S2.5 — Logistics Drawer backdrop -->
+  <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- S2.5 — Logistics Drawer -->
+  <aside class="logistics-drawer" id="logistics-drawer" role="complementary" aria-label="Logistics Tracker">
+    <div class="drawer-header">
+      <span><i class="fas fa-route me-2" aria-hidden="true"></i>Logistics Tracker</span>
+      <button class="drawer-close-btn" data-action="close-logistics" aria-label="Close Logistics Tracker">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="drawer-tabs" role="tablist">
+      <button class="drawer-tab active" data-action="logistics-tab" data-tab="assets"  role="tab" aria-selected="true"  aria-controls="tab-assets">Assets</button>
+      <button class="drawer-tab"        data-action="logistics-tab" data-tab="watchlist" role="tab" aria-selected="false" aria-controls="tab-watchlist">Watchlist</button>
+      <button class="drawer-tab"        data-action="logistics-tab" data-tab="alerts"    role="tab" aria-selected="false" aria-controls="tab-alerts">Alerts</button>
+    </div>
+
+    <!-- Assets panel -->
+    <div class="drawer-panel active" id="tab-assets" role="tabpanel">
+      <div id="logistics-assets-list">
+        <div class="drawer-empty">Loading hub assets…</div>
+      </div>
+    </div>
+
+    <!-- Watchlist panel -->
+    <div class="drawer-panel" id="tab-watchlist" role="tabpanel">
+      <div class="drawer-add-row">
+        <input class="drawer-input" id="watch-icao-input" type="text" placeholder="ICAO24 (e.g. a12bc3)" maxlength="6" autocomplete="off" />
+        <button class="drawer-btn" data-action="logistics-add-watch" aria-label="Add to watchlist">Add</button>
+      </div>
+      <div id="logistics-watchlist-list">
+        <div class="drawer-empty">No flights in watchlist.</div>
+      </div>
+    </div>
+
+    <!-- Alerts panel -->
+    <div class="drawer-panel" id="tab-alerts" role="tabpanel">
+      <div id="logistics-alerts-list">
+        <div class="drawer-empty">No logistics alerts yet.</div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="drawer-btn drawer-btn-warn" data-action="logistics-test-alert" aria-label="Send test alert email">
+        <i class="fas fa-bell me-1" aria-hidden="true"></i> Test Alert
+      </button>
+    </div>
+  </aside>
 
   <div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
 
