@@ -28,6 +28,7 @@
 - [x] **S2.3**: Real-time SSE bridge for live alerts (GET /api/stream + EventSource client)
 - [x] **S2.4**: Historical Data Archival
 - [x] **S2.5**: Alert Escalation & Notification Pipeline (logistics geofences, OpenSky proxy, watchlist, drawer UI)
+  - TBD: S2.5 — Schedule Fallback implemented: flight schedules + vessel last-hub + status badges.
 
 ## 📅 Phase 3: Visualization & Analytics
 - [ ] **S3.1**: Interactive SVG Global Map (D3.js) — DEP_APPROVAL — [NEXT]
