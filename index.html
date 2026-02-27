@@ -281,12 +281,19 @@
     .radar-btn:hover { background: #1558b0; }
     .remove-btn { background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 1rem; padding: 0 2px; }
     .remove-btn:hover { color: #ea4335; }
-    .drawer-add-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; }
+    .drawer-add-row { display: flex; gap: 6px; margin-bottom: 8px; flex-shrink: 0; flex-wrap: wrap; }
     .drawer-input { flex: 1; background: #292a2d; border: 1px solid #3c4043; border-radius: 4px; color: #e8eaed; padding: 5px 8px; font-size: 0.78rem; min-width: 0; }
     .drawer-btn { background: #3c4043; color: #e8eaed; border: none; border-radius: 4px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
     .drawer-btn:hover { background: #4a4c50; }
     .drawer-btn-warn { background: #b31412 !important; }
     .drawer-btn-warn:hover { background: #cc0000 !important; }
+    /* S2.5 — Type toggle: Flight / Vessel */
+    .watch-type-toggle { display: flex; gap: 0; margin-bottom: 6px; border-radius: 4px; overflow: hidden; border: 1px solid #3c4043; width: 100%; }
+    .watch-type-btn { flex: 1; background: #292a2d; color: #9aa0a6; border: none; padding: 4px 10px; font-size: 0.73rem; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .watch-type-btn.active { background: #1a73e8; color: #fff; font-weight: 700; }
+    .watch-type-btn:hover:not(.active) { background: #3c4043; }
+    .ais-btn { background: #0d7377; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.73rem; cursor: pointer; white-space: nowrap; margin-top: 4px; }
+    .ais-btn:hover { background: #14a0a5; }
     .drawer-footer { padding: 10px 12px; border-top: 1px solid #3c4043; background: #292a2d; flex-shrink: 0; }
     .drawer-radar-result { background: #1a1b1e; border-radius: 4px; padding: 6px 8px; font-size: 0.7rem; color: #8ab4f8; margin-top: 4px; white-space: pre-wrap; word-break: break-all; }
     .drawer-empty { color: #5f6368; font-style: italic; font-size: 0.78rem; text-align: center; padding: 20px 0; }
@@ -549,12 +556,21 @@
 
     <!-- Watchlist panel -->
     <div class="drawer-panel" id="tab-watchlist" role="tabpanel">
+      <!-- S2.5 — Flight/Vessel type toggle -->
+      <div class="watch-type-toggle" role="group" aria-label="Item type">
+        <button class="watch-type-btn active" id="watch-type-flight" data-action="watch-type-toggle" data-type="flight" aria-pressed="true">
+          <i class="fas fa-plane me-1" aria-hidden="true"></i>Flight
+        </button>
+        <button class="watch-type-btn" id="watch-type-vessel" data-action="watch-type-toggle" data-type="vessel" aria-pressed="false">
+          <i class="fas fa-ship me-1" aria-hidden="true"></i>Vessel
+        </button>
+      </div>
       <div class="drawer-add-row">
-        <input class="drawer-input" id="watch-icao-input" type="text" placeholder="ICAO24 (e.g. a12bc3)" maxlength="6" autocomplete="off" />
+        <input class="drawer-input" id="watch-icao-input" type="text" placeholder="ICAO24 (e.g. a12bc3)" maxlength="9" autocomplete="off" />
         <button class="drawer-btn" data-action="logistics-add-watch" aria-label="Add to watchlist">Add</button>
       </div>
       <div id="logistics-watchlist-list">
-        <div class="drawer-empty">No flights in watchlist.</div>
+        <div class="drawer-empty">No items in watchlist.</div>
       </div>
     </div>
 
