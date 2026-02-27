@@ -2048,27 +2048,45 @@ async function loadLogisticsWatchlist() {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       headers: { 'X-User-Id': OSINFO_USER_ID },
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const { watchlist = [] } = await res.json();
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    // Worker returns { watchlist: [{id, type, label, added_at}] }
+    const watchlist = Array.isArray(data.watchlist) ? data.watchlist : (Array.isArray(data) ? data : []);
     if (watchlist.length === 0) {
-      container.innerHTML = '<div class="drawer-empty">No flights in watchlist.</div>';
+      container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
       return;
     }
-    container.innerHTML = watchlist.map(icao => `
-      <div class="drawer-watch-card" id="watch-card-${escapeAttr(icao)}">
+    container.innerHTML = watchlist.map(item => {
+      // Normalise: old entries may be plain strings, new ones are objects
+      const id    = typeof item === 'string' ? item : (item.id || '');
+      const type  = typeof item === 'object' && item.type === 'vessel' ? 'vessel' : 'flight';
+      const label = typeof item === 'object' && item.label ? item.label : id.toUpperCase();
+      const isVessel = type === 'vessel';
+      const safeId    = escapeAttr(id);
+      const safeLabel = escapeHtml(label);
+      const typeIcon  = isVessel ? '<i class="fas fa-ship me-1" aria-hidden="true"></i>' : '<i class="fas fa-plane me-1" aria-hidden="true"></i>';
+      const actionBtn = isVessel
+        ? `<a class="ais-btn mt-1" href="${escapeAttr(`https://www.vesselfinder.com/vessels?name=${encodeURIComponent(id)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Track ${safeLabel} via AIS">
+             <i class="fas fa-anchor me-1" aria-hidden="true"></i>Track via AIS
+           </a>`
+        : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" aria-label="Track ${safeLabel}">
+             <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
+           </button>
+           <div class="drawer-radar-result" id="track-result-${safeId}"></div>`;
+      return `<div class="drawer-watch-card" id="watch-card-${safeId}">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:700;font-family:monospace;">${escapeHtml(icao.toUpperCase())}</span>
-          <button class="remove-btn" data-action="logistics-remove-watch" data-icao="${escapeAttr(icao)}"
-            aria-label="Remove ${escapeHtml(icao)} from watchlist">
+          <span style="font-weight:700;font-family:monospace;">${typeIcon}${safeLabel}</span>
+          <button class="remove-btn" data-action="logistics-remove-watch" data-id="${safeId}"
+            aria-label="Remove ${safeLabel} from watchlist">
             <i class="fas fa-times" aria-hidden="true"></i>
           </button>
         </div>
-        <button class="radar-btn mt-1" data-action="logistics-track" data-icao="${escapeAttr(icao)}"
-          aria-label="Track ${escapeHtml(icao)}">
-          <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
-        </button>
-        <div class="drawer-radar-result" id="track-result-${escapeAttr(icao)}"></div>
-      </div>`).join('');
+        ${actionBtn}
+      </div>`;
+    }).join('');
   } catch (e) {
     container.innerHTML = `<div class="drawer-empty">Error: ${escapeHtml(e.message)}</div>`;
   }
@@ -2100,18 +2118,22 @@ async function trackFlight(icao24, resultElId) {
   }
 }
 
-async function addToWatchlist(icao24) {
-  if (!icao24 || icao24.length < 3 || icao24.length > 6) {
-    alert('Enter a valid ICAO24 code (3–6 hex characters).');
+async function addToWatchlist(id, type) {
+  if (!id || id.length < 3 || id.length > 9) {
+    alert('Enter a valid ID (3–9 characters: ICAO24 for flights, MMSI for vessels).');
     return;
   }
+  const itemType = type === 'vessel' ? 'vessel' : 'flight';
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'add', icao24: icao24.toLowerCase() }),
+      body: JSON.stringify({ action: 'add', id: id.toLowerCase(), type: itemType }),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${res.status}`);
+    }
     const input = document.getElementById('watch-icao-input');
     if (input) input.value = '';
     await loadLogisticsWatchlist();
@@ -2120,14 +2142,17 @@ async function addToWatchlist(icao24) {
   }
 }
 
-async function removeFromWatchlist(icao24) {
+async function removeFromWatchlist(id) {
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'remove', icao24: icao24.toLowerCase() }),
+      body: JSON.stringify({ action: 'remove', id: id.toLowerCase() }),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${res.status}`);
+    }
     await loadLogisticsWatchlist();
   } catch (e) {
     alert(`Failed to remove from watchlist: ${e.message}`);
@@ -2263,19 +2288,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (tab) switchLogisticsTab(tab);
         return;
       }
+      if (action === 'watch-type-toggle') {
+        const type = t.dataset.type;
+        document.querySelectorAll('.watch-type-btn').forEach(btn => {
+          const active = btn.dataset.type === type;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-pressed', String(active));
+        });
+        // Update placeholder text to guide user
+        const input = document.getElementById('watch-icao-input');
+        if (input) {
+          input.placeholder = type === 'vessel'
+            ? 'MMSI or vessel name (e.g. 123456789)'
+            : 'ICAO24 (e.g. a12bc3)';
+        }
+        return;
+      }
       if (action === 'logistics-add-watch') {
         const input = document.getElementById('watch-icao-input');
-        const icao = (input ? input.value : '').trim().toLowerCase();
-        await addToWatchlist(icao);
+        const id = (input ? input.value : '').trim().toLowerCase();
+        // Detect selected type from toggle
+        const activeTypeBtn = document.querySelector('.watch-type-btn.active');
+        const type = activeTypeBtn ? (activeTypeBtn.dataset.type || 'flight') : 'flight';
+        await addToWatchlist(id, type);
         return;
       }
       if (action === 'logistics-remove-watch') {
-        const icao = (t.dataset.icao || '').trim().toLowerCase();
-        if (icao) await removeFromWatchlist(icao);
+        // Use data-id (updated) with data-icao fallback for legacy cards
+        const id = (t.dataset.id || t.dataset.icao || '').trim().toLowerCase();
+        if (id) await removeFromWatchlist(id);
         return;
       }
       if (action === 'logistics-track') {
-        const icao = (t.dataset.icao || '').trim().toLowerCase();
+        const icao = (t.dataset.icao || t.dataset.id || '').trim().toLowerCase();
         if (icao) await trackFlight(icao, `track-result-${icao}`);
         return;
       }
