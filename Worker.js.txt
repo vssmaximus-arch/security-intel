@@ -2474,35 +2474,68 @@ async function handleApiLogisticsTrack(env, req) {
 async function handleApiLogisticsWatch(env, req) {
   try {
     const userId = (req.headers.get('X-User-Id') || '').trim();
-    if (!userId) return { ok: false, status: 400, body: 'X-User-Id header required' };
+    if (!userId) return { ok: false, status: 400, body: { ok: false, error: 'X-User-Id header required' } };
     const watchKey = `${LOGISTICS_WATCH_PREFIX}${userId}`;
     if (req.method === 'GET') {
       const list = await kvGetJson(env, watchKey, []);
-      return { ok: true, status: 200, body: Array.isArray(list) ? list : [] };
+      return { ok: true, status: 200, body: { watchlist: Array.isArray(list) ? list : [] } };
     }
     if (req.method === 'POST') {
       const body = await req.json().catch(() => ({}));
-      const id     = String(body.id     || '').trim().toLowerCase();
-      const label  = String(body.label  || id).trim().slice(0, 80);
+      // Accept id, icao24 (flights), or mmsi (vessels) — unified as 'id'
+      const id     = String(body.id || body.icao24 || body.mmsi || '').trim().toLowerCase();
+      const type   = String(body.type || 'flight').toLowerCase() === 'vessel' ? 'vessel' : 'flight';
+      const label  = String(body.label || id).trim().slice(0, 80);
       const action = String(body.action || 'add').toLowerCase();
       let list = await kvGetJson(env, watchKey, []);
       if (!Array.isArray(list)) list = [];
       if (action === 'remove') {
         list = list.filter(w => w.id !== id);
+      } else if (action === 'test-alert') {
+        // Fire a test alert to the user's notification channel via existing sendAlertEmail
+        try {
+          await sendAlertEmail(env, {
+            subject: '[TEST] Dell OS InfoHub — Logistics Alert Test',
+            body: `This is a test alert from the OS InfoHub Logistics Tracker.\nUser ID: ${userId}\nTimestamp: ${new Date().toISOString()}`,
+          });
+        } catch(e2) {
+          typeof debug === 'function' && debug('logistics:test-alert error', e2?.message || e2);
+        }
+        return { ok: true, status: 200, body: { ok: true, message: 'Test alert queued.' } };
       } else {
-        if (!id) return { ok: false, status: 400, body: 'id required in body' };
-        if (!list.some(w => w.id === id)) list.push({ id, label, added_at: new Date().toISOString() });
+        // action === 'add'
+        if (!id) return { ok: false, status: 400, body: { ok: false, error: 'id (or icao24/mmsi) required in body' } };
+        if (!list.some(w => w.id === id)) {
+          list.push({ id, type, label, added_at: new Date().toISOString() });
+        }
       }
       list = list.slice(-100);
       await kvPut(env, watchKey, list, { expirationTtl: 90 * 24 * 3600 });
       typeof debug === 'function' && debug('logistics:watch:saved', userId, list.length);
-      return { ok: true, status: 200, body: { items: list.length } };
+      return { ok: true, status: 200, body: { ok: true, items: list.length } };
     }
-    return { ok: false, status: 405, body: 'method not allowed' };
+    return { ok: false, status: 405, body: { ok: false, error: 'method not allowed' } };
   } catch(e) {
     typeof debug === 'function' && debug('handleApiLogisticsWatch error', e?.message || e);
-    return { ok: false, status: 500, body: String(e?.message || e) };
+    return { ok: false, status: 500, body: { ok: false, error: String(e?.message || e) } };
   }
+}
+
+/**
+ * S2.5 — AISStream.io stub.
+ * When an AISStream.io API key is provisioned in env.AISSTREAM_API_KEY, replace
+ * this stub body with a real WebSocket subscribe call to wss://stream.aisstream.io/v0/stream.
+ * For now it returns a "pending" status so the UI can show a meaningful message.
+ *
+ * @param {string} mmsi  - 9-digit MMSI number of the vessel
+ * @returns {{ ok: boolean, status: string, data: object|null }}
+ */
+async function fetchAisStreamData(mmsi) {
+  // TODO: Replace stub once env.AISSTREAM_API_KEY is provisioned.
+  // Real implementation: open a WebSocket to wss://stream.aisstream.io/v0/stream,
+  // subscribe with { APIKey, BoundingBoxes, FiltersShipMMSI: [mmsi] }, consume one
+  // PositionReport message, close the socket, and return mapped fields.
+  return { ok: false, status: 'Live data pending — AISStream.io API key not yet provisioned.', data: null };
 }
 
 /* ===========================
