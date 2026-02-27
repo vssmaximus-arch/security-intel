@@ -2320,9 +2320,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'logistics-add-watch') {
         const input = document.getElementById('watch-icao-input');
         const id = (input ? input.value : '').trim().toLowerCase();
-        // Detect selected type from toggle
-        const activeTypeBtn = document.querySelector('.watch-type-btn.active');
-        const type = activeTypeBtn ? (activeTypeBtn.dataset.type || 'flight') : 'flight';
+        // Detect selected type from toggle — read aria-pressed (spec-correct) with .active fallback
+        const vesselBtn = document.getElementById('watch-type-vessel');
+        const type = (vesselBtn && vesselBtn.getAttribute('aria-pressed') === 'true') ? 'vessel' : 'flight';
         await addToWatchlist(id, type);
         return;
       }
