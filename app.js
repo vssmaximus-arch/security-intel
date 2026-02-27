@@ -2214,6 +2214,43 @@ function renderLogisticsAssets() {
   container.innerHTML = cards || '<div class="drawer-empty">No hub data.</div>';
 }
 
+function renderWatchlistFromData(watchlist) {
+  const container = document.getElementById('logistics-watchlist-list');
+  if (!container) return;
+  if (!Array.isArray(watchlist) || watchlist.length === 0) {
+    container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
+    return;
+  }
+  container.innerHTML = watchlist.map(item => {
+    // Normalise: old entries may be plain strings, new ones are objects
+    const id    = typeof item === 'string' ? item : (item.id || '');
+    const type  = typeof item === 'object' && item.type === 'vessel' ? 'vessel' : 'flight';
+    const label = typeof item === 'object' && item.label ? item.label : id.toUpperCase();
+    const isVessel = type === 'vessel';
+    const safeId    = escapeAttr(id);
+    const safeLabel = escapeHtml(label);
+    const typeIcon  = isVessel ? '<i class="fas fa-ship me-1" aria-hidden="true"></i>' : '<i class="fas fa-plane me-1" aria-hidden="true"></i>';
+    const actionBtn = isVessel
+      ? `<a class="ais-btn mt-1" href="${escapeAttr(`https://www.vesselfinder.com/vessels?name=${encodeURIComponent(id)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Track ${safeLabel} via AIS">
+           <i class="fas fa-anchor me-1" aria-hidden="true"></i>Track via AIS
+         </a>`
+      : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="${type}" aria-label="Track ${safeLabel}">
+           <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
+         </button>
+         <div class="drawer-radar-result" id="track-result-${safeId}"></div>`;
+    return `<div class="drawer-watch-card" id="watch-card-${safeId}">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-family:monospace;">${typeIcon}${safeLabel}</span>
+        <button class="remove-btn" data-action="logistics-remove-watch" data-id="${safeId}"
+          aria-label="Remove ${safeLabel} from watchlist">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      ${actionBtn}
+    </div>`;
+  }).join('');
+}
+
 async function loadLogisticsWatchlist() {
   const container = document.getElementById('logistics-watchlist-list');
   if (!container) return;
@@ -2229,38 +2266,7 @@ async function loadLogisticsWatchlist() {
     const data = await res.json();
     // Worker returns { watchlist: [{id, type, label, added_at}] }
     const watchlist = Array.isArray(data.watchlist) ? data.watchlist : (Array.isArray(data) ? data : []);
-    if (watchlist.length === 0) {
-      container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
-      return;
-    }
-    container.innerHTML = watchlist.map(item => {
-      // Normalise: old entries may be plain strings, new ones are objects
-      const id    = typeof item === 'string' ? item : (item.id || '');
-      const type  = typeof item === 'object' && item.type === 'vessel' ? 'vessel' : 'flight';
-      const label = typeof item === 'object' && item.label ? item.label : id.toUpperCase();
-      const isVessel = type === 'vessel';
-      const safeId    = escapeAttr(id);
-      const safeLabel = escapeHtml(label);
-      const typeIcon  = isVessel ? '<i class="fas fa-ship me-1" aria-hidden="true"></i>' : '<i class="fas fa-plane me-1" aria-hidden="true"></i>';
-      const actionBtn = isVessel
-        ? `<a class="ais-btn mt-1" href="${escapeAttr(`https://www.vesselfinder.com/vessels?name=${encodeURIComponent(id)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Track ${safeLabel} via AIS">
-             <i class="fas fa-anchor me-1" aria-hidden="true"></i>Track via AIS
-           </a>`
-        : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="${type}" aria-label="Track ${safeLabel}">
-             <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
-           </button>
-           <div class="drawer-radar-result" id="track-result-${safeId}"></div>`;
-      return `<div class="drawer-watch-card" id="watch-card-${safeId}">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-weight:700;font-family:monospace;">${typeIcon}${safeLabel}</span>
-          <button class="remove-btn" data-action="logistics-remove-watch" data-id="${safeId}"
-            aria-label="Remove ${safeLabel} from watchlist">
-            <i class="fas fa-times" aria-hidden="true"></i>
-          </button>
-        </div>
-        ${actionBtn}
-      </div>`;
-    }).join('');
+    renderWatchlistFromData(watchlist);
   } catch (e) {
     container.innerHTML = `<div class="drawer-empty">Error: ${escapeHtml(e.message)}</div>`;
   }
@@ -2373,7 +2379,12 @@ async function addToWatchlist(id, type) {
     }
     const input = document.getElementById('watch-icao-input');
     if (input) input.value = '';
-    await loadLogisticsWatchlist();
+    // Use watchlist from POST response directly — avoids KV read-after-write latency
+    if (Array.isArray(resData.watchlist) && resData.watchlist.length > 0) {
+      renderWatchlistFromData(resData.watchlist);
+    } else {
+      await loadLogisticsWatchlist();
+    }
   } catch (e) {
     console.error('[logistics] addToWatchlist failed', e.message);
     if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Add failed: ${escapeHtml(e.message)}</div>`;
