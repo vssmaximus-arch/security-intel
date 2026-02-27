@@ -2102,30 +2102,69 @@ async function trackFlight(icao24, resultElId) {
       { headers: { 'X-User-Id': OSINFO_USER_ID } }
     );
     const data = await res.json().catch(() => ({}));
-    // Worker returns { ok: false, error: 'vessel_id' } for MMSI input
-    if (!res.ok) {
-      if (data.error === 'vessel_id') {
-        el.innerHTML = '<span style="color:#fdd663;">Vessel ID detected — use the <em>Track via AIS</em> button instead.</span>';
-      } else {
-        el.textContent = `Error: ${data.error || 'HTTP ' + res.status}`;
+
+    // ── Structured error responses ───────────────────────────────────────────
+    if (data.ok === false || (!res.ok && !data.status)) {
+      const reason = data.reason || data.error || '';
+      if (reason === 'opensky_not_configured') {
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">UNKNOWN</span> OpenSky not configured. <a href="${escapeAttr(data.deep_link || 'https://opensky-network.org/')}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Open OpenSky ↗</a>`;
+        return;
       }
+      if (reason === 'no_schedule_found') {
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">UNKNOWN</span> No records found. <a href="${escapeAttr(data.deep_link || 'https://opensky-network.org/')}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Search OpenSky ↗</a>`;
+        return;
+      }
+      el.textContent = reason || `Error: HTTP ${res.status}`;
       return;
     }
-    // Worker returns { icao24, states: [{baro_altitude, velocity, ...}], not_in_range, fetched_at }
-    if (!data || data.not_in_range || !Array.isArray(data.states) || data.states.length === 0) {
+
+    // ── LIVE ─────────────────────────────────────────────────────────────────
+    if (data.status === 'LIVE' && Array.isArray(data.states) && data.states.length > 0) {
+      const s   = data.states[0];
+      const alt = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m' : 'N/A';
+      const vel = s.velocity      != null ? s.velocity.toFixed(0)      + ' m/s' : 'N/A';
+      el.innerHTML = `
+        <span class="status-badge status-LIVE">LIVE</span>
+        <div style="margin-top:3px;">Alt: <strong>${escapeHtml(alt)}</strong> &nbsp;|&nbsp; Vel: <strong>${escapeHtml(vel)}</strong></div>
+        <div style="font-size:0.72rem;color:#9aa0a6;">
+          ${escapeHtml(s.origin_country || '')} &mdash; ${escapeHtml(s.callsign || icao24.toUpperCase())}
+          ${s.on_ground ? ' &mdash; <em>On ground</em>' : ''}
+          ${data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : ''}
+        </div>`;
+      return;
+    }
+
+    // ── SCHEDULED / DEPARTED / ARRIVED ───────────────────────────────────────
+    if (['SCHEDULED', 'DEPARTED', 'ARRIVED'].includes(data.status)) {
+      const depArrow = (data.estDepartureAirport && data.estArrivalAirport)
+        ? `<div style="font-size:0.72rem;color:#9aa0a6;margin-top:2px;">Origin ➔ Destination: <strong>${escapeHtml(data.estDepartureAirport)} → ${escapeHtml(data.estArrivalAirport)}</strong></div>` : '';
+      const lastLine = data.lastSeen
+        ? `<div style="font-size:0.72rem;color:#9aa0a6;">Last detected: ${escapeHtml(new Date(data.lastSeen).toLocaleString())}</div>` : '';
+      el.innerHTML = `
+        <span class="status-badge status-${escapeHtml(data.status)}">${escapeHtml(data.status)}</span>
+        <div style="margin-top:3px;">${escapeHtml(data.scheduleBrief || '')}</div>
+        ${depArrow}${lastLine}
+        ${data._cached ? '<div style="font-size:0.65rem;color:#5f6368;">(cached)</div>' : ''}`;
+      return;
+    }
+
+    // ── VESSEL: IN-PORT / STATIONARY / UNKNOWN ───────────────────────────────
+    if (['IN-PORT', 'STATIONARY', 'UNKNOWN'].includes(data.status)) {
+      const hubLine = data.lastHubName
+        ? `<div style="margin-top:3px;font-size:0.72rem;color:#9aa0a6;">Last hub: <strong>${escapeHtml(data.lastHubName)}</strong>${data.lastHubTime ? ' · ' + escapeHtml(new Date(data.lastHubTime).toLocaleString()) : ''}</div>` : '';
+      el.innerHTML = `
+        <span class="status-badge status-${escapeHtml(data.status)}">${escapeHtml(data.status)}</span>
+        ${hubLine}
+        <a href="${escapeAttr(data.deepLink || '#')}" target="_blank" rel="noopener noreferrer" class="ais-btn" style="display:inline-block;margin-top:4px;">Track via AIS ↗</a>`;
+      return;
+    }
+
+    // ── Final fallback (legacy not_in_range or unexpected shape) ────────────
+    if (data.not_in_range || !data.states || (Array.isArray(data.states) && data.states.length === 0)) {
       el.textContent = 'Flight not currently in range.';
       return;
     }
-    const s = data.states[0];
-    const alt = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m' : 'N/A';
-    const vel = s.velocity        != null ? s.velocity.toFixed(0)        + ' m/s' : 'N/A';
-    el.innerHTML = `
-      <div>Alt: <strong>${escapeHtml(alt)}</strong> &nbsp;|&nbsp; Vel: <strong>${escapeHtml(vel)}</strong></div>
-      <div style="font-size:0.72rem;color:#9aa0a6;">
-        ${escapeHtml(s.origin_country || '')} &mdash; ${escapeHtml(s.callsign || icao24.toUpperCase())}
-        ${s.on_ground ? ' &mdash; <em>On ground</em>' : ''}
-        ${data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : ''}
-      </div>`;
+    el.textContent = 'Unexpected response format.';
   } catch (e) {
     el.textContent = `Error: ${escapeHtml(e.message)}`;
   }
