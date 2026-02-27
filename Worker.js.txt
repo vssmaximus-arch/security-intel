@@ -167,9 +167,11 @@ const DELL_LOGISTICS_HUBS = [
   { code: 'BNA', name: 'Dell Nashville Hub',           lat: 36.1627, lon: -86.7816, radiusKm:  60 },
   { code: 'POA', name: 'Dell Porto Alegre Hub',        lat:-30.0346, lon: -51.2177, radiusKm:  60 },
 ];
-const OPENSKY_TOKEN_META_KEY = 'opensky_token_meta';
-const LOG_ALERT_DEDUP_PREFIX = 'LOG_ALERT_DEDUP_';
-const LOGISTICS_WATCH_PREFIX = 'logistics_watch_';
+const OPENSKY_TOKEN_META_KEY  = 'opensky_token_meta';
+const LOG_ALERT_DEDUP_PREFIX  = 'LOG_ALERT_DEDUP_';
+const LOGISTICS_WATCH_PREFIX  = 'logistics_watch_';
+const LOG_TRACK_PREFIX        = 'LOG_TRACK_';          // schedule fallback cache key prefix
+const SCHEDULE_CACHE_TTL_SEC  = 10 * 60;               // 10-minute schedule cache TTL (configurable 5–15 min)
 
 /* ===========================
    LOGGING
@@ -2444,61 +2446,173 @@ async function checkLogisticsProximity(env, incident) {
 }
 
 /* ===========================
+   S2.5 — VESSEL LAST-HUB HELPER
+=========================== */
+/**
+ * Scan current incidents for the most recent lat/lon that falls within
+ * 50 km of a Dell Logistics Hub. Used as a proxy for vessel port-call history
+ * when AIS live data is unavailable.
+ * @param {object} env
+ * @param {string} vesselId - MMSI or vessel name (informational only)
+ * @returns {Promise<{name:string,code:string,time:string|null}|null>}
+ */
+async function findVesselLastHub(env, vesselId) {
+  try {
+    const incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    let best = null;
+    let bestDist = Infinity;
+    for (const inc of incidents) {
+      const lat = Number(inc.lat);
+      const lon = Number(inc.lng || inc.lon);
+      if (isNaN(lat) || isNaN(lon)) continue;
+      for (const hub of DELL_LOGISTICS_HUBS) {
+        const d = haversineKm(lat, lon, hub.lat, hub.lon);
+        if (d <= 50 && d < bestDist) {
+          bestDist = d;
+          best = { name: hub.name, code: hub.code, time: inc.pubDate || inc.date || inc.ts || null };
+        }
+      }
+    }
+    typeof debug === 'function' && debug('findVesselLastHub', vesselId, best ? best.code : 'none');
+    return best;
+  } catch(e) {
+    typeof debug === 'function' && debug('findVesselLastHub error', e?.message || e);
+    return null;
+  }
+}
+
+/* ===========================
    S2.5 — LOGISTICS WORKER PROXY ENDPOINTS
 =========================== */
 async function handleApiLogisticsTrack(env, req) {
   try {
     const url    = new URL(req.url);
-    const icao24 = (url.searchParams.get('icao24') || '').trim().toLowerCase();
+    // Normalise: trim + lowercase for lookup; uppercase preserved in display fields
+    const rawId  = (url.searchParams.get('icao24') || url.searchParams.get('id') || '').trim();
+    const icao24 = rawId.toLowerCase();
     const lamin  = url.searchParams.get('lamin');
     const lamax  = url.searchParams.get('lamax');
     const lomin  = url.searchParams.get('lomin');
     const lomax  = url.searchParams.get('lomax');
     const isBbox = lamin && lamax && lomin && lomax;
 
+    // Input validation
     if (!icao24 && !isBbox) {
-      return { ok: false, status: 400, body: { ok: false, error: 'icao24 or bbox params (lamin/lamax/lomin/lomax) required' } };
+      return { ok: false, status: 400, body: { ok: false, error: 'icao24 or bbox params required' } };
+    }
+    if (icao24 && icao24.length > 64) {
+      return { ok: false, status: 400, body: { ok: false, error: 'id too long (max 64 chars)' } };
     }
 
-    // Guard: 7–9 all-digit IDs are MMSI (vessel) — OpenSky only handles hex ICAO24
+    // ── VESSEL branch: 7–9 all-digit IDs are MMSI ──────────────────────────────
     if (icao24 && /^\d{7,9}$/.test(icao24)) {
-      return { ok: false, status: 400, body: { ok: false, error: 'vessel_id', message: 'Vessel MMSI detected. Use the AIS deep-link for vessel tracking.' } };
+      const lastHub = await findVesselLastHub(env, icao24);
+      const vesselStatus = lastHub ? 'IN-PORT' : 'UNKNOWN';
+      typeof debug === 'function' && debug('logistics:track:vessel', icao24, vesselStatus);
+      return { ok: true, status: 200, body: {
+        ok: true, id: icao24, status: vesselStatus,
+        lastHubName: lastHub ? lastHub.name : null,
+        lastHubTime: lastHub ? lastHub.time  : null,
+        deepLink: `https://www.vesselfinder.com/vessels?name=${encodeURIComponent(icao24)}`,
+        source: 'hub_history',
+      }};
     }
 
-    const cacheKey = icao24
-      ? `logistics_track_${icao24}`
-      : `logistics_bbox_${lamin}_${lamax}_${lomin}_${lomax}`;
+    // ── BBOX branch (hub radar): no schedule fallback, return aircraft count ───
+    if (isBbox) {
+      const bboxKey = `logistics_bbox_${lamin}_${lamax}_${lomin}_${lomax}`;
+      try {
+        const cached = await kvGetJson(env, bboxKey, null);
+        if (cached) return { ok: true, status: 200, body: { ...cached, _cached: true } };
+      } catch(e) {}
+      const token = await getOpenSkyToken(env);
+      const hdr = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const bboxRes = await fetch(`https://opensky-network.org/api/states/all?lamin=${lamin}&lamax=${lamax}&lomin=${lomin}&lomax=${lomax}`, { headers: hdr });
+      if (!bboxRes.ok) return { ok: false, status: bboxRes.status, body: { ok: false, error: `OpenSky upstream error (${bboxRes.status})` } };
+      const bboxData = await bboxRes.json();
+      const bboxStates = (bboxData.states || []).map(s => ({ icao24: s[0], callsign: (s[1] || '').trim(), latitude: s[6], longitude: s[5] }));
+      const bboxResult = { states: bboxStates, fetched_at: new Date().toISOString() };
+      if (bboxStates.length > 0) await kvPut(env, bboxKey, bboxResult, { expirationTtl: 60 });
+      typeof debug === 'function' && debug('logistics:track:bbox', bboxStates.length);
+      return { ok: true, status: 200, body: bboxResult };
+    }
+
+    // ── FLIGHT branch ──────────────────────────────────────────────────────────
+    // 1. Live-state 60-second KV cache
+    const liveKey = `logistics_track_${icao24}`;
     try {
-      const cached = await kvGetJson(env, cacheKey, null);
+      const cached = await kvGetJson(env, liveKey, null);
       if (cached) {
-        typeof debug === 'function' && debug('logistics:track:cache', cacheKey);
+        typeof debug === 'function' && debug('logistics:track:live-cache', icao24);
         return { ok: true, status: 200, body: { ...cached, _cached: true } };
       }
     } catch(e) {}
 
+    // 2. OpenSky live states
+    if (!env.OPENSKY_CLIENT_ID || !env.OPENSKY_CLIENT_SECRET) {
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_not_configured', deep_link: 'https://opensky-network.org/' } };
+    }
     const token = await getOpenSkyToken(env);
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    const osUrl = isBbox
-      ? `https://opensky-network.org/api/states/all?lamin=${lamin}&lamax=${lamax}&lomin=${lomin}&lomax=${lomax}`
-      : `https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`;
-
-    const osRes = await fetch(osUrl, { headers });
+    const osRes = await fetch(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers });
     if (!osRes.ok) {
-      return { ok: false, status: osRes.status, body: { ok: false, error: `OpenSky upstream error (${osRes.status})` } };
+      return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}` } };
     }
-    const data = await osRes.json();
-    const states = (data.states || []).map(s => ({
+    const osData  = await osRes.json();
+    const states  = (osData.states || []).map(s => ({
       icao24: s[0], callsign: (s[1] || '').trim(), origin_country: s[2],
       longitude: s[5], latitude: s[6], baro_altitude: s[7],
       on_ground: s[8], velocity: s[9], true_track: s[10], vertical_rate: s[11],
     }));
-    const result = { icao24: icao24 || null, states, not_in_range: states.length === 0, fetched_at: new Date().toISOString() };
-    // Only cache positive results — don't cache "not in range" so the next request gets fresh data
+
+    // 3. LIVE result
     if (states.length > 0) {
-      await kvPut(env, cacheKey, result, { expirationTtl: 60 });
+      const liveResult = { id: icao24, icao24, status: 'LIVE', states, fetched_at: new Date().toISOString() };
+      await kvPut(env, liveKey, liveResult, { expirationTtl: 60 });
+      typeof debug === 'function' && debug('logistics:track:live', icao24, states.length, 'states');
+      return { ok: true, status: 200, body: { ok: true, ...liveResult } };
     }
-    typeof debug === 'function' && debug('logistics:track:fetched', cacheKey, states.length, 'states');
-    return { ok: true, status: 200, body: result };
+
+    // 4. Schedule fallback: 10-min KV cache check first
+    try {
+      const sched = await kvGetJson(env, `${LOG_TRACK_PREFIX}${icao24}`, null);
+      if (sched) {
+        typeof debug === 'function' && debug('logistics:track:schedule-cache', icao24);
+        return { ok: true, status: 200, body: { ok: true, ...sched, _cached: true } };
+      }
+    } catch(e) {}
+
+    // 5. OpenSky Flights API: last 48 h of landings
+    const nowSec = Math.floor(Date.now() / 1000);
+    const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
+    const fRes = await fetch(flightsUrl, { headers });
+    if (!fRes.ok) {
+      typeof debug === 'function' && debug('logistics:track:flights-api-error', icao24, fRes.status);
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_error', details: `flights API: ${fRes.status}` } };
+    }
+    const flights = await fRes.json().catch(() => []);
+    if (!Array.isArray(flights) || flights.length === 0) {
+      return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: `https://opensky-network.org/aircraft/${icao24}` } };
+    }
+
+    // 6. Pick best record (most recent lastSeen)
+    const best     = flights.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0))[0];
+    const depCode  = ((best.estDepartureAirport || '???')).trim().toUpperCase();
+    const arrCode  = ((best.estArrivalAirport   || '???')).trim().toUpperCase();
+    const lastSeenISO = best.lastSeen ? new Date(best.lastSeen * 1000).toISOString() : null;
+    const hoursAgo = best.lastSeen ? (nowSec - best.lastSeen) / 3600 : Infinity;
+    let flightStatus = 'SCHEDULED';
+    if (best.estArrivalAirport && hoursAgo < 24) flightStatus = 'ARRIVED';
+    else if (hoursAgo < 2 && !best.estArrivalAirport)  flightStatus = 'DEPARTED';
+    const verb = flightStatus === 'ARRIVED' ? 'Arrived' : flightStatus === 'DEPARTED' ? 'En route' : 'Scheduled';
+    const timeTag = lastSeenISO ? ` · Last seen ${lastSeenISO.slice(11, 16)}Z` : '';
+    const scheduleBrief = `${verb} ${depCode} → ${arrCode}${timeTag}`;
+
+    const schedResult = { id: icao24, status: flightStatus, estDepartureAirport: depCode, estArrivalAirport: arrCode, lastSeen: lastSeenISO, scheduleBrief, source: 'opensky_flights' };
+    await kvPut(env, `${LOG_TRACK_PREFIX}${icao24}`, schedResult, { expirationTtl: SCHEDULE_CACHE_TTL_SEC });
+    typeof debug === 'function' && debug('logistics:track:schedule', icao24, flightStatus, depCode, '->', arrCode);
+    return { ok: true, status: 200, body: { ok: true, ...schedResult } };
+
   } catch(e) {
     typeof debug === 'function' && debug('handleApiLogisticsTrack error', e?.message || e);
     return { ok: false, status: 500, body: { ok: false, error: String(e?.message || e) } };

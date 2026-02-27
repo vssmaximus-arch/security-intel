@@ -294,6 +294,15 @@
     .watch-type-btn:hover:not(.active) { background: #3c4043; }
     .ais-btn { background: #0d7377; color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font-size: 0.73rem; cursor: pointer; white-space: nowrap; margin-top: 4px; }
     .ais-btn:hover { background: #14a0a5; }
+    /* S2.5 — Status badges: LIVE / SCHEDULED / DEPARTED / ARRIVED / IN-PORT / STATIONARY / UNKNOWN */
+    .status-badge { display: inline-block; font-size: 0.63rem; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 3px; vertical-align: middle; text-transform: uppercase; }
+    .status-LIVE       { background: #1e4620; color: #81c995; border: 1px solid #81c995; }
+    .status-SCHEDULED  { background: #4a3000; color: #fdd663; border: 1px solid #fdd663; }
+    .status-DEPARTED   { background: #1a3a5c; color: #8ab4f8; border: 1px solid #8ab4f8; }
+    .status-ARRIVED    { background: #1e4620; color: #81c995; border: 1px solid #4a7c59; }
+    .status-IN-PORT    { background: #292a2d; color: #9aa0a6; border: 1px solid #5f6368; }
+    .status-STATIONARY { background: #292a2d; color: #9aa0a6; border: 1px solid #5f6368; }
+    .status-UNKNOWN    { background: #292a2d; color: #5f6368; border: 1px solid #3c4043; }
     .drawer-footer { padding: 10px 12px; border-top: 1px solid #3c4043; background: #292a2d; flex-shrink: 0; }
     .drawer-radar-result { background: #1a1b1e; border-radius: 4px; padding: 6px 8px; font-size: 0.7rem; color: #8ab4f8; margin-top: 4px; white-space: pre-wrap; word-break: break-all; }
     .drawer-empty { color: #5f6368; font-style: italic; font-size: 0.78rem; text-align: center; padding: 20px 0; }
