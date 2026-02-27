@@ -2528,7 +2528,7 @@ async function handleApiLogisticsWatch(env, req) {
  * For now it returns a "pending" status so the UI can show a meaningful message.
  *
  * @param {string} mmsi  - 9-digit MMSI number of the vessel
- * @returns {{ ok: boolean, status: string, data: object|null }}
+ * @returns {Promise<{ok: boolean, status: string, data: (object|null)}>}
  */
 async function fetchAisStreamData(mmsi) {
   // TODO: Replace stub once env.AISSTREAM_API_KEY is provisioned.
