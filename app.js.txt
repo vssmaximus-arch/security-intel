@@ -61,7 +61,12 @@ let heatLayer = null;
 let heatmapEnabled = false;
 
 // --- S2.5 Logistics Drawer state ---
-let logisticsDrawerOpen = false;
+let logisticsDrawerOpen  = false;
+
+// --- S2.5 Logistics Map state ---
+let logisticsLayerGroup  = null;  // Leaflet L.layerGroup for logistics markers + hub rings
+const LOGISTICS_MARKERS  = new Map(); // id → L.marker for live position updates
+let _logisticsPollTimer  = null;  // setInterval handle for 60-second autopoll
 
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
@@ -834,6 +839,9 @@ function initMap() {
   map.addLayer(incidentClusterGroup);
   criticalLayerGroup = L.layerGroup();
   map.addLayer(criticalLayerGroup);
+
+  // S2.5: draw hub geofence rings + init logistics marker layer
+  initLogisticsLayer();
 }
 
 /* ===========================
@@ -1970,6 +1978,159 @@ function connectSSE() {
 }
 
 /* ===========================
+   S2.5 LOGISTICS MAP LAYER
+=========================== */
+
+// Dell hub coordinates (client-side mirror of worker constants)
+const LOGISTICS_HUB_DEFS = [
+  { code: 'PEN', name: 'Dell Penang',       lat:  5.2971, lon: 100.2769, radiusKm: 50 },
+  { code: 'SIN', name: 'Dell Singapore',    lat:  1.3521, lon: 103.8198, radiusKm: 50 },
+  { code: 'ROT', name: 'Dell Rotterdam',    lat: 51.9225, lon:   4.4792, radiusKm: 50 },
+  { code: 'SNN', name: 'Dell Shannon',      lat: 52.7019, lon:  -8.9248, radiusKm: 50 },
+  { code: 'AUS', name: 'Dell Austin',       lat: 30.1944, lon: -97.6700, radiusKm: 50 },
+  { code: 'BNA', name: 'Dell Nashville',    lat: 36.1263, lon: -86.6774, radiusKm: 50 },
+  { code: 'POA', name: 'Dell Porto Alegre', lat:-29.9953, lon: -51.3142, radiusKm: 50 },
+];
+
+function makeLogisticsIcon(type, alerting = false) {
+  const emoji = type === 'vessel' ? '🚢' : '✈️';
+  const cls   = alerting ? 'logistics-marker logistics-marker-alert' : 'logistics-marker';
+  return L.divIcon({
+    className: '',
+    html: `<div class="${cls}" role="img" aria-label="${type === 'vessel' ? 'Vessel' : 'Aircraft'} marker">${emoji}</div>`,
+    iconSize:   [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor:[0, -20],
+  });
+}
+
+function buildLogisticsPopup(id, type, data) {
+  const brief = data.scheduleBrief ? `<br><em>${escapeHtml(data.scheduleBrief)}</em>` : '';
+  const route = (data.estDepartureAirport && data.estArrivalAirport)
+    ? `<br><span style="color:#8ab4f8;">Origin ➔ Dest: <strong>${escapeHtml(data.estDepartureAirport)} → ${escapeHtml(data.estArrivalAirport)}</strong></span>` : '';
+  const callsign = data.callsign ? `<br>Callsign: ${escapeHtml(data.callsign)}` : '';
+  const pos = (data.lat != null && data.lon != null)
+    ? `<br><small style="color:#9aa0a6;">Pos: ${Number(data.lat).toFixed(4)}, ${Number(data.lon).toFixed(4)}</small>` : '';
+  return `<div style="min-width:170px;font-size:0.78rem;">
+    <strong>${type === 'vessel' ? '🚢' : '✈️'} ${escapeHtml(id.toUpperCase())}</strong>
+    ${brief}${route}${callsign}${pos}
+  </div>`;
+}
+
+function isInsideHub(lat, lon) {
+  for (const hub of LOGISTICS_HUB_DEFS) {
+    const dx = (lon - hub.lon) * Math.cos(lat * Math.PI / 180) * 111.32;
+    const dy = (lat - hub.lat) * 111.32;
+    if (Math.sqrt(dx * dx + dy * dy) <= hub.radiusKm) return hub;
+  }
+  return null;
+}
+
+function initLogisticsLayer() {
+  if (!window.map || !window.L) return;
+  if (logisticsLayerGroup) return; // already initialised
+  logisticsLayerGroup = L.layerGroup().addTo(map);
+  // Draw semi-transparent 50 km geofence rings around each Dell hub
+  for (const hub of LOGISTICS_HUB_DEFS) {
+    L.circle([hub.lat, hub.lon], {
+      radius: hub.radiusKm * 1000,  // km → metres
+      color: '#1a73e8',
+      fillColor: '#1a73e8',
+      fillOpacity: 0.05,
+      weight: 1.5,
+      dashArray: '6 4',
+      interactive: true,
+    }).bindPopup(`<strong>${escapeHtml(hub.name)}</strong> (${escapeHtml(hub.code)})<br>${hub.radiusKm} km logistics geofence`)
+      .addTo(logisticsLayerGroup);
+  }
+  typeof debug === 'function' && debug('logisticsLayer: initialized', LOGISTICS_HUB_DEFS.length, 'hub rings');
+}
+
+function placeLogisticsMarker(id, type, lat, lon, data) {
+  if (!window.map || !window.L || !logisticsLayerGroup) return;
+  const hub      = isInsideHub(lat, lon);
+  const alerting = !!hub;
+  const icon     = makeLogisticsIcon(type, alerting);
+  const popup    = buildLogisticsPopup(id, type, { ...data, lat, lon });
+  if (LOGISTICS_MARKERS.has(id)) {
+    const m = LOGISTICS_MARKERS.get(id);
+    m.setLatLng([lat, lon]);
+    m.setIcon(icon);
+    m.setPopupContent(popup);
+    if (alerting) {
+      typeof debug === 'function' && debug('logisticsMarker: inside hub', hub.code, id);
+    }
+  } else {
+    const m = L.marker([lat, lon], { icon })
+      .bindPopup(popup)
+      .addTo(logisticsLayerGroup);
+    LOGISTICS_MARKERS.set(id, m);
+  }
+}
+
+function removeLogisticsMarker(id) {
+  if (LOGISTICS_MARKERS.has(id)) {
+    try { logisticsLayerGroup && logisticsLayerGroup.removeLayer(LOGISTICS_MARKERS.get(id)); } catch(e) {}
+    LOGISTICS_MARKERS.delete(id);
+  }
+}
+
+async function pollLogisticsWatchlist() {
+  if (!OSINFO_USER_ID) return;
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
+      headers: { 'X-User-Id': OSINFO_USER_ID },
+    });
+    if (!res.ok) return;
+    const payload = await res.json().catch(() => ({}));
+    const watchlist = Array.isArray(payload.watchlist) ? payload.watchlist : [];
+    for (const item of watchlist) {
+      const id   = typeof item === 'string' ? item : (item.id   || '');
+      const type = typeof item === 'object'  ? (item.type || 'flight') : 'flight';
+      if (!id) continue;
+      try {
+        const tr   = await fetchWithTimeout(
+          `${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(id)}`,
+          { headers: { 'X-User-Id': OSINFO_USER_ID } }
+        );
+        const data = await tr.json().catch(() => ({}));
+        if (data.ok && data.status === 'LIVE' && Array.isArray(data.states) && data.states.length > 0) {
+          const s = data.states[0];
+          if (s.latitude != null && s.longitude != null) {
+            placeLogisticsMarker(id, type, s.latitude, s.longitude, {
+              scheduleBrief:       data.scheduleBrief || null,
+              estDepartureAirport: data.estDepartureAirport || null,
+              estArrivalAirport:   data.estArrivalAirport   || null,
+              callsign:            s.callsign || null,
+            });
+          }
+        }
+      } catch(e) {
+        typeof debug === 'function' && debug('logisticsPoll:item error', id, e?.message || e);
+      }
+    }
+    typeof debug === 'function' && debug('logisticsPoll: polled', watchlist.length, 'items');
+  } catch(e) {
+    typeof debug === 'function' && debug('logisticsPoll error', e?.message || e);
+  }
+}
+
+function startLogisticsPoll() {
+  if (_logisticsPollTimer) return;
+  pollLogisticsWatchlist();                                // immediate first poll
+  _logisticsPollTimer = setInterval(pollLogisticsWatchlist, 60 * 1000);
+  typeof debug === 'function' && debug('logisticsPoll: started (60 s interval)');
+}
+
+function stopLogisticsPoll() {
+  if (_logisticsPollTimer) {
+    clearInterval(_logisticsPollTimer);
+    _logisticsPollTimer = null;
+    typeof debug === 'function' && debug('logisticsPoll: stopped');
+  }
+}
+
+/* ===========================
    S2.5 LOGISTICS DRAWER
 =========================== */
 
@@ -2072,7 +2233,7 @@ async function loadLogisticsWatchlist() {
         ? `<a class="ais-btn mt-1" href="${escapeAttr(`https://www.vesselfinder.com/vessels?name=${encodeURIComponent(id)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Track ${safeLabel} via AIS">
              <i class="fas fa-anchor me-1" aria-hidden="true"></i>Track via AIS
            </a>`
-        : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" aria-label="Track ${safeLabel}">
+        : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="${type}" aria-label="Track ${safeLabel}">
              <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
            </button>
            <div class="drawer-radar-result" id="track-result-${safeId}"></div>`;
@@ -2092,7 +2253,7 @@ async function loadLogisticsWatchlist() {
   }
 }
 
-async function trackFlight(icao24, resultElId) {
+async function trackFlight(icao24, resultElId, type = 'flight') {
   const el = document.getElementById(resultElId);
   if (!el) return;
   el.textContent = 'Fetching…';
@@ -2123,6 +2284,12 @@ async function trackFlight(icao24, resultElId) {
       const s   = data.states[0];
       const alt = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m' : 'N/A';
       const vel = s.velocity      != null ? s.velocity.toFixed(0)      + ' m/s' : 'N/A';
+      // Place / move marker on map if position is known
+      if (s.latitude != null && s.longitude != null) {
+        placeLogisticsMarker(icao24, type, s.latitude, s.longitude, {
+          scheduleBrief: null, callsign: s.callsign || null,
+        });
+      }
       el.innerHTML = `
         <span class="status-badge status-LIVE">LIVE</span>
         <div style="margin-top:3px;">Alt: <strong>${escapeHtml(alt)}</strong> &nbsp;|&nbsp; Vel: <strong>${escapeHtml(vel)}</strong></div>
@@ -2373,7 +2540,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (action === 'logistics-track') {
         const icao = (t.dataset.icao || t.dataset.id || '').trim().toLowerCase();
-        if (icao) await trackFlight(icao, `track-result-${icao}`);
+        const type = t.dataset.type || 'flight';
+        if (icao) await trackFlight(icao, `track-result-${icao}`, type);
         return;
       }
       if (action === 'logistics-radar') {
@@ -2476,6 +2644,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Real-time bridge: SSE (EventSource) with polling fallback
     connectSSE();
+
+    // S2.5: start 60-second logistics autopoll (updates map markers for watched assets)
+    startLogisticsPoll();
 
     // try flush queue on load
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
