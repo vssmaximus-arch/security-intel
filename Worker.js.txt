@@ -2057,7 +2057,7 @@ async function aggregateVotesFromLog(env) {
 /* ===========================
    INGESTION RUNNER (enrichment + proximity rules)
    =========================== */
-async function runIngestion(env, options = {}) {
+async function runIngestion(env, options = {}, ctx = null) {
   const force = !!options.force;
   const got = await acquireLock(env, INGEST_LOCK_KEY, INGEST_LOCK_TTL_SEC, INGEST_LOCK_STALE_SEC, force);
   if (!got && !force) {
@@ -2354,12 +2354,17 @@ async function runIngestion(env, options = {}) {
       // archive older ones
       try { await archiveIncidents(env, merged); } catch (e) { typeof debug === 'function' && debug("archiveIncidents error", e?.message || e); }
 
-      // S2.5: logistics proximity alert for fresh incidents (fire-and-forget; dedup prevents repeat alerts)
+      // S2.5: logistics proximity alert for fresh incidents
+      // Use ctx.waitUntil so the Worker runtime keeps the promises alive past response time
       if (fresh.length > 0) {
         const freshSnap = fresh.slice();
-        Promise.all(freshSnap.map(inc =>
+        const proximityWork = Promise.all(freshSnap.map(inc =>
           checkLogisticsProximity(env, inc).catch(e => typeof debug === 'function' && debug('checkLogisticsProximity err', e?.message || e))
         )).catch(() => {});
+        if (ctx && ctx.waitUntil) {
+          ctx.waitUntil(proximityWork);
+        }
+        // proximityWork is already running; ctx.waitUntil keeps it alive past the request boundary
       }
 
       // trigger thumb aggregation async
@@ -2488,7 +2493,10 @@ async function handleApiLogisticsTrack(env, req) {
       on_ground: s[8], velocity: s[9], true_track: s[10], vertical_rate: s[11],
     }));
     const result = { icao24: icao24 || null, states, not_in_range: states.length === 0, fetched_at: new Date().toISOString() };
-    await kvPut(env, cacheKey, result, { expirationTtl: 60 });
+    // Only cache positive results — don't cache "not in range" so the next request gets fresh data
+    if (states.length > 0) {
+      await kvPut(env, cacheKey, result, { expirationTtl: 60 });
+    }
     typeof debug === 'function' && debug('logistics:track:fetched', cacheKey, states.length, 'states');
     return { ok: true, status: 200, body: result };
   } catch(e) {
@@ -2699,7 +2707,7 @@ async function handleAdminAction(env, req, ctx) {
   try {
     // FIX: Using ctx.waitUntil to prevent background tasks from being killed
     if (action === 'trigger-ingest' || action === 'ingest') {
-      if (ctx) ctx.waitUntil(runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed", e?.message || e)));
+      if (ctx) ctx.waitUntil(runIngestion(env, { force: true }, ctx).catch(e => debug("ingest trigger failed", e?.message || e)));
       else runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed no-ctx", e?.message || e));
       return { ok:true, status:200, body: "ingest_started" };
     } else if (action === 'aggregate-thumbs') {
@@ -3298,7 +3306,7 @@ async function moduleScheduled(evt, env, ctx) {
     if (ctx && ctx.waitUntil) {
       ctx.waitUntil((async () => {
         try {
-          await runIngestion(env, {});
+          await runIngestion(env, {}, ctx);
           await refreshTravelData(env, {});
           await aggregateThumbs(env, {});
         } catch (e) { debug("scheduled handler err", e?.message || e); }
