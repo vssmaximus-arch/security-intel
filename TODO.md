@@ -1,9 +1,9 @@
 # OS InfoHub Dashboard - Implementation Roadmap (TODO.md)
 
-## 🎯 Current Milestone: S2.4 — Historical Data Archival DONE
-> **Active Status**: Phase 2, Task S2.5 (next)
-> **Current Context**: S2.4 complete — archive writes now carry 90-day KV TTL; `POST /api/dailybrief/generate` (admin-auth) reads `archive_{date}` or falls back to live INCIDENTS_KV, filters by region, persists `DAILY_BRIEF_{date}` with 90-day TTL, returns JSON download with `Content-Disposition` when `?download=true`; `GET /api/dailybrief?date=&download=true` also returns attachment header; `populateArchiveDates` IIFE in app.js populates the `#history-picker` datalist from `GET /api/archive` on boot.
-> **Next Session Tip**: After `wrangler publish`, run `wrangler kv:key get --binding INTEL_KV archive_$(date +%F)` and check the metadata TTL is ~7776000 s. Then call `curl -X POST -H "secret: $SECRET" "$WORKER_URL/api/dailybrief/generate?date=$(date +%F)&region=Global"` and confirm `{ ok:true, key:..., items:N }`. Finally open the History sidebar tab and verify the date-picker autocompletes to real archive dates.
+## 🎯 Current Milestone: S2.5 — Alert Escalation & Notification Pipeline DONE
+> **Active Status**: Phase 2 complete; Phase 3 next (S3.1 DEP_APPROVAL required)
+> **Current Context**: S2.5 complete — `DELL_LOGISTICS_HUBS` (7 geofences: PEN/SIN/ROT/SNN/AUS/BNA/POA); `getOpenSkyToken` (process-global + KV OAuth2 cache); `checkLogisticsProximity` (haversine gating + 1-hour KV dedup + `sendAlertEmail`); `GET /api/logistics/track` (OpenSky proxy, 60s KV cache, bbox or icao24 query); `POST /api/logistics/watch` (per-user watchlist, 90-day TTL, add/remove/test-alert); `runIngestion` fires `checkLogisticsProximity` for every fresh incident (fire-and-forget); right-side logistics drawer in index.html (Assets, Watchlist, Alerts tabs + Test Alert + Live Radar buttons); `openLogisticsDrawer`/`closeLogisticsDrawer`/`trackFlight`/`addToWatchlist`/`removeFromWatchlist`/`sendTestAlert` in app.js; backdrop click-to-close wired in DOMContentLoaded. Commits: `ea67036` (root) / `1abe4c6` (worktree).
+> **Next Session Tip**: Deploy worker (`wrangler publish`), open dashboard, click **Logistics** button in header — confirm drawer slides open; click **Live Radar** on any hub and confirm aircraft count appears; add an ICAO24 to watchlist and verify it persists across reload via `GET /api/logistics/watch`. Then click **Test Alert** and check inbox for the mock alert email.
 
 ---
 
@@ -27,12 +27,12 @@
 - [/] **S2.2**: Threat Feed Aggregator (API connectors)
 - [x] **S2.3**: Real-time SSE bridge for live alerts (GET /api/stream + EventSource client)
 - [x] **S2.4**: Historical Data Archival
-- [NEXT] **S2.5**: Alert Escalation & Notification Pipeline
+- [x] **S2.5**: Alert Escalation & Notification Pipeline (logistics geofences, OpenSky proxy, watchlist, drawer UI)
 
 ## 📅 Phase 3: Visualization & Analytics
-- [ ] **S3.1**: Interactive SVG Global Map (D3.js) — DEP_APPROVAL
-- [ ] **S3.2**: Threat Level Heatmap
-- [ ] **S3.3**: PDF Report Generator
+- [ ] **S3.1**: Interactive SVG Global Map (D3.js) — DEP_APPROVAL — [NEXT]
+- [x] **S3.2**: Threat Level Heatmap (leaflet-heat, severity-weighted, cdnjs CDN)
+- [x] **S3.3**: PDF Report Generator (jsPDF + html2canvas, client-side, cdnjs CDN)
 
 ## 🔴 Blockers / Deferred
 - [ ] *Deferred*: Multi-tenancy support
