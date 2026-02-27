@@ -724,7 +724,7 @@ function createHeatLayerFromIncidents(list) {
 }
 
 function refreshHeatLayerIfEnabled() {
-  if (!heatmapEnabled || !window.map) return;
+  if (!heatmapEnabled || !map) return;
   if (heatLayer) { try { map.removeLayer(heatLayer); } catch(e){} }
   heatLayer = createHeatLayerFromIncidents(INCIDENTS);
   if (heatLayer) heatLayer.addTo(map);
@@ -2027,7 +2027,7 @@ function isInsideHub(lat, lon) {
 }
 
 function initLogisticsLayer() {
-  if (!window.map || !window.L) return;
+  if (!map || !window.L) return;
   if (logisticsLayerGroup) return; // already initialised
   logisticsLayerGroup = L.layerGroup().addTo(map);
   // Draw semi-transparent 50 km geofence rings around each Dell hub
@@ -2047,7 +2047,7 @@ function initLogisticsLayer() {
 }
 
 function placeLogisticsMarker(id, type, lat, lon, data) {
-  if (!window.map || !window.L || !logisticsLayerGroup) return;
+  if (!map || !window.L || !logisticsLayerGroup) return;
   const hub      = isInsideHub(lat, lon);
   const alerting = !!hub;
   const icon     = makeLogisticsIcon(type, alerting);
@@ -2504,7 +2504,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'close-logistics') { closeLogisticsDrawer(); return; }
       if (action === 'logistics-tab') {
         const tab = t.dataset.tab;
-        if (tab) switchLogisticsTab(tab);
+        if (tab) {
+          switchLogisticsTab(tab);
+          if (tab === 'watchlist') loadLogisticsWatchlist(); // always fresh on tab visit
+        }
         return;
       }
       if (action === 'watch-type-toggle') {
