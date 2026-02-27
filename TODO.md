@@ -1,9 +1,9 @@
 # OS InfoHub Dashboard - Implementation Roadmap (TODO.md)
 
-## 🎯 Current Milestone: S2.5 — Live Logistics Operations Active
+## 🎯 Current Milestone: S2.5 — Live Map Markers Complete
 > **Active Status**: Phase 2 complete; Phase 3 next (S3.1 DEP_APPROVAL required)
-> **Current Context**: S2.5 fully operational — all logistics bugs resolved: (1) `?icao24=` param now correctly read in `handleApiLogisticsTrack` (was `?id=`); (2) response schema fixed — `trackFlight` now reads `data.states[0].baro_altitude` / `velocity` (was `data.geo_altitude` — field didn't exist); (3) MMSI guard added — 7-9 digit numeric IDs return `{ error:'vessel_id' }` JSON with user-facing "Use AIS deep-link" message; (4) hub bbox radar count fixed to read `data.states.length` (was `data.length` → always 0); (5) all 400/500 bodies are now JSON objects; (6) "Flight not currently in range." replaces generic "No live data"; (7) `_cached` indicator shown in radar result. `fetchAisStreamData(mmsi)` stub ready for AISStream.io key. Flight/Vessel toggle + VesselFinder deep-link fully wired. Commits: `e0ca5fa` (root) / `ae5856b` (worktree).
-> **Next Session Tip**: Deploy (`wrangler publish`), open **Logistics** drawer: (A) add ICAO24 flight → Live Radar shows altitude/velocity or "Flight not currently in range"; (B) add vessel MMSI (9 digits) → watchlist shows "Track via AIS" link; (C) click hub **Live Radar** → aircraft count shows correctly; (D) click **Test Alert** → inbox receives test. Next: run `wrangler secret put AISSTREAM_API_KEY` to enable live maritime dots.
+> **Current Context**: S2.5 live map markers fully implemented — (1) `L.layerGroup()` logistics layer with hub geofence `L.circle` rings (50 km, semi-transparent blue, dashed); (2) `L.divIcon` emoji markers (✈️/🚢) via `makeLogisticsIcon`; (3) `placeLogisticsMarker` uses `marker.setLatLng()` for live updates + `isInsideHub` haversine check adds `.logistics-marker-alert` red pulse on geofence entry; (4) 60-second autopoll `startLogisticsPoll` iterates watchlist and calls `trackFlight` per LIVE item; (5) `data-type` attr on track buttons + action handler passes type to `trackFlight`; (6) `.logistics-marker` / `.logistics-marker-alert` / `@keyframes logisticsPulse` CSS added. Commits: `232ec32` (root) / `4bdcab9` (worktree).
+> **Next Session Tip**: Deploy (`wrangler publish`), open **Logistics** drawer: (A) add live ICAO24 (e.g. `a0f0d6`) → Live Radar returns LIVE badge + map shows ✈️ at position; (B) wait 60s → marker auto-updates via poll; (C) add flight near a Dell hub → marker pulses red; (D) add vessel MMSI → shows "Track via AIS" link. Next: run `wrangler secret put AISSTREAM_API_KEY` to enable live maritime AIS dots, then S3.1 DEP_APPROVAL for D3 map.
 
 ---
 
@@ -28,7 +28,8 @@
 - [x] **S2.3**: Real-time SSE bridge for live alerts (GET /api/stream + EventSource client)
 - [x] **S2.4**: Historical Data Archival
 - [x] **S2.5**: Alert Escalation & Notification Pipeline (logistics geofences, OpenSky proxy, watchlist, drawer UI)
-  - TBD: S2.5 — Schedule Fallback implemented: flight schedules + vessel last-hub + status badges.
+  - [x] S2.5 — Schedule Fallback: flight schedules + vessel last-hub + status badges (LIVE/SCHEDULED/DEPARTED/ARRIVED/IN-PORT/UNKNOWN).
+  - [x] S2.5 — Live Map Markers: hub geofence rings, emoji divIcons, autopoll engine, alert pulse CSS.
 
 ## 📅 Phase 3: Visualization & Analytics
 - [ ] **S3.1**: Interactive SVG Global Map (D3.js) — DEP_APPROVAL — [NEXT]
