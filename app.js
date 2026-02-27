@@ -2030,19 +2030,32 @@ function initLogisticsLayer() {
   if (!map || !window.L) return;
   if (logisticsLayerGroup) return; // already initialised
   logisticsLayerGroup = L.layerGroup().addTo(map);
-  // Draw semi-transparent 50 km geofence rings around each Dell hub
+  // Draw hub markers + 50 km geofence rings around each Dell hub
   for (const hub of LOGISTICS_HUB_DEFS) {
-    L.circle([hub.lat, hub.lon], {
-      radius: hub.radiusKm * 1000,  // km → metres
+    const popupHtml = `<strong>${escapeHtml(hub.name)}</strong> (${escapeHtml(hub.code)})<br>${hub.radiusKm} km logistics geofence`;
+    // Pixel-size dot — always visible at any zoom level
+    L.circleMarker([hub.lat, hub.lon], {
+      radius: 7,
       color: '#1a73e8',
       fillColor: '#1a73e8',
-      fillOpacity: 0.05,
-      weight: 1.5,
-      dashArray: '6 4',
+      fillOpacity: 0.85,
+      weight: 2,
+    }).bindPopup(popupHtml)
+      .bindTooltip(escapeHtml(hub.code), { permanent: true, direction: 'right', className: 'hub-label' })
+      .addTo(logisticsLayerGroup);
+    // Real-world 50 km ring — visible when zoomed in to hub area
+    L.circle([hub.lat, hub.lon], {
+      radius: hub.radiusKm * 1000,
+      color: '#1a73e8',
+      fillColor: '#1a73e8',
+      fillOpacity: 0.06,
+      weight: 2,
+      dashArray: '8 5',
       interactive: true,
-    }).bindPopup(`<strong>${escapeHtml(hub.name)}</strong> (${escapeHtml(hub.code)})<br>${hub.radiusKm} km logistics geofence`)
+    }).bindPopup(popupHtml)
       .addTo(logisticsLayerGroup);
   }
+  console.log('[logistics] initLogisticsLayer: drew', LOGISTICS_HUB_DEFS.length, 'hub markers + rings');
   typeof debug === 'function' && debug('logisticsLayer: initialized', LOGISTICS_HUB_DEFS.length, 'hub rings');
 }
 
@@ -2338,26 +2351,32 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
 }
 
 async function addToWatchlist(id, type) {
+  const listEl = document.getElementById('logistics-watchlist-list');
   if (!id || id.length < 3 || id.length > 9) {
-    alert('Enter a valid ID (3–9 characters: ICAO24 for flights, MMSI for vessels).');
+    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Enter a valid ID (3–9 chars: ICAO24 hex or MMSI digits).</div>`;
     return;
   }
   const itemType = type === 'vessel' ? 'vessel' : 'flight';
+  if (listEl) listEl.innerHTML = `<div class="drawer-empty">Saving…</div>`;
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
       body: JSON.stringify({ action: 'add', id: id.toLowerCase(), type: itemType }),
     });
+    const raw = await res.text();
+    let resData = {};
+    try { resData = JSON.parse(raw); } catch(e2) {}
+    console.log('[logistics] addToWatchlist response', res.status, raw.slice(0, 200));
     if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP ${res.status}`);
+      throw new Error(resData.error || `HTTP ${res.status}: ${raw.slice(0,120)}`);
     }
     const input = document.getElementById('watch-icao-input');
     if (input) input.value = '';
     await loadLogisticsWatchlist();
   } catch (e) {
-    alert(`Failed to add to watchlist: ${e.message}`);
+    console.error('[logistics] addToWatchlist failed', e.message);
+    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Add failed: ${escapeHtml(e.message)}</div>`;
   }
 }
 
