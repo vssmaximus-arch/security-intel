@@ -2097,21 +2097,34 @@ async function trackFlight(icao24, resultElId) {
   if (!el) return;
   el.textContent = 'Fetching…';
   try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`, {
-      headers: { 'X-User-Id': OSINFO_USER_ID },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!data || !data.icao24) {
-      el.textContent = 'No live data for this aircraft.';
+    const res = await fetchWithTimeout(
+      `${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`,
+      { headers: { 'X-User-Id': OSINFO_USER_ID } }
+    );
+    const data = await res.json().catch(() => ({}));
+    // Worker returns { ok: false, error: 'vessel_id' } for MMSI input
+    if (!res.ok) {
+      if (data.error === 'vessel_id') {
+        el.innerHTML = '<span style="color:#fdd663;">Vessel ID detected — use the <em>Track via AIS</em> button instead.</span>';
+      } else {
+        el.textContent = `Error: ${data.error || 'HTTP ' + res.status}`;
+      }
       return;
     }
+    // Worker returns { icao24, states: [{baro_altitude, velocity, ...}], not_in_range, fetched_at }
+    if (!data || data.not_in_range || !Array.isArray(data.states) || data.states.length === 0) {
+      el.textContent = 'Flight not currently in range.';
+      return;
+    }
+    const s = data.states[0];
+    const alt = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m' : 'N/A';
+    const vel = s.velocity        != null ? s.velocity.toFixed(0)        + ' m/s' : 'N/A';
     el.innerHTML = `
-      <div>Alt: <strong>${data.geo_altitude != null ? data.geo_altitude.toFixed(0) + ' m' : 'N/A'}</strong> &nbsp;|&nbsp;
-       Vel: <strong>${data.velocity != null ? data.velocity.toFixed(0) + ' m/s' : 'N/A'}</strong></div>
+      <div>Alt: <strong>${escapeHtml(alt)}</strong> &nbsp;|&nbsp; Vel: <strong>${escapeHtml(vel)}</strong></div>
       <div style="font-size:0.72rem;color:#9aa0a6;">
-        ${data.origin_country || ''} &mdash; ${data.callsign || icao24.toUpperCase()}
-        ${data.on_ground ? ' &mdash; <em>On ground</em>' : ''}
+        ${escapeHtml(s.origin_country || '')} &mdash; ${escapeHtml(s.callsign || icao24.toUpperCase())}
+        ${s.on_ground ? ' &mdash; <em>On ground</em>' : ''}
+        ${data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : ''}
       </div>`;
   } catch (e) {
     el.textContent = `Error: ${escapeHtml(e.message)}`;
@@ -2337,9 +2350,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           const url = `${WORKER_URL}/api/logistics/track?lamin=${(lat - delta).toFixed(4)}&lamax=${(lat + delta).toFixed(4)}&lomin=${(lon - delta).toFixed(4)}&lomax=${(lon + delta).toFixed(4)}`;
           const res = await fetchWithTimeout(url, { headers: { 'X-User-Id': OSINFO_USER_ID } });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          const count = Array.isArray(data) ? data.length : (data.count || 0);
-          if (el) el.innerHTML = `<span style="color:#81c995;">${count} aircraft in airspace</span>`;
+          const data = await res.json().catch(() => ({}));
+          // Worker returns { states: [...], not_in_range, fetched_at }
+          const count = Array.isArray(data.states) ? data.states.length : 0;
+          const cached = data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : '';
+          if (el) el.innerHTML = `<span style="color:#81c995;">${count} aircraft in airspace${cached}</span>`;
         } catch (e) {
           if (el) el.textContent = `Error: ${escapeHtml(e.message)}`;
         }
