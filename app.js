@@ -2287,6 +2287,10 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
     // ── Structured error responses ───────────────────────────────────────────
     if (data.ok === false || (!res.ok && !data.status)) {
       const reason = data.reason || data.error || '';
+      if (reason === 'opensky_timeout') {
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">TIMEOUT</span> OpenSky timed out — click Live Radar again to retry.`;
+        return;
+      }
       if (reason === 'opensky_not_configured') {
         el.innerHTML = `<span class="status-badge status-UNKNOWN">UNKNOWN</span> OpenSky not configured. <a href="${escapeAttr(data.deep_link || 'https://opensky-network.org/')}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Open OpenSky ↗</a>`;
         return;

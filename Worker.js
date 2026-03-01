@@ -2554,7 +2554,13 @@ async function handleApiLogisticsTrack(env, req) {
     }
     const token = await getOpenSkyToken(env);
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    const osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers }, 10000);
+    let osRes;
+    try {
+      osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers }, 10000);
+    } catch(fetchErr) {
+      typeof debug === 'function' && debug('logistics:track:states-timeout', icao24, fetchErr?.message);
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.' } };
+    }
     if (!osRes.ok) {
       return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}` } };
     }
@@ -2585,7 +2591,13 @@ async function handleApiLogisticsTrack(env, req) {
     // 5. OpenSky Flights API: last 48 h of landings
     const nowSec = Math.floor(Date.now() / 1000);
     const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
-    const fRes = await fetchWithTimeout(flightsUrl, { headers }, 10000);
+    let fRes;
+    try {
+      fRes = await fetchWithTimeout(flightsUrl, { headers }, 10000);
+    } catch(fetchErr) {
+      typeof debug === 'function' && debug('logistics:track:flights-timeout', icao24, fetchErr?.message);
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.' } };
+    }
     if (!fRes.ok) {
       typeof debug === 'function' && debug('logistics:track:flights-api-error', icao24, fRes.status);
       return { ok: false, status: 200, body: { ok: false, reason: 'opensky_error', details: `flights API: ${fRes.status}` } };
@@ -2615,6 +2627,10 @@ async function handleApiLogisticsTrack(env, req) {
 
   } catch(e) {
     typeof debug === 'function' && debug('handleApiLogisticsTrack error', e?.message || e);
+    const isAbort = e?.name === 'AbortError' || String(e?.message || '').toLowerCase().includes('abort');
+    if (isAbort) {
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.' } };
+    }
     return { ok: false, status: 500, body: { ok: false, error: String(e?.message || e) } };
   }
 }
