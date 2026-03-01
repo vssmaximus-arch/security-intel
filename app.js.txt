@@ -2279,7 +2279,8 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
   try {
     const res = await fetchWithTimeout(
       `${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`,
-      { headers: { 'X-User-Id': OSINFO_USER_ID } }
+      { headers: { 'X-User-Id': OSINFO_USER_ID } },
+      28000  // OpenSky OAuth2 + states + flights can be slow; allow 28 s
     );
     const data = await res.json().catch(() => ({}));
 

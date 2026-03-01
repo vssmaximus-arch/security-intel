@@ -2404,11 +2404,11 @@ async function getOpenSkyToken(env) {
   // Fetch fresh token from OpenSky OAuth2
   try {
     const creds = btoa(`${env.OPENSKY_CLIENT_ID}:${env.OPENSKY_CLIENT_SECRET}`);
-    const res = await fetch('https://opensky-network.org/api/auth/token', {
+    const res = await fetchWithTimeout('https://opensky-network.org/api/auth/token', {
       method: 'POST',
       headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'grant_type=client_credentials',
-    });
+    }, 10000);
     if (!res.ok) { typeof debug === 'function' && debug('getOpenSkyToken: upstream failed', res.status); return null; }
     const data = await res.json();
     const ttlSec = Math.max(60, (Number(data.expires_in) || 3600) - 60);
@@ -2527,7 +2527,7 @@ async function handleApiLogisticsTrack(env, req) {
       } catch(e) {}
       const token = await getOpenSkyToken(env);
       const hdr = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const bboxRes = await fetch(`https://opensky-network.org/api/states/all?lamin=${lamin}&lamax=${lamax}&lomin=${lomin}&lomax=${lomax}`, { headers: hdr });
+      const bboxRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?lamin=${lamin}&lamax=${lamax}&lomin=${lomin}&lomax=${lomax}`, { headers: hdr }, 10000);
       if (!bboxRes.ok) return { ok: false, status: bboxRes.status, body: { ok: false, error: `OpenSky upstream error (${bboxRes.status})` } };
       const bboxData = await bboxRes.json();
       const bboxStates = (bboxData.states || []).map(s => ({ icao24: s[0], callsign: (s[1] || '').trim(), latitude: s[6], longitude: s[5] }));
@@ -2554,7 +2554,7 @@ async function handleApiLogisticsTrack(env, req) {
     }
     const token = await getOpenSkyToken(env);
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    const osRes = await fetch(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers });
+    const osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers }, 10000);
     if (!osRes.ok) {
       return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}` } };
     }
@@ -2585,7 +2585,7 @@ async function handleApiLogisticsTrack(env, req) {
     // 5. OpenSky Flights API: last 48 h of landings
     const nowSec = Math.floor(Date.now() / 1000);
     const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
-    const fRes = await fetch(flightsUrl, { headers });
+    const fRes = await fetchWithTimeout(flightsUrl, { headers }, 10000);
     if (!fRes.ok) {
       typeof debug === 'function' && debug('logistics:track:flights-api-error', icao24, fRes.status);
       return { ok: false, status: 200, body: { ok: false, reason: 'opensky_error', details: `flights API: ${fRes.status}` } };
