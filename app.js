@@ -2280,7 +2280,7 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
     const res = await fetchWithTimeout(
       `${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`,
       { headers: { 'X-User-Id': OSINFO_USER_ID } },
-      28000  // OpenSky OAuth2 + states + flights can be slow; allow 28 s
+      50000  // OpenSky OAuth2 + states (20 s) + flights (20 s) sequential
     );
     const data = await res.json().catch(() => ({}));
 
@@ -2288,7 +2288,8 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
     if (data.ok === false || (!res.ok && !data.status)) {
       const reason = data.reason || data.error || '';
       if (reason === 'opensky_timeout') {
-        el.innerHTML = `<span class="status-badge status-UNKNOWN">TIMEOUT</span> OpenSky timed out — click Live Radar again to retry.`;
+        const fr24 = data.deep_link || `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}`;
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">TIMEOUT</span> OpenSky slow — <a href="${escapeAttr(fr24)}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Track on FlightRadar24 ↗</a> or click Live Radar to retry.`;
         return;
       }
       if (reason === 'opensky_not_configured') {

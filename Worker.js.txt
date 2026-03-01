@@ -2556,10 +2556,10 @@ async function handleApiLogisticsTrack(env, req) {
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
     let osRes;
     try {
-      osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers }, 10000);
+      osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers }, 20000);
     } catch(fetchErr) {
       typeof debug === 'function' && debug('logistics:track:states-timeout', icao24, fetchErr?.message);
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.' } };
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}` } };
     }
     if (!osRes.ok) {
       return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}` } };
@@ -2593,10 +2593,10 @@ async function handleApiLogisticsTrack(env, req) {
     const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
     let fRes;
     try {
-      fRes = await fetchWithTimeout(flightsUrl, { headers }, 10000);
+      fRes = await fetchWithTimeout(flightsUrl, { headers }, 20000);
     } catch(fetchErr) {
       typeof debug === 'function' && debug('logistics:track:flights-timeout', icao24, fetchErr?.message);
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.' } };
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}` } };
     }
     if (!fRes.ok) {
       typeof debug === 'function' && debug('logistics:track:flights-api-error', icao24, fRes.status);
