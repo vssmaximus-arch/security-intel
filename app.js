@@ -2366,8 +2366,9 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
         ? (data.states[0].velocity / 0.514444).toFixed(1) + ' kt' : null;
       const hubLine = data.lastHubName
         ? `<div style="font-size:0.72rem;color:#9aa0a6;margin-top:2px;">Last hub: <strong>${escapeHtml(data.lastHubName)}</strong></div>` : '';
-      // Cache embed URL for the modal
+      // Cache embed URL + live state for the modal stats bar
       if (data.embed_url) _ltmStateCache['vessel_' + mmsi] = { embed_url: data.embed_url, deepLink: data.deepLink };
+      if (data.states && data.states[0]) _ltmStateCache[mmsi] = data.states[0]; // SOG/heading/dest for stats bar
       el.innerHTML = `
         <span class="status-badge" style="background:#1a3a5c;color:#4fc3f7;border-radius:4px;padding:2px 7px;font-size:.72rem;font-weight:700;">⚓ VESSEL</span>
         ${vsName ? `<div style="margin-top:2px;font-weight:700;font-family:monospace;">${escapeHtml(vsName)}</div>` : ''}
