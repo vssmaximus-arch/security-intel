@@ -68,6 +68,7 @@ let logisticsLayerGroup  = null;  // Leaflet L.layerGroup for logistics markers 
 const LOGISTICS_MARKERS  = new Map(); // id → L.marker for live position updates
 let _logisticsPollTimer  = null;  // setInterval handle for 60-second autopoll
 let WATCHLIST_CACHE      = [];    // local copy — updated on every render; used for optimistic deletes
+let liveTrackState       = { icao24: null, map: null, marker: null, trail: null, trailCoords: [], pollTimer: null };
 
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
@@ -2312,9 +2313,11 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
     // ── LIVE ─────────────────────────────────────────────────────────────────
     if (data.status === 'LIVE' && Array.isArray(data.states) && data.states.length > 0) {
       const s   = data.states[0];
-      const alt = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m' : 'N/A';
-      const vel = s.velocity      != null ? s.velocity.toFixed(0)      + ' m/s' : 'N/A';
-      // Place / move marker on map if position is known
+      const ftAlt = s.baro_altitude != null ? (s.baro_altitude / 0.3048).toFixed(0) + ' ft' : 'N/A';
+      const kt    = s.velocity      != null ? (s.velocity / 0.514444).toFixed(0) + ' kt'    : 'N/A';
+      const hdg   = s.true_track    != null ? s.true_track.toFixed(0) + '°'                 : '';
+      const label = (s.callsign || icao24).toUpperCase();
+      // Place / move marker on main map if position is known
       if (s.latitude != null && s.longitude != null) {
         placeLogisticsMarker(icao24, type, s.latitude, s.longitude, {
           scheduleBrief: null, callsign: s.callsign || null,
@@ -2322,11 +2325,17 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       }
       el.innerHTML = `
         <span class="status-badge status-LIVE">LIVE</span>
-        <div style="margin-top:3px;">Alt: <strong>${escapeHtml(alt)}</strong> &nbsp;|&nbsp; Vel: <strong>${escapeHtml(vel)}</strong></div>
-        <div style="font-size:0.72rem;color:#9aa0a6;">
-          ${escapeHtml(s.origin_country || '')} &mdash; ${escapeHtml(s.callsign || icao24.toUpperCase())}
-          ${s.on_ground ? ' &mdash; <em>On ground</em>' : ''}
-          ${data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : ''}
+        <div style="margin-top:3px;">
+          <strong>${escapeHtml(label)}</strong> &nbsp;|&nbsp;
+          ${escapeHtml(ftAlt)} &nbsp;|&nbsp; ${escapeHtml(kt)} ${hdg ? '&nbsp;|&nbsp; ' + escapeHtml(hdg) : ''}
+        </div>
+        <div style="margin-top:4px;">
+          <button class="live-track-open-btn" data-action="open-live-track"
+            data-icao="${escapeAttr(icao24)}" data-callsign="${escapeAttr(label)}"
+            data-state="${escapeAttr(JSON.stringify(s))}"
+            aria-label="Open live tracker for ${escapeAttr(label)}">
+            <i class="fas fa-satellite-dish" aria-hidden="true"></i> Open Live Tracker
+          </button>
         </div>`;
       return;
     }
@@ -2397,6 +2406,121 @@ async function addToWatchlist(id, type) {
     console.error('[watchlist] add server sync failed:', e.message);
     if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Save failed: ${escapeHtml(e.message)}</div>`;
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   LIVE TRACK MODAL  (S2.5 — popup aircraft tracker)
+═══════════════════════════════════════════════════════ */
+function _ltmEl(id) { return document.getElementById(id); }
+
+function _ltmUpdateStats(s) {
+  const ftAlt  = s.baro_altitude != null ? (s.baro_altitude / 0.3048).toFixed(0) + ' ft'  : 'N/A';
+  const mAlt   = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m'               : '';
+  const ktVel  = s.velocity      != null ? (s.velocity / 0.514444).toFixed(0) + ' kt'     : 'N/A';
+  const msVel  = s.velocity      != null ? s.velocity.toFixed(0) + ' m/s'                  : '';
+  const hdg    = s.true_track    != null ? s.true_track.toFixed(0) + '°'                   : 'N/A';
+  const vrRaw  = s.vertical_rate;
+  const vr     = vrRaw != null ? (vrRaw > 0 ? '▲ ' : vrRaw < 0 ? '▼ ' : '→ ') + Math.abs((vrRaw / 0.00508).toFixed(0)) + ' ft/min' : 'N/A';
+  if (_ltmEl('ltm-alt'))     _ltmEl('ltm-alt').textContent     = ftAlt + (mAlt ? ' / ' + mAlt : '');
+  if (_ltmEl('ltm-vel'))     _ltmEl('ltm-vel').textContent     = ktVel + (msVel ? ' / ' + msVel : '');
+  if (_ltmEl('ltm-hdg'))     _ltmEl('ltm-hdg').textContent     = hdg;
+  if (_ltmEl('ltm-vr'))      _ltmEl('ltm-vr').textContent      = vr;
+  if (_ltmEl('ltm-country')) _ltmEl('ltm-country').textContent = s.origin_country || '---';
+}
+
+function _ltmPlotPosition(s) {
+  const lt = s.latitude, ln = s.longitude, tr = s.true_track || 0;
+  if (lt == null || ln == null) return;
+  liveTrackState.trailCoords.push([lt, ln]);
+  // Rotating aircraft icon using CSS transform
+  const iconHtml = `<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+    <svg style="transform:rotate(${tr}deg);width:28px;height:28px;" viewBox="0 0 24 24" fill="#4fc3f7">
+      <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>
+    </svg></div>`;
+  const icon = L.divIcon({ html: iconHtml, iconSize: [32,32], iconAnchor: [16,16], className: '' });
+  const lmap = liveTrackState.map;
+  if (!lmap) return;
+  if (liveTrackState.marker) {
+    liveTrackState.marker.setLatLng([lt, ln]);
+    liveTrackState.marker.setIcon(icon);
+  } else {
+    liveTrackState.marker = L.marker([lt, ln], { icon, zIndexOffset: 1000 }).addTo(lmap);
+  }
+  if (liveTrackState.trail) {
+    liveTrackState.trail.setLatLngs(liveTrackState.trailCoords);
+  } else {
+    liveTrackState.trail = L.polyline(liveTrackState.trailCoords, { color:'#4fc3f7', weight:2, opacity:0.55, dashArray:'6 4' }).addTo(lmap);
+  }
+  // Only fly to aircraft on first plot or if it drifted far from view
+  if (liveTrackState.trailCoords.length <= 1) {
+    lmap.setView([lt, ln], 7);
+  }
+}
+
+function openLiveTrackModal(icao24, callsign, initialState) {
+  liveTrackState.icao24 = icao24;
+  // Stop any previous poll
+  if (liveTrackState.pollTimer) { clearInterval(liveTrackState.pollTimer); liveTrackState.pollTimer = null; }
+  // Show overlay + modal
+  const overlay = _ltmEl('live-track-overlay');
+  const modal   = _ltmEl('live-track-modal');
+  if (!overlay || !modal) return;
+  overlay.style.display = 'block';
+  modal.classList.add('open');
+  // Header
+  const label = (callsign || icao24 || '---').toUpperCase();
+  if (_ltmEl('ltm-callsign')) _ltmEl('ltm-callsign').textContent = label;
+  const fr24 = `https://www.flightradar24.com/search?query=${encodeURIComponent(label)}`;
+  const fr24link = _ltmEl('ltm-fr24-link');
+  if (fr24link) { fr24link.href = fr24; }
+  // Init Leaflet map once
+  if (!liveTrackState.map) {
+    liveTrackState.map = L.map('live-track-map', { zoomControl: true, attributionControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 18,
+    }).addTo(liveTrackState.map);
+    L.control.attribution({ prefix: '© CartoDB · OpenStreetMap' }).addTo(liveTrackState.map);
+  } else {
+    // Clear previous aircraft
+    if (liveTrackState.marker) { liveTrackState.map.removeLayer(liveTrackState.marker); liveTrackState.marker = null; }
+    if (liveTrackState.trail)  { liveTrackState.map.removeLayer(liveTrackState.trail);  liveTrackState.trail  = null; }
+    liveTrackState.trailCoords = [];
+  }
+  // Must invalidate AFTER modal is visible
+  setTimeout(() => { if (liveTrackState.map) liveTrackState.map.invalidateSize(); }, 120);
+  // Plot initial state
+  if (initialState) { _ltmUpdateStats(initialState); _ltmPlotPosition(initialState); }
+  if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = 'Live — auto-refreshing every 30 s';
+  // Start 30-second poll
+  liveTrackState.pollTimer = setInterval(_ltmPoll, 30000);
+}
+
+async function _ltmPoll() {
+  const icao24 = liveTrackState.icao24;
+  if (!icao24 || !_ltmEl('live-track-modal')?.classList.contains('open')) return;
+  try {
+    const res  = await fetchWithTimeout(`${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`, { headers: { 'X-User-Id': OSINFO_USER_ID } }, 15000);
+    const data = await res.json().catch(() => ({}));
+    if (data.ok && data.status === 'LIVE' && Array.isArray(data.states) && data.states.length > 0) {
+      const s = data.states[0];
+      _ltmUpdateStats(s);
+      _ltmPlotPosition(s);
+      const ts = new Date().toLocaleTimeString();
+      if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = `Last updated ${ts} — refreshing every 30 s`;
+    } else {
+      if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = `No signal — aircraft may have landed`;
+    }
+  } catch(e) {
+    if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = `Poll error: ${e.message}`;
+  }
+}
+
+function closeLiveTrackModal() {
+  if (liveTrackState.pollTimer) { clearInterval(liveTrackState.pollTimer); liveTrackState.pollTimer = null; }
+  const overlay = _ltmEl('live-track-overlay');
+  const modal   = _ltmEl('live-track-modal');
+  if (overlay) overlay.style.display = 'none';
+  if (modal)   modal.classList.remove('open');
 }
 
 async function removeFromWatchlist(id) {
@@ -2550,6 +2674,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       // S2.5 — Logistics Drawer actions
       if (action === 'open-logistics') { openLogisticsDrawer(); return; }
       if (action === 'close-logistics') { closeLogisticsDrawer(); return; }
+      if (action === 'close-live-track') { closeLiveTrackModal(); return; }
+      if (action === 'open-live-track') {
+        const icao = t.dataset.icao || '';
+        const cs   = t.dataset.callsign || icao;
+        let   st   = null;
+        try { st = JSON.parse(t.dataset.state || 'null'); } catch(e) {}
+        openLiveTrackModal(icao, cs, st);
+        return;
+      }
       if (action === 'logistics-tab') {
         const tab = t.dataset.tab;
         if (tab) {
@@ -2620,6 +2753,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (action === 'logistics-test-alert') { await sendTestAlert(); return; }
     });
+
+    // clicking live-track overlay closes modal
+    document.getElementById('live-track-overlay')?.addEventListener('click', closeLiveTrackModal);
 
     // clicking on feed-card opens link (except when clicking inner buttons/links)
     document.addEventListener('click', (e) => {
