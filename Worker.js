@@ -2589,19 +2589,32 @@ async function handleApiLogisticsTrack(env, req) {
       }
     }
 
-    // 3. Not currently airborne — fall through to schedule history
-
-    // 4. Schedule fallback: 10-min KV cache check first
+    // 3. adsb.fi coverage gap (e.g. Russia/CIS) — fallback to OpenSky states/all (6 s hard limit)
+    const osQParam = isCallsign
+      ? `callsign=${encodeURIComponent(rawId.toUpperCase().padEnd(8))}`
+      : `icao24=${encodeURIComponent(icao24)}`;
     try {
-      const sched = await kvGetJson(env, `${LOG_TRACK_PREFIX}${icao24}`, null);
-      if (sched) {
-        typeof debug === 'function' && debug('logistics:track:schedule-cache', icao24);
-        return { ok: true, status: 200, body: { ok: true, ...sched, _cached: true } };
+      const osRes2 = await fetchWithTimeout(
+        `https://opensky-network.org/api/states/all?${osQParam}`, {}, 6000);
+      if (osRes2.ok) {
+        const osData2 = await osRes2.json().catch(() => ({}));
+        const states2 = (osData2.states || []).map(s => ({
+          icao24: s[0], callsign: (s[1] || '').trim(), origin_country: s[2],
+          longitude: s[5], latitude: s[6], baro_altitude: s[7],
+          on_ground: s[8], velocity: s[9], true_track: s[10], vertical_rate: s[11],
+        }));
+        if (states2.length > 0) {
+          const liveResult2 = { id: icao24, icao24: states2[0].icao24 || icao24, status: 'LIVE', states: states2, fetched_at: new Date().toISOString() };
+          await kvPut(env, liveKey, liveResult2, { expirationTtl: 60 });
+          typeof debug === 'function' && debug('logistics:track:live', icao24, 'opensky-fallback');
+          return { ok: true, status: 200, body: { ok: true, ...liveResult2 } };
+        }
       }
-    } catch(e) {}
+    } catch(e) {
+      typeof debug === 'function' && debug('logistics:track:opensky-fallback-skip', e?.message);
+    }
 
-    // 5. Not airborne — adsb.fi returned nothing. Send FR24 deep-link immediately.
-    // (OpenSky flights history API is too slow/unreliable; FR24 is the better UX.)
+    // 4. Not airborne on either source — send FR24 deep-link immediately.
     return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: fr24Link } };
 
   } catch(e) {
