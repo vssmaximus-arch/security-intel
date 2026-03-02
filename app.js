@@ -2283,7 +2283,7 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       50000  // OpenSky OAuth2 + states (20 s) + flights (20 s) sequential
     );
     const data = await res.json().catch(() => ({}));
-    console.log('[logistics] track result', icao24, res.status, data.ok, data.status || data.reason || data.error || '');
+    console.log('[logistics] track result', icao24, res.status, data.ok, data.status || data.reason || data.error || '', 'wv:', data._wv || 'OLD');
 
     // ── Structured error responses ───────────────────────────────────────────
     if (data.ok === false || (!res.ok && !data.status)) {
@@ -2299,7 +2299,7 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       }
       if (reason === 'no_schedule_found') {
         const fr24 = data.deep_link || `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}`;
-        el.innerHTML = `<span class="status-badge status-UNKNOWN">NOT FOUND</span> Not airborne or wrong ID. <a href="${escapeAttr(fr24)}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Find on FlightRadar24 ↗</a><div style="font-size:0.68rem;color:#9aa0a6;margin-top:2px;">Tip: use the ICAO24 hex code from FR24 (e.g. 155c63) for better results.</div>`;
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">NOT FOUND</span> Not airborne or wrong ID. <a href="${escapeAttr(fr24)}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Find on FlightRadar24 ↗</a><div style="font-size:0.68rem;color:#9aa0a6;margin-top:2px;">Tip: on FR24 click the aircraft → copy its hex code (e.g. a0001e) and use that instead.</div>`;
         return;
       }
       el.textContent = reason || `Error: HTTP ${res.status}`;
@@ -2406,13 +2406,18 @@ async function removeFromWatchlist(id) {
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
       body: JSON.stringify({ action: 'remove', id: id.toLowerCase() }),
     });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP ${res.status}`);
+    const resData = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
+    // Use watchlist from POST response directly — avoids KV eventual-consistency lag
+    if (Array.isArray(resData.watchlist)) {
+      renderWatchlistFromData(resData.watchlist);
+    } else {
+      await loadLogisticsWatchlist();
     }
-    await loadLogisticsWatchlist();
   } catch (e) {
-    alert(`Failed to remove from watchlist: ${e.message}`);
+    console.error('[watchlist] remove failed:', e);
+    const container = document.getElementById('logistics-watchlist-list');
+    if (container) container.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">Remove failed: ${escapeHtml(e.message)}</div>`;
   }
 }
 
