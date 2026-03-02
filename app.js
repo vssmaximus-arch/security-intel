@@ -2356,14 +2356,29 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       return;
     }
 
-    // ── VESSEL: IN-PORT / STATIONARY / UNKNOWN ───────────────────────────────
-    if (['IN-PORT', 'STATIONARY', 'UNKNOWN'].includes(data.status)) {
+    // ── VESSEL: any vessel status → show Vessel Tracker button ───────────────
+    if (['IN-PORT', 'STATIONARY', 'UNKNOWN', 'VESSEL_TRACK', 'VESSEL_LIVE'].includes(data.status)) {
+      const mmsi   = data.mmsi || icao24;
+      const vsName = data.states && data.states[0]?.vessel_name ? data.states[0].vessel_name : '';
+      const vsDest = data.states && data.states[0]?.destination  ? data.states[0].destination  : '';
+      const vsSOG  = data.states && data.states[0]?.velocity     != null
+        ? (data.states[0].velocity / 0.514444).toFixed(1) + ' kt' : null;
       const hubLine = data.lastHubName
-        ? `<div style="margin-top:3px;font-size:0.72rem;color:#9aa0a6;">Last hub: <strong>${escapeHtml(data.lastHubName)}</strong>${data.lastHubTime ? ' · ' + escapeHtml(new Date(data.lastHubTime).toLocaleString()) : ''}</div>` : '';
+        ? `<div style="font-size:0.72rem;color:#9aa0a6;margin-top:2px;">Last hub: <strong>${escapeHtml(data.lastHubName)}</strong></div>` : '';
+      // Cache embed URL for the modal
+      if (data.embed_url) _ltmStateCache['vessel_' + mmsi] = { embed_url: data.embed_url, deepLink: data.deepLink };
       el.innerHTML = `
-        <span class="status-badge status-${escapeHtml(data.status)}">${escapeHtml(data.status)}</span>
+        <span class="status-badge" style="background:#1a3a5c;color:#4fc3f7;border-radius:4px;padding:2px 7px;font-size:.72rem;font-weight:700;">⚓ VESSEL</span>
+        ${vsName ? `<div style="margin-top:2px;font-weight:700;font-family:monospace;">${escapeHtml(vsName)}</div>` : ''}
+        ${vsSOG  ? `<div style="font-size:0.72rem;color:#9aa0a6;">SOG: ${escapeHtml(vsSOG)}${vsDest ? ' &nbsp;→&nbsp; ' + escapeHtml(vsDest) : ''}</div>` : ''}
         ${hubLine}
-        <a href="${escapeAttr(data.deepLink || '#')}" target="_blank" rel="noopener noreferrer" class="ais-btn" style="display:inline-block;margin-top:4px;">Track via AIS ↗</a>`;
+        <div style="margin-top:5px;">
+          <button class="live-track-open-btn" data-action="open-vessel-track"
+            data-mmsi="${escapeAttr(mmsi)}"
+            aria-label="Open vessel tracker for MMSI ${escapeAttr(mmsi)}">
+            &#x1F6A2; Open Vessel Tracker
+          </button>
+        </div>`;
       return;
     }
 
@@ -2585,6 +2600,113 @@ function closeLiveTrackModal() {
   if (modal)   modal.classList.remove('open');
 }
 
+/* ═══════════════════════════════════════════════════════
+   VESSEL TRACK MODAL  (S2.5 — iframe ship tracker)
+   Uses VesselFinder AIS embed — same live map as MarineTraffic
+═══════════════════════════════════════════════════════ */
+function _ensureVesselTrackModal() {
+  if (_ltmEl('vessel-track-modal')) return;
+  // Inject styles (shared subset with aircraft modal)
+  if (!_ltmEl('vtm-injected-styles')) {
+    const st = document.createElement('style');
+    st.id = 'vtm-injected-styles';
+    st.textContent = [
+      '.vtm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:5999;display:none;cursor:pointer}',
+      '.vessel-track-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90vw;max-width:1200px;height:86vh;background:#1a1b1e;color:#e8eaed;z-index:6000;border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.85);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.vessel-track-modal.open{display:flex}',
+      '.vtm-topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1a2744;border-bottom:1px solid #2a3a6c;flex-shrink:0;flex-wrap:wrap}',
+      '.vtm-badge{background:#1a3a5c;color:#4fc3f7;font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 8px;letter-spacing:1px;animation:vtmPulse 3s infinite}',
+      '@keyframes vtmPulse{0%,100%{opacity:1}50%{opacity:.55}}',
+      '.vtm-mmsi{font-size:1rem;font-weight:800;font-family:monospace;color:#81d4fa;letter-spacing:1px}',
+      '.vtm-name{font-size:.9rem;color:#e8eaed;font-weight:600}',
+      '.vtm-stat{background:#243050;border-radius:6px;padding:3px 9px;font-size:.77rem;color:#e8eaed;font-family:monospace;line-height:1.5}',
+      '.vtm-stat em{color:#8ab4f8;font-style:normal;font-size:.65rem;display:block}',
+      '.vtm-close{margin-left:auto;background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer}',
+      '.vtm-close:hover{background:#8b3a38}',
+      '.vtm-mapwrap{flex:1;position:relative;min-height:0}',
+      '#vtm-iframe{width:100%;height:100%;border:none;display:block}',
+      '.vtm-footer{padding:5px 14px;background:#111827;font-size:.7rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px}',
+      '.vtm-footer a{color:#8ab4f8;text-decoration:none}',
+      '.vtm-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111827;color:#5f6368;font-size:.9rem;pointer-events:none}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+  // Overlay
+  const ov = document.createElement('div');
+  ov.id = 'vtm-overlay';
+  ov.className = 'vtm-overlay';
+  ov.addEventListener('click', closeVesselTrackModal);
+  document.body.appendChild(ov);
+  // Modal
+  const mo = document.createElement('div');
+  mo.id = 'vessel-track-modal';
+  mo.className = 'vessel-track-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    '<div class="vtm-topbar">' +
+      '<span class="vtm-badge">&#x2693; VESSEL AIS</span>' +
+      '<span class="vtm-name" id="vtm-name">---</span>' +
+      '<span class="vtm-mmsi" id="vtm-mmsi"></span>' +
+      '<div class="vtm-stat"><em>SOG</em><span id="vtm-sog">---</span></div>' +
+      '<div class="vtm-stat"><em>HEADING</em><span id="vtm-hdg">---</span></div>' +
+      '<div class="vtm-stat"><em>DESTINATION</em><span id="vtm-dest">---</span></div>' +
+      '<button class="vtm-close" data-action="close-vessel-track" aria-label="Close">&#x2715; Close</button>' +
+    '</div>' +
+    '<div class="vtm-mapwrap">' +
+      '<div class="vtm-loading" id="vtm-loading">Loading live AIS map&hellip;</div>' +
+      '<iframe id="vtm-iframe" src="about:blank" title="Live vessel tracker" allow="geolocation" loading="lazy"></iframe>' +
+    '</div>' +
+    '<div class="vtm-footer">' +
+      '<span>&#x1F6A2; Live AIS data via VesselFinder &mdash; auto-updating</span>' +
+      '<div style="display:flex;gap:12px;">' +
+        '<a id="vtm-mt-link" href="#" target="_blank" rel="noopener noreferrer">MarineTraffic &#8599;</a>' +
+        '<a id="vtm-vf-link" href="#" target="_blank" rel="noopener noreferrer">VesselFinder &#8599;</a>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(mo);
+  // Hide loading spinner when iframe loads
+  const iframe = mo.querySelector('#vtm-iframe');
+  const loading = mo.querySelector('#vtm-loading');
+  if (iframe && loading) iframe.addEventListener('load', () => { loading.style.display = 'none'; });
+}
+
+function openVesselTrackModal(mmsi) {
+  _ensureVesselTrackModal();
+  const cached = _ltmStateCache['vessel_' + mmsi] || {};
+  const liveS  = _ltmStateCache[mmsi] || null; // aircraft state cache reuse for aisstream data
+  // Fill header
+  if (_ltmEl('vtm-mmsi'))  _ltmEl('vtm-mmsi').textContent  = 'MMSI: ' + mmsi;
+  if (_ltmEl('vtm-name'))  _ltmEl('vtm-name').textContent  = liveS?.vessel_name || '';
+  if (_ltmEl('vtm-sog'))   _ltmEl('vtm-sog').textContent   = liveS?.velocity != null ? (liveS.velocity / 0.514444).toFixed(1) + ' kt' : '---';
+  if (_ltmEl('vtm-hdg'))   _ltmEl('vtm-hdg').textContent   = liveS?.true_track != null ? liveS.true_track.toFixed(0) + '°' : '---';
+  if (_ltmEl('vtm-dest'))  _ltmEl('vtm-dest').textContent  = liveS?.destination || '---';
+  // External links
+  const mtLink = cached.deepLink || `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${mmsi}`;
+  const vfLink = `https://www.vesselfinder.com/vessels?mmsi=${mmsi}`;
+  if (_ltmEl('vtm-mt-link')) _ltmEl('vtm-mt-link').href = mtLink;
+  if (_ltmEl('vtm-vf-link')) _ltmEl('vtm-vf-link').href = vfLink;
+  // Load iframe (VesselFinder AIS embed — live map, no API key needed)
+  const embedUrl = cached.embed_url ||
+    `https://www.vesselfinder.com/aismap?zoom=9&mmsi=${encodeURIComponent(mmsi)}&width=100%25&height=100%25&names=true&remember=false&clicktoact=false`;
+  const iframe = _ltmEl('vtm-iframe');
+  const loading = _ltmEl('vtm-loading');
+  if (loading) loading.style.display = 'flex';
+  if (iframe) iframe.src = embedUrl;
+  // Show
+  const ov = _ltmEl('vtm-overlay');
+  const mo = _ltmEl('vessel-track-modal');
+  if (ov) ov.style.display = 'block';
+  if (mo) mo.classList.add('open');
+}
+
+function closeVesselTrackModal() {
+  const ov = _ltmEl('vtm-overlay');
+  const mo = _ltmEl('vessel-track-modal');
+  if (ov) ov.style.display = 'none';
+  if (mo) { mo.classList.remove('open'); const f = _ltmEl('vtm-iframe'); if (f) f.src = 'about:blank'; }
+}
+
 async function removeFromWatchlist(id) {
   const normId = id.toLowerCase();
   // 1. Remove card from DOM immediately — no server wait
@@ -2736,7 +2858,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       // S2.5 — Logistics Drawer actions
       if (action === 'open-logistics') { openLogisticsDrawer(); return; }
       if (action === 'close-logistics') { closeLogisticsDrawer(); return; }
-      if (action === 'close-live-track') { closeLiveTrackModal(); return; }
+      if (action === 'close-live-track')    { closeLiveTrackModal(); return; }
+      if (action === 'close-vessel-track')  { closeVesselTrackModal(); return; }
+      if (action === 'open-vessel-track') {
+        const mmsi = (t.dataset.mmsi || '').trim();
+        if (mmsi) openVesselTrackModal(mmsi);
+        return;
+      }
       if (action === 'open-live-track') {
         const icao = (t.dataset.icao || '').toLowerCase();
         const cs   = t.dataset.callsign || icao.toUpperCase();
