@@ -205,21 +205,24 @@ function error(...args) { log("error", ...args); }
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 async function fetchWithTimeout(url, opts = {}, timeout = 15000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+  // AbortSignal.timeout() is natively supported in Cloudflare Workers and
+  // is guaranteed to fire — unlike setTimeout which can be delayed by event-loop budget.
+  const signal = typeof AbortSignal.timeout === 'function'
+    ? AbortSignal.timeout(timeout)
+    : (() => { const c = new AbortController(); setTimeout(() => c.abort(), timeout); return c.signal; })();
   try {
     const headers = {
       "User-Agent": "OS-INFOHUB-Worker/1.0 (+https://example.com)",
       "Accept": "application/json, text/plain, */*",
       ...(opts.headers || {})
     };
-    const res = await fetch(url, { ...opts, headers, signal: controller.signal });
+    const res = await fetch(url, { ...opts, headers, signal });
     if (!res) throw new Error("http_" + (res.status || "no_status"));
     return res;
   } catch (e) {
-    if (e && e.name === "AbortError") throw new Error("fetch_timeout");
+    if (e && (e.name === "AbortError" || e.name === "TimeoutError")) throw new Error("fetch_timeout");
     throw e;
-  } finally { clearTimeout(id); }
+  }
 }
 
 function escapeHtml(s = "") {
@@ -2552,17 +2555,23 @@ async function handleApiLogisticsTrack(env, req) {
     if (!env.OPENSKY_CLIENT_ID || !env.OPENSKY_CLIENT_SECRET) {
       return { ok: false, status: 200, body: { ok: false, reason: 'opensky_not_configured', deep_link: 'https://opensky-network.org/' } };
     }
+    // Detect callsign vs ICAO24: ICAO24 is hex-only (0-9, a-f); callsigns contain g-z letters
+    const isCallsign = /[g-z]/i.test(icao24);
+    const fr24Link = `https://www.flightradar24.com/search?query=${encodeURIComponent(rawId.toUpperCase())}`;
+    const osQueryParam = isCallsign
+      ? `callsign=${encodeURIComponent(rawId.toUpperCase().padEnd(8))}`
+      : `icao24=${encodeURIComponent(icao24)}`;
     const token = await getOpenSkyToken(env);
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
     let osRes;
     try {
-      osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24)}`, { headers }, 20000);
+      osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?${osQueryParam}`, { headers }, 8000);
     } catch(fetchErr) {
       typeof debug === 'function' && debug('logistics:track:states-timeout', icao24, fetchErr?.message);
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}` } };
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: fr24Link } };
     }
     if (!osRes.ok) {
-      return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}` } };
+      return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}`, deep_link: fr24Link } };
     }
     const osData  = await osRes.json();
     const states  = (osData.states || []).map(s => ({
@@ -2588,12 +2597,15 @@ async function handleApiLogisticsTrack(env, req) {
       }
     } catch(e) {}
 
-    // 5. OpenSky Flights API: last 48 h of landings
+    // 5. OpenSky Flights API: last 48 h of landings (requires ICAO24 — skip for callsigns)
+    if (isCallsign) {
+      return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: fr24Link } };
+    }
     const nowSec = Math.floor(Date.now() / 1000);
     const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
     let fRes;
     try {
-      fRes = await fetchWithTimeout(flightsUrl, { headers }, 20000);
+      fRes = await fetchWithTimeout(flightsUrl, { headers }, 8000);
     } catch(fetchErr) {
       typeof debug === 'function' && debug('logistics:track:flights-timeout', icao24, fetchErr?.message);
       return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}` } };

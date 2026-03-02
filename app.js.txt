@@ -2364,8 +2364,8 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
 
 async function addToWatchlist(id, type) {
   const listEl = document.getElementById('logistics-watchlist-list');
-  if (!id || id.length < 3 || id.length > 9) {
-    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Enter a valid ID (3–9 chars: ICAO24 hex or MMSI digits).</div>`;
+  if (!id || id.length < 2 || id.length > 12 || !/^[a-z0-9]+$/i.test(id)) {
+    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Enter a flight callsign (e.g. EJM618), ICAO24 hex (e.g. a0001e), or vessel MMSI (digits).</div>`;
     return;
   }
   const itemType = type === 'vessel' ? 'vessel' : 'flight';
