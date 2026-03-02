@@ -2631,8 +2631,8 @@ function _ensureVesselTrackModal() {
       '.vtm-close:hover{background:#8b3a38}',
       '.vtm-mapwrap{flex:1;position:relative;min-height:0}',
       '#vtm-map{width:100%;height:100%}',
-      '.vtm-nofix{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(17,24,39,.88);color:#9aa0a6;font-size:.9rem;gap:10px;z-index:10;pointer-events:none}',
-      '.vtm-nofix a{pointer-events:all;color:#8ab4f8;text-decoration:none}',
+      '.vtm-nofix{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,16,28,.93);color:#9aa0a6;font-size:.9rem;gap:12px;z-index:9999;pointer-events:none;text-align:center;padding:24px}',
+      '.vtm-nofix a{pointer-events:all;color:#8ab4f8;text-decoration:none;font-weight:600}',
       '.vtm-footer{padding:5px 14px;background:#111827;font-size:.7rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px}',
       '.vtm-footer a{color:#8ab4f8;text-decoration:none}',
     ].join('');
@@ -2661,10 +2661,14 @@ function _ensureVesselTrackModal() {
     '<div class="vtm-mapwrap">' +
       '<div id="vtm-map"></div>' +
       '<div class="vtm-nofix" id="vtm-nofix" style="display:none">' +
-        '<span>&#x26A0; No live AIS position available</span>' +
-        '<span style="font-size:.78rem;color:#5f6368;">Track this vessel on external sites:</span>' +
-        '<div style="display:flex;gap:16px;">' +
-          '<a id="vtm-nofix-mt" href="#" target="_blank" rel="noopener noreferrer">&#128279; MarineTraffic</a>' +
+        '<span style="font-size:2rem;">&#x26A0;</span>' +
+        '<span style="font-size:1.05rem;color:#e8eaed;font-weight:700;">No live AIS position found</span>' +
+        '<span id="vtm-nofix-reason" style="font-size:.8rem;color:#9aa0a6;max-width:440px;line-height:1.7;">' +
+          'Live tracking requires a <strong style="color:#4fc3f7;">9-digit MMSI number</strong>, not a 7-digit IMO.<br>' +
+          'Example: search your vessel on MarineTraffic, then copy its MMSI and re-add to the watchlist.' +
+        '</span>' +
+        '<div style="display:flex;gap:16px;pointer-events:all;">' +
+          '<a id="vtm-nofix-mt" href="#" target="_blank" rel="noopener noreferrer">&#128279; Find MMSI on MarineTraffic</a>' +
           '<a id="vtm-nofix-vf" href="#" target="_blank" rel="noopener noreferrer">&#128279; VesselFinder</a>' +
         '</div>' +
       '</div>' +
@@ -2734,10 +2738,22 @@ function openVesselTrackModal(mmsi) {
   }).addTo(_vtmMap);
   // Plot position or show no-fix overlay
   const nofix = _ltmEl('vtm-nofix');
+  const reasonEl = _ltmEl('vtm-nofix-reason');
   if (liveS && liveS.latitude != null && liveS.longitude != null) {
     if (nofix) nofix.style.display = 'none';
     _vtmPlotVessel(liveS);
   } else {
+    // Tailor message based on whether user entered a 7-digit IMO vs 9-digit MMSI
+    const isIMO = /^\d{7}$/.test(mmsi);
+    if (reasonEl) {
+      reasonEl.innerHTML = isIMO
+        ? '<strong style="color:#f28b82;">⚠ You entered a 7-digit IMO number.</strong><br>' +
+          'Live AIS tracking requires the vessel\'s <strong style="color:#4fc3f7;">9-digit MMSI</strong>.<br>' +
+          'Click "Find MMSI on MarineTraffic" → search your vessel → copy the MMSI → re-add to watchlist.'
+        : 'No live AIS position received for this MMSI.<br>' +
+          'The vessel may be at port, out of AIS range, or the transponder is off.<br>' +
+          'Check MarineTraffic for last known position.';
+    }
     if (nofix) nofix.style.display = 'flex';
     _vtmMap.setView([20, 0], 2); // world overview
   }
@@ -2936,8 +2952,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const input = document.getElementById('watch-icao-input');
         if (input) {
           input.placeholder = type === 'vessel'
-            ? 'MMSI or vessel name (e.g. 123456789)'
-            : 'ICAO24 (e.g. a12bc3)';
+            ? '9-digit MMSI for live tracking (e.g. 566123456)'
+            : 'ICAO24 hex (e.g. a12bc3)';
         }
         return;
       }
