@@ -2373,32 +2373,29 @@ async function addToWatchlist(id, type) {
     if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Enter a flight callsign (e.g. EJM618), ICAO24 hex (e.g. a0001e), or vessel MMSI (digits).</div>`;
     return;
   }
+  const normId   = id.toLowerCase();
   const itemType = type === 'vessel' ? 'vessel' : 'flight';
-  if (listEl) listEl.innerHTML = `<div class="drawer-empty">Saving…</div>`;
+  // 1. Update local cache immediately — skip if already present
+  if (!WATCHLIST_CACHE.some(w => (typeof w === 'string' ? w : w.id) === normId)) {
+    WATCHLIST_CACHE.push({ id: normId, type: itemType, label: normId, added_at: new Date().toISOString() });
+  }
+  // 2. Render from local cache — do NOT use server response (it reads stale KV and re-adds deleted items)
+  renderWatchlistFromData(WATCHLIST_CACHE);
+  const input = document.getElementById('watch-icao-input');
+  if (input) input.value = '';
+  // 3. Persist entire cache to server via action:'set' — no KV read on server side, no race condition
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'add', id: id.toLowerCase(), type: itemType }),
+      body: JSON.stringify({ action: 'set', watchlist: WATCHLIST_CACHE }),
     });
-    const raw = await res.text();
-    let resData = {};
-    try { resData = JSON.parse(raw); } catch(e2) {}
-    console.log('[logistics] addToWatchlist response', res.status, raw.slice(0, 200));
-    if (!res.ok) {
-      throw new Error(resData.error || `HTTP ${res.status}: ${raw.slice(0,120)}`);
-    }
-    const input = document.getElementById('watch-icao-input');
-    if (input) input.value = '';
-    // Use watchlist from POST response directly — avoids KV read-after-write latency
-    if (Array.isArray(resData.watchlist) && resData.watchlist.length > 0) {
-      renderWatchlistFromData(resData.watchlist);
-    } else {
-      await loadLogisticsWatchlist();
-    }
+    const resData = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
+    console.log('[watchlist] add persisted, server items:', resData.items);
   } catch (e) {
-    console.error('[logistics] addToWatchlist failed', e.message);
-    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Add failed: ${escapeHtml(e.message)}</div>`;
+    console.error('[watchlist] add server sync failed:', e.message);
+    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Save failed: ${escapeHtml(e.message)}</div>`;
   }
 }
 
