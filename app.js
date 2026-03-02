@@ -2236,9 +2236,10 @@ function renderWatchlistFromData(watchlist) {
     const safeLabel = escapeHtml(label);
     const typeIcon  = isVessel ? '<i class="fas fa-ship me-1" aria-hidden="true"></i>' : '<i class="fas fa-plane me-1" aria-hidden="true"></i>';
     const actionBtn = isVessel
-      ? `<a class="ais-btn mt-1" href="${escapeAttr(`https://www.vesselfinder.com/vessels?name=${encodeURIComponent(id)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Track ${safeLabel} via AIS">
-           <i class="fas fa-anchor me-1" aria-hidden="true"></i>Track via AIS
-         </a>`
+      ? `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="vessel" aria-label="Track ${safeLabel} via AIS">
+           <i class="fas fa-anchor me-1" aria-hidden="true"></i>Live AIS
+         </button>
+         <div class="drawer-radar-result" id="track-result-${safeId}"></div>`
       : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="${type}" aria-label="Track ${safeLabel}">
            <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
          </button>
