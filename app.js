@@ -2400,6 +2400,7 @@ async function addToWatchlist(id, type) {
 }
 
 async function removeFromWatchlist(id) {
+  console.log('[watchlist] remove called id=', id);
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
@@ -2407,6 +2408,7 @@ async function removeFromWatchlist(id) {
       body: JSON.stringify({ action: 'remove', id: id.toLowerCase() }),
     });
     const resData = await res.json().catch(() => ({}));
+    console.log('[watchlist] remove response', res.status, resData.ok, Array.isArray(resData.watchlist) ? resData.watchlist.length + ' items' : 'no watchlist');
     if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
     // Use watchlist from POST response directly — avoids KV eventual-consistency lag
     if (Array.isArray(resData.watchlist)) {
