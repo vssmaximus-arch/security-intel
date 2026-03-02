@@ -2603,12 +2603,16 @@ function closeLiveTrackModal() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   VESSEL TRACK MODAL  (S2.5 — iframe ship tracker)
-   Uses VesselFinder AIS embed — same live map as MarineTraffic
+   VESSEL TRACK MODAL  (S2.5 — Leaflet dark map, same as aircraft tracker)
+   No iframe — plots vessel position directly via aisstream data.
 ═══════════════════════════════════════════════════════ */
+let _vtmMap = null;       // Leaflet map instance
+let _vtmMarker = null;    // vessel marker
+let _vtmTrail = null;     // polyline trail
+let _vtmTrailCoords = []; // [ [lat,lon], … ]
+
 function _ensureVesselTrackModal() {
   if (_ltmEl('vessel-track-modal')) return;
-  // Inject styles (shared subset with aircraft modal)
   if (!_ltmEl('vtm-injected-styles')) {
     const st = document.createElement('style');
     st.id = 'vtm-injected-styles';
@@ -2626,20 +2630,19 @@ function _ensureVesselTrackModal() {
       '.vtm-close{margin-left:auto;background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer}',
       '.vtm-close:hover{background:#8b3a38}',
       '.vtm-mapwrap{flex:1;position:relative;min-height:0}',
-      '#vtm-iframe{width:100%;height:100%;border:none;display:block}',
+      '#vtm-map{width:100%;height:100%}',
+      '.vtm-nofix{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(17,24,39,.88);color:#9aa0a6;font-size:.9rem;gap:10px;z-index:10;pointer-events:none}',
+      '.vtm-nofix a{pointer-events:all;color:#8ab4f8;text-decoration:none}',
       '.vtm-footer{padding:5px 14px;background:#111827;font-size:.7rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px}',
       '.vtm-footer a{color:#8ab4f8;text-decoration:none}',
-      '.vtm-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111827;color:#5f6368;font-size:.9rem;pointer-events:none}',
     ].join('');
     document.head.appendChild(st);
   }
-  // Overlay
   const ov = document.createElement('div');
   ov.id = 'vtm-overlay';
   ov.className = 'vtm-overlay';
   ov.addEventListener('click', closeVesselTrackModal);
   document.body.appendChild(ov);
-  // Modal
   const mo = document.createElement('div');
   mo.id = 'vessel-track-modal';
   mo.className = 'vessel-track-modal';
@@ -2648,65 +2651,104 @@ function _ensureVesselTrackModal() {
   mo.innerHTML =
     '<div class="vtm-topbar">' +
       '<span class="vtm-badge">&#x2693; VESSEL AIS</span>' +
-      '<span class="vtm-name" id="vtm-name">---</span>' +
+      '<span class="vtm-name" id="vtm-name"></span>' +
       '<span class="vtm-mmsi" id="vtm-mmsi"></span>' +
       '<div class="vtm-stat"><em>SOG</em><span id="vtm-sog">---</span></div>' +
       '<div class="vtm-stat"><em>HEADING</em><span id="vtm-hdg">---</span></div>' +
       '<div class="vtm-stat"><em>DESTINATION</em><span id="vtm-dest">---</span></div>' +
-      '<button class="vtm-close" data-action="close-vessel-track" aria-label="Close">&#x2715; Close</button>' +
+      '<button class="vtm-close" data-action="close-vessel-track" aria-label="Close vessel tracker">&#x2715; Close</button>' +
     '</div>' +
     '<div class="vtm-mapwrap">' +
-      '<div class="vtm-loading" id="vtm-loading">Loading live AIS map&hellip;</div>' +
-      '<iframe id="vtm-iframe" src="about:blank" title="Live vessel tracker" allow="geolocation" loading="lazy"></iframe>' +
+      '<div id="vtm-map"></div>' +
+      '<div class="vtm-nofix" id="vtm-nofix" style="display:none">' +
+        '<span>&#x26A0; No live AIS position available</span>' +
+        '<span style="font-size:.78rem;color:#5f6368;">Track this vessel on external sites:</span>' +
+        '<div style="display:flex;gap:16px;">' +
+          '<a id="vtm-nofix-mt" href="#" target="_blank" rel="noopener noreferrer">&#128279; MarineTraffic</a>' +
+          '<a id="vtm-nofix-vf" href="#" target="_blank" rel="noopener noreferrer">&#128279; VesselFinder</a>' +
+        '</div>' +
+      '</div>' +
     '</div>' +
     '<div class="vtm-footer">' +
-      '<span>&#x1F6A2; Live AIS data via VesselFinder &mdash; auto-updating</span>' +
+      '<span>&#x1F6A2; Live AIS &mdash; position from aisstream.io</span>' +
       '<div style="display:flex;gap:12px;">' +
         '<a id="vtm-mt-link" href="#" target="_blank" rel="noopener noreferrer">MarineTraffic &#8599;</a>' +
         '<a id="vtm-vf-link" href="#" target="_blank" rel="noopener noreferrer">VesselFinder &#8599;</a>' +
       '</div>' +
     '</div>';
   document.body.appendChild(mo);
-  // Hide loading spinner when iframe loads
-  const iframe = mo.querySelector('#vtm-iframe');
-  const loading = mo.querySelector('#vtm-loading');
-  if (iframe && loading) iframe.addEventListener('load', () => { loading.style.display = 'none'; });
+}
+
+function _vtmPlotVessel(s) {
+  if (!_vtmMap || s.latitude == null || s.longitude == null) return;
+  const cog = s.true_track != null ? s.true_track : 0;
+  const shipSvg =
+    `<svg width="30" height="30" viewBox="0 0 30 30" style="transform:rotate(${cog}deg);transform-origin:center;" xmlns="http://www.w3.org/2000/svg">` +
+      `<polygon points="15,2 22,26 15,21 8,26" fill="#4fc3f7" stroke="#0a1628" stroke-width="1.5"/>` +
+    `</svg>`;
+  const icon = L.divIcon({ className: '', html: shipSvg, iconSize: [30, 30], iconAnchor: [15, 15] });
+  if (_vtmMarker) {
+    _vtmMarker.setLatLng([s.latitude, s.longitude]);
+    _vtmMarker.setIcon(icon);
+  } else {
+    _vtmMarker = L.marker([s.latitude, s.longitude], { icon, zIndexOffset: 1000 }).addTo(_vtmMap);
+  }
+  _vtmTrailCoords.push([s.latitude, s.longitude]);
+  if (_vtmTrailCoords.length > 120) _vtmTrailCoords.shift();
+  if (_vtmTrail) {
+    _vtmTrail.setLatLngs(_vtmTrailCoords);
+  } else {
+    _vtmTrail = L.polyline(_vtmTrailCoords, { color: '#4fc3f7', weight: 2, dashArray: '5,7', opacity: 0.65 }).addTo(_vtmMap);
+  }
+  _vtmMap.setView([s.latitude, s.longitude], _vtmMap.getZoom() || 8);
 }
 
 function openVesselTrackModal(mmsi) {
   _ensureVesselTrackModal();
   const cached = _ltmStateCache['vessel_' + mmsi] || {};
-  const liveS  = _ltmStateCache[mmsi] || null; // aircraft state cache reuse for aisstream data
-  // Fill header
-  if (_ltmEl('vtm-mmsi'))  _ltmEl('vtm-mmsi').textContent  = 'MMSI: ' + mmsi;
-  if (_ltmEl('vtm-name'))  _ltmEl('vtm-name').textContent  = liveS?.vessel_name || '';
-  if (_ltmEl('vtm-sog'))   _ltmEl('vtm-sog').textContent   = liveS?.velocity != null ? (liveS.velocity / 0.514444).toFixed(1) + ' kt' : '---';
-  if (_ltmEl('vtm-hdg'))   _ltmEl('vtm-hdg').textContent   = liveS?.true_track != null ? liveS.true_track.toFixed(0) + '°' : '---';
-  if (_ltmEl('vtm-dest'))  _ltmEl('vtm-dest').textContent  = liveS?.destination || '---';
+  const liveS  = _ltmStateCache[mmsi] || null;
+  // Stats bar
+  if (_ltmEl('vtm-mmsi')) _ltmEl('vtm-mmsi').textContent = mmsi;
+  if (_ltmEl('vtm-name')) _ltmEl('vtm-name').textContent = liveS?.vessel_name || cached.vessel_name || '';
+  if (_ltmEl('vtm-sog'))  _ltmEl('vtm-sog').textContent  = liveS?.velocity   != null ? (liveS.velocity / 0.514444).toFixed(1) + ' kt' : '---';
+  if (_ltmEl('vtm-hdg'))  _ltmEl('vtm-hdg').textContent  = liveS?.true_track != null ? liveS.true_track.toFixed(0) + '°' : '---';
+  if (_ltmEl('vtm-dest')) _ltmEl('vtm-dest').textContent = liveS?.destination || cached.destination || '---';
   // External links
   const mtLink = cached.deepLink || `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${mmsi}`;
-  const vfLink = `https://www.vesselfinder.com/vessels?mmsi=${mmsi}`;
-  if (_ltmEl('vtm-mt-link')) _ltmEl('vtm-mt-link').href = mtLink;
-  if (_ltmEl('vtm-vf-link')) _ltmEl('vtm-vf-link').href = vfLink;
-  // Load iframe (VesselFinder AIS embed — live map, no API key needed)
-  const embedUrl = cached.embed_url ||
-    `https://www.vesselfinder.com/aismap?zoom=9&mmsi=${encodeURIComponent(mmsi)}&width=100%25&height=100%25&names=true&remember=false&clicktoact=false`;
-  const iframe = _ltmEl('vtm-iframe');
-  const loading = _ltmEl('vtm-loading');
-  if (loading) loading.style.display = 'flex';
-  if (iframe) iframe.src = embedUrl;
-  // Show
+  const vfLink = cached.vessel_finder_link || `https://www.vesselfinder.com/vessels?mmsi=${mmsi}`;
+  ['vtm-mt-link','vtm-nofix-mt'].forEach(id => { const el = _ltmEl(id); if (el) el.href = mtLink; });
+  ['vtm-vf-link','vtm-nofix-vf'].forEach(id => { const el = _ltmEl(id); if (el) el.href = vfLink; });
+  // Show modal first (Leaflet needs visible container to init)
   const ov = _ltmEl('vtm-overlay');
   const mo = _ltmEl('vessel-track-modal');
   if (ov) ov.style.display = 'block';
   if (mo) mo.classList.add('open');
+  // Init Leaflet map (destroy previous instance if any)
+  if (_vtmMap) { try { _vtmMap.remove(); } catch(e){} _vtmMap = null; _vtmMarker = null; _vtmTrail = null; _vtmTrailCoords = []; }
+  const mapEl = _ltmEl('vtm-map');
+  if (!mapEl) return;
+  _vtmMap = L.map(mapEl, { zoomControl: true, attributionControl: true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: 'abcd', maxZoom: 19,
+  }).addTo(_vtmMap);
+  // Plot position or show no-fix overlay
+  const nofix = _ltmEl('vtm-nofix');
+  if (liveS && liveS.latitude != null && liveS.longitude != null) {
+    if (nofix) nofix.style.display = 'none';
+    _vtmPlotVessel(liveS);
+  } else {
+    if (nofix) nofix.style.display = 'flex';
+    _vtmMap.setView([20, 0], 2); // world overview
+  }
 }
 
 function closeVesselTrackModal() {
   const ov = _ltmEl('vtm-overlay');
   const mo = _ltmEl('vessel-track-modal');
   if (ov) ov.style.display = 'none';
-  if (mo) { mo.classList.remove('open'); const f = _ltmEl('vtm-iframe'); if (f) f.src = 'about:blank'; }
+  if (mo) mo.classList.remove('open');
+  if (_vtmMap) { try { _vtmMap.remove(); } catch(e){} _vtmMap = null; _vtmMarker = null; _vtmTrail = null; _vtmTrailCoords = []; }
 }
 
 async function removeFromWatchlist(id) {
