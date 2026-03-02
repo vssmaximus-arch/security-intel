@@ -69,6 +69,7 @@ const LOGISTICS_MARKERS  = new Map(); // id → L.marker for live position updat
 let _logisticsPollTimer  = null;  // setInterval handle for 60-second autopoll
 let WATCHLIST_CACHE      = [];    // local copy — updated on every render; used for optimistic deletes
 let liveTrackState       = { icao24: null, map: null, marker: null, trail: null, trailCoords: [], pollTimer: null };
+const _ltmStateCache     = {};  // icao24 → latest state object (avoids JSON-in-HTML-attribute)
 
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
@@ -2323,6 +2324,8 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
           scheduleBrief: null, callsign: s.callsign || null,
         });
       }
+      // Cache state object so the button handler can retrieve it without JSON-in-attribute
+      _ltmStateCache[icao24] = s;
       el.innerHTML = `
         <span class="status-badge status-LIVE">LIVE</span>
         <div style="margin-top:3px;">
@@ -2332,9 +2335,8 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
         <div style="margin-top:4px;">
           <button class="live-track-open-btn" data-action="open-live-track"
             data-icao="${escapeAttr(icao24)}" data-callsign="${escapeAttr(label)}"
-            data-state="${escapeAttr(JSON.stringify(s))}"
             aria-label="Open live tracker for ${escapeAttr(label)}">
-            <i class="fas fa-satellite-dish" aria-hidden="true"></i> Open Live Tracker
+            &#128225; Open Live Tracker
           </button>
         </div>`;
       return;
@@ -2413,6 +2415,65 @@ async function addToWatchlist(id, type) {
 ═══════════════════════════════════════════════════════ */
 function _ltmEl(id) { return document.getElementById(id); }
 
+// Creates modal HTML + CSS dynamically — no index.html dependency
+function _ensureLiveTrackModal() {
+  if (_ltmEl('live-track-modal')) return; // already in DOM (from index.html)
+  // Inject styles
+  if (!_ltmEl('ltm-injected-styles')) {
+    const st = document.createElement('style');
+    st.id = 'ltm-injected-styles';
+    st.textContent = [
+      '.live-track-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:5999;display:none;cursor:pointer}',
+      '.live-track-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90vw;max-width:1120px;height:84vh;background:#1a1b1e;color:#e8eaed;z-index:6000;border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.85);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.live-track-modal.open{display:flex}',
+      '.ltm-topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#292a2d;border-bottom:1px solid #3c4043;flex-shrink:0;flex-wrap:wrap}',
+      '.ltm-badge{background:#1e4620;color:#81c995;font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 8px;letter-spacing:1px;animation:ltmPulse 2s infinite}',
+      '@keyframes ltmPulse{0%,100%{opacity:1}50%{opacity:.5}}',
+      '.ltm-callsign{font-size:1.05rem;font-weight:800;font-family:monospace;color:#4fc3f7;letter-spacing:1px}',
+      '.ltm-stat{background:#3c4043;border-radius:6px;padding:3px 9px;font-size:.77rem;color:#e8eaed;font-family:monospace;line-height:1.5}',
+      '.ltm-stat em{color:#9aa0a6;font-style:normal;font-size:.65rem;display:block}',
+      '.ltm-close{margin-left:auto;background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer}',
+      '.ltm-close:hover{background:#8b3a38}',
+      '.ltm-mapwrap{flex:1;position:relative;min-height:0}',
+      '#live-track-map{width:100%;height:100%}',
+      '.ltm-footer{padding:5px 14px;background:#202124;font-size:.7rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}',
+      '.ltm-footer a{color:#8ab4f8;text-decoration:none}',
+      '.live-track-open-btn{background:#1a3a5c;color:#4fc3f7;border:1px solid #2a5a8c;border-radius:5px;padding:3px 10px;font-size:.74rem;font-weight:700;cursor:pointer;margin-top:4px;display:inline-flex;align-items:center;gap:5px}',
+      '.live-track-open-btn:hover{background:#244a7a}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+  // Create overlay
+  const ov = document.createElement('div');
+  ov.id = 'live-track-overlay';
+  ov.className = 'live-track-overlay';
+  ov.addEventListener('click', closeLiveTrackModal);
+  document.body.appendChild(ov);
+  // Create modal
+  const mo = document.createElement('div');
+  mo.id = 'live-track-modal';
+  mo.className = 'live-track-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    '<div class="ltm-topbar">' +
+      '<span class="ltm-badge">&#9679; LIVE</span>' +
+      '<span class="ltm-callsign" id="ltm-callsign">---</span>' +
+      '<div class="ltm-stat"><em>ALTITUDE</em><span id="ltm-alt">---</span></div>' +
+      '<div class="ltm-stat"><em>SPEED</em><span id="ltm-vel">---</span></div>' +
+      '<div class="ltm-stat"><em>HEADING</em><span id="ltm-hdg">---</span></div>' +
+      '<div class="ltm-stat"><em>VERT RATE</em><span id="ltm-vr">---</span></div>' +
+      '<div class="ltm-stat"><em>COUNTRY</em><span id="ltm-country">---</span></div>' +
+      '<button class="ltm-close" data-action="close-live-track" aria-label="Close">&#x2715; Close</button>' +
+    '</div>' +
+    '<div class="ltm-mapwrap"><div id="live-track-map"></div></div>' +
+    '<div class="ltm-footer">' +
+      '<span id="ltm-status">Connecting&hellip;</span>' +
+      '<a id="ltm-fr24-link" href="#" target="_blank" rel="noopener noreferrer">Open on FlightRadar24 &#8599;</a>' +
+    '</div>';
+  document.body.appendChild(mo);
+}
+
 function _ltmUpdateStats(s) {
   const ftAlt  = s.baro_altitude != null ? (s.baro_altitude / 0.3048).toFixed(0) + ' ft'  : 'N/A';
   const mAlt   = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m'               : '';
@@ -2458,6 +2519,7 @@ function _ltmPlotPosition(s) {
 }
 
 function openLiveTrackModal(icao24, callsign, initialState) {
+  _ensureLiveTrackModal(); // create modal HTML+CSS dynamically if not already in DOM
   liveTrackState.icao24 = icao24;
   // Stop any previous poll
   if (liveTrackState.pollTimer) { clearInterval(liveTrackState.pollTimer); liveTrackState.pollTimer = null; }
@@ -2676,10 +2738,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'close-logistics') { closeLogisticsDrawer(); return; }
       if (action === 'close-live-track') { closeLiveTrackModal(); return; }
       if (action === 'open-live-track') {
-        const icao = t.dataset.icao || '';
-        const cs   = t.dataset.callsign || icao;
-        let   st   = null;
-        try { st = JSON.parse(t.dataset.state || 'null'); } catch(e) {}
+        const icao = (t.dataset.icao || '').toLowerCase();
+        const cs   = t.dataset.callsign || icao.toUpperCase();
+        // Read state from JS cache — no JSON-in-attribute risk
+        const st   = _ltmStateCache[icao] || null;
         openLiveTrackModal(icao, cs, st);
         return;
       }
