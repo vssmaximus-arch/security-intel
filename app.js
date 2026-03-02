@@ -2404,11 +2404,17 @@ async function addToWatchlist(id, type) {
 
 async function removeFromWatchlist(id) {
   const normId = id.toLowerCase();
-  // 1. Optimistic UI update — remove from local cache immediately so repeated clicks
-  //    don't re-add items due to KV eventual-consistency lag on server reads
+  // 1. Remove card from DOM immediately — no cache dependency, no server wait
+  const card = document.getElementById('watch-card-' + normId);
+  if (card) card.remove();
+  // Show empty state if no cards remain
+  const container = document.getElementById('logistics-watchlist-list');
+  if (container && container.querySelectorAll('.drawer-watch-card').length === 0) {
+    container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
+  }
+  // 2. Update local cache
   WATCHLIST_CACHE = WATCHLIST_CACHE.filter(w => (typeof w === 'string' ? w : w.id) !== normId);
-  renderWatchlistFromData(WATCHLIST_CACHE);
-  // 2. Sync to server in background
+  // 3. Persist to server — do NOT re-render from response (KV stale data would re-add the deleted item)
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
@@ -2417,13 +2423,8 @@ async function removeFromWatchlist(id) {
     });
     const resData = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
-    // If server returns a watchlist, use it as authoritative (reconcile)
-    if (Array.isArray(resData.watchlist)) {
-      renderWatchlistFromData(resData.watchlist);
-    }
   } catch (e) {
     console.error('[watchlist] remove server sync failed:', e);
-    // UI already updated optimistically — just log, don't revert
   }
 }
 
