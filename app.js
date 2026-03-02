@@ -2404,7 +2404,7 @@ async function addToWatchlist(id, type) {
 
 async function removeFromWatchlist(id) {
   const normId = id.toLowerCase();
-  // 1. Remove card from DOM immediately — no cache dependency, no server wait
+  // 1. Remove card from DOM immediately — no server wait
   const card = document.getElementById('watch-card-' + normId);
   if (card) card.remove();
   // Show empty state if no cards remain
@@ -2412,14 +2412,15 @@ async function removeFromWatchlist(id) {
   if (container && container.querySelectorAll('.drawer-watch-card').length === 0) {
     container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
   }
-  // 2. Update local cache
+  // 2. Update local cache — remove the item
   WATCHLIST_CACHE = WATCHLIST_CACHE.filter(w => (typeof w === 'string' ? w : w.id) !== normId);
-  // 3. Persist to server — do NOT re-render from response (KV stale data would re-add the deleted item)
+  // 3. Persist via action:'set' — sends the COMPLETE desired list so Worker never reads stale KV
+  //    This bypasses the KV read-modify-write race that caused deleted items to reappear
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'remove', id: normId }),
+      body: JSON.stringify({ action: 'set', watchlist: WATCHLIST_CACHE }),
     });
     const resData = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
