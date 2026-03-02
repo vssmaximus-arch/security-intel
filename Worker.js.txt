@@ -2600,45 +2600,9 @@ async function handleApiLogisticsTrack(env, req) {
       }
     } catch(e) {}
 
-    // 5. OpenSky Flights API: last 48 h of landings (requires ICAO24 — skip for callsigns)
-    if (isCallsign) {
-      return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: fr24Link } };
-    }
-    const nowSec = Math.floor(Date.now() / 1000);
-    const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
-    let fRes;
-    try {
-      fRes = await fetchWithTimeout(flightsUrl, {}, 8000);
-    } catch(fetchErr) {
-      typeof debug === 'function' && debug('logistics:track:flights-timeout', icao24, fetchErr?.message);
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}` } };
-    }
-    if (!fRes.ok) {
-      typeof debug === 'function' && debug('logistics:track:flights-api-error', icao24, fRes.status);
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_error', details: `flights API: ${fRes.status}` } };
-    }
-    const flights = await fRes.json().catch(() => []);
-    if (!Array.isArray(flights) || flights.length === 0) {
-      return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: `https://opensky-network.org/aircraft/${icao24}` } };
-    }
-
-    // 6. Pick best record (most recent lastSeen)
-    const best     = flights.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0))[0];
-    const depCode  = ((best.estDepartureAirport || '???')).trim().toUpperCase();
-    const arrCode  = ((best.estArrivalAirport   || '???')).trim().toUpperCase();
-    const lastSeenISO = best.lastSeen ? new Date(best.lastSeen * 1000).toISOString() : null;
-    const hoursAgo = best.lastSeen ? (nowSec - best.lastSeen) / 3600 : Infinity;
-    let flightStatus = 'SCHEDULED';
-    if (best.estArrivalAirport && hoursAgo < 24) flightStatus = 'ARRIVED';
-    else if (hoursAgo < 2 && !best.estArrivalAirport)  flightStatus = 'DEPARTED';
-    const verb = flightStatus === 'ARRIVED' ? 'Arrived' : flightStatus === 'DEPARTED' ? 'En route' : 'Scheduled';
-    const timeTag = lastSeenISO ? ` · Last seen ${lastSeenISO.slice(11, 16)}Z` : '';
-    const scheduleBrief = `${verb} ${depCode} → ${arrCode}${timeTag}`;
-
-    const schedResult = { id: icao24, status: flightStatus, estDepartureAirport: depCode, estArrivalAirport: arrCode, lastSeen: lastSeenISO, scheduleBrief, source: 'opensky_flights' };
-    await kvPut(env, `${LOG_TRACK_PREFIX}${icao24}`, schedResult, { expirationTtl: SCHEDULE_CACHE_TTL_SEC });
-    typeof debug === 'function' && debug('logistics:track:schedule', icao24, flightStatus, depCode, '->', arrCode);
-    return { ok: true, status: 200, body: { ok: true, ...schedResult } };
+    // 5. Not airborne — adsb.fi returned nothing. Send FR24 deep-link immediately.
+    // (OpenSky flights history API is too slow/unreliable; FR24 is the better UX.)
+    return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: fr24Link } };
 
   } catch(e) {
     typeof debug === 'function' && debug('handleApiLogisticsTrack error', e?.message || e);
