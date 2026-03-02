@@ -2283,6 +2283,7 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       50000  // OpenSky OAuth2 + states (20 s) + flights (20 s) sequential
     );
     const data = await res.json().catch(() => ({}));
+    console.log('[logistics] track result', icao24, res.status, data.ok, data.status || data.reason || data.error || '');
 
     // ── Structured error responses ───────────────────────────────────────────
     if (data.ok === false || (!res.ok && !data.status)) {
@@ -2297,7 +2298,8 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
         return;
       }
       if (reason === 'no_schedule_found') {
-        el.innerHTML = `<span class="status-badge status-UNKNOWN">UNKNOWN</span> No records found. <a href="${escapeAttr(data.deep_link || 'https://opensky-network.org/')}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Search OpenSky ↗</a>`;
+        const fr24 = data.deep_link || `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}`;
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">NOT FOUND</span> Not airborne or wrong ID. <a href="${escapeAttr(fr24)}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Find on FlightRadar24 ↗</a><div style="font-size:0.68rem;color:#9aa0a6;margin-top:2px;">Tip: use the ICAO24 hex code from FR24 (e.g. 155c63) for better results.</div>`;
         return;
       }
       el.textContent = reason || `Error: HTTP ${res.status}`;
