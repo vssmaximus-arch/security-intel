@@ -2591,7 +2591,7 @@ async function handleApiLogisticsTrack(env, req) {
 
     // 3. adsb.fi coverage gap (e.g. Russia/CIS) — fallback to OpenSky states/all (6 s hard limit)
     const osQParam = isCallsign
-      ? `callsign=${encodeURIComponent(rawId.toUpperCase().padEnd(8))}`
+      ? `callsign=${encodeURIComponent(rawId.toUpperCase().trim())}`
       : `icao24=${encodeURIComponent(icao24)}`;
     try {
       const osRes2 = await fetchWithTimeout(
