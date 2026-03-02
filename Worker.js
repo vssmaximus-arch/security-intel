@@ -2551,42 +2551,45 @@ async function handleApiLogisticsTrack(env, req) {
       }
     } catch(e) {}
 
-    // 2. OpenSky live states
-    if (!env.OPENSKY_CLIENT_ID || !env.OPENSKY_CLIENT_SECRET) {
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_not_configured', deep_link: 'https://opensky-network.org/' } };
-    }
+    // 2. Live position via adsb.fi (free, no auth, ~200ms — replaces slow OpenSky REST API)
     // Detect callsign vs ICAO24: ICAO24 is hex-only (0-9, a-f); callsigns contain g-z letters
     const isCallsign = /[g-z]/i.test(icao24);
     const fr24Link = `https://www.flightradar24.com/search?query=${encodeURIComponent(rawId.toUpperCase())}`;
-    const osQueryParam = isCallsign
-      ? `callsign=${encodeURIComponent(rawId.toUpperCase().padEnd(8))}`
-      : `icao24=${encodeURIComponent(icao24)}`;
-    const token = await getOpenSkyToken(env);
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    let osRes;
+    const adsbUrl = isCallsign
+      ? `https://opendata.adsb.fi/api/v2/callsign/${encodeURIComponent(rawId.toUpperCase().trim())}`
+      : `https://opendata.adsb.fi/api/v2/hex/${encodeURIComponent(icao24)}`;
+    let adsbRes;
     try {
-      osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?${osQueryParam}`, { headers }, 8000);
+      adsbRes = await fetchWithTimeout(adsbUrl, {}, 5000);
     } catch(fetchErr) {
-      typeof debug === 'function' && debug('logistics:track:states-timeout', icao24, fetchErr?.message);
-      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: fr24Link } };
+      typeof debug === 'function' && debug('logistics:track:adsb-timeout', icao24, fetchErr?.message);
+      return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'ADS-B lookup timed out. Try again.', deep_link: fr24Link } };
     }
-    if (!osRes.ok) {
-      return { ok: false, status: osRes.status, body: { ok: false, reason: 'opensky_error', details: `states API: ${osRes.status}`, deep_link: fr24Link } };
+    if (adsbRes.ok) {
+      const adsbData = await adsbRes.json().catch(() => ({}));
+      const acList = Array.isArray(adsbData.ac) ? adsbData.ac : [];
+      if (acList.length > 0) {
+        const a = acList[0];
+        const states = [{
+          icao24: (a.hex || icao24).toLowerCase(),
+          callsign: (a.flight || rawId).trim(),
+          origin_country: a.r || '',
+          longitude:     a.lon      != null ? Number(a.lon)  : null,
+          latitude:      a.lat      != null ? Number(a.lat)  : null,
+          baro_altitude: a.alt_baro != null && a.alt_baro !== 'ground' ? Number(a.alt_baro) * 0.3048 : 0,
+          on_ground:     a.alt_baro === 'ground' || a.on_ground === true,
+          velocity:      a.gs       != null ? Number(a.gs) * 0.514444 : null,   // knots → m/s
+          true_track:    a.track    != null ? Number(a.track) : null,
+          vertical_rate: a.baro_rate != null ? Number(a.baro_rate) * 0.00508 : null, // ft/min → m/s
+        }];
+        const liveResult = { id: icao24, icao24: (a.hex || icao24), status: 'LIVE', states, fetched_at: new Date().toISOString() };
+        await kvPut(env, liveKey, liveResult, { expirationTtl: 60 });
+        typeof debug === 'function' && debug('logistics:track:live', icao24, 'adsb.fi');
+        return { ok: true, status: 200, body: { ok: true, ...liveResult } };
+      }
     }
-    const osData  = await osRes.json();
-    const states  = (osData.states || []).map(s => ({
-      icao24: s[0], callsign: (s[1] || '').trim(), origin_country: s[2],
-      longitude: s[5], latitude: s[6], baro_altitude: s[7],
-      on_ground: s[8], velocity: s[9], true_track: s[10], vertical_rate: s[11],
-    }));
 
-    // 3. LIVE result
-    if (states.length > 0) {
-      const liveResult = { id: icao24, icao24, status: 'LIVE', states, fetched_at: new Date().toISOString() };
-      await kvPut(env, liveKey, liveResult, { expirationTtl: 60 });
-      typeof debug === 'function' && debug('logistics:track:live', icao24, states.length, 'states');
-      return { ok: true, status: 200, body: { ok: true, ...liveResult } };
-    }
+    // 3. Not currently airborne — fall through to schedule history
 
     // 4. Schedule fallback: 10-min KV cache check first
     try {
@@ -2605,7 +2608,7 @@ async function handleApiLogisticsTrack(env, req) {
     const flightsUrl = `https://opensky-network.org/api/flights/aircraft?icao24=${encodeURIComponent(icao24)}&begin=${nowSec - 48 * 3600}&end=${nowSec}`;
     let fRes;
     try {
-      fRes = await fetchWithTimeout(flightsUrl, { headers }, 8000);
+      fRes = await fetchWithTimeout(flightsUrl, {}, 8000);
     } catch(fetchErr) {
       typeof debug === 'function' && debug('logistics:track:flights-timeout', icao24, fetchErr?.message);
       return { ok: false, status: 200, body: { ok: false, reason: 'opensky_timeout', error: 'OpenSky timed out. Try again in a moment.', deep_link: `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}` } };
