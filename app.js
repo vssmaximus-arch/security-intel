@@ -67,6 +67,7 @@ let logisticsDrawerOpen  = false;
 let logisticsLayerGroup  = null;  // Leaflet L.layerGroup for logistics markers + hub rings
 const LOGISTICS_MARKERS  = new Map(); // id → L.marker for live position updates
 let _logisticsPollTimer  = null;  // setInterval handle for 60-second autopoll
+let WATCHLIST_CACHE      = [];    // local copy — updated on every render; used for optimistic deletes
 
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
@@ -2217,6 +2218,8 @@ function renderLogisticsAssets() {
 function renderWatchlistFromData(watchlist) {
   const container = document.getElementById('logistics-watchlist-list');
   if (!container) return;
+  // Keep local cache in sync so optimistic deletes work across KV eventual-consistency lag
+  WATCHLIST_CACHE = Array.isArray(watchlist) ? watchlist.map(i => typeof i === 'string' ? { id: i, type: 'flight', label: i } : i) : [];
   if (!Array.isArray(watchlist) || watchlist.length === 0) {
     container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
     return;
@@ -2400,26 +2403,27 @@ async function addToWatchlist(id, type) {
 }
 
 async function removeFromWatchlist(id) {
-  console.log('[watchlist] remove called id=', id);
+  const normId = id.toLowerCase();
+  // 1. Optimistic UI update — remove from local cache immediately so repeated clicks
+  //    don't re-add items due to KV eventual-consistency lag on server reads
+  WATCHLIST_CACHE = WATCHLIST_CACHE.filter(w => (typeof w === 'string' ? w : w.id) !== normId);
+  renderWatchlistFromData(WATCHLIST_CACHE);
+  // 2. Sync to server in background
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'remove', id: id.toLowerCase() }),
+      body: JSON.stringify({ action: 'remove', id: normId }),
     });
     const resData = await res.json().catch(() => ({}));
-    console.log('[watchlist] remove response', res.status, resData.ok, Array.isArray(resData.watchlist) ? resData.watchlist.length + ' items' : 'no watchlist');
     if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
-    // Use watchlist from POST response directly — avoids KV eventual-consistency lag
+    // If server returns a watchlist, use it as authoritative (reconcile)
     if (Array.isArray(resData.watchlist)) {
       renderWatchlistFromData(resData.watchlist);
-    } else {
-      await loadLogisticsWatchlist();
     }
   } catch (e) {
-    console.error('[watchlist] remove failed:', e);
-    const container = document.getElementById('logistics-watchlist-list');
-    if (container) container.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">Remove failed: ${escapeHtml(e.message)}</div>`;
+    console.error('[watchlist] remove server sync failed:', e);
+    // UI already updated optimistically — just log, don't revert
   }
 }
 
