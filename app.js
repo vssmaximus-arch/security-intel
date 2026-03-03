@@ -3222,6 +3222,207 @@ function closeLiveNewsModal() {
   if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }
 }
 
+/* ============================================================
+   PHASE 2 — GDELT OSINT INTEL PANEL
+   5-tab modal: Military · Cyber · Nuclear · Maritime · Sanctions
+   GDELT DOC API v2 (public, CORS-enabled, no auth required)
+   Client-side 5-min cache per tab; full sanitisation on all output
+   ============================================================ */
+
+const GIM_TABS = [
+  { key: 'military',  label: '\u2694\ufe0f Military',  query: '"military exercise" OR "troop deployment" OR "airstrike" OR "missile strike" OR "military operation" OR "armed forces"' },
+  { key: 'cyber',     label: '\ud83d\udcbb Cyber',     query: '"cyberattack" OR "ransomware" OR "hacking" OR "data breach" OR "APT" OR "critical infrastructure attack" OR "zero-day"' },
+  { key: 'nuclear',   label: '\u2622\ufe0f Nuclear',   query: '"nuclear" OR "uranium enrichment" OR "IAEA" OR "nuclear weapon" OR "missile test" OR "proliferation"' },
+  { key: 'maritime',  label: '\u2693 Maritime',        query: '"naval" OR "piracy" OR "strait of hormuz" OR "south china sea" OR "shipping lane" OR "blockade" OR "sea lane"' },
+  { key: 'sanctions', label: '\ud83d\udd12 Sanctions', query: '"sanctions" OR "embargo" OR "trade war" OR "tariff" OR "export controls" OR "asset freeze"' },
+];
+const GIM_CACHE_TTL = 5 * 60 * 1000;
+const _gimCache     = {};
+let   _gimActiveTab = 'military';
+
+function _gimEl(id) { return document.getElementById(id); }
+
+/* Parse GDELT seendate "20260303T120000Z" → relative time string */
+function _gimTimeAgo(sd) {
+  try {
+    const s = (sd || '').replace('T','').replace('Z','');
+    const d = new Date(+s.slice(0,4), +s.slice(4,6)-1, +s.slice(6,8), +s.slice(8,10)||0, +s.slice(10,12)||0);
+    const ms = Date.now() - d.getTime();
+    if (ms < 3600000)  return Math.floor(ms/60000)  + 'm ago';
+    if (ms < 86400000) return Math.floor(ms/3600000) + 'h ago';
+    return Math.floor(ms/86400000) + 'd ago';
+  } catch { return ''; }
+}
+
+/* Tone badge — negative tone = crisis/threat language in article */
+function _gimToneBadge(tone) {
+  const t = parseFloat(tone);
+  if (isNaN(t)) return '';
+  if (t <= -5)  return '<span style="color:#f28b82;font-size:.62rem;font-weight:700">\u25bc Crisis</span>';
+  if (t <= -2)  return '<span style="color:#ff8f00;font-size:.62rem;font-weight:700">\u25bc Negative</span>';
+  if (t >=  3)  return '<span style="color:#81c995;font-size:.62rem;font-weight:700">\u25b2 Positive</span>';
+  return '<span style="color:#9aa0a6;font-size:.62rem">\u2014 Neutral</span>';
+}
+
+/* Source domain coloured badge — reuses LNM_SOURCE_COLORS for known outlets */
+function _gimDomainBadge(domain) {
+  const raw = (domain || '').replace(/^www\./,'');
+  const key = raw.split('.')[0];
+  const sc  = LNM_SOURCE_COLORS[key];
+  const bg  = sc ? sc.bg  : '#3c4043';
+  const col = sc ? sc.text : '#e8eaed';
+  const lbl = raw.length > 18 ? raw.slice(0,16) + '\u2026' : (raw || 'source');
+  return `<span style="background:${bg};color:${col};font-size:.58rem;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.3px;white-space:nowrap;display:inline-block">${escapeHtml(lbl)}</span>`;
+}
+
+/* Validate URL — only allow http/https to prevent JS injection */
+function _gimSafeUrl(url) {
+  try {
+    const u = new URL(url);
+    return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '#';
+  } catch { return '#'; }
+}
+
+/* Fetch GDELT articles for tab key; serves cache if < 5 min old */
+async function _gimFetch(key) {
+  const cached = _gimCache[key];
+  if (cached && (Date.now() - cached.ts) < GIM_CACHE_TTL) return cached.articles;
+  const tab = GIM_TABS.find(t => t.key === key);
+  if (!tab) return [];
+  const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(tab.query)}&mode=artlist&maxrecords=20&format=json&timespan=1d&sort=datedesc`;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const articles = (data.articles || []).filter(a => a.language === 'English');
+    _gimCache[key] = { ts: Date.now(), articles };
+    return articles;
+  } catch (e) {
+    if (_gimCache[key]) return _gimCache[key].articles; // serve stale on error
+    throw e;
+  }
+}
+
+/* Load articles for key into #gim-feed */
+async function _gimLoadTab(key) {
+  _gimActiveTab = key;
+  const mo = _gimEl('gdelt-intel-modal');
+  if (mo) mo.querySelectorAll('.gim-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === key));
+  const feed = _gimEl('gim-feed');
+  if (!feed) return;
+  feed.innerHTML = '<div style="padding:32px;text-align:center;color:#5f6368;font-size:.85rem">\u231b Querying GDELT global news database\u2026</div>';
+
+  let articles;
+  try {
+    articles = await _gimFetch(key);
+  } catch (e) {
+    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#f28b82;font-size:.82rem">\u26a0\ufe0f GDELT API unavailable: ' + escapeHtml(e.message) + '<br><span style="color:#5f6368;font-size:.75rem">Try refreshing in a few minutes</span></div>';
+    return;
+  }
+
+  if (!articles.length) {
+    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#5f6368;font-size:.82rem">No English-language articles found in the last 24\u00a0hours.</div>';
+    return;
+  }
+
+  const rows = articles.map(a => {
+    const url    = _gimSafeUrl(a.url || '');
+    const title  = escapeHtml(a.title || 'Untitled');
+    const domain = _gimDomainBadge(a.domain || '');
+    const time   = _gimTimeAgo(a.seendate || '');
+    const tone   = _gimToneBadge(a.tone);
+    const ctry   = a.sourcecountry ? '<span style="color:#5f6368;font-size:.62rem">\u2022\u00a0' + escapeHtml(a.sourcecountry) + '</span>' : '';
+    return '<div style="display:flex;gap:10px;padding:9px 10px;background:#202124;border-radius:6px;border-left:3px solid #2a2d31;margin-bottom:5px" onmouseover="this.style.background=\'#262a2e\'" onmouseout="this.style.background=\'#202124\'">' +
+      '<div style="flex-shrink:0;width:110px;display:flex;align-items:flex-start;padding-top:1px;flex-direction:column;gap:3px">' + domain + ctry + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div><a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:#e8eaed;font-size:.82rem;font-weight:600;text-decoration:none;line-height:1.4" onmouseover="this.style.color=\'#8ab4f8\'" onmouseout="this.style.color=\'#e8eaed\'">' + title + '</a></div>' +
+        '<div style="font-size:.68rem;color:#5f6368;margin-top:3px;display:flex;align-items:center;gap:8px">' + time + ' ' + tone + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  const tab  = GIM_TABS.find(t => t.key === key);
+  const lbl  = tab ? tab.label : key;
+  const age  = _gimCache[key] ? Math.floor((Date.now() - _gimCache[key].ts) / 60000) : 0;
+  feed.innerHTML = '<div style="padding:6px 10px;font-size:.68rem;color:#5f6368;border-bottom:1px solid #2a2d31;margin-bottom:4px">' +
+    articles.length + ' articles \u00b7 ' + lbl + ' \u00b7 ' + (age === 0 ? 'just fetched' : age + 'm old') + ' \u00b7 English only \u00b7 GDELT v2</div>' + rows;
+}
+
+/* Build modal DOM (once) */
+function _ensureGdeltIntelModal() {
+  if (_gimEl('gdelt-intel-modal')) return;
+
+  const st = document.createElement('style');
+  st.id = 'gim-styles';
+  st.textContent = [
+    '.gim-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6099;display:none;cursor:pointer}',
+    '.gdelt-intel-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:94vw;max-width:1360px;height:90vh;background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+    '.gdelt-intel-modal.open{display:flex}',
+    '.gim-topbar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
+    '.gim-badge{background:#1a1a3a;color:#9fa8da;font-size:.7rem;font-weight:800;border-radius:4px;padding:2px 9px;letter-spacing:1px;white-space:nowrap}',
+    '.gim-tabs{display:flex;gap:3px;flex-wrap:wrap}',
+    '.gim-tab-btn{font-size:.72rem;font-weight:700;padding:4px 13px;border-radius:6px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s;white-space:nowrap}',
+    '.gim-tab-btn.active{background:#1a1a3a;color:#9fa8da;border-color:#9fa8da}',
+    '.gim-tab-btn:hover:not(.active){color:#e8eaed;border-color:#5f6368}',
+    '.gim-close{background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap}',
+    '.gim-close:hover{background:#8b3a38}',
+    '.gim-refresh-btn{background:#1a1a3a;color:#9fa8da;border:none;border-radius:4px;padding:3px 10px;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap}',
+    '.gim-refresh-btn:hover{background:#252550}',
+    '#gim-feed{flex:1;overflow-y:auto;padding:8px 12px}',
+    '.gim-footer{padding:6px 14px;background:#0d1117;font-size:.68rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;border-top:1px solid #2a2d31}',
+  ].join('');
+  document.head.appendChild(st);
+
+  const ov = document.createElement('div');
+  ov.id = 'gim-overlay';
+  ov.className = 'gim-overlay';
+  ov.addEventListener('click', closeGdeltIntelModal);
+  document.body.appendChild(ov);
+
+  const tabBtns = GIM_TABS.map((t, i) =>
+    '<button class="gim-tab-btn' + (i === 0 ? ' active' : '') + '" data-action="gim-tab" data-tab="' + t.key + '">' + t.label + '</button>'
+  ).join('');
+
+  const mo = document.createElement('div');
+  mo.id = 'gdelt-intel-modal';
+  mo.className = 'gdelt-intel-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    '<div class="gim-topbar">' +
+      '<span class="gim-badge">\ud83d\udee1\ufe0f OSINT INTELLIGENCE</span>' +
+      '<div class="gim-tabs">' + tabBtns + '</div>' +
+      '<button class="gim-close" data-action="close-gdelt-intel" aria-label="Close">\u2715 Close</button>' +
+    '</div>' +
+    '<div id="gim-feed" role="feed" aria-live="polite" style="flex:1;overflow-y:auto;padding:8px 12px">' +
+      '<div style="padding:40px;text-align:center;color:#5f6368;font-size:.85rem">Select a category above to load intelligence\u2026</div>' +
+    '</div>' +
+    '<div class="gim-footer">' +
+      '<span>\ud83c\udf10 GDELT Global News Database \u00b7 20,000+ sources \u00b7 100+ languages \u00b7 English articles \u00b7 Last 24\u00a0hours \u00b7 5-min cache</span>' +
+      '<button class="gim-refresh-btn" data-action="gim-refresh">\u21bb Refresh</button>' +
+    '</div>';
+  document.body.appendChild(mo);
+}
+
+function openGdeltIntelModal() {
+  _ensureGdeltIntelModal();
+  const ov = _gimEl('gim-overlay');
+  const mo = _gimEl('gdelt-intel-modal');
+  if (ov) ov.style.display = 'block';
+  if (mo) mo.classList.add('open');
+  _gimLoadTab(_gimActiveTab);
+}
+
+function closeGdeltIntelModal() {
+  const ov = _gimEl('gim-overlay');
+  const mo = _gimEl('gdelt-intel-modal');
+  if (ov) ov.style.display = 'none';
+  if (mo) mo.classList.remove('open');
+}
+
 async function removeFromWatchlist(id) {
   const normId = id.toLowerCase();
   // 1. Remove card from DOM immediately — no server wait
@@ -3384,6 +3585,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         _lnmRender();
         return;
       }
+
+      // Phase 2 — GDELT OSINT Intel Panel actions
+      if (action === 'open-gdelt-intel')  { openGdeltIntelModal(); return; }
+      if (action === 'close-gdelt-intel') { closeGdeltIntelModal(); return; }
+      if (action === 'gim-tab')     { _gimLoadTab(t.dataset.tab || 'military'); return; }
+      if (action === 'gim-refresh') { delete _gimCache[_gimActiveTab]; _gimLoadTab(_gimActiveTab); return; }
 
       // S2.5 — Logistics Drawer actions
       if (action === 'open-logistics') { openLogisticsDrawer(); return; }

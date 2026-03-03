@@ -10,7 +10,7 @@
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org;
     media-src blob: https://*.akamaized.net https://*.getaj.net https://*.fastly.net;
     frame-src https://www.vesselfinder.com https://www.youtube-nocookie.com https://www.youtube.com;
     base-uri 'self';
@@ -388,6 +388,12 @@
         <button class="logistics-open-btn ms-2" data-action="open-live-news" aria-label="Open Live Global News Feed" tabindex="0"
           style="background:#1a3a2c;color:#4caf50;">
           <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
+        </button>
+
+        <!-- Phase 2 — GDELT OSINT Intel Panel trigger -->
+        <button class="logistics-open-btn ms-2" data-action="open-gdelt-intel" aria-label="Open OSINT Intelligence Panel" tabindex="0"
+          style="background:#1a1a3a;color:#9fa8da;">
+          <i class="fas fa-shield-alt" aria-hidden="true"></i> OSINT Intel
         </button>
       </div>
     </div>
