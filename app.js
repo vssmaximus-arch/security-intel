@@ -2898,17 +2898,27 @@ let _lnmActiveTab   = 'headlines'; // 'headlines' | 'tv'
 let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 
 // Live TV channel definitions
-// hlsUrl = direct broadcast stream (no ads, lower latency) — YouTube used when absent or on fatal error
+// hlsUrl = direct broadcast CDN stream (no ads) — YouTube ytId used as fallback on HLS failure
+// Sources: iptv-org/iptv verified streams + official broadcaster CDNs (Akamai, getaj, france24, nhk, cgtn)
 let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
 const LNM_TV_CHANNELS = [
-  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo', hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },
-  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U', hlsUrl: 'https://dwamdstream107.akamaized.net/hls/live/2017968/dwstream107/stream05/streamPlaylist.m3u8' },
-  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU', hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' },
-  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },
-  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I' },
-  { key: 'euronews',  label: 'Euronews',    color: '#283593', ytId: 'pykpO5kQJ98' },
-  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs' },
-  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY' },
+  // ── Direct HLS — no ads (Akamai / official CDNs) ─────────────────────────────
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
+    hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },                            // Al Jazeera official CDN
+  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
+    hlsUrl: 'https://dwamdstream107.akamaized.net/hls/live/2017968/dwstream107/stream05/streamPlaylist.m3u8' }, // Akamai
+  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU',
+    hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' }, // France24 official
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
+    hlsUrl: 'https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8' }, // Akamai — Sky AU (same news, global access)
+  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs',
+    hlsUrl: 'https://viamotionhsi.netplus.ch/live/eds/bbcworld/browser-HLS8/bbcworld.m3u8' }, // Netplus CH browser-HLS endpoint
+  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
+    hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
+  { key: 'nhk',       label: 'NHK World',   color: '#c62828', ytId: 'mMTpFkLOGo4',
+    hlsUrl: 'https://master.nhkworld.jp/nhkworld-tv/playlist/live.m3u8' },                    // NHK official broadcaster CDN
+  // ── YouTube fallback only — no public HLS available ──────────────────────────
+  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
 ];
 
 // Source badge colors — keyed by source_key from Worker
