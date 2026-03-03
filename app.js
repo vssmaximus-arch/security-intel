@@ -1130,6 +1130,50 @@ function dismissAlertById(id) {
   } catch(e) { console.error('dismissAlertById', e); }
 }
 
+function _proxTimeAgo(isoStr) {
+  try {
+    const diff = Date.now() - new Date(isoStr).getTime();
+    if (isNaN(diff) || diff < 0) return '';
+    const m = Math.floor(diff / 60000);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function _proxImpactBar(score) {
+  if (!score || score <= 0) return '';
+  const pct = Math.min(100, Math.max(0, Number(score)));
+  const filled = Math.round(pct / 10);
+  const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
+  const col = pct >= 70 ? '#d93025' : pct >= 40 ? '#f9ab00' : '#5f6368';
+  return `<span style="font-family:monospace;font-size:.68rem;color:${col};letter-spacing:1px;" title="Impact score ${Math.round(pct)}/100">${bar} ${Math.round(pct)}</span>`;
+}
+
+function _proxAction(sev, dist, opImpact) {
+  if ((sev >= 4 && dist < 30) || (opImpact && dist < 20))
+    return { label: '🔴 Alert Security Team', color: '#d93025', bg: 'rgba(211,48,37,.13)' };
+  if (sev >= 4 && dist < 100)
+    return { label: '🟠 Notify Regional Lead', color: '#f9ab00', bg: 'rgba(249,171,0,.1)' };
+  if (sev >= 3 && dist < 50)
+    return { label: '🟡 Monitor Closely', color: '#fbbc04', bg: 'rgba(251,188,4,.08)' };
+  return { label: '⚪ Awareness Only', color: '#5f6368', bg: 'rgba(95,99,104,.08)' };
+}
+
+function _proxCategoryLabel(cat) {
+  const map = {
+    EARTHQUAKE: '🌍 EARTHQUAKE', FLOOD: '🌊 FLOOD', FIRE: '🔥 FIRE',
+    STORM: '🌀 STORM', SECURITY: '🛡 SECURITY', TERRORISM: '💥 TERRORISM',
+    UNREST: '✊ CIVIL UNREST', PROTEST: '✊ PROTEST', SHOOTING: '🚨 SHOOTING',
+    CONFLICT: '⚔ CONFLICT', ACCIDENT: '⚠ ACCIDENT', HEALTH: '🏥 HEALTH',
+    POLITICAL: '🏛 POLITICAL', CYBER: '💻 CYBER', OPERATIONAL: '⚙ OPERATIONAL',
+  };
+  const k = String(cat || '').toUpperCase().trim();
+  for (const [key, label] of Object.entries(map)) { if (k.includes(key)) return label; }
+  return k || '● INCIDENT';
+}
+
 function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
@@ -1137,12 +1181,13 @@ function renderProximityAlerts(region) {
   const alerts = [];
   data.forEach(inc => {
     try {
-      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng))) ? { lat:Number(inc.lat), lng:Number(inc.lng) } : getCoordsForIncident(inc);
+      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng)))
+        ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
       if (!coords) return;
       const key = generateId(inc);
       if (DISMISSED_ALERT_IDS.has(String(key))) return;
       let nearest = null;
-      if ((inc.distance_km != null) && inc.nearest_site_name) {
+      if (inc.distance_km != null && inc.nearest_site_name) {
         nearest = { dist: Number(inc.distance_km), name: inc.nearest_site_name };
       } else {
         for (const asset of Object.values(ASSETS)) {
@@ -1152,34 +1197,72 @@ function renderProximityAlerts(region) {
       }
       if (!nearest) return;
       if (inc.country_wide || nearest.dist <= currentRadius) alerts.push({ inc, nearest, key });
-    } catch(e){}
+    } catch(e) {}
   });
 
-  alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
+  alerts.sort((a, b) => a.nearest.dist - b.nearest.dist);
   if (!alerts.length) {
-    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
+    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km of Dell sites.</div>`;
     return;
   }
-  container.innerHTML = alerts.slice(0,25).map(a => {
-    const i = a.inc; const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
-    const distStr = i.country_wide ? `Country-wide` : `${Math.round(a.nearest.dist)}km`;
+
+  container.innerHTML = alerts.slice(0, 25).map(a => {
+    const i = a.inc;
+    const sev      = Number(i.severity || 1);
+    const dist     = i.country_wide ? 0 : Math.round(a.nearest.dist);
+    const distStr  = i.country_wide ? 'Country-wide' : `${dist} km`;
+    const opImpact = !!i.operational_impact;
+    const score    = Number(i.impact_score || 0);
+    const timeAgo  = _proxTimeAgo(i.time);
+    const action   = _proxAction(sev, dist, opImpact);
+    const catLabel = _proxCategoryLabel(i.category);
+    const impactBar = _proxImpactBar(score);
+
+    // Severity pill colour
+    const sevColor = sev >= 4 ? '#d93025' : sev === 3 ? '#f9ab00' : '#1a73e8';
+    const sevLabel = sev >= 4 ? 'CRITICAL' : sev === 3 ? 'HIGH' : sev === 2 ? 'MEDIUM' : 'LOW';
+    const sevBg    = sev >= 4 ? 'rgba(211,48,37,.18)' : sev === 3 ? 'rgba(249,171,0,.15)' : 'rgba(26,115,232,.12)';
+
+    const sourceLink = (i.link && i.link !== '#')
+      ? `<a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer"
+           style="font-size:.72rem;color:#8ab4f8;text-decoration:none;">View Source ↗</a>`
+      : '';
+
     return `
-      <div class="alert-row">
-        <div class="alert-top">
-          <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i>
-            ${escapeHtml(i.title)}
-          </div>
-          <div class="alert-dist" style="color:${color}">${escapeHtml(distStr)}</div>
+      <div class="alert-row" style="border-left:3px solid ${sevColor};margin-bottom:6px;padding:9px 10px;background:#1e2124;border-radius:0 6px 6px 0;">
+        <!-- Row 1: Severity + Category + Score + Time -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
+          <span style="background:${sevBg};color:${sevColor};font-size:.65rem;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">${sevLabel}</span>
+          <span style="font-size:.65rem;color:#9aa0a6;font-weight:600;">${escapeHtml(catLabel)}</span>
+          ${impactBar ? `<span style="margin-left:4px;">${impactBar}</span>` : ''}
+          ${opImpact ? `<span style="font-size:.62rem;color:#ff8f00;font-weight:700;background:rgba(255,143,0,.1);padding:1px 5px;border-radius:3px;">⚙ OPS IMPACT</span>` : ''}
+          ${timeAgo ? `<span style="margin-left:auto;font-size:.66rem;color:#5f6368;">${escapeHtml(timeAgo)}</span>` : ''}
         </div>
-        <div class="alert-site">Near: <b>${escapeHtml(a.nearest.name)}</b></div>
-        <div class="alert-desc">${escapeHtml(i.summary)}</div>
-        <div class="alert-actions">
-          <button type="button" class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert">Dismiss</button>
+        <!-- Row 2: Title -->
+        <div style="font-size:.82rem;font-weight:700;color:#e8eaed;line-height:1.4;margin-bottom:4px;">
+          ${escapeHtml(i.title)}
         </div>
-      </div>
-    `;
+        <!-- Row 3: Site + distance -->
+        <div style="font-size:.72rem;color:#9aa0a6;margin-bottom:5px;">
+          📍 Dell <strong style="color:#c5c7ca;">${escapeHtml(a.nearest.name)}</strong>
+          <span style="color:${sevColor};font-weight:700;margin-left:4px;">${escapeHtml(distStr)}</span>
+        </div>
+        <!-- Row 4: Recommended action chip -->
+        <div style="display:inline-flex;align-items:center;gap:5px;background:${action.bg};border:1px solid ${action.color}33;border-radius:4px;padding:2px 8px;margin-bottom:6px;">
+          <span style="font-size:.7rem;color:${action.color};font-weight:700;">${escapeHtml(action.label)}</span>
+        </div>
+        <!-- Row 5: Summary -->
+        <div style="font-size:.75rem;color:#9aa0a6;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:7px;">
+          ${escapeHtml(i.summary)}
+        </div>
+        <!-- Row 6: Actions -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          ${sourceLink}
+          <button type="button" class="btn-dismiss" data-action="dismiss-alert"
+            data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert"
+            style="margin-left:auto;">Dismiss</button>
+        </div>
+      </div>`;
   }).join('');
 }
 
@@ -2802,6 +2885,173 @@ function closeVesselTrackModal() {
   if (_vtmMap) { try { _vtmMap.remove(); } catch(e){} _vtmMap = null; _vtmMarker = null; _vtmTrail = null; _vtmTrailCoords = []; }
 }
 
+/* ═══════════════════════════════════════════════════════
+   LIVE NEWS MODAL  (S2.5 — Global Intelligence Feed)
+   Aggregates Reuters, Al Jazeera, BBC, USGS, GDACS via
+   Worker /api/live-news endpoint. Auto-refreshes every 5 min.
+   Source filter pills let user focus on one feed.
+═══════════════════════════════════════════════════════ */
+let _lnmTimer   = null;   // 5-min auto-refresh interval
+let _lnmFilter  = 'all';  // active source filter
+let _lnmItems   = [];     // latest items from Worker
+
+const LNM_SOURCE_COLORS = {
+  reuters:   { bg: '#e53935', text: '#fff' },
+  aljazeera: { bg: '#1976d2', text: '#fff' },
+  bbc:       { bg: '#bb0000', text: '#fff' },
+  usgs:      { bg: '#6d4c41', text: '#fff' },
+  gdacs:     { bg: '#f57c00', text: '#fff' },
+};
+
+function _ensureLiveNewsModal() {
+  if (_ltmEl('live-news-modal')) return;
+  if (!_ltmEl('lnm-injected-styles')) {
+    const st = document.createElement('style');
+    st.id = 'lnm-injected-styles';
+    st.textContent = [
+      '.lnm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6099;display:none;cursor:pointer}',
+      '.live-news-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:92vw;max-width:1300px;height:88vh;background:#1a1b1e;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.live-news-modal.open{display:flex}',
+      '.lnm-topbar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
+      '.lnm-badge{background:#1a3a5c;color:#4fc3f7;font-size:.7rem;font-weight:800;border-radius:4px;padding:2px 9px;letter-spacing:1px;white-space:nowrap}',
+      '.lnm-pill{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s}',
+      '.lnm-pill.active,.lnm-pill:hover{background:#243050;color:#e8eaed;border-color:#4fc3f7}',
+      '.lnm-ts{font-size:.68rem;color:#5f6368;margin-left:auto;white-space:nowrap}',
+      '.lnm-close{background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}',
+      '.lnm-close:hover{background:#8b3a38}',
+      '.lnm-feed{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:5px}',
+      '.lnm-item{display:flex;gap:10px;padding:9px 10px;background:#202124;border-radius:6px;border-left:3px solid transparent;transition:background .15s}',
+      '.lnm-item:hover{background:#262a2e}',
+      '.lnm-src{flex-shrink:0;width:90px;display:flex;align-items:flex-start;padding-top:1px}',
+      '.lnm-src-badge{font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.3px;white-space:nowrap}',
+      '.lnm-body{flex:1;min-width:0}',
+      '.lnm-title a{color:#e8eaed;font-size:.82rem;font-weight:600;text-decoration:none;line-height:1.4}',
+      '.lnm-title a:hover{color:#8ab4f8}',
+      '.lnm-meta{font-size:.68rem;color:#5f6368;margin-top:2px}',
+      '.lnm-summary{font-size:.73rem;color:#9aa0a6;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+      '.lnm-footer{padding:6px 14px;background:#0d1117;font-size:.68rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;border-top:1px solid #2a2d31}',
+      '.lnm-refresh-btn{background:#1a3a5c;color:#4fc3f7;border:none;border-radius:4px;padding:3px 10px;font-size:.7rem;font-weight:700;cursor:pointer}',
+      '.lnm-refresh-btn:hover{background:#243050}',
+      '.lnm-empty{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
+      '.lnm-loading{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+  const ov = document.createElement('div');
+  ov.id = 'lnm-overlay';
+  ov.className = 'lnm-overlay';
+  ov.addEventListener('click', closeLiveNewsModal);
+  document.body.appendChild(ov);
+
+  const mo = document.createElement('div');
+  mo.id = 'live-news-modal';
+  mo.className = 'live-news-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    '<div class="lnm-topbar">' +
+      '<span class="lnm-badge">&#128225; GLOBAL INTELLIGENCE FEED</span>' +
+      // Source filter pills
+      '<button class="lnm-pill active" data-action="lnm-filter" data-src="all">All</button>' +
+      '<button class="lnm-pill" data-action="lnm-filter" data-src="reuters">Reuters</button>' +
+      '<button class="lnm-pill" data-action="lnm-filter" data-src="aljazeera">Al Jazeera</button>' +
+      '<button class="lnm-pill" data-action="lnm-filter" data-src="bbc">BBC</button>' +
+      '<button class="lnm-pill" data-action="lnm-filter" data-src="usgs">USGS</button>' +
+      '<button class="lnm-pill" data-action="lnm-filter" data-src="gdacs">GDACS</button>' +
+      '<span class="lnm-ts" id="lnm-ts">Loading&hellip;</span>' +
+      '<button class="lnm-close" data-action="close-live-news" aria-label="Close live news">&#x2715; Close</button>' +
+    '</div>' +
+    '<div class="lnm-feed" id="lnm-feed"><div class="lnm-loading">Fetching global intelligence feed&hellip;</div></div>' +
+    '<div class="lnm-footer">' +
+      '<span>Live feeds: Reuters &middot; Al Jazeera &middot; BBC World &middot; USGS Earthquakes &middot; GDACS Disasters</span>' +
+      '<button class="lnm-refresh-btn" data-action="lnm-refresh-now">&#8635; Refresh Now</button>' +
+    '</div>';
+  document.body.appendChild(mo);
+}
+
+function _lnmTimeAgo(isoStr) {
+  try {
+    const d = Math.floor((Date.now() - new Date(isoStr).getTime()) / 60000);
+    if (isNaN(d) || d < 0) return '';
+    if (d < 60) return d + 'm ago';
+    if (d < 1440) return Math.floor(d / 60) + 'h ago';
+    return Math.floor(d / 1440) + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function _lnmRender() {
+  const feed = _ltmEl('lnm-feed');
+  if (!feed) return;
+  const visible = _lnmFilter === 'all'
+    ? _lnmItems
+    : _lnmItems.filter(it => it.source_key === _lnmFilter);
+  if (!visible.length) {
+    feed.innerHTML = `<div class="lnm-empty">No items from this source yet.</div>`;
+    return;
+  }
+  feed.innerHTML = visible.map(it => {
+    const sc = LNM_SOURCE_COLORS[it.source_key] || { bg: '#3c4043', text: '#e8eaed' };
+    const ta = _lnmTimeAgo(it.time);
+    const hasGeo = it.lat != null && it.lng != null;
+    const geoTag = hasGeo ? `<span style="color:#81d4fa;margin-left:6px;">📍 ${Number(it.lat).toFixed(1)}°, ${Number(it.lng).toFixed(1)}°</span>` : '';
+    const safeTitle   = escapeHtml(it.title   || '(no title)');
+    const safeSummary = escapeHtml(it.summary || '');
+    const safeLink    = escapeAttr(it.link && it.link !== '#' ? it.link : '#');
+    return `<div class="lnm-item" style="border-left-color:${sc.bg}">
+      <div class="lnm-src">
+        <span class="lnm-src-badge" style="background:${sc.bg};color:${sc.text};">${escapeHtml(it.source_label || it.source_key)}</span>
+      </div>
+      <div class="lnm-body">
+        <div class="lnm-title"><a href="${safeLink}" target="_blank" rel="noopener noreferrer">${safeTitle}</a></div>
+        <div class="lnm-meta">${ta}${geoTag}</div>
+        ${safeSummary ? `<div class="lnm-summary">${safeSummary}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function _lnmFetch() {
+  try {
+    const res  = await fetchWithTimeout(`${WORKER_URL}/api/live-news`, { headers: { 'X-User-Id': OSINFO_USER_ID } }, 15000);
+    const data = await res.json().catch(() => ({}));
+    if (data.ok && Array.isArray(data.items)) {
+      _lnmItems = data.items;
+      _lnmRender();
+      const ts = _ltmEl('lnm-ts');
+      if (ts) {
+        const cached = data._cached ? ' (cached)' : '';
+        ts.textContent = '🔄 Updated ' + new Date().toLocaleTimeString() + cached;
+      }
+    }
+  } catch(e) {
+    const feed = _ltmEl('lnm-feed');
+    if (feed && !_lnmItems.length) feed.innerHTML = `<div class="lnm-empty">Failed to load feed. Check connection.</div>`;
+  }
+}
+
+function openLiveNewsModal() {
+  _ensureLiveNewsModal();
+  const ov = _ltmEl('lnm-overlay');
+  const mo = _ltmEl('live-news-modal');
+  if (ov) ov.style.display = 'block';
+  if (mo) mo.classList.add('open');
+  // Reset filter pills to 'all'
+  _lnmFilter = 'all';
+  mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === 'all'));
+  // Fetch immediately, then every 5 min
+  _lnmFetch();
+  if (_lnmTimer) clearInterval(_lnmTimer);
+  _lnmTimer = setInterval(_lnmFetch, 5 * 60 * 1000);
+}
+
+function closeLiveNewsModal() {
+  const ov = _ltmEl('lnm-overlay');
+  const mo = _ltmEl('live-news-modal');
+  if (ov) ov.style.display = 'none';
+  if (mo) mo.classList.remove('open');
+  if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }
+}
+
 async function removeFromWatchlist(id) {
   const normId = id.toLowerCase();
   // 1. Remove card from DOM immediately — no server wait
@@ -2949,6 +3199,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
       if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
       if (action === 'admin-list-briefs') { adminListBriefs(); return; }
+
+      // S2.5 — Live News Modal actions
+      if (action === 'open-live-news')  { openLiveNewsModal(); return; }
+      if (action === 'close-live-news') { closeLiveNewsModal(); return; }
+      if (action === 'lnm-refresh-now') { _lnmFetch(); return; }
+      if (action === 'lnm-filter') {
+        const src = (t.dataset.src || 'all');
+        _lnmFilter = src;
+        const mo = _ltmEl('live-news-modal');
+        if (mo) mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === src));
+        _lnmRender();
+        return;
+      }
 
       // S2.5 — Logistics Drawer actions
       if (action === 'open-logistics') { openLogisticsDrawer(); return; }
