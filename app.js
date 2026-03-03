@@ -1229,7 +1229,7 @@ function renderProximityAlerts(region) {
       : '';
 
     return `
-      <div class="alert-row" style="border-left:3px solid ${sevColor};margin-bottom:6px;padding:9px 10px;background:#1e2124;border-radius:0 6px 6px 0;">
+      <div class="alert-row" style="border-left:3px solid ${sevColor};margin-bottom:6px;padding:9px 10px;background:#252830;border-radius:0 6px 6px 0;">
         <!-- Row 1: Severity + Category + Score + Time -->
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
           <span style="background:${sevBg};color:${sevColor};font-size:.65rem;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">${sevLabel}</span>
@@ -2891,9 +2891,23 @@ function closeVesselTrackModal() {
    Worker /api/live-news endpoint. Auto-refreshes every 5 min.
    Source filter pills let user focus on one feed.
 ═══════════════════════════════════════════════════════ */
-let _lnmTimer   = null;   // 5-min auto-refresh interval
-let _lnmFilter  = 'all';  // active source filter
-let _lnmItems   = [];     // latest items from Worker
+let _lnmTimer       = null;       // 5-min auto-refresh interval
+let _lnmFilter      = 'all';     // active source filter
+let _lnmItems       = [];        // latest items from Worker
+let _lnmActiveTab   = 'headlines'; // 'headlines' | 'tv'
+let _lnmActiveChannel = 'aljazeera'; // active TV channel key
+
+// Live TV channel definitions — YouTube 24/7 live stream IDs
+const LNM_TV_CHANNELS = [
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'V_Cgy-p_FCo' },
+  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'dp8PhLsUcFE' },
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: '9Auq9mYxFEE' },
+  { key: 'euronews',  label: 'Euronews',    color: '#283593', ytId: 'd5NkqPrCjgE' },
+  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'mGFSSuaXlgo' },
+  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'l7NeXFPOScc' },
+  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'w_Ma8oQLmSM'  },
+  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY'  },
+];
 
 const LNM_SOURCE_COLORS = {
   reuters:   { bg: '#e53935', text: '#fff' },
@@ -2909,16 +2923,26 @@ function _ensureLiveNewsModal() {
     const st = document.createElement('style');
     st.id = 'lnm-injected-styles';
     st.textContent = [
+      /* === Modal shell === */
       '.lnm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6099;display:none;cursor:pointer}',
-      '.live-news-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:92vw;max-width:1300px;height:88vh;background:#1a1b1e;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.live-news-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:94vw;max-width:1360px;height:90vh;background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
       '.live-news-modal.open{display:flex}',
-      '.lnm-topbar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
+      /* === Top bar === */
+      '.lnm-topbar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
       '.lnm-badge{background:#1a3a5c;color:#4fc3f7;font-size:.7rem;font-weight:800;border-radius:4px;padding:2px 9px;letter-spacing:1px;white-space:nowrap}',
-      '.lnm-pill{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s}',
+      /* Tab buttons */
+      '.lnm-tabs{display:flex;gap:3px;margin-left:6px}',
+      '.lnm-tab-btn{font-size:.72rem;font-weight:700;padding:4px 13px;border-radius:6px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s;white-space:nowrap}',
+      '.lnm-tab-btn.active{background:#1a3a5c;color:#4fc3f7;border-color:#4fc3f7}',
+      '.lnm-tab-btn:hover:not(.active){color:#e8eaed;border-color:#5f6368}',
+      /* Source filter pills */
+      '.lnm-src-pills{display:flex;gap:4px;flex-wrap:wrap}',
+      '.lnm-pill{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s}',
       '.lnm-pill.active,.lnm-pill:hover{background:#243050;color:#e8eaed;border-color:#4fc3f7}',
       '.lnm-ts{font-size:.68rem;color:#5f6368;margin-left:auto;white-space:nowrap}',
       '.lnm-close{background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}',
       '.lnm-close:hover{background:#8b3a38}',
+      /* === Headlines panel === */
       '.lnm-feed{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:5px}',
       '.lnm-item{display:flex;gap:10px;padding:9px 10px;background:#202124;border-radius:6px;border-left:3px solid transparent;transition:background .15s}',
       '.lnm-item:hover{background:#262a2e}',
@@ -2929,19 +2953,36 @@ function _ensureLiveNewsModal() {
       '.lnm-title a:hover{color:#8ab4f8}',
       '.lnm-meta{font-size:.68rem;color:#5f6368;margin-top:2px}',
       '.lnm-summary{font-size:.73rem;color:#9aa0a6;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+      '.lnm-empty{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
+      '.lnm-loading{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
+      /* === Live TV panel === */
+      '.lnm-tv-panel{flex:1;display:none;flex-direction:column;background:#000;overflow:hidden}',
+      '.lnm-tv-panel.visible{display:flex}',
+      '.lnm-ch-bar{display:flex;align-items:center;gap:6px;padding:7px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-wrap:wrap;flex-shrink:0}',
+      '.lnm-ch-label{font-size:.66rem;color:#5f6368;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-right:4px}',
+      '.lnm-ch-btn{font-size:.68rem;font-weight:700;padding:3px 12px;border-radius:10px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s;white-space:nowrap}',
+      '.lnm-ch-btn.active{background:#1a3a5c;color:#4fc3f7;border-color:#4fc3f7}',
+      '.lnm-ch-btn:hover:not(.active){color:#e8eaed;border-color:#5f6368}',
+      '.lnm-tv-frame{flex:1;border:none;width:100%;display:block;background:#000}',
+      '.lnm-tv-notice{text-align:center;padding:7px 14px;font-size:.66rem;color:#5f6368;background:#0d1117;flex-shrink:0;border-top:1px solid #1a1d21}',
+      /* === Footer === */
       '.lnm-footer{padding:6px 14px;background:#0d1117;font-size:.68rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;border-top:1px solid #2a2d31}',
       '.lnm-refresh-btn{background:#1a3a5c;color:#4fc3f7;border:none;border-radius:4px;padding:3px 10px;font-size:.7rem;font-weight:700;cursor:pointer}',
       '.lnm-refresh-btn:hover{background:#243050}',
-      '.lnm-empty{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
-      '.lnm-loading{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
     ].join('');
     document.head.appendChild(st);
   }
+
   const ov = document.createElement('div');
   ov.id = 'lnm-overlay';
   ov.className = 'lnm-overlay';
   ov.addEventListener('click', closeLiveNewsModal);
   document.body.appendChild(ov);
+
+  // Build channel selector buttons
+  const chButtons = LNM_TV_CHANNELS.map((ch, i) =>
+    `<button class="lnm-ch-btn${i === 0 ? ' active' : ''}" data-action="lnm-channel" data-ch="${ch.key}">${ch.label}</button>`
+  ).join('');
 
   const mo = document.createElement('div');
   mo.id = 'live-news-modal';
@@ -2949,24 +2990,79 @@ function _ensureLiveNewsModal() {
   mo.setAttribute('role', 'dialog');
   mo.setAttribute('aria-modal', 'true');
   mo.innerHTML =
+    /* ── Top bar ── */
     '<div class="lnm-topbar">' +
       '<span class="lnm-badge">&#128225; GLOBAL INTELLIGENCE FEED</span>' +
-      // Source filter pills
-      '<button class="lnm-pill active" data-action="lnm-filter" data-src="all">All</button>' +
-      '<button class="lnm-pill" data-action="lnm-filter" data-src="reuters">Reuters</button>' +
-      '<button class="lnm-pill" data-action="lnm-filter" data-src="aljazeera">Al Jazeera</button>' +
-      '<button class="lnm-pill" data-action="lnm-filter" data-src="bbc">BBC</button>' +
-      '<button class="lnm-pill" data-action="lnm-filter" data-src="usgs">USGS</button>' +
-      '<button class="lnm-pill" data-action="lnm-filter" data-src="gdacs">GDACS</button>' +
+      /* Tab switcher */
+      '<div class="lnm-tabs">' +
+        '<button class="lnm-tab-btn active" data-action="lnm-tab" data-tab="headlines">&#128240; Headlines</button>' +
+        '<button class="lnm-tab-btn" data-action="lnm-tab" data-tab="tv">&#128250; Live TV</button>' +
+      '</div>' +
+      /* Source filter pills — hidden when TV tab active */
+      '<div class="lnm-src-pills" id="lnm-src-pills">' +
+        '<button class="lnm-pill active" data-action="lnm-filter" data-src="all">All</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="reuters">Reuters</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="aljazeera">Al Jazeera</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="bbc">BBC</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="usgs">USGS</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="gdacs">GDACS</button>' +
+      '</div>' +
       '<span class="lnm-ts" id="lnm-ts">Loading&hellip;</span>' +
-      '<button class="lnm-close" data-action="close-live-news" aria-label="Close live news">&#x2715; Close</button>' +
+      '<button class="lnm-close" data-action="close-live-news" aria-label="Close">&#x2715; Close</button>' +
     '</div>' +
+    /* ── Headlines panel ── */
     '<div class="lnm-feed" id="lnm-feed"><div class="lnm-loading">Fetching global intelligence feed&hellip;</div></div>' +
-    '<div class="lnm-footer">' +
-      '<span>Live feeds: Reuters &middot; Al Jazeera &middot; BBC World &middot; USGS Earthquakes &middot; GDACS Disasters</span>' +
-      '<button class="lnm-refresh-btn" data-action="lnm-refresh-now">&#8635; Refresh Now</button>' +
+    /* ── Live TV panel ── */
+    '<div class="lnm-tv-panel" id="lnm-tv-panel">' +
+      '<div class="lnm-ch-bar"><span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>' + chButtons + '</div>' +
+      '<iframe class="lnm-tv-frame" id="lnm-tv-frame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' +
+      '<div class="lnm-tv-notice">Live streams via YouTube &middot; Click a channel above to load &middot; Availability varies by region</div>' +
+    '</div>' +
+    /* ── Footer ── */
+    '<div class="lnm-footer" id="lnm-footer">' +
+      '<span>&#128240; Headlines: Reuters &middot; Al Jazeera &middot; BBC World &middot; USGS Earthquakes &middot; GDACS Disasters</span>' +
+      '<button class="lnm-refresh-btn" data-action="lnm-refresh-now">&#8635; Refresh Headlines</button>' +
     '</div>';
   document.body.appendChild(mo);
+}
+
+/* Switch between Headlines and Live TV tabs */
+function _lnmSwitchTab(tab) {
+  _lnmActiveTab = tab;
+  const mo = _ltmEl('live-news-modal');
+  if (!mo) return;
+  // Tab button highlight
+  mo.querySelectorAll('.lnm-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  // Show/hide source pills (headlines only)
+  const pills = _ltmEl('lnm-src-pills');
+  if (pills) pills.style.display = (tab === 'headlines') ? 'flex' : 'none';
+  // Show/hide panels
+  const headlinesPanel = _ltmEl('lnm-feed');
+  const tvPanel        = _ltmEl('lnm-tv-panel');
+  const footer         = _ltmEl('lnm-footer');
+  if (headlinesPanel) headlinesPanel.style.display = (tab === 'headlines') ? '' : 'none';
+  if (footer)         footer.style.display         = (tab === 'headlines') ? '' : 'none';
+  if (tvPanel) {
+    if (tab === 'tv') {
+      tvPanel.classList.add('visible');
+      // Auto-load default channel on first open
+      const frame = _ltmEl('lnm-tv-frame');
+      if (frame && !frame.src) _lnmSwitchChannel(_lnmActiveChannel);
+    } else {
+      tvPanel.classList.remove('visible');
+    }
+  }
+}
+
+/* Load a live TV channel into the YouTube iframe */
+function _lnmSwitchChannel(key) {
+  _lnmActiveChannel = key;
+  const ch = LNM_TV_CHANNELS.find(c => c.key === key);
+  if (!ch) return;
+  const frame = _ltmEl('lnm-tv-frame');
+  if (frame) frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&rel=0&modestbranding=1`;
+  const tvPanel = _ltmEl('lnm-tv-panel');
+  if (tvPanel) tvPanel.querySelectorAll('.lnm-ch-btn').forEach(b => b.classList.toggle('active', b.dataset.ch === key));
 }
 
 function _lnmTimeAgo(isoStr) {
@@ -3035,10 +3131,12 @@ function openLiveNewsModal() {
   const mo = _ltmEl('live-news-modal');
   if (ov) ov.style.display = 'block';
   if (mo) mo.classList.add('open');
-  // Reset filter pills to 'all'
+  // Always start on Headlines tab
+  _lnmSwitchTab('headlines');
+  // Reset source filter pills to 'all'
   _lnmFilter = 'all';
-  mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === 'all'));
-  // Fetch immediately, then every 5 min
+  if (mo) mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === 'all'));
+  // Fetch headlines immediately, then every 5 min
   _lnmFetch();
   if (_lnmTimer) clearInterval(_lnmTimer);
   _lnmTimer = setInterval(_lnmFetch, 5 * 60 * 1000);
@@ -3049,6 +3147,9 @@ function closeLiveNewsModal() {
   const mo = _ltmEl('live-news-modal');
   if (ov) ov.style.display = 'none';
   if (mo) mo.classList.remove('open');
+  // Stop TV stream to prevent background audio
+  const frame = _ltmEl('lnm-tv-frame');
+  if (frame) frame.src = '';
   if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }
 }
 
@@ -3204,6 +3305,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'open-live-news')  { openLiveNewsModal(); return; }
       if (action === 'close-live-news') { closeLiveNewsModal(); return; }
       if (action === 'lnm-refresh-now') { _lnmFetch(); return; }
+      if (action === 'lnm-tab') { _lnmSwitchTab(t.dataset.tab || 'headlines'); return; }
+      if (action === 'lnm-channel') { _lnmSwitchChannel(t.dataset.ch || 'aljazeera'); return; }
       if (action === 'lnm-filter') {
         const src = (t.dataset.src || 'all');
         _lnmFilter = src;
