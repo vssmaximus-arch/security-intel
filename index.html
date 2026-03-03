@@ -10,7 +10,8 @@
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://master.nhkworld.jp https://viamotionhsi.netplus.ch;
+    media-src blob: https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://live.france24.com https://english-livebkali.cgtn.com https://master.nhkworld.jp https://viamotionhsi.netplus.ch;
     frame-src https://www.vesselfinder.com https://www.youtube-nocookie.com https://www.youtube.com;
     base-uri 'self';
   ">
@@ -38,6 +39,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+  <!-- hls.js: HLS live stream playback via MediaSource API (approved dep — no ads, direct broadcast) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js"></script>
 
   <!-- Google Fonts: loaded via <link> to avoid CSP @import restriction -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -260,24 +264,6 @@
     /* S2.5 — Logistics Drawer */
     .logistics-open-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
     .logistics-open-btn:hover { background: #4a4c50; color: #fff; }
-    /* S2.5 — Live Track Modal */
-    .live-track-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 5999; display: none; }
-    .live-track-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 88vw; max-width: 1100px; height: 82vh; background: #1a1b1e; color: #e8eaed; z-index: 6000; border-radius: 12px; box-shadow: 0 8px 48px rgba(0,0,0,0.8); display: none; flex-direction: column; font-family: 'Inter', sans-serif; overflow: hidden; }
-    .live-track-modal.open { display: flex; }
-    .live-track-topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #292a2d; border-bottom: 1px solid #3c4043; flex-shrink: 0; flex-wrap: wrap; }
-    .live-track-callsign { font-size: 1.05rem; font-weight: 800; font-family: monospace; color: #4fc3f7; letter-spacing: 1px; }
-    .live-track-badge { background: #1e4620; color: #81c995; font-size: 0.72rem; font-weight: 700; border-radius: 4px; padding: 2px 8px; letter-spacing: 1px; animation: liveTrackPulse 2s infinite; }
-    @keyframes liveTrackPulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
-    .live-track-stat { background: #3c4043; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; color: #e8eaed; font-family: monospace; }
-    .live-track-stat span { color: #9aa0a6; font-size: 0.68rem; display: block; margin-bottom: 1px; }
-    .live-track-close { margin-left: auto; background: #5f2120; color: #f28b82; border: none; border-radius: 6px; padding: 5px 14px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
-    .live-track-close:hover { background: #8b3a38; }
-    .live-track-mapwrap { flex: 1; position: relative; min-height: 0; }
-    #live-track-map { width: 100%; height: 100%; }
-    .live-track-footer { padding: 5px 14px; background: #202124; font-size: 0.7rem; color: #5f6368; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-    .live-track-footer a { color: #8ab4f8; text-decoration: none; }
-    .live-track-open-btn { background: #1a3a5c; color: #4fc3f7; border: 1px solid #2a5a8c; border-radius: 5px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700; cursor: pointer; margin-top: 4px; display: inline-flex; align-items: center; gap: 5px; transition: background 0.15s; }
-    .live-track-open-btn:hover { background: #244a7a; }
     .logistics-drawer { position: fixed; top: 0; right: -400px; width: 380px; height: 100vh; background: #202124; color: #e8eaed; z-index: 2000; box-shadow: -4px 0 24px rgba(0,0,0,0.55); transition: right 0.28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; font-family: 'Inter', sans-serif; font-size: 0.82rem; }
     .logistics-drawer.open { right: 0; }
     .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1999; display: none; }
@@ -380,10 +366,10 @@
           <i class="fas fa-route" aria-hidden="true"></i> Logistics
         </button>
 
-        <!-- S2.5 — Live News Modal trigger -->
-        <button class="logistics-open-btn ms-2" data-action="open-live-news" aria-label="Open Live Global News Feed" tabindex="0"
-          style="background:#1a3a2c;color:#4caf50;">
-          <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
+        <!-- Phase 2 — GDELT OSINT Intel Panel trigger -->
+        <button class="logistics-open-btn ms-2" data-action="open-gdelt-intel" aria-label="Open OSINT Intelligence Panel" tabindex="0"
+          style="background:#1a1a3a;color:#9fa8da;">
+          <i class="fas fa-shield-alt" aria-hidden="true"></i> OSINT Intel
         </button>
       </div>
     </div>
@@ -632,28 +618,6 @@
   </aside>
 
   <div id="assets-debug" class="assets-debug" aria-live="polite" style="display:none"></div>
-
-  <!-- S2.5 Live Track Modal -->
-  <div class="live-track-overlay" id="live-track-overlay"></div>
-  <div class="live-track-modal" id="live-track-modal" role="dialog" aria-modal="true" aria-label="Live Aircraft Tracker">
-    <div class="live-track-topbar">
-      <span class="live-track-badge">● LIVE</span>
-      <span class="live-track-callsign" id="ltm-callsign">---</span>
-      <div class="live-track-stat"><span>ALTITUDE</span><span id="ltm-alt">---</span></div>
-      <div class="live-track-stat"><span>SPEED</span><span id="ltm-vel">---</span></div>
-      <div class="live-track-stat"><span>HEADING</span><span id="ltm-hdg">---</span></div>
-      <div class="live-track-stat"><span>VERTICAL</span><span id="ltm-vr">---</span></div>
-      <div class="live-track-stat"><span>COUNTRY</span><span id="ltm-country">---</span></div>
-      <button class="live-track-close" data-action="close-live-track" aria-label="Close live tracker">✕ Close</button>
-    </div>
-    <div class="live-track-mapwrap">
-      <div id="live-track-map"></div>
-    </div>
-    <div class="live-track-footer">
-      <span id="ltm-status">Connecting…</span>
-      <a id="ltm-fr24-link" href="#" target="_blank" rel="noopener noreferrer">Open on FlightRadar24 ↗</a>
-    </div>
-  </div>
 
   <!-- Canonical external application script -->
   <script src="app.js"></script>
