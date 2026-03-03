@@ -2509,16 +2509,74 @@ async function handleApiLogisticsTrack(env, req) {
 
     // ── VESSEL branch: 7–9 all-digit IDs are MMSI ──────────────────────────────
     if (icao24 && /^\d{7,9}$/.test(icao24)) {
-      const lastHub = await findVesselLastHub(env, icao24);
-      const vesselStatus = lastHub ? 'IN-PORT' : 'UNKNOWN';
-      typeof debug === 'function' && debug('logistics:track:vessel', icao24, vesselStatus);
-      return { ok: true, status: 200, body: {
-        ok: true, id: icao24, status: vesselStatus,
+      const mmsi = icao24;
+      const lastHub = await findVesselLastHub(env, mmsi);
+
+      // Detect whether the user entered a 7-digit IMO number or a 9-digit MMSI.
+      // VesselFinder embed and aisstream.io both accept the correct param per type.
+      const isIMO = /^\d{7}$/.test(mmsi);
+      const vfParam   = isIMO ? `imo=${mmsi}` : `mmsi=${mmsi}`;
+      let embedUrl    = `https://www.vesselfinder.com/aismap?zoom=9&${vfParam}&width=100%25&height=100%25&names=true&remember=false&clicktoact=false`;
+      const mtLink    = isIMO
+        ? `https://www.marinetraffic.com/en/ais/details/ships/imo:${mmsi}`
+        : `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${mmsi}`;
+      const vfLink    = isIMO
+        ? `https://www.vesselfinder.com/vessels?name=&imo=${mmsi}`
+        : `https://www.vesselfinder.com/vessels?mmsi=${mmsi}`;
+
+      // Optional: live position via aisstream.io (free key → Cloudflare secret AISSTREAM_API_KEY)
+      // Supports both ?mmsi= and ?imo= lookup parameters.
+      let liveState = null;
+      if (env.AISSTREAM_API_KEY) {
+        try {
+          const aistreamParam = isIMO ? `imo=${mmsi}` : `mmsi=${mmsi}`;
+          const aistreamRes = await fetchWithTimeout(
+            `https://api.aisstream.io/v0/vessel?${aistreamParam}`,
+            { headers: { 'Authorization': `apiKey ${env.AISSTREAM_API_KEY}`, 'Accept': 'application/json' } },
+            8000
+          );
+          if (aistreamRes.ok) {
+            const d = await aistreamRes.json().catch(() => ({}));
+            const lat = d.Latitude ?? d.latitude ?? null;
+            const lon = d.Longitude ?? d.longitude ?? null;
+            if (lat != null && lon != null) {
+              const sogKt  = d.Sog  ?? d.sog  ?? null;
+              const cog    = d.Cog  ?? d.cog  ?? null;
+              // If aisstream returns the real MMSI, upgrade the embed URL to MMSI-based (more precise)
+              const realMmsi = d.Mmsi ?? d.mmsi ?? null;
+              if (realMmsi && isIMO) {
+                embedUrl = `https://www.vesselfinder.com/aismap?zoom=9&mmsi=${realMmsi}&width=100%25&height=100%25&names=true&remember=false&clicktoact=false`;
+              }
+              liveState = {
+                icao24: mmsi, callsign: d.ShipName ?? d.shipName ?? mmsi,
+                latitude: lat, longitude: lon,
+                velocity:   sogKt != null ? Number(sogKt) * 0.514444 : null,
+                true_track: cog   != null ? Number(cog)              : null,
+                baro_altitude: 0, on_ground: true,
+                origin_country: d.Flag ?? d.flag ?? '',
+                vessel_name:    d.ShipName ?? d.shipName ?? '',
+                destination:    d.Destination ?? d.destination ?? '',
+                vessel_type:    String(d.ShipType ?? d.shipType ?? ''),
+              };
+            }
+          }
+        } catch(e) {
+          typeof debug === 'function' && debug('logistics:track:aisstream', e?.message);
+        }
+      }
+
+      const body = {
+        ok: true, id: mmsi, mmsi, type: 'vessel', _wv: '2.3',
+        status: liveState ? 'VESSEL_LIVE' : (lastHub ? 'IN-PORT' : 'VESSEL_TRACK'),
         lastHubName: lastHub ? lastHub.name : null,
-        lastHubTime: lastHub ? lastHub.time  : null,
-        deepLink: `https://www.vesselfinder.com/vessels?name=${encodeURIComponent(icao24)}`,
-        source: 'hub_history',
-      }};
+        lastHubTime: lastHub ? lastHub.time : null,
+        embed_url:   embedUrl,
+        deepLink:    mtLink,
+        vessel_finder_link: vfLink,
+      };
+      if (liveState) body.states = [liveState];
+      typeof debug === 'function' && debug('logistics:track:vessel', mmsi, body.status);
+      return { ok: true, status: 200, body };
     }
 
     // ── BBOX branch (hub radar): no schedule fallback, return aircraft count ───
@@ -2615,7 +2673,7 @@ async function handleApiLogisticsTrack(env, req) {
     }
 
     // 4. Not airborne on either source — send FR24 deep-link immediately.
-    return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: fr24Link } };
+    return { ok: false, status: 200, body: { ok: false, reason: 'no_schedule_found', deep_link: fr24Link, _wv: '2.2' } };
 
   } catch(e) {
     typeof debug === 'function' && debug('handleApiLogisticsTrack error', e?.message || e);
@@ -2645,7 +2703,18 @@ async function handleApiLogisticsWatch(env, req) {
       const action = String(body.action || 'add').toLowerCase();
       let list = await kvGetJson(env, watchKey, []);
       if (!Array.isArray(list)) list = [];
-      if (action === 'remove') {
+      if (action === 'set') {
+        // Client sends the complete desired watchlist — avoids KV read-modify-write race on remove
+        const incoming = Array.isArray(body.watchlist) ? body.watchlist : [];
+        list = incoming.map(w => ({
+          id:       String(w.id || '').trim().toLowerCase(),
+          type:     String(w.type || 'flight').toLowerCase() === 'vessel' ? 'vessel' : 'flight',
+          label:    String(w.label || w.id || '').trim().slice(0, 80),
+          added_at: w.added_at || new Date().toISOString(),
+        })).filter(w => w.id).slice(0, 100);
+        await kvPut(env, watchKey, list, { expirationTtl: 90 * 24 * 3600 });
+        return { ok: true, status: 200, body: { ok: true, items: list.length, watchlist: list } };
+      } else if (action === 'remove') {
         list = list.filter(w => w.id !== id);
       } else if (action === 'test-alert') {
         // Fire a test alert to the user's notification channel via existing sendAlertEmail
@@ -2797,6 +2866,121 @@ async function handleApiTravel(env, urlParams) {
     typeof debug === 'function' && debug('travel', 'served', { country: 'all', ts: new Date().toISOString() });
     return { ok: true, status: 200, body: cached };
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   GET /api/live-news
+   Returns a combined, deduplicated, newest-first RSS feed from 26
+   curated sources across 5 categories. No GROQ — raw parse only.
+   Hazard sources (GDACS/USGS/EMSC) are geo-filtered to only events
+   within 1000 km of a Dell site. 5-min KV cache.
+───────────────────────────────────────────────────────────────────── */
+const LIVE_NEWS_CACHE_KEY = 'live_news_cache_v2'; // bumped on source expansion
+const LIVE_NEWS_TTL_SEC   = 300; // 5 minutes
+
+// Hazard sources that require geo-proximity filtering
+const LNM_HAZARD_KEYS  = new Set(['gdacs', 'usgs', 'emsc']);
+const LNM_HAZARD_MAX_KM = 1000; // only show hazard events within 1000 km of a Dell site
+
+// Returns true if lat/lng is within LNM_HAZARD_MAX_KM of ANY Dell site
+function lnmNearDell(lat, lng) {
+  if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) return true; // no coords → include
+  for (const s of DELL_SITES) {
+    if (haversineKm(lat, lng, s.lat, s.lon) <= LNM_HAZARD_MAX_KM) return true;
+  }
+  return false;
+}
+
+const LIVE_NEWS_SOURCES = [
+  /* ── GLOBAL NEWS ────────────────────────────────────────────── */
+  { url: 'https://feeds.reuters.com/reuters/worldNews',                                    label: 'Reuters',         key: 'reuters',      category: 'news' },
+  { url: 'https://apnews.com/hub/world-news?format=xml',                                   label: 'AP News',         key: 'apnews',       category: 'news' },
+  { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',                                   label: 'BBC World',       key: 'bbc',          category: 'news' },
+  { url: 'https://www.aljazeera.com/xml/rss/all.xml',                                     label: 'Al Jazeera',      key: 'aljazeera',    category: 'news' },
+  { url: 'http://rss.cnn.com/rss/edition_world.rss',                                      label: 'CNN World',       key: 'cnn',          category: 'news' },
+  { url: 'https://www.dw.com/en/top-stories/world/s-1429/rss',                            label: 'DW World',        key: 'dw',           category: 'news' },
+  { url: 'https://www.theguardian.com/world/rss',                                         label: 'The Guardian',    key: 'guardian',     category: 'news' },
+  { url: 'https://www.france24.com/en/rss',                                               label: 'France 24',       key: 'france24',     category: 'news' },
+  /* ── SUPPLY CHAIN & LOGISTICS ───────────────────────────────── */
+  { url: 'https://www.freightwaves.com/feed',                                             label: 'FreightWaves',    key: 'freightwaves', category: 'logistics' },
+  { url: 'https://gcaptain.com/feed/',                                                    label: 'gCaptain',        key: 'gcaptain',     category: 'logistics' },
+  { url: 'https://www.maritime-executive.com/rss',                                        label: 'Maritime Exec',   key: 'maritime',     category: 'logistics' },
+  { url: 'https://theloadstar.com/feed/',                                                 label: 'The Loadstar',    key: 'loadstar',     category: 'logistics' },
+  { url: 'https://splash247.com/feed/',                                                   label: 'Splash247',       key: 'splash247',    category: 'logistics' },
+  { url: 'https://www.supplychaindive.com/feeds/news/',                                   label: 'SC Dive',         key: 'scdive',       category: 'logistics' },
+  /* ── SECURITY & GOVERNMENT INTELLIGENCE ─────────────────────── */
+  { url: 'https://www.fbi.gov/feeds/fbi-top-stories/rss.xml',                            label: 'FBI',             key: 'fbi',          category: 'security' },
+  { url: 'https://www.cisa.gov/news.xml',                                                 label: 'CISA Alerts',     key: 'cisa',         category: 'security' },
+  { url: 'https://travel.state.gov/_res/rss/TAs.xml',                                    label: 'US Travel',       key: 'ustravel',     category: 'security' },
+  { url: 'https://www.gov.uk/foreign-travel-advice.rss',                                 label: 'UK FCDO',         key: 'ukfcdo',       category: 'security' },
+  { url: 'https://reliefweb.int/updates/rss.xml',                                        label: 'ReliefWeb',       key: 'reliefweb',    category: 'security' },
+  { url: 'https://www.europol.europa.eu/media-press/rss.xml',                            label: 'Europol',         key: 'europol',      category: 'security' },
+  /* ── NATURAL HAZARDS (geo-filtered to Dell sites) ───────────── */
+  { url: 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom',      label: 'USGS Seismic',    key: 'usgs',         category: 'hazards'  },
+  { url: 'https://www.gdacs.org/xml/rss.xml',                                            label: 'GDACS Disasters', key: 'gdacs',        category: 'hazards'  },
+  { url: 'https://www.emsc-csem.org/service/rss/rss.php?typ=emsc',                      label: 'EMSC Seismic',    key: 'emsc',         category: 'hazards'  },
+  /* ── CYBERSECURITY ───────────────────────────────────────────── */
+  { url: 'https://www.darkreading.com/rss_simple.asp',                                   label: 'Dark Reading',    key: 'darkreading',  category: 'cyber' },
+  { url: 'https://feeds.feedburner.com/TheHackersNews',                                  label: 'Hacker News',     key: 'hackernews',   category: 'cyber' },
+  { url: 'https://www.cisa.gov/cybersecurity-advisories.xml',                            label: 'CISA Cyber',      key: 'cisacyber',    category: 'cyber' },
+];
+
+async function handleApiLiveNews(env) {
+  // Serve from 5-min KV cache if fresh
+  try {
+    const cached = await kvGetJson(env, LIVE_NEWS_CACHE_KEY, null);
+    if (cached && cached.fetched_at) {
+      const age = Date.now() - new Date(cached.fetched_at).getTime();
+      if (age < LIVE_NEWS_TTL_SEC * 1000) {
+        return { ok: true, status: 200, body: { ...cached, _cached: true } };
+      }
+    }
+  } catch(e) {}
+
+  // Fetch all sources in parallel (26 sources), tolerate individual failures
+  const results = await Promise.allSettled(
+    LIVE_NEWS_SOURCES.map(src =>
+      fetchWithTimeout(src.url, { headers: { 'Accept': 'application/rss+xml, application/atom+xml, text/xml' } }, 8000)
+        .then(r => r.ok ? r.text() : Promise.reject(`HTTP ${r.status}`))
+        .then(xml => ({ src, items: parseRssAtom(xml) }))
+        .catch(err => { typeof debug === 'function' && debug('live-news:fetch', src.key, String(err)); return { src, items: [] }; })
+    )
+  );
+
+  // Merge + deduplicate by title hash
+  const seen  = new Set();
+  const items = [];
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    const { src, items: raw } = r.value;
+    for (const it of (raw || [])) {
+      const titleKey = String(it.title || '').toLowerCase().replace(/\W/g,'').slice(0,60);
+      if (!titleKey || seen.has(titleKey)) continue;
+      // Geo-filter: hazard sources (GDACS/USGS/EMSC) — skip events not near any Dell site
+      if (LNM_HAZARD_KEYS.has(src.key) && !lnmNearDell(it.lat, it.lng)) continue;
+      seen.add(titleKey);
+      items.push({
+        title:           (it.title  || '').trim().slice(0, 200),
+        link:            it.link    || '#',
+        summary:         (it.summary || '').replace(/<[^>]+>/g,'').trim().slice(0, 280),
+        time:            it.pubDate || it.updated || new Date().toISOString(),
+        source_label:    src.label,
+        source_key:      src.key,
+        source_category: src.category || 'news',
+        lat:             it.lat  || null,
+        lng:             it.lng  || null,
+      });
+    }
+  }
+
+  // Sort newest-first, cap at 120 (more sources → more items)
+  items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  const payload = { ok: true, items: items.slice(0, 120), fetched_at: new Date().toISOString() };
+
+  // Write to KV cache (best-effort)
+  try { await kvPut(env, LIVE_NEWS_CACHE_KEY, payload, { expirationTtl: LIVE_NEWS_TTL_SEC * 2 }); } catch(e) {}
+
+  return { ok: true, status: 200, body: payload };
 }
 
 async function handleApiThumb(env, req, ctx) {
@@ -3231,6 +3415,9 @@ async function handleRequest(req, env, ctx) {
       return _responseFromResult(r);
     } else if (p.startsWith('/api/incidents')) {
       const r = await handleApiIncidents(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/live-news')) {
+      const r = await handleApiLiveNews(env);
       return _responseFromResult(r);
     } else if (p.startsWith('/api/proximity')) {
       const r = await handleApiProximity(env, req);

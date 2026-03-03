@@ -2909,12 +2909,27 @@ const LNM_TV_CHANNELS = [
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY' },
 ];
 
+// Source badge colors — keyed by source_key from Worker
 const LNM_SOURCE_COLORS = {
-  reuters:   { bg: '#e53935', text: '#fff' },
-  aljazeera: { bg: '#1976d2', text: '#fff' },
-  bbc:       { bg: '#bb0000', text: '#fff' },
-  usgs:      { bg: '#6d4c41', text: '#fff' },
-  gdacs:     { bg: '#f57c00', text: '#fff' },
+  // Global news
+  reuters:      { bg: '#c62828', text: '#fff' }, apnews:       { bg: '#bf360c', text: '#fff' },
+  bbc:          { bg: '#bb0000', text: '#fff' }, aljazeera:    { bg: '#1565c0', text: '#fff' },
+  cnn:          { bg: '#cc0000', text: '#fff' }, dw:           { bg: '#1b5e20', text: '#fff' },
+  guardian:     { bg: '#005689', text: '#fff' }, france24:     { bg: '#880e4f', text: '#fff' },
+  // Logistics
+  freightwaves: { bg: '#e65100', text: '#fff' }, gcaptain:     { bg: '#006064', text: '#fff' },
+  maritime:     { bg: '#01579b', text: '#fff' }, loadstar:     { bg: '#37474f', text: '#fff' },
+  splash247:    { bg: '#1565c0', text: '#fff' }, scdive:       { bg: '#0277bd', text: '#fff' },
+  // Security / gov
+  fbi:          { bg: '#b71c1c', text: '#fff' }, cisa:         { bg: '#1a237e', text: '#fff' },
+  ustravel:     { bg: '#1565c0', text: '#fff' }, ukfcdo:       { bg: '#003078', text: '#fff' },
+  reliefweb:    { bg: '#6a1b9a', text: '#fff' }, europol:      { bg: '#283593', text: '#fff' },
+  // Hazards
+  usgs:         { bg: '#6d4c41', text: '#fff' }, gdacs:        { bg: '#f57c00', text: '#fff' },
+  emsc:         { bg: '#d84315', text: '#fff' },
+  // Cyber
+  darkreading:  { bg: '#212121', text: '#fff' }, hackernews:   { bg: '#ff6d00', text: '#fff' },
+  cisacyber:    { bg: '#283593', text: '#fff' },
 };
 
 function _ensureLiveNewsModal() {
@@ -2998,14 +3013,14 @@ function _ensureLiveNewsModal() {
         '<button class="lnm-tab-btn active" data-action="lnm-tab" data-tab="headlines">&#128240; Headlines</button>' +
         '<button class="lnm-tab-btn" data-action="lnm-tab" data-tab="tv">&#128250; Live TV</button>' +
       '</div>' +
-      /* Source filter pills — hidden when TV tab active */
+      /* Category filter pills — hidden when TV tab active */
       '<div class="lnm-src-pills" id="lnm-src-pills">' +
-        '<button class="lnm-pill active" data-action="lnm-filter" data-src="all">All</button>' +
-        '<button class="lnm-pill" data-action="lnm-filter" data-src="reuters">Reuters</button>' +
-        '<button class="lnm-pill" data-action="lnm-filter" data-src="aljazeera">Al Jazeera</button>' +
-        '<button class="lnm-pill" data-action="lnm-filter" data-src="bbc">BBC</button>' +
-        '<button class="lnm-pill" data-action="lnm-filter" data-src="usgs">USGS</button>' +
-        '<button class="lnm-pill" data-action="lnm-filter" data-src="gdacs">GDACS</button>' +
+        '<button class="lnm-pill active" data-action="lnm-filter" data-src="all">All (26)</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="news">📰 News</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="logistics">🚢 Logistics</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="security">🛡 Security</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="hazards">⚠ Hazards</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="cyber">💻 Cyber</button>' +
       '</div>' +
       '<span class="lnm-ts" id="lnm-ts">Loading&hellip;</span>' +
       '<button class="lnm-close" data-action="close-live-news" aria-label="Close">&#x2715; Close</button>' +
@@ -3020,7 +3035,7 @@ function _ensureLiveNewsModal() {
     '</div>' +
     /* ── Footer ── */
     '<div class="lnm-footer" id="lnm-footer">' +
-      '<span>&#128240; Headlines: Reuters &middot; Al Jazeera &middot; BBC World &middot; USGS Earthquakes &middot; GDACS Disasters</span>' +
+      '<span>&#128240; 26 sources &middot; 📰 News &middot; 🚢 Logistics &middot; 🛡 Security &middot; ⚠ Hazards (geo-filtered) &middot; 💻 Cyber</span>' +
       '<button class="lnm-refresh-btn" data-action="lnm-refresh-now">&#8635; Refresh Headlines</button>' +
     '</div>';
   document.body.appendChild(mo);
@@ -3078,9 +3093,10 @@ function _lnmTimeAgo(isoStr) {
 function _lnmRender() {
   const feed = _ltmEl('lnm-feed');
   if (!feed) return;
+  // Filter by category (matches source_category field from Worker) or exact source key
   const visible = _lnmFilter === 'all'
     ? _lnmItems
-    : _lnmItems.filter(it => it.source_key === _lnmFilter);
+    : _lnmItems.filter(it => (it.source_category || 'news') === _lnmFilter || it.source_key === _lnmFilter);
   if (!visible.length) {
     feed.innerHTML = `<div class="lnm-empty">No items from this source yet.</div>`;
     return;
