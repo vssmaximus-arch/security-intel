@@ -2912,11 +2912,11 @@ const LNM_TV_CHANNELS = [
   { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
     hlsUrl: 'https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8' }, // Akamai — Sky AU (same news, global access)
   { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs',
-    hlsUrl: 'https://viamotionhsi.netplus.ch/live/eds/bbcworld/browser-HLS8/bbcworld.m3u8' }, // Netplus CH browser-HLS endpoint
+    hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // Netplus CH browser-HLS endpoint
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
     hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
   { key: 'nhk',       label: 'NHK World',   color: '#c62828', ytId: 'mMTpFkLOGo4',
-    hlsUrl: 'https://master.nhkworld.jp/nhkworld-tv/playlist/live.m3u8' },                    // NHK official broadcaster CDN
+    hlsUrl: 'https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8' },                    // NHK official broadcaster CDN
   // ── YouTube fallback only — no public HLS available ──────────────────────────
   { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
 ];
