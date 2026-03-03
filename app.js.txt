@@ -2897,14 +2897,16 @@ let _lnmItems       = [];        // latest items from Worker
 let _lnmActiveTab   = 'headlines'; // 'headlines' | 'tv'
 let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 
-// Live TV channel definitions — verified YouTube 24/7 live stream video IDs
+// Live TV channel definitions
+// hlsUrl = direct broadcast stream (no ads, lower latency) — YouTube used when absent or on fatal error
+let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
 const LNM_TV_CHANNELS = [
-  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo' },
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo', hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },
+  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U', hlsUrl: 'https://dwamdstream107.akamaized.net/hls/live/2017968/dwstream107/stream05/streamPlaylist.m3u8' },
+  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU', hlsUrl: 'https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120684/france24english/playlist.m3u8' },
   { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },
   { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I' },
   { key: 'euronews',  label: 'Euronews',    color: '#283593', ytId: 'pykpO5kQJ98' },
-  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U' },
-  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU' },
   { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs' },
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY' },
 ];
@@ -2978,8 +2980,10 @@ function _ensureLiveNewsModal() {
       '.lnm-ch-btn{font-size:.68rem;font-weight:700;padding:3px 12px;border-radius:10px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s;white-space:nowrap}',
       '.lnm-ch-btn.active{background:#1a3a5c;color:#4fc3f7;border-color:#4fc3f7}',
       '.lnm-ch-btn:hover:not(.active){color:#e8eaed;border-color:#5f6368}',
-      '.lnm-tv-frame{flex:1;border:none;width:100%;display:block;background:#000}',
-      '.lnm-tv-notice{text-align:center;padding:7px 14px;font-size:.66rem;color:#5f6368;background:#0d1117;flex-shrink:0;border-top:1px solid #1a1d21}',
+      '.lnm-tv-frame{flex:1;border:none;width:100%;display:block;background:#000;min-height:0}',
+      '.lnm-tv-video{flex:1;width:100%;display:none;background:#000;min-height:0;outline:none}',
+      '.lnm-tv-notice{text-align:center;padding:7px 14px;font-size:.66rem;color:#5f6368;background:#0d1117;flex-shrink:0;border-top:1px solid #1a1d21;display:flex;align-items:center;justify-content:center;gap:8px}',
+      '.lnm-stream-badge{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px}',
       /* === Footer === */
       '.lnm-footer{padding:6px 14px;background:#0d1117;font-size:.68rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;border-top:1px solid #2a2d31}',
       '.lnm-refresh-btn{background:#1a3a5c;color:#4fc3f7;border:none;border-radius:4px;padding:3px 10px;font-size:.7rem;font-weight:700;cursor:pointer}',
@@ -3030,8 +3034,9 @@ function _ensureLiveNewsModal() {
     /* ── Live TV panel ── */
     '<div class="lnm-tv-panel" id="lnm-tv-panel">' +
       '<div class="lnm-ch-bar"><span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>' + chButtons + '</div>' +
+      '<video class="lnm-tv-video" id="lnm-tv-video" autoplay muted playsinline controls></video>' +
       '<iframe class="lnm-tv-frame" id="lnm-tv-frame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' +
-      '<div class="lnm-tv-notice">Live streams via YouTube &middot; Click a channel above to load &middot; Availability varies by region</div>' +
+      '<div class="lnm-tv-notice">Select a channel above &middot; <span id="lnm-stream-badge" class="lnm-stream-badge" style="background:#1a3a5c;color:#4fc3f7">&#128225; Ready</span> &middot; Direct stream where available, YouTube fallback otherwise</div>' +
     '</div>' +
     /* ── Footer ── */
     '<div class="lnm-footer" id="lnm-footer">' +
@@ -3060,24 +3065,68 @@ function _lnmSwitchTab(tab) {
   if (tvPanel) {
     if (tab === 'tv') {
       tvPanel.classList.add('visible');
-      // Auto-load default channel on first open
+      // Auto-load default channel on first open (neither HLS nor iframe loaded yet)
       const frame = _ltmEl('lnm-tv-frame');
-      if (frame && !frame.src) _lnmSwitchChannel(_lnmActiveChannel);
+      const video = _ltmEl('lnm-tv-video');
+      if (!_lnmHls && frame && !frame.src && (!video || !video.src)) _lnmSwitchChannel(_lnmActiveChannel);
     } else {
       tvPanel.classList.remove('visible');
     }
   }
 }
 
-/* Load a live TV channel into the YouTube iframe */
+/* Load a live TV channel — HLS direct stream preferred; YouTube iframe as fallback */
 function _lnmSwitchChannel(key) {
   _lnmActiveChannel = key;
   const ch = LNM_TV_CHANNELS.find(c => c.key === key);
   if (!ch) return;
-  const frame = _ltmEl('lnm-tv-frame');
-  if (frame) frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`;
+
+  // Update channel button highlight
   const tvPanel = _ltmEl('lnm-tv-panel');
   if (tvPanel) tvPanel.querySelectorAll('.lnm-ch-btn').forEach(b => b.classList.toggle('active', b.dataset.ch === key));
+
+  // Destroy any running HLS instance before switching
+  if (_lnmHls) { try { _lnmHls.destroy(); } catch (_) {} _lnmHls = null; }
+
+  const video = _ltmEl('lnm-tv-video');
+  const frame = _ltmEl('lnm-tv-frame');
+  const badge = _ltmEl('lnm-stream-badge');
+
+  /* Helper: fall back to YouTube iframe */
+  function _useYouTube() {
+    if (video) { video.style.display = 'none'; video.src = ''; }
+    if (frame) { frame.style.display = 'block'; frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`; }
+    if (badge) { badge.textContent = '\u25b6 YouTube'; badge.style.background = '#c00'; badge.style.color = '#fff'; }
+  }
+
+  if (ch.hlsUrl) {
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      // hls.js path (Chrome, Firefox, Edge)
+      if (frame) { frame.style.display = 'none'; frame.src = ''; }
+      if (video) { video.style.display = 'block'; }
+      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
+      _lnmHls = new Hls({ autoStartLoad: true, enableWorker: true, lowLatencyMode: true });
+      _lnmHls.loadSource(ch.hlsUrl);
+      _lnmHls.attachMedia(video);
+      _lnmHls.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(() => {}); });
+      _lnmHls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          try { _lnmHls.destroy(); } catch (_) {}
+          _lnmHls = null;
+          _useYouTube(); // fatal stream error → YouTube fallback
+        }
+      });
+    } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari native HLS
+      if (frame) { frame.style.display = 'none'; frame.src = ''; }
+      if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
+      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
+    } else {
+      _useYouTube(); // browser has no HLS support → YouTube fallback
+    }
+  } else {
+    _useYouTube(); // no hlsUrl defined → YouTube only
+  }
 }
 
 function _lnmTimeAgo(isoStr) {
@@ -3163,7 +3212,11 @@ function closeLiveNewsModal() {
   const mo = _ltmEl('live-news-modal');
   if (ov) ov.style.display = 'none';
   if (mo) mo.classList.remove('open');
-  // Stop TV stream to prevent background audio
+  // Stop HLS stream and release resources
+  if (_lnmHls) { try { _lnmHls.destroy(); } catch (_) {} _lnmHls = null; }
+  const video = _ltmEl('lnm-tv-video');
+  if (video) { video.pause(); video.src = ''; video.style.display = 'none'; }
+  // Stop YouTube iframe to prevent background audio
   const frame = _ltmEl('lnm-tv-frame');
   if (frame) frame.src = '';
   if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }

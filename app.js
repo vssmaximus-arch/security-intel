@@ -67,6 +67,9 @@ let logisticsDrawerOpen  = false;
 let logisticsLayerGroup  = null;  // Leaflet L.layerGroup for logistics markers + hub rings
 const LOGISTICS_MARKERS  = new Map(); // id → L.marker for live position updates
 let _logisticsPollTimer  = null;  // setInterval handle for 60-second autopoll
+let WATCHLIST_CACHE      = [];    // local copy — updated on every render; used for optimistic deletes
+let liveTrackState       = { icao24: null, map: null, marker: null, trail: null, trailCoords: [], pollTimer: null };
+const _ltmStateCache     = {};  // icao24 → latest state object (avoids JSON-in-HTML-attribute)
 
 // --- Persistent per-browser user identity for dislike personalisation ---
 let OSINFO_USER_ID = '';
@@ -1127,6 +1130,50 @@ function dismissAlertById(id) {
   } catch(e) { console.error('dismissAlertById', e); }
 }
 
+function _proxTimeAgo(isoStr) {
+  try {
+    const diff = Date.now() - new Date(isoStr).getTime();
+    if (isNaN(diff) || diff < 0) return '';
+    const m = Math.floor(diff / 60000);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function _proxImpactBar(score) {
+  if (!score || score <= 0) return '';
+  const pct = Math.min(100, Math.max(0, Number(score)));
+  const filled = Math.round(pct / 10);
+  const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
+  const col = pct >= 70 ? '#c5221f' : pct >= 40 ? '#e37400' : '#80868b';
+  return `<span style="font-family:monospace;font-size:.68rem;color:${col};letter-spacing:1px;" title="Impact score ${Math.round(pct)}/100">${bar} ${Math.round(pct)}</span>`;
+}
+
+function _proxAction(sev, dist, opImpact) {
+  if ((sev >= 4 && dist < 30) || (opImpact && dist < 20))
+    return { label: '🔴 Alert Security Team', color: '#d93025', bg: 'rgba(211,48,37,.13)' };
+  if (sev >= 4 && dist < 100)
+    return { label: '🟠 Notify Regional Lead', color: '#f9ab00', bg: 'rgba(249,171,0,.1)' };
+  if (sev >= 3 && dist < 50)
+    return { label: '🟡 Monitor Closely', color: '#fbbc04', bg: 'rgba(251,188,4,.08)' };
+  return { label: '⚪ Awareness Only', color: '#5f6368', bg: 'rgba(95,99,104,.08)' };
+}
+
+function _proxCategoryLabel(cat) {
+  const map = {
+    EARTHQUAKE: '🌍 EARTHQUAKE', FLOOD: '🌊 FLOOD', FIRE: '🔥 FIRE',
+    STORM: '🌀 STORM', SECURITY: '🛡 SECURITY', TERRORISM: '💥 TERRORISM',
+    UNREST: '✊ CIVIL UNREST', PROTEST: '✊ PROTEST', SHOOTING: '🚨 SHOOTING',
+    CONFLICT: '⚔ CONFLICT', ACCIDENT: '⚠ ACCIDENT', HEALTH: '🏥 HEALTH',
+    POLITICAL: '🏛 POLITICAL', CYBER: '💻 CYBER', OPERATIONAL: '⚙ OPERATIONAL',
+  };
+  const k = String(cat || '').toUpperCase().trim();
+  for (const [key, label] of Object.entries(map)) { if (k.includes(key)) return label; }
+  return k || '● INCIDENT';
+}
+
 function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
@@ -1134,12 +1181,13 @@ function renderProximityAlerts(region) {
   const alerts = [];
   data.forEach(inc => {
     try {
-      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng))) ? { lat:Number(inc.lat), lng:Number(inc.lng) } : getCoordsForIncident(inc);
+      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng)))
+        ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
       if (!coords) return;
       const key = generateId(inc);
       if (DISMISSED_ALERT_IDS.has(String(key))) return;
       let nearest = null;
-      if ((inc.distance_km != null) && inc.nearest_site_name) {
+      if (inc.distance_km != null && inc.nearest_site_name) {
         nearest = { dist: Number(inc.distance_km), name: inc.nearest_site_name };
       } else {
         for (const asset of Object.values(ASSETS)) {
@@ -1149,34 +1197,72 @@ function renderProximityAlerts(region) {
       }
       if (!nearest) return;
       if (inc.country_wide || nearest.dist <= currentRadius) alerts.push({ inc, nearest, key });
-    } catch(e){}
+    } catch(e) {}
   });
 
-  alerts.sort((a,b) => a.nearest.dist - b.nearest.dist);
+  alerts.sort((a, b) => a.nearest.dist - b.nearest.dist);
   if (!alerts.length) {
-    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km.</div>`;
+    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km of Dell sites.</div>`;
     return;
   }
-  container.innerHTML = alerts.slice(0,25).map(a => {
-    const i = a.inc; const sev = Number(i.severity || 1);
-    const color = sev >= 4 ? '#d93025' : (sev === 3 ? '#f9ab00' : '#1a73e8');
-    const distStr = i.country_wide ? `Country-wide` : `${Math.round(a.nearest.dist)}km`;
+
+  container.innerHTML = alerts.slice(0, 25).map(a => {
+    const i = a.inc;
+    const sev      = Number(i.severity || 1);
+    const dist     = i.country_wide ? 0 : Math.round(a.nearest.dist);
+    const distStr  = i.country_wide ? 'Country-wide' : `${dist} km`;
+    const opImpact = !!i.operational_impact;
+    const score    = Number(i.impact_score || 0);
+    const timeAgo  = _proxTimeAgo(i.time);
+    const action   = _proxAction(sev, dist, opImpact);
+    const catLabel = _proxCategoryLabel(i.category);
+    const impactBar = _proxImpactBar(score);
+
+    // Severity pill colour
+    const sevColor = sev >= 4 ? '#d93025' : sev === 3 ? '#f9ab00' : '#1a73e8';
+    const sevLabel = sev >= 4 ? 'CRITICAL' : sev === 3 ? 'HIGH' : sev === 2 ? 'MEDIUM' : 'LOW';
+    const sevBg    = sev >= 4 ? 'rgba(211,48,37,.18)' : sev === 3 ? 'rgba(249,171,0,.15)' : 'rgba(26,115,232,.12)';
+
+    const sourceLink = (i.link && i.link !== '#')
+      ? `<a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer"
+           style="font-size:.72rem;color:#1a73e8;text-decoration:none;font-weight:600;">View Source ↗</a>`
+      : '';
+
     return `
-      <div class="alert-row">
-        <div class="alert-top">
-          <div class="alert-type">
-            <i class="fas fa-exclamation-circle" style="color:${color};" aria-hidden="true"></i>
-            ${escapeHtml(i.title)}
-          </div>
-          <div class="alert-dist" style="color:${color}">${escapeHtml(distStr)}</div>
+      <div class="alert-row" style="border-left:4px solid ${sevColor};margin-bottom:8px;padding:10px 12px;background:#fff;border-top:1px solid #e8eaed;border-right:1px solid #e8eaed;border-bottom:1px solid #e8eaed;border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+        <!-- Row 1: Severity pill + Category + Impact bar + Time -->
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px;">
+          <span style="background:${sevBg};color:${sevColor};font-size:.62rem;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">${sevLabel}</span>
+          <span style="font-size:.62rem;color:#5f6368;font-weight:600;background:#f1f3f4;padding:1px 6px;border-radius:3px;">${escapeHtml(catLabel)}</span>
+          ${impactBar ? `<span style="margin-left:2px;">${impactBar}</span>` : ''}
+          ${opImpact ? `<span style="font-size:.6rem;color:#e65100;font-weight:700;background:rgba(230,81,0,.1);padding:1px 5px;border-radius:3px;border:1px solid rgba(230,81,0,.25);">⚙ OPS IMPACT</span>` : ''}
+          ${timeAgo ? `<span style="margin-left:auto;font-size:.65rem;color:#9aa0a6;">${escapeHtml(timeAgo)}</span>` : ''}
         </div>
-        <div class="alert-site">Near: <b>${escapeHtml(a.nearest.name)}</b></div>
-        <div class="alert-desc">${escapeHtml(i.summary)}</div>
-        <div class="alert-actions">
-          <button type="button" class="btn-dismiss" data-action="dismiss-alert" data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert">Dismiss</button>
+        <!-- Row 2: Title -->
+        <div style="font-size:.82rem;font-weight:700;color:#202124;line-height:1.4;margin-bottom:4px;">
+          ${escapeHtml(i.title)}
         </div>
-      </div>
-    `;
+        <!-- Row 3: Site + distance -->
+        <div style="font-size:.72rem;color:#5f6368;margin-bottom:5px;">
+          📍 Dell <strong style="color:#3c4043;">${escapeHtml(a.nearest.name)}</strong>
+          <span style="color:${sevColor};font-weight:700;margin-left:4px;">${escapeHtml(distStr)}</span>
+        </div>
+        <!-- Row 4: Recommended action chip -->
+        <div style="display:inline-flex;align-items:center;gap:4px;background:${action.bg};border:1px solid ${action.color}44;border-radius:4px;padding:2px 9px;margin-bottom:6px;">
+          <span style="font-size:.68rem;color:${action.color};font-weight:700;">${escapeHtml(action.label)}</span>
+        </div>
+        <!-- Row 5: Summary -->
+        <div style="font-size:.74rem;color:#5f6368;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:7px;">
+          ${escapeHtml(i.summary)}
+        </div>
+        <!-- Row 6: Source link + Dismiss -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          ${sourceLink}
+          <button type="button" class="btn-dismiss" data-action="dismiss-alert"
+            data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert"
+            style="margin-left:auto;">Dismiss</button>
+        </div>
+      </div>`;
   }).join('');
 }
 
@@ -2217,6 +2303,8 @@ function renderLogisticsAssets() {
 function renderWatchlistFromData(watchlist) {
   const container = document.getElementById('logistics-watchlist-list');
   if (!container) return;
+  // Keep local cache in sync so optimistic deletes work across KV eventual-consistency lag
+  WATCHLIST_CACHE = Array.isArray(watchlist) ? watchlist.map(i => typeof i === 'string' ? { id: i, type: 'flight', label: i } : i) : [];
   if (!Array.isArray(watchlist) || watchlist.length === 0) {
     container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
     return;
@@ -2231,9 +2319,10 @@ function renderWatchlistFromData(watchlist) {
     const safeLabel = escapeHtml(label);
     const typeIcon  = isVessel ? '<i class="fas fa-ship me-1" aria-hidden="true"></i>' : '<i class="fas fa-plane me-1" aria-hidden="true"></i>';
     const actionBtn = isVessel
-      ? `<a class="ais-btn mt-1" href="${escapeAttr(`https://www.vesselfinder.com/vessels?name=${encodeURIComponent(id)}`)}" target="_blank" rel="noopener noreferrer" aria-label="Track ${safeLabel} via AIS">
-           <i class="fas fa-anchor me-1" aria-hidden="true"></i>Track via AIS
-         </a>`
+      ? `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="vessel" aria-label="Track ${safeLabel} via AIS">
+           <i class="fas fa-anchor me-1" aria-hidden="true"></i>Live AIS
+         </button>
+         <div class="drawer-radar-result" id="track-result-${safeId}"></div>`
       : `<button class="radar-btn mt-1" data-action="logistics-track" data-icao="${safeId}" data-type="${type}" aria-label="Track ${safeLabel}">
            <i class="fas fa-satellite-dish me-1" aria-hidden="true"></i>Live Radar
          </button>
@@ -2283,7 +2372,7 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       50000  // OpenSky OAuth2 + states (20 s) + flights (20 s) sequential
     );
     const data = await res.json().catch(() => ({}));
-    console.log('[logistics] track result', icao24, res.status, data.ok, data.status || data.reason || data.error || '');
+    console.log('[logistics] track result', icao24, res.status, data.ok, data.status || data.reason || data.error || '', 'wv:', data._wv || 'OLD');
 
     // ── Structured error responses ───────────────────────────────────────────
     if (data.ok === false || (!res.ok && !data.status)) {
@@ -2299,7 +2388,7 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       }
       if (reason === 'no_schedule_found') {
         const fr24 = data.deep_link || `https://www.flightradar24.com/search?query=${encodeURIComponent(icao24)}`;
-        el.innerHTML = `<span class="status-badge status-UNKNOWN">NOT FOUND</span> Not airborne or wrong ID. <a href="${escapeAttr(fr24)}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Find on FlightRadar24 ↗</a><div style="font-size:0.68rem;color:#9aa0a6;margin-top:2px;">Tip: use the ICAO24 hex code from FR24 (e.g. 155c63) for better results.</div>`;
+        el.innerHTML = `<span class="status-badge status-UNKNOWN">NOT FOUND</span> Not airborne or wrong ID. <a href="${escapeAttr(fr24)}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8;">Find on FlightRadar24 ↗</a><div style="font-size:0.68rem;color:#9aa0a6;margin-top:2px;">Tip: on FR24 click the aircraft → copy its hex code (e.g. a0001e) and use that instead.</div>`;
         return;
       }
       el.textContent = reason || `Error: HTTP ${res.status}`;
@@ -2309,21 +2398,30 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
     // ── LIVE ─────────────────────────────────────────────────────────────────
     if (data.status === 'LIVE' && Array.isArray(data.states) && data.states.length > 0) {
       const s   = data.states[0];
-      const alt = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m' : 'N/A';
-      const vel = s.velocity      != null ? s.velocity.toFixed(0)      + ' m/s' : 'N/A';
-      // Place / move marker on map if position is known
+      const ftAlt = s.baro_altitude != null ? (s.baro_altitude / 0.3048).toFixed(0) + ' ft' : 'N/A';
+      const kt    = s.velocity      != null ? (s.velocity / 0.514444).toFixed(0) + ' kt'    : 'N/A';
+      const hdg   = s.true_track    != null ? s.true_track.toFixed(0) + '°'                 : '';
+      const label = (s.callsign || icao24).toUpperCase();
+      // Place / move marker on main map if position is known
       if (s.latitude != null && s.longitude != null) {
         placeLogisticsMarker(icao24, type, s.latitude, s.longitude, {
           scheduleBrief: null, callsign: s.callsign || null,
         });
       }
+      // Cache state object so the button handler can retrieve it without JSON-in-attribute
+      _ltmStateCache[icao24] = s;
       el.innerHTML = `
         <span class="status-badge status-LIVE">LIVE</span>
-        <div style="margin-top:3px;">Alt: <strong>${escapeHtml(alt)}</strong> &nbsp;|&nbsp; Vel: <strong>${escapeHtml(vel)}</strong></div>
-        <div style="font-size:0.72rem;color:#9aa0a6;">
-          ${escapeHtml(s.origin_country || '')} &mdash; ${escapeHtml(s.callsign || icao24.toUpperCase())}
-          ${s.on_ground ? ' &mdash; <em>On ground</em>' : ''}
-          ${data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : ''}
+        <div style="margin-top:3px;">
+          <strong>${escapeHtml(label)}</strong> &nbsp;|&nbsp;
+          ${escapeHtml(ftAlt)} &nbsp;|&nbsp; ${escapeHtml(kt)} ${hdg ? '&nbsp;|&nbsp; ' + escapeHtml(hdg) : ''}
+        </div>
+        <div style="margin-top:4px;">
+          <button class="live-track-open-btn" data-action="open-live-track"
+            data-icao="${escapeAttr(icao24)}" data-callsign="${escapeAttr(label)}"
+            aria-label="Open live tracker for ${escapeAttr(label)}">
+            &#128225; Open Live Tracker
+          </button>
         </div>`;
       return;
     }
@@ -2342,14 +2440,30 @@ async function trackFlight(icao24, resultElId, type = 'flight') {
       return;
     }
 
-    // ── VESSEL: IN-PORT / STATIONARY / UNKNOWN ───────────────────────────────
-    if (['IN-PORT', 'STATIONARY', 'UNKNOWN'].includes(data.status)) {
+    // ── VESSEL: any vessel status → show Vessel Tracker button ───────────────
+    if (['IN-PORT', 'STATIONARY', 'UNKNOWN', 'VESSEL_TRACK', 'VESSEL_LIVE'].includes(data.status)) {
+      const mmsi   = data.mmsi || icao24;
+      const vsName = data.states && data.states[0]?.vessel_name ? data.states[0].vessel_name : '';
+      const vsDest = data.states && data.states[0]?.destination  ? data.states[0].destination  : '';
+      const vsSOG  = data.states && data.states[0]?.velocity     != null
+        ? (data.states[0].velocity / 0.514444).toFixed(1) + ' kt' : null;
       const hubLine = data.lastHubName
-        ? `<div style="margin-top:3px;font-size:0.72rem;color:#9aa0a6;">Last hub: <strong>${escapeHtml(data.lastHubName)}</strong>${data.lastHubTime ? ' · ' + escapeHtml(new Date(data.lastHubTime).toLocaleString()) : ''}</div>` : '';
+        ? `<div style="font-size:0.72rem;color:#9aa0a6;margin-top:2px;">Last hub: <strong>${escapeHtml(data.lastHubName)}</strong></div>` : '';
+      // Cache embed URL + live state for the modal stats bar
+      if (data.embed_url) _ltmStateCache['vessel_' + mmsi] = { embed_url: data.embed_url, deepLink: data.deepLink };
+      if (data.states && data.states[0]) _ltmStateCache[mmsi] = data.states[0]; // SOG/heading/dest for stats bar
       el.innerHTML = `
-        <span class="status-badge status-${escapeHtml(data.status)}">${escapeHtml(data.status)}</span>
+        <span class="status-badge" style="background:#1a3a5c;color:#4fc3f7;border-radius:4px;padding:2px 7px;font-size:.72rem;font-weight:700;">⚓ VESSEL</span>
+        ${vsName ? `<div style="margin-top:2px;font-weight:700;font-family:monospace;">${escapeHtml(vsName)}</div>` : ''}
+        ${vsSOG  ? `<div style="font-size:0.72rem;color:#9aa0a6;">SOG: ${escapeHtml(vsSOG)}${vsDest ? ' &nbsp;→&nbsp; ' + escapeHtml(vsDest) : ''}</div>` : ''}
         ${hubLine}
-        <a href="${escapeAttr(data.deepLink || '#')}" target="_blank" rel="noopener noreferrer" class="ais-btn" style="display:inline-block;margin-top:4px;">Track via AIS ↗</a>`;
+        <div style="margin-top:5px;">
+          <button class="live-track-open-btn" data-action="open-vessel-track"
+            data-mmsi="${escapeAttr(mmsi)}"
+            aria-label="Open vessel tracker for MMSI ${escapeAttr(mmsi)}">
+            &#x1F6A2; Open Vessel Tracker
+          </button>
+        </div>`;
       return;
     }
 
@@ -2370,49 +2484,768 @@ async function addToWatchlist(id, type) {
     if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Enter a flight callsign (e.g. EJM618), ICAO24 hex (e.g. a0001e), or vessel MMSI (digits).</div>`;
     return;
   }
+  const normId   = id.toLowerCase();
   const itemType = type === 'vessel' ? 'vessel' : 'flight';
-  if (listEl) listEl.innerHTML = `<div class="drawer-empty">Saving…</div>`;
+  // 1. Update local cache immediately — skip if already present
+  if (!WATCHLIST_CACHE.some(w => (typeof w === 'string' ? w : w.id) === normId)) {
+    WATCHLIST_CACHE.push({ id: normId, type: itemType, label: normId, added_at: new Date().toISOString() });
+  }
+  // 2. Render from local cache — do NOT use server response (it reads stale KV and re-adds deleted items)
+  renderWatchlistFromData(WATCHLIST_CACHE);
+  const input = document.getElementById('watch-icao-input');
+  if (input) input.value = '';
+  // 3. Persist entire cache to server via action:'set' — no KV read on server side, no race condition
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'add', id: id.toLowerCase(), type: itemType }),
+      body: JSON.stringify({ action: 'set', watchlist: WATCHLIST_CACHE }),
     });
-    const raw = await res.text();
-    let resData = {};
-    try { resData = JSON.parse(raw); } catch(e2) {}
-    console.log('[logistics] addToWatchlist response', res.status, raw.slice(0, 200));
-    if (!res.ok) {
-      throw new Error(resData.error || `HTTP ${res.status}: ${raw.slice(0,120)}`);
-    }
-    const input = document.getElementById('watch-icao-input');
-    if (input) input.value = '';
-    // Use watchlist from POST response directly — avoids KV read-after-write latency
-    if (Array.isArray(resData.watchlist) && resData.watchlist.length > 0) {
-      renderWatchlistFromData(resData.watchlist);
-    } else {
-      await loadLogisticsWatchlist();
-    }
+    const resData = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
+    console.log('[watchlist] add persisted, server items:', resData.items);
   } catch (e) {
-    console.error('[logistics] addToWatchlist failed', e.message);
-    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Add failed: ${escapeHtml(e.message)}</div>`;
+    console.error('[watchlist] add server sync failed:', e.message);
+    if (listEl) listEl.innerHTML = `<div class="drawer-empty" style="color:#f28b82;">⚠ Save failed: ${escapeHtml(e.message)}</div>`;
   }
 }
 
+/* ═══════════════════════════════════════════════════════
+   LIVE TRACK MODAL  (S2.5 — popup aircraft tracker)
+═══════════════════════════════════════════════════════ */
+function _ltmEl(id) { return document.getElementById(id); }
+
+// Creates modal HTML + CSS dynamically — no index.html dependency
+function _ensureLiveTrackModal() {
+  if (_ltmEl('live-track-modal')) return; // already in DOM (from index.html)
+  // Inject styles
+  if (!_ltmEl('ltm-injected-styles')) {
+    const st = document.createElement('style');
+    st.id = 'ltm-injected-styles';
+    st.textContent = [
+      '.live-track-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:5999;display:none;cursor:pointer}',
+      '.live-track-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90vw;max-width:1120px;height:84vh;background:#1a1b1e;color:#e8eaed;z-index:6000;border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.85);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.live-track-modal.open{display:flex}',
+      '.ltm-topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#292a2d;border-bottom:1px solid #3c4043;flex-shrink:0;flex-wrap:wrap}',
+      '.ltm-badge{background:#1e4620;color:#81c995;font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 8px;letter-spacing:1px;animation:ltmPulse 2s infinite}',
+      '@keyframes ltmPulse{0%,100%{opacity:1}50%{opacity:.5}}',
+      '.ltm-callsign{font-size:1.05rem;font-weight:800;font-family:monospace;color:#4fc3f7;letter-spacing:1px}',
+      '.ltm-stat{background:#3c4043;border-radius:6px;padding:3px 9px;font-size:.77rem;color:#e8eaed;font-family:monospace;line-height:1.5}',
+      '.ltm-stat em{color:#9aa0a6;font-style:normal;font-size:.65rem;display:block}',
+      '.ltm-close{margin-left:auto;background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer}',
+      '.ltm-close:hover{background:#8b3a38}',
+      '.ltm-mapwrap{flex:1;position:relative;min-height:0}',
+      '#live-track-map{width:100%;height:100%}',
+      '.ltm-footer{padding:5px 14px;background:#202124;font-size:.7rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}',
+      '.ltm-footer a{color:#8ab4f8;text-decoration:none}',
+      '.live-track-open-btn{background:#1a3a5c;color:#4fc3f7;border:1px solid #2a5a8c;border-radius:5px;padding:3px 10px;font-size:.74rem;font-weight:700;cursor:pointer;margin-top:4px;display:inline-flex;align-items:center;gap:5px}',
+      '.live-track-open-btn:hover{background:#244a7a}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+  // Create overlay
+  const ov = document.createElement('div');
+  ov.id = 'live-track-overlay';
+  ov.className = 'live-track-overlay';
+  ov.addEventListener('click', closeLiveTrackModal);
+  document.body.appendChild(ov);
+  // Create modal
+  const mo = document.createElement('div');
+  mo.id = 'live-track-modal';
+  mo.className = 'live-track-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    '<div class="ltm-topbar">' +
+      '<span class="ltm-badge">&#9679; LIVE</span>' +
+      '<span class="ltm-callsign" id="ltm-callsign">---</span>' +
+      '<div class="ltm-stat"><em>ALTITUDE</em><span id="ltm-alt">---</span></div>' +
+      '<div class="ltm-stat"><em>SPEED</em><span id="ltm-vel">---</span></div>' +
+      '<div class="ltm-stat"><em>HEADING</em><span id="ltm-hdg">---</span></div>' +
+      '<div class="ltm-stat"><em>VERT RATE</em><span id="ltm-vr">---</span></div>' +
+      '<div class="ltm-stat"><em>COUNTRY</em><span id="ltm-country">---</span></div>' +
+      '<button class="ltm-close" data-action="close-live-track" aria-label="Close">&#x2715; Close</button>' +
+    '</div>' +
+    '<div class="ltm-mapwrap"><div id="live-track-map"></div></div>' +
+    '<div class="ltm-footer">' +
+      '<span id="ltm-status">Connecting&hellip;</span>' +
+      '<a id="ltm-fr24-link" href="#" target="_blank" rel="noopener noreferrer">Open on FlightRadar24 &#8599;</a>' +
+    '</div>';
+  document.body.appendChild(mo);
+}
+
+function _ltmUpdateStats(s) {
+  const ftAlt  = s.baro_altitude != null ? (s.baro_altitude / 0.3048).toFixed(0) + ' ft'  : 'N/A';
+  const mAlt   = s.baro_altitude != null ? s.baro_altitude.toFixed(0) + ' m'               : '';
+  const ktVel  = s.velocity      != null ? (s.velocity / 0.514444).toFixed(0) + ' kt'     : 'N/A';
+  const msVel  = s.velocity      != null ? s.velocity.toFixed(0) + ' m/s'                  : '';
+  const hdg    = s.true_track    != null ? s.true_track.toFixed(0) + '°'                   : 'N/A';
+  const vrRaw  = s.vertical_rate;
+  const vr     = vrRaw != null ? (vrRaw > 0 ? '▲ ' : vrRaw < 0 ? '▼ ' : '→ ') + Math.abs((vrRaw / 0.00508).toFixed(0)) + ' ft/min' : 'N/A';
+  if (_ltmEl('ltm-alt'))     _ltmEl('ltm-alt').textContent     = ftAlt + (mAlt ? ' / ' + mAlt : '');
+  if (_ltmEl('ltm-vel'))     _ltmEl('ltm-vel').textContent     = ktVel + (msVel ? ' / ' + msVel : '');
+  if (_ltmEl('ltm-hdg'))     _ltmEl('ltm-hdg').textContent     = hdg;
+  if (_ltmEl('ltm-vr'))      _ltmEl('ltm-vr').textContent      = vr;
+  if (_ltmEl('ltm-country')) _ltmEl('ltm-country').textContent = s.origin_country || '---';
+}
+
+function _ltmPlotPosition(s) {
+  const lt = s.latitude, ln = s.longitude, tr = s.true_track || 0;
+  if (lt == null || ln == null) return;
+  liveTrackState.trailCoords.push([lt, ln]);
+  // Rotating aircraft icon using CSS transform
+  const iconHtml = `<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+    <svg style="transform:rotate(${tr}deg);width:28px;height:28px;" viewBox="0 0 24 24" fill="#4fc3f7">
+      <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/>
+    </svg></div>`;
+  const icon = L.divIcon({ html: iconHtml, iconSize: [32,32], iconAnchor: [16,16], className: '' });
+  const lmap = liveTrackState.map;
+  if (!lmap) return;
+  if (liveTrackState.marker) {
+    liveTrackState.marker.setLatLng([lt, ln]);
+    liveTrackState.marker.setIcon(icon);
+  } else {
+    liveTrackState.marker = L.marker([lt, ln], { icon, zIndexOffset: 1000 }).addTo(lmap);
+  }
+  if (liveTrackState.trail) {
+    liveTrackState.trail.setLatLngs(liveTrackState.trailCoords);
+  } else {
+    liveTrackState.trail = L.polyline(liveTrackState.trailCoords, { color:'#4fc3f7', weight:2, opacity:0.55, dashArray:'6 4' }).addTo(lmap);
+  }
+  // Only fly to aircraft on first plot or if it drifted far from view
+  if (liveTrackState.trailCoords.length <= 1) {
+    lmap.setView([lt, ln], 7);
+  }
+}
+
+function openLiveTrackModal(icao24, callsign, initialState) {
+  _ensureLiveTrackModal(); // create modal HTML+CSS dynamically if not already in DOM
+  liveTrackState.icao24 = icao24;
+  // Stop any previous poll
+  if (liveTrackState.pollTimer) { clearInterval(liveTrackState.pollTimer); liveTrackState.pollTimer = null; }
+  // Show overlay + modal
+  const overlay = _ltmEl('live-track-overlay');
+  const modal   = _ltmEl('live-track-modal');
+  if (!overlay || !modal) return;
+  overlay.style.display = 'block';
+  modal.classList.add('open');
+  // Header
+  const label = (callsign || icao24 || '---').toUpperCase();
+  if (_ltmEl('ltm-callsign')) _ltmEl('ltm-callsign').textContent = label;
+  const fr24 = `https://www.flightradar24.com/search?query=${encodeURIComponent(label)}`;
+  const fr24link = _ltmEl('ltm-fr24-link');
+  if (fr24link) { fr24link.href = fr24; }
+  // Init Leaflet map once
+  if (!liveTrackState.map) {
+    liveTrackState.map = L.map('live-track-map', { zoomControl: true, attributionControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 18,
+    }).addTo(liveTrackState.map);
+    L.control.attribution({ prefix: '© CartoDB · OpenStreetMap' }).addTo(liveTrackState.map);
+  } else {
+    // Clear previous aircraft
+    if (liveTrackState.marker) { liveTrackState.map.removeLayer(liveTrackState.marker); liveTrackState.marker = null; }
+    if (liveTrackState.trail)  { liveTrackState.map.removeLayer(liveTrackState.trail);  liveTrackState.trail  = null; }
+    liveTrackState.trailCoords = [];
+  }
+  // Must invalidate AFTER modal is visible
+  setTimeout(() => { if (liveTrackState.map) liveTrackState.map.invalidateSize(); }, 120);
+  // Plot initial state
+  if (initialState) { _ltmUpdateStats(initialState); _ltmPlotPosition(initialState); }
+  if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = 'Live — auto-refreshing every 30 s';
+  // Start 30-second poll
+  liveTrackState.pollTimer = setInterval(_ltmPoll, 30000);
+}
+
+async function _ltmPoll() {
+  const icao24 = liveTrackState.icao24;
+  if (!icao24 || !_ltmEl('live-track-modal')?.classList.contains('open')) return;
+  try {
+    const res  = await fetchWithTimeout(`${WORKER_URL}/api/logistics/track?icao24=${encodeURIComponent(icao24)}`, { headers: { 'X-User-Id': OSINFO_USER_ID } }, 15000);
+    const data = await res.json().catch(() => ({}));
+    if (data.ok && data.status === 'LIVE' && Array.isArray(data.states) && data.states.length > 0) {
+      const s = data.states[0];
+      _ltmUpdateStats(s);
+      _ltmPlotPosition(s);
+      const ts = new Date().toLocaleTimeString();
+      if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = `Last updated ${ts} — refreshing every 30 s`;
+    } else {
+      if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = `No signal — aircraft may have landed`;
+    }
+  } catch(e) {
+    if (_ltmEl('ltm-status')) _ltmEl('ltm-status').textContent = `Poll error: ${e.message}`;
+  }
+}
+
+function closeLiveTrackModal() {
+  if (liveTrackState.pollTimer) { clearInterval(liveTrackState.pollTimer); liveTrackState.pollTimer = null; }
+  const overlay = _ltmEl('live-track-overlay');
+  const modal   = _ltmEl('live-track-modal');
+  if (overlay) overlay.style.display = 'none';
+  if (modal)   modal.classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════════════════
+   VESSEL TRACK MODAL  (S2.5 — three-path: Leaflet LIVE | VF iframe MMSI | IMO guidance)
+   Path A — VESSEL_LIVE (aisstream returned coords)  → Leaflet dark map + rotating ship icon
+   Path B — VESSEL_TRACK with 9-digit MMSI           → VesselFinder iframe (centers on MMSI)
+   Path C — 7-digit IMO entered                      → guidance overlay (enter MMSI instead)
+═══════════════════════════════════════════════════════ */
+let _vtmMap = null;
+let _vtmMarker = null;
+let _vtmTrail = null;
+let _vtmTrailCoords = [];
+
+function _ensureVesselTrackModal() {
+  if (_ltmEl('vessel-track-modal')) return;
+  if (!_ltmEl('vtm-injected-styles')) {
+    const st = document.createElement('style');
+    st.id = 'vtm-injected-styles';
+    st.textContent = [
+      '.vtm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:5999;display:none;cursor:pointer}',
+      '.vessel-track-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90vw;max-width:1200px;height:86vh;background:#1a1b1e;color:#e8eaed;z-index:6000;border-radius:12px;box-shadow:0 8px 48px rgba(0,0,0,.85);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.vessel-track-modal.open{display:flex}',
+      '.vtm-topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1a2744;border-bottom:1px solid #2a3a6c;flex-shrink:0;flex-wrap:wrap}',
+      '.vtm-badge{background:#1a3a5c;color:#4fc3f7;font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 8px;letter-spacing:1px;animation:vtmPulse 3s infinite}',
+      '@keyframes vtmPulse{0%,100%{opacity:1}50%{opacity:.55}}',
+      '.vtm-mmsi{font-size:1rem;font-weight:800;font-family:monospace;color:#81d4fa;letter-spacing:1px}',
+      '.vtm-name{font-size:.9rem;color:#e8eaed;font-weight:600}',
+      '.vtm-stat{background:#243050;border-radius:6px;padding:3px 9px;font-size:.77rem;color:#e8eaed;font-family:monospace;line-height:1.5}',
+      '.vtm-stat em{color:#8ab4f8;font-style:normal;font-size:.65rem;display:block}',
+      '.vtm-close{margin-left:auto;background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer}',
+      '.vtm-close:hover{background:#8b3a38}',
+      '.vtm-mapwrap{flex:1;position:relative;min-height:0;background:#111827}',
+      '#vtm-map{position:absolute;inset:0;width:100%;height:100%;display:none}',
+      '#vtm-iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:none}',
+      '.vtm-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111827;color:#5f6368;font-size:.88rem;z-index:5;pointer-events:none}',
+      '.vtm-nofix{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,16,28,.97);color:#9aa0a6;font-size:.9rem;gap:14px;z-index:9999;text-align:center;padding:28px}',
+      '.vtm-nofix a{color:#8ab4f8;text-decoration:none;font-weight:600}',
+      '.vtm-footer{padding:5px 14px;background:#111827;font-size:.7rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px}',
+      '.vtm-footer a{color:#8ab4f8;text-decoration:none}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+  const ov = document.createElement('div');
+  ov.id = 'vtm-overlay';
+  ov.className = 'vtm-overlay';
+  ov.addEventListener('click', closeVesselTrackModal);
+  document.body.appendChild(ov);
+  const mo = document.createElement('div');
+  mo.id = 'vessel-track-modal';
+  mo.className = 'vessel-track-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    '<div class="vtm-topbar">' +
+      '<span class="vtm-badge">&#x2693; VESSEL AIS</span>' +
+      '<span class="vtm-name" id="vtm-name"></span>' +
+      '<span class="vtm-mmsi" id="vtm-mmsi"></span>' +
+      '<div class="vtm-stat"><em>SOG</em><span id="vtm-sog">---</span></div>' +
+      '<div class="vtm-stat"><em>HEADING</em><span id="vtm-hdg">---</span></div>' +
+      '<div class="vtm-stat"><em>DESTINATION</em><span id="vtm-dest">---</span></div>' +
+      '<button class="vtm-close" data-action="close-vessel-track" aria-label="Close">&#x2715; Close</button>' +
+    '</div>' +
+    '<div class="vtm-mapwrap">' +
+      /* Path A — Leaflet map (VESSEL_LIVE only) */
+      '<div id="vtm-map"></div>' +
+      /* Path B — VesselFinder iframe (9-digit MMSI, no live data) */
+      '<div class="vtm-loading" id="vtm-loading" style="display:none">Loading AIS map&hellip;</div>' +
+      '<iframe id="vtm-iframe" src="about:blank" title="Live vessel AIS map" loading="lazy"></iframe>' +
+      /* Path C — IMO guidance overlay */
+      '<div class="vtm-nofix" id="vtm-nofix" style="display:none">' +
+        '<span style="font-size:2.2rem;">&#x26A0;</span>' +
+        '<span style="font-size:1.05rem;color:#e8eaed;font-weight:700;">No live AIS position found</span>' +
+        '<span id="vtm-nofix-reason" style="font-size:.82rem;color:#9aa0a6;max-width:460px;line-height:1.75;"></span>' +
+        '<div style="display:flex;gap:18px;margin-top:4px;">' +
+          '<a id="vtm-nofix-mt" href="#" target="_blank" rel="noopener noreferrer">&#128279; MarineTraffic</a>' +
+          '<a id="vtm-nofix-vf" href="#" target="_blank" rel="noopener noreferrer">&#128279; VesselFinder</a>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="vtm-footer">' +
+      '<span id="vtm-footer-label">&#x1F6A2; Live AIS tracking</span>' +
+      '<div style="display:flex;gap:12px;">' +
+        '<a id="vtm-mt-link" href="#" target="_blank" rel="noopener noreferrer">MarineTraffic &#8599;</a>' +
+        '<a id="vtm-vf-link" href="#" target="_blank" rel="noopener noreferrer">VesselFinder &#8599;</a>' +
+      '</div>' +
+    '</div>';
+  // Hide loading spinner when iframe loads
+  const iframe = mo.querySelector('#vtm-iframe');
+  const loading = mo.querySelector('#vtm-loading');
+  if (iframe && loading) iframe.addEventListener('load', () => { loading.style.display = 'none'; });
+  document.body.appendChild(mo);
+}
+
+function _vtmShowOnly(which) {
+  // which: 'map' | 'iframe' | 'nofix'
+  const mapEl    = _ltmEl('vtm-map');
+  const iframeEl = _ltmEl('vtm-iframe');
+  const nofixEl  = _ltmEl('vtm-nofix');
+  const loadEl   = _ltmEl('vtm-loading');
+  if (mapEl)    mapEl.style.display    = which === 'map'    ? 'block' : 'none';
+  if (iframeEl) iframeEl.style.display = which === 'iframe' ? 'block' : 'none';
+  if (nofixEl)  nofixEl.style.display  = which === 'nofix'  ? 'flex'  : 'none';
+  if (loadEl)   loadEl.style.display   = which === 'iframe' ? 'flex'  : 'none';
+}
+
+function _vtmPlotVessel(s) {
+  if (!_vtmMap || s.latitude == null || s.longitude == null) return;
+  const cog = s.true_track != null ? s.true_track : 0;
+  const shipSvg =
+    `<svg width="30" height="30" viewBox="0 0 30 30" style="transform:rotate(${cog}deg);transform-origin:center;" xmlns="http://www.w3.org/2000/svg">` +
+      `<polygon points="15,2 22,26 15,21 8,26" fill="#4fc3f7" stroke="#0a1628" stroke-width="1.5"/>` +
+    `</svg>`;
+  const icon = L.divIcon({ className: '', html: shipSvg, iconSize: [30, 30], iconAnchor: [15, 15] });
+  if (_vtmMarker) { _vtmMarker.setLatLng([s.latitude, s.longitude]); _vtmMarker.setIcon(icon); }
+  else { _vtmMarker = L.marker([s.latitude, s.longitude], { icon, zIndexOffset: 1000 }).addTo(_vtmMap); }
+  _vtmTrailCoords.push([s.latitude, s.longitude]);
+  if (_vtmTrailCoords.length > 120) _vtmTrailCoords.shift();
+  if (_vtmTrail) { _vtmTrail.setLatLngs(_vtmTrailCoords); }
+  else { _vtmTrail = L.polyline(_vtmTrailCoords, { color: '#4fc3f7', weight: 2, dashArray: '5,7', opacity: 0.65 }).addTo(_vtmMap); }
+  _vtmMap.setView([s.latitude, s.longitude], _vtmMap.getZoom() || 8);
+}
+
+function openVesselTrackModal(mmsi) {
+  _ensureVesselTrackModal();
+  const cached  = _ltmStateCache['vessel_' + mmsi] || {};
+  const liveS   = _ltmStateCache[mmsi] || null;
+  const isMmsi9 = /^\d{9}$/.test(mmsi);
+  const isIMO7  = /^\d{7}$/.test(mmsi);
+  // Stats bar
+  if (_ltmEl('vtm-mmsi')) _ltmEl('vtm-mmsi').textContent = mmsi;
+  if (_ltmEl('vtm-name')) _ltmEl('vtm-name').textContent = liveS?.vessel_name || cached.vessel_name || '';
+  if (_ltmEl('vtm-sog'))  _ltmEl('vtm-sog').textContent  = liveS?.velocity   != null ? (liveS.velocity / 0.514444).toFixed(1) + ' kt' : '---';
+  if (_ltmEl('vtm-hdg'))  _ltmEl('vtm-hdg').textContent  = liveS?.true_track != null ? liveS.true_track.toFixed(0) + '°' : '---';
+  if (_ltmEl('vtm-dest')) _ltmEl('vtm-dest').textContent = liveS?.destination || cached.destination || '---';
+  // External links
+  const mtLink = cached.deepLink || (isIMO7
+    ? `https://www.marinetraffic.com/en/ais/details/ships/imo:${mmsi}`
+    : `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${mmsi}`);
+  const vfLink = cached.vessel_finder_link || (isIMO7
+    ? `https://www.vesselfinder.com/vessels?name=&imo=${mmsi}`
+    : `https://www.vesselfinder.com/vessels?mmsi=${mmsi}`);
+  ['vtm-mt-link','vtm-nofix-mt'].forEach(id => { const el = _ltmEl(id); if (el) el.href = mtLink; });
+  ['vtm-vf-link','vtm-nofix-vf'].forEach(id => { const el = _ltmEl(id); if (el) el.href = vfLink; });
+  // Show modal (must be visible before Leaflet or iframe init)
+  const ov = _ltmEl('vtm-overlay');
+  const mo = _ltmEl('vessel-track-modal');
+  if (ov) ov.style.display = 'block';
+  if (mo) mo.classList.add('open');
+  // Clean up previous Leaflet instance
+  if (_vtmMap) { try { _vtmMap.remove(); } catch(e){} _vtmMap = null; _vtmMarker = null; _vtmTrail = null; _vtmTrailCoords = []; }
+
+  /* ── PATH A: live aisstream coordinates → Leaflet map ── */
+  if (liveS && liveS.latitude != null && liveS.longitude != null) {
+    _vtmShowOnly('map');
+    if (_ltmEl('vtm-footer-label')) _ltmEl('vtm-footer-label').textContent = '🚢 Live AIS position — aisstream.io';
+    const mapEl = _ltmEl('vtm-map');
+    if (mapEl) {
+      _vtmMap = L.map(mapEl, { zoomControl: true, attributionControl: true });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd', maxZoom: 19,
+      }).addTo(_vtmMap);
+      _vtmPlotVessel(liveS);
+    }
+    return;
+  }
+
+  /* ── PATH B: 9-digit MMSI, no live data → VesselFinder iframe ── */
+  if (isMmsi9) {
+    _vtmShowOnly('iframe');
+    if (_ltmEl('vtm-footer-label')) _ltmEl('vtm-footer-label').textContent = '🚢 AIS map via VesselFinder — live vessel position';
+    const embedUrl = `https://www.vesselfinder.com/aismap?zoom=9&mmsi=${mmsi}&width=100%25&height=100%25&names=true&remember=false&clicktoact=false`;
+    const iframeEl = _ltmEl('vtm-iframe');
+    if (iframeEl) iframeEl.src = embedUrl;
+    return;
+  }
+
+  /* ── PATH C: 7-digit IMO (or other) → guidance overlay ── */
+  _vtmShowOnly('nofix');
+  const reasonEl = _ltmEl('vtm-nofix-reason');
+  if (reasonEl) {
+    reasonEl.innerHTML = isIMO7
+      ? '<strong style="color:#f28b82;">You entered a 7-digit IMO number.</strong><br>' +
+        'Live AIS tracking requires the <strong style="color:#4fc3f7;">9-digit MMSI</strong>.<br><br>' +
+        '1. Click "MarineTraffic" below &rarr; search this vessel &rarr; copy its MMSI<br>' +
+        '2. Remove this entry from the watchlist<br>' +
+        '3. Re-add using the 9-digit MMSI &mdash; the map will load correctly.'
+      : 'Could not determine vessel type from ID <strong>' + mmsi + '</strong>.<br>' +
+        'Please enter a valid <strong style="color:#4fc3f7;">9-digit MMSI</strong>.';
+  }
+}
+
+function closeVesselTrackModal() {
+  const ov = _ltmEl('vtm-overlay');
+  const mo = _ltmEl('vessel-track-modal');
+  if (ov) ov.style.display = 'none';
+  if (mo) mo.classList.remove('open');
+  const iframeEl = _ltmEl('vtm-iframe');
+  if (iframeEl) iframeEl.src = 'about:blank'; // stop live feed
+  if (_vtmMap) { try { _vtmMap.remove(); } catch(e){} _vtmMap = null; _vtmMarker = null; _vtmTrail = null; _vtmTrailCoords = []; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   LIVE NEWS MODAL  (S2.5 — Global Intelligence Feed)
+   Aggregates Reuters, Al Jazeera, BBC, USGS, GDACS via
+   Worker /api/live-news endpoint. Auto-refreshes every 5 min.
+   Source filter pills let user focus on one feed.
+═══════════════════════════════════════════════════════ */
+let _lnmTimer       = null;       // 5-min auto-refresh interval
+let _lnmFilter      = 'all';     // active source filter
+let _lnmItems       = [];        // latest items from Worker
+let _lnmActiveTab   = 'headlines'; // 'headlines' | 'tv'
+let _lnmActiveChannel = 'aljazeera'; // active TV channel key
+
+// Live TV channel definitions
+// hlsUrl = direct broadcast stream (no ads, lower latency) — YouTube used when absent or on fatal error
+let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
+const LNM_TV_CHANNELS = [
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo', hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },
+  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U', hlsUrl: 'https://dwamdstream107.akamaized.net/hls/live/2017968/dwstream107/stream05/streamPlaylist.m3u8' },
+  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU', hlsUrl: 'https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120684/france24english/playlist.m3u8' },
+  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I' },
+  { key: 'euronews',  label: 'Euronews',    color: '#283593', ytId: 'pykpO5kQJ98' },
+  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs' },
+  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY' },
+];
+
+// Source badge colors — keyed by source_key from Worker
+const LNM_SOURCE_COLORS = {
+  // Global news
+  reuters:      { bg: '#c62828', text: '#fff' }, apnews:       { bg: '#bf360c', text: '#fff' },
+  bbc:          { bg: '#bb0000', text: '#fff' }, aljazeera:    { bg: '#1565c0', text: '#fff' },
+  cnn:          { bg: '#cc0000', text: '#fff' }, dw:           { bg: '#1b5e20', text: '#fff' },
+  guardian:     { bg: '#005689', text: '#fff' }, france24:     { bg: '#880e4f', text: '#fff' },
+  // Logistics
+  freightwaves: { bg: '#e65100', text: '#fff' }, gcaptain:     { bg: '#006064', text: '#fff' },
+  maritime:     { bg: '#01579b', text: '#fff' }, loadstar:     { bg: '#37474f', text: '#fff' },
+  splash247:    { bg: '#1565c0', text: '#fff' }, scdive:       { bg: '#0277bd', text: '#fff' },
+  // Security / gov
+  fbi:          { bg: '#b71c1c', text: '#fff' }, cisa:         { bg: '#1a237e', text: '#fff' },
+  ustravel:     { bg: '#1565c0', text: '#fff' }, ukfcdo:       { bg: '#003078', text: '#fff' },
+  reliefweb:    { bg: '#6a1b9a', text: '#fff' }, europol:      { bg: '#283593', text: '#fff' },
+  // Hazards
+  usgs:         { bg: '#6d4c41', text: '#fff' }, gdacs:        { bg: '#f57c00', text: '#fff' },
+  emsc:         { bg: '#d84315', text: '#fff' },
+  // Cyber
+  darkreading:  { bg: '#212121', text: '#fff' }, hackernews:   { bg: '#ff6d00', text: '#fff' },
+  cisacyber:    { bg: '#283593', text: '#fff' },
+};
+
+function _ensureLiveNewsModal() {
+  if (_ltmEl('live-news-modal')) return;
+  if (!_ltmEl('lnm-injected-styles')) {
+    const st = document.createElement('style');
+    st.id = 'lnm-injected-styles';
+    st.textContent = [
+      /* === Modal shell === */
+      '.lnm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6099;display:none;cursor:pointer}',
+      '.live-news-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:94vw;max-width:1360px;height:90vh;background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.live-news-modal.open{display:flex}',
+      /* === Top bar === */
+      '.lnm-topbar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
+      '.lnm-badge{background:#1a3a5c;color:#4fc3f7;font-size:.7rem;font-weight:800;border-radius:4px;padding:2px 9px;letter-spacing:1px;white-space:nowrap}',
+      /* Tab buttons */
+      '.lnm-tabs{display:flex;gap:3px;margin-left:6px}',
+      '.lnm-tab-btn{font-size:.72rem;font-weight:700;padding:4px 13px;border-radius:6px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s;white-space:nowrap}',
+      '.lnm-tab-btn.active{background:#1a3a5c;color:#4fc3f7;border-color:#4fc3f7}',
+      '.lnm-tab-btn:hover:not(.active){color:#e8eaed;border-color:#5f6368}',
+      /* Source filter pills */
+      '.lnm-src-pills{display:flex;gap:4px;flex-wrap:wrap}',
+      '.lnm-pill{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s}',
+      '.lnm-pill.active,.lnm-pill:hover{background:#243050;color:#e8eaed;border-color:#4fc3f7}',
+      '.lnm-ts{font-size:.68rem;color:#5f6368;margin-left:auto;white-space:nowrap}',
+      '.lnm-close{background:#5f2120;color:#f28b82;border:none;border-radius:6px;padding:5px 14px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}',
+      '.lnm-close:hover{background:#8b3a38}',
+      /* === Headlines panel === */
+      '.lnm-feed{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:5px}',
+      '.lnm-item{display:flex;gap:10px;padding:9px 10px;background:#202124;border-radius:6px;border-left:3px solid transparent;transition:background .15s}',
+      '.lnm-item:hover{background:#262a2e}',
+      '.lnm-src{flex-shrink:0;width:90px;display:flex;align-items:flex-start;padding-top:1px}',
+      '.lnm-src-badge{font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.3px;white-space:nowrap}',
+      '.lnm-body{flex:1;min-width:0}',
+      '.lnm-title a{color:#e8eaed;font-size:.82rem;font-weight:600;text-decoration:none;line-height:1.4}',
+      '.lnm-title a:hover{color:#8ab4f8}',
+      '.lnm-meta{font-size:.68rem;color:#5f6368;margin-top:2px}',
+      '.lnm-summary{font-size:.73rem;color:#9aa0a6;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
+      '.lnm-empty{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
+      '.lnm-loading{padding:40px;text-align:center;color:#5f6368;font-size:.85rem}',
+      /* === Live TV panel === */
+      '.lnm-tv-panel{flex:1;display:none;flex-direction:column;background:#000;overflow:hidden}',
+      '.lnm-tv-panel.visible{display:flex}',
+      '.lnm-ch-bar{display:flex;align-items:center;gap:6px;padding:7px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-wrap:wrap;flex-shrink:0}',
+      '.lnm-ch-label{font-size:.66rem;color:#5f6368;font-weight:700;letter-spacing:.5px;white-space:nowrap;margin-right:4px}',
+      '.lnm-ch-btn{font-size:.68rem;font-weight:700;padding:3px 12px;border-radius:10px;border:1px solid #3c4043;background:transparent;color:#9aa0a6;cursor:pointer;transition:all .15s;white-space:nowrap}',
+      '.lnm-ch-btn.active{background:#1a3a5c;color:#4fc3f7;border-color:#4fc3f7}',
+      '.lnm-ch-btn:hover:not(.active){color:#e8eaed;border-color:#5f6368}',
+      '.lnm-tv-frame{flex:1;border:none;width:100%;display:block;background:#000;min-height:0}',
+      '.lnm-tv-video{flex:1;width:100%;display:none;background:#000;min-height:0;outline:none}',
+      '.lnm-tv-notice{text-align:center;padding:7px 14px;font-size:.66rem;color:#5f6368;background:#0d1117;flex-shrink:0;border-top:1px solid #1a1d21;display:flex;align-items:center;justify-content:center;gap:8px}',
+      '.lnm-stream-badge{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px}',
+      /* === Footer === */
+      '.lnm-footer{padding:6px 14px;background:#0d1117;font-size:.68rem;color:#5f6368;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;border-top:1px solid #2a2d31}',
+      '.lnm-refresh-btn{background:#1a3a5c;color:#4fc3f7;border:none;border-radius:4px;padding:3px 10px;font-size:.7rem;font-weight:700;cursor:pointer}',
+      '.lnm-refresh-btn:hover{background:#243050}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+
+  const ov = document.createElement('div');
+  ov.id = 'lnm-overlay';
+  ov.className = 'lnm-overlay';
+  ov.addEventListener('click', closeLiveNewsModal);
+  document.body.appendChild(ov);
+
+  // Build channel selector buttons
+  const chButtons = LNM_TV_CHANNELS.map((ch, i) =>
+    `<button class="lnm-ch-btn${i === 0 ? ' active' : ''}" data-action="lnm-channel" data-ch="${ch.key}">${ch.label}</button>`
+  ).join('');
+
+  const mo = document.createElement('div');
+  mo.id = 'live-news-modal';
+  mo.className = 'live-news-modal';
+  mo.setAttribute('role', 'dialog');
+  mo.setAttribute('aria-modal', 'true');
+  mo.innerHTML =
+    /* ── Top bar ── */
+    '<div class="lnm-topbar">' +
+      '<span class="lnm-badge">&#128225; GLOBAL INTELLIGENCE FEED</span>' +
+      /* Tab switcher */
+      '<div class="lnm-tabs">' +
+        '<button class="lnm-tab-btn active" data-action="lnm-tab" data-tab="headlines">&#128240; Headlines</button>' +
+        '<button class="lnm-tab-btn" data-action="lnm-tab" data-tab="tv">&#128250; Live TV</button>' +
+      '</div>' +
+      /* Category filter pills — hidden when TV tab active */
+      '<div class="lnm-src-pills" id="lnm-src-pills">' +
+        '<button class="lnm-pill active" data-action="lnm-filter" data-src="all">All (26)</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="news">📰 News</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="logistics">🚢 Logistics</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="security">🛡 Security</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="hazards">⚠ Hazards</button>' +
+        '<button class="lnm-pill" data-action="lnm-filter" data-src="cyber">💻 Cyber</button>' +
+      '</div>' +
+      '<span class="lnm-ts" id="lnm-ts">Loading&hellip;</span>' +
+      '<button class="lnm-close" data-action="close-live-news" aria-label="Close">&#x2715; Close</button>' +
+    '</div>' +
+    /* ── Headlines panel ── */
+    '<div class="lnm-feed" id="lnm-feed"><div class="lnm-loading">Fetching global intelligence feed&hellip;</div></div>' +
+    /* ── Live TV panel ── */
+    '<div class="lnm-tv-panel" id="lnm-tv-panel">' +
+      '<div class="lnm-ch-bar"><span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>' + chButtons + '</div>' +
+      '<video class="lnm-tv-video" id="lnm-tv-video" autoplay muted playsinline controls></video>' +
+      '<iframe class="lnm-tv-frame" id="lnm-tv-frame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>' +
+      '<div class="lnm-tv-notice">Select a channel above &middot; <span id="lnm-stream-badge" class="lnm-stream-badge" style="background:#1a3a5c;color:#4fc3f7">&#128225; Ready</span> &middot; Direct stream where available, YouTube fallback otherwise</div>' +
+    '</div>' +
+    /* ── Footer ── */
+    '<div class="lnm-footer" id="lnm-footer">' +
+      '<span>&#128240; 26 sources &middot; 📰 News &middot; 🚢 Logistics &middot; 🛡 Security &middot; ⚠ Hazards (geo-filtered) &middot; 💻 Cyber</span>' +
+      '<button class="lnm-refresh-btn" data-action="lnm-refresh-now">&#8635; Refresh Headlines</button>' +
+    '</div>';
+  document.body.appendChild(mo);
+}
+
+/* Switch between Headlines and Live TV tabs */
+function _lnmSwitchTab(tab) {
+  _lnmActiveTab = tab;
+  const mo = _ltmEl('live-news-modal');
+  if (!mo) return;
+  // Tab button highlight
+  mo.querySelectorAll('.lnm-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  // Show/hide source pills (headlines only)
+  const pills = _ltmEl('lnm-src-pills');
+  if (pills) pills.style.display = (tab === 'headlines') ? 'flex' : 'none';
+  // Show/hide panels
+  const headlinesPanel = _ltmEl('lnm-feed');
+  const tvPanel        = _ltmEl('lnm-tv-panel');
+  const footer         = _ltmEl('lnm-footer');
+  if (headlinesPanel) headlinesPanel.style.display = (tab === 'headlines') ? '' : 'none';
+  if (footer)         footer.style.display         = (tab === 'headlines') ? '' : 'none';
+  if (tvPanel) {
+    if (tab === 'tv') {
+      tvPanel.classList.add('visible');
+      // Auto-load default channel on first open (neither HLS nor iframe loaded yet)
+      const frame = _ltmEl('lnm-tv-frame');
+      const video = _ltmEl('lnm-tv-video');
+      if (!_lnmHls && frame && !frame.src && (!video || !video.src)) _lnmSwitchChannel(_lnmActiveChannel);
+    } else {
+      tvPanel.classList.remove('visible');
+    }
+  }
+}
+
+/* Load a live TV channel — HLS direct stream preferred; YouTube iframe as fallback */
+function _lnmSwitchChannel(key) {
+  _lnmActiveChannel = key;
+  const ch = LNM_TV_CHANNELS.find(c => c.key === key);
+  if (!ch) return;
+
+  // Update channel button highlight
+  const tvPanel = _ltmEl('lnm-tv-panel');
+  if (tvPanel) tvPanel.querySelectorAll('.lnm-ch-btn').forEach(b => b.classList.toggle('active', b.dataset.ch === key));
+
+  // Destroy any running HLS instance before switching
+  if (_lnmHls) { try { _lnmHls.destroy(); } catch (_) {} _lnmHls = null; }
+
+  const video = _ltmEl('lnm-tv-video');
+  const frame = _ltmEl('lnm-tv-frame');
+  const badge = _ltmEl('lnm-stream-badge');
+
+  /* Helper: fall back to YouTube iframe */
+  function _useYouTube() {
+    if (video) { video.style.display = 'none'; video.src = ''; }
+    if (frame) { frame.style.display = 'block'; frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`; }
+    if (badge) { badge.textContent = '\u25b6 YouTube'; badge.style.background = '#c00'; badge.style.color = '#fff'; }
+  }
+
+  if (ch.hlsUrl) {
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      // hls.js path (Chrome, Firefox, Edge)
+      if (frame) { frame.style.display = 'none'; frame.src = ''; }
+      if (video) { video.style.display = 'block'; }
+      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
+      _lnmHls = new Hls({ autoStartLoad: true, enableWorker: true, lowLatencyMode: true });
+      _lnmHls.loadSource(ch.hlsUrl);
+      _lnmHls.attachMedia(video);
+      _lnmHls.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(() => {}); });
+      _lnmHls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          try { _lnmHls.destroy(); } catch (_) {}
+          _lnmHls = null;
+          _useYouTube(); // fatal stream error → YouTube fallback
+        }
+      });
+    } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari native HLS
+      if (frame) { frame.style.display = 'none'; frame.src = ''; }
+      if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
+      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
+    } else {
+      _useYouTube(); // browser has no HLS support → YouTube fallback
+    }
+  } else {
+    _useYouTube(); // no hlsUrl defined → YouTube only
+  }
+}
+
+function _lnmTimeAgo(isoStr) {
+  try {
+    const d = Math.floor((Date.now() - new Date(isoStr).getTime()) / 60000);
+    if (isNaN(d) || d < 0) return '';
+    if (d < 60) return d + 'm ago';
+    if (d < 1440) return Math.floor(d / 60) + 'h ago';
+    return Math.floor(d / 1440) + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function _lnmRender() {
+  const feed = _ltmEl('lnm-feed');
+  if (!feed) return;
+  // Filter by category (matches source_category field from Worker) or exact source key
+  const visible = _lnmFilter === 'all'
+    ? _lnmItems
+    : _lnmItems.filter(it => (it.source_category || 'news') === _lnmFilter || it.source_key === _lnmFilter);
+  if (!visible.length) {
+    feed.innerHTML = `<div class="lnm-empty">No items from this source yet.</div>`;
+    return;
+  }
+  feed.innerHTML = visible.map(it => {
+    const sc = LNM_SOURCE_COLORS[it.source_key] || { bg: '#3c4043', text: '#e8eaed' };
+    const ta = _lnmTimeAgo(it.time);
+    const hasGeo = it.lat != null && it.lng != null;
+    const geoTag = hasGeo ? `<span style="color:#81d4fa;margin-left:6px;">📍 ${Number(it.lat).toFixed(1)}°, ${Number(it.lng).toFixed(1)}°</span>` : '';
+    const safeTitle   = escapeHtml(it.title   || '(no title)');
+    const safeSummary = escapeHtml(it.summary || '');
+    const safeLink    = escapeAttr(it.link && it.link !== '#' ? it.link : '#');
+    return `<div class="lnm-item" style="border-left-color:${sc.bg}">
+      <div class="lnm-src">
+        <span class="lnm-src-badge" style="background:${sc.bg};color:${sc.text};">${escapeHtml(it.source_label || it.source_key)}</span>
+      </div>
+      <div class="lnm-body">
+        <div class="lnm-title"><a href="${safeLink}" target="_blank" rel="noopener noreferrer">${safeTitle}</a></div>
+        <div class="lnm-meta">${ta}${geoTag}</div>
+        ${safeSummary ? `<div class="lnm-summary">${safeSummary}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function _lnmFetch() {
+  try {
+    const res  = await fetchWithTimeout(`${WORKER_URL}/api/live-news`, { headers: { 'X-User-Id': OSINFO_USER_ID } }, 15000);
+    const data = await res.json().catch(() => ({}));
+    if (data.ok && Array.isArray(data.items)) {
+      _lnmItems = data.items;
+      _lnmRender();
+      const ts = _ltmEl('lnm-ts');
+      if (ts) {
+        const cached = data._cached ? ' (cached)' : '';
+        ts.textContent = '🔄 Updated ' + new Date().toLocaleTimeString() + cached;
+      }
+    }
+  } catch(e) {
+    const feed = _ltmEl('lnm-feed');
+    if (feed && !_lnmItems.length) feed.innerHTML = `<div class="lnm-empty">Failed to load feed. Check connection.</div>`;
+  }
+}
+
+function openLiveNewsModal() {
+  _ensureLiveNewsModal();
+  const ov = _ltmEl('lnm-overlay');
+  const mo = _ltmEl('live-news-modal');
+  if (ov) ov.style.display = 'block';
+  if (mo) mo.classList.add('open');
+  // Always start on Headlines tab
+  _lnmSwitchTab('headlines');
+  // Reset source filter pills to 'all'
+  _lnmFilter = 'all';
+  if (mo) mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === 'all'));
+  // Fetch headlines immediately, then every 5 min
+  _lnmFetch();
+  if (_lnmTimer) clearInterval(_lnmTimer);
+  _lnmTimer = setInterval(_lnmFetch, 5 * 60 * 1000);
+}
+
+function closeLiveNewsModal() {
+  const ov = _ltmEl('lnm-overlay');
+  const mo = _ltmEl('live-news-modal');
+  if (ov) ov.style.display = 'none';
+  if (mo) mo.classList.remove('open');
+  // Stop HLS stream and release resources
+  if (_lnmHls) { try { _lnmHls.destroy(); } catch (_) {} _lnmHls = null; }
+  const video = _ltmEl('lnm-tv-video');
+  if (video) { video.pause(); video.src = ''; video.style.display = 'none'; }
+  // Stop YouTube iframe to prevent background audio
+  const frame = _ltmEl('lnm-tv-frame');
+  if (frame) frame.src = '';
+  if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }
+}
+
 async function removeFromWatchlist(id) {
+  const normId = id.toLowerCase();
+  // 1. Remove card from DOM immediately — no server wait
+  const card = document.getElementById('watch-card-' + normId);
+  if (card) card.remove();
+  // Show empty state if no cards remain
+  const container = document.getElementById('logistics-watchlist-list');
+  if (container && container.querySelectorAll('.drawer-watch-card').length === 0) {
+    container.innerHTML = '<div class="drawer-empty">No items in watchlist.</div>';
+  }
+  // 2. Update local cache — remove the item
+  WATCHLIST_CACHE = WATCHLIST_CACHE.filter(w => (typeof w === 'string' ? w : w.id) !== normId);
+  // 3. Persist via action:'set' — sends the COMPLETE desired list so Worker never reads stale KV
+  //    This bypasses the KV read-modify-write race that caused deleted items to reappear
   try {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/logistics/watch`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-User-Id': OSINFO_USER_ID },
-      body: JSON.stringify({ action: 'remove', id: id.toLowerCase() }),
+      body: JSON.stringify({ action: 'set', watchlist: WATCHLIST_CACHE }),
     });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP ${res.status}`);
-    }
-    await loadLogisticsWatchlist();
+    const resData = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
   } catch (e) {
-    alert(`Failed to remove from watchlist: ${e.message}`);
+    console.error('[watchlist] remove server sync failed:', e);
   }
 }
 
@@ -2537,9 +3370,39 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-generate-brief') { adminGenerateBrief(); return; }
       if (action === 'admin-list-briefs') { adminListBriefs(); return; }
 
+      // S2.5 — Live News Modal actions
+      if (action === 'open-live-news')  { openLiveNewsModal(); return; }
+      if (action === 'close-live-news') { closeLiveNewsModal(); return; }
+      if (action === 'lnm-refresh-now') { _lnmFetch(); return; }
+      if (action === 'lnm-tab') { _lnmSwitchTab(t.dataset.tab || 'headlines'); return; }
+      if (action === 'lnm-channel') { _lnmSwitchChannel(t.dataset.ch || 'aljazeera'); return; }
+      if (action === 'lnm-filter') {
+        const src = (t.dataset.src || 'all');
+        _lnmFilter = src;
+        const mo = _ltmEl('live-news-modal');
+        if (mo) mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === src));
+        _lnmRender();
+        return;
+      }
+
       // S2.5 — Logistics Drawer actions
       if (action === 'open-logistics') { openLogisticsDrawer(); return; }
       if (action === 'close-logistics') { closeLogisticsDrawer(); return; }
+      if (action === 'close-live-track')    { closeLiveTrackModal(); return; }
+      if (action === 'close-vessel-track')  { closeVesselTrackModal(); return; }
+      if (action === 'open-vessel-track') {
+        const mmsi = (t.dataset.mmsi || '').trim();
+        if (mmsi) openVesselTrackModal(mmsi);
+        return;
+      }
+      if (action === 'open-live-track') {
+        const icao = (t.dataset.icao || '').toLowerCase();
+        const cs   = t.dataset.callsign || icao.toUpperCase();
+        // Read state from JS cache — no JSON-in-attribute risk
+        const st   = _ltmStateCache[icao] || null;
+        openLiveTrackModal(icao, cs, st);
+        return;
+      }
       if (action === 'logistics-tab') {
         const tab = t.dataset.tab;
         if (tab) {
@@ -2559,8 +3422,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const input = document.getElementById('watch-icao-input');
         if (input) {
           input.placeholder = type === 'vessel'
-            ? 'MMSI or vessel name (e.g. 123456789)'
-            : 'ICAO24 (e.g. a12bc3)';
+            ? '9-digit MMSI for live tracking (e.g. 566123456)'
+            : 'ICAO24 hex (e.g. a12bc3)';
         }
         return;
       }
@@ -2610,6 +3473,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (action === 'logistics-test-alert') { await sendTestAlert(); return; }
     });
+
+    // clicking live-track overlay closes modal
+    document.getElementById('live-track-overlay')?.addEventListener('click', closeLiveTrackModal);
 
     // clicking on feed-card opens link (except when clicking inner buttons/links)
     document.addEventListener('click', (e) => {
