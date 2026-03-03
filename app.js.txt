@@ -1147,7 +1147,7 @@ function _proxImpactBar(score) {
   const pct = Math.min(100, Math.max(0, Number(score)));
   const filled = Math.round(pct / 10);
   const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
-  const col = pct >= 70 ? '#d93025' : pct >= 40 ? '#f9ab00' : '#5f6368';
+  const col = pct >= 70 ? '#c5221f' : pct >= 40 ? '#e37400' : '#80868b';
   return `<span style="font-family:monospace;font-size:.68rem;color:${col};letter-spacing:1px;" title="Impact score ${Math.round(pct)}/100">${bar} ${Math.round(pct)}</span>`;
 }
 
@@ -1225,37 +1225,37 @@ function renderProximityAlerts(region) {
 
     const sourceLink = (i.link && i.link !== '#')
       ? `<a href="${escapeAttr(i.link)}" target="_blank" rel="noopener noreferrer"
-           style="font-size:.72rem;color:#8ab4f8;text-decoration:none;">View Source ↗</a>`
+           style="font-size:.72rem;color:#1a73e8;text-decoration:none;font-weight:600;">View Source ↗</a>`
       : '';
 
     return `
-      <div class="alert-row" style="border-left:3px solid ${sevColor};margin-bottom:6px;padding:9px 10px;background:#252830;border-radius:0 6px 6px 0;">
-        <!-- Row 1: Severity + Category + Score + Time -->
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
-          <span style="background:${sevBg};color:${sevColor};font-size:.65rem;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">${sevLabel}</span>
-          <span style="font-size:.65rem;color:#9aa0a6;font-weight:600;">${escapeHtml(catLabel)}</span>
-          ${impactBar ? `<span style="margin-left:4px;">${impactBar}</span>` : ''}
-          ${opImpact ? `<span style="font-size:.62rem;color:#ff8f00;font-weight:700;background:rgba(255,143,0,.1);padding:1px 5px;border-radius:3px;">⚙ OPS IMPACT</span>` : ''}
-          ${timeAgo ? `<span style="margin-left:auto;font-size:.66rem;color:#5f6368;">${escapeHtml(timeAgo)}</span>` : ''}
+      <div class="alert-row" style="border-left:4px solid ${sevColor};margin-bottom:8px;padding:10px 12px;background:#fff;border-top:1px solid #e8eaed;border-right:1px solid #e8eaed;border-bottom:1px solid #e8eaed;border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+        <!-- Row 1: Severity pill + Category + Impact bar + Time -->
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px;">
+          <span style="background:${sevBg};color:${sevColor};font-size:.62rem;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">${sevLabel}</span>
+          <span style="font-size:.62rem;color:#5f6368;font-weight:600;background:#f1f3f4;padding:1px 6px;border-radius:3px;">${escapeHtml(catLabel)}</span>
+          ${impactBar ? `<span style="margin-left:2px;">${impactBar}</span>` : ''}
+          ${opImpact ? `<span style="font-size:.6rem;color:#e65100;font-weight:700;background:rgba(230,81,0,.1);padding:1px 5px;border-radius:3px;border:1px solid rgba(230,81,0,.25);">⚙ OPS IMPACT</span>` : ''}
+          ${timeAgo ? `<span style="margin-left:auto;font-size:.65rem;color:#9aa0a6;">${escapeHtml(timeAgo)}</span>` : ''}
         </div>
         <!-- Row 2: Title -->
-        <div style="font-size:.82rem;font-weight:700;color:#e8eaed;line-height:1.4;margin-bottom:4px;">
+        <div style="font-size:.82rem;font-weight:700;color:#202124;line-height:1.4;margin-bottom:4px;">
           ${escapeHtml(i.title)}
         </div>
         <!-- Row 3: Site + distance -->
-        <div style="font-size:.72rem;color:#9aa0a6;margin-bottom:5px;">
-          📍 Dell <strong style="color:#c5c7ca;">${escapeHtml(a.nearest.name)}</strong>
+        <div style="font-size:.72rem;color:#5f6368;margin-bottom:5px;">
+          📍 Dell <strong style="color:#3c4043;">${escapeHtml(a.nearest.name)}</strong>
           <span style="color:${sevColor};font-weight:700;margin-left:4px;">${escapeHtml(distStr)}</span>
         </div>
         <!-- Row 4: Recommended action chip -->
-        <div style="display:inline-flex;align-items:center;gap:5px;background:${action.bg};border:1px solid ${action.color}33;border-radius:4px;padding:2px 8px;margin-bottom:6px;">
-          <span style="font-size:.7rem;color:${action.color};font-weight:700;">${escapeHtml(action.label)}</span>
+        <div style="display:inline-flex;align-items:center;gap:4px;background:${action.bg};border:1px solid ${action.color}44;border-radius:4px;padding:2px 9px;margin-bottom:6px;">
+          <span style="font-size:.68rem;color:${action.color};font-weight:700;">${escapeHtml(action.label)}</span>
         </div>
         <!-- Row 5: Summary -->
-        <div style="font-size:.75rem;color:#9aa0a6;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:7px;">
+        <div style="font-size:.74rem;color:#5f6368;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:7px;">
           ${escapeHtml(i.summary)}
         </div>
-        <!-- Row 6: Actions -->
+        <!-- Row 6: Source link + Dismiss -->
         <div style="display:flex;align-items:center;justify-content:space-between;">
           ${sourceLink}
           <button type="button" class="btn-dismiss" data-action="dismiss-alert"
@@ -2897,16 +2897,16 @@ let _lnmItems       = [];        // latest items from Worker
 let _lnmActiveTab   = 'headlines'; // 'headlines' | 'tv'
 let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 
-// Live TV channel definitions — YouTube 24/7 live stream IDs
+// Live TV channel definitions — verified YouTube 24/7 live stream video IDs
 const LNM_TV_CHANNELS = [
-  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'V_Cgy-p_FCo' },
-  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'dp8PhLsUcFE' },
-  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: '9Auq9mYxFEE' },
-  { key: 'euronews',  label: 'Euronews',    color: '#283593', ytId: 'd5NkqPrCjgE' },
-  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'mGFSSuaXlgo' },
-  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'l7NeXFPOScc' },
-  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'w_Ma8oQLmSM'  },
-  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY'  },
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo' },
+  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I' },
+  { key: 'euronews',  label: 'Euronews',    color: '#283593', ytId: 'pykpO5kQJ98' },
+  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U' },
+  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU' },
+  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs' },
+  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY' },
 ];
 
 const LNM_SOURCE_COLORS = {
@@ -3060,7 +3060,7 @@ function _lnmSwitchChannel(key) {
   const ch = LNM_TV_CHANNELS.find(c => c.key === key);
   if (!ch) return;
   const frame = _ltmEl('lnm-tv-frame');
-  if (frame) frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&rel=0&modestbranding=1`;
+  if (frame) frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`;
   const tvPanel = _ltmEl('lnm-tv-panel');
   if (tvPanel) tvPanel.querySelectorAll('.lnm-ch-btn').forEach(b => b.classList.toggle('active', b.dataset.ch === key));
 }
