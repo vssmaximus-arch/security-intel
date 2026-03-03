@@ -2906,7 +2906,7 @@ const LNM_TV_CHANNELS = [
   { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
     hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },                            // Al Jazeera official CDN
   { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
-    hlsUrl: 'https://dwamdstream107.akamaized.net/hls/live/2017968/dwstream107/stream05/streamPlaylist.m3u8' }, // Akamai
+    hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8' }, // Akamai
   { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU',
     hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' }, // France24 official
   { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
