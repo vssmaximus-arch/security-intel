@@ -57,6 +57,62 @@
       --dell-blue: #0076CE;
       --bg-dark: #0f1115;
     }
+
+    /* ── DARK / LIGHT MODE TOGGLE ───────────────────────────────────────────── */
+    #btn-theme-toggle {
+      background: #2b2b2b; color: #e8eaed; border: none; border-radius: 8px;
+      padding: 8px 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: background 0.2s, color 0.2s;
+      line-height: 1; white-space: nowrap;
+    }
+    #btn-theme-toggle:hover { background: #3c3c3c; }
+    body.light-mode #btn-theme-toggle { background: #f1f3f4; color: #202124; }
+    body.light-mode #btn-theme-toggle:hover { background: #e2e4e7; }
+
+    /* Dark-mode overrides — app shell */
+    body.dark-mode { background-color: #0a0c10; }
+    body.dark-mode .app-container { background-color: #13151b !important; }
+    body.dark-mode .header-container { border-bottom-color: #2a2d35 !important; }
+    body.dark-mode .logo-text { color: #e8eaed !important; }
+    body.dark-mode .nav-pills-custom { background-color: #1e2029 !important; }
+    body.dark-mode .nav-item-custom { color: #9aa0a6 !important; }
+    body.dark-mode .nav-item-custom.active { background-color: #0076ce !important; color: #fff !important; }
+    /* Cards */
+    body.dark-mode .side-card { background: #1e2029 !important; border-color: #2a2d35 !important; box-shadow: none !important; }
+    body.dark-mode .card-label { color: #e8eaed !important; }
+    body.dark-mode .feed-card { background: #1e2029 !important; border-color: #2a2d35 !important; }
+    body.dark-mode .feed-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important; }
+    /* Text */
+    body.dark-mode .stream-label, body.dark-mode .incident-title,
+    body.dark-mode .prox-dell-label, body.dark-mode .alert-type { color: #e8eaed !important; }
+    body.dark-mode .incident-meta, body.dark-mode .alert-desc,
+    body.dark-mode .alert-site, body.dark-mode .sub-text { color: #9aa0a6 !important; }
+    body.dark-mode .card-section-title { color: #bdc1ca !important; }
+    /* Inputs */
+    body.dark-mode .history-input,
+    body.dark-mode .travel-select,
+    body.dark-mode .radius-select { background: #2a2d35 !important; border-color: #3a3d45 !important; color: #e8eaed !important; }
+    /* Alert rows */
+    body.dark-mode .alert-row { border-bottom-color: #2a2d35 !important; }
+    body.dark-mode .btn-dismiss { background: #2a2d35 !important; border-color: #3a3d45 !important; color: #9aa0a6 !important; }
+    body.dark-mode .btn-dismiss:hover { background: #3a3d45 !important; color: #e8eaed !important; }
+    /* Modals */
+    body.dark-mode .modal-content { background: #1e2029 !important; color: #e8eaed !important; border: 1px solid #2a2d35 !important; }
+    body.dark-mode .modal-header { border-bottom-color: #2a2d35 !important; }
+    body.dark-mode .modal-footer { border-top-color: #2a2d35 !important; }
+    body.dark-mode .modal-title { color: #e8eaed !important; }
+    body.dark-mode .form-control, body.dark-mode .form-select { background: #2a2d35 !important; border-color: #3a3d45 !important; color: #e8eaed !important; }
+    body.dark-mode .form-label { color: #9aa0a6 !important; }
+    body.dark-mode .btn-close { filter: invert(1); }
+    /* Proximity section */
+    body.dark-mode #proximity-alerts-container::-webkit-scrollbar-track { background: #1e2029 !important; }
+    body.dark-mode #proximity-alerts-container::-webkit-scrollbar-thumb { background: #3a3d45 !important; }
+    /* Stream items */
+    body.dark-mode .stream-section { color: #e8eaed; }
+    body.dark-mode .safe-box { background: #1a2a1a !important; border-color: #2a4a2a !important; }
+    body.dark-mode .safe-text { color: #81c995 !important; }
+    /* ─────────────────────────────────────────────────────────────────────── */
+
     body {
       background-color: var(--bg-dark);
       font-family: 'Inter', sans-serif;
@@ -395,6 +451,12 @@
         <button class="logistics-open-btn ms-2" data-action="open-gdelt-intel" aria-label="Open OSINT Intelligence Panel" tabindex="0"
           style="background:#1a1a3a;color:#9fa8da;">
           <i class="fas fa-shield-alt" aria-hidden="true"></i> OSINT Intel
+        </button>
+
+        <!-- Dark / Light mode toggle -->
+        <button id="btn-theme-toggle" class="ms-2" aria-label="Toggle dark/light mode" tabindex="0">
+          <i class="fas fa-moon" id="theme-icon" aria-hidden="true"></i>
+          <span id="theme-label">Dark</span>
         </button>
       </div>
     </div>

@@ -3504,6 +3504,34 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (aiLbl) aiLbl.textContent = AI_ENABLED ? 'AI: ON' : 'AI: OFF';
     })();
 
+    // ── Dark / Light mode toggle ─────────────────────────────────────────────
+    (() => {
+      const btn   = document.getElementById('btn-theme-toggle');
+      const icon  = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+      const PREF_KEY = 'infohub_theme';
+
+      function applyTheme(dark) {
+        document.body.classList.toggle('dark-mode', dark);
+        if (icon)  { icon.className  = dark ? 'fas fa-sun' : 'fas fa-moon'; }
+        if (label) { label.textContent = dark ? 'Light' : 'Dark'; }
+        if (btn)   { btn.setAttribute('aria-pressed', String(dark)); btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode'; }
+      }
+
+      // Restore saved preference (default = dark)
+      const saved = localStorage.getItem(PREF_KEY);
+      applyTheme(saved !== 'light');   // default dark unless user previously chose light
+
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const nowDark = !document.body.classList.contains('dark-mode');
+          applyTheme(nowDark);
+          try { localStorage.setItem(PREF_KEY, nowDark ? 'dark' : 'light'); } catch(e){}
+        });
+      }
+    })();
+    // ────────────────────────────────────────────────────────────────────────
+
     // delegated click actions
     document.addEventListener('click', async (ev) => {
       const t = ev.target.closest('[data-action]');

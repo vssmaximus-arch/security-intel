@@ -1463,6 +1463,20 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
 /* ===========================
    PARSERS (RSS/ATOM)
    =========================== */
+/* Decode common HTML entities so ReliefWeb/CNA RSS bodies render as plain text */
+function _decodeHtmlEntities(str) {
+  if (!str) return "";
+  return str
+    .replace(/&amp;/gi,  "&")
+    .replace(/&lt;/gi,   "<")
+    .replace(/&gt;/gi,   ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#(\d+);/g,    (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+
 function parseRssAtom(xml) {
   if (!xml || typeof xml !== "string") return [];
   const items = [];
@@ -1470,7 +1484,8 @@ function parseRssAtom(xml) {
   let m;
   while ((m = itemRegex.exec(xml)) !== null) {
     const blob = m[2];
-    const title = (blob.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [null, ""])[1] || "";
+    const rawTitle = (blob.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [null, ""])[1] || "";
+    const title = _decodeHtmlEntities(rawTitle.replace(/<[^>]+>/g," ")).replace(/\s+/g," ").trim();
     const link = (blob.match(/<link[^>]*href=["']([^"']+)["']/i) || blob.match(/<link>([^<]+)<\/link>/i) || [null, ""])[1] || "";
     const desc = (blob.match(/<(description|summary)[^>]*>([\s\S]*?)<\/\1>/i) || [null, ""])[2] || "";
     let latVal = null, lngVal = null;
@@ -1490,7 +1505,10 @@ function parseRssAtom(xml) {
         }
       }
     }
-    items.push({ title: title.replace(/\s+/g," ").trim(), link: link.trim(), summary: (desc||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim(), lat: latVal, lng: lngVal });
+    // Strip CDATA markers → decode HTML entities → strip residual HTML tags → collapse whitespace → truncate
+    const rawDesc = (desc||"").replace(/<!\[CDATA\[|\]\]>/gi,"");
+    const summary = _decodeHtmlEntities(rawDesc).replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,400);
+    items.push({ title, link: link.trim(), summary, lat: latVal, lng: lngVal });
   }
   return items;
 }
@@ -1524,7 +1542,34 @@ const ALLOWED_KEYWORDS = [
   // Supply-chain / facility physical disruption (not generic trade terms)
   "supply chain disruption","supply-chain disruption","plant closure","factory closure","facility closure",
   "port closure","shipping disruption","logistics disruption","warehouse fire","production halt",
-  "power outage","blackout","grid failure","water outage","network outage"
+  "power outage","blackout","grid failure","water outage","network outage",
+  // ── Supply chain.docx: ports & terminals ──────────────────────────────────
+  "port congestion","port strike","port workers strike","dockworkers strike","longshoremen strike",
+  "terminal closed","terminal shut","crane failure","berth damage","channel blocked",
+  // ── Supply chain.docx: maritime chokepoints & security ────────────────────
+  "Red Sea","Suez Canal","Panama Canal","Strait of Hormuz","Bab el-Mandeb",
+  "shipping lane","vessel hijacked","piracy","Houthi attack","missile strike on ship",
+  "naval blockade","seizure of vessel","ship seized",
+  // ── Supply chain.docx: trucking / rail / air ──────────────────────────────
+  "truckers strike","trucking strike","rail strike","rail shutdown","freight line closed",
+  "airspace closed","airspace restriction","no-fly zone","airport closed","cargo terminal",
+  "cargo theft","truck hijack","truck hijacking",
+  // ── Supply chain.docx: regulatory / trade ────────────────────────────────
+  "export ban","export controls","embargo","sanctions","customs strike","customs delays",
+  // ── SECURITY.docx: physical security additions ────────────────────────────
+  "stampede","crowd crush","crowd surge","shelling","artillery","airstrike","air strike",
+  "car bomb","ied","gunfire","gang violence","armed assault",
+  "factory fire","plant fire","industrial fire","warehouse fire",
+  // ── SECURITY.docx: site security / insider risk ───────────────────────────
+  "security breach","intrusion","trespass","unauthorised access","unauthorized access",
+  "insider threat","access control failure","cctv failure",
+  // ── SECURITY.docx: cyber — major only ────────────────────────────────────
+  "global outage","worldwide outage","mass outage","data leak","credential leak",
+  "zero-day","zero day","supply chain attack","software supply chain","ddos",
+  "denial of service","botnet","cloud outage",
+  // ── SECURITY.docx: major vendor / critical infrastructure entity hits ──────
+  "azure outage","aws outage","microsoft outage","google cloud outage","oracle outage",
+  "cloudflare outage","crowdstrike","okta breach","sap breach","salesforce outage"
 ];
 const INCIDENT_KEYWORDS_REGEX = new RegExp("\\b(" + ALLOWED_KEYWORDS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
 const BLACKLIST_TERMS = [
@@ -1547,7 +1592,19 @@ const BLACKLIST_TERMS = [
   "bill passed","foreign policy","diplomatic","diplomacy","ambassador","trade deal","trade agreement",
   "climate pledge","paris agreement","un resolution","immigration policy","healthcare reform","austerity","stimulus",
   // General opinion / commentary
-  "opinion","op-ed","op ed","column","editorial","columnist","billionaire profile","interview","analysis"
+  "opinion","op-ed","op ed","column","editorial","columnist","billionaire profile","interview","analysis",
+  // Humanitarian / development (non-security food/poverty reports — per SECURITY.docx noise rules)
+  "food security","food insecurity","food outlook","food crisis","food prices","food aid",
+  "hunger","famine","malnutrition","nutrition","school feeding","crop","harvest",
+  "agricultural","livelihoods","livelihood","poverty","welfare",
+  "water access","ipc phase","ipc classification","fews net",
+  // UN agency routine reports (not incident alerts)
+  "flash appeal","situation report","humanitarian response plan","humanitarian brief",
+  "country case study","nexus","development","aid workers","food ration",
+  // Marketing / content-marketing noise (per SECURITY.docx MARKETING_PATTERNS)
+  "webinar","whitepaper","white paper","ebook","sponsored","advertorial",
+  "best practices","ultimate guide","thought leadership",
+  "success story","product launch","available now","sign up","free trial","register now"
 ];
 const BLACKLIST_REGEX = new RegExp("\\b(" + BLACKLIST_TERMS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
 /* BUSINESS_IMPACT_TERMS — supply-chain / facility / infrastructure physical disruption only.
