@@ -3485,6 +3485,151 @@ async function sendTestAlert() {
 }
 
 /* ===========================
+   COUNTRY INSTABILITY INDEX (CII) — Phase 3
+   Fetches /api/cii, renders sidebar card with level/trend/bar
+=========================== */
+(function () {
+  'use strict';
+
+  let _ciiTab    = 'global';
+  let _ciiTimer  = null;
+  let _ciiData   = [];
+
+  /* Emoji flag from country name (best-effort via Unicode regional indicator) */
+  const COUNTRY_FLAGS = {
+    'ukraine':'🇺🇦','russia':'🇷🇺','china':'🇨🇳','united states':'🇺🇸',
+    'north korea':'🇰🇵','myanmar':'🇲🇲','iran':'🇮🇷','syria':'🇸🇾',
+    'afghanistan':'🇦🇫','yemen':'🇾🇪','somalia':'🇸🇴','mali':'🇲🇱',
+    'sudan':'🇸🇩','south sudan':'🇸🇸','nigeria':'🇳🇬','ethiopia':'🇪🇹',
+    'haiti':'🇭🇹','iraq':'🇮🇶','libya':'🇱🇾','venezuela':'🇻🇪',
+    'pakistan':'🇵🇰','israel':'🇮🇱','taiwan':'🇹🇼','lebanon':'🇱🇧',
+    'burkina faso':'🇧🇫','niger':'🇳🇪','chad':'🇹🇩',
+    'central african republic':'🇨🇫','mozambique':'🇲🇿',
+    'democratic republic of the congo':'🇨🇩','egypt':'🇪🇬',
+    'turkey':'🇹🇷','saudi arabia':'🇸🇦','india':'🇮🇳',
+    'brazil':'🇧🇷','mexico':'🇲🇽','south africa':'🇿🇦',
+    'indonesia':'🇮🇩','philippines':'🇵🇭','malaysia':'🇲🇾',
+    'thailand':'🇹🇭','bangladesh':'🇧🇩','colombia':'🇨🇴',
+    'singapore':'🇸🇬','germany':'🇩🇪','france':'🇫🇷',
+    'united kingdom':'🇬🇧','japan':'🇯🇵','australia':'🇦🇺',
+    'canada':'🇨🇦','netherlands':'🇳🇱','ireland':'🇮🇪',
+    'poland':'🇵🇱','hungary':'🇭🇺','czechia':'🇨🇿',
+    'south korea':'🇰🇷','morocco':'🇲🇦','algeria':'🇩🇿',
+    'kenya':'🇰🇪','ghana':'🇬🇭','georgia':'🇬🇪',
+    'armenia':'🇦🇲','azerbaijan':'🇦🇿','belarus':'🇧🇾',
+    'serbia':'🇷🇸','vietnam':'🇻🇳','cambodia':'🇰🇭',
+    'united arab emirates':'🇦🇪','qatar':'🇶🇦','jordan':'🇯🇴',
+  };
+
+  function _flag(country) {
+    return COUNTRY_FLAGS[String(country || '').toLowerCase()] || '🌐';
+  }
+
+  function _timeAgo(iso) {
+    if (!iso) return '';
+    const d = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (d < 2)   return 'just now';
+    if (d < 60)  return `${d}m ago`;
+    if (d < 1440)return `${Math.round(d/60)}h ago`;
+    return `${Math.round(d/1440)}d ago`;
+  }
+
+  function _render() {
+    const list = document.getElementById('cii-list');
+    if (!list) return;
+    if (!_ciiData.length) {
+      list.innerHTML = '<div class="cii-empty">No data for this view.</div>';
+      return;
+    }
+
+    list.innerHTML = _ciiData.map((item, i) => {
+      const flag     = _flag(item.country);
+      const capName  = String(item.country || '').replace(/\b\w/g, c => c.toUpperCase());
+      const barPct   = Math.min(100, item.score);
+      const compStr  = `U:${item.components?.unrest ?? '?'} C:${item.components?.conflict ?? '?'} S:${item.components?.security ?? '?'} I:${item.components?.info ?? '?'}`;
+
+      return `
+        <div class="cii-row ${item.levelCls || ''}" title="${capName} — ${item.level} (${item.score}/100)&#10;Components: ${compStr}&#10;Events (7d): ${item.eventCount}">
+          <span class="cii-rank">${i + 1}</span>
+          <span class="cii-flag">${flag}</span>
+          <span class="cii-name">${capName}</span>
+          <span class="cii-bar-wrap">
+            <div class="cii-bar-bg"><div class="cii-bar-fill" style="width:${barPct}%"></div></div>
+          </span>
+          <div class="cii-score-wrap">
+            <span class="cii-score">${item.score}</span>
+            <span class="cii-level-badge">${item.levelEmoji} ${item.level}</span>
+          </div>
+          <span class="cii-trend ${item.trendCls || ''}">${item.trendArrow}</span>
+        </div>`;
+    }).join('');
+  }
+
+  async function _fetch(tab) {
+    tab = tab || _ciiTab;
+    const list = document.getElementById('cii-list');
+    if (list) list.innerHTML = '<div class="cii-loading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>';
+
+    try {
+      const res  = await fetchWithTimeout(
+        `${WORKER_URL}/api/cii?tab=${encodeURIComponent(tab)}&limit=25`,
+        { headers: { 'X-User-Id': OSINFO_USER_ID } },
+        15000
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      _ciiData   = Array.isArray(data.items) ? data.items : [];
+      _render();
+
+      const upEl = document.getElementById('cii-updated');
+      if (upEl) upEl.textContent = `Updated ${_timeAgo(data.generatedAt)} · ${_ciiData.length} countries`;
+    } catch (e) {
+      _ciiData = [];
+      if (list) list.innerHTML = `<div class="cii-empty">Failed to load: ${e.message}</div>`;
+      console.warn('[CII] fetch error', e);
+    }
+  }
+
+  function _switchTab(tab) {
+    _ciiTab = tab;
+    document.querySelectorAll('.cii-tab').forEach(btn => {
+      const active = btn.dataset.ciiTab === tab;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', String(active));
+    });
+    _fetch(tab);
+  }
+
+  function _init() {
+    /* Tab clicks */
+    document.querySelectorAll('.cii-tab').forEach(btn => {
+      btn.addEventListener('click', () => _switchTab(btn.dataset.ciiTab || 'global'));
+    });
+
+    /* Refresh link */
+    const ref = document.getElementById('cii-refresh');
+    if (ref) {
+      ref.addEventListener('click', ev => {
+        ev.preventDefault();
+        _fetch(_ciiTab);
+      });
+    }
+
+    /* Initial fetch */
+    _fetch('global');
+
+    /* Auto-refresh every 10 minutes */
+    if (_ciiTimer) clearInterval(_ciiTimer);
+    _ciiTimer = setInterval(() => _fetch(_ciiTab), 10 * 60 * 1000);
+  }
+
+  /* Expose for external use */
+  window._ciiInit   = _init;
+  window._ciiFetch  = _fetch;
+  window._ciiSwitch = _switchTab;
+})();
+
+/* ===========================
    BOOTSTRAP / EVENT BINDING
 =========================== */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -3797,6 +3942,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Real-time bridge: SSE (EventSource) with polling fallback
     connectSSE();
+
+    // Phase 3: Country Instability Index sidebar card
+    try { if (typeof window._ciiInit === 'function') window._ciiInit(); } catch(e) { console.warn('[CII] init error', e); }
 
     // S2.5: start 60-second logistics autopoll (updates map markers for watched assets)
     startLogisticsPoll();
