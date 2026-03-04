@@ -567,6 +567,238 @@ const COUNTRY_COORDS = {
   "zimbabwe": { lat: -19.015438, lng: 29.154857 }
 };
 
+/* ===========================
+   COUNTRY INSTABILITY INDEX (CII) — Phase 3
+   WorldMonitor-inspired 0-100 composite score
+   40% static baseline + 60% event-driven (last 7 days)
+   Components: Unrest(25%) Conflict(30%) Security(20%) Information(25%)
+   =========================== */
+
+/* Static baseline instability scores (0–50) based on WorldMonitor model */
+const CII_BASELINES = {
+  "ukraine":              50, "syria":               50, "north korea":        45,
+  "russia":               38, "myanmar":             42, "afghanistan":        48,
+  "yemen":                48, "somalia":             46, "mali":               42,
+  "sudan":                44, "south sudan":         45, "democratic republic of the congo": 43,
+  "nigeria":              36, "ethiopia":            38, "haiti":              40,
+  "iran":                 38, "iraq":                36, "libya":              40,
+  "mozambique":           34, "burkina faso":        40, "niger":              38,
+  "central african republic": 44, "chad":             38, "venezuela":         36,
+  "pakistan":             32, "egypt":               28, "turkey":             24,
+  "israel":               34, "lebanon":             36, "myanmar":            42,
+  "china":                18, "india":               16, "brazil":             14,
+  "mexico":               20, "colombia":            18, "indonesia":          10,
+  "malaysia":             8,  "thailand":            14, "philippines":        16,
+  "bangladesh":           14, "singapore":           3,  "united states":      8,
+  "united kingdom":       5,  "germany":             5,  "france":             8,
+  "japan":                3,  "australia":           3,  "canada":             5,
+  "netherlands":          5,  "ireland":             4,  "czechia":            5,
+  "poland":               10, "hungary":             12, "slovakia":           6,
+  "taiwan":               20, "south korea":         14, "morocco":            16,
+  "saudi arabia":         20, "united arab emirates":12, "qatar":              10,
+  "jordan":               18, "kenya":               18, "ghana":              10,
+  "south africa":         18, "algeria":             20, "tunisia":            18,
+  "cambodia":             14, "laos":                12, "vietnam":            10,
+  "sri lanka":            18, "nepal":               14, "georgia":            18,
+  "armenia":              22, "azerbaijan":          22, "kyrgyzstan":         20,
+  "tajikistan":           24, "uzbekistan":          16, "kazakhstan":         16,
+};
+
+/* Event-score multipliers for reporting-bias correction (WorldMonitor model) */
+const CII_MULTIPLIERS = {
+  "north korea": 3.0, "china": 2.5, "russia": 1.8, "iran": 2.0,
+  "eritrea":     2.5, "turkmenistan": 2.5, "belarus": 2.0,
+  "united states": 0.4, "united kingdom": 0.5, "germany": 0.5,
+  "australia":   0.5, "canada": 0.5, "france": 0.5, "japan": 0.5,
+  "singapore":   0.6, "netherlands": 0.5,
+};
+
+/* Countries with Dell manufacturing/major sites — shown in "Dell Sites" tab */
+const CII_DELL_COUNTRIES = new Set([
+  "united states", "china", "india", "malaysia", "ireland", "czechia",
+  "brazil", "mexico", "singapore", "taiwan", "japan", "germany",
+  "united kingdom", "poland", "hungary", "south korea", "thailand",
+  "australia", "canada", "netherlands",
+]);
+
+/* Watchlist — elevated-attention countries */
+const CII_WATCHLIST = new Set([
+  "china", "russia", "iran", "north korea", "ukraine", "myanmar",
+  "pakistan", "nigeria", "ethiopia", "venezuela", "taiwan", "israel",
+  "saudi arabia", "turkey", "egypt", "belarus", "syria", "yemen",
+]);
+
+/* CII level label from score */
+function _ciiLevel(score) {
+  if (score >= 81) return { label: "CRITICAL", emoji: "🔴", cls: "cii-critical" };
+  if (score >= 66) return { label: "HIGH",     emoji: "🟠", cls: "cii-high"     };
+  if (score >= 51) return { label: "ELEVATED", emoji: "🟡", cls: "cii-elevated" };
+  if (score >= 31) return { label: "NORMAL",   emoji: "🟢", cls: "cii-normal"   };
+  return              { label: "LOW",      emoji: "⚪", cls: "cii-low"      };
+}
+
+/* CII trend label from delta */
+function _ciiTrend(delta) {
+  if (delta >= 5)  return { label: "Rising",  arrow: "↑", cls: "cii-rising"  };
+  if (delta <= -5) return { label: "Falling", arrow: "↓", cls: "cii-falling" };
+  return                   { label: "Stable",  arrow: "→", cls: "cii-stable"  };
+}
+
+/* Map incident AI category → CII component weights */
+const CII_CAT_WEIGHTS = {
+  "CONFLICT":          { unrest: 0,   conflict: 1.0, security: 0.3, info: 0 },
+  "PHYSICAL_SECURITY": { unrest: 0.2, conflict: 0.3, security: 1.0, info: 0 },
+  "SECURITY":          { unrest: 0.2, conflict: 0.2, security: 0.8, info: 0 },
+  "PROTEST":           { unrest: 1.0, conflict: 0.2, security: 0.1, info: 0 },
+  "CIVIL_UNREST":      { unrest: 1.0, conflict: 0.3, security: 0.1, info: 0 },
+  "CYBER":             { unrest: 0,   conflict: 0.1, security: 0.4, info: 1.0 },
+  "NATURAL":           { unrest: 0,   conflict: 0,   security: 0.2, info: 0.1 },
+  "SUPPLY_CHAIN":      { unrest: 0.1, conflict: 0.1, security: 0.2, info: 0.3 },
+  "TRANSPORT":         { unrest: 0.1, conflict: 0.1, security: 0.2, info: 0.2 },
+  "ENVIRONMENT":       { unrest: 0.1, conflict: 0,   security: 0.1, info: 0.1 },
+  "DISRUPTION":        { unrest: 0.2, conflict: 0.1, security: 0.2, info: 0.2 },
+};
+const CII_CAT_DEFAULT = { unrest: 0.2, conflict: 0.1, security: 0.1, info: 0.1 };
+
+async function handleApiCII(env, req) {
+  try {
+    const url   = new URL(req.url);
+    const tab   = url.searchParams.get('tab') || 'global';   // global|dell|watchlist
+    const limit = Math.min(Number(url.searchParams.get('limit') || 25), 50);
+
+    /* Load KV incidents — last 7 days */
+    const raw       = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const incidents = Array.isArray(raw) ? raw : [];
+    const cutoff    = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recent    = incidents.filter(inc => {
+      const t = inc.time ? new Date(inc.time).getTime() : 0;
+      return t > cutoff && inc.country;
+    });
+
+    /* Aggregate component scores per country */
+    const agg = {}; // countryName → { unrest, conflict, security, info, count }
+    for (const inc of recent) {
+      const c = String(inc.country || '').toLowerCase().trim();
+      if (!c || c === 'global' || c === 'unknown') continue;
+      if (!agg[c]) agg[c] = { unrest: 0, conflict: 0, security: 0, info: 0, count: 0 };
+      const wt  = CII_CAT_WEIGHTS[String(inc.category || '').toUpperCase()] || CII_CAT_DEFAULT;
+      const sev = Math.max(1, Math.min(5, Number(inc.severity) || 3));
+      const mag = sev / 3; // normalise 1-5 → 0.33-1.67
+      agg[c].unrest   += wt.unrest   * mag;
+      agg[c].conflict += wt.conflict * mag;
+      agg[c].security += wt.security * mag;
+      agg[c].info     += wt.info     * mag;
+      agg[c].count    += 1;
+    }
+
+    /* Build per-country CII scores */
+    const scores = [];
+    const allCountries = new Set([
+      ...Object.keys(CII_BASELINES),
+      ...Object.keys(agg),
+    ]);
+
+    for (const country of allCountries) {
+      const baseline   = CII_BASELINES[country] ?? 10;
+      const multiplier = CII_MULTIPLIERS[country] ?? 1.0;
+      const counts     = agg[country] || { unrest: 0, conflict: 0, security: 0, info: 0, count: 0 };
+      const eventCount = counts.count || 0;
+
+      /* Normalise component event scores to 0-100 scale (cap at 20 events = full score) */
+      const scale = Math.min(eventCount, 20) / 20;
+      const norm  = (v) => Math.min(100, (v / Math.max(eventCount, 1)) * multiplier * scale * 100);
+
+      const compUnrest   = norm(counts.unrest);
+      const compConflict = norm(counts.conflict);
+      const compSecurity = norm(counts.security);
+      const compInfo     = norm(counts.info);
+
+      /* Weighted event score: Unrest(25%) Conflict(30%) Security(20%) Info(25%) */
+      const eventScore = (
+        compUnrest   * 0.25 +
+        compConflict * 0.30 +
+        compSecurity * 0.20 +
+        compInfo     * 0.25
+      );
+
+      /* Final CII: 40% baseline, 60% event-driven */
+      const score = Math.round(Math.min(100, (baseline * 0.40) + (eventScore * 0.60)));
+
+      /* Pseudo-trend: compare last 3 days vs prior 4 days */
+      const cut3  = Date.now() - 3 * 24 * 60 * 60 * 1000;
+      const recentEvents = recent.filter(inc => {
+        const t = inc.time ? new Date(inc.time).getTime() : 0;
+        const c = String(inc.country || '').toLowerCase().trim();
+        return c === country && t > cut3;
+      }).length;
+      const olderEvents = eventCount - recentEvents;
+      const recentRate  = recentEvents / 3;
+      const olderRate   = olderEvents  / 4;
+      const delta       = Math.round((recentRate - olderRate) * 5); // scale to ±score units
+
+      const level = _ciiLevel(score);
+      const trend = _ciiTrend(delta);
+      const coord = COUNTRY_COORDS[country];
+
+      scores.push({
+        country,
+        score,
+        delta,
+        level:     level.label,
+        levelEmoji:level.emoji,
+        levelCls:  level.cls,
+        trend:     trend.label,
+        trendArrow:trend.arrow,
+        trendCls:  trend.cls,
+        components: {
+          unrest:   Math.round(compUnrest),
+          conflict: Math.round(compConflict),
+          security: Math.round(compSecurity),
+          info:     Math.round(compInfo),
+        },
+        eventCount,
+        lat:  coord ? coord.lat : null,
+        lng:  coord ? coord.lng : null,
+        isWatchlist: CII_WATCHLIST.has(country),
+        isDell:      CII_DELL_COUNTRIES.has(country),
+      });
+    }
+
+    /* Sort by score desc */
+    scores.sort((a, b) => b.score - a.score);
+
+    /* Filter by tab */
+    let filtered = scores;
+    if (tab === 'dell')      filtered = scores.filter(s => s.isDell);
+    if (tab === 'watchlist') filtered = scores.filter(s => s.isWatchlist);
+
+    const items = filtered.slice(0, limit);
+
+    return new Response(JSON.stringify({
+      ok: true,
+      tab,
+      items,
+      total:       scores.length,
+      incidentsIn: recent.length,
+      generatedAt: new Date().toISOString(),
+    }), {
+      status:  200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiCII error', e?.message || e);
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), items: [] }), {
+      status:  500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+/* ===========================
+   COUNTRY INSTABILITY INDEX — END
+   =========================== */
+
 /* Utility: extract country string from free text */
 function extractCountryFromText(text = "") {
   if (!text || typeof text !== "string") return null;
@@ -3380,6 +3612,8 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/traveladvisories')) {
       const r = await handleApiTravel(env, url.searchParams);
       return _responseFromResult(r);
+    } else if (p.startsWith('/api/cii')) {
+      return handleApiCII(env, req);
     } else if (p.startsWith('/api/live-news')) {
       return handleApiLiveNews(env, req);
     } else if (p.startsWith('/api/gdelt-proxy')) {

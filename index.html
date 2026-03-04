@@ -418,6 +418,85 @@
     .drawer-footer { padding: 10px 12px; border-top: 1px solid #3c4043; background: #292a2d; flex-shrink: 0; }
     .drawer-radar-result { background: #1a1b1e; border-radius: 4px; padding: 6px 8px; font-size: 0.7rem; color: #8ab4f8; margin-top: 4px; white-space: pre-wrap; word-break: break-all; }
     .drawer-empty { color: #5f6368; font-style: italic; font-size: 0.78rem; text-align: center; padding: 20px 0; }
+
+    /* ===== CII — Country Instability Index ===== */
+    #cii-card { padding-bottom: 10px; }
+    .cii-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+    .cii-tab {
+      flex: 1; padding: 4px 6px; font-size: 0.68rem; font-weight: 700;
+      border: 1px solid #3c4043; border-radius: 4px; background: #2d2e31;
+      color: #9aa0a6; cursor: pointer; letter-spacing: 0.02em; transition: all .15s;
+    }
+    .cii-tab.active, .cii-tab:focus {
+      background: #1a73e8; color: #fff; border-color: #1a73e8; outline: none;
+    }
+    .cii-tab:hover:not(.active) { background: #3c4043; color: #e8eaed; }
+    #cii-list { max-height: 320px; overflow-y: auto; margin-bottom: 6px; }
+    .cii-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 4px; border-bottom: 1px solid #2d2e31;
+      cursor: default; transition: background .12s;
+    }
+    .cii-row:hover { background: rgba(255,255,255,0.04); }
+    .cii-rank { font-size: 0.62rem; color: #5f6368; width: 16px; text-align: right; flex-shrink: 0; }
+    .cii-flag { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .cii-name { flex: 1; font-size: 0.72rem; color: #e8eaed; font-weight: 600;
+                text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cii-score-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
+    .cii-score { font-size: 0.78rem; font-weight: 800; line-height: 1; }
+    .cii-level-badge {
+      font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em;
+      padding: 1px 4px; border-radius: 2px;
+    }
+    .cii-trend { font-size: 0.78rem; font-weight: 700; width: 14px; text-align: center; flex-shrink: 0; }
+    .cii-bar-wrap { width: 48px; flex-shrink: 0; }
+    .cii-bar-bg { background: #3c4043; border-radius: 2px; height: 4px; overflow: hidden; }
+    .cii-bar-fill { height: 4px; border-radius: 2px; transition: width .4s ease; }
+    /* level colours */
+    .cii-critical .cii-score, .cii-critical .cii-trend { color: #f28b82; }
+    .cii-critical .cii-level-badge { background: #5c2321; color: #f28b82; }
+    .cii-critical .cii-bar-fill { background: #f28b82; }
+    .cii-high .cii-score, .cii-high .cii-trend { color: #ffb74d; }
+    .cii-high .cii-level-badge { background: #4a2800; color: #ffb74d; }
+    .cii-high .cii-bar-fill { background: #ffb74d; }
+    .cii-elevated .cii-score, .cii-elevated .cii-trend { color: #ffd54f; }
+    .cii-elevated .cii-level-badge { background: #3e3000; color: #ffd54f; }
+    .cii-elevated .cii-bar-fill { background: #ffd54f; }
+    .cii-normal .cii-score, .cii-normal .cii-trend { color: #81c995; }
+    .cii-normal .cii-level-badge { background: #1e4620; color: #81c995; }
+    .cii-normal .cii-bar-fill { background: #81c995; }
+    .cii-low .cii-score, .cii-low .cii-trend { color: #9aa0a6; }
+    .cii-low .cii-level-badge { background: #292a2d; color: #9aa0a6; }
+    .cii-low .cii-bar-fill { background: #5f6368; }
+    /* trend arrows */
+    .cii-rising  { color: #f28b82 !important; }
+    .cii-falling { color: #81c995 !important; }
+    .cii-stable  { color: #9aa0a6 !important; }
+    /* components tooltip row */
+    .cii-components { font-size: 0.6rem; color: #5f6368; padding: 2px 4px 4px 40px; }
+    .cii-comp-lbl { color: #9aa0a6; }
+    .cii-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 6px; border-top: 1px solid #2d2e31; margin-top: 4px;
+    }
+    .cii-meta { font-size: 0.62rem; color: #5f6368; }
+    .cii-refresh-link { font-size: 0.65rem; font-weight: 700; color: #1a73e8; text-decoration: none; }
+    .cii-refresh-link:hover { text-decoration: underline; }
+    .cii-legend { font-size: 0.6rem; color: #5f6368; margin-top: 5px; line-height: 1.6; }
+    .cii-legend-dot { font-size: 0.8rem; }
+    .cii-loading { color: #5f6368; font-size: 0.75rem; text-align: center; padding: 16px 0; }
+    .cii-empty   { color: #5f6368; font-size: 0.75rem; font-style: italic; text-align: center; padding: 16px 0; }
+    /* Light mode overrides */
+    body:not(.dark-mode) .cii-tab { background: #f1f3f4; color: #444; border-color: #dadce0; }
+    body:not(.dark-mode) .cii-tab.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    body:not(.dark-mode) .cii-tab:hover:not(.active) { background: #e8eaed; }
+    body:not(.dark-mode) .cii-row { border-bottom-color: #e8eaed; }
+    body:not(.dark-mode) .cii-row:hover { background: #f8f9fa; }
+    body:not(.dark-mode) .cii-name  { color: #202124; }
+    body:not(.dark-mode) .cii-bar-bg { background: #e8eaed; }
+    body:not(.dark-mode) .cii-footer { border-top-color: #e8eaed; }
+    body:not(.dark-mode) .cii-tabs  { /* light is fine */ }
+    /* ===== /CII ===== */
   </style>
 </head>
 
@@ -572,6 +651,42 @@
               <a href="#" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
             </div>
           </div>
+
+          <!-- CII CARD — Phase 3 -->
+          <div class="side-card" id="cii-card">
+            <div class="card-label" style="margin-bottom:8px;">
+              <i class="fas fa-globe-americas"></i> Country Instability Index
+            </div>
+
+            <!-- Tab pills -->
+            <div class="cii-tabs" role="tablist" aria-label="CII view tabs">
+              <button class="cii-tab active" data-cii-tab="global"    role="tab" aria-selected="true">Global</button>
+              <button class="cii-tab"         data-cii-tab="dell"     role="tab" aria-selected="false">Dell Sites</button>
+              <button class="cii-tab"         data-cii-tab="watchlist"role="tab" aria-selected="false">Watchlist</button>
+            </div>
+
+            <!-- List container -->
+            <div id="cii-list" aria-live="polite" aria-label="Country Instability Index list">
+              <div class="cii-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading instability data…
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="cii-footer">
+              <span id="cii-updated" class="cii-meta"></span>
+              <a href="#" id="cii-refresh" class="cii-refresh-link" role="button" tabindex="0">REFRESH</a>
+            </div>
+
+            <!-- Legend -->
+            <div class="cii-legend">
+              <span class="cii-legend-dot" style="color:#c62828;">●</span> Critical (81-100)&nbsp;
+              <span class="cii-legend-dot" style="color:#e65100;">●</span> High (66-80)&nbsp;
+              <span class="cii-legend-dot" style="color:#f9a825;">●</span> Elevated (51-65)
+            </div>
+          </div>
+          <!-- /CII CARD -->
+
         </div>
       </div>
     </div>
