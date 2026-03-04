@@ -2902,23 +2902,23 @@ let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 // Sources: iptv-org/iptv verified streams + official broadcaster CDNs (Akamai, getaj, france24, nhk, cgtn)
 let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
 const LNM_TV_CHANNELS = [
+  // ── YouTube fallback only — no public HLS available ──────────────────────────
+  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
   // ── Direct HLS — no ads (Akamai / official CDNs) ─────────────────────────────
-  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
-    hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },                            // Al Jazeera official CDN
   { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
-    hlsUrl: 'https://dwamdstream107.akamaized.net/hls/live/2017968/dwstream107/stream05/streamPlaylist.m3u8' }, // Akamai
+    hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8' }, // Akamai
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
+    hlsUrl: 'https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8' }, // Sky News UK official CDN 2026
   { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU',
     hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' }, // France24 official
-  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
-    hlsUrl: 'https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8' }, // Akamai — Sky AU (same news, global access)
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
+    hlsUrl: 'https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8' },                        // Al Jazeera CDN (alt subdomain)
   { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs',
-    hlsUrl: 'https://viamotionhsi.netplus.ch/live/eds/bbcworld/browser-HLS8/bbcworld.m3u8' }, // Netplus CH browser-HLS endpoint
+    hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // BBC Akamai WW
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
     hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
   { key: 'nhk',       label: 'NHK World',   color: '#c62828', ytId: 'mMTpFkLOGo4',
-    hlsUrl: 'https://master.nhkworld.jp/nhkworld-tv/playlist/live.m3u8' },                    // NHK official broadcaster CDN
-  // ── YouTube fallback only — no public HLS available ──────────────────────────
-  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
+    hlsUrl: 'https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index.m3u8' }, // NHK World 1080p — confirmed Akamai stream
 ];
 
 // Source badge colors — keyed by source_key from Worker
@@ -3102,11 +3102,14 @@ function _lnmSwitchChannel(key) {
   const frame = _ltmEl('lnm-tv-frame');
   const badge = _ltmEl('lnm-stream-badge');
 
-  /* Helper: fall back to YouTube iframe */
-  function _useYouTube() {
+  /* Helper: no direct stream — show clean error screen, NO YouTube fallback */
+  function _showNoStream() {
     if (video) { video.style.display = 'none'; video.src = ''; }
-    if (frame) { frame.style.display = 'block'; frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`; }
-    if (badge) { badge.textContent = '\u25b6 YouTube'; badge.style.background = '#c00'; badge.style.color = '#fff'; }
+    if (frame) {
+      frame.style.display = 'block'; frame.src = '';
+      frame.srcdoc = `<html><body style="margin:0;background:#090909;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#555;font-family:sans-serif;text-align:center;gap:10px"><div style="font-size:3em;opacity:.35">📡</div><div style="font-size:15px;color:#777;font-weight:600">${ch.label}</div><div style="font-size:12px;color:#555">Direct stream unavailable</div><div style="font-size:10px;color:#333;margin-top:6px">HLS connection failed &mdash; no YouTube fallback</div></body></html>`;
+    }
+    if (badge) { badge.textContent = '\u26a1 No Signal'; badge.style.background = '#1a1a1a'; badge.style.color = '#666'; }
   }
 
   if (ch.hlsUrl) {
@@ -3123,7 +3126,7 @@ function _lnmSwitchChannel(key) {
         if (data.fatal) {
           try { _lnmHls.destroy(); } catch (_) {}
           _lnmHls = null;
-          _useYouTube(); // fatal stream error → YouTube fallback
+          _showNoStream(); // fatal stream error → no signal (no YouTube)
         }
       });
     } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -3132,10 +3135,10 @@ function _lnmSwitchChannel(key) {
       if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
       if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
     } else {
-      _useYouTube(); // browser has no HLS support → YouTube fallback
+      _showNoStream(); // browser has no HLS support → no signal
     }
   } else {
-    _useYouTube(); // no hlsUrl defined → YouTube only
+    _showNoStream(); // no hlsUrl defined → no direct stream available
   }
 }
 
