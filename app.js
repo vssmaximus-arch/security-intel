@@ -3298,7 +3298,9 @@ async function _gimFetch(key) {
   if (cached && (Date.now() - cached.ts) < GIM_CACHE_TTL) return cached.articles;
   const tab = GIM_TABS.find(t => t.key === key);
   if (!tab) return [];
-  const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(tab.query)}&mode=artlist&maxrecords=20&format=json&timespan=1d&sort=datedesc`;
+  // Route through Worker proxy — api.gdeltproject.org is blocked on corporate network
+  // Worker fetches GDELT from Cloudflare edge (not subject to corporate proxy)
+  const url = `${WORKER_URL}/api/gdelt-proxy?query=${encodeURIComponent(tab.query)}&timespan=1d&maxrecords=20`;
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 12000);
