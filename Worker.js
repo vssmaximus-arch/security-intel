@@ -63,10 +63,30 @@ const NATURAL_HAZARD_SOURCES = new Set([
   "https://www.gdacs.org/xml/rss.xml"
 ]);
 
+// Expanded to 15 strategic sources from the 110-source trusted-feed list
+// (CLAUDE.md §Security: no new libs, only approved RSS URLs).
+// Ordered roughly by signal priority for Dell security ops.
 const ROTATING_SOURCES = [
-  "https://www.reuters.com/tools/rss",
-  "https://www.aljazeera.com/xml/rss/all.xml",
-  "https://www.bbc.co.uk/arabic/misc/rss.xml"
+  // ── Global Tier-1 News ─────────────────────────────────────────────────────
+  "https://feeds.reuters.com/reuters/worldNews",             // Reuters World (was /tools/rss)
+  "https://www.aljazeera.com/xml/rss/all.xml",              // Al Jazeera Global
+  "https://feeds.bbci.co.uk/news/world/rss.xml",            // BBC World English (was BBC Arabic)
+  "https://apnews.com/apf-news?format=xml",                  // AP News
+  "https://www.france24.com/en/rss",                         // France 24 World
+  "https://www.dw.com/en/top-stories/world/s-1429/rss",     // Deutsche Welle World
+  // ── Government / Employee Safety / Travel ──────────────────────────────────
+  "https://travel.state.gov/_res/rss/TAs.xml",              // US State Dept Travel Advisories
+  "https://www.gov.uk/foreign-travel-advice.rss",            // UK FCDO Travel Alerts
+  "https://www.cisa.gov/news.xml",                           // CISA Critical Infrastructure
+  // ── Supply Chain / Logistics ───────────────────────────────────────────────
+  "https://www.freightwaves.com/feed",                       // FreightWaves
+  "https://www.supplychaindive.com/feeds/news/",             // SupplyChainDive
+  "https://www.maritime-executive.com/rss",                  // Maritime Executive
+  // ── Regional Coverage Gaps ─────────────────────────────────────────────────
+  "https://www.channelnewsasia.com/api/v1/rss-outbound-feed", // CNA (APAC)
+  "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf", // AllAfrica
+  // ── Humanitarian / Crisis ──────────────────────────────────────────────────
+  "https://reliefweb.int/updates/rss.xml"                    // ReliefWeb Global
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
