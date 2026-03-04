@@ -42,7 +42,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <!-- hls.js: HLS live stream playback via MediaSource API (approved dep — no ads, direct broadcast) -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.20/hls.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <!-- Google Fonts: loaded via <link> to avoid CSP @import restriction -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -446,7 +446,7 @@
             <div class="history-input-group">
               <i class="far fa-calendar-alt calendar-icon"></i>
               <label for="history-picker" class="form-label visually-hidden">History Date</label>
-              <input type="date" class="history-input" id="history-picker" aria-label="Select history date" />
+              <input type="text" class="history-input" id="history-picker" placeholder="Select date…" aria-label="Select history date" readonly />
             </div>
             <div class="sub-text" id="history-status" aria-live="polite">Pick a date to load archived intelligence.</div>
           </div>

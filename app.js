@@ -2902,8 +2902,6 @@ let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 // Sources: iptv-org/iptv verified streams + official broadcaster CDNs (Akamai, getaj, france24, nhk, cgtn)
 let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
 const LNM_TV_CHANNELS = [
-  // ── YouTube fallback only — no public HLS available ──────────────────────────
-  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
   // ── Direct HLS — no ads (Akamai / official CDNs) ─────────────────────────────
   { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
     hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8' }, // Akamai
@@ -2917,8 +2915,6 @@ const LNM_TV_CHANNELS = [
     hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // BBC Akamai WW
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
     hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
-  { key: 'nhk',       label: 'NHK World',   color: '#c62828', ytId: 'mMTpFkLOGo4',
-    hlsUrl: 'https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index.m3u8' }, // NHK World 1080p — confirmed Akamai stream
 ];
 
 // Source badge colors — keyed by source_key from Worker
