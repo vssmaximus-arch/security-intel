@@ -799,6 +799,93 @@ async function handleApiCII(env, req) {
    COUNTRY INSTABILITY INDEX — END
    =========================== */
 
+/* ===========================
+   SIGNAL CONVERGENCE ALERTS — Phase 4
+   Fires when ≥3 independent sources report the same country within 24 h
+   Returns ranked list of converging situations
+   =========================== */
+const CONV_MIN_SOURCES  = 3;
+const CONV_HIGH_SOURCES = 6;
+const CONV_WINDOW_MS    = 24 * 60 * 60 * 1000;
+
+async function handleApiConvergence(env, _req) {
+  try {
+    const raw       = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const incidents = Array.isArray(raw) ? raw : [];
+    const cutoff    = Date.now() - CONV_WINDOW_MS;
+
+    const recent = incidents.filter(inc => {
+      const t = inc.time ? new Date(inc.time).getTime() : 0;
+      const c = String(inc.country || '').toLowerCase().trim();
+      return t > cutoff && c && c !== 'global' && c !== 'unknown' && inc.title;
+    });
+
+    /* Group by country */
+    const byCountry = {};
+    for (const inc of recent) {
+      const country = String(inc.country || '').toLowerCase().trim();
+      if (!byCountry[country]) byCountry[country] = { sources: new Set(), incidents: [], categories: new Set() };
+      const sm = _getSourceMeta(inc.source || '');
+      byCountry[country].sources.add(sm.key);
+      byCountry[country].incidents.push(inc);
+      if (inc.category) byCountry[country].categories.add(inc.category.toUpperCase());
+    }
+
+    const alerts = [];
+    for (const [country, data] of Object.entries(byCountry)) {
+      const sourceCount = data.sources.size;
+      if (sourceCount < CONV_MIN_SOURCES) continue;
+
+      const sorted = [...data.incidents].sort(
+        (a, b) => new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime()
+      );
+      const latest   = sorted[0];
+      const oldest   = sorted[sorted.length - 1];
+      const spanHrs  = Math.round(
+        (new Date(latest.time || 0).getTime() - new Date(oldest.time || 0).getTime()) / 360000
+      ) / 10;
+
+      const level = sourceCount >= CONV_HIGH_SOURCES ? 'HIGH' : 'ELEVATED';
+      const coord = COUNTRY_COORDS[country];
+
+      alerts.push({
+        country,
+        sourceCount,
+        sources:       Array.from(data.sources),
+        categories:    Array.from(data.categories),
+        incidentCount: data.incidents.length,
+        spanHrs,
+        level,
+        levelEmoji:    level === 'HIGH' ? '🔴' : '🟠',
+        latestTitle:   latest.title  || '',
+        latestTime:    latest.time   || '',
+        lat:           coord ? coord.lat : null,
+        lng:           coord ? coord.lng : null,
+      });
+    }
+
+    alerts.sort((a, b) => b.sourceCount - a.sourceCount);
+
+    return new Response(JSON.stringify({
+      ok: true, alerts, total: alerts.length,
+      generatedAt: new Date().toISOString(),
+    }), {
+      status:  200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiConvergence error', e?.message || e);
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), alerts: [] }), {
+      status:  500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+/* ===========================
+   SIGNAL CONVERGENCE ALERTS — END
+   =========================== */
+
 /* Utility: extract country string from free text */
 function extractCountryFromText(text = "") {
   if (!text || typeof text !== "string") return null;
@@ -3612,6 +3699,8 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/traveladvisories')) {
       const r = await handleApiTravel(env, url.searchParams);
       return _responseFromResult(r);
+    } else if (p.startsWith('/api/convergence')) {
+      return handleApiConvergence(env, req);
     } else if (p.startsWith('/api/cii')) {
       return handleApiCII(env, req);
     } else if (p.startsWith('/api/live-news')) {
