@@ -2902,23 +2902,23 @@ let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 // Sources: iptv-org/iptv verified streams + official broadcaster CDNs (Akamai, getaj, france24, nhk, cgtn)
 let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
 const LNM_TV_CHANNELS = [
+  // ── YouTube fallback only — no public HLS available ──────────────────────────
+  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
   // ── Direct HLS — no ads (Akamai / official CDNs) ─────────────────────────────
-  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
-    hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },                            // Al Jazeera official CDN
   { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
     hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8' }, // Akamai
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
+    hlsUrl: 'https://skynews-live.akamaized.net/hls/live/skynews/skynews/master.m3u8' },      // Sky News UK — Akamai (free, global)
   { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU',
     hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' }, // France24 official
-  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
-    hlsUrl: 'https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8' }, // Akamai — Sky AU (same news, global access)
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
+    hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },                            // Al Jazeera official CDN
   { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs',
-    hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // Netplus CH browser-HLS endpoint
+    hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // BBC Akamai WW
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
     hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
   { key: 'nhk',       label: 'NHK World',   color: '#c62828', ytId: 'mMTpFkLOGo4',
-    hlsUrl: 'https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8' },                    // NHK official broadcaster CDN
-  // ── YouTube fallback only — no public HLS available ──────────────────────────
-  { key: 'bloomberg', label: 'Bloomberg',   color: '#e53935', ytId: 'iEpJwprxDdk' },         // Bloomberg locks CDN behind login
+    hlsUrl: 'https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8' }, // NHK official broadcaster CDN
 ];
 
 // Source badge colors — keyed by source_key from Worker
