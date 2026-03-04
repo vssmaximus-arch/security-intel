@@ -63,6 +63,33 @@ const NATURAL_HAZARD_SOURCES = new Set([
   "https://www.gdacs.org/xml/rss.xml"
 ]);
 
+// SOURCE_META — maps feed URL fragment → { key, label, category }
+// category must match the lnm pill filters: 'news'|'logistics'|'security'|'hazards'|'cyber'
+const SOURCE_META = [
+  { match: 'reuters.com',              key: 'reuters',     label: 'Reuters',       category: 'news' },
+  { match: 'aljazeera.com',            key: 'aljazeera',   label: 'Al Jazeera',    category: 'news' },
+  { match: 'bbci.co.uk',               key: 'bbc',         label: 'BBC',           category: 'news' },
+  { match: 'apnews.com',               key: 'apnews',      label: 'AP News',       category: 'news' },
+  { match: 'france24.com',             key: 'france24',    label: 'France 24',     category: 'news' },
+  { match: 'dw.com',                   key: 'dw',          label: 'DW',            category: 'news' },
+  { match: 'channelnewsasia.com',       key: 'cna',         label: 'CNA',           category: 'news' },
+  { match: 'allafrica.com',            key: 'allafrica',   label: 'AllAfrica',     category: 'news' },
+  { match: 'reliefweb.int',            key: 'reliefweb',   label: 'ReliefWeb',     category: 'news' },
+  { match: 'freightwaves.com',         key: 'freightwaves', label: 'FreightWaves', category: 'logistics' },
+  { match: 'supplychaindive.com',      key: 'scdive',      label: 'SC Dive',       category: 'logistics' },
+  { match: 'maritime-executive.com',   key: 'maritime',    label: 'Maritime Exec', category: 'logistics' },
+  { match: 'travel.state.gov',         key: 'ustravel',    label: 'US Travel',     category: 'security' },
+  { match: 'gov.uk/foreign-travel',    key: 'ukfcdo',      label: 'UK FCDO',       category: 'security' },
+  { match: 'cisa.gov',                 key: 'cisa',        label: 'CISA',          category: 'cyber' },
+  { match: 'gdacs.org',                key: 'gdacs',       label: 'GDACS',         category: 'hazards' },
+  { match: 'usgs.gov',                 key: 'usgs',        label: 'USGS',          category: 'hazards' },
+];
+function _getSourceMeta(src) {
+  if (!src) return { key: 'other', label: 'Other', category: 'news' };
+  for (const m of SOURCE_META) { if (src.includes(m.match)) return m; }
+  return { key: 'other', label: new URL(src).hostname.replace(/^www\./,'').split('.')[0], category: 'news' };
+}
+
 // Expanded to 15 strategic sources from the 110-source trusted-feed list
 // (CLAUDE.md §Security: no new libs, only approved RSS URLs).
 // Ordered roughly by signal priority for Dell security ops.
@@ -3353,6 +3380,8 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/traveladvisories')) {
       const r = await handleApiTravel(env, url.searchParams);
       return _responseFromResult(r);
+    } else if (p.startsWith('/api/live-news')) {
+      return handleApiLiveNews(env, req);
     } else if (p.startsWith('/api/gdelt-proxy')) {
       return handleGdeltProxy(env, req);
     } else if (p.startsWith('/api/archive')) {
@@ -3377,6 +3406,65 @@ async function handleRequest(req, env, ctx) {
   } catch (e) {
     debug("handleRequest err", e?.message || e);
     return new Response("error", { status: 500, headers: CORS_HEADERS });
+  }
+}
+
+/* ===========================
+   /api/live-news — Global Intelligence Feed items for the LNM headlines panel
+   Reads ingested incidents from KV and maps them to the lnm item schema:
+   { title, summary, link, time, lat, lng, source_key, source_label, source_category }
+   source_category: 'news' | 'logistics' | 'security' | 'hazards' | 'cyber'
+   =========================== */
+async function handleApiLiveNews(env, _req) {
+  try {
+    const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const incidents = Array.isArray(raw) ? raw : [];
+
+    // Helper: derive source_category from AI category when source meta is 'news'
+    function _catFromIncident(inc, srcCategory) {
+      if (srcCategory !== 'news') return srcCategory; // trust source-level category first
+      const cat = String(inc.category || '').toUpperCase();
+      if (cat === 'CYBER') return 'cyber';
+      if (cat === 'SECURITY' || cat === 'PHYSICAL_SECURITY' || cat === 'CONFLICT') return 'security';
+      if (cat === 'SUPPLY_CHAIN' || cat === 'TRANSPORT' || cat === 'DISRUPTION') return 'logistics';
+      if (cat === 'NATURAL' || cat === 'ENVIRONMENT') return 'hazards';
+      return 'news';
+    }
+
+    const items = incidents
+      .filter(inc => inc && inc.title)
+      .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0))
+      .slice(0, 120)
+      .map(inc => {
+        const sm = _getSourceMeta(inc.source || '');
+        const sourceCategory = _catFromIncident(inc, sm.category);
+        return {
+          title:           String(inc.title || '').trim(),
+          summary:         String(inc.summary || '').slice(0, 300),
+          link:            inc.link || '#',
+          time:            inc.time || new Date().toISOString(),
+          lat:             (inc.lat && inc.lat !== 0) ? inc.lat : null,
+          lng:             (inc.lng && inc.lng !== 0) ? inc.lng : null,
+          source_key:      sm.key,
+          source_label:    sm.label,
+          source_category: sourceCategory,
+          category:        inc.category || 'UNKNOWN',
+          severity:        inc.severity || 3,
+          region:          inc.region || 'Global',
+          country:         inc.country || '',
+        };
+      });
+
+    return new Response(JSON.stringify({ ok: true, items, _cached: false, count: items.length }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiLiveNews error', e?.message || e);
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), items: [] }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
   }
 }
 
