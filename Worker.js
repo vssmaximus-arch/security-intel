@@ -585,7 +585,7 @@ const CII_BASELINES = {
   "mozambique":           34, "burkina faso":        40, "niger":              38,
   "central african republic": 44, "chad":             38, "venezuela":         36,
   "pakistan":             32, "egypt":               28, "turkey":             24,
-  "israel":               34, "lebanon":             36, "myanmar":            42,
+  "israel":               34, "lebanon":             36,
   "china":                18, "india":               16, "brazil":             14,
   "mexico":               20, "colombia":            18, "indonesia":          10,
   "malaysia":             8,  "thailand":            14, "philippines":        16,
@@ -3667,7 +3667,7 @@ async function handleApiLiveNews(env, _req) {
 
     const items = incidents
       .filter(inc => inc && inc.title)
-      .sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0))
+      .sort((a, b) => new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime())
       .slice(0, 120)
       .map(inc => {
         const sm = _getSourceMeta(inc.source || '');
