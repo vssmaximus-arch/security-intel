@@ -55,6 +55,14 @@ const DETERMINISTIC_SOURCES = [
   "https://www.gdacs.org/xml/rss.xml"
 ];
 
+// Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
+// Any event from these sources further than NATURAL_MAX_DIST_KM from every
+// Dell site is silently dropped — prevents global earthquake/flood noise.
+const NATURAL_HAZARD_SOURCES = new Set([
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
+  "https://www.gdacs.org/xml/rss.xml"
+]);
+
 const ROTATING_SOURCES = [
   "https://www.reuters.com/tools/rss",
   "https://www.aljazeera.com/xml/rss/all.xml",
@@ -2113,6 +2121,36 @@ async function runIngestion(env, options = {}, ctx = null) {
               incBase.distance_km = Math.round(n.dist);
             }
           }
+          // ── GDACS / USGS natural-hazard proximity gate (200 km) ──────────────
+          // Only events within NATURAL_MAX_DIST_KM of a Dell site reach the feed.
+          // Thumbs-up overrides: checked below, so gate runs only for neutral items.
+          if (NATURAL_HAZARD_SOURCES.has(src)) {
+            // Coords missing — attempt country-text fallback before gating
+            if (!_validCoords(incBase.lat, incBase.lng)) {
+              const ck = extractCountryFromText(combined);
+              if (ck && COUNTRY_COORDS[ck]) {
+                incBase.lat = COUNTRY_COORDS[ck].lat;
+                incBase.lng = COUNTRY_COORDS[ck].lng;
+                const nf = nearestDell(incBase.lat, incBase.lng);
+                if (nf) {
+                  incBase.nearest_site_name = nf.name;
+                  incBase.nearest_site_key = nf.name.toLowerCase();
+                  incBase.distance_km = Math.round(nf.dist);
+                }
+              }
+            }
+            // Gate: no valid coords or too far → drop
+            const thumbsEarly = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
+            if (thumbsEarly !== "up") {
+              if (!_validCoords(incBase.lat, incBase.lng) ||
+                  typeof incBase.distance_km !== 'number' ||
+                  incBase.distance_km > NATURAL_MAX_DIST_KM) {
+                debug("gdacs_prox_gate rejected", { title: incBase.title.slice(0, 100), distKm: incBase.distance_km });
+                continue;
+              }
+            }
+          }
+          // ─────────────────────────────────────────────────────────────────────
           const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
           if (thumbs === "down") { debug("skipping due to thumbs.down", incBase.id); continue; }
           if (thumbs === "up") { fresh.push(incBase); if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase); continue; }
