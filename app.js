@@ -2908,17 +2908,17 @@ const LNM_TV_CHANNELS = [
   { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
     hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8' }, // Akamai
   { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
-    hlsUrl: 'https://skynews-live.akamaized.net/hls/live/skynews/skynews/master.m3u8' },      // Sky News UK — Akamai (free, global)
+    hlsUrl: 'https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8' }, // Sky News UK official CDN 2026
   { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU',
     hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' }, // France24 official
   { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
-    hlsUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8' },                            // Al Jazeera official CDN
+    hlsUrl: 'https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8' },                        // Al Jazeera CDN (alt subdomain)
   { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs',
     hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // BBC Akamai WW
   { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
     hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
   { key: 'nhk',       label: 'NHK World',   color: '#c62828', ytId: 'mMTpFkLOGo4',
-    hlsUrl: 'https://nhkworld-tv.akamaized.net/hls/live/2115640/nhkworld-tv/index_1M.m3u8' }, // NHK official broadcaster CDN
+    hlsUrl: 'https://nhkwlive-ojp.akamaized.net/hls/live/2003459/nhkwlive-ojp-en/index.m3u8' }, // NHK World 1080p — confirmed Akamai stream
 ];
 
 // Source badge colors — keyed by source_key from Worker
@@ -3102,11 +3102,14 @@ function _lnmSwitchChannel(key) {
   const frame = _ltmEl('lnm-tv-frame');
   const badge = _ltmEl('lnm-stream-badge');
 
-  /* Helper: fall back to YouTube iframe */
-  function _useYouTube() {
+  /* Helper: no direct stream — show clean error screen, NO YouTube fallback */
+  function _showNoStream() {
     if (video) { video.style.display = 'none'; video.src = ''; }
-    if (frame) { frame.style.display = 'block'; frame.src = `https://www.youtube-nocookie.com/embed/${ch.ytId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`; }
-    if (badge) { badge.textContent = '\u25b6 YouTube'; badge.style.background = '#c00'; badge.style.color = '#fff'; }
+    if (frame) {
+      frame.style.display = 'block'; frame.src = '';
+      frame.srcdoc = `<html><body style="margin:0;background:#090909;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#555;font-family:sans-serif;text-align:center;gap:10px"><div style="font-size:3em;opacity:.35">📡</div><div style="font-size:15px;color:#777;font-weight:600">${ch.label}</div><div style="font-size:12px;color:#555">Direct stream unavailable</div><div style="font-size:10px;color:#333;margin-top:6px">HLS connection failed &mdash; no YouTube fallback</div></body></html>`;
+    }
+    if (badge) { badge.textContent = '\u26a1 No Signal'; badge.style.background = '#1a1a1a'; badge.style.color = '#666'; }
   }
 
   if (ch.hlsUrl) {
@@ -3123,7 +3126,7 @@ function _lnmSwitchChannel(key) {
         if (data.fatal) {
           try { _lnmHls.destroy(); } catch (_) {}
           _lnmHls = null;
-          _useYouTube(); // fatal stream error → YouTube fallback
+          _showNoStream(); // fatal stream error → no signal (no YouTube)
         }
       });
     } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -3132,10 +3135,10 @@ function _lnmSwitchChannel(key) {
       if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
       if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
     } else {
-      _useYouTube(); // browser has no HLS support → YouTube fallback
+      _showNoStream(); // browser has no HLS support → no signal
     }
   } else {
-    _useYouTube(); // no hlsUrl defined → YouTube only
+    _showNoStream(); // no hlsUrl defined → no direct stream available
   }
 }
 
