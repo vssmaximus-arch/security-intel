@@ -3430,16 +3430,38 @@ async function handleApiDailyBrief(env, req) {
       });
     }
 
-    /* --- GET /api/dailybrief?date=YYYY-MM-DD[&download=true] --- */
+    /* --- GET /api/dailybrief?date=YYYY-MM-DD[&region=...][&download=true] --- */
     const date     = url.searchParams.get('date');
+    const region   = url.searchParams.get('region') || '';
     const download = url.searchParams.get('download') === 'true';
     if (date) {
       const key   = `DAILY_BRIEF_${date}`;
       const brief = await kvGetJson(env, key, null);
       // Support both old shape (incidents) and new shape (items)
-      const incidents = (brief && Array.isArray(brief.items))     ? brief.items
-                      : (brief && Array.isArray(brief.incidents)) ? brief.incidents
-                      : [];
+      let incidents = (brief && Array.isArray(brief.items))     ? brief.items
+                    : (brief && Array.isArray(brief.incidents)) ? brief.incidents
+                    : [];
+      // Fall back to auto-archive when no pre-generated brief exists for this date
+      if (!incidents.length) {
+        const archiveItems = await kvGetJson(env, `${ARCHIVE_PREFIX}${date}`, []);
+        if (Array.isArray(archiveItems) && archiveItems.length) {
+          incidents = archiveItems;
+          typeof debug === 'function' && debug('dailybrief:archive_fallback', date, incidents.length);
+        }
+      }
+      // For today's date: if still empty, serve live incidents as "current day"
+      if (!incidents.length && typeof utcDateKey === 'function' && date === utcDateKey(new Date())) {
+        const live = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+        if (Array.isArray(live) && live.length) {
+          incidents = live;
+          typeof debug === 'function' && debug('dailybrief:live_fallback', date, incidents.length);
+        }
+      }
+      // Optional region filter (case-insensitive, partial match)
+      if (region) {
+        const rq = region.toLowerCase();
+        incidents = incidents.filter(i => i && typeof i.region === 'string' && i.region.toLowerCase().includes(rq));
+      }
       const body = JSON.stringify({ incidents });
       if (download) {
         return new Response(body, {
