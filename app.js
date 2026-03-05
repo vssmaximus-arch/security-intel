@@ -1788,33 +1788,132 @@ async function adminListBriefs() {
 /* ===========================
    REPORTS / HISTORY
 =========================== */
+
+/* Build SITREP HTML document from Worker sitrep object */
+function _buildSitrepHtml(s) {
+  function sevBadge(maxSev) {
+    if (maxSev >= 4) return `<span class="sitrep-sev-badge sitrep-sev-crit">CRITICAL</span>`;
+    if (maxSev === 3) return `<span class="sitrep-sev-badge sitrep-sev-high">HIGH</span>`;
+    if (maxSev === 2) return `<span class="sitrep-sev-badge sitrep-sev-med">MEDIUM</span>`;
+    return `<span class="sitrep-sev-badge sitrep-sev-low">LOW</span>`;
+  }
+  function outlookCls(esc) {
+    const u = String(esc).toUpperCase();
+    if (u.startsWith('HIGH'))          return 'sitrep-escalation-high';
+    if (u.startsWith('MODERATE-HIGH')) return 'sitrep-escalation-mod';
+    return 'sitrep-escalation-low';
+  }
+
+  const kt = (s.keyTakeaways || []).map(t => `
+    <div class="sitrep-country-block">
+      <div class="sitrep-country-header">
+        <span class="sitrep-country-name">${escapeHtml(t.location)}</span>
+        ${sevBadge(t.maxSev)}
+        <span style="font-size:0.68rem;color:#666;font-family:Arial,sans-serif;">(${t.count} incident${t.count !== 1 ? 's' : ''})</span>
+      </div>
+      ${(t.summary || []).map(b => `<div class="sitrep-bullet">${escapeHtml(b)}</div>`).join('')}
+    </div>`).join('');
+
+  const esc = (s.escalations || []).map(e => `
+    <div class="sitrep-domain-block">
+      <div class="sitrep-domain-title">${escapeHtml(e.domain)}</div>
+      ${(e.bullets || []).map(b => `<div class="sitrep-bullet">${escapeHtml(b)}</div>`).join('')}
+    </div>`).join('');
+
+  const dell = s.dellExposure || {};
+  const dellCountries = (dell.affectedCountries || []).join(', ') || 'None identified';
+  const dellSites     = (dell.siteNames || []).join(', ') || 'N/A';
+  const outlook       = s.outlook || {};
+  const priorities    = (outlook.priorities || [])
+    .map(p => `<span class="sitrep-priority-chip">${escapeHtml(p)}</span>`).join('');
+  const stats = s.stats || {};
+
+  return `<div class="sitrep-doc">
+    <div class="sitrep-doc-class-bar">UNCLASSIFIED // FOR OFFICIAL USE ONLY</div>
+    <div class="sitrep-doc-header">
+      <div class="sitrep-doc-title">${escapeHtml(s.title || 'Situation Report')}</div>
+      <div class="sitrep-doc-issueline">Issue ${escapeHtml(String(s.issue || 1))} &nbsp;|&nbsp; ${escapeHtml(s.date || '')} &nbsp;|&nbsp; ${escapeHtml(s.topRegion || 'Global')}</div>
+      <div class="sitrep-doc-orgline">${escapeHtml(s.org || '')}</div>
+    </div>
+    <div class="sitrep-doc-stats-bar">
+      <div class="sitrep-doc-stat">
+        <div class="sitrep-doc-stat-val">${stats.total || 0}</div>
+        <div class="sitrep-doc-stat-lbl">Total Incidents</div>
+      </div>
+      <div class="sitrep-doc-stat">
+        <div class="sitrep-doc-stat-val" style="color:#f28b82;">${stats.critical || 0}</div>
+        <div class="sitrep-doc-stat-lbl">Critical</div>
+      </div>
+      <div class="sitrep-doc-stat">
+        <div class="sitrep-doc-stat-val" style="color:#ffb74d;">${stats.high || 0}</div>
+        <div class="sitrep-doc-stat-lbl">High</div>
+      </div>
+      <div class="sitrep-doc-stat">
+        <div class="sitrep-doc-stat-val">${stats.countries || 0}</div>
+        <div class="sitrep-doc-stat-lbl">Countries</div>
+      </div>
+      <div class="sitrep-doc-stat">
+        <div class="sitrep-doc-stat-val">${stats.regions || 0}</div>
+        <div class="sitrep-doc-stat-lbl">Regions</div>
+      </div>
+    </div>
+    <div class="sitrep-doc-theme">${escapeHtml(s.theme || '')}</div>
+    <div class="sitrep-doc-body">
+      ${kt ? `<div class="sitrep-doc-section">
+        <div class="sitrep-doc-section-title">Key Takeaways</div>
+        ${kt}
+      </div>` : ''}
+      ${esc ? `<div class="sitrep-doc-section">
+        <div class="sitrep-doc-section-title">Recent Escalations</div>
+        ${esc}
+      </div>` : ''}
+      <div class="sitrep-doc-section">
+        <div class="sitrep-doc-section-title">Dell Personnel &amp; Assets</div>
+        <div class="sitrep-dell-box">
+          <div class="sitrep-dell-box-title">Dell Technologies Global Footprint — Affected Locations</div>
+          <div class="sitrep-dell-stat"><strong>Countries Affected:</strong> ${escapeHtml(dellCountries)}</div>
+          <div class="sitrep-dell-stat"><strong>Sites (${dell.sitesAffected || 0}):</strong> ${escapeHtml(dellSites)}</div>
+          <div class="sitrep-dell-stat" style="font-size:0.76rem;color:#555;margin-top:6px;">
+            Monitor travel advisories and ensure Business Continuity Plans are activated for all affected locations.
+          </div>
+        </div>
+      </div>
+      <div class="sitrep-doc-section">
+        <div class="sitrep-doc-section-title">Outlook</div>
+        <div class="sitrep-outlook-escalation ${outlookCls(outlook.escalation || '')}">
+          Escalation Probability: ${escapeHtml(outlook.escalation || '')}
+        </div>
+        <div class="sitrep-outlook-risk">${escapeHtml(outlook.risk || '')}</div>
+        ${priorities ? `<div style="margin-top:8px;font-family:Arial,sans-serif;font-size:0.72rem;font-weight:700;color:#555;margin-bottom:4px;">PRIORITY MONITORING</div>
+        <div class="sitrep-priorities-row">${priorities}</div>` : ''}
+      </div>
+    </div>
+    <div class="sitrep-doc-class-bar" style="margin-top:16px;">UNCLASSIFIED // FOR OFFICIAL USE ONLY</div>
+  </div>`;
+}
+
 async function previewBriefing() {
   const region = document.getElementById('reportRegion')?.value || 'Global';
-  const date = document.getElementById('reportDate')?.value || '';
-  const fb = document.getElementById('preview-feedback');
-  const cont = document.getElementById('briefing-preview');
-  if (fb) { fb.style.display = 'block'; fb.textContent = 'Generating preview…'; }
-  if (cont) cont.innerHTML = '';
+  const date   = document.getElementById('reportDate')?.value || '';
+  const fb     = document.getElementById('preview-feedback');
+  const cont   = document.getElementById('briefing-preview');
+  if (fb)   { fb.style.display = 'block'; fb.textContent = 'Generating SITREP…'; }
+  if (cont) { cont.innerHTML = ''; }
   let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
   if (date) url += `&date=${encodeURIComponent(date)}`;
   try {
-    const res = await fetchWithTimeout(url, {}, 20000);
+    const res    = await fetchWithTimeout(url, {}, 25000);
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    const incidents = json.incidents || [];
-    if (!incidents.length) {
-      cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
-    } else {
-      cont.innerHTML = incidents.slice(0,50).map(i => `
-        <div style="border-bottom:1px solid #eee; padding:8px 0;">
-          <div style="font-weight:700;font-size:0.95rem">${escapeHtml(i.title)}</div>
-          <div style="font-size:0.8rem;color:#666">${escapeHtml(i.country || '')} • ${escapeHtml(safeTime(i.time))}</div>
-          <div style="font-size:0.85rem;color:#333;margin-top:4px;">${escapeHtml(i.summary || '')}</div>
-        </div>
-      `).join('');
-    }
+    const json   = await res.json();
+    const sitrep = json.sitrep;
     const pdfBtn = document.getElementById('download-brief-pdf');
-    if (pdfBtn) pdfBtn.style.display = incidents.length ? 'block' : 'none';
+    if (!sitrep || !json.incidents || !json.incidents.length) {
+      if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
+      if (pdfBtn) pdfBtn.style.display = 'none';
+    } else {
+      if (cont) cont.innerHTML = _buildSitrepHtml(sitrep);
+      if (pdfBtn) pdfBtn.style.display = 'inline-flex';
+    }
     if (fb) fb.style.display = 'none';
   } catch(e) {
     const pdfBtn = document.getElementById('download-brief-pdf');
@@ -1833,38 +1932,89 @@ async function downloadReport() {
 
 async function downloadBriefAsPDF(date) {
   const fb = document.getElementById('preview-feedback');
-  if (fb) { fb.style.display = 'block'; fb.textContent = 'Building PDF…'; }
+  if (fb) { fb.style.display = 'block'; fb.textContent = 'Building SITREP PDF…'; }
   try {
     if (!window.html2canvas || !window.jspdf) throw new Error('PDF libraries not loaded yet.');
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/dailybrief?date=${encodeURIComponent(date)}`, {}, 15000);
+    const region = document.getElementById('reportRegion')?.value || 'Global';
+    const res = await fetchWithTimeout(
+      `${WORKER_URL}/api/dailybrief?date=${encodeURIComponent(date)}&region=${encodeURIComponent(region)}`,
+      {}, 20000
+    );
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    const incidents = json.incidents || json.items || [];
-    if (!incidents.length) throw new Error('No incidents for this date.');
+    const json   = await res.json();
+    const sitrep = json.sitrep;
+    if (!sitrep) throw new Error('No SITREP data for this date.');
+
+    /* Inline CSS required — html2canvas only reads computed styles already applied */
+    const inlineCSS = `
+      .sitrep-doc{background:#fff;color:#111;font-family:'Times New Roman',Times,serif;width:860px;}
+      .sitrep-doc-class-bar{background:#1b1b2e;color:#bbb;text-align:center;font-size:9px;font-weight:700;letter-spacing:2px;padding:4px 8px;font-family:Arial,sans-serif;}
+      .sitrep-doc-header{background:#0d1b2a;color:#fff;padding:20px 28px 16px;}
+      .sitrep-doc-title{font-size:18px;font-weight:700;margin:0 0 4px;font-family:Arial,sans-serif;}
+      .sitrep-doc-issueline{font-size:11px;color:#9ab0c8;font-family:Arial,sans-serif;margin:0;}
+      .sitrep-doc-orgline{font-size:10px;color:#7090a8;font-family:Arial,sans-serif;margin-top:6px;}
+      .sitrep-doc-stats-bar{background:#1a3a5c;display:flex;border-top:2px solid #e8b800;}
+      .sitrep-doc-stat{flex:1;text-align:center;padding:8px 4px;border-right:1px solid #2a4a6c;font-family:Arial,sans-serif;}
+      .sitrep-doc-stat:last-child{border-right:none;}
+      .sitrep-doc-stat-val{font-size:16px;font-weight:800;color:#fff;line-height:1;}
+      .sitrep-doc-stat-lbl{font-size:8px;color:#9ab0c8;text-transform:uppercase;letter-spacing:1px;}
+      .sitrep-doc-theme{background:#f4f6f8;border-left:4px solid #e8b800;margin:20px 28px 8px;padding:10px 14px;font-style:italic;font-size:12px;color:#333;}
+      .sitrep-doc-body{padding:8px 28px 24px;}
+      .sitrep-doc-section{margin-top:20px;}
+      .sitrep-doc-section-title{font-family:Arial,sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#fff;background:#0d1b2a;padding:5px 12px;margin:0 -28px 12px;border-left:4px solid #e8b800;}
+      .sitrep-country-block{margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #e8eaed;}
+      .sitrep-country-block:last-child{border-bottom:none;}
+      .sitrep-country-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+      .sitrep-country-name{font-family:Arial,sans-serif;font-weight:700;font-size:12px;color:#0d1b2a;}
+      .sitrep-sev-badge{font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;font-family:Arial,sans-serif;text-transform:uppercase;}
+      .sitrep-sev-crit{background:#f28b82;color:#410002;}
+      .sitrep-sev-high{background:#ffb74d;color:#4a2000;}
+      .sitrep-sev-med{background:#fdd663;color:#3a2800;}
+      .sitrep-sev-low{background:#ccff90;color:#1a3600;}
+      .sitrep-bullet{font-size:11px;color:#222;margin-bottom:4px;padding-left:12px;position:relative;line-height:1.45;}
+      .sitrep-domain-block{margin-bottom:14px;}
+      .sitrep-domain-title{font-family:Arial,sans-serif;font-weight:700;font-size:10px;color:#0d1b2a;text-transform:uppercase;border-bottom:1px solid #c5cae9;padding-bottom:3px;margin-bottom:6px;}
+      .sitrep-dell-box{background:#f0f4ff;border:1px solid #c5cae9;border-radius:4px;padding:12px 16px;margin:4px 0;}
+      .sitrep-dell-box-title{font-family:Arial,sans-serif;font-weight:700;font-size:10px;color:#0d1b2a;margin-bottom:6px;}
+      .sitrep-dell-stat{font-size:11px;color:#333;margin-bottom:3px;}
+      .sitrep-outlook-escalation{font-family:Arial,sans-serif;font-size:11px;font-weight:700;margin-bottom:6px;}
+      .sitrep-escalation-high{color:#c62828;}
+      .sitrep-escalation-mod{color:#c45000;}
+      .sitrep-escalation-low{color:#137333;}
+      .sitrep-outlook-risk{font-size:11px;color:#333;margin-bottom:8px;}
+      .sitrep-priorities-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+      .sitrep-priority-chip{background:#0d1b2a;color:#e8b800;font-family:Arial,sans-serif;font-size:9px;font-weight:700;padding:3px 10px;border-radius:12px;}
+    `;
+
     const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;background:#fff;color:#000;font-family:Arial,sans-serif;padding:24px;font-size:12px;';
-    el.innerHTML = `<h2 style="font-size:16px;margin:0 0 16px;">Daily Intelligence Brief — ${escapeHtml(date)}</h2>` +
-      incidents.slice(0, 100).map(i => {
-        const href = safeHref(i.link);
-        const titleEl = href !== '#'
-          ? `<a href="${escapeAttr(href)}" style="color:#0076ce;text-decoration:none;font-weight:700;">${escapeHtml(i.title)}</a>`
-          : `<strong>${escapeHtml(i.title)}</strong>`;
-        return `<div style="margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:8px;">
-          <div>${titleEl}</div>
-          <div style="color:#555;font-size:10px;">${escapeHtml(i.country||'')} &bull; ${escapeHtml(safeTime(i.time||''))}</div>
-          <div style="margin-top:4px;">${escapeHtml(i.summary||'')}</div>
-        </div>`;
-      }).join('');
+    el.style.cssText = 'position:fixed;left:-9999px;top:0;width:860px;background:#fff;';
+    el.innerHTML = `<style>${inlineCSS}</style>` + _buildSitrepHtml(sitrep);
     document.body.appendChild(el);
-    const canvas = await window.html2canvas(el, { scale: 1.5, useCORS: true, logging: false });
+
+    const canvas = await window.html2canvas(el, {
+      scale: 1.5, useCORS: true, logging: false, backgroundColor: '#ffffff'
+    });
     document.body.removeChild(el);
+
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-    const imgData = canvas.toDataURL('image/jpeg', 0.85);
-    const pdfW = pdf.internal.pageSize.getWidth();
-    const pdfH = (canvas.height * pdfW) / canvas.width;
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
-    pdf.save(`brief-${date}.pdf`);
+    const pdf   = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const imgData = canvas.toDataURL('image/jpeg', 0.88);
+    const pdfW  = pdf.internal.pageSize.getWidth();
+    const pdfH  = (canvas.height * pdfW) / canvas.width;
+    const pageH = pdf.internal.pageSize.getHeight();
+
+    /* Multi-page support */
+    if (pdfH <= pageH) {
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    } else {
+      let yOff = 0;
+      while (yOff < pdfH) {
+        pdf.addImage(imgData, 'JPEG', 0, -yOff, pdfW, pdfH);
+        yOff += pageH;
+        if (yOff < pdfH) pdf.addPage();
+      }
+    }
+    pdf.save(`sitrep-${date}.pdf`);
     if (fb) fb.style.display = 'none';
   } catch(e) {
     if (fb) { fb.style.display = 'block'; fb.textContent = `PDF error: ${e.message}`; }
