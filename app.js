@@ -3245,11 +3245,11 @@ function closeLiveNewsModal() {
    ============================================================ */
 
 const GIM_TABS = [
-  { key: 'military',  label: '\u2694\ufe0f Military',  query: '"military exercise" OR "troop deployment" OR "airstrike" OR "missile strike" OR "military operation" OR "armed forces"' },
-  { key: 'cyber',     label: '\ud83d\udcbb Cyber',     query: '"cyberattack" OR "ransomware" OR "hacking" OR "data breach" OR "APT" OR "critical infrastructure attack" OR "zero-day"' },
-  { key: 'nuclear',   label: '\u2622\ufe0f Nuclear',   query: '"nuclear" OR "uranium enrichment" OR "IAEA" OR "nuclear weapon" OR "missile test" OR "proliferation"' },
-  { key: 'maritime',  label: '\u2693 Maritime',        query: '"naval" OR "piracy" OR "strait of hormuz" OR "south china sea" OR "shipping lane" OR "blockade" OR "sea lane"' },
-  { key: 'sanctions', label: '\ud83d\udd12 Sanctions', query: '"sanctions" OR "embargo" OR "trade war" OR "tariff" OR "export controls" OR "asset freeze"' },
+  { key: 'military',  label: '\u2694\ufe0f Military',  query: 'military operation airstrike',   kvCat: ['CONFLICT','SECURITY','PHYSICAL_SECURITY'] },
+  { key: 'cyber',     label: '\ud83d\udcbb Cyber',     query: 'cyberattack ransomware hacking',  kvCat: ['CYBER'] },
+  { key: 'nuclear',   label: '\u2622\ufe0f Nuclear',   query: 'nuclear missile proliferation',   kvCat: ['CONFLICT'] },
+  { key: 'maritime',  label: '\u2693 Maritime',        query: 'naval piracy shipping blockade',  kvCat: ['TRANSPORT','SUPPLY_CHAIN','DISRUPTION'] },
+  { key: 'sanctions', label: '\ud83d\udd12 Sanctions', query: 'sanctions embargo trade tariff',  kvCat: ['SUPPLY_CHAIN','DISRUPTION'] },
 ];
 const GIM_CACHE_TTL = 5 * 60 * 1000;
 const _gimCache     = {};
@@ -3298,28 +3298,62 @@ function _gimSafeUrl(url) {
   } catch { return '#'; }
 }
 
-/* Fetch GDELT articles for tab key; serves cache if < 5 min old */
+/* Build fallback articles from live KV incidents matching the tab's categories */
+async function _gimKvFallback(tab) {
+  try {
+    const res  = await fetchWithTimeout(`${WORKER_URL}/api/live-news`, { headers: { 'X-User-Id': OSINFO_USER_ID } }, 12000);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    const cats  = new Set((tab.kvCat || []).map(c => c.toUpperCase()));
+    return items
+      .filter(i => cats.has(String(i.category || '').toUpperCase()))
+      .slice(0, 20)
+      .map(i => ({
+        url:        i.link || '#',
+        title:      i.title || '',
+        domain:     i.source_label || '',
+        seendate:   i.time ? i.time.replace(/[-:T]/g,'').slice(0,12) + 'Z' : '',
+        sourcecountry: i.country || '',
+        tone:       '',
+        _fromKv:    true,
+      }));
+  } catch (_) { return []; }
+}
+
+/* Fetch GDELT articles for tab key; KV incidents as fallback if GDELT fails */
 async function _gimFetch(key) {
   const cached = _gimCache[key];
   if (cached && (Date.now() - cached.ts) < GIM_CACHE_TTL) return cached.articles;
   const tab = GIM_TABS.find(t => t.key === key);
   if (!tab) return [];
+
   // Route through Worker proxy — api.gdeltproject.org is blocked on corporate network
-  // Worker fetches GDELT from Cloudflare edge (not subject to corporate proxy)
-  const url = `${WORKER_URL}/api/gdelt-proxy?query=${encodeURIComponent(tab.query)}&timespan=1d&maxrecords=20`;
+  const proxyUrl = `${WORKER_URL}/api/gdelt-proxy?query=${encodeURIComponent(tab.query)}&timespan=1d&maxrecords=20`;
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
-    const res = await fetch(url, { signal: ctrl.signal });
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const res   = await fetch(proxyUrl, { signal: ctrl.signal });
     clearTimeout(timer);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const articles = (data.articles || []).filter(a => a.language === 'English');
-    _gimCache[key] = { ts: Date.now(), articles };
-    return articles;
+    if (articles.length > 0) {
+      _gimCache[key] = { ts: Date.now(), articles, source: 'gdelt' };
+      return articles;
+    }
+    // GDELT returned 0 English articles — fall through to KV fallback
+    throw new Error('empty');
   } catch (e) {
-    if (_gimCache[key]) return _gimCache[key].articles; // serve stale on error
-    throw e;
+    // Serve stale cache if available
+    if (_gimCache[key] && _gimCache[key].articles.length > 0) return _gimCache[key].articles;
+    // KV incidents fallback so the panel is never blank
+    const fallback = await _gimKvFallback(tab);
+    if (fallback.length > 0) {
+      _gimCache[key] = { ts: Date.now(), articles: fallback, source: 'kv' };
+      return fallback;
+    }
+    throw new Error('GDELT unavailable — no cached data');
   }
 }
 
@@ -3336,21 +3370,23 @@ async function _gimLoadTab(key) {
   try {
     articles = await _gimFetch(key);
   } catch (e) {
-    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#f28b82;font-size:.82rem">\u26a0\ufe0f GDELT API unavailable: ' + escapeHtml(e.message) + '<br><span style="color:#5f6368;font-size:.75rem">Try refreshing in a few minutes</span></div>';
+    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#f28b82;font-size:.82rem">\u26a0\ufe0f OSINT feed unavailable<br><span style="color:#5f6368;font-size:.75rem">GDELT is temporarily unreachable. KV incident fallback also empty.<br>Try refreshing in a few minutes.</span></div>';
     return;
   }
 
   if (!articles.length) {
-    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#5f6368;font-size:.82rem">No English-language articles found in the last 24\u00a0hours.</div>';
+    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#5f6368;font-size:.82rem">No articles found in the last 24\u00a0hours for this category.</div>';
     return;
   }
 
+  const isKv = (_gimCache[key] && _gimCache[key].source === 'kv');
+
   const rows = articles.map(a => {
-    const url    = _gimSafeUrl(a.url || '');
+    const url    = _gimSafeUrl(a.url || a.link || '');
     const title  = escapeHtml(a.title || 'Untitled');
-    const domain = _gimDomainBadge(a.domain || '');
-    const time   = _gimTimeAgo(a.seendate || '');
-    const tone   = _gimToneBadge(a.tone);
+    const domain = _gimDomainBadge(a.domain || a.source_label || shortHost(a.url || a.link || ''));
+    const time   = a._fromKv ? _lnmTimeAgo(a.seendate) : _gimTimeAgo(a.seendate || '');
+    const tone   = a._fromKv ? '' : _gimToneBadge(a.tone);
     const ctry   = a.sourcecountry ? '<span style="color:#5f6368;font-size:.62rem">\u2022\u00a0' + escapeHtml(a.sourcecountry) + '</span>' : '';
     return '<div style="display:flex;gap:10px;padding:9px 10px;background:#202124;border-radius:6px;border-left:3px solid #2a2d31;margin-bottom:5px" onmouseover="this.style.background=\'#262a2e\'" onmouseout="this.style.background=\'#202124\'">' +
       '<div style="flex-shrink:0;width:110px;display:flex;align-items:flex-start;padding-top:1px;flex-direction:column;gap:3px">' + domain + ctry + '</div>' +
@@ -3364,8 +3400,9 @@ async function _gimLoadTab(key) {
   const tab  = GIM_TABS.find(t => t.key === key);
   const lbl  = tab ? tab.label : key;
   const age  = _gimCache[key] ? Math.floor((Date.now() - _gimCache[key].ts) / 60000) : 0;
+  const src  = isKv ? '\u26a0\ufe0f Live incidents (GDELT unavailable)' : 'GDELT v2';
   feed.innerHTML = '<div style="padding:6px 10px;font-size:.68rem;color:#5f6368;border-bottom:1px solid #2a2d31;margin-bottom:4px">' +
-    articles.length + ' articles \u00b7 ' + lbl + ' \u00b7 ' + (age === 0 ? 'just fetched' : age + 'm old') + ' \u00b7 English only \u00b7 GDELT v2</div>' + rows;
+    articles.length + ' items \u00b7 ' + lbl + ' \u00b7 ' + (age === 0 ? 'just fetched' : age + 'm old') + ' \u00b7 ' + src + '</div>' + rows;
 }
 
 /* Build modal DOM (once) */
