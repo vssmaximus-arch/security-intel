@@ -3256,33 +3256,33 @@ function closeLiveNewsModal() {
 const GIM_TABS = [
   {
     key: 'military',  label: '\u2694\ufe0f Military',
-    query: 'theme:ARMEDCONFLICT "military operation" OR "airstrike" OR "missile strike"',
-    kvCat: ['CONFLICT','SECURITY','PHYSICAL_SECURITY'],
-    keywords: ['military','airstrike','missile','troop','army','conflict','attack','strike','soldier','war','combat','operation','forces','bomb','rocket','offensive'],
+    query: 'theme:ARMEDCONFLICT',
+    kvCat: ['CONFLICT','SECURITY','PHYSICAL_SECURITY','CRITICAL'],
+    keywords: ['military','airstrike','missile','troop','army','conflict','attack','strike','soldier','war','combat','operation','forces','bomb','rocket','offensive','hostage','terror','shooting','explosion','massacre'],
   },
   {
     key: 'cyber',     label: '\ud83d\udcbb Cyber',
-    query: 'theme:CYBER_ATTACK "cyberattack" OR "data breach" OR "ransomware" OR "malware"',
-    kvCat: ['CYBER'],
-    keywords: ['cyber','hack','ransomware','malware','breach','exploit','vulnerability','apt','phishing','ddos','intrusion','zero-day','threat actor','spyware'],
+    query: 'theme:CYBER_ATTACK',
+    kvCat: ['CYBER','SECURITY','CRITICAL'],
+    keywords: ['cyber','hack','ransomware','malware','breach','exploit','vulnerability','apt','phishing','ddos','intrusion','zero-day','spyware','botnet','data leak'],
   },
   {
     key: 'nuclear',   label: '\u2622\ufe0f Nuclear',
-    query: 'theme:WNS "nuclear weapon" OR "IAEA" OR "uranium enrichment" OR "missile test"',
-    kvCat: ['CONFLICT'],
-    keywords: ['nuclear','iaea','uranium','enrichment','missile','proliferation','reactor','warhead','north korea','iran','plutonium','radiolog','wmd'],
+    query: 'theme:WNS',
+    kvCat: ['CONFLICT','SECURITY','CRITICAL'],
+    keywords: ['nuclear','iaea','uranium','enrichment','missile','proliferation','reactor','warhead','north korea','iran','plutonium','radiolog','wmd','ballistic','intercontinental'],
   },
   {
     key: 'maritime',  label: '\u2693 Maritime',
-    query: 'theme:MARITIME "naval" OR "piracy" OR "shipping attack" OR "strait" OR "blockade"',
-    kvCat: ['TRANSPORT','SUPPLY_CHAIN','DISRUPTION'],
-    keywords: ['naval','ship','maritime','piracy','strait','fleet','vessel','port','blockade','sea','coast guard','tanker','carrier','submarine','fishing'],
+    query: 'theme:MARITIME',
+    kvCat: ['TRANSPORT','SUPPLY_CHAIN','DISRUPTION','SECURITY'],
+    keywords: ['naval','ship','maritime','piracy','strait','fleet','vessel','port','blockade','sea','coast guard','tanker','carrier','submarine','red sea','hormuz','suez'],
   },
   {
     key: 'sanctions', label: '\ud83d\udd12 Sanctions',
-    query: 'theme:ECON_SANCTIONS "sanctions" OR "embargo" OR "trade war" OR "export controls"',
-    kvCat: ['SUPPLY_CHAIN','DISRUPTION'],
-    keywords: ['sanction','embargo','tariff','trade war','export control','freeze','blacklist','ban','restriction','levy','fine','penalty','asset'],
+    query: 'theme:ECON_SANCTIONS',
+    kvCat: ['SUPPLY_CHAIN','DISRUPTION','GENERAL'],
+    keywords: ['sanction','embargo','tariff','trade war','export control','freeze','blacklist','ban','restriction','levy','fine','penalty','asset freeze'],
   },
 ];
 const GIM_CACHE_TTL = 5 * 60 * 1000;
@@ -3332,26 +3332,41 @@ function _gimSafeUrl(url) {
   } catch { return '#'; }
 }
 
-/* Build fallback articles from live KV incidents matching the tab's categories */
+/* Build fallback articles from live KV incidents matching the tab's categories or keywords */
 async function _gimKvFallback(tab) {
   try {
     const res  = await fetchWithTimeout(`${WORKER_URL}/api/live-news`, { headers: { 'X-User-Id': OSINFO_USER_ID } }, 12000);
     if (!res.ok) return [];
-    const data = await res.json();
+    const data  = await res.json();
     const items = Array.isArray(data.items) ? data.items : [];
+    if (!items.length) return [];
+
     const cats  = new Set((tab.kvCat || []).map(c => c.toUpperCase()));
-    return items
-      .filter(i => cats.has(String(i.category || '').toUpperCase()))
-      .slice(0, 20)
-      .map(i => ({
-        url:        i.link || '#',
-        title:      i.title || '',
-        domain:     i.source_label || '',
-        seendate:   i.time ? i.time.replace(/[-:T]/g,'').slice(0,12) + 'Z' : '',
-        sourcecountry: i.country || '',
-        tone:       '',
-        _fromKv:    true,
-      }));
+    const words = (tab.keywords || []);
+
+    /* Pass 1: category match */
+    let matched = items.filter(i => cats.has(String(i.category || '').toUpperCase()));
+
+    /* Pass 2: if category match empty, keyword search on title+summary */
+    if (!matched.length && words.length) {
+      matched = items.filter(i => {
+        const text = ((i.title || '') + ' ' + (i.summary || '')).toLowerCase();
+        return words.some(w => text.includes(w));
+      });
+    }
+
+    /* Pass 3: absolute fallback — return most recent 10 incidents so panel never blanks */
+    if (!matched.length) matched = items.slice(0, 10);
+
+    return matched.slice(0, 20).map(i => ({
+      url:           i.link  || '#',
+      title:         i.title || '',
+      domain:        i.source_label || shortHost(i.source || ''),
+      seendate:      i.time  || '',
+      sourcecountry: i.country || '',
+      tone:          '',
+      _fromKv:       true,
+    }));
   } catch (_) { return []; }
 }
 
@@ -3417,7 +3432,7 @@ async function _gimLoadTab(key) {
   try {
     articles = await _gimFetch(key);
   } catch (e) {
-    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#f28b82;font-size:.82rem">\u26a0\ufe0f OSINT feed unavailable<br><span style="color:#5f6368;font-size:.75rem">GDELT is temporarily unreachable. KV incident fallback also empty.<br>Try refreshing in a few minutes.</span></div>';
+    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#f28b82;font-size:.82rem">\u26a0\ufe0f OSINT feed unavailable<br><span style="color:#5f6368;font-size:.75rem">GDELT unreachable and no live incidents in Worker KV yet.<br>Try refreshing in a few minutes or wait for next ingestion cycle.</span></div>';
     return;
   }
 
