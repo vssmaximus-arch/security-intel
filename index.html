@@ -419,6 +419,81 @@
     .drawer-radar-result { background: #1a1b1e; border-radius: 4px; padding: 6px 8px; font-size: 0.7rem; color: #8ab4f8; margin-top: 4px; white-space: pre-wrap; word-break: break-all; }
     .drawer-empty { color: #5f6368; font-style: italic; font-size: 0.78rem; text-align: center; padding: 20px 0; }
 
+    /* ===== Phase 4 — Signal Convergence Alerts ===== */
+    #convergence-strip {
+      background: #1e1b2e; border: 1px solid #7c3aed; border-radius: 8px;
+      margin-bottom: 12px; overflow: hidden;
+    }
+    .conv-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; background: rgba(124,58,237,0.18);
+      border-bottom: 1px solid rgba(124,58,237,0.3);
+    }
+    .conv-title { font-size: 0.78rem; font-weight: 700; color: #c4b5fd; letter-spacing: 0.04em; }
+    .conv-title i { margin-right: 5px; }
+    .conv-collapse {
+      background: none; border: none; color: #c4b5fd; cursor: pointer;
+      font-size: 0.75rem; padding: 2px 6px;
+    }
+    .conv-collapse:hover { color: #fff; }
+    #conv-alerts-body { padding: 6px 10px; }
+    .conv-alert-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 6px 4px; border-bottom: 1px solid rgba(124,58,237,0.15);
+    }
+    .conv-alert-row:last-child { border-bottom: none; }
+    .conv-level {
+      font-size: 0.65rem; font-weight: 800; padding: 2px 6px;
+      border-radius: 3px; letter-spacing: 0.05em; flex-shrink: 0; margin-top: 2px;
+    }
+    .conv-level-HIGH     { background: #4c1d1d; color: #f87171; border: 1px solid #f87171; }
+    .conv-level-ELEVATED { background: #3b2500; color: #fb923c; border: 1px solid #fb923c; }
+    .conv-body { flex: 1; min-width: 0; }
+    .conv-country {
+      font-size: 0.78rem; font-weight: 700; color: #e8eaed;
+      text-transform: capitalize; margin-bottom: 2px;
+    }
+    .conv-sub { font-size: 0.67rem; color: #9aa0a6; }
+    .conv-sub b { color: #c4b5fd; }
+    .conv-snippet { font-size: 0.66rem; color: #8ab4f8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-dismiss {
+      background: none; border: none; color: #5f6368; cursor: pointer;
+      font-size: 0.7rem; padding: 2px 4px; flex-shrink: 0;
+    }
+    .conv-dismiss:hover { color: #f28b82; }
+    .conv-footer { padding: 4px 12px 6px; }
+    .conv-meta { font-size: 0.62rem; color: #5f6368; }
+    /* Light mode overrides */
+    body:not(.dark-mode) #convergence-strip {
+      background: #f5f0ff; border-color: #7c3aed;
+    }
+    body:not(.dark-mode) .conv-header { background: rgba(124,58,237,0.08); }
+    body:not(.dark-mode) .conv-title  { color: #5b21b6; }
+    body:not(.dark-mode) .conv-country { color: #202124; }
+    body:not(.dark-mode) .conv-sub    { color: #5f6368; }
+    /* ===== /Phase 4 ===== */
+
+    /* ===== Phase 5 — Credibility / Verification Checklist ===== */
+    .cred-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.63rem; font-weight: 700; padding: 1px 6px;
+      border-radius: 3px; cursor: help; user-select: none;
+      vertical-align: middle;
+    }
+    .cred-5 { background: #1e4620; color: #81c995; border: 1px solid #4a7c59; }
+    .cred-4 { background: #1a3350; color: #8ab4f8; border: 1px solid #3b6ca8; }
+    .cred-3 { background: #3e3000; color: #fdd663; border: 1px solid #8a7000; }
+    .cred-2 { background: #4a2800; color: #ffb74d; border: 1px solid #8a5000; }
+    .cred-1 { background: #3c1a1a; color: #f28b82; border: 1px solid #8a3030; }
+    .cred-badge .cred-stars { letter-spacing: -1px; }
+    /* Light mode */
+    body:not(.dark-mode) .cred-5 { background: #e6f4ea; color: #137333; border-color: #81c995; }
+    body:not(.dark-mode) .cred-4 { background: #e8f0fe; color: #1a73e8; border-color: #aecbfa; }
+    body:not(.dark-mode) .cred-3 { background: #fef9e7; color: #9e6c00; border-color: #fdd663; }
+    body:not(.dark-mode) .cred-2 { background: #fef3e2; color: #b05b00; border-color: #ffb74d; }
+    body:not(.dark-mode) .cred-1 { background: #fce8e6; color: #c5221f; border-color: #f28b82; }
+    /* ===== /Phase 5 ===== */
+
     /* ===== CII — Country Instability Index ===== */
     #cii-card { padding-bottom: 10px; }
     .cii-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
@@ -597,6 +672,23 @@
                 <span class="tag tag-reg" id="headline-reg">REGION</span>
               </div>
             </div>
+
+            <!-- PHASE 4: Signal Convergence Alert Strip -->
+            <div id="convergence-strip" aria-live="polite" aria-label="Signal Convergence Alerts" style="display:none;">
+              <div class="conv-header">
+                <span class="conv-title"><i class="fas fa-project-diagram"></i> Signal Convergence Detected</span>
+                <button class="conv-collapse" id="conv-collapse-btn" aria-label="Collapse convergence alerts" title="Collapse">
+                  <i class="fas fa-chevron-up" id="conv-chevron"></i>
+                </button>
+              </div>
+              <div id="conv-alerts-body">
+                <!-- alerts injected by JS -->
+              </div>
+              <div class="conv-footer">
+                <span id="conv-meta" class="conv-meta"></span>
+              </div>
+            </div>
+            <!-- /PHASE 4 -->
 
             <div id="general-news-feed" aria-live="polite">
               <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
