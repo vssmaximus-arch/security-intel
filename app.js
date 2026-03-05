@@ -1028,6 +1028,29 @@ function renderIncidentsOnMap(region, list) {
 /* ===========================
    GENERAL FEED
 =========================== */
+
+/**
+ * Feed quality gate — returns false for items that should NOT appear in the main feed:
+ *  • CISA generic advisories (no Dell / direct-impact relevance)
+ *  • Minor natural disasters (severity < 3, no major impact keywords)
+ */
+function _feedIncidentFilter(inc) {
+  const title = String(inc.title || '');
+  const t     = title.toLowerCase();
+  // CISA generic — skip unless Dell-relevant or critical operational impact
+  if (/\bcisa\b/i.test(title) &&
+      !/\b(dell|supply chain|critical infrastructure|zero.?day|actively exploited|ransomware|CVE-\d{4}-\d+|active exploit)\b/i.test(title)) {
+    return false;
+  }
+  // Minor natural / weather events — skip unless severity ≥ 3 or major casualties/impact
+  const isNat = /\b(earthquake|tremor|flood|hurricane|typhoon|cyclone|tornado|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|drought|fire notification|blizzard|mudslide)\b/i.test(title);
+  if (isNat && Number(inc.severity || 1) < 3 &&
+      !/\b(kill(ed)?|dead|deaths?|casualties|casualty|wounded|devastating|evacuat|state of emergency|disaster declaration|emergency declared)\b/i.test(t)) {
+    return false;
+  }
+  return true;
+}
+
 function mapSeverityToLabel(s) {
   const n = Number(s || 1);
   if (n >= 5) return { label: "CRITICAL", badgeClass: "ftag-crit", barClass: "status-bar-crit" };
@@ -1039,7 +1062,8 @@ function mapSeverityToLabel(s) {
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  const rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  const data = rawData.filter(_feedIncidentFilter);
   if (!data || data.length === 0) {
     container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
     return;
