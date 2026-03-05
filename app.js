@@ -1051,6 +1051,11 @@ function renderGeneralFeed(region) {
     const id = generateId(i);
     const localVote = VOTES_LOCAL[id] || null;
 
+    // Phase 5: Credibility badge (always shown)
+    const credBadge = (typeof window._credBadgeHtml === 'function')
+      ? window._credBadgeHtml(i, data)
+      : '';
+
     // AI badge: shown when AI mode is ON and relevance_score is present
     const aiBadge = (AI_ENABLED && i.relevance_score !== undefined)
       ? `<span class="ai-badge" title="AI relevance score"><i class="fas fa-brain" aria-hidden="true"></i> ${Math.round(i.relevance_score * 100)}%</span>`
@@ -1073,6 +1078,7 @@ function renderGeneralFeed(region) {
             <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
             <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
+            ${credBadge}
             ${aiBadge}
           </div>
 
@@ -3485,6 +3491,240 @@ async function sendTestAlert() {
 }
 
 /* ===========================
+   SIGNAL CONVERGENCE ALERTS — Phase 4
+   Polls /api/convergence every 15 min; renders alert strip above feed
+=========================== */
+(function () {
+  'use strict';
+
+  let _convData      = [];
+  let _convDismissed = new Set();
+  let _convCollapsed = false;
+  let _convTimer     = null;
+
+  /* Load dismissed set from localStorage */
+  try {
+    const raw = localStorage.getItem('conv_dismissed');
+    if (raw) _convDismissed = new Set(JSON.parse(raw));
+  } catch (_) {}
+
+  function _saveDismissed() {
+    try { localStorage.setItem('conv_dismissed', JSON.stringify([..._convDismissed])); } catch (_) {}
+  }
+
+  function _alertKey(a) {
+    return `${a.country}_${a.level}`;
+  }
+
+  function _timeAgo(iso) {
+    if (!iso) return '';
+    const m = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (m < 2)    return 'just now';
+    if (m < 60)   return `${m}m ago`;
+    if (m < 1440) return `${Math.round(m / 60)}h ago`;
+    return `${Math.round(m / 1440)}d ago`;
+  }
+
+  function _render() {
+    const strip = document.getElementById('convergence-strip');
+    const body  = document.getElementById('conv-alerts-body');
+    const meta  = document.getElementById('conv-meta');
+    if (!strip || !body) return;
+
+    const visible = _convData.filter(a => !_convDismissed.has(_alertKey(a)));
+
+    if (!visible.length) {
+      strip.style.display = 'none';
+      return;
+    }
+
+    strip.style.display = 'block';
+    body.style.display  = _convCollapsed ? 'none' : 'block';
+
+    if (!_convCollapsed) {
+      body.innerHTML = visible.map(a => {
+        const capName  = String(a.country || '').replace(/\b\w/g, c => c.toUpperCase());
+        const cats     = (a.categories || []).join(' · ');
+        const srcList  = (a.sources || []).join(', ');
+        const key      = _alertKey(a);
+        return `
+          <div class="conv-alert-row" data-conv-key="${escapeAttr(key)}">
+            <span class="conv-level conv-level-${a.level}">${a.levelEmoji || ''} ${a.level}</span>
+            <div class="conv-body">
+              <div class="conv-country">${escapeHtml(capName)}</div>
+              <div class="conv-sub">
+                <b>${a.sourceCount}</b> sources · <b>${a.incidentCount}</b> reports · ${a.spanHrs}h window
+              </div>
+              <div class="conv-sub">${escapeHtml(cats)}</div>
+              <div class="conv-snippet" title="${escapeAttr(a.latestTitle)}">${escapeHtml(a.latestTitle || '')}</div>
+            </div>
+            <button class="conv-dismiss" data-conv-dismiss="${escapeAttr(key)}" title="Dismiss" aria-label="Dismiss convergence alert for ${escapeAttr(capName)}">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </div>`;
+      }).join('');
+    }
+
+    if (meta) meta.textContent = `${visible.length} active convergence${visible.length !== 1 ? 's' : ''} · Updated ${_timeAgo(_convData[0]?.latestTime)}`;
+  }
+
+  async function _fetch() {
+    try {
+      const res  = await fetchWithTimeout(
+        `${WORKER_URL}/api/convergence`,
+        { headers: { 'X-User-Id': OSINFO_USER_ID } },
+        12000
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      _convData  = Array.isArray(data.alerts) ? data.alerts : [];
+      _render();
+    } catch (e) {
+      console.warn('[Convergence] fetch error', e);
+    }
+  }
+
+  function _init() {
+    /* Collapse toggle */
+    const colBtn = document.getElementById('conv-collapse-btn');
+    if (colBtn) {
+      colBtn.addEventListener('click', () => {
+        _convCollapsed = !_convCollapsed;
+        const chev = document.getElementById('conv-chevron');
+        if (chev) chev.className = _convCollapsed ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+        _render();
+      });
+    }
+
+    /* Dismiss clicks (delegated) */
+    document.addEventListener('click', ev => {
+      const btn = ev.target.closest('[data-conv-dismiss]');
+      if (!btn) return;
+      const key = btn.dataset.convDismiss;
+      if (key) {
+        _convDismissed.add(key);
+        _saveDismissed();
+        _render();
+      }
+    });
+
+    /* Initial fetch + 15-min autopoll */
+    _fetch();
+    if (_convTimer) clearInterval(_convTimer);
+    _convTimer = setInterval(_fetch, 15 * 60 * 1000);
+  }
+
+  window._convInit  = _init;
+  window._convFetch = _fetch;
+})();
+
+/* ===========================
+   VERIFICATION CHECKLIST — Phase 5
+   Client-side credibility scorer for each incident card (1–5 stars)
+   Factors: source tier, corroboration, recency, geolocation
+=========================== */
+(function () {
+  'use strict';
+
+  /* Tier 1 = highest-credibility sources */
+  const TIER1 = new Set(['reuters', 'apnews', 'bbc', 'france24']);
+  const TIER2 = new Set(['aljazeera', 'dw', 'cna', 'ustravel', 'ukfcdo', 'cisa', 'gdacs', 'usgs']);
+
+  /*
+   * Score an incident 0–100.
+   * allIncidents = full INCIDENTS array (for corroboration check).
+   */
+  function credScore(incident, allIncidents) {
+    let pts = 0;
+
+    /* 1. Source tier (max 35 pts) */
+    const src = String(incident.source || '').toLowerCase();
+    if (TIER1.has(src) || TIER1.has(shortHost(incident.source || ''))) {
+      pts += 35;
+    } else if (TIER2.has(src) || TIER2.has(shortHost(incident.source || ''))) {
+      pts += 20;
+    } else {
+      pts += 5;
+    }
+
+    /* 2. Corroboration — other incidents from same country in last 6h (max 30 pts) */
+    if (Array.isArray(allIncidents) && allIncidents.length > 0) {
+      const cut6h    = Date.now() - 6 * 60 * 60 * 1000;
+      const country  = String(incident.country || '').toLowerCase();
+      const siblings = allIncidents.filter(x =>
+        x !== incident &&
+        String(x.country || '').toLowerCase() === country &&
+        new Date(x.time || 0).getTime() > cut6h
+      ).length;
+      pts += Math.min(30, siblings * 6);
+    }
+
+    /* 3. Recency (max 25 pts) */
+    const ageMs = Date.now() - new Date(incident.time || 0).getTime();
+    const ageH  = ageMs / 3600000;
+    if      (ageH < 1)  pts += 25;
+    else if (ageH < 3)  pts += 20;
+    else if (ageH < 6)  pts += 14;
+    else if (ageH < 12) pts += 8;
+    else if (ageH < 24) pts += 3;
+
+    /* 4. Geolocation present (max 10 pts) */
+    if (incident.lat && incident.lng && incident.lat !== 0 && incident.lng !== 0) pts += 10;
+
+    return Math.min(100, pts);
+  }
+
+  /* Map 0–100 → 1–5 stars */
+  function credStars(score) {
+    if (score >= 80) return 5;
+    if (score >= 60) return 4;
+    if (score >= 40) return 3;
+    if (score >= 20) return 2;
+    return 1;
+  }
+
+  /* Build tooltip text */
+  function credTooltip(incident, score, allIncidents) {
+    const stars  = credStars(score);
+    const src    = shortHost(incident.source || '');
+    const ageH   = Math.round((Date.now() - new Date(incident.time || 0).getTime()) / 360000) / 10;
+    const hasGeo = !!(incident.lat && incident.lng);
+    let tip = `Credibility: ${stars}/5 stars (${score}/100)\n`;
+    tip += `Source: ${src}\n`;
+    tip += `Age: ${ageH}h\n`;
+    tip += `Geolocated: ${hasGeo ? '✓' : '✗'}\n`;
+    if (Array.isArray(allIncidents)) {
+      const cut6h   = Date.now() - 6 * 60 * 60 * 1000;
+      const country = String(incident.country || '').toLowerCase();
+      const corr    = allIncidents.filter(x =>
+        x !== incident &&
+        String(x.country || '').toLowerCase() === country &&
+        new Date(x.time || 0).getTime() > cut6h
+      ).length;
+      tip += `Corroboration: ${corr} other reports (6h)`;
+    }
+    return tip;
+  }
+
+  /* Render badge HTML */
+  function credBadgeHtml(incident, allIncidents) {
+    const score  = credScore(incident, allIncidents);
+    const stars  = credStars(score);
+    const filled = '★'.repeat(stars);
+    const empty  = '☆'.repeat(5 - stars);
+    const tip    = credTooltip(incident, score, allIncidents);
+    return `<span class="cred-badge cred-${stars}" title="${escapeAttr(tip)}" aria-label="Credibility ${stars} of 5 stars">
+      <span class="cred-stars">${filled}${empty}</span>
+    </span>`;
+  }
+
+  /* Expose */
+  window._credScore    = credScore;
+  window._credStars    = credStars;
+  window._credBadgeHtml = credBadgeHtml;
+})();
+
+/* ===========================
    COUNTRY INSTABILITY INDEX (CII) — Phase 3
    Fetches /api/cii, renders sidebar card with level/trend/bar
 =========================== */
@@ -3942,6 +4182,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Real-time bridge: SSE (EventSource) with polling fallback
     connectSSE();
+
+    // Phase 4: Signal Convergence Alerts strip
+    try { if (typeof window._convInit === 'function') window._convInit(); } catch(e) { console.warn('[Convergence] init error', e); }
 
     // Phase 3: Country Instability Index sidebar card
     try { if (typeof window._ciiInit === 'function') window._ciiInit(); } catch(e) { console.warn('[CII] init error', e); }
