@@ -1234,23 +1234,32 @@ function renderProximityAlerts(region) {
            style="font-size:.72rem;color:#1a73e8;text-decoration:none;font-weight:600;">View Source ↗</a>`
       : '';
 
+    // Dark-mode-aware colours for inline styles
+    const dark      = document.body.classList.contains('dark-mode');
+    const cardBg    = dark ? '#1e2029'  : '#ffffff';
+    const cardBdr   = dark ? '#2a2d35'  : '#e8eaed';
+    const titleClr  = dark ? '#e8eaed'  : '#202124';
+    const siteClr   = dark ? '#bdc1c6'  : '#3c4043';
+    const catBg     = dark ? '#2d2e31'  : '#f1f3f4';
+    const catClr    = dark ? '#9aa0a6'  : '#5f6368';
+
     return `
-      <div class="alert-row" style="border-left:4px solid ${sevColor};margin-bottom:8px;padding:10px 12px;background:#fff;border-top:1px solid #e8eaed;border-right:1px solid #e8eaed;border-bottom:1px solid #e8eaed;border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+      <div class="alert-row" style="border-left:4px solid ${sevColor};margin-bottom:8px;padding:10px 12px;background:${cardBg};border-top:1px solid ${cardBdr};border-right:1px solid ${cardBdr};border-bottom:1px solid ${cardBdr};border-radius:0 8px 8px 0;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
         <!-- Row 1: Severity pill + Category + Impact bar + Time -->
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:5px;">
           <span style="background:${sevBg};color:${sevColor};font-size:.62rem;font-weight:800;padding:1px 7px;border-radius:3px;letter-spacing:.5px;">${sevLabel}</span>
-          <span style="font-size:.62rem;color:#5f6368;font-weight:600;background:#f1f3f4;padding:1px 6px;border-radius:3px;">${escapeHtml(catLabel)}</span>
+          <span style="font-size:.62rem;color:${catClr};font-weight:600;background:${catBg};padding:1px 6px;border-radius:3px;">${escapeHtml(catLabel)}</span>
           ${impactBar ? `<span style="margin-left:2px;">${impactBar}</span>` : ''}
           ${opImpact ? `<span style="font-size:.6rem;color:#e65100;font-weight:700;background:rgba(230,81,0,.1);padding:1px 5px;border-radius:3px;border:1px solid rgba(230,81,0,.25);">⚙ OPS IMPACT</span>` : ''}
           ${timeAgo ? `<span style="margin-left:auto;font-size:.65rem;color:#9aa0a6;">${escapeHtml(timeAgo)}</span>` : ''}
         </div>
         <!-- Row 2: Title -->
-        <div style="font-size:.82rem;font-weight:700;color:#202124;line-height:1.4;margin-bottom:4px;">
+        <div style="font-size:.82rem;font-weight:700;color:${titleClr};line-height:1.4;margin-bottom:4px;">
           ${escapeHtml(i.title)}
         </div>
         <!-- Row 3: Site + distance -->
         <div style="font-size:.72rem;color:#5f6368;margin-bottom:5px;">
-          📍 Dell <strong style="color:#3c4043;">${escapeHtml(a.nearest.name)}</strong>
+          📍 Dell <strong style="color:${siteClr};">${escapeHtml(a.nearest.name)}</strong>
           <span style="color:${sevColor};font-weight:700;margin-left:4px;">${escapeHtml(distStr)}</span>
         </div>
         <!-- Row 4: Recommended action chip -->
@@ -3245,11 +3254,36 @@ function closeLiveNewsModal() {
    ============================================================ */
 
 const GIM_TABS = [
-  { key: 'military',  label: '\u2694\ufe0f Military',  query: 'military operation airstrike',   kvCat: ['CONFLICT','SECURITY','PHYSICAL_SECURITY'] },
-  { key: 'cyber',     label: '\ud83d\udcbb Cyber',     query: 'cyberattack ransomware hacking',  kvCat: ['CYBER'] },
-  { key: 'nuclear',   label: '\u2622\ufe0f Nuclear',   query: 'nuclear missile proliferation',   kvCat: ['CONFLICT'] },
-  { key: 'maritime',  label: '\u2693 Maritime',        query: 'naval piracy shipping blockade',  kvCat: ['TRANSPORT','SUPPLY_CHAIN','DISRUPTION'] },
-  { key: 'sanctions', label: '\ud83d\udd12 Sanctions', query: 'sanctions embargo trade tariff',  kvCat: ['SUPPLY_CHAIN','DISRUPTION'] },
+  {
+    key: 'military',  label: '\u2694\ufe0f Military',
+    query: 'theme:ARMEDCONFLICT "military operation" OR "airstrike" OR "missile strike"',
+    kvCat: ['CONFLICT','SECURITY','PHYSICAL_SECURITY'],
+    keywords: ['military','airstrike','missile','troop','army','conflict','attack','strike','soldier','war','combat','operation','forces','bomb','rocket','offensive'],
+  },
+  {
+    key: 'cyber',     label: '\ud83d\udcbb Cyber',
+    query: 'theme:CYBER_ATTACK "cyberattack" OR "data breach" OR "ransomware" OR "malware"',
+    kvCat: ['CYBER'],
+    keywords: ['cyber','hack','ransomware','malware','breach','exploit','vulnerability','apt','phishing','ddos','intrusion','zero-day','threat actor','spyware'],
+  },
+  {
+    key: 'nuclear',   label: '\u2622\ufe0f Nuclear',
+    query: 'theme:WNS "nuclear weapon" OR "IAEA" OR "uranium enrichment" OR "missile test"',
+    kvCat: ['CONFLICT'],
+    keywords: ['nuclear','iaea','uranium','enrichment','missile','proliferation','reactor','warhead','north korea','iran','plutonium','radiolog','wmd'],
+  },
+  {
+    key: 'maritime',  label: '\u2693 Maritime',
+    query: 'theme:MARITIME "naval" OR "piracy" OR "shipping attack" OR "strait" OR "blockade"',
+    kvCat: ['TRANSPORT','SUPPLY_CHAIN','DISRUPTION'],
+    keywords: ['naval','ship','maritime','piracy','strait','fleet','vessel','port','blockade','sea','coast guard','tanker','carrier','submarine','fishing'],
+  },
+  {
+    key: 'sanctions', label: '\ud83d\udd12 Sanctions',
+    query: 'theme:ECON_SANCTIONS "sanctions" OR "embargo" OR "trade war" OR "export controls"',
+    kvCat: ['SUPPLY_CHAIN','DISRUPTION'],
+    keywords: ['sanction','embargo','tariff','trade war','export control','freeze','blacklist','ban','restriction','levy','fine','penalty','asset'],
+  },
 ];
 const GIM_CACHE_TTL = 5 * 60 * 1000;
 const _gimCache     = {};
@@ -3321,6 +3355,18 @@ async function _gimKvFallback(tab) {
   } catch (_) { return []; }
 }
 
+/* Client-side relevance filter — removes articles whose title contains none of the tab keywords */
+function _gimFilter(articles, tab) {
+  const words = tab.keywords || [];
+  if (!words.length || !articles.length) return articles;
+  const filtered = articles.filter(a => {
+    const text = ((a.title || '') + ' ' + (a.domain || '')).toLowerCase();
+    return words.some(w => text.includes(w));
+  });
+  // If filtering removes everything, return original (avoid blank panel)
+  return filtered.length > 0 ? filtered : articles;
+}
+
 /* Fetch GDELT articles for tab key; KV incidents as fallback if GDELT fails */
 async function _gimFetch(key) {
   const cached = _gimCache[key];
@@ -3337,12 +3383,13 @@ async function _gimFetch(key) {
     clearTimeout(timer);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const articles = (data.articles || []).filter(a => a.language === 'English');
+    const raw      = (data.articles || []).filter(a => a.language === 'English');
+    const articles = _gimFilter(raw, tab);
     if (articles.length > 0) {
       _gimCache[key] = { ts: Date.now(), articles, source: 'gdelt' };
       return articles;
     }
-    // GDELT returned 0 English articles — fall through to KV fallback
+    // GDELT returned 0 relevant English articles — fall through to KV fallback
     throw new Error('empty');
   } catch (e) {
     // Serve stale cache if available
@@ -3451,11 +3498,18 @@ function _ensureGdeltIntelModal() {
       '<div class="gim-tabs">' + tabBtns + '</div>' +
       '<button class="gim-close" data-action="close-gdelt-intel" aria-label="Close">\u2715 Close</button>' +
     '</div>' +
+    '<div style="padding:4px 14px 2px;font-size:.68rem;color:#5f6368;background:#0d1117;border-bottom:1px solid #1e2029;">' +
+      '\u2694\ufe0f Military: active strikes/deployments \u00a0|\u00a0 ' +
+      '\ud83d\udcbb Cyber: attacks, breaches, APTs \u00a0|\u00a0 ' +
+      '\u2622\ufe0f Nuclear: IAEA, missile tests, proliferation \u00a0|\u00a0 ' +
+      '\u2693 Maritime: piracy, naval, shipping lanes \u00a0|\u00a0 ' +
+      '\ud83d\udd12 Sanctions: new measures, embargoes, trade wars' +
+    '</div>' +
     '<div id="gim-feed" role="feed" aria-live="polite" style="flex:1;overflow-y:auto;padding:8px 12px">' +
-      '<div style="padding:40px;text-align:center;color:#5f6368;font-size:.85rem">Select a category above to load intelligence\u2026</div>' +
+      '<div style="padding:40px;text-align:center;color:#5f6368;font-size:.85rem">Select a category above to load OSINT intelligence\u2026</div>' +
     '</div>' +
     '<div class="gim-footer">' +
-      '<span>\ud83c\udf10 GDELT Global News Database \u00b7 20,000+ sources \u00b7 100+ languages \u00b7 English articles \u00b7 Last 24\u00a0hours \u00b7 5-min cache</span>' +
+      '<span>\ud83c\udf10 GDELT 20,000+ sources \u00b7 English \u00b7 24h window \u00b7 Falls back to live KV incidents if GDELT unavailable</span>' +
       '<button class="gim-refresh-btn" data-action="gim-refresh">\u21bb Refresh</button>' +
     '</div>';
   document.body.appendChild(mo);
