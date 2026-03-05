@@ -3819,26 +3819,38 @@ async function handleGdeltProxy(env, req) {
       }
     } catch(e) { /* cache miss — continue */ }
 
-    const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&maxrecords=${max}&format=json&timespan=${encodeURIComponent(span)}&sort=datedesc`;
-    const res = await fetchWithTimeout(gdeltUrl, {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; DellOSInfoHub/1.0)' }
-    }, 15000);
+    /* Try primary GDELT DOC API v2 endpoint */
+    const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&maxrecords=${max}&format=json&timespan=${encodeURIComponent(span)}&sort=datedesc&sourcelang=english`;
+    let gdeltOk = false;
+    let data    = { articles: [] };
 
-    if (!res.ok) throw new Error(`GDELT HTTP ${res.status}`);
-    const data = await res.json();
-
-    // Cache successful response in KV for 5 min (TTL 310s)
     try {
-      await kvPut(env, cacheKey, { ts: Date.now(), data }, { expirationTtl: 310 });
-    } catch(e) { /* non-fatal */ }
+      const res = await fetchWithTimeout(gdeltUrl, {
+        headers: {
+          'Accept':     'application/json',
+          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
+        }
+      }, 20000);
+      if (res.ok) {
+        const txt = await res.text();
+        try { data = JSON.parse(txt); gdeltOk = true; } catch(_) { /* malformed JSON */ }
+      }
+    } catch(_) { /* timeout / network error — fall through */ }
 
-    return new Response(JSON.stringify(data), {
+    /* Cache successful GDELT hit */
+    if (gdeltOk && Array.isArray(data.articles) && data.articles.length > 0) {
+      try { await kvPut(env, cacheKey, { ts: Date.now(), data }, { expirationTtl: 310 }); } catch(_) {}
+    }
+
+    /* Always return 200 — client handles empty articles with KV fallback */
+    return new Response(JSON.stringify({ ...data, ok: true, gdeltOk, articles: data.articles || [] }), {
       status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'MISS' }
     });
   } catch (e) {
     typeof debug === 'function' && debug('gdelt_proxy error', e?.message || e);
-    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), articles: [] }), {
-      status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    /* Return 200 + empty so client uses KV fallback instead of showing hard error */
+    return new Response(JSON.stringify({ ok: false, gdeltOk: false, articles: [], error: String(e?.message || e) }), {
+      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
     });
   }
 }
