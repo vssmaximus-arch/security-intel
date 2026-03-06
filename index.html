@@ -952,6 +952,150 @@
     /* ============================================================
        /TIER-2 FEATURE STYLES
        ============================================================ */
+
+    /* ===== SITREP Modal Controls ===== */
+    .sitrep-modal-content { background: #1e1f23; border: 1px solid #3c4043; border-radius: 8px; }
+    .sitrep-modal-header  { background: #15161a; border-bottom: 1px solid #2d2e31; padding: 12px 20px; }
+    .sitrep-modal-body    { background: #1e1f23; padding: 16px 20px; }
+    .sitrep-controls-row  {
+      display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;
+      padding: 12px 16px; background: #15161a; border-radius: 6px;
+      margin-bottom: 14px; border: 1px solid #2d2e31;
+    }
+    .sitrep-control-group { display: flex; flex-direction: column; gap: 3px; }
+    .sitrep-lbl {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #9aa0a6;
+    }
+    .sitrep-input, .sitrep-select {
+      background: #2d2e31; border: 1px solid #3c4043; color: #e8eaed;
+      border-radius: 4px; padding: 5px 10px; font-size: 0.82rem;
+      outline: none; min-width: 130px;
+    }
+    .sitrep-input:focus, .sitrep-select:focus { border-color: #1a73e8; }
+    .sitrep-btn-primary {
+      background: #1a73e8; color: #fff; border: none; border-radius: 4px;
+      padding: 6px 16px; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: background .15s; white-space: nowrap;
+    }
+    .sitrep-btn-primary:hover { background: #1557b0; }
+    .sitrep-btn-secondary {
+      background: transparent; color: #1a73e8; border: 1px solid #1a73e8;
+      border-radius: 4px; padding: 6px 14px; font-size: 0.82rem;
+      font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap;
+      display: inline-flex; align-items: center;
+    }
+    .sitrep-btn-secondary:hover { background: rgba(26,115,232,0.12); }
+    /* ===== SITREP Document ===== */
+    .sitrep-doc {
+      background: #fff; color: #111;
+      font-family: 'Times New Roman', Times, serif;
+      max-width: 860px; margin: 0 auto; border-radius: 4px;
+      overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    .sitrep-doc-class-bar {
+      background: #1b1b2e; color: #bbb; text-align: center;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
+      padding: 4px 8px; font-family: Arial, sans-serif;
+    }
+    .sitrep-doc-header { background: #0d1b2a; color: #fff; padding: 20px 28px 16px; }
+    .sitrep-doc-title  {
+      font-size: 1.25rem; font-weight: 700; letter-spacing: 0.02em;
+      margin: 0 0 4px; font-family: Arial, sans-serif;
+    }
+    .sitrep-doc-issueline {
+      font-size: 0.8rem; color: #9ab0c8; font-family: Arial, sans-serif; margin: 0;
+    }
+    .sitrep-doc-orgline {
+      font-size: 0.7rem; color: #7090a8; font-family: Arial, sans-serif; margin-top: 6px;
+    }
+    .sitrep-doc-stats-bar {
+      background: #1a3a5c; display: flex; border-top: 2px solid #e8b800;
+    }
+    .sitrep-doc-stat {
+      flex: 1; text-align: center; padding: 8px 4px;
+      border-right: 1px solid #2a4a6c; font-family: Arial, sans-serif;
+    }
+    .sitrep-doc-stat:last-child { border-right: none; }
+    .sitrep-doc-stat-val { font-size: 1.2rem; font-weight: 800; color: #fff; line-height: 1; }
+    .sitrep-doc-stat-lbl {
+      font-size: 0.58rem; color: #9ab0c8;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .sitrep-doc-theme {
+      background: #f4f6f8; border-left: 4px solid #e8b800;
+      margin: 20px 28px 8px; padding: 10px 14px;
+      font-style: italic; font-size: 0.88rem; color: #333;
+    }
+    .sitrep-doc-body { padding: 8px 28px 24px; }
+    .sitrep-doc-section { margin-top: 20px; }
+    .sitrep-doc-section-title {
+      font-family: Arial, sans-serif; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: #fff; background: #0d1b2a; padding: 5px 12px;
+      margin: 0 -28px 14px; border-left: 4px solid #e8b800;
+    }
+    .sitrep-country-block {
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid #e8eaed;
+    }
+    .sitrep-country-block:last-child { border-bottom: none; }
+    .sitrep-country-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    }
+    .sitrep-country-name {
+      font-family: Arial, sans-serif; font-weight: 700;
+      font-size: 0.88rem; color: #0d1b2a;
+    }
+    .sitrep-sev-badge {
+      font-size: 0.6rem; font-weight: 700; padding: 1px 6px;
+      border-radius: 10px; font-family: Arial, sans-serif;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .sitrep-sev-crit { background: #f28b82; color: #410002; }
+    .sitrep-sev-high { background: #ffb74d; color: #4a2000; }
+    .sitrep-sev-med  { background: #fdd663; color: #3a2800; }
+    .sitrep-sev-low  { background: #ccff90; color: #1a3600; }
+    .sitrep-bullet {
+      font-size: 0.83rem; color: #222; margin-bottom: 5px;
+      padding-left: 16px; position: relative; line-height: 1.45;
+    }
+    .sitrep-bullet::before {
+      content: '▶'; position: absolute; left: 0;
+      color: #1a73e8; font-size: 0.52rem; top: 5px;
+    }
+    .sitrep-domain-block { margin-bottom: 14px; }
+    .sitrep-domain-title {
+      font-family: Arial, sans-serif; font-weight: 700; font-size: 0.79rem;
+      color: #0d1b2a; text-transform: uppercase; letter-spacing: 0.05em;
+      border-bottom: 1px solid #c5cae9; padding-bottom: 3px; margin-bottom: 6px;
+    }
+    .sitrep-dell-box {
+      background: #f0f4ff; border: 1px solid #c5cae9;
+      border-radius: 4px; padding: 12px 16px; margin: 4px 0;
+    }
+    .sitrep-dell-box-title {
+      font-family: Arial, sans-serif; font-weight: 700;
+      font-size: 0.78rem; color: #0d1b2a; margin-bottom: 6px;
+    }
+    .sitrep-dell-stat { font-size: 0.82rem; color: #333; margin-bottom: 3px; }
+    .sitrep-outlook-escalation {
+      font-family: Arial, sans-serif; font-size: 0.85rem;
+      font-weight: 700; margin-bottom: 6px;
+    }
+    .sitrep-escalation-high { color: #c62828; }
+    .sitrep-escalation-mod  { color: #c45000; }
+    .sitrep-escalation-low  { color: #137333; }
+    .sitrep-outlook-risk { font-size: 0.83rem; color: #333; margin-bottom: 8px; }
+    .sitrep-priorities-row {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;
+    }
+    .sitrep-priority-chip {
+      background: #0d1b2a; color: #e8b800; font-family: Arial, sans-serif;
+      font-size: 0.68rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 12px; letter-spacing: 0.04em;
+    }
+    /* ===== /SITREP Modal ===== */
   </style>
 </head>
 
@@ -1202,7 +1346,6 @@
             </div>
           </div>
           <!-- /COUNTRY RISK PANEL -->
-
         </div>
       </div>
     </div>
@@ -1210,47 +1353,44 @@
 
   <!-- REPORT MODAL -->
   <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-pdf me-2" style="color:#d93025;"></i>Daily Intelligence Briefings</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content sitrep-modal-content">
+        <div class="modal-header sitrep-modal-header">
+          <h5 class="modal-title" id="modalTitle">
+            <i class="fas fa-shield-alt me-2" style="color:#1a73e8;"></i>
+            Daily Intelligence Briefings — SITREP
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label" for="reportDate">Select Date</label>
-            <input type="date" class="form-control" id="reportDate" />
-            <div class="form-text" style="font-size:0.8rem;margin-top:6px;">
-              Leave empty for the last 24 hours (live).
+        <div class="modal-body sitrep-modal-body">
+
+          <!-- Controls row -->
+          <div class="sitrep-controls-row">
+            <div class="sitrep-control-group">
+              <label class="sitrep-lbl" for="reportDate">Date</label>
+              <input type="date" class="sitrep-input" id="reportDate" />
             </div>
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label" for="reportRegion">Select Region / Report Profile</label>
-            <select class="form-select" id="reportRegion">
-              <option value="Global">Global</option>
-              <option value="APJC">APJC</option>
-              <option value="AMER">AMER</option>
-              <option value="EMEA">EMEA</option>
-              <option value="LATAM">LATAM</option>
-            </select>
-          </div>
-
-          <div class="d-grid gap-2" style="margin-bottom:8px;">
-            <button class="btn-download" data-action="preview-brief" aria-label="Preview daily briefing">
-              <i class="fas fa-eye me-2" aria-hidden="true"></i> Preview Briefing
+            <div class="sitrep-control-group">
+              <label class="sitrep-lbl" for="reportRegion">Region</label>
+              <select class="sitrep-select" id="reportRegion">
+                <option value="Global">Global</option>
+                <option value="APJC">APJC</option>
+                <option value="AMER">AMER</option>
+                <option value="EMEA">EMEA</option>
+                <option value="LATAM">LATAM</option>
+              </select>
+            </div>
+            <button class="sitrep-btn-primary" data-action="preview-brief" aria-label="Generate SITREP">
+              <i class="fas fa-bolt me-1" aria-hidden="true"></i> Generate SITREP
             </button>
-            <button class="btn-download" data-action="download-brief" aria-label="Download briefing (generated)">
-              <i class="fas fa-download me-2" aria-hidden="true"></i> Download Briefing
-            </button>
-            <button class="btn-download" id="download-brief-pdf" data-action="download-brief-pdf"
-              aria-label="Download brief as PDF" style="display:none;">
-              <i class="fas fa-file-pdf me-2" aria-hidden="true"></i> Download Brief PDF
+            <button class="sitrep-btn-secondary" id="download-brief-pdf" data-action="download-brief-pdf"
+              aria-label="Download SITREP as PDF" style="display:none;">
+              <i class="fas fa-file-pdf me-1" aria-hidden="true"></i> PDF
             </button>
           </div>
 
-          <div id="preview-feedback" class="mt-3 text-center" style="font-size:0.85rem;display:none;" aria-live="polite"></div>
-          <div id="briefing-preview" style="max-height:48vh; overflow:auto; margin-top:12px;"></div>
+          <div id="preview-feedback" style="font-size:0.82rem;color:#9aa0a6;text-align:center;padding:8px 0;display:none;" aria-live="polite"></div>
+          <div id="briefing-preview" style="overflow:auto; margin-top:8px; max-height:72vh;"></div>
         </div>
       </div>
     </div>
