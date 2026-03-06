@@ -33,8 +33,8 @@
   <!-- flatpickr: calendar date-picker with archive-date constraints (cdnjs — Edge tracking-safe) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-  <!-- leaflet.heat: severity-weighted heatmap layer (cdnjs — Edge tracking-safe) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.heat/0.2.0/leaflet-heat.js"></script>
+  <!-- leaflet.heat: severity-weighted heatmap layer (jsDelivr — cdnjs 404 fixed) -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <!-- html2canvas + jsPDF: client-side PDF export (no server-side rendering) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -580,6 +580,378 @@
     body:not(.dark-mode) .cii-footer { border-top-color: #e8eaed; }
     body:not(.dark-mode) .cii-tabs  { /* light is fine */ }
     /* ===== /CII ===== */
+
+    /* ============================================================
+       TIER-2 FEATURE STYLES
+       ============================================================ */
+
+    /* --- SIGMET Ticker Strip --- */
+    .sigmet-ticker-strip {
+      display: flex;
+      align-items: center;
+      background: #0d1117;
+      border-bottom: 1px solid #2a3a2a;
+      padding: 0 12px;
+      height: 32px;
+      overflow: hidden;
+      flex-shrink: 0;
+      z-index: 100;
+      font-size: 0.72rem;
+      color: #a5d6a7;
+      gap: 10px;
+    }
+    .sigmet-label {
+      flex-shrink: 0;
+      font-weight: 700;
+      color: #81c784;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      border-right: 1px solid #2a4a2a;
+      padding-right: 10px;
+      margin-right: 2px;
+    }
+    .sigmet-scroll-wrap {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .sigmet-scroll-inner {
+      white-space: nowrap;
+      animation: sigmet-scroll 60s linear infinite;
+      display: inline-block;
+    }
+    .sigmet-scroll-inner:hover { animation-play-state: paused; }
+    @keyframes sigmet-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .sigmet-close-btn {
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      color: #558b57;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 0.75rem;
+      line-height: 1;
+    }
+    .sigmet-close-btn:hover { color: #a5d6a7; }
+
+    /* --- Weather Overlay Markers --- */
+    .weather-div-icon {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; line-height: 1;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7));
+    }
+
+    /* --- Country Risk Panel (CRP) --- */
+    .crp-panel {
+      animation: slideDown 0.22s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .crp-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .crp-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: 8px;
+    }
+    .crp-country-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #202124;
+      line-height: 1.2;
+    }
+    .crp-risk-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+    .crp-risk-CRITICAL { background: #c62828; color: #fff; }
+    .crp-risk-HIGH     { background: #e65100; color: #fff; }
+    .crp-risk-MEDIUM   { background: #f9a825; color: #000; }
+    .crp-risk-LOW      { background: #2e7d32; color: #fff; }
+    .crp-risk-UNKNOWN  { background: #546e7a; color: #fff; }
+    .crp-close-btn {
+      background: transparent; border: none; cursor: pointer;
+      color: #888; padding: 0 0 0 8px; font-size: 0.9rem; flex-shrink: 0;
+    }
+    .crp-close-btn:hover { color: #c62828; }
+    .crp-body { font-size: 0.82rem; color: #444; line-height: 1.55; }
+    .crp-body ul { margin: 6px 0 10px 0; padding-left: 18px; }
+    .crp-body li { margin-bottom: 4px; }
+    .crp-meta-row { display: flex; justify-content: space-between; font-size: 0.72rem; color: #888; margin-top: 10px; border-top: 1px solid #f1f1f1; padding-top: 8px; }
+    .crp-travel-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+    .crp-travel-AVOID           { background: #c62828; color: #fff; }
+    .crp-travel-EXERCISE_CAUTION{ background: #e65100; color: #fff; }
+    .crp-travel-NORMAL          { background: #2e7d32; color: #fff; }
+    .crp-dell-impact { background: #e8f0fe; border-left: 3px solid #1a73e8; padding: 6px 10px; border-radius: 0 4px 4px 0; margin: 8px 0; font-size: 0.8rem; color: #1a237e; }
+
+    /* dark mode CRP */
+    body.dark-mode .crp-country-name { color: #e0e0e0; }
+    body.dark-mode .crp-body { color: #b0bec5; }
+    body.dark-mode .crp-meta-row { color: #666; border-top-color: #2a2d35; }
+    body.dark-mode .crp-dell-impact { background: #1a2a3a; border-left-color: #4a90d9; color: #90caf9; }
+    body.dark-mode .crp-close-btn { color: #556; }
+
+    /* --- Chat FAB + Drawer --- */
+    .chat-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #b31412;
+      color: #fff;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 3000;
+      box-shadow: 0 4px 16px rgba(179,20,18,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .chat-fab:hover { background: #8e1210; transform: scale(1.08); }
+    .chat-fab.open  { background: #555; }
+    .chat-fab-badge {
+      position: absolute; top: 6px; right: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #ff5722; border: 2px solid #fff;
+    }
+    .chat-drawer {
+      position: fixed;
+      bottom: 86px;
+      right: 24px;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      height: 520px;
+      max-height: calc(100vh - 120px);
+      background: #13151a;
+      border: 1px solid #2a2d35;
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      z-index: 2999;
+      transform: translateY(20px) scale(0.97);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .chat-drawer.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: all;
+    }
+    .chat-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #1a1b1e;
+      border-bottom: 1px solid #2a2d35;
+      border-radius: 14px 14px 0 0;
+      flex-shrink: 0;
+    }
+    .chat-drawer-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-ai-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      background: #b31412;
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.08em;
+    }
+    .chat-drawer-close {
+      background: transparent;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 2px 4px;
+    }
+    .chat-drawer-close:hover { color: #e0e0e0; }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+    .chat-msg {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      max-width: 92%;
+    }
+    .chat-msg-ai  { align-self: flex-start; }
+    .chat-msg-user { align-self: flex-end; flex-direction: row-reverse; }
+    .chat-msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #2a2d35; color: #9fa8da;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; flex-shrink: 0;
+    }
+    .chat-msg-user .chat-msg-avatar { background: #b31412; color: #fff; }
+    .chat-msg-content {
+      background: #1e2128;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #cdd5e0;
+    }
+    .chat-msg-user .chat-msg-content {
+      background: #1a2a4a;
+      color: #90caf9;
+    }
+    .chat-typing .chat-msg-content {
+      color: #556;
+      font-style: italic;
+    }
+    .chat-input-area {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid #2a2d35;
+      background: #1a1b1e;
+      border-radius: 0 0 14px 14px;
+      flex-shrink: 0;
+      align-items: flex-end;
+    }
+    .chat-input {
+      flex: 1;
+      background: #252830;
+      border: 1px solid #3a3d45;
+      border-radius: 8px;
+      color: #d0d5df;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      resize: none;
+      outline: none;
+      font-family: inherit;
+      line-height: 1.4;
+      max-height: 100px;
+    }
+    .chat-input:focus { border-color: #4a6a8a; }
+    .chat-input::placeholder { color: #4a5068; }
+    .chat-send-btn {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #b31412; border: none; color: #fff;
+      cursor: pointer; font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .chat-send-btn:hover { background: #8e1210; }
+    .chat-send-btn:disabled { background: #3a3d45; cursor: not-allowed; }
+    .chat-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 2998;
+    }
+
+    /* --- ACK Button & Badge --- */
+    .btn-ack {
+      background: transparent;
+      border: 1px solid #0a84ff55;
+      color: #0a84ff;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.12s;
+      flex-shrink: 0;
+    }
+    .btn-ack:hover { background: #0a84ff22; }
+    .ack-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #1b5e20;
+      color: #a5d6a7;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      letter-spacing: 0.04em;
+    }
+    .ack-badge i { font-size: 0.6rem; }
+    .ack-form-inline {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    body.dark-mode .ack-form-inline { background: #1e2128; border-color: #2a2d35; }
+    .ack-form-inline input {
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      width: 100%;
+      background: #fff;
+      color: #202124;
+    }
+    body.dark-mode .ack-form-inline input { background: #252830; border-color: #3a3d45; color: #d0d5df; }
+    .ack-form-inline textarea {
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      width: 100%;
+      resize: none;
+      background: #fff;
+      color: #202124;
+    }
+    body.dark-mode .ack-form-inline textarea { background: #252830; border-color: #3a3d45; color: #d0d5df; }
+    .ack-form-btns { display: flex; gap: 6px; }
+    .btn-ack-submit {
+      background: #1b5e20; color: #fff; border: none;
+      border-radius: 4px; padding: 3px 10px; font-size: 0.75rem;
+      font-weight: 700; cursor: pointer;
+    }
+    .btn-ack-submit:hover { background: #2e7d32; }
+    .btn-ack-cancel {
+      background: transparent; color: #888; border: 1px solid #ccc;
+      border-radius: 4px; padding: 3px 8px; font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    /* ============================================================
+       /TIER-2 FEATURE STYLES
+       ============================================================ */
   </style>
 </head>
 
@@ -638,12 +1010,36 @@
           <i class="fas fa-shield-alt" aria-hidden="true"></i> OSINT Intel
         </button>
 
+        <!-- Tier-2: AI Shift Briefing trigger -->
+        <button class="logistics-open-btn ms-2" data-bs-toggle="modal" data-bs-target="#shiftBriefModal"
+          aria-label="Open AI Shift Briefing" tabindex="0"
+          style="background:#1a2a3a;color:#64b5f6;">
+          <i class="fas fa-file-alt" aria-hidden="true"></i> Shift Brief
+        </button>
+
+        <!-- Tier-2: Weather/Disaster overlay toggle -->
+        <button class="btn-toggle ms-2" id="weather-toggle" data-action="toggle-weather"
+          aria-pressed="false" aria-label="Toggle weather and disaster overlay" tabindex="0">
+          <i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather
+        </button>
+
         <!-- Dark / Light mode toggle -->
         <button id="btn-theme-toggle" class="ms-2" aria-label="Toggle dark/light mode" tabindex="0">
           <i class="fas fa-moon" id="theme-icon" aria-hidden="true"></i>
           <span id="theme-label">Dark</span>
         </button>
       </div>
+    </div>
+
+    <!-- Tier-2: SIGMET / Aviation Hazard Ticker Strip -->
+    <div id="sigmet-ticker-strip" class="sigmet-ticker-strip" style="display:none;" aria-live="polite" aria-label="Aviation SIGMET alerts">
+      <span class="sigmet-label"><i class="fas fa-plane-departure" aria-hidden="true"></i>&nbsp;SIGMET</span>
+      <div class="sigmet-scroll-wrap">
+        <div class="sigmet-scroll-inner" id="sigmet-inner">Loading aviation alerts…</div>
+      </div>
+      <button class="sigmet-close-btn" data-action="toggle-sigmet" aria-label="Dismiss SIGMET ticker">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
     </div>
 
     <div class="content-area">
@@ -787,6 +1183,26 @@
           </div>
           <!-- /CII CARD -->
 
+          <!-- Tier-2: Country Risk Panel (shown when a country is selected) -->
+          <div class="side-card crp-panel" id="crp-panel" style="display:none;" role="complementary" aria-label="Country Risk Assessment">
+            <div class="crp-header">
+              <div class="crp-title-row">
+                <div>
+                  <div class="prox-dell-label">AI Risk Assessment</div>
+                  <div class="crp-country-name" id="crp-country-name">—</div>
+                </div>
+                <span class="crp-risk-badge" id="crp-risk-badge">—</span>
+              </div>
+              <button class="crp-close-btn" data-action="close-crp" aria-label="Close country risk panel">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div id="crp-body" class="crp-body" aria-live="polite">
+              <div class="text-center py-3 text-secondary"><i class="fas fa-spinner fa-spin"></i> Analysing…</div>
+            </div>
+          </div>
+          <!-- /COUNTRY RISK PANEL -->
+
         </div>
       </div>
     </div>
@@ -882,6 +1298,49 @@
     </div>
   </div>
 
+  <!-- Tier-2: AI Shift Briefing Modal -->
+  <div class="modal fade" id="shiftBriefModal" tabindex="-1" aria-labelledby="shiftBriefModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="background:#13151a; border:1px solid #2a2d35; color:#e0e0e0;">
+        <div class="modal-header" style="background:#1a1b1e; border-bottom:1px solid #2a2d35;">
+          <h5 class="modal-title" id="shiftBriefModalLabel" style="color:#64b5f6; font-weight:700; font-size:0.95rem;">
+            <i class="fas fa-file-alt me-2" aria-hidden="true"></i>AI Shift Briefing
+          </h5>
+          <div class="d-flex gap-2 align-items-center ms-3">
+            <select id="brief-window-select" class="form-select form-select-sm" style="background:#252830;color:#e0e0e0;border-color:#3a3d45;width:auto;">
+              <option value="4">Last 4h</option>
+              <option value="8" selected>Last 8h</option>
+              <option value="12">Last 12h</option>
+              <option value="24">Last 24h</option>
+            </select>
+            <select id="brief-region-select" class="form-select form-select-sm" style="background:#252830;color:#e0e0e0;border-color:#3a3d45;width:auto;">
+              <option value="">Global</option>
+              <option value="AMER">AMER</option>
+              <option value="EMEA">EMEA</option>
+              <option value="APJC">APJC</option>
+              <option value="LATAM">LATAM</option>
+            </select>
+            <button class="btn btn-sm btn-danger" data-action="generate-brief" style="font-size:0.78rem;font-weight:700;">
+              <i class="fas fa-bolt" aria-hidden="true"></i> Generate
+            </button>
+          </div>
+          <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="shift-brief-body" style="background:#0f1012;min-height:320px;font-family:'Inter',monospace;font-size:0.87rem;line-height:1.75;color:#d0d5df;padding:24px;">
+          <div class="text-center text-secondary py-5">
+            <i class="fas fa-file-alt fa-3x mb-3 d-block" style="color:#2a3a4a;"></i>
+            Select a time window and region, then click <strong>Generate</strong> to create an AI-powered shift briefing.
+          </div>
+        </div>
+        <div class="modal-footer" style="background:#1a1b1e;border-top:1px solid #2a2d35;">
+          <small class="text-secondary me-auto" id="brief-meta-text" style="font-size:0.75rem;"></small>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /SHIFT BRIEF MODAL -->
+
   <!-- S2.5 — Logistics Drawer backdrop -->
   <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
 
@@ -965,6 +1424,45 @@
       <a id="ltm-fr24-link" href="#" target="_blank" rel="noopener noreferrer">Open on FlightRadar24 ↗</a>
     </div>
   </div>
+
+  <!-- Tier-2: Ask the Hub — AI Chat FAB + Drawer -->
+  <button class="chat-fab" id="chat-fab" data-action="toggle-chat"
+    aria-label="Ask the Hub – AI intelligence assistant" tabindex="0">
+    <i class="fas fa-robot" aria-hidden="true"></i>
+    <span class="chat-fab-badge" id="chat-fab-badge" style="display:none;" aria-label="Unread messages"></span>
+  </button>
+
+  <div class="chat-drawer" id="chat-drawer" role="dialog" aria-label="Ask the Hub AI Chat" aria-hidden="true">
+    <div class="chat-drawer-header">
+      <div class="chat-drawer-title">
+        <i class="fas fa-robot" aria-hidden="true"></i>
+        Ask the Hub
+        <span class="chat-ai-label">AI</span>
+      </div>
+      <button class="chat-drawer-close" data-action="close-chat" aria-label="Close chat">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+      <div class="chat-msg chat-msg-ai">
+        <div class="chat-msg-avatar"><i class="fas fa-robot" aria-hidden="true"></i></div>
+        <div class="chat-msg-content">
+          Hi! I'm your <strong>InfoHub AI assistant</strong>. I have access to the live threat feed.<br>
+          Ask me about current events, country risks, or Dell operational impacts.
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chat-input"
+        placeholder="Ask about current threats, regions, or incidents…"
+        rows="2" aria-label="Type your message" maxlength="1000"></textarea>
+      <button class="chat-send-btn" id="chat-send-btn" data-action="chat-send" aria-label="Send message">
+        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+  <div class="chat-overlay" id="chat-overlay" aria-hidden="true"></div>
+  <!-- /ASK THE HUB -->
 
   <!-- Canonical external application script -->
   <script src="app.js"></script>
