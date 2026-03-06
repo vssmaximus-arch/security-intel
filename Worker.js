@@ -32,6 +32,8 @@ const THUMBS_KV_KEY = "thumbs_prefs_v1";
 const THUMBS_FEEDBACK_LOG = "thumbs_feedback_log_v1";
 const LEARNING_RULES_KEY = "learning_rules_v1";
 const DISLIKES_KV_PREFIX = "DISLIKES:";
+const ACK_KV_PREFIX = "ack:";
+const ACK_TTL_SEC = 7 * 24 * 3600; // 7 days
 
 const THUMBS_AGG_KEY = "thumbs_aggregates_v1";
 const THUMBS_AGG_LOCK_KEY = "thumbs_agg_lock_v1";
@@ -2162,6 +2164,109 @@ async function callGroq(env, apiKey, text, retries = 2) {
 }
 
 /* ===========================
+   LLM CHAT HELPERS (Claude / Groq fallback)
+   Used by Tier-2 AI endpoints: /api/ai/briefing, /api/ai/country-risk, /api/ai/chat
+   =========================== */
+
+/**
+ * callClaude — POST to Anthropic Messages API.
+ * opts.model defaults to 'claude-haiku-4-5' for fast/cheap tasks.
+ * opts.model = 'claude-sonnet-4-5' for higher-quality narrative tasks.
+ */
+async function callClaude(env, messages, opts = {}) {
+  const model = opts.model || 'claude-haiku-4-5';
+  const maxTokens = opts.max_tokens || 1024;
+  const systemPrompt = opts.system || '';
+  const body = {
+    model,
+    max_tokens: maxTokens,
+    messages,
+    ...(systemPrompt ? { system: systemPrompt } : {}),
+  };
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 20000);
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    clearTimeout(tid);
+    const json = await resp.json();
+    if (!resp.ok) {
+      typeof debug === 'function' && debug('callClaude http error', resp.status, json?.error?.message);
+      return { text: null, error: json?.error?.message || `http_${resp.status}` };
+    }
+    const text = json.content?.[0]?.text || '';
+    return { text, error: null };
+  } catch (e) {
+    typeof debug === 'function' && debug('callClaude error', e?.message || e);
+    return { text: null, error: e?.message || 'call_failed' };
+  }
+}
+
+/**
+ * callGroqChat — POST to Groq chat completions (narrative, not JSON-only).
+ * Uses llama-3.3-70b-versatile for better narrative quality.
+ */
+async function callGroqChat(env, messages, opts = {}) {
+  if (!env.GROQ_API_KEY) return { text: null, error: 'no_groq_key' };
+  const maxTokens = opts.max_tokens || 1024;
+  const body = {
+    model: 'llama-3.3-70b-versatile',
+    temperature: 0.3,
+    max_tokens: maxTokens,
+    messages,
+  };
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 20000);
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    clearTimeout(tid);
+    const json = await resp.json();
+    if (!resp.ok) return { text: null, error: `http_${resp.status}` };
+    const text = json.choices?.[0]?.message?.content || '';
+    return { text, error: null };
+  } catch (e) {
+    typeof debug === 'function' && debug('callGroqChat error', e?.message || e);
+    return { text: null, error: e?.message || 'call_failed' };
+  }
+}
+
+/**
+ * callLLM — Unified LLM router.
+ * Uses Claude if ANTHROPIC_API_KEY is set, otherwise Groq.
+ * messages: [{role:'user'|'assistant', content: string}]
+ * opts: { system, max_tokens, model }
+ */
+async function callLLM(env, messages, opts = {}) {
+  if (env.ANTHROPIC_API_KEY) {
+    return await callClaude(env, messages, opts);
+  }
+  if (env.GROQ_API_KEY) {
+    // Groq uses OpenAI format; prepend system message if provided
+    const groqMessages = opts.system
+      ? [{ role: 'system', content: opts.system }, ...messages]
+      : messages;
+    return await callGroqChat(env, groqMessages, opts);
+  }
+  return { text: null, error: 'no_llm_api_key_configured' };
+}
+
+/* ===========================
    ARCHIVE HELPERS
    =========================== */
 async function archiveIncidents(env, incidents = []) {
@@ -3669,6 +3774,357 @@ async function handleApiAiFeedback(env, req, ctx) {
   }
 }
 
+/* ===========================
+   TIER-2 AI ENDPOINTS
+   =========================== */
+
+/**
+ * GET /api/ai/briefing?window=8&region=AMER
+ * Generates an AI shift briefing narrative from recent incidents.
+ */
+async function handleApiAiBriefing(env, req) {
+  try {
+    const url = new URL(req.url);
+    const windowH = Math.min(48, Math.max(1, parseInt(url.searchParams.get('window') || '8', 10)));
+    const region = (url.searchParams.get('region') || '').toUpperCase().trim();
+
+    let incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const cutoffMs = Date.now() - windowH * 3600 * 1000;
+    incidents = (Array.isArray(incidents) ? incidents : []).filter(i => {
+      try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; }
+    });
+    if (region) {
+      incidents = incidents.filter(i => String(i.region || '').toUpperCase() === region);
+    }
+
+    if (!incidents.length) {
+      return { status: 200, body: { briefing: `No incidents found in the last ${windowH}h${region ? ` for ${region}` : ''}.`, incident_count: 0, window_h: windowH, region: region || 'Global', generated_at: new Date().toISOString(), model: 'none' } };
+    }
+
+    const incidentLines = incidents.slice(0, 30).map((i, idx) =>
+      `${idx + 1}. [${i.severity_label || 'INFO'}][${i.region || '?'}] ${i.country || ''}: ${i.title}${i.category ? ` (${i.category})` : ''}`
+    ).join('\n');
+
+    const systemPrompt = `You are a senior intelligence analyst for Dell Technologies' Global Security Operations Center (GSOC).
+Your role is to produce concise, professional shift briefings for Regional Security Managers (RSMs).
+Focus on: employee safety threats, Dell facility/asset risks, supply chain disruptions, cyber threats, and travel advisories.
+Write in intelligence report style: clear, factual, action-oriented. No fluff.`;
+
+    const userContent = `Generate a ${windowH}-hour shift briefing${region ? ` for region: ${region}` : ' (Global)'} based on these ${incidents.length} intelligence items:\n\n${incidentLines}\n\nStructure the briefing as:\n## SITUATION SUMMARY\n(2-3 sentences)\n\n## KEY THREATS (Priority Order)\n- (bullet each)\n\n## DELL OPERATIONAL IMPACT\n(brief assessment)\n\n## RECOMMENDED RSM ACTIONS\n- (bullet each)\n\n## WATCH ITEMS FOR NEXT SHIFT\n- (bullet each)`;
+
+    const result = await callLLM(env, [{ role: 'user', content: userContent }], {
+      system: systemPrompt,
+      max_tokens: 1200,
+      model: 'claude-sonnet-4-5',
+    });
+
+    return {
+      status: result.error && !result.text ? 503 : 200,
+      body: {
+        briefing: result.text || `AI unavailable: ${result.error}`,
+        incident_count: incidents.length,
+        window_h: windowH,
+        region: region || 'Global',
+        generated_at: new Date().toISOString(),
+        model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
+        error: result.error || null,
+      },
+    };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiBriefing error', e?.message || e);
+    return { status: 500, body: { error: String(e?.message || e) } };
+  }
+}
+
+/**
+ * GET /api/ai/country-risk?country=Iran
+ * Returns AI-generated structured risk assessment for a country.
+ */
+async function handleApiAiCountryRisk(env, req) {
+  try {
+    const url = new URL(req.url);
+    const country = (url.searchParams.get('country') || '').trim();
+    if (!country) return { status: 400, body: { error: 'country param required' } };
+
+    const all = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const cutoffMs = Date.now() - 72 * 3600 * 1000;
+    const countryIncidents = (Array.isArray(all) ? all : []).filter(i => {
+      try {
+        if (new Date(i.time).getTime() < cutoffMs) return false;
+        const c = String(i.country || '').toLowerCase();
+        const q = country.toLowerCase();
+        return c.includes(q) || q.includes(c);
+      } catch { return false; }
+    }).slice(0, 20);
+
+    const systemPrompt = `You are a geopolitical risk analyst for Dell Technologies Global Security.
+Provide structured country risk assessments for the RSM (Regional Security Manager) team.
+Focus exclusively on risks relevant to Dell: employee safety, facility security, supply chain, travel advisards, cyber threats.
+Respond ONLY with valid JSON — no markdown, no explanation outside the JSON object.`;
+
+    const userContent = `Assess current risk for: ${country}\n\nRecent incidents (last 72h, ${countryIncidents.length} found):\n${countryIncidents.slice(0, 15).map(i => `- [${i.severity_label || 'INFO'}] ${i.title}`).join('\n') || '(none in last 72h)'}\n\nReturn this exact JSON structure:\n{"risk_level":"CRITICAL|HIGH|MEDIUM|LOW","risk_score":0,"bullets":["bullet1","bullet2","bullet3"],"dell_impact":"one sentence","travel_advisory":"AVOID|EXERCISE_CAUTION|NORMAL","key_threats":["threat1","threat2"]}`;
+
+    const result = await callLLM(env, [{ role: 'user', content: userContent }], {
+      system: systemPrompt,
+      max_tokens: 600,
+      model: 'claude-haiku-4-5',
+    });
+
+    let parsed = null;
+    if (result.text) {
+      try {
+        const m = String(result.text).match(/\{[\s\S]*\}/);
+        if (m) parsed = JSON.parse(m[0]);
+      } catch (e) {
+        typeof debug === 'function' && debug('country-risk json parse error', e?.message);
+      }
+    }
+
+    return {
+      status: 200,
+      body: {
+        country,
+        ...(parsed || {
+          risk_level: 'UNKNOWN',
+          risk_score: 0,
+          bullets: [result.text ? result.text.slice(0, 200) : 'Analysis unavailable'],
+          dell_impact: 'Unable to assess at this time.',
+          travel_advisory: 'EXERCISE_CAUTION',
+          key_threats: [],
+        }),
+        incident_count: countryIncidents.length,
+        generated_at: new Date().toISOString(),
+        model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
+      },
+    };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiCountryRisk error', e?.message || e);
+    return { status: 500, body: { error: String(e?.message || e) } };
+  }
+}
+
+/**
+ * POST /api/ai/chat
+ * Body: { messages: [{role, content}] }
+ * Injects live incident context into system prompt; returns { reply, model }.
+ */
+async function handleApiAiChat(env, req) {
+  try {
+    let body;
+    try { body = await req.json(); } catch { return { status: 400, body: { error: 'invalid JSON body' } }; }
+
+    const messages = Array.isArray(body?.messages) ? body.messages : [];
+    if (!messages.length) return { status: 400, body: { error: 'messages array required' } };
+
+    // Inject live context: last 24h incidents (top 25)
+    const all = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const cutoffMs = Date.now() - 24 * 3600 * 1000;
+    const recentCtx = (Array.isArray(all) ? all : [])
+      .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
+      .slice(0, 25)
+      .map(i => `[${i.severity_label || 'INFO'}][${i.region || '?'}] ${i.country || ''}: ${i.title}`)
+      .join('\n');
+
+    const systemPrompt = `You are "InfoHub Assistant", an AI analyst embedded in Dell Technologies' OS INFOHUB global intelligence platform.
+You have access to the live threat feed and help the RSM (Regional Security Manager) team understand current events, risks, and operational impacts.
+Be concise, professional, and intelligence-focused. Cite specific incidents when relevant.
+Suggest RSM actions when appropriate. Flag uncertainty if information is limited.
+
+Current live feed (last 24h — ${all.length} total incidents):
+${recentCtx || '(no recent incidents)'}`;
+
+    const result = await callLLM(env, messages, {
+      system: systemPrompt,
+      max_tokens: 800,
+      model: 'claude-haiku-4-5',
+    });
+
+    return {
+      status: result.error && !result.text ? 503 : 200,
+      body: {
+        reply: result.text || `Sorry, the AI assistant is temporarily unavailable. (${result.error})`,
+        model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
+        error: result.error || null,
+      },
+    };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiChat error', e?.message || e);
+    return { status: 500, body: { error: String(e?.message || e) } };
+  }
+}
+
+/* ===========================
+   INCIDENT ACKNOWLEDGMENT
+   =========================== */
+
+/**
+ * GET  /api/acknowledge?ids=id1,id2,...  → batch fetch ack records
+ * POST /api/acknowledge  body: { id, user_name, note }  → store ack
+ */
+async function handleApiAcknowledge(env, req) {
+  try {
+    if (req.method === 'POST') {
+      let body;
+      try { body = await req.json(); } catch { return { status: 400, body: { error: 'invalid JSON body' } }; }
+      const { id, user_name, note } = body || {};
+      if (!id || !user_name) return { status: 400, body: { error: 'id and user_name required' } };
+
+      const ack = {
+        id: String(id),
+        user_name: String(user_name).slice(0, 100),
+        note: String(note || '').slice(0, 500),
+        timestamp: new Date().toISOString(),
+      };
+      await kvPut(env, `${ACK_KV_PREFIX}${id}`, ack, { expirationTtl: ACK_TTL_SEC });
+      typeof debug === 'function' && debug('ack:stored', id, user_name);
+      return { status: 200, body: { ok: true, ack } };
+    }
+
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      const idsParam = url.searchParams.get('ids') || '';
+      if (!idsParam) return { status: 400, body: { error: 'ids param required' } };
+      const ids = idsParam.split(',').map(s => s.trim()).filter(Boolean).slice(0, 50);
+      const results = {};
+      await Promise.all(ids.map(async id => {
+        const ack = await kvGetJson(env, `${ACK_KV_PREFIX}${id}`, null);
+        if (ack) results[id] = ack;
+      }));
+      return { status: 200, body: results };
+    }
+
+    return { status: 405, body: { error: 'GET or POST required' } };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAcknowledge error', e?.message || e);
+    return { status: 500, body: { error: String(e?.message || e) } };
+  }
+}
+
+/* ===========================
+   WEATHER & AVIATION ENDPOINTS
+   =========================== */
+
+/**
+ * GET /api/weather/disasters
+ * Proxies USGS earthquake feed + GDACS global disasters.
+ * Returns unified { events[], updated_at }.
+ */
+async function handleApiWeatherDisasters(env, req) {
+  try {
+    const [usgsRes, gdacsRes] = await Promise.allSettled([
+      fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson', {
+        headers: { 'User-Agent': 'OSInfoHub/1.0 (+https://vssmaximus-arch.github.io)' },
+        cf: { cacheEverything: true, cacheTtl: 900 },
+      }),
+      fetch('https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?eventlist=TC%2CFL%2CEQ%2CVO%2CTS&alertlevel=Orange%3BRed', {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' },
+        cf: { cacheEverything: true, cacheTtl: 900 },
+      }),
+    ]);
+
+    const events = [];
+
+    // USGS Earthquakes (M4.5+ last 24h)
+    if (usgsRes.status === 'fulfilled' && usgsRes.value.ok) {
+      try {
+        const data = await usgsRes.value.json();
+        for (const f of (data.features || []).slice(0, 60)) {
+          const coords = f.geometry?.coordinates;
+          if (!coords || coords.length < 2) continue;
+          const [lng, lat] = coords;
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+          const mag = f.properties?.mag;
+          events.push({
+            type: 'earthquake',
+            lat: Number(lat), lng: Number(lng),
+            title: f.properties?.title || `M${mag} Earthquake`,
+            magnitude: mag,
+            severity: mag >= 6.5 ? 'CRITICAL' : mag >= 5.5 ? 'HIGH' : 'MEDIUM',
+            time: new Date(f.properties?.time || Date.now()).toISOString(),
+            link: f.properties?.url || 'https://earthquake.usgs.gov',
+            source: 'USGS',
+          });
+        }
+      } catch (e) { typeof debug === 'function' && debug('usgs parse error', e?.message); }
+    }
+
+    // GDACS Global Disasters (Orange/Red alerts only)
+    if (gdacsRes.status === 'fulfilled' && gdacsRes.value.ok) {
+      try {
+        const data = await gdacsRes.value.json();
+        const items = data?.features || data?.events || (Array.isArray(data) ? data : []);
+        for (const item of items.slice(0, 40)) {
+          const props = item.properties || item;
+          const coords = item.geometry?.coordinates;
+          const lat = coords ? Number(coords[1]) : Number(props.latitude || props.lat || 0);
+          const lng = coords ? Number(coords[0]) : Number(props.longitude || props.lon || 0);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) continue;
+          const alertLevel = String(props.alertlevel || props.AlertLevel || '').toLowerCase();
+          const evType = String(props.eventtype || props.EventType || 'disaster').toLowerCase();
+          events.push({
+            type: evType === 'tc' ? 'cyclone' : evType === 'fl' ? 'flood' : evType === 'vo' ? 'volcano' : evType === 'ts' ? 'tsunami' : evType,
+            lat, lng,
+            title: props.eventname || props.EventName || props.name || 'Natural Disaster',
+            severity: alertLevel === 'red' ? 'CRITICAL' : 'HIGH',
+            time: props.fromdate || props.FromDate || new Date().toISOString(),
+            link: props.url || props.URL || 'https://www.gdacs.org',
+            source: 'GDACS',
+          });
+        }
+      } catch (e) { typeof debug === 'function' && debug('gdacs parse error', e?.message); }
+    }
+
+    return new Response(JSON.stringify({ events, updated_at: new Date().toISOString() }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiWeatherDisasters error', e?.message || e);
+    return new Response(JSON.stringify({ events: [], error: String(e?.message || e) }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+/**
+ * GET /api/weather/aviation
+ * Proxies aviationweather.gov SIGMETs (active international aviation hazards).
+ * Returns { sigmets[], updated_at }.
+ */
+async function handleApiWeatherAviation(env, req) {
+  try {
+    const resp = await fetch('https://aviationweather.gov/api/data/sigmet?format=json', {
+      headers: { 'User-Agent': 'OSInfoHub/1.0', 'Accept': 'application/json' },
+      cf: { cacheEverything: true, cacheTtl: 600 },
+    });
+    if (!resp.ok) throw new Error(`aviationweather HTTP ${resp.status}`);
+    const data = await resp.json();
+    const raw = Array.isArray(data) ? data : (data.data || data.features || []);
+    const sigmets = raw.slice(0, 30).map((s, idx) => ({
+      id: s.isigmetId || s.sigmetId || s.id || `sigmet-${idx}`,
+      hazard: s.hazard || s.phenomenon || 'UNKNOWN',
+      qualifier: s.qualifier || '',
+      area: s.area || s.firId || s.location || 'Unknown region',
+      flevel_low: String(s.flevel_low || s.base || ''),
+      flevel_high: String(s.flevel_high || s.top || ''),
+      validTimeFrom: s.validTimeFrom || s.validTime || '',
+      validTimeTo: s.validTimeTo || '',
+      rawSigmet: (s.rawAirSigmet || s.rawSigmet || s.text || '').slice(0, 300),
+    }));
+    return new Response(JSON.stringify({ sigmets, updated_at: new Date().toISOString() }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiWeatherAviation error', e?.message || e);
+    return new Response(JSON.stringify({ sigmets: [], error: String(e?.message || e) }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 /* Root request router */
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
@@ -3717,6 +4173,23 @@ async function handleRequest(req, env, ctx) {
       return _responseFromResult(r);
     } else if (p.startsWith('/api/stream')) {
       return handleApiStream(env, req);
+    } else if (p.startsWith('/api/ai/briefing')) {
+      const r = await handleApiAiBriefing(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/ai/country-risk')) {
+      const r = await handleApiAiCountryRisk(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/ai/chat')) {
+      if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
+      const r = await handleApiAiChat(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/acknowledge')) {
+      const r = await handleApiAcknowledge(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/weather/disasters')) {
+      return handleApiWeatherDisasters(env, req);
+    } else if (p.startsWith('/api/weather/aviation')) {
+      return handleApiWeatherAviation(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });

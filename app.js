@@ -1075,7 +1075,7 @@ function renderGeneralFeed(region) {
         <div class="feed-content">
           <div class="feed-tags">
             <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
-            <span class="ftag ftag-loc">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
+            <span class="ftag ftag-loc" data-action="country-risk" data-country="${escapeAttr(i.country||'GLOBAL')}" title="AI Country Risk" style="cursor:pointer;" role="button" tabindex="0">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
             <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
             <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
             ${credBadge}
@@ -1092,12 +1092,15 @@ function renderGeneralFeed(region) {
           <div class="feed-desc">${escapeHtml(i.summary || '')}</div>
           ${aiBrief}
 
-          <div class="vote-row" aria-label="Vote buttons">
+          <div class="vote-row" aria-label="Vote buttons" data-ack-id="${escapeAttr(id)}">
             <button type="button" class="btn-vote ${localVote === 'up' ? 'voted-up' : ''}" data-action="vote" data-vote="up" data-id="${escapeAttr(id)}" aria-label="Vote up" title="Helpful">
               <i class="fas fa-thumbs-up" aria-hidden="true"></i>
             </button>
             <button type="button" class="btn-vote ${localVote === 'down' ? 'voted-down' : ''}" data-action="vote" data-vote="down" data-id="${escapeAttr(id)}" aria-label="Vote down" title="Not relevant">
               <i class="fas fa-thumbs-down" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn-ack" data-action="ack-incident" data-id="${escapeAttr(id)}" aria-label="Acknowledge incident" title="Acknowledge this incident">
+              <i class="fas fa-check" aria-hidden="true"></i> ACK
             </button>
           </div>
         </div>
@@ -1270,12 +1273,18 @@ function renderProximityAlerts(region) {
         <div style="font-size:.74rem;color:#5f6368;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:7px;">
           ${escapeHtml(i.summary)}
         </div>
-        <!-- Row 6: Source link + Dismiss -->
-        <div style="display:flex;align-items:center;justify-content:space-between;">
+        <!-- Row 6: Source link + Dismiss + ACK -->
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;" data-ack-id="${escapeAttr(a.key)}">
           ${sourceLink}
-          <button type="button" class="btn-dismiss" data-action="dismiss-alert"
-            data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert"
-            style="margin-left:auto;">Dismiss</button>
+          <span style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+            <button type="button" class="btn-ack" data-action="ack-incident"
+              data-id="${escapeAttr(a.key)}" aria-label="Acknowledge this alert"
+              title="Acknowledge">
+              <i class="fas fa-check" aria-hidden="true"></i> ACK
+            </button>
+            <button type="button" class="btn-dismiss" data-action="dismiss-alert"
+              data-id="${escapeAttr(a.key)}" aria-label="Dismiss this alert">Dismiss</button>
+          </span>
         </div>
       </div>`;
   }).join('');
@@ -4065,6 +4074,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         await downloadBriefAsPDF(d);
         return;
       }
+      /* --- Tier-2 actions --- */
+      if (action === 'toggle-weather') { toggleWeatherOverlay(); return; }
+      if (action === 'toggle-sigmet')  { hideSigmetTicker(); return; }
+      if (action === 'generate-brief') { handleGenerateBriefClick(); return; }
+      if (action === 'country-risk') {
+        const country = t.dataset.country || t.textContent.trim();
+        if (country && country !== 'GLOBAL') openCRP(country);
+        return;
+      }
+      if (action === 'close-crp') { closeCRP(); return; }
+      if (action === 'toggle-chat')  { toggleChat(); return; }
+      if (action === 'close-chat')   { closeChat(); return; }
+      if (action === 'chat-send')    { handleChatSend(); return; }
+      if (action === 'ack-incident') {
+        const id = t.dataset.id;
+        if (id) showAckForm(id, t);
+        return;
+      }
+      /* --- /Tier-2 actions --- */
+
       if (action === 'toggle-heatmap') {
         heatmapEnabled = !heatmapEnabled;
         typeof debug === 'function' && debug('heatmap:toggle', heatmapEnabled);
@@ -4298,6 +4327,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // S2.5: start 60-second logistics autopoll (updates map markers for watched assets)
     startLogisticsPoll();
 
+    // Tier-2: start SIGMET ticker auto-refresh
+    try { startSigmetRefresh(); } catch(e) { console.warn('[SIGMET] init error', e); }
+
+    // Tier-2: load initial acknowledgment state for visible incidents
+    setTimeout(() => {
+      try { loadAcknowledgments(INCIDENTS.map(i => i.id)); } catch(e) { console.warn('[ACK] init error', e); }
+    }, 1500);
+
     // try flush queue on load
     setTimeout(() => { try { flushVoteQueue(); } catch(e){} }, 1000);
 
@@ -4350,3 +4387,472 @@ window.adminGetSecret = adminGetSecret;
   if (fail === 0) console.log(`[wrapLongitude] All ${pass} unit tests passed.`);
   else            console.error(`[wrapLongitude] ${fail} test(s) FAILED.`);
 })();
+
+/* ============================================================
+   TIER-2 FEATURES
+   ============================================================ */
+
+/* ---------- STATE ---------- */
+let weatherLayerGroup = null;
+let weatherEnabled = false;
+let WEATHER_EVENTS = [];
+let CHAT_MESSAGES = [];       // [{role, content}]  — session memory
+let SIGMET_REFRESH_TIMER = null;
+let ACK_CACHE = {};           // { incidentId: {user_name, note, timestamp} }
+
+// Restore chat session from sessionStorage
+try {
+  const saved = sessionStorage.getItem('infohub_chat_v1');
+  if (saved) CHAT_MESSAGES = JSON.parse(saved);
+} catch(e) {}
+
+/* ============================================================
+   WEATHER / DISASTER OVERLAY
+   ============================================================ */
+
+const WEATHER_ICONS = {
+  earthquake: { emoji: '🔴', color: '#e53935', label: 'EQ' },
+  cyclone:    { emoji: '🌀', color: '#8e24aa', label: 'TC' },
+  flood:      { emoji: '🔵', color: '#1565c0', label: 'FL' },
+  volcano:    { emoji: '🟠', color: '#e65100', label: 'VO' },
+  tsunami:    { emoji: '🟡', color: '#f9a825', label: 'TS' },
+  disaster:   { emoji: '⚠️', color: '#f57f17', label: '!!' },
+};
+
+async function loadWeatherDisasters() {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/weather/disasters`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    WEATHER_EVENTS = Array.isArray(data.events) ? data.events : [];
+    return WEATHER_EVENTS;
+  } catch(e) {
+    console.warn('[Weather] load failed:', e.message);
+    return [];
+  }
+}
+
+function renderWeatherLayer() {
+  if (weatherLayerGroup) {
+    try { map.removeLayer(weatherLayerGroup); } catch(e) {}
+    weatherLayerGroup = null;
+  }
+  if (!WEATHER_EVENTS.length) return;
+
+  const markers = [];
+  for (const ev of WEATHER_EVENTS) {
+    const lat = Number(ev.lat), lng = Number(ev.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    const meta = WEATHER_ICONS[ev.type] || WEATHER_ICONS.disaster;
+    const popupContent = `
+      <div style="font-size:0.82rem;min-width:180px;">
+        <div style="font-weight:700;color:${meta.color};margin-bottom:4px;">${meta.emoji} ${escapeHtml(ev.type.toUpperCase())}</div>
+        <div style="font-weight:600;margin-bottom:3px;">${escapeHtml(ev.title)}</div>
+        ${ev.magnitude ? `<div style="font-size:0.75rem;color:#666;">Magnitude: ${ev.magnitude}</div>` : ''}
+        <div style="font-size:0.72rem;color:#888;margin-top:4px;">${escapeHtml(ev.source || '')} · ${escapeHtml((ev.time || '').slice(0,10))}</div>
+        ${ev.link && ev.link !== '#' ? `<a href="${escapeAttr(ev.link)}" target="_blank" rel="noopener" style="font-size:0.72rem;color:#1a73e8;">View ↗</a>` : ''}
+      </div>`;
+
+    const icon = L.divIcon({
+      className: 'weather-div-icon',
+      html: `<span title="${escapeAttr(ev.title)}" style="font-size:18px;">${meta.emoji}</span>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+    });
+    const marker = L.marker([lat, wrapLongitude(lng)], { icon });
+    marker.bindPopup(popupContent);
+    markers.push(marker);
+  }
+
+  if (markers.length) {
+    weatherLayerGroup = L.layerGroup(markers);
+    weatherLayerGroup.addTo(map);
+  }
+}
+
+async function toggleWeatherOverlay() {
+  const btn = document.getElementById('weather-toggle');
+  weatherEnabled = !weatherEnabled;
+  if (btn) { btn.classList.toggle('active', weatherEnabled); btn.setAttribute('aria-pressed', String(weatherEnabled)); }
+
+  if (weatherEnabled) {
+    if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Weather';
+    await loadWeatherDisasters();
+    renderWeatherLayer();
+    if (btn) btn.innerHTML = `<i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather <span style="font-size:0.65em;opacity:0.8;">(${WEATHER_EVENTS.length})</span>`;
+  } else {
+    if (weatherLayerGroup) { try { map.removeLayer(weatherLayerGroup); } catch(e){} weatherLayerGroup = null; }
+    if (btn) btn.innerHTML = '<i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather';
+  }
+}
+
+/* ============================================================
+   SIGMET / AVIATION TICKER
+   ============================================================ */
+
+async function loadSigmetTicker() {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/weather/aviation`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderSigmetTicker(Array.isArray(data.sigmets) ? data.sigmets : []);
+  } catch(e) {
+    console.warn('[SIGMET] load failed:', e.message);
+  }
+}
+
+function renderSigmetTicker(sigmets) {
+  const strip = document.getElementById('sigmet-ticker-strip');
+  const inner = document.getElementById('sigmet-inner');
+  if (!strip || !inner) return;
+
+  if (!sigmets.length) {
+    strip.style.display = 'none';
+    return;
+  }
+
+  const items = sigmets.map(s => {
+    const parts = [];
+    if (s.hazard && s.hazard !== 'UNKNOWN') parts.push(`⚠ ${s.hazard}${s.qualifier ? ` (${s.qualifier})` : ''}`);
+    if (s.area) parts.push(s.area);
+    if (s.flevel_low || s.flevel_high) parts.push(`FL${s.flevel_low}–${s.flevel_high}`);
+    return parts.join(' · ');
+  }).filter(Boolean);
+
+  if (!items.length) { strip.style.display = 'none'; return; }
+
+  // Double the text so the scroll loop is seamless
+  const text = items.join('   ✦   ');
+  inner.textContent = `${text}   ✦   ${text}`;
+  strip.style.display = 'flex';
+}
+
+function hideSigmetTicker() {
+  const strip = document.getElementById('sigmet-ticker-strip');
+  if (strip) strip.style.display = 'none';
+  if (SIGMET_REFRESH_TIMER) { clearInterval(SIGMET_REFRESH_TIMER); SIGMET_REFRESH_TIMER = null; }
+}
+
+function startSigmetRefresh() {
+  loadSigmetTicker();
+  SIGMET_REFRESH_TIMER = setInterval(loadSigmetTicker, 10 * 60 * 1000);
+}
+
+/* ============================================================
+   AI SHIFT BRIEFING
+   ============================================================ */
+
+async function handleGenerateBriefClick() {
+  const windowEl = document.getElementById('brief-window-select');
+  const regionEl = document.getElementById('brief-region-select');
+  const bodyEl   = document.getElementById('shift-brief-body');
+  const metaEl   = document.getElementById('brief-meta-text');
+  if (!bodyEl) return;
+
+  const windowH = windowEl ? windowEl.value : '8';
+  const region  = regionEl ? regionEl.value : '';
+
+  bodyEl.innerHTML = `<div style="text-align:center;padding:40px 0;color:#4a90d9;">
+    <i class="fas fa-spinner fa-spin fa-2x d-block mb-3"></i>
+    Generating ${windowH}-hour briefing${region ? ` for ${region}` : ' (Global)'}…
+  </div>`;
+  if (metaEl) metaEl.textContent = '';
+
+  try {
+    const url = `${WORKER_URL}/api/ai/briefing?window=${encodeURIComponent(windowH)}&region=${encodeURIComponent(region)}`;
+    const res = await fetchWithTimeout(url, {});
+    const data = await res.json();
+
+    if (data.error && !data.briefing) {
+      bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;">${escapeHtml(data.error)}</div>`;
+      return;
+    }
+
+    // Render briefing text: convert ## headings and - bullets to basic HTML
+    const formatted = escapeHtml(data.briefing || '')
+      .replace(/^## (.+)$/gm, '<h6 style="color:#64b5f6;font-weight:700;margin:16px 0 6px;font-size:0.85rem;letter-spacing:0.04em;">$1</h6>')
+      .replace(/^- (.+)$/gm, '<div style="padding-left:12px;">• $1</div>')
+      .replace(/\n/g, '<br>');
+
+    bodyEl.innerHTML = `<div style="padding:4px 0;">${formatted}</div>`;
+    if (metaEl) {
+      metaEl.textContent = `${data.incident_count} incidents · ${data.region} · ${data.window_h}h · Model: ${data.model || 'AI'} · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
+    }
+  } catch(e) {
+    bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;">Failed to generate briefing: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+/* ============================================================
+   COUNTRY RISK PANEL (CRP)
+   ============================================================ */
+
+function openCRP(country) {
+  const panel = document.getElementById('crp-panel');
+  const nameEl = document.getElementById('crp-country-name');
+  const badgeEl = document.getElementById('crp-risk-badge');
+  const bodyEl  = document.getElementById('crp-body');
+  if (!panel) return;
+
+  if (nameEl) nameEl.textContent = country;
+  if (badgeEl) { badgeEl.textContent = '…'; badgeEl.className = 'crp-risk-badge'; }
+  if (bodyEl) bodyEl.innerHTML = '<div class="text-center py-3" style="color:#4a90d9;"><i class="fas fa-spinner fa-spin"></i> Analysing…</div>';
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  loadCountryRisk(country);
+}
+
+function closeCRP() {
+  const panel = document.getElementById('crp-panel');
+  if (panel) panel.style.display = 'none';
+}
+
+async function loadCountryRisk(country) {
+  const badgeEl = document.getElementById('crp-risk-badge');
+  const bodyEl  = document.getElementById('crp-body');
+  if (!bodyEl) return;
+
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/ai/country-risk?country=${encodeURIComponent(country)}`, {});
+    const data = await res.json();
+
+    const level = (data.risk_level || 'UNKNOWN').toUpperCase();
+    const score = Number(data.risk_score || 0);
+    const travel = (data.travel_advisory || 'EXERCISE_CAUTION').toUpperCase();
+    const bullets = Array.isArray(data.bullets) ? data.bullets : [];
+    const threats = Array.isArray(data.key_threats) ? data.key_threats : [];
+
+    if (badgeEl) {
+      badgeEl.textContent = `${level} ${score > 0 ? score : ''}`.trim();
+      badgeEl.className = `crp-risk-badge crp-risk-${level}`;
+    }
+
+    bodyEl.innerHTML = `
+      ${bullets.length ? `<ul>${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>` : ''}
+      ${data.dell_impact ? `<div class="crp-dell-impact"><strong>Dell Impact:</strong> ${escapeHtml(data.dell_impact)}</div>` : ''}
+      ${threats.length ? `<div style="font-size:0.77rem;color:#777;margin-top:8px;"><strong>Key threats:</strong> ${threats.map(escapeHtml).join(' · ')}</div>` : ''}
+      <div class="crp-meta-row">
+        <span>${data.incident_count || 0} incidents (72h)</span>
+        <span>Travel: <span class="crp-travel-badge crp-travel-${travel}">${travel.replace('_', ' ')}</span></span>
+        <span>${(data.generated_at || '').slice(11,16)} UTC</span>
+      </div>`;
+  } catch(e) {
+    if (bodyEl) bodyEl.innerHTML = `<div style="color:#e57373;font-size:0.8rem;padding:8px;">Failed: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+/* ============================================================
+   ASK THE HUB — AI CHAT
+   ============================================================ */
+
+function toggleChat() {
+  const drawer = document.getElementById('chat-drawer');
+  const fab    = document.getElementById('chat-fab');
+  if (!drawer) return;
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) closeChat(); else openChat();
+}
+
+function openChat() {
+  const drawer  = document.getElementById('chat-drawer');
+  const overlay = document.getElementById('chat-overlay');
+  const fab     = document.getElementById('chat-fab');
+  if (drawer)  { drawer.classList.add('open');  drawer.setAttribute('aria-hidden', 'false'); }
+  if (overlay) { overlay.style.display = 'block'; }
+  if (fab)     { fab.classList.add('open'); }
+  setTimeout(() => {
+    const msgs = document.getElementById('chat-messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    const inp = document.getElementById('chat-input');
+    if (inp) inp.focus();
+  }, 220);
+}
+
+function closeChat() {
+  const drawer  = document.getElementById('chat-drawer');
+  const overlay = document.getElementById('chat-overlay');
+  const fab     = document.getElementById('chat-fab');
+  if (drawer)  { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); }
+  if (overlay) { overlay.style.display = 'none'; }
+  if (fab)     { fab.classList.remove('open'); }
+}
+
+function appendChatMessage(role, content, typing = false) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return null;
+  const el = document.createElement('div');
+  el.className = `chat-msg chat-msg-${role}${typing ? ' chat-typing' : ''}`;
+  el.innerHTML = `
+    <div class="chat-msg-avatar">
+      <i class="fas fa-${role === 'ai' ? 'robot' : 'user'}" aria-hidden="true"></i>
+    </div>
+    <div class="chat-msg-content">${typing ? '<i class="fas fa-ellipsis-h"></i>' : escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  return el;
+}
+
+async function handleChatSend() {
+  const input  = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send-btn');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  appendChatMessage('user', text);
+  CHAT_MESSAGES.push({ role: 'user', content: text });
+
+  if (sendBtn) sendBtn.disabled = true;
+  const typingEl = appendChatMessage('ai', '', true);
+
+  try {
+    const res = await fetch(`${WORKER_URL}/api/ai/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: CHAT_MESSAGES }),
+    });
+    const data = await res.json();
+    const reply = data.reply || 'No response received.';
+
+    if (typingEl) {
+      typingEl.classList.remove('chat-typing');
+      typingEl.querySelector('.chat-msg-content').innerHTML = escapeHtml(reply).replace(/\n/g, '<br>');
+    }
+
+    CHAT_MESSAGES.push({ role: 'assistant', content: reply });
+    // Keep only last 20 messages in memory to avoid token overflow
+    if (CHAT_MESSAGES.length > 20) CHAT_MESSAGES = CHAT_MESSAGES.slice(-20);
+    try { sessionStorage.setItem('infohub_chat_v1', JSON.stringify(CHAT_MESSAGES)); } catch(e) {}
+  } catch(e) {
+    if (typingEl) {
+      typingEl.classList.remove('chat-typing');
+      typingEl.querySelector('.chat-msg-content').innerHTML = `<span style="color:#e57373;">Error: ${escapeHtml(e.message)}</span>`;
+    }
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+    const msgs = document.getElementById('chat-messages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+}
+
+// Wire up Enter key in chat textarea (Shift+Enter = newline)
+document.addEventListener('keydown', (e) => {
+  if (e.target && e.target.id === 'chat-input') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleChatSend();
+    }
+  }
+});
+
+// Close chat on overlay click
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'chat-overlay') closeChat();
+});
+
+/* ============================================================
+   INCIDENT ACKNOWLEDGMENT
+   ============================================================ */
+
+async function loadAcknowledgments(ids) {
+  if (!ids || !ids.length) return;
+  const uniqueIds = [...new Set(ids.map(String).filter(Boolean))];
+  // chunk into groups of 50
+  const chunks = [];
+  for (let i = 0; i < uniqueIds.length; i += 50) chunks.push(uniqueIds.slice(i, i + 50));
+
+  try {
+    await Promise.all(chunks.map(async chunk => {
+      const res = await fetch(`${WORKER_URL}/api/acknowledge?ids=${encodeURIComponent(chunk.join(','))}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      Object.assign(ACK_CACHE, data);
+    }));
+    applyAckBadges();
+  } catch(e) {
+    console.warn('[ACK] loadAcknowledgments failed:', e.message);
+  }
+}
+
+function applyAckBadges() {
+  document.querySelectorAll('[data-ack-id]').forEach(el => {
+    const id = el.dataset.ackId;
+    if (!id || !ACK_CACHE[id]) return;
+    const ack = ACK_CACHE[id];
+    // Remove existing ACK button for this id and replace with badge
+    const ackBtn = el.querySelector(`.btn-ack[data-id="${CSS.escape(id)}"]`);
+    if (ackBtn) {
+      const badge = document.createElement('span');
+      badge.className = 'ack-badge';
+      badge.innerHTML = `<i class="fas fa-check-circle" aria-hidden="true"></i> ${escapeHtml(ack.user_name)}`;
+      badge.title = ack.note ? `Note: ${ack.note}\n${ack.timestamp}` : ack.timestamp;
+      ackBtn.replaceWith(badge);
+    }
+  });
+}
+
+function showAckForm(incidentId, triggerEl) {
+  // If already ACK'd, just show info
+  if (ACK_CACHE[incidentId]) {
+    const ack = ACK_CACHE[incidentId];
+    alert(`Acknowledged by: ${ack.user_name}\nNote: ${ack.note || '(none)'}\nTime: ${ack.timestamp}`);
+    return;
+  }
+  // Check if form already open for this ID
+  const existing = document.querySelector(`.ack-form-inline[data-ack-form-id="${CSS.escape(incidentId)}"]`);
+  if (existing) { existing.remove(); return; }
+
+  const form = document.createElement('div');
+  form.className = 'ack-form-inline';
+  form.dataset.ackFormId = incidentId;
+  form.innerHTML = `
+    <input type="text" placeholder="Your name (required)" class="ack-name-input" maxlength="100" aria-label="Your name">
+    <textarea rows="2" placeholder="Optional note…" class="ack-note-input" maxlength="500" aria-label="Acknowledgment note"></textarea>
+    <div class="ack-form-btns">
+      <button type="button" class="btn-ack-submit">✓ Submit ACK</button>
+      <button type="button" class="btn-ack-cancel">Cancel</button>
+    </div>`;
+
+  // Insert after trigger element
+  triggerEl.insertAdjacentElement('afterend', form);
+
+  const nameInput = form.querySelector('.ack-name-input');
+  if (nameInput) nameInput.focus();
+
+  form.querySelector('.btn-ack-submit').addEventListener('click', async () => {
+    const name = (form.querySelector('.ack-name-input')?.value || '').trim();
+    const note = (form.querySelector('.ack-note-input')?.value || '').trim();
+    if (!name) { alert('Please enter your name.'); return; }
+    await submitAcknowledgment(incidentId, name, note, form);
+  });
+
+  form.querySelector('.btn-ack-cancel').addEventListener('click', () => form.remove());
+}
+
+async function submitAcknowledgment(id, user_name, note, formEl) {
+  try {
+    const res = await fetch(`${WORKER_URL}/api/acknowledge`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, user_name, note }),
+    });
+    const data = await res.json();
+    if (data.ok && data.ack) {
+      ACK_CACHE[id] = data.ack;
+      if (formEl) formEl.remove();
+      applyAckBadges();
+    } else {
+      alert(`ACK failed: ${data.error || 'Unknown error'}`);
+    }
+  } catch(e) {
+    alert(`ACK failed: ${e.message}`);
+  }
+}
+
+/* ============================================================
+   /TIER-2 FEATURES
+   ============================================================ */
