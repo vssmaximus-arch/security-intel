@@ -1096,6 +1096,196 @@
       border-radius: 12px; letter-spacing: 0.04em;
     }
     /* ===== /SITREP Modal ===== */
+
+    /* ============================================================
+       TIER-3: Correlation Signals Panel
+       ============================================================ */
+    .correlate-header {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 12px 8px; border-bottom: 1px solid #2a2d35; background: #1a1b1e;
+      border-radius: 8px 8px 0 0;
+    }
+    .correlate-title { flex: 1; font-size: 0.78rem; font-weight: 700; color: #90caf9; }
+    .correlate-badge {
+      background: #1565c0; color: #fff; font-size: 0.7rem; font-weight: 700;
+      border-radius: 10px; padding: 1px 7px; min-width: 20px; text-align: center;
+    }
+    .correlate-refresh-btn {
+      background: none; border: none; color: #607d8b; cursor: pointer; font-size: 0.8rem;
+      padding: 2px 4px; border-radius: 4px; transition: color 0.2s;
+    }
+    .correlate-refresh-btn:hover { color: #90caf9; }
+    .correlate-body { padding: 8px; max-height: 240px; overflow-y: auto; }
+    .signal-card {
+      border-left: 3px solid #555; background: #1a1c22; border-radius: 6px;
+      padding: 8px 10px; margin-bottom: 7px; font-size: 0.77rem; line-height: 1.4;
+    }
+    .signal-card.signal-sev-CRITICAL { border-left-color: #f44336; }
+    .signal-card.signal-sev-HIGH     { border-left-color: #ff9800; }
+    .signal-card.signal-sev-MEDIUM   { border-left-color: #ffc107; }
+    .signal-title { font-weight: 700; color: #e0e0e0; margin-bottom: 2px; }
+    .signal-count {
+      font-size: 0.68rem; background: #2a2d35; border-radius: 8px;
+      padding: 1px 6px; color: #90caf9; margin-left: 5px;
+    }
+    .signal-countries { color: #78909c; font-size: 0.72rem; margin-bottom: 3px; }
+    .signal-text { color: #b0bec5; font-size: 0.74rem; font-style: italic; }
+    body.light-mode .correlate-header { background: #f5f5f5; border-color: #e0e0e0; }
+    body.light-mode .signal-card { background: #fafafa; }
+    body.light-mode .signal-title { color: #222; }
+    body.light-mode .signal-text { color: #555; }
+
+    /* ============================================================
+       TIER-3: Sentiment Drift Panel
+       ============================================================ */
+    .sentiment-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px 8px; border-bottom: 1px solid #2a2d35; background: #1a1b1e;
+      border-radius: 8px 8px 0 0; font-size: 0.78rem; font-weight: 700; color: #80cbc4;
+    }
+    .sentiment-updated { font-size: 0.68rem; font-weight: 400; color: #607d8b; }
+    .sentiment-body { padding: 10px 12px; }
+    .sentiment-row { margin-bottom: 10px; }
+    .sentiment-region { font-size: 0.72rem; font-weight: 700; color: #b0bec5; margin-bottom: 3px; }
+    .sentiment-bar-wrap {
+      height: 8px; background: #2a2d35; border-radius: 4px; overflow: hidden;
+      margin-bottom: 3px; position: relative;
+    }
+    .sentiment-bar {
+      height: 100%; border-radius: 4px;
+      width: var(--bar-pct, 0%);
+      transition: width 0.8s ease;
+    }
+    .sentiment-bar.sentiment-label-CRITICAL { background: linear-gradient(90deg,#b71c1c,#f44336); }
+    .sentiment-bar.sentiment-label-HIGH     { background: linear-gradient(90deg,#e65100,#ff9800); }
+    .sentiment-bar.sentiment-label-ELEVATED { background: linear-gradient(90deg,#f57f17,#ffc107); }
+    .sentiment-bar.sentiment-label-STABLE   { background: linear-gradient(90deg,#1b5e20,#4caf50); }
+    .sentiment-row-meta { display: flex; align-items: center; gap: 6px; }
+    .sentiment-lbl {
+      font-size: 0.67rem; font-weight: 700; border-radius: 8px; padding: 1px 7px;
+    }
+    .sentiment-lbl.sentiment-label-CRITICAL { background:#b71c1c; color:#fff; }
+    .sentiment-lbl.sentiment-label-HIGH     { background:#e65100; color:#fff; }
+    .sentiment-lbl.sentiment-label-ELEVATED { background:#f57f17; color:#000; }
+    .sentiment-lbl.sentiment-label-STABLE   { background:#1b5e20; color:#fff; }
+    .sentiment-narrative { font-size: 0.71rem; color: #78909c; font-style: italic; margin-top: 2px; line-height: 1.3; }
+    body.light-mode .sentiment-header { background: #f5f5f5; border-color: #e0e0e0; color: #00796b; }
+    body.light-mode .sentiment-bar-wrap { background: #e0e0e0; }
+    body.light-mode .sentiment-narrative { color: #777; }
+
+    /* ============================================================
+       TIER-3: Executive Report Modal Content
+       ============================================================ */
+    .exec-kpi-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .exec-kpi-card {
+      flex: 1; min-width: 70px; background: #1a1c22; border: 1px solid #2a2d35;
+      border-radius: 8px; padding: 10px 12px; text-align: center;
+    }
+    .exec-kpi-val { font-size: 1.6rem; font-weight: 800; color: #90caf9; line-height: 1; }
+    .exec-kpi-val.kpi-critical { color: #f44336; }
+    .exec-kpi-val.kpi-high     { color: #ff9800; }
+    .exec-kpi-label { font-size: 0.65rem; color: #78909c; text-transform: uppercase; margin-top: 3px; }
+    .exec-report-content {
+      background: #0d1117; border-radius: 8px; padding: 20px 24px;
+      font-size: 0.85rem; line-height: 1.8; color: #c9d1d9;
+      font-family: 'Inter', sans-serif;
+    }
+    .exec-section-head {
+      color: #58a6ff; font-size: 0.88rem; font-weight: 700;
+      margin: 18px 0 8px; border-bottom: 1px solid #21262d; padding-bottom: 4px;
+    }
+    body.light-mode .exec-kpi-card { background: #f5f5f5; border-color: #e0e0e0; }
+    body.light-mode .exec-kpi-val  { color: #1565c0; }
+    body.light-mode .exec-report-content { background: #f8f9fa; color: #333; }
+    body.light-mode .exec-section-head { color: #1565c0; border-color: #e0e0e0; }
+
+    /* ============================================================
+       TIER-3: Cyber Threat Intel Drawer
+       ============================================================ */
+    .threat-drawer {
+      position: fixed; top: 0; right: 0; width: 420px; height: 100vh;
+      background: #13151a; border-left: 1px solid #2a2d35; z-index: 1095;
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.3s ease;
+    }
+    .threat-drawer.open { transform: translateX(0); }
+    .threat-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1094;
+      display: none;
+    }
+    .threat-overlay.open { display: block; }
+    .threat-drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; background: #1a1b1e; border-bottom: 1px solid #2a2d35;
+      font-size: 0.88rem; font-weight: 700; color: #ef9a9a;
+      flex-shrink: 0;
+    }
+    .threat-drawer-close {
+      background: none; border: none; color: #78909c; cursor: pointer;
+      font-size: 1rem; padding: 2px 6px; border-radius: 4px;
+      transition: color 0.2s;
+    }
+    .threat-drawer-close:hover { color: #ef9a9a; }
+    .threat-drawer-tabs {
+      display: flex; background: #1a1b1e; border-bottom: 1px solid #2a2d35;
+      flex-shrink: 0;
+    }
+    .threat-tab {
+      flex: 1; padding: 8px 4px; background: none; border: none;
+      color: #78909c; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .threat-tab.active { color: #ef9a9a; border-bottom-color: #ef9a9a; }
+    .threat-tab:hover:not(.active) { color: #b0bec5; }
+    .threat-body { flex: 1; overflow-y: auto; padding: 12px; }
+    .kev-card, .cve-card, .otx-card {
+      background: #1a1c22; border: 1px solid #2a2d35; border-radius: 8px;
+      padding: 10px 12px; margin-bottom: 8px; font-size: 0.76rem; line-height: 1.45;
+    }
+    .kev-card { border-left: 3px solid #f44336; }
+    .cve-card { border-left: 3px solid #ff9800; }
+    .otx-card { border-left: 3px solid #9c27b0; }
+    .threat-card-id { font-weight: 700; color: #e0e0e0; margin-bottom: 3px; }
+    .threat-card-meta { color: #78909c; font-size: 0.7rem; margin-bottom: 4px; }
+    .threat-card-desc { color: #b0bec5; }
+    .threat-cvss-badge {
+      display: inline-block; font-size: 0.68rem; font-weight: 700;
+      border-radius: 6px; padding: 1px 7px; margin-left: 6px;
+    }
+    .cvss-critical { background:#b71c1c; color:#fff; }
+    .cvss-high     { background:#e65100; color:#fff; }
+    .cvss-medium   { background:#f57f17; color:#000; }
+    .cvss-low      { background:#1b5e20; color:#fff; }
+    @media (max-width: 500px) {
+      .threat-drawer { width: 100vw; }
+    }
+
+    /* ============================================================
+       TIER-3: Supply Chain map marker + Escalation section in CRP
+       ============================================================ */
+    .supply-marker {
+      background: none; border: none;
+      color: #ff9800; font-size: 14px; line-height: 1;
+      text-shadow: 0 0 4px rgba(0,0,0,0.8);
+    }
+    .esc-section {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #2a2d35;
+    }
+    .esc-header { font-size: 0.72rem; font-weight: 700; color: #78909c; text-transform: uppercase; margin-bottom: 6px; }
+    .esc-score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+    .esc-score {
+      font-size: 1.8rem; font-weight: 800; line-height: 1;
+    }
+    .esc-score.esc-rising   { color: #f44336; }
+    .esc-score.esc-stable   { color: #ffc107; }
+    .esc-score.esc-declining{ color: #4caf50; }
+    .esc-direction { font-size: 1.2rem; }
+    .esc-direction.esc-rising    { color: #f44336; }
+    .esc-direction.esc-stable    { color: #ffc107; }
+    .esc-direction.esc-declining { color: #4caf50; }
+    .esc-narrative { font-size: 0.74rem; color: #90a4ae; font-style: italic; line-height: 1.4; }
+    body.light-mode .esc-section { border-color: #e0e0e0; }
+    body.light-mode .esc-narrative { color: #555; }
   </style>
 </head>
 
@@ -1165,6 +1355,27 @@
         <button class="btn-toggle ms-2" id="weather-toggle" data-action="toggle-weather"
           aria-pressed="false" aria-label="Toggle weather and disaster overlay" tabindex="0">
           <i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather
+        </button>
+
+        <!-- Tier-3: Supply Chain disruption map layer -->
+        <button class="btn-toggle ms-2" id="supply-chain-toggle" data-action="toggle-supply-chain"
+          aria-pressed="false" aria-label="Toggle supply chain disruption layer" tabindex="0">
+          <i class="fas fa-boxes-stacked" aria-hidden="true"></i> Supply
+        </button>
+
+        <!-- Tier-3: AI Executive Report -->
+        <button class="btn-toggle ms-2" id="exec-report-btn"
+          data-bs-toggle="modal" data-bs-target="#execReportModal"
+          aria-label="Open AI Executive Report" tabindex="0"
+          style="background:#1a2a3a;color:#81c784;">
+          <i class="fas fa-chart-line" aria-hidden="true"></i> Exec Report
+        </button>
+
+        <!-- Tier-3: Cyber Threat Intel panel -->
+        <button class="btn-toggle ms-2" id="threat-intel-btn" data-action="open-threat-intel"
+          aria-label="Open Cyber Threat Intelligence panel" tabindex="0"
+          style="background:#2a1a1a;color:#ef9a9a;">
+          <i class="fas fa-shield-virus" aria-hidden="true"></i> Threats
         </button>
 
         <!-- Dark / Light mode toggle -->
@@ -1346,6 +1557,34 @@
             </div>
           </div>
           <!-- /COUNTRY RISK PANEL -->
+
+          <!-- Tier-3: AI Threat Correlation Signals Panel -->
+          <div class="side-card" id="correlate-panel" style="display:none;" role="complementary" aria-label="Intel Signals">
+            <div class="correlate-header">
+              <span class="correlate-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Intel Signals</span>
+              <span class="correlate-badge" id="correlate-count" aria-label="Signal count">0</span>
+              <button class="correlate-refresh-btn" data-action="refresh-correlate" title="Refresh signals" aria-label="Refresh correlation signals">
+                <i class="fas fa-sync-alt" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div id="correlate-body" class="correlate-body" aria-live="polite">
+              <div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>
+            </div>
+          </div>
+          <!-- /CORRELATION PANEL -->
+
+          <!-- Tier-3: Sentiment Drift Monitor -->
+          <div class="side-card" id="sentiment-panel" style="display:none;" role="complementary" aria-label="Sentiment Drift">
+            <div class="sentiment-header">
+              <span><i class="fas fa-wave-square" aria-hidden="true"></i> Sentiment Drift</span>
+              <span class="sentiment-updated" id="sentiment-updated" aria-label="Last updated">—</span>
+            </div>
+            <div id="sentiment-body" class="sentiment-body" aria-live="polite">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+          <!-- /SENTIMENT DRIFT PANEL -->
+
         </div>
       </div>
     </div>
@@ -1481,6 +1720,44 @@
   </div>
   <!-- /SHIFT BRIEF MODAL -->
 
+  <!-- Tier-3: AI Executive Report Modal -->
+  <div class="modal fade" id="execReportModal" tabindex="-1" aria-labelledby="execReportLabel" aria-hidden="true" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content" style="background:#13151a; border:1px solid #2a2d35; color:#e0e0e0;">
+        <div class="modal-header" style="background:#1a1b1e; border-bottom:1px solid #2a2d35;">
+          <h5 class="modal-title" id="execReportLabel" style="color:#81c784; font-weight:700; font-size:0.95rem;">
+            <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Executive Security Report
+          </h5>
+          <div class="d-flex gap-2 align-items-center ms-3">
+            <button class="btn btn-sm btn-outline-light" data-action="generate-exec-report" style="font-size:0.78rem;">
+              <i class="fas fa-robot" aria-hidden="true"></i> Generate
+            </button>
+            <button class="btn btn-sm btn-outline-success" id="exec-pdf-btn" data-action="download-exec-pdf"
+              style="font-size:0.78rem; display:none;">
+              <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
+            </button>
+          </div>
+          <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="background:#0f1012; padding:24px;">
+          <div id="exec-report-meta" class="text-muted mb-2" style="font-size:0.75rem;"></div>
+          <div id="exec-report-kpis" class="exec-kpi-row mb-3"></div>
+          <div id="exec-report-content" class="exec-report-content">
+            <p class="text-muted text-center py-5">
+              <i class="fas fa-chart-line fa-3x mb-3 d-block" style="color:#2a3a2a;"></i>
+              Click <strong>Generate</strong> to produce an AI-written executive security briefing.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer" style="background:#1a1b1e; border-top:1px solid #2a2d35;">
+          <small class="text-secondary me-auto" id="exec-report-footer" style="font-size:0.75rem;"></small>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /EXEC REPORT MODAL -->
+
   <!-- S2.5 — Logistics Drawer backdrop -->
   <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
 
@@ -1564,6 +1841,26 @@
       <a id="ltm-fr24-link" href="#" target="_blank" rel="noopener noreferrer">Open on FlightRadar24 ↗</a>
     </div>
   </div>
+
+  <!-- Tier-3: Cyber Threat Intel Drawer -->
+  <div class="threat-drawer" id="threat-drawer" role="dialog" aria-label="Cyber Threat Intelligence" aria-hidden="true">
+    <div class="threat-drawer-header">
+      <span><i class="fas fa-shield-virus me-2" aria-hidden="true"></i>Cyber Threat Intel</span>
+      <button class="threat-drawer-close" data-action="close-threat-intel" aria-label="Close Threat Intel panel">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="threat-drawer-tabs" role="tablist">
+      <button class="threat-tab active" data-threat-tab="kev" role="tab" aria-selected="true">CISA KEV</button>
+      <button class="threat-tab" data-threat-tab="cves" role="tab" aria-selected="false">CVEs</button>
+      <button class="threat-tab" data-threat-tab="otx" role="tab" aria-selected="false">OTX</button>
+    </div>
+    <div id="threat-body" class="threat-body" aria-live="polite">
+      <div class="text-center text-secondary py-4"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+    </div>
+  </div>
+  <div class="threat-overlay" id="threat-overlay" aria-hidden="true"></div>
+  <!-- /THREAT INTEL DRAWER -->
 
   <!-- Tier-2: Ask the Hub — AI Chat FAB + Drawer -->
   <button class="chat-fab" id="chat-fab" data-action="toggle-chat"

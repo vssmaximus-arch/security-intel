@@ -75,6 +75,16 @@ const _ltmStateCache     = {};  // icao24 → latest state object (avoids JSON-i
 let OSINFO_USER_ID = '';
 let DISLIKED_IDS = new Set();
 
+// --- Tier-3 state ---
+let supplyChainLayer   = null;
+let supplyChainEnabled = false;
+let CORRELATION_DATA   = null;
+let SENTIMENT_DATA     = null;
+let THREAT_INTEL_DATA  = null;
+let correlationRefreshTimer = null;
+let sentimentRefreshTimer   = null;
+let activeThreatTab    = 'kev';
+
 function getOrCreateUserId() {
   try {
     let uid = localStorage.getItem('osinfohub_user_id');
@@ -4268,6 +4278,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       /* --- /Tier-2 actions --- */
 
+      /* --- Tier-3 actions --- */
+      if (action === 'toggle-supply-chain')  { toggleSupplyChainLayer(); return; }
+      if (action === 'generate-exec-report') { generateExecReport(); return; }
+      if (action === 'download-exec-pdf')    { downloadExecReportPDF(); return; }
+      if (action === 'open-threat-intel')    { openThreatIntelPanel(); return; }
+      if (action === 'close-threat-intel')   { closeThreatIntelPanel(); return; }
+      if (action === 'refresh-correlate')    { loadCorrelationSignals(true); return; }
+      /* --- /Tier-3 actions --- */
+
       if (action === 'toggle-heatmap') {
         heatmapEnabled = !heatmapEnabled;
         typeof debug === 'function' && debug('heatmap:toggle', heatmapEnabled);
@@ -4503,6 +4522,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Tier-2: start SIGMET ticker auto-refresh
     try { startSigmetRefresh(); } catch(e) { console.warn('[SIGMET] init error', e); }
+
+    // Tier-3: start correlation signals + sentiment drift auto-refresh
+    setTimeout(() => {
+      try { startCorrelationRefresh(); } catch(e) { console.warn('[CORRELATE] init error', e); }
+    }, 2000);
+    setTimeout(() => {
+      try { startSentimentRefresh(); } catch(e) { console.warn('[SENTIMENT] init error', e); }
+    }, 3500);
 
     // Tier-2: load initial acknowledgment state for visible incidents
     setTimeout(() => {
@@ -4776,6 +4803,7 @@ function openCRP(country) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   loadCountryRisk(country);
+  loadEscalationScore(country); // Tier-3: append escalation section async
 }
 
 function closeCRP() {
@@ -5029,4 +5057,534 @@ async function submitAcknowledgment(id, user_name, note, formEl) {
 
 /* ============================================================
    /TIER-2 FEATURES
+   ============================================================ */
+
+/* ============================================================
+   TIER-3 FEATURES
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   SUPPLY CHAIN DISRUPTION MAP LAYER
+   Filters existing INCIDENTS where category === 'SUPPLY_CHAIN'
+   and renders them as orange Leaflet markers (no new Worker route).
+   ---------------------------------------------------------- */
+function toggleSupplyChainLayer() {
+  const btn = document.getElementById('supply-chain-toggle');
+  supplyChainEnabled = !supplyChainEnabled;
+  if (btn) btn.setAttribute('aria-pressed', String(supplyChainEnabled));
+  if (btn) btn.classList.toggle('active', supplyChainEnabled);
+
+  if (supplyChainEnabled) {
+    renderSupplyChainLayer();
+  } else {
+    if (supplyChainLayer) {
+      try { map.removeLayer(supplyChainLayer); } catch(e) {}
+      supplyChainLayer = null;
+    }
+  }
+}
+
+function renderSupplyChainLayer() {
+  if (!map) return;
+  if (supplyChainLayer) {
+    try { map.removeLayer(supplyChainLayer); } catch(e) {}
+    supplyChainLayer = null;
+  }
+  const scInc = INCIDENTS.filter(i => {
+    const cat = (i.category || '').toUpperCase();
+    return (cat === 'SUPPLY_CHAIN' || cat === 'SUPPLY' || cat === 'LOGISTICS' || cat === 'TRADE') && i.lat && i.lng;
+  });
+  if (scInc.length === 0) {
+    console.log('[SUPPLY] No supply chain incidents with coordinates to render');
+    return;
+  }
+  const supplyIcon = L.divIcon({
+    className: 'supply-marker',
+    html: '<i class="fas fa-boxes-stacked"></i>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -12]
+  });
+  supplyChainLayer = L.layerGroup();
+  for (const inc of scInc) {
+    const marker = L.marker([inc.lat, inc.lng], { icon: supplyIcon });
+    const sevLabel = inc.severity_label || (['', 'MINIMAL', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'][inc.severity] || 'MEDIUM');
+    marker.bindPopup(`
+      <div style="min-width:200px">
+        <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px">${escapeHtml(inc.title || 'Supply Chain Event')}</div>
+        <div style="font-size:0.75rem;color:#aaa;">${escapeHtml(inc.country || inc.region || '')} &bull; ${sevLabel}</div>
+        ${inc.link ? `<a href="${escapeHtml(inc.link)}" target="_blank" rel="noopener" style="font-size:0.75rem">→ Source</a>` : ''}
+      </div>
+    `);
+    supplyChainLayer.addLayer(marker);
+  }
+  supplyChainLayer.addTo(map);
+  console.log(`[SUPPLY] Rendered ${scInc.length} supply chain markers`);
+}
+
+/* ----------------------------------------------------------
+   AI THREAT CORRELATION ENGINE
+   Fetches clustered signals from Worker, renders in sidebar panel.
+   ---------------------------------------------------------- */
+async function loadCorrelationSignals(force = false) {
+  const bodyEl = document.getElementById('correlate-body');
+  const countEl = document.getElementById('correlate-count');
+  const panel = document.getElementById('correlate-panel');
+
+  if (!panel) return;
+  if (bodyEl) bodyEl.innerHTML = '<div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>';
+  panel.style.display = 'block';
+
+  try {
+    const url = `${WORKER_URL}/api/ai/correlate${force ? '?force=1' : ''}`;
+    const res = await fetchWithTimeout(url, {});
+    const data = await res.json();
+    CORRELATION_DATA = data;
+
+    const signals = Array.isArray(data.signals) ? data.signals : [];
+    if (countEl) countEl.textContent = String(signals.length);
+
+    if (signals.length === 0) {
+      if (bodyEl) bodyEl.innerHTML = '<div class="text-center text-secondary py-3" style="font-size:0.8rem;">No correlated signal clusters detected in the last 48h.</div>';
+      return;
+    }
+    renderCorrelationSignals(signals);
+    console.log(`[CORRELATE] ${signals.length} signals loaded, ${data.incident_count} incidents analysed`);
+  } catch(e) {
+    console.warn('[CORRELATE] load failed:', e.message);
+    if (bodyEl) bodyEl.innerHTML = `<div class="text-center text-secondary py-3" style="font-size:0.78rem;color:#e57373;">Failed to load signals.<br><small>${escapeHtml(e.message)}</small></div>`;
+  }
+}
+
+function renderCorrelationSignals(signals) {
+  const bodyEl = document.getElementById('correlate-body');
+  if (!bodyEl) return;
+
+  const sevColor = { CRITICAL: '#f44336', HIGH: '#ff9800', MEDIUM: '#ffc107' };
+
+  bodyEl.innerHTML = signals.map(s => {
+    const countries = (s.countries || []).slice(0, 4).join(', ');
+    const sev = (s.severity || 'MEDIUM').toUpperCase();
+    const col = sevColor[sev] || '#ffc107';
+    return `
+      <div class="signal-card signal-sev-${sev}">
+        <div class="signal-title">
+          ${escapeHtml(s.category || s.title || 'Security Cluster')}
+          <span class="signal-count">${s.count} incidents</span>
+        </div>
+        ${countries ? `<div class="signal-countries">${escapeHtml(countries)}</div>` : ''}
+        ${s.signal_text ? `<div class="signal-text">${escapeHtml(s.signal_text)}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function startCorrelationRefresh() {
+  loadCorrelationSignals();
+  if (correlationRefreshTimer) clearInterval(correlationRefreshTimer);
+  correlationRefreshTimer = setInterval(() => loadCorrelationSignals(), 30 * 60 * 1000);
+}
+
+/* ----------------------------------------------------------
+   AI PREDICTIVE ESCALATION SCORE
+   Appended to the CRP panel body after loadCountryRisk resolves.
+   Called by the patched openCRP() above.
+   ---------------------------------------------------------- */
+async function loadEscalationScore(country) {
+  const bodyEl = document.getElementById('crp-body');
+  if (!bodyEl) return;
+
+  // Create/find escalation section placeholder
+  let escSection = document.getElementById('crp-escalation');
+  if (!escSection) {
+    escSection = document.createElement('div');
+    escSection.id = 'crp-escalation';
+    escSection.className = 'esc-section';
+    escSection.innerHTML = '<div class="esc-header">Escalation Score</div><div style="color:#4a90d9;font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i> Computing…</div>';
+    bodyEl.appendChild(escSection);
+  } else {
+    escSection.innerHTML = '<div class="esc-header">Escalation Score</div><div style="color:#4a90d9;font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i> Computing…</div>';
+  }
+
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/ai/escalation?country=${encodeURIComponent(country)}`, {});
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    const dir = (data.direction || 'stable').toLowerCase();
+    const arrow = dir === 'rising' ? '↑' : dir === 'declining' ? '↓' : '→';
+    const scoreClass = `esc-score esc-${dir}`;
+    const dirClass = `esc-direction esc-${dir}`;
+    const conf = data.confidence ? ` <span style="font-size:0.65rem;color:#607d8b;">(${data.confidence} confidence)</span>` : '';
+
+    // Re-find the section (DOM may have been rebuilt by loadCountryRisk)
+    let sect = document.getElementById('crp-escalation');
+    if (!sect) {
+      sect = document.createElement('div');
+      sect.id = 'crp-escalation';
+      sect.className = 'esc-section';
+      const b = document.getElementById('crp-body');
+      if (b) b.appendChild(sect);
+    }
+
+    sect.innerHTML = `
+      <div class="esc-header">Escalation Score${conf}</div>
+      <div class="esc-score-row">
+        <span class="${scoreClass}">${data.escalation_score}</span>
+        <span class="${dirClass}" title="${dir}">${arrow}</span>
+        <span style="font-size:0.7rem;color:#78909c;">${data.period_24h}h now / ${data.period_prev48h} prev 48h</span>
+      </div>
+      ${data.narrative ? `<div class="esc-narrative">${escapeHtml(data.narrative)}</div>` : ''}
+    `;
+  } catch(e) {
+    console.warn('[ESCALATION] load failed:', e.message);
+    const sect = document.getElementById('crp-escalation');
+    if (sect) sect.innerHTML = ''; // Silently hide on failure
+  }
+}
+
+/* ----------------------------------------------------------
+   AI EXECUTIVE REPORT + PDF EXPORT
+   ---------------------------------------------------------- */
+async function generateExecReport() {
+  const contentEl = document.getElementById('exec-report-content');
+  const kpisEl = document.getElementById('exec-report-kpis');
+  const metaEl = document.getElementById('exec-report-meta');
+  const pdfBtn = document.getElementById('exec-pdf-btn');
+  const footerEl = document.getElementById('exec-report-footer');
+
+  if (contentEl) contentEl.innerHTML = '<div class="text-center py-5"><i class="fas fa-robot fa-2x mb-3 d-block" style="color:#81c784;"></i><span style="color:#90a4ae;font-size:0.9rem;">Generating AI executive briefing…</span></div>';
+  if (kpisEl) kpisEl.innerHTML = '';
+  if (pdfBtn) pdfBtn.style.display = 'none';
+
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/ai/exec-report`, {});
+    const data = await res.json();
+
+    renderExecReport(data);
+    console.log('[EXEC-REPORT] Generated successfully');
+  } catch(e) {
+    console.error('[EXEC-REPORT] failed:', e.message);
+    if (contentEl) contentEl.innerHTML = `<div style="color:#e57373;padding:20px;">Failed to generate report: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function renderExecReport(data) {
+  const contentEl = document.getElementById('exec-report-content');
+  const kpisEl = document.getElementById('exec-report-kpis');
+  const metaEl = document.getElementById('exec-report-meta');
+  const pdfBtn = document.getElementById('exec-pdf-btn');
+  const footerEl = document.getElementById('exec-report-footer');
+
+  // Render KPI tiles
+  const kpis = data.kpis || {};
+  if (kpisEl) {
+    const regions = kpis.regions || {};
+    kpisEl.innerHTML = `
+      <div class="exec-kpi-card">
+        <div class="exec-kpi-val">${kpis.total || 0}</div>
+        <div class="exec-kpi-label">Total (24h)</div>
+      </div>
+      <div class="exec-kpi-card">
+        <div class="exec-kpi-val kpi-critical">${kpis.critical || 0}</div>
+        <div class="exec-kpi-label">Critical</div>
+      </div>
+      <div class="exec-kpi-card">
+        <div class="exec-kpi-val kpi-high">${kpis.high || 0}</div>
+        <div class="exec-kpi-label">High</div>
+      </div>
+      <div class="exec-kpi-card">
+        <div class="exec-kpi-val" style="font-size:0.75rem;line-height:1.5;padding-top:4px;">
+          AMER:${regions.AMER||0} EMEA:${regions.EMEA||0}<br>APJC:${regions.APJC||0} LATAM:${regions.LATAM||0}
+        </div>
+        <div class="exec-kpi-label">Regions</div>
+      </div>
+    `;
+  }
+
+  // Parse and render report text with markdown-lite formatting
+  if (contentEl && data.report_text) {
+    const html = data.report_text
+      .replace(/^## (.+)$/gm, '<h5 class="exec-section-head">$1</h5>')
+      .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+      .replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul class="mb-2">${match}</ul>`)
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+    contentEl.innerHTML = `<p>${html}</p>`;
+  }
+
+  // Show PDF button + metadata
+  if (pdfBtn) pdfBtn.style.display = 'inline-block';
+  const genAt = data.generated_at ? new Date(data.generated_at).toLocaleTimeString() : '—';
+  if (metaEl) metaEl.textContent = `${data.incident_count || 0} incidents analysed • Generated ${genAt}`;
+  if (footerEl) footerEl.textContent = `${data.incident_count || 0} incidents analysed • Generated ${genAt}`;
+}
+
+async function downloadExecReportPDF() {
+  const el = document.getElementById('exec-report-content');
+  if (!el) return;
+  const pdfBtn = document.getElementById('exec-pdf-btn');
+
+  try {
+    if (pdfBtn) { pdfBtn.disabled = true; pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rendering…'; }
+
+    const canvas = await html2canvas(el, {
+      backgroundColor: '#0d1117',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgW = 210;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    // Add header
+    pdf.setFillColor(13, 17, 23);
+    pdf.rect(0, 0, 210, 297, 'F');
+    pdf.setTextColor(129, 199, 132);
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('DELL OS INFOHUB — Executive Security Report', 105, 10, { align: 'center' });
+    pdf.setTextColor(150, 150, 150);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Generated: ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC`, 105, 16, { align: 'center' });
+
+    // Add report image
+    const yOffset = 20;
+    const maxH = 297 - yOffset - 5;
+    const finalH = Math.min(imgH, maxH);
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, yOffset, imgW, finalH);
+
+    const filename = `Dell_ExecReport_${new Date().toISOString().slice(0, 10)}.pdf`;
+    pdf.save(filename);
+    console.log('[EXEC-REPORT] PDF saved:', filename);
+  } catch(e) {
+    console.error('[EXEC-REPORT] PDF failed:', e.message);
+    alert('PDF export failed: ' + e.message);
+  } finally {
+    if (pdfBtn) { pdfBtn.disabled = false; pdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Download PDF'; }
+  }
+}
+
+/* ----------------------------------------------------------
+   SENTIMENT DRIFT MONITOR
+   Region-level severity-weighted bars + AI narrative.
+   ---------------------------------------------------------- */
+async function loadSentimentDrift() {
+  const bodyEl = document.getElementById('sentiment-body');
+  const updatedEl = document.getElementById('sentiment-updated');
+  const panel = document.getElementById('sentiment-panel');
+
+  if (!panel) return;
+
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/ai/sentiment`, {});
+    const data = await res.json();
+    SENTIMENT_DATA = data;
+
+    if (data.regions) {
+      renderSentimentDrift(data.regions);
+      panel.style.display = 'block';
+      if (updatedEl) updatedEl.textContent = data.generated_at ? new Date(data.generated_at).toLocaleTimeString() : '—';
+      console.log('[SENTIMENT] Drift data loaded');
+    }
+  } catch(e) {
+    console.warn('[SENTIMENT] load failed:', e.message);
+    if (bodyEl) bodyEl.innerHTML = `<div class="text-center text-secondary py-2" style="font-size:0.76rem;">Unavailable</div>`;
+    if (panel) panel.style.display = 'block'; // Still show panel, just with error state
+  }
+}
+
+function renderSentimentDrift(regions) {
+  const bodyEl = document.getElementById('sentiment-body');
+  if (!bodyEl || !regions) return;
+
+  const REGION_LABELS = {
+    AMER: 'Americas',
+    EMEA: 'Europe / ME / Africa',
+    APJC: 'Asia-Pacific / Japan',
+    LATAM: 'Latin America'
+  };
+
+  const rows = Object.entries(regions).map(([key, v]) => {
+    const label = (v.label || 'STABLE').toUpperCase();
+    const score = Math.min(100, Math.max(0, v.score || 0));
+    const trend = v.trend || 'stable';
+    const trendIcon = trend === 'rising' ? '↑' : trend === 'declining' ? '↓' : '→';
+
+    return `
+      <div class="sentiment-row">
+        <div class="sentiment-region">${REGION_LABELS[key] || key} <span style="color:#607d8b;font-weight:400;">${trendIcon}</span></div>
+        <div class="sentiment-bar-wrap">
+          <div class="sentiment-bar sentiment-label-${label}" style="--bar-pct:${score}%"></div>
+        </div>
+        <div class="sentiment-row-meta">
+          <span class="sentiment-lbl sentiment-label-${label}">${label}</span>
+          <span style="font-size:0.68rem;color:#607d8b;margin-left:auto;">${v.count || 0} inc.</span>
+        </div>
+        ${v.narrative ? `<div class="sentiment-narrative">${escapeHtml(v.narrative)}</div>` : ''}
+      </div>`;
+  });
+
+  bodyEl.innerHTML = rows.join('');
+}
+
+function startSentimentRefresh() {
+  loadSentimentDrift();
+  if (sentimentRefreshTimer) clearInterval(sentimentRefreshTimer);
+  sentimentRefreshTimer = setInterval(loadSentimentDrift, 30 * 60 * 1000);
+}
+
+/* ----------------------------------------------------------
+   CYBER THREAT INTEL PANEL
+   CISA KEV + CVE CIRCL + optional OTX (if Worker has OTX_API_KEY).
+   ---------------------------------------------------------- */
+function openThreatIntelPanel() {
+  const drawer = document.getElementById('threat-drawer');
+  const overlay = document.getElementById('threat-overlay');
+  if (!drawer) return;
+
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  if (overlay) { overlay.classList.add('open'); overlay.style.display = 'block'; }
+
+  // Lazy load on first open
+  if (!THREAT_INTEL_DATA) {
+    loadThreatIntel();
+  } else {
+    renderThreatIntel(THREAT_INTEL_DATA, activeThreatTab);
+  }
+
+  // Wire tab clicks (once)
+  if (!drawer._tabsWired) {
+    drawer._tabsWired = true;
+    drawer.addEventListener('click', (ev) => {
+      const tabEl = ev.target.closest('.threat-tab');
+      if (tabEl && tabEl.dataset.threatTab) {
+        if (THREAT_INTEL_DATA) renderThreatIntel(THREAT_INTEL_DATA, tabEl.dataset.threatTab);
+        else activeThreatTab = tabEl.dataset.threatTab;
+      }
+      // Overlay click closes panel
+      if (ev.target.id === 'threat-overlay') closeThreatIntelPanel();
+    });
+  }
+}
+
+function closeThreatIntelPanel() {
+  const drawer = document.getElementById('threat-drawer');
+  const overlay = document.getElementById('threat-overlay');
+  if (!drawer) return;
+  drawer.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  if (overlay) { overlay.classList.remove('open'); overlay.style.display = 'none'; }
+}
+
+async function loadThreatIntel() {
+  const bodyEl = document.getElementById('threat-body');
+  if (bodyEl) bodyEl.innerHTML = '<div class="text-center text-secondary py-4"><i class="fas fa-spinner fa-spin"></i> Loading threat intelligence…</div>';
+
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/threat-intel`, {});
+    const data = await res.json();
+    THREAT_INTEL_DATA = data;
+
+    const ok = (data.sources_ok || []).join(', ') || '—';
+    const failed = (data.sources_failed || []).join(', ');
+    console.log(`[THREAT-INTEL] sources ok: ${ok}${failed ? ` | failed: ${failed}` : ''}`);
+
+    renderThreatIntel(data, activeThreatTab);
+  } catch(e) {
+    console.warn('[THREAT-INTEL] load failed:', e.message);
+    if (bodyEl) bodyEl.innerHTML = `<div class="text-center text-secondary py-4" style="font-size:0.8rem;">Failed to load threat intel.<br><small>${escapeHtml(e.message)}</small></div>`;
+  }
+}
+
+function renderThreatIntel(data, tab) {
+  activeThreatTab = tab || 'kev';
+  const bodyEl = document.getElementById('threat-body');
+  if (!bodyEl) return;
+
+  // Update tab active states
+  document.querySelectorAll('.threat-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.threatTab === activeThreatTab);
+    el.setAttribute('aria-selected', String(el.dataset.threatTab === activeThreatTab));
+  });
+
+  if (activeThreatTab === 'kev') {
+    const kev = Array.isArray(data.kev) ? data.kev : [];
+    if (kev.length === 0) {
+      bodyEl.innerHTML = '<div class="text-center text-secondary py-4" style="font-size:0.8rem;">No CISA KEV data available.</div>';
+      return;
+    }
+    bodyEl.innerHTML = kev.map(v => `
+      <div class="kev-card">
+        <div class="threat-card-id">${escapeHtml(v.cveID || 'N/A')}</div>
+        <div class="threat-card-meta">
+          ${escapeHtml(v.vendorProject || '')} — ${escapeHtml(v.product || '')}
+          &bull; Added: <strong>${escapeHtml(v.dateAdded || '—')}</strong>
+        </div>
+        <div class="threat-card-desc">${escapeHtml(v.vulnerabilityName || v.shortDescription || '—')}</div>
+        ${v.shortDescription && v.vulnerabilityName ? `<div class="threat-card-desc mt-1" style="color:#78909c;font-size:0.71rem;">${escapeHtml(v.shortDescription)}</div>` : ''}
+      </div>`).join('');
+
+  } else if (activeThreatTab === 'cves') {
+    const cves = Array.isArray(data.cves) ? data.cves : [];
+    if (cves.length === 0) {
+      bodyEl.innerHTML = '<div class="text-center text-secondary py-4" style="font-size:0.8rem;">No CVE data available.</div>';
+      return;
+    }
+    bodyEl.innerHTML = cves.map(v => {
+      const cvss = parseFloat(v.cvss || 0);
+      let cvssClass = 'cvss-low';
+      if (cvss >= 9) cvssClass = 'cvss-critical';
+      else if (cvss >= 7) cvssClass = 'cvss-high';
+      else if (cvss >= 4) cvssClass = 'cvss-medium';
+      const cvssHtml = cvss > 0 ? `<span class="threat-cvss-badge ${cvssClass}">CVSS ${cvss.toFixed(1)}</span>` : '';
+      const pub = v.Published ? new Date(v.Published).toLocaleDateString() : '—';
+      return `
+        <div class="cve-card">
+          <div class="threat-card-id">${escapeHtml(v.id || 'N/A')}${cvssHtml}</div>
+          <div class="threat-card-meta">Published: ${pub}</div>
+          <div class="threat-card-desc">${escapeHtml(v.summary || '—')}</div>
+          ${v.reference ? `<a href="${escapeHtml(v.reference)}" target="_blank" rel="noopener" style="font-size:0.7rem;color:#90caf9;">→ Reference</a>` : ''}
+        </div>`;
+    }).join('');
+
+  } else if (activeThreatTab === 'otx') {
+    const otx = Array.isArray(data.otx) ? data.otx : [];
+    if (otx.length === 0) {
+      bodyEl.innerHTML = `
+        <div class="text-center text-secondary py-4" style="font-size:0.8rem;">
+          <i class="fas fa-key mb-2 d-block" style="font-size:1.5rem;color:#607d8b;"></i>
+          OTX feed not configured.<br>
+          <small>Add <code>OTX_API_KEY</code> to your Cloudflare Worker environment to enable AlienVault OTX threat pulses.</small>
+        </div>`;
+      return;
+    }
+    bodyEl.innerHTML = otx.map(p => {
+      const tags = (p.tags || []).slice(0, 4).map(t => `<span style="background:#2a1a3a;color:#ce93d8;font-size:0.65rem;border-radius:6px;padding:1px 6px;margin:1px;">${escapeHtml(t)}</span>`).join('');
+      const created = p.created ? new Date(p.created).toLocaleDateString() : '—';
+      return `
+        <div class="otx-card">
+          <div class="threat-card-id">${escapeHtml(p.name || 'Untitled Pulse')}</div>
+          <div class="threat-card-meta">TLP: ${escapeHtml(p.tlp || 'white').toUpperCase()} &bull; ${created}</div>
+          <div class="threat-card-desc">${escapeHtml(p.description || '—')}</div>
+          ${tags ? `<div class="mt-1">${tags}</div>` : ''}
+        </div>`;
+    }).join('');
+  }
+}
+
+/* Wire threat overlay click to close (separate from drawer click — overlay is outside drawer) */
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('threat-overlay');
+  if (overlay) overlay.addEventListener('click', closeThreatIntelPanel);
+});
+
+/* ============================================================
+   /TIER-3 FEATURES
    ============================================================ */
