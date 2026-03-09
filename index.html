@@ -233,7 +233,7 @@
     .cluster-amber { background: #f9ab00; }
     .cluster-red { background: #d93025; }
 
-    .btn-daily { background-color: #1a73e8; color: white; padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; transition: opacity 0.2s; }
+    .btn-daily { background-color: #1a73e8; color: white; padding: 0 14px; height: 36px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; box-shadow: 0 2px 4px rgba(26,115,232,0.2); cursor: pointer; transition: opacity 0.2s; }
     .btn-daily:hover { background-color: #1557b0; color: white; }
     .btn-daily:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
@@ -367,18 +367,18 @@
     }
 
     /* AI Relevancy Engine — Initiative 1 */
-    .ai-toggle-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
+    .ai-toggle-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 0 14px; height: 36px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.4px; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
     .ai-toggle-btn.ai-on { background: #137333; color: #fff; box-shadow: 0 0 0 2px #34a85344; }
     .ai-toggle-btn:focus { outline: 2px solid #202124; outline-offset: 2px; }
     .ai-badge { display: inline-block; font-size: 0.67rem; font-weight: 800; color: #fff; background: #137333; border-radius: 4px; padding: 1px 6px; margin-left: 5px; vertical-align: middle; letter-spacing: 0.2px; white-space: nowrap; }
     .ai-brief { font-size: 0.78rem; color: #5f6368; margin-top: 5px; font-style: italic; border-left: 2px solid #34a853; padding-left: 8px; line-height: 1.4; }
     .heatmap-legend { position: absolute; bottom: 30px; right: 10px; z-index: 1000; background: rgba(32,33,36,0.85); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.72rem; pointer-events: none; line-height: 1.6; }
-    .btn-toggle { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
+    .btn-toggle { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 0 14px; height: 36px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
     #heatmap-toggle { position: absolute; top: 10px; right: 10px; z-index: 1000; }
     .btn-toggle.active { background: #b31412; color: #fff; box-shadow: 0 0 0 2px #cc000044; }
     .btn-toggle:focus { outline: 2px solid #202124; outline-offset: 2px; }
     /* S2.5 — Logistics Drawer */
-    .logistics-open-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
+    .logistics-open-btn { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 0 14px; height: 36px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
     .logistics-open-btn:hover { background: #4a4c50; color: #fff; }
     /* S2.5 — Live Track Modal */
     .live-track-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 5999; display: none; }
@@ -645,7 +645,7 @@
     }
     .sigmet-scroll-inner {
       white-space: nowrap;
-      animation: sigmet-scroll 60s linear infinite;
+      animation: sigmet-scroll 120s linear infinite;
       display: inline-block;
     }
     .sigmet-scroll-inner:hover { animation-play-state: paused; }
@@ -1661,7 +1661,7 @@
             <div class="prox-header-row">
               <div>
                 <div class="prox-dell-label">Dell Asset</div>
-                <div class="prox-main-title">Proximity<br/>Alerts</div>
+                <div class="prox-main-title" style="white-space:nowrap;">Proximity Alerts</div>
               </div>
             </div>
             <div class="prox-controls">
