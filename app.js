@@ -2490,6 +2490,7 @@ function startClock() {
    Filter news (main entry)
 =========================== */
 function filterNews(region) {
+  currentRegion = region || 'GLOBAL';
   _syncCatPillUI();           // refresh category badge counts + active states
   renderAssetsOnMap(region);
   renderIncidentsOnMap(region, INCIDENTS);
@@ -2497,6 +2498,23 @@ function filterNews(region) {
   updateHeadline(region);
   renderProximityAlerts(region);
   renderCriticalAlertsTicker();
+  _refreshMapOverlays();      // re-clip heatmap + nature events to the active region
+}
+
+// Re-renders heatmap and nature events overlays clipped to the current region
+function _refreshMapOverlays() {
+  if (heatmapEnabled) {
+    if (heatLayer) { try { map.removeLayer(heatLayer); } catch(e){} heatLayer = null; }
+    const filtered = INCIDENTS.filter(i => {
+      const lat = Number(i.lat), lng = Number(i.lng);
+      return Number.isFinite(lat) && Number.isFinite(lng) && _eventInRegion(lat, lng, currentRegion);
+    });
+    heatLayer = createHeatLayerFromIncidents(filtered);
+    if (heatLayer) heatLayer.addTo(map);
+  }
+  if (weatherEnabled) {
+    renderWeatherLayer();
+  }
 }
 
 /* ===========================
@@ -3612,10 +3630,11 @@ function _lnmSwitchTab(tab) {
   if (tvPanel) {
     if (tab === 'tv') {
       tvPanel.classList.add('visible');
-      // Auto-load default channel on first open (neither HLS nor iframe loaded yet)
+      // Auto-load channel on first open — use getAttribute (video.src resolves to page URL when unset)
       const frame = _ltmEl('lnm-tv-frame');
       const video = _ltmEl('lnm-tv-video');
-      if (!_lnmHls && frame && !frame.src && (!video || !video.src)) _lnmSwitchChannel(_lnmActiveChannel);
+      const noStream = !_lnmHls && (!frame || !frame.getAttribute('src')) && (!video || !video.getAttribute('src'));
+      if (noStream) setTimeout(() => _lnmSwitchChannel(_lnmActiveChannel), 80);
     } else {
       tvPanel.classList.remove('visible');
     }
@@ -4642,7 +4661,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (btn) { btn.classList.toggle('active', heatmapEnabled); btn.setAttribute('aria-pressed', String(heatmapEnabled)); }
         if (legend) legend.style.display = heatmapEnabled ? 'block' : 'none';
         if (heatmapEnabled) {
-          heatLayer = createHeatLayerFromIncidents(INCIDENTS);
+          const heatFiltered = INCIDENTS.filter(i => {
+            const lat = Number(i.lat), lng = Number(i.lng);
+            return Number.isFinite(lat) && Number.isFinite(lng) && _eventInRegion(lat, lng, currentRegion);
+          });
+          heatLayer = createHeatLayerFromIncidents(heatFiltered);
           if (heatLayer) heatLayer.addTo(map);
         } else {
           if (heatLayer) { try { map.removeLayer(heatLayer); } catch(e){} heatLayer = null; }
@@ -4944,6 +4967,21 @@ window.adminGetSecret = adminGetSecret;
 let weatherLayerGroup = null;
 let weatherEnabled = false;
 let WEATHER_EVENTS = [];
+let currentRegion = 'GLOBAL';  // tracks the active region tab for overlay filtering
+
+// Lat/lng bounding boxes per region — used to clip heatmap and nature events
+const REGION_BOUNDS = {
+  GLOBAL: null,   // null = no filter, show all
+  AMER:   { latMin: -60, latMax: 75,  lngMin: -170, lngMax: -25 },
+  LATAM:  { latMin: -60, latMax:  25, lngMin: -120, lngMax: -30 },
+  EMEA:   { latMin: -40, latMax:  72, lngMin:  -25, lngMax:  65 },
+  APJC:   { latMin: -50, latMax:  55, lngMin:   60, lngMax: 180 },
+};
+function _eventInRegion(lat, lng, region) {
+  const b = REGION_BOUNDS[region];
+  if (!b) return true;  // GLOBAL — show all
+  return lat >= b.latMin && lat <= b.latMax && lng >= b.lngMin && lng <= b.lngMax;
+}
 let CHAT_MESSAGES = [];       // [{role, content}]  — session memory
 // (SIGMET_REFRESH_TIMER removed — replaced by renderCriticalAlertsTicker)
 let ACK_CACHE = {};           // { incidentId: {user_name, note, timestamp} }
@@ -4999,6 +5037,7 @@ function renderWeatherLayer() {
   for (const ev of WEATHER_EVENTS) {
     const lat = Number(ev.lat), lng = Number(ev.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    if (!_eventInRegion(lat, lng, currentRegion)) continue;
     const meta = WEATHER_ICONS[ev.type] || WEATHER_ICONS.disaster;
     const popupContent = `
       <div style="font-size:0.82rem;min-width:180px;">
@@ -5036,7 +5075,8 @@ async function toggleWeatherOverlay() {
     if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Nature Events';
     await loadWeatherDisasters();
     renderWeatherLayer();
-    if (btn) btn.innerHTML = `<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;">(${WEATHER_EVENTS.length})</span>`;
+    const visibleCount = WEATHER_EVENTS.filter(ev => _eventInRegion(Number(ev.lat), Number(ev.lng), currentRegion)).length;
+    if (btn) btn.innerHTML = `<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;">(${visibleCount})</span>`;
   } else {
     if (weatherLayerGroup) { try { map.removeLayer(weatherLayerGroup); } catch(e){} weatherLayerGroup = null; }
     if (btn) btn.innerHTML = '<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events';
