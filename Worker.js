@@ -54,7 +54,11 @@ const MAX_INCIDENTS_STORED = 300;
 
 const DETERMINISTIC_SOURCES = [
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
-  "https://www.gdacs.org/xml/rss.xml"
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
+  "https://www.gdacs.org/xml/rss.xml",
+  "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
+  "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
 ];
 
 // Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
@@ -62,29 +66,97 @@ const DETERMINISTIC_SOURCES = [
 // Dell site is silently dropped — prevents global earthquake/flood noise.
 const NATURAL_HAZARD_SOURCES = new Set([
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
-  "https://www.gdacs.org/xml/rss.xml"
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
+  "https://www.gdacs.org/xml/rss.xml",
+  "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
+  "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+  "https://www.jma.go.jp/bosai/feed/rss/warn.xml",
+  "https://alerts.weather.gov/cap/us.php?x=1",
+  "https://www.weather.gov/rss_page.php",
+  "https://feeds.meteoalarm.org/RSS",
+  "http://www.bom.gov.au/rss/",
 ]);
 
 // SOURCE_META — maps feed URL fragment → { key, label, category }
 // category must match the lnm pill filters: 'news'|'logistics'|'security'|'hazards'|'cyber'
 const SOURCE_META = [
-  { match: 'reuters.com',              key: 'reuters',     label: 'Reuters',       category: 'news' },
-  { match: 'aljazeera.com',            key: 'aljazeera',   label: 'Al Jazeera',    category: 'news' },
-  { match: 'bbci.co.uk',               key: 'bbc',         label: 'BBC',           category: 'news' },
-  { match: 'apnews.com',               key: 'apnews',      label: 'AP News',       category: 'news' },
-  { match: 'france24.com',             key: 'france24',    label: 'France 24',     category: 'news' },
-  { match: 'dw.com',                   key: 'dw',          label: 'DW',            category: 'news' },
-  { match: 'channelnewsasia.com',       key: 'cna',         label: 'CNA',           category: 'news' },
-  { match: 'allafrica.com',            key: 'allafrica',   label: 'AllAfrica',     category: 'news' },
-  { match: 'reliefweb.int',            key: 'reliefweb',   label: 'ReliefWeb',     category: 'news' },
-  { match: 'freightwaves.com',         key: 'freightwaves', label: 'FreightWaves', category: 'logistics' },
-  { match: 'supplychaindive.com',      key: 'scdive',      label: 'SC Dive',       category: 'logistics' },
-  { match: 'maritime-executive.com',   key: 'maritime',    label: 'Maritime Exec', category: 'logistics' },
-  { match: 'travel.state.gov',         key: 'ustravel',    label: 'US Travel',     category: 'security' },
-  { match: 'gov.uk/foreign-travel',    key: 'ukfcdo',      label: 'UK FCDO',       category: 'security' },
-  { match: 'cisa.gov',                 key: 'cisa',        label: 'CISA',          category: 'cyber' },
-  { match: 'gdacs.org',                key: 'gdacs',       label: 'GDACS',         category: 'hazards' },
-  { match: 'usgs.gov',                 key: 'usgs',        label: 'USGS',          category: 'hazards' },
+  // ── Global Tier-1 News ──────────────────────────────────────────────────────
+  { match: 'reuters.com',              key: 'reuters',      label: 'Reuters',          category: 'news' },
+  { match: 'apnews.com',               key: 'apnews',       label: 'AP News',          category: 'news' },
+  { match: 'afp.com',                  key: 'afp',          label: 'AFP',              category: 'news' },
+  { match: 'bbci.co.uk',               key: 'bbc',          label: 'BBC',              category: 'news' },
+  { match: 'rss.cnn.com',              key: 'cnn',          label: 'CNN',              category: 'news' },
+  { match: 'aljazeera.com',            key: 'aljazeera',    label: 'Al Jazeera',       category: 'news' },
+  { match: 'dw.com',                   key: 'dw',           label: 'DW',               category: 'news' },
+  { match: 'theguardian.com',          key: 'guardian',     label: 'The Guardian',     category: 'news' },
+  { match: 'nytimes.com',              key: 'nyt',          label: 'NY Times',         category: 'news' },
+  { match: 'washingtonpost.com',       key: 'wapo',         label: 'Washington Post',  category: 'news' },
+  { match: 'scmp.com',                 key: 'scmp',         label: 'SCMP',             category: 'news' },
+  { match: 'feeds.a.dj.com',           key: 'wsj',          label: 'WSJ',              category: 'news' },
+  // ── Regional Coverage ───────────────────────────────────────────────────────
+  { match: 'france24.com',             key: 'france24',     label: 'France 24',        category: 'news' },
+  { match: 'euronews.com',             key: 'euronews',     label: 'EuroNews',         category: 'news' },
+  { match: 'arabnews.com',             key: 'arabnews',     label: 'Arab News',        category: 'news' },
+  { match: 'channelnewsasia.com',      key: 'cna',          label: 'CNA',              category: 'news' },
+  { match: 'thehindu.com',             key: 'thehindu',     label: 'The Hindu',        category: 'news' },
+  { match: 'hindustantimes.com',       key: 'ht',           label: 'Hindustan Times',  category: 'news' },
+  { match: 'japantimes.co.jp',         key: 'japantimes',   label: 'Japan Times',      category: 'news' },
+  { match: 'koreatimes.co.kr',         key: 'koreatimes',   label: 'Korea Times',      category: 'news' },
+  { match: 'africanews.com',           key: 'africanews',   label: 'Africanews',       category: 'news' },
+  { match: 'allafrica.com',            key: 'allafrica',    label: 'AllAfrica',        category: 'news' },
+  { match: 'latinnews.com',            key: 'latinnews',    label: 'LatinNews',        category: 'news' },
+  { match: 'batimes.com.ar',           key: 'batimes',      label: 'BA Times',         category: 'news' },
+  // ── Supply Chain / Logistics ────────────────────────────────────────────────
+  { match: 'freightwaves.com',         key: 'freightwaves', label: 'FreightWaves',     category: 'logistics' },
+  { match: 'joc.com',                  key: 'joc',          label: 'JOC',              category: 'logistics' },
+  { match: 'supplychaindive.com',      key: 'scdive',       label: 'SC Dive',          category: 'logistics' },
+  { match: 'gcaptain.com',             key: 'gcaptain',     label: 'gCaptain',         category: 'logistics' },
+  { match: 'theloadstar.com',          key: 'loadstar',     label: 'Loadstar',         category: 'logistics' },
+  { match: 'splash247.com',            key: 'splash247',    label: 'Splash247',        category: 'logistics' },
+  { match: 'porttechnology.org',       key: 'porttech',     label: 'Port Technology',  category: 'logistics' },
+  { match: 'maritime-executive.com',   key: 'maritime',     label: 'Maritime Exec',    category: 'logistics' },
+  { match: 'maritimebulletin.net',     key: 'maritimebull', label: 'Maritime Bull.',   category: 'logistics' },
+  { match: 'portoflosangeles.org',     key: 'portla',       label: 'Port LA',          category: 'logistics' },
+  { match: 'portofantwerpbruges.com',  key: 'portantwerp',  label: 'Port Antwerp',     category: 'logistics' },
+  { match: 'mpa.gov.sg',               key: 'portsg',       label: 'Port Singapore',   category: 'logistics' },
+  { match: 'iata.org',                 key: 'iata',         label: 'IATA',             category: 'logistics' },
+  { match: 'aircargonews.net',         key: 'aircargo',     label: 'Air Cargo News',   category: 'logistics' },
+  // ── Government / Security / Travel ─────────────────────────────────────────
+  { match: 'travel.state.gov',         key: 'ustravel',     label: 'US Travel',        category: 'security' },
+  { match: 'gov.uk/foreign-travel',    key: 'ukfcdo',       label: 'UK FCDO',          category: 'security' },
+  { match: 'fbi.gov',                  key: 'fbi',          label: 'FBI',              category: 'security' },
+  { match: 'europol.europa.eu',        key: 'europol',      label: 'Europol',          category: 'security' },
+  { match: 'abf.gov.au',               key: 'abf',          label: 'AU Border Force',  category: 'security' },
+  { match: 'publicsafety.gc.ca',       key: 'cansec',       label: 'CA Public Safety', category: 'security' },
+  { match: 'civildefence.govt.nz',     key: 'nzcd',         label: 'NZ Civil Defence', category: 'security' },
+  { match: 'globalsecurity.org',       key: 'globalsec',    label: 'GlobalSecurity',   category: 'security' },
+  { match: 'crisisgroup.org',          key: 'crisisgroup',  label: 'Crisis Group',     category: 'security' },
+  // ── Cybersecurity ───────────────────────────────────────────────────────────
+  { match: 'cisa.gov',                 key: 'cisa',         label: 'CISA',             category: 'cyber' },
+  { match: 'darkreading.com',          key: 'darkreading',  label: 'Dark Reading',     category: 'cyber' },
+  { match: 'TheHackersNews',           key: 'thhn',         label: 'Hacker News',      category: 'cyber' },
+  { match: 'bleepingcomputer.com',     key: 'bleeping',     label: 'BleepingComputer', category: 'cyber' },
+  { match: 'csoonline.com',            key: 'cso',          label: 'CSO Online',       category: 'cyber' },
+  { match: 'scmagazine.com',           key: 'scmag',        label: 'SC Magazine',      category: 'cyber' },
+  { match: 'msrc.microsoft.com',       key: 'msrc',         label: 'MS Security',      category: 'cyber' },
+  { match: 'crowdstrike.com',          key: 'crowdstrike',  label: 'CrowdStrike',      category: 'cyber' },
+  { match: 'cloudflare.com',           key: 'cloudflare',   label: 'Cloudflare',       category: 'cyber' },
+  { match: 'mandiant.com',             key: 'mandiant',     label: 'Mandiant',         category: 'cyber' },
+  { match: 'okta.com',                 key: 'okta',         label: 'Okta',             category: 'cyber' },
+  { match: 'talosintelligence.com',    key: 'talos',        label: 'Cisco Talos',      category: 'cyber' },
+  // ── Natural Hazards ─────────────────────────────────────────────────────────
+  { match: 'gdacs.org',                key: 'gdacs',        label: 'GDACS',            category: 'hazards' },
+  { match: 'usgs.gov',                 key: 'usgs',         label: 'USGS',             category: 'hazards' },
+  { match: 'emsc-csem.org',            key: 'emsc',         label: 'EMSC',             category: 'hazards' },
+  { match: 'jma.go.jp',                key: 'jma',          label: 'JMA',              category: 'hazards' },
+  { match: 'alerts.weather.gov',       key: 'noaa_alerts',  label: 'NOAA Alerts',      category: 'hazards' },
+  { match: 'weather.gov',              key: 'noaa',         label: 'NOAA',             category: 'hazards' },
+  { match: 'meteoalarm.org',           key: 'meteoalarm',   label: 'MeteoAlarm',       category: 'hazards' },
+  { match: 'bom.gov.au',               key: 'bom',          label: 'BOM Australia',    category: 'hazards' },
+  // ── Humanitarian / OSINT ────────────────────────────────────────────────────
+  { match: 'reliefweb.int',            key: 'reliefweb',    label: 'ReliefWeb',        category: 'news' },
+  { match: 'ifrc.org',                 key: 'ifrc',         label: 'IFRC',             category: 'news' },
 ];
 function _getSourceMeta(src) {
   if (!src) return { key: 'other', label: 'Other', category: 'news' };
@@ -92,30 +164,91 @@ function _getSourceMeta(src) {
   return { key: 'other', label: new URL(src).hostname.replace(/^www\./,'').split('.')[0], category: 'news' };
 }
 
-// Expanded to 15 strategic sources from the 110-source trusted-feed list
-// (CLAUDE.md §Security: no new libs, only approved RSS URLs).
-// Ordered roughly by signal priority for Dell security ops.
+// Full 110-source trusted feed list (all valid RSS URLs).
+// Ordered by signal priority for Dell security ops.
 const ROTATING_SOURCES = [
   // ── Global Tier-1 News ─────────────────────────────────────────────────────
-  "https://feeds.reuters.com/reuters/worldNews",             // Reuters World (was /tools/rss)
-  "https://www.aljazeera.com/xml/rss/all.xml",              // Al Jazeera Global
-  "https://feeds.bbci.co.uk/news/world/rss.xml",            // BBC World English (was BBC Arabic)
-  "https://apnews.com/apf-news?format=xml",                  // AP News
-  "https://www.france24.com/en/rss",                         // France 24 World
-  "https://www.dw.com/en/top-stories/world/s-1429/rss",     // Deutsche Welle World
-  // ── Government / Employee Safety / Travel ──────────────────────────────────
-  "https://travel.state.gov/_res/rss/TAs.xml",              // US State Dept Travel Advisories
-  "https://www.gov.uk/foreign-travel-advice.rss",            // UK FCDO Travel Alerts
-  "https://www.cisa.gov/news.xml",                           // CISA Critical Infrastructure
+  "https://feeds.reuters.com/reuters/worldNews",
+  "https://feeds.reuters.com/reuters/businessNews",
+  "https://feeds.reuters.com/reuters/politicsNews",
+  "https://feeds.reuters.com/reuters/topNews",
+  "https://apnews.com/apf-worldnews?format=xml",
+  "https://apnews.com/apf-news?format=xml",
+  "https://www.afp.com/en/news-hub/rss",
+  "https://feeds.bbci.co.uk/news/rss.xml",
+  "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://feeds.bbci.co.uk/news/business/rss.xml",
+  "http://rss.cnn.com/rss/edition.rss",
+  "http://rss.cnn.com/rss/edition_world.rss",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+  "https://www.dw.com/en/top-stories/world/s-1429/rss",
+  "https://www.dw.com/en/top-stories/business/s-1431/rss",
+  "https://www.theguardian.com/world/rss",
+  "https://www.theguardian.com/business/rss",
+  "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+  "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+  "https://feeds.washingtonpost.com/rss/world",
+  "https://feeds.washingtonpost.com/rss/business",
+  "https://www.scmp.com/rss/91/feed",
+  "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+  // ── Regional Coverage ──────────────────────────────────────────────────────
+  "https://www.france24.com/en/rss",
+  "https://www.euronews.com/rss?level=world",
+  "https://www.arabnews.com/taxonomy/term/1/feed",
+  "https://www.channelnewsasia.com/api/v1/rss-outbound-feed",
+  "https://www.thehindu.com/news/feeder/default.rss",
+  "https://www.hindustantimes.com/rss/topnews/rssfeed.xml",
+  "https://www.japantimes.co.jp/news/feed/",
+  "https://www.koreatimes.co.kr/www/rss/rss.xml",
+  "https://www.africanews.com/feed/xml",
+  "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
+  "https://www.latinnews.com/index.php?format=feed",
+  "https://www.batimes.com.ar/rss-feed",
   // ── Supply Chain / Logistics ───────────────────────────────────────────────
-  "https://www.freightwaves.com/feed",                       // FreightWaves
-  "https://www.supplychaindive.com/feeds/news/",             // SupplyChainDive
-  "https://www.maritime-executive.com/rss",                  // Maritime Executive
-  // ── Regional Coverage Gaps ─────────────────────────────────────────────────
-  "https://www.channelnewsasia.com/api/v1/rss-outbound-feed", // CNA (APAC)
-  "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf", // AllAfrica
-  // ── Humanitarian / Crisis ──────────────────────────────────────────────────
-  "https://reliefweb.int/updates/rss.xml"                    // ReliefWeb Global
+  "https://www.freightwaves.com/feed",
+  "https://www.joc.com/rss.xml",
+  "https://www.supplychaindive.com/feeds/news/",
+  "https://gcaptain.com/feed/",
+  "https://theloadstar.com/feed/",
+  "https://splash247.com/feed/",
+  "https://www.porttechnology.org/feed/",
+  "https://www.maritime-executive.com/rss",
+  "https://www.maritimebulletin.net/feed/",
+  "https://www.portoflosangeles.org/rss/news",
+  "https://www.portofantwerpbruges.com/en/news/rss",
+  "https://www.mpa.gov.sg/web/rss/rss.xml",
+  "https://www.iata.org/en/pressroom/news-releases/rss/",
+  "https://www.aircargonews.net/feed/",
+  // ── Government / Employee Safety / Travel ──────────────────────────────────
+  "https://travel.state.gov/_res/rss/TAs.xml",
+  "https://www.gov.uk/foreign-travel-advice.rss",
+  "https://www.fbi.gov/feeds/fbi-top-stories/rss.xml",
+  "https://www.fbi.gov/feeds/national-press-releases/rss.xml",
+  "https://www.europol.europa.eu/media-press/rss.xml",
+  "https://www.abf.gov.au/_layouts/15/AppPages/Rss.aspx?site=newsroom",
+  "https://www.publicsafety.gc.ca/cnt/ntnl-scrt/rss-en.aspx",
+  "https://www.civildefence.govt.nz/rss-feed",
+  // ── CISA / Cybersecurity Gov ───────────────────────────────────────────────
+  "https://www.cisa.gov/news.xml",
+  "https://www.cisa.gov/ics/xml",
+  "https://www.cisa.gov/cybersecurity-advisories.xml",
+  // ── Cybersecurity Industry ─────────────────────────────────────────────────
+  "https://www.darkreading.com/rss_simple.asp",
+  "https://feeds.feedburner.com/TheHackersNews",
+  "https://www.bleepingcomputer.com/feed/",
+  "https://www.csoonline.com/index.rss",
+  "https://www.scmagazine.com/home/feed/",
+  "https://msrc.microsoft.com/blog/feed",
+  "https://www.crowdstrike.com/blog/feed/",
+  "https://www.cloudflare.com/rss/",
+  "https://www.mandiant.com/resources/rss.xml",
+  "https://www.okta.com/blog/index.xml",
+  "https://blog.talosintelligence.com/feed/",
+  // ── Humanitarian / Crisis / OSINT ──────────────────────────────────────────
+  "https://reliefweb.int/updates/rss.xml",
+  "https://www.ifrc.org/feeds/all.xml",
+  "https://www.globalsecurity.org/military/world/rss.xml",
+  "https://www.crisisgroup.org/rss.xml",
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
