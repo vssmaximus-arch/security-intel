@@ -1355,15 +1355,43 @@ function _proxAction(sev, dist, opImpact) {
 
 function _proxCategoryLabel(cat) {
   const map = {
-    EARTHQUAKE: '🌍 EARTHQUAKE', FLOOD: '🌊 FLOOD', FIRE: '🔥 FIRE',
-    STORM: '🌀 STORM', SECURITY: '🛡 SECURITY', TERRORISM: '💥 TERRORISM',
-    UNREST: '✊ CIVIL UNREST', PROTEST: '✊ PROTEST', SHOOTING: '🚨 SHOOTING',
-    CONFLICT: '⚔ CONFLICT', ACCIDENT: '⚠ ACCIDENT', HEALTH: '🏥 HEALTH',
-    POLITICAL: '🏛 POLITICAL', CYBER: '💻 CYBER', OPERATIONAL: '⚙ OPERATIONAL',
+    EARTHQUAKE: '🌍 Earthquake', FLOOD: '🌊 Flood', FIRE: '🔥 Fire',
+    STORM: '🌀 Storm', SECURITY: '🛡 Security', TERRORISM: '💥 Terrorism',
+    UNREST: '✊ Civil Unrest', PROTEST: '✊ Protest', SHOOTING: '🚨 Shooting',
+    CONFLICT: '⚔ Armed Conflict', ACCIDENT: '⚠ Accident', HEALTH: '🏥 Health',
+    POLITICAL: '🏛 Political', CYBER: '💻 Cyber', OPERATIONAL: '⚙ Operational',
+    HAZMAT: '☣ HAZMAT', SUPPLY: '📦 Supply Chain', NATURAL: '🌍 Natural Hazard',
   };
   const k = String(cat || '').toUpperCase().trim();
   for (const [key, label] of Object.entries(map)) { if (k.includes(key)) return label; }
-  return k || '● INCIDENT';
+  return '';
+}
+
+/* Smart location extractor — tries location field, country, then parses title/summary */
+function _smartLocation(inc) {
+  const bad = /^(unknown|global|worldwide|-|)$/i;
+  if (inc.location && !bad.test(inc.location.trim())) return inc.location.trim();
+  if (inc.country && !bad.test(inc.country.trim())) return inc.country.trim();
+  // Try "in [the] [Place]" from title then summary
+  for (const src of [inc.title || '', inc.summary || '']) {
+    const m = src.match(/\bin\s+(?:the\s+)?([A-Z][A-Za-z'\-\s]+?)(?:\s*[,.|]|\s+(?:after|as|when|where|amid|follow)|$)/);
+    if (m) { const loc = m[1].trim().replace(/\s+/g, ' '); if (loc.length > 2 && loc.length < 40) return loc; }
+  }
+  return null;
+}
+
+/* Smart category — falls back to keyword inference when raw category is blank/UNKNOWN */
+function _smartCategory(inc) {
+  const explicit = _proxCategoryLabel(inc.category);
+  if (explicit) return explicit;
+  const t = ((inc.title || '') + ' ' + (inc.summary || '')).toLowerCase();
+  if (/kill|attack|bomb|shoot|explo|terror|militant|hostage|airstrike|war|conflict/.test(t)) return '⚔ Armed Conflict';
+  if (/protest|demonstrat|riot|unrest|civil\s+unrest/.test(t))  return '✊ Civil Unrest';
+  if (/earthquake|flood|storm|hurricane|cyclone|wildfire|tsunami|eruption/.test(t)) return '🌍 Natural Hazard';
+  if (/hack|cyber|ransom|malware|breach|ddos/.test(t))          return '💻 Cyber';
+  if (/supply.chain|logistic|port\s+clos|cargo|freight|sanction/.test(t)) return '📦 Supply Chain';
+  if (/fire|blaze|hazmat|chemical/.test(t))                     return '🔥 Fire / HAZMAT';
+  return '🛡 Security Incident';
 }
 
 function renderProximityAlerts(region) {
@@ -1411,100 +1439,84 @@ function renderProximityAlerts(region) {
     return;
   }
 
-  const dark = document.body.classList.contains('dark-mode');
+  const dark    = document.body.classList.contains('dark-mode');
   const bodyBg  = dark ? '#1e2029' : '#ffffff';
   const bodyTxt = dark ? '#c9d1d9' : '#3c4043';
   const divClr  = dark ? '#2a2d35' : '#f0f0f0';
   const lblClr  = dark ? '#e8eaed' : '#202124';
+  const metaTxt = dark ? '#9aa0a6' : '#5f6368';
 
   container.innerHTML = alerts.slice(0, 25).map(a => {
-    const i   = a.inc;
-    const sev = Number(i.severity || 1);
+    const i       = a.inc;
+    const sev     = Number(i.severity || 1);
     const isAcked = !!ACK_CACHE[a.key];
 
-    // Header colour: dark red = critical/new, dark teal = lower/acked
-    const hdrBg = isAcked
-      ? (dark ? '#0d2b1a' : '#1a4a2a')
+    // Banner colour
+    const hdrBg = isAcked ? '#1a4a2a'
       : (sev >= 4 ? '#8b1212' : sev === 3 ? '#7a4400' : '#1a2d4a');
 
-    // Human-readable severity
-    const sevWord = sev >= 4 ? 'Critical' : sev === 3 ? 'High' : sev === 2 ? 'Moderate' : 'Low';
+    const sevWord    = sev >= 4 ? 'Critical' : sev === 3 ? 'High' : sev === 2 ? 'Moderate' : 'Low';
+    const catLabel   = _smartCategory(i);
+    const location   = _smartLocation(i) || (i.region && i.region !== 'Global' ? i.region : null) || '—';
+    const timeAgo    = _proxTimeAgo(i.time);
+    const action     = _proxAction(sev, i.country_wide ? 0 : Math.round(a.nearest.dist), !!i.operational_impact);
 
-    // Category label (e.g. "Armed Conflict", "Civil Unrest")
-    const catLabel = _proxCategoryLabel(i.category);
+    // Nearest site — site names already include "Dell", don't prepend again
+    const nearKm  = i.country_wide ? 0 : Math.round(a.nearest.dist);
+    const nearStr = i.country_wide ? 'Country-wide' : `${nearKm} km`;
 
-    // Location string
-    const locParts = [i.location || '', i.country || ''].filter(Boolean);
-    const locationStr = locParts.join(', ') || 'Unknown';
+    // Source link (first valid URL only — keep it clean)
+    const firstLink = (i.link && i.link !== '#')
+      ? (i.link.split(/\s+/).find(u => /^https?:\/\//.test(u)) || '')
+      : '';
+    const linkHtml = firstLink
+      ? `<a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer"
+           style="color:#1a73e8;font-size:0.73rem;word-break:break-all;">${escapeHtml(firstLink)}</a>`
+      : '';
 
-    // Region phrase for supply chain line
-    const regionPhrase = (i.region && i.region !== 'Global') ? i.region
-      : (region && region !== 'Global') ? region : 'Global';
-
-    // Nearest site display
-    const nearKm    = i.country_wide ? 0 : Math.round(a.nearest.dist);
-    const nearMiles = Math.round(nearKm * 0.6214);
-    const nearStr   = i.country_wide ? 'Country-wide' : `${nearKm} km (${nearMiles} miles)`;
-
-    // Nearest 10 Dell sites with distances
-    const near10 = a.siteDists.slice(0, 10).map(s => {
-      const km = Math.round(s.dist); const mi = Math.round(s.dist * 0.6214);
-      return `Dell ${escapeHtml(s.name)} ${km} km (${mi} miles)`;
-    }).join(', ');
-
-    // Count sites within current radius
-    const affectedCount = a.siteDists.filter(s => s.dist <= currentRadius).length;
-
-    // Source links — handle space-separated multi-link strings
-    const rawLinks = (i.link && i.link !== '#') ? i.link.split(/\s+/).filter(u => /^https?:\/\//.test(u)) : [];
-    const linksHtml = rawLinks.map(u =>
-      `<a href="${escapeAttr(u)}" target="_blank" rel="noopener noreferrer"
-         style="color:#1a73e8;font-size:0.75rem;display:block;word-break:break-all;margin-top:2px;">${escapeHtml(u)}</a>`
-    ).join('');
-
-    const summary = i.summary || '';
-    const notifColor = isAcked ? '#4caf50' : (sev >= 4 ? '#d93025' : '#f9ab00');
+    const notifColor = isAcked ? '#4caf50' : (sev >= 4 ? '#d93025' : '#e37400');
     const notifLabel = isAcked ? 'Acknowledged' : 'New';
 
     return `
-      <div class="alert-row" style="border:1px solid ${dark ? '#3a3d45' : '#ddd'};border-radius:6px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.09);">
+      <div class="alert-row" style="border:1px solid ${dark ? '#3a3d45' : '#ddd'};border-radius:6px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
 
         <!-- Banner -->
-        <div style="background:${hdrBg};color:#fff;padding:10px 14px;font-weight:700;font-size:0.82rem;line-height:1.45;">
+        <div style="background:${hdrBg};color:#fff;padding:9px 13px;font-weight:700;font-size:0.8rem;line-height:1.4;">
           ${escapeHtml(i.title)}
         </div>
 
         <!-- Body -->
-        <div style="padding:12px 14px;font-size:0.78rem;color:${bodyTxt};background:${bodyBg};line-height:1.8;">
+        <div style="padding:11px 13px;font-size:0.78rem;color:${bodyTxt};background:${bodyBg};line-height:1.75;">
 
-          <div style="margin-bottom:8px;font-size:0.8rem;">
-            <strong style="color:${lblClr};">${escapeHtml(regionPhrase)} Dell Assets may be affected by this
-            ${escapeHtml(catLabel)} event.</strong>
+          <!-- Key facts row -->
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:0.75rem;color:${metaTxt};">
+            <span>📍 <strong style="color:${lblClr};">${escapeHtml(location)}</strong></span>
+            <span style="color:#9aa0a6;">|</span>
+            <span>${escapeHtml(catLabel)}</span>
+            <span style="color:#9aa0a6;">|</span>
+            <span>Severity: <strong>${escapeHtml(sevWord)}</strong></span>
+            <span style="color:#9aa0a6;">|</span>
+            <span>Status: <strong style="color:${notifColor};">${notifLabel}</strong></span>
+            ${timeAgo ? `<span style="margin-left:auto;color:${metaTxt};">${escapeHtml(timeAgo)}</span>` : ''}
           </div>
 
-          <div><strong>Alert location:</strong> ${escapeHtml(locationStr)}</div>
-          <div><strong>Alert severity:</strong> ${escapeHtml(sevWord)}</div>
-          <div><strong>Notification status:</strong>
-            <span style="color:${notifColor};font-weight:700;">${notifLabel}</span>
+          <!-- Recommended action chip -->
+          <div style="display:inline-flex;align-items:center;gap:4px;background:${action.bg};border:1px solid ${action.color}44;border-radius:4px;padding:2px 9px;margin-bottom:8px;">
+            <span style="font-size:0.7rem;color:${action.color};font-weight:700;">${escapeHtml(action.label)}</span>
           </div>
 
-          ${summary ? `
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid ${divClr};">
-            <div style="font-weight:700;color:${lblClr};margin-bottom:4px;">Alert Details:</div>
-            <div style="line-height:1.65;">${escapeHtml(summary)}</div>
-            ${linksHtml}
-          </div>` : (linksHtml ? `<div style="margin-top:8px;">${linksHtml}</div>` : '')}
+          <!-- Summary + link -->
+          ${i.summary ? `<div style="margin-bottom:6px;line-height:1.6;">${escapeHtml(i.summary)}</div>` : ''}
+          ${linkHtml ? `<div style="margin-bottom:8px;">${linkHtml}</div>` : ''}
 
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid ${divClr};">
-            <div><strong>Nearest Asset:</strong> Dell ${escapeHtml(a.nearest.name)} ${nearStr}</div>
-            <div><strong>Distance from alert to nearest asset:</strong> ${nearStr}</div>
-            ${near10 ? `<div style="margin-top:2px;"><strong>Nearest ${Math.min(a.siteDists.length,10)} Assets:</strong>
-              <span style="font-size:0.73rem;color:${dark ? '#9aa0a6' : '#5f6368'};">${near10}</span></div>` : ''}
-            <div style="margin-top:2px;"><strong>Dell Sites within ${currentRadius} km:</strong> ${affectedCount}</div>
+          <!-- Nearest asset -->
+          <div style="padding-top:8px;border-top:1px solid ${divClr};font-size:0.75rem;color:${metaTxt};">
+            📌 Nearest Dell site: <strong style="color:${lblClr};">${escapeHtml(a.nearest.name)}</strong>
+            <span style="color:${sev >= 4 ? '#d93025' : '#5f6368'};font-weight:700;margin-left:4px;">${nearStr}</span>
           </div>
 
           <!-- ACK / Dismiss -->
-          <div style="display:flex;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid ${divClr};" data-ack-id="${escapeAttr(a.key)}">
+          <div style="display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid ${divClr};" data-ack-id="${escapeAttr(a.key)}">
             <button type="button" class="btn-ack" data-action="ack-incident"
               data-id="${escapeAttr(a.key)}" aria-label="Acknowledge this alert">
               <i class="fas fa-check" aria-hidden="true"></i> ACK
