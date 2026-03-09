@@ -1291,6 +1291,57 @@
     .esc-narrative { font-size: 0.74rem; color: #90a4ae; font-style: italic; line-height: 1.4; }
     body.light-mode .esc-section { border-color: #e0e0e0; }
     body.light-mode .esc-narrative { color: #555; }
+
+    /* ══════════════════════════════════════════════════════════════════
+       CATEGORY FILTER BAR — second header row, multi-select toggle pills
+       ══════════════════════════════════════════════════════════════════ */
+    .cat-filter-bar {
+      padding: 7px 32px;
+      background: #161920;
+      border-bottom: 1px solid #2a2d35;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 99;
+    }
+    .cat-filter-label {
+      font-size: 0.68rem; font-weight: 700;
+      color: #5f6368; text-transform: uppercase; letter-spacing: 0.6px;
+      margin-right: 2px; white-space: nowrap; flex-shrink: 0;
+    }
+    .cat-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 11px; border-radius: 20px;
+      font-size: 0.70rem; font-weight: 700; cursor: pointer;
+      border: 1px solid #3a3d45;
+      background: transparent; color: #9aa0a6;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      white-space: nowrap; user-select: none; line-height: 1.5;
+      font-family: inherit;
+    }
+    .cat-pill:hover { border-color: #5a5d65; color: #e8eaed; background: rgba(255,255,255,0.06); }
+    .cat-pill.active {
+      background: var(--cat-color, #0076ce);
+      border-color: var(--cat-color, #0076ce);
+      color: #fff;
+    }
+    .cat-pill:focus { outline: 2px solid var(--cat-color, #0076ce); outline-offset: 2px; }
+    .cat-pill-all { --cat-color: #0076ce; }
+    .cat-count-badge {
+      display: inline-block; background: rgba(255,255,255,0.25); border-radius: 10px;
+      padding: 0 5px; font-size: 0.62rem; font-weight: 800; min-width: 16px; text-align: center;
+    }
+    /* Light-mode overrides */
+    body.light-mode .cat-filter-bar { background: #f5f7fa; border-bottom-color: #e0e0e0; }
+    body.light-mode .cat-filter-label { color: #80868b; }
+    body.light-mode .cat-pill { color: #5f6368; border-color: #dadce0; background: #fff; }
+    body.light-mode .cat-pill:hover { background: #f1f3f4; color: #202124; border-color: #bbb; }
+    body.light-mode .cat-pill.active { color: #fff; }
+    /* Dark-mode explicit override */
+    body.dark-mode .cat-filter-bar { background: #13151b; border-bottom-color: #2a2d35; }
+    body.dark-mode .cat-pill { border-color: #3a3d45; color: #9aa0a6; }
   </style>
 </head>
 
@@ -1389,6 +1440,45 @@
           <span id="theme-label">Dark</span>
         </button>
       </div>
+    </div>
+
+    <!-- Category Filter Bar — second header row -->
+    <div class="cat-filter-bar" id="cat-filter-bar" role="group" aria-label="Filter incidents by category">
+      <span class="cat-filter-label">Filter:</span>
+      <button class="cat-pill cat-pill-all active" data-cat="ALL" data-action="filter-cat"
+        aria-pressed="true" title="Show all categories">All</button>
+      <button class="cat-pill" data-cat="DISASTER" data-action="filter-cat"
+        style="--cat-color:#1565c0" aria-pressed="false" title="Natural disasters and severe weather">
+        🌊 Natural Disaster
+      </button>
+      <button class="cat-pill" data-cat="SUPPLY_CHAIN" data-action="filter-cat"
+        style="--cat-color:#e65100" aria-pressed="false" title="Supply chain disruptions and logistics">
+        🔗 Supply Chain
+      </button>
+      <button class="cat-pill" data-cat="PROTESTS" data-action="filter-cat"
+        style="--cat-color:#f57f17" aria-pressed="false" title="Protests and civil unrest">
+        ✊ Protests
+      </button>
+      <button class="cat-pill" data-cat="CYBER" data-action="filter-cat"
+        style="--cat-color:#6a1b9a" aria-pressed="false" title="Operational cyber incidents — breaches, ransomware, outages">
+        💻 Cyber
+      </button>
+      <button class="cat-pill" data-cat="INFRASTRUCTURE" data-action="filter-cat"
+        style="--cat-color:#00695c" aria-pressed="false" title="Infrastructure and facility incidents">
+        🏭 Infrastructure
+      </button>
+      <button class="cat-pill" data-cat="CONFLICT" data-action="filter-cat"
+        style="--cat-color:#c62828" aria-pressed="false" title="Armed conflict and military operations">
+        ⚔️ Armed Conflict
+      </button>
+      <button class="cat-pill" data-cat="TERRORISM" data-action="filter-cat"
+        style="--cat-color:#880e4f" aria-pressed="false" title="Terrorism and major attacks">
+        💣 Terrorism
+      </button>
+      <button class="cat-pill" data-cat="POLITICAL" data-action="filter-cat"
+        style="--cat-color:#1a237e" aria-pressed="false" title="Political instability and sanctions">
+        🏛️ Political / Sanctions
+      </button>
     </div>
 
     <!-- Tier-2: SIGMET / Aviation Hazard Ticker Strip -->

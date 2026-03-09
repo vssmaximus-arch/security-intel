@@ -85,6 +85,87 @@ let correlationRefreshTimer = null;
 let sentimentRefreshTimer   = null;
 let activeThreatTab    = 'cyber'; // Default: operational incidents, not technical KEV
 
+// --- Category Filter state ---
+let ACTIVE_CATEGORIES = new Set(); // empty = "All" (no filter active)
+
+/**
+ * Maps the Worker-assigned incident category string to one of the 8 canonical
+ * filter keys shown in the category bar.  Returns null for unmapped categories
+ * (those incidents are hidden when any filter is active).
+ */
+const CAT_KEY_MAP = {
+  DISASTER:       ['NATURAL_DISASTER','EARTHQUAKE','FLOOD','FLOODING','STORM','WILDFIRE',
+                   'FIRE','CYCLONE','HURRICANE','TORNADO','WEATHER','TYPHOON',
+                   'AVALANCHE','DROUGHT','HEATWAVE','TSUNAMI','LANDSLIDE'],
+  SUPPLY_CHAIN:   ['SUPPLY_CHAIN','LOGISTICS','TRADE_DISRUPTION','SHIPPING'],
+  PROTESTS:       ['PROTEST','PROTESTS','CIVIL_UNREST','UNREST','DEMONSTRATION',
+                   'STRIKE','RIOT','LABOUR_DISPUTE'],
+  CYBER:          ['CYBER','CYBERSECURITY','CYBERATTACK','CYBER_ATTACK','RANSOMWARE',
+                   'DATA_BREACH'],
+  INFRASTRUCTURE: ['INFRASTRUCTURE','OPERATIONAL','FACILITY','POWER','ENERGY_DISRUPTION',
+                   'UTILITY','TRANSPORTATION'],
+  CONFLICT:       ['CONFLICT','ARMED_CONFLICT','MILITARY','WAR','SECURITY','SHOOTING',
+                   'VIOLENCE'],
+  TERRORISM:      ['TERRORISM','TERROR','BOMBING','EXPLOSION','ATTACK','IED'],
+  POLITICAL:      ['POLITICAL','POLITICAL_INSTABILITY','SANCTIONS','GOVERNMENT',
+                   'ELECTION','COUP','DIPLOMATIC'],
+};
+
+function getIncidentFilterKey(incidentCategory) {
+  const cat = String(incidentCategory || '').toUpperCase().replace(/[^A-Z0-9_]/g, '_').trim();
+  if (!cat) return null;
+  for (const [key, aliases] of Object.entries(CAT_KEY_MAP)) {
+    if (aliases.some(a => cat === a || cat.startsWith(a) || a.startsWith(cat))) return key;
+  }
+  return null;
+}
+
+function filterByCategoryAllowed(incident) {
+  if (ACTIVE_CATEGORIES.size === 0) return true; // "All" mode — nothing filtered
+  const key = getIncidentFilterKey(incident.category);
+  return key ? ACTIVE_CATEGORIES.has(key) : false;
+}
+
+function toggleCategoryFilter(cat) {
+  if (cat === 'ALL') {
+    ACTIVE_CATEGORIES.clear();
+  } else {
+    if (ACTIVE_CATEGORIES.has(cat)) {
+      ACTIVE_CATEGORIES.delete(cat);
+    } else {
+      ACTIVE_CATEGORIES.add(cat);
+    }
+  }
+  _syncCatPillUI();
+
+  // Re-render the feed with the new filter applied
+  const activeEl = document.querySelector('.nav-item-custom.active');
+  const region   = activeEl ? activeEl.textContent.trim() : 'Global';
+  renderGeneralFeed(region);
+  renderProximityAlerts(region);
+}
+
+function _syncCatPillUI() {
+  document.querySelectorAll('.cat-pill').forEach(pill => {
+    const c = pill.dataset.cat;
+    const isActive = (c === 'ALL') ? (ACTIVE_CATEGORIES.size === 0) : ACTIVE_CATEGORIES.has(c);
+    pill.classList.toggle('active', isActive);
+    pill.setAttribute('aria-pressed', String(isActive));
+    // Update count badge for non-ALL pills
+    if (c && c !== 'ALL') {
+      const count = INCIDENTS.filter(i => getIncidentFilterKey(i.category) === c).length;
+      let badge = pill.querySelector('.cat-count-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'cat-count-badge';
+        pill.appendChild(badge);
+      }
+      badge.textContent = count || '';
+      badge.style.display = count ? '' : 'none';
+    }
+  });
+}
+
 function getOrCreateUserId() {
   try {
     let uid = localStorage.getItem('osinfohub_user_id');
@@ -1073,9 +1154,13 @@ function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
   const rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
-  const data = rawData.filter(_feedIncidentFilter);
+  // Apply quality gate then category filter (if any categories are selected)
+  const data = rawData.filter(_feedIncidentFilter).filter(filterByCategoryAllowed);
   if (!data || data.length === 0) {
-    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">No incidents for this region.</div>`;
+    const msg = ACTIVE_CATEGORIES.size > 0
+      ? `No incidents match the selected categories for this region.`
+      : `No incidents for this region.`;
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:#999;">${msg}</div>`;
     return;
   }
 
@@ -1220,7 +1305,9 @@ function _proxCategoryLabel(cat) {
 function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
-  const data = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+  const regionFiltered = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+  // Apply category filter (mirrors general feed behaviour)
+  const data = regionFiltered.filter(filterByCategoryAllowed);
   const alerts = [];
   data.forEach(inc => {
     try {
@@ -2159,6 +2246,7 @@ function startClock() {
    Filter news (main entry)
 =========================== */
 function filterNews(region) {
+  _syncCatPillUI();           // refresh category badge counts + active states
   renderAssetsOnMap(region);
   renderIncidentsOnMap(region, INCIDENTS);
   renderGeneralFeed(region);
@@ -4230,6 +4318,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
         t.classList.add('active');
         filterNews(t.dataset.region || t.textContent.trim());
+        return;
+      }
+      if (action === 'filter-cat') {
+        const cat = t.dataset.cat;
+        if (cat) toggleCategoryFilter(cat);
         return;
       }
       if (action === 'refresh') { manualRefresh(); return; }
