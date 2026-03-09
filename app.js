@@ -83,7 +83,7 @@ let SENTIMENT_DATA     = null;
 let THREAT_INTEL_DATA  = null;
 let correlationRefreshTimer = null;
 let sentimentRefreshTimer   = null;
-let activeThreatTab    = 'kev';
+let activeThreatTab    = 'cyber'; // Default: operational incidents, not technical KEV
 
 function getOrCreateUserId() {
   try {
@@ -5504,7 +5504,7 @@ async function loadThreatIntel() {
 }
 
 function renderThreatIntel(data, tab) {
-  activeThreatTab = tab || 'kev';
+  activeThreatTab = tab || 'cyber';
   const bodyEl = document.getElementById('threat-body');
   if (!bodyEl) return;
 
@@ -5513,6 +5513,50 @@ function renderThreatIntel(data, tab) {
     el.classList.toggle('active', el.dataset.threatTab === activeThreatTab);
     el.setAttribute('aria-selected', String(el.dataset.threatTab === activeThreatTab));
   });
+
+  // ── Cyber Events tab (PRIMARY — operational manager intelligence) ──────────
+  if (activeThreatTab === 'cyber') {
+    const cyberEvents = Array.isArray(data.cyber_events) ? data.cyber_events : [];
+    if (cyberEvents.length === 0) {
+      bodyEl.innerHTML = `
+        <div class="text-center text-secondary py-4" style="font-size:0.8rem;">
+          <i class="fas fa-shield-virus mb-2 d-block" style="font-size:1.5rem;color:#607d8b;"></i>
+          No major operational cyber events in the last 72 hours.<br>
+          <small style="color:#455a64;">Sources: GDELT global news aggregator</small>
+        </div>`;
+      return;
+    }
+    const tagColors = {
+      RANSOMWARE: { bg: '#4a1a1a', border: '#f44336', text: '#ef9a9a' },
+      BREACH:     { bg: '#2a1a3a', border: '#9c27b0', text: '#ce93d8' },
+      APT:        { bg: '#1a2a1a', border: '#e65100', text: '#ffb74d' },
+      DISRUPTION: { bg: '#1a2a3a', border: '#1565c0', text: '#90caf9' },
+      CYBER:      { bg: '#1a2530', border: '#546e7a', text: '#90a4ae' }
+    };
+    bodyEl.innerHTML = `
+      <div style="font-size:0.7rem;color:#546e7a;padding:8px 12px 4px;border-bottom:1px solid #1e2530;">
+        <i class="fas fa-satellite-dish me-1"></i>Major cyber incidents — last 72h · Source: global news
+      </div>
+      ${cyberEvents.map(e => {
+        const tc = tagColors[e.tag] || tagColors.CYBER;
+        const dateStr = e.date || '';
+        const domain = e.domain ? `<span style="color:#455a64;font-size:0.68rem;">${escapeHtml(e.domain)}</span>` : '';
+        return `
+          <div class="cyber-event-card" style="border-left:3px solid ${tc.border};background:${tc.bg};">
+            <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:3px;">
+              <span class="cyber-event-tag" style="background:${tc.border};color:#fff;font-size:0.65rem;font-weight:700;border-radius:5px;padding:1px 7px;white-space:nowrap;flex-shrink:0;">${escapeHtml(e.tag)}</span>
+              <a href="${escapeHtml(e.url)}" target="_blank" rel="noopener"
+                style="color:${tc.text};font-size:0.8rem;font-weight:600;line-height:1.3;text-decoration:none;"
+                onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                ${escapeHtml(e.title)}
+              </a>
+            </div>
+            <div style="display:flex;gap:10px;padding-left:2px;">${domain}${dateStr ? `<span style="color:#37474f;font-size:0.68rem;">${escapeHtml(dateStr)}</span>` : ''}</div>
+          </div>`;
+      }).join('')}
+    `;
+    return;
+  }
 
   if (activeThreatTab === 'kev') {
     const kev = Array.isArray(data.kev) ? data.kev : [];
