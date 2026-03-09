@@ -2446,6 +2446,7 @@ function filterNews(region) {
   renderGeneralFeed(region);
   updateHeadline(region);
   renderProximityAlerts(region);
+  renderCriticalAlertsTicker();
 }
 
 /* ===========================
@@ -4816,8 +4817,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // S2.5: start 60-second logistics autopoll (updates map markers for watched assets)
     startLogisticsPoll();
 
-    // Tier-2: start SIGMET ticker auto-refresh
-    try { startSigmetRefresh(); } catch(e) { console.warn('[SIGMET] init error', e); }
+    // Render critical alerts ticker (populated once incidents load)
+    try { renderCriticalAlertsTicker(); } catch(e) { console.warn('[ALERTS] ticker init error', e); }
 
     // Tier-3: start correlation signals + sentiment drift auto-refresh
     setTimeout(() => {
@@ -4894,7 +4895,7 @@ let weatherLayerGroup = null;
 let weatherEnabled = false;
 let WEATHER_EVENTS = [];
 let CHAT_MESSAGES = [];       // [{role, content}]  — session memory
-let SIGMET_REFRESH_TIMER = null;
+// (SIGMET_REFRESH_TIMER removed — replaced by renderCriticalAlertsTicker)
 let ACK_CACHE = {};           // { incidentId: {user_name, note, timestamp} }
 
 // Restore chat session from sessionStorage
@@ -4984,72 +4985,32 @@ async function toggleWeatherOverlay() {
 }
 
 /* ============================================================
-   SIGMET / AVIATION TICKER
+   CRITICAL SECURITY ALERTS TICKER
    ============================================================ */
 
-async function loadSigmetTicker() {
-  try {
-    const res = await fetch(`${WORKER_URL}/api/weather/aviation`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    renderSigmetTicker(Array.isArray(data.sigmets) ? data.sigmets : []);
-  } catch(e) {
-    console.warn('[SIGMET] load failed:', e.message);
-  }
-}
-
-function renderSigmetTicker(sigmets) {
+function renderCriticalAlertsTicker() {
   const strip = document.getElementById('sigmet-ticker-strip');
   const inner = document.getElementById('sigmet-inner');
   if (!strip || !inner) return;
 
-  if (!sigmets.length) {
-    strip.style.display = 'none';
-    return;
-  }
+  // Show CRITICAL (severity >= 4) first; fall back to HIGH (severity >= 3) if none
+  let alerts = INCIDENTS.filter(i => Number(i.severity || 1) >= 4);
+  if (!alerts.length) alerts = INCIDENTS.filter(i => Number(i.severity || 1) >= 3);
 
-  const items = sigmets.map(s => {
+  if (!alerts.length) { strip.style.display = 'none'; return; }
+
+  const items = alerts.slice(0, 20).map(i => {
     const parts = [];
-    if (s.hazard && s.hazard !== 'UNKNOWN') {
-      const qual = s.qualifier ? ` ${s.qualifier}` : '';
-      parts.push(`⚠ ${s.hazard}${qual}`);
-    }
-    // Resolve best available area label
-    let area = (s.area && s.area !== 'Unknown region') ? s.area : '';
-    if (!area && s.rawSigmet) {
-      // 1) International: try FIR name
-      const firM = s.rawSigmet.match(/\b([A-Z][A-Z\s]+?)\s+FIR\b/);
-      if (firM) {
-        area = firM[1].trim() + ' FIR';
-      } else {
-        // 2) US Domestic Convective SIGMET: state codes on line after "VALID UNTIL"
-        const lines = s.rawSigmet.split('\n').map(l => l.trim()).filter(Boolean);
-        const validIdx = lines.findIndex(l => /^VALID UNTIL/.test(l));
-        if (validIdx >= 0 && validIdx + 1 < lines.length) {
-          const statesLine = lines[validIdx + 1];
-          if (/^[A-Z][A-Z ]+$/.test(statesLine) && statesLine.length < 60) {
-            area = statesLine; // e.g. "MN ND" or "NC FL SC GA CSTL WTRS"
-          }
-        }
-        // 3) Last resort: SIGMET identifier (e.g. "CONVECTIVE SIGMET 3C")
-        if (!area) {
-          const idM = s.rawSigmet.match(/SIGMET\s+(\w+)/i);
-          if (idM) area = 'SIGMET ' + idM[1];
-        }
-      }
-    }
-    if (area) parts.push(area);
-    if (s.flevel_low || s.flevel_high) {
-      const lo = s.flevel_low  ? String(s.flevel_low).padStart(3,'0')  : '???';
-      const hi = s.flevel_high ? String(s.flevel_high).padStart(3,'0') : '???';
-      parts.push(`FL${lo}–${hi}`);
-    }
+    if (i.category) parts.push(i.category.toUpperCase());
+    const title = (i.title || '').length > 80 ? i.title.slice(0, 77) + '…' : i.title;
+    if (title) parts.push(title);
+    const loc = i.country || i.region || '';
+    if (loc && loc !== 'Global') parts.push(loc);
     return parts.join(' · ');
   }).filter(Boolean);
 
   if (!items.length) { strip.style.display = 'none'; return; }
 
-  // Double the text so the scroll loop is seamless
   const text = items.join('   ✦   ');
   inner.textContent = `${text}   ✦   ${text}`;
   strip.style.display = 'flex';
@@ -5058,12 +5019,6 @@ function renderSigmetTicker(sigmets) {
 function hideSigmetTicker() {
   const strip = document.getElementById('sigmet-ticker-strip');
   if (strip) strip.style.display = 'none';
-  if (SIGMET_REFRESH_TIMER) { clearInterval(SIGMET_REFRESH_TIMER); SIGMET_REFRESH_TIMER = null; }
-}
-
-function startSigmetRefresh() {
-  loadSigmetTicker();
-  SIGMET_REFRESH_TIMER = setInterval(loadSigmetTicker, 10 * 60 * 1000);
 }
 
 /* ============================================================
