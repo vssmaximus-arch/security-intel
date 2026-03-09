@@ -5010,9 +5010,22 @@ function renderSigmetTicker(sigmets) {
 
   const items = sigmets.map(s => {
     const parts = [];
-    if (s.hazard && s.hazard !== 'UNKNOWN') parts.push(`⚠ ${s.hazard}${s.qualifier ? ` (${s.qualifier})` : ''}`);
-    if (s.area) parts.push(s.area);
-    if (s.flevel_low || s.flevel_high) parts.push(`FL${s.flevel_low}–${s.flevel_high}`);
+    if (s.hazard && s.hazard !== 'UNKNOWN') {
+      const qual = s.qualifier ? ` ${s.qualifier}` : '';
+      parts.push(`⚠ ${s.hazard}${qual}`);
+    }
+    // Resolve best available area label
+    let area = (s.area && s.area !== 'Unknown region') ? s.area : '';
+    if (!area && s.rawSigmet) {
+      const m = s.rawSigmet.match(/\b([A-Z][A-Z\s]+?)\s+FIR\b/);
+      if (m) area = m[1].trim() + ' FIR';
+    }
+    if (area) parts.push(area);
+    if (s.flevel_low || s.flevel_high) {
+      const lo = s.flevel_low  ? String(s.flevel_low).padStart(3,'0')  : '???';
+      const hi = s.flevel_high ? String(s.flevel_high).padStart(3,'0') : '???';
+      parts.push(`FL${lo}–${hi}`);
+    }
     return parts.join(' · ');
   }).filter(Boolean);
 

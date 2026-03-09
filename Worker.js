@@ -4135,7 +4135,14 @@ async function handleApiWeatherAviation(env, req) {
       id: s.isigmetId || s.sigmetId || s.id || `sigmet-${idx}`,
       hazard: s.hazard || s.phenomenon || 'UNKNOWN',
       qualifier: s.qualifier || '',
-      area: s.area || s.firId || s.location || 'Unknown region',
+      area: (() => {
+        if (s.area && s.area !== 'Unknown region') return s.area;
+        if (s.firName) return s.firName;
+        const rawTxt = s.rawAirSigmet || s.rawSigmet || s.text || '';
+        const firMatch = rawTxt.match(/\b([A-Z][A-Z\s]+?)\s+FIR\b/);
+        if (firMatch) return firMatch[1].trim() + ' FIR';
+        return s.fir || s.firId || s.location || 'Unknown region';
+      })(),
       flevel_low: String(s.flevel_low || s.base || ''),
       flevel_high: String(s.flevel_high || s.top || ''),
       validTimeFrom: s.validTimeFrom || s.validTime || '',
