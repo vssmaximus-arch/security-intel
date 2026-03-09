@@ -3840,7 +3840,7 @@ Your role is to produce concise, professional shift briefings for Regional Secur
 Focus on: employee safety threats, Dell facility/asset risks, supply chain disruptions, cyber threats, and travel advisories.
 Write in intelligence report style: clear, factual, action-oriented. No fluff.`;
 
-    const userContent = `Generate a ${windowH}-hour shift briefing${region ? ` for region: ${region}` : ' (Global)'} based on these ${incidents.length} intelligence items:\n\n${incidentLines}\n\nStructure the briefing as:\n## SITUATION SUMMARY\n(2-3 sentences)\n\n## KEY THREATS (Priority Order)\n- (bullet each)\n\n## DELL OPERATIONAL IMPACT\n(brief assessment)\n\n## RECOMMENDED RSM ACTIONS\n- (bullet each)\n\n## WATCH ITEMS FOR NEXT SHIFT\n- (bullet each)`;
+    const userContent = `Generate a ${windowH}-hour shift briefing${region ? ` for region: ${region}` : ' (Global)'} based on these ${incidents.length} intelligence items:\n\n${incidentLines}\n\nStructure the briefing as:\n## SITUATION SUMMARY\n(2-3 sentences)\n\n## KEY THREATS (Priority Order)\n- (bullet each)\n\n## DELL OPERATIONAL IMPACT\n(brief assessment)`;
 
     const result = await callLLM(env, [{ role: 'user', content: userContent }], {
       system: systemPrompt,
