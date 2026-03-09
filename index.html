@@ -1131,9 +1131,17 @@
     .signal-countries { color: #78909c; font-size: 0.72rem; margin-bottom: 3px; }
     .signal-text { color: #b0bec5; font-size: 0.74rem; font-style: italic; }
     body.light-mode .correlate-header { background: #f5f5f5; border-color: #e0e0e0; }
-    body.light-mode .signal-card { background: #fafafa; }
-    body.light-mode .signal-title { color: #222; }
-    body.light-mode .signal-text { color: #555; }
+    body.light-mode .correlate-title  { color: #1565c0; }
+    body.light-mode .correlate-refresh-btn { color: #5f6368; }
+    body.light-mode .correlate-refresh-btn:hover { color: #1565c0; }
+    body.light-mode .signal-card      { background: #f8f9fa; border-left-color: #ccc; }
+    body.light-mode .signal-card.signal-sev-CRITICAL { border-left-color: #f44336; }
+    body.light-mode .signal-card.signal-sev-HIGH     { border-left-color: #ff9800; }
+    body.light-mode .signal-card.signal-sev-MEDIUM   { border-left-color: #ffc107; }
+    body.light-mode .signal-title     { color: #202124; }
+    body.light-mode .signal-count     { background: #e3f2fd; color: #1565c0; }
+    body.light-mode .signal-countries { color: #5f6368; }
+    body.light-mode .signal-text      { color: #5f6368; }
 
     /* ============================================================
        TIER-3: Sentiment Drift Panel
@@ -1169,9 +1177,11 @@
     .sentiment-lbl.sentiment-label-ELEVATED { background:#f57f17; color:#000; }
     .sentiment-lbl.sentiment-label-STABLE   { background:#1b5e20; color:#fff; }
     .sentiment-narrative { font-size: 0.71rem; color: #78909c; font-style: italic; margin-top: 2px; line-height: 1.3; }
-    body.light-mode .sentiment-header { background: #f5f5f5; border-color: #e0e0e0; color: #00796b; }
-    body.light-mode .sentiment-bar-wrap { background: #e0e0e0; }
-    body.light-mode .sentiment-narrative { color: #777; }
+    body.light-mode .sentiment-header    { background: #f5f5f5; border-color: #e0e0e0; color: #00796b; }
+    body.light-mode .sentiment-updated   { color: #80868b; }
+    body.light-mode .sentiment-region    { color: #3c4043; }
+    body.light-mode .sentiment-bar-wrap  { background: #e0e0e0; }
+    body.light-mode .sentiment-narrative { color: #5f6368; }
 
     /* ============================================================
        TIER-3: Executive Report Modal Content

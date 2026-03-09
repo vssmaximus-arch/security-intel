@@ -4286,7 +4286,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const PREF_KEY = 'infohub_theme';
 
       function applyTheme(dark) {
-        document.body.classList.toggle('dark-mode', dark);
+        document.body.classList.toggle('dark-mode',  dark);
+        document.body.classList.toggle('light-mode', !dark); // needed so body.light-mode CSS rules fire
         if (icon)  { icon.className  = dark ? 'fas fa-sun' : 'fas fa-moon'; }
         if (label) { label.textContent = dark ? 'Light' : 'Dark'; }
         if (btn)   { btn.setAttribute('aria-pressed', String(dark)); btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode'; }
