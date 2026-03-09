@@ -949,6 +949,17 @@ function isNoise(text = "") {
   if (/\b(meeting|talks|summit|visit|conference|agreement|signed|signed an agreement)\b/i.test(t) &&
       !SECURITY_CARVEOUT.test(t)) return true;
 
+  // --- Tier-5a: CISA-specific gate — block ALL CISA content unless it explicitly
+  //     names Dell (the company/products) OR describes a confirmed active attack.
+  //     Generic CISA advisories, KEV catalogue updates, ICS/OT bulletins, and
+  //     "critical infrastructure" boilerplate are NOT operational RSM intelligence.
+  const isCisaContent = /\bcisa\b/i.test(t);
+  if (isCisaContent) {
+    const DELL_NAMED    = /\bdell(\s+(technologies|emc|secureworks|boomi))?|poweredge|powerstore|isilon|avamar|data domain\b/i;
+    const ACTIVE_ATTACK = /\b(actively exploited|exploitation detected|exploited in the wild|under active attack|confirmed breach|systems (down|disrupted|offline)|ransomware (attack|group|gang) (targeting|hit|struck|compromised)|nation.?state (attack|intrusion|breach)|apt (group|actor) (targeting|attacking))\b/i;
+    if (!DELL_NAMED.test(t) && !ACTIVE_ATTACK.test(t)) return true; // noise — discard
+  }
+
   // --- Tier-5: technical cyber noise — patch advisories, CVE disclosures, vendor bulletins.
   //     These are IT/SOC-level content, NOT operational manager intelligence.
   //     CARVEOUT: if the title also mentions an actual attack/breach/disruption, keep it.

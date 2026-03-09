@@ -1174,11 +1174,25 @@ function renderIncidentsOnMap(region, list) {
 function _feedIncidentFilter(inc) {
   const title = String(inc.title || '');
   const t     = title.toLowerCase();
-  // CISA generic — skip unless Dell-relevant or critical operational impact
-  if (/\bcisa\b/i.test(title) &&
-      !/\b(dell|supply chain|critical infrastructure|zero.?day|actively exploited|ransomware|CVE-\d{4}-\d+|active exploit)\b/i.test(title)) {
-    return false;
+  const summary = String(inc.summary || '').toLowerCase();
+  const srcUrl  = String(inc.source || inc.link || '').toLowerCase();
+
+  // ── CISA strict gate ────────────────────────────────────────────────────────
+  // CISA content is only relevant when it directly names Dell (the company or its
+  // products) OR describes a confirmed active nation-state / ransomware attack on
+  // critical infrastructure that Dell operates within.
+  // Everything else (patch advisories, KEV entries, generic ICS/OT alerts,
+  // supply-chain-generic, "critical infrastructure" boilerplate) is filtered out.
+  const isCisaContent = /\bcisa\b/i.test(title) || /cisa\.gov/i.test(srcUrl);
+  if (isCisaContent) {
+    // What we DO want: explicit Dell mention or confirmed active attack with ops impact
+    const DELL_NAMED   = /\bdell(\s+(technologies|emc|secureworks|boomi))?|poweredge|powerstore|isilon|avamar|data domain\b/i;
+    const ACTIVE_ATTACK = /\b(actively exploited|exploitation detected|exploited in the wild|under active attack|confirmed breach|systems (down|disrupted|offline)|ransomware (attack|group|gang) (targeting|hit|struck|compromised))\b/i;
+    const dellHit = DELL_NAMED.test(title) || DELL_NAMED.test(summary);
+    const activeHit = ACTIVE_ATTACK.test(title) || ACTIVE_ATTACK.test(summary);
+    if (!dellHit && !activeHit) return false;
   }
+  // ── /CISA strict gate ───────────────────────────────────────────────────────
   // Minor natural / weather events — skip unless severity ≥ 3 or major casualties/impact
   const isNat = /\b(earthquake|tremor|flood|hurricane|typhoon|cyclone|tornado|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|drought|fire notification|blizzard|mudslide)\b/i.test(title);
   if (isNat && Number(inc.severity || 1) < 3 &&
