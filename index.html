@@ -375,6 +375,7 @@
     .heatmap-legend { position: absolute; bottom: 30px; right: 10px; z-index: 1000; background: rgba(32,33,36,0.85); border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 0.72rem; pointer-events: none; line-height: 1.6; }
     .btn-toggle { background: #3c4043; color: #9aa0a6; border: none; border-radius: 8px; padding: 0 14px; height: 36px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s, color 0.15s; }
     #heatmap-toggle { position: absolute; top: 10px; right: 10px; z-index: 1000; }
+    #weather-toggle { position: absolute; top: 54px; right: 10px; z-index: 1000; }
     .btn-toggle.active { background: #b31412; color: #fff; box-shadow: 0 0 0 2px #cc000044; }
     .btn-toggle:focus { outline: 2px solid #202124; outline-offset: 2px; }
     /* S2.5 — Logistics Drawer */
@@ -1471,12 +1472,6 @@
           <i class="fas fa-shield-alt" aria-hidden="true"></i> OSINT Intel
         </button>
 
-        <!-- Tier-2: Weather/Disaster overlay toggle -->
-        <button class="btn-toggle ms-1" id="weather-toggle" data-action="toggle-weather"
-          aria-pressed="false" aria-label="Toggle weather and disaster overlay" tabindex="0">
-          <i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather
-        </button>
-
         <!-- Tier-3: Supply Chain disruption map layer -->
         <button class="btn-toggle ms-1" id="supply-chain-toggle" data-action="toggle-supply-chain"
           aria-pressed="false" aria-label="Toggle supply chain disruption layer" tabindex="0">
@@ -1574,6 +1569,10 @@
             <button class="btn-toggle" id="heatmap-toggle" data-action="toggle-heatmap"
               aria-pressed="false" aria-label="Toggle severity heatmap" tabindex="0">
               <i class="fas fa-fire" aria-hidden="true"></i> Heatmap
+            </button>
+            <button class="btn-toggle" id="weather-toggle" data-action="toggle-weather"
+              aria-pressed="false" aria-label="Toggle nature events overlay" tabindex="0">
+              <i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events
             </button>
             <div class="heatmap-legend" id="heatmap-legend" style="display:none;">
               <div><span style="color:#38761d">■</span> Low &nbsp;<span style="color:#f1c232">■</span> Med &nbsp;<span style="color:#cc0000">■</span> High &nbsp;<span style="color:#9900ff">■</span> Critical</div>

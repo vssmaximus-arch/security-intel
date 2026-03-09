@@ -3489,7 +3489,7 @@ function _ensureLiveNewsModal() {
     st.textContent = [
       /* === Modal shell === */
       '.lnm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6099;display:none;cursor:pointer}',
-      '.live-news-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:94vw;max-width:1360px;height:90vh;background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+      '.live-news-modal{position:fixed;top:96px;left:50%;transform:translateX(-50%);width:94vw;max-width:1360px;height:calc(100vh - 106px);background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
       '.live-news-modal.open{display:flex}',
       /* === Top bar === */
       '.lnm-topbar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
@@ -4001,7 +4001,7 @@ function _ensureGdeltIntelModal() {
   st.id = 'gim-styles';
   st.textContent = [
     '.gim-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:6099;display:none;cursor:pointer}',
-    '.gdelt-intel-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:94vw;max-width:1360px;height:90vh;background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
+    '.gdelt-intel-modal{position:fixed;top:96px;left:50%;transform:translateX(-50%);width:94vw;max-width:1360px;height:calc(100vh - 106px);background:#131416;color:#e8eaed;z-index:6100;border-radius:12px;box-shadow:0 8px 56px rgba(0,0,0,.9);display:none;flex-direction:column;font-family:Inter,sans-serif;overflow:hidden}',
     '.gdelt-intel-modal.open{display:flex}',
     '.gim-topbar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#0d1117;border-bottom:1px solid #2a2d31;flex-shrink:0;flex-wrap:wrap}',
     '.gim-badge{background:#1a1a3a;color:#9fa8da;font-size:.7rem;font-weight:800;border-radius:4px;padding:2px 9px;letter-spacing:1px;white-space:nowrap}',
@@ -4959,12 +4959,20 @@ try {
    ============================================================ */
 
 const WEATHER_ICONS = {
-  earthquake: { emoji: '🔴', color: '#e53935', label: 'EQ' },
-  cyclone:    { emoji: '🌀', color: '#8e24aa', label: 'TC' },
-  flood:      { emoji: '🔵', color: '#1565c0', label: 'FL' },
-  volcano:    { emoji: '🟠', color: '#e65100', label: 'VO' },
-  tsunami:    { emoji: '🟡', color: '#f9a825', label: 'TS' },
-  disaster:   { emoji: '⚠️', color: '#f57f17', label: '!!' },
+  earthquake: { icon: 'fa-house-crack',          bg: '#c62828', border: '#ef5350', label: 'EQ' },
+  cyclone:    { icon: 'fa-tornado',              bg: '#6a1b9a', border: '#ab47bc', label: 'TC' },
+  hurricane:  { icon: 'fa-wind',                bg: '#4527a0', border: '#7e57c2', label: 'HU' },
+  flood:      { icon: 'fa-water',               bg: '#0d47a1', border: '#42a5f5', label: 'FL' },
+  volcano:    { icon: 'fa-volcano',             bg: '#bf360c', border: '#ff7043', label: 'VO' },
+  tsunami:    { icon: 'fa-water',               bg: '#01579b', border: '#29b6f6', label: 'TS' },
+  wildfire:   { icon: 'fa-fire',                bg: '#b71c1c', border: '#ef5350', label: 'WF' },
+  fire:       { icon: 'fa-fire',                bg: '#b71c1c', border: '#ef5350', label: 'FI' },
+  landslide:  { icon: 'fa-hill-rockslide',      bg: '#4e342e', border: '#8d6e63', label: 'LS' },
+  drought:    { icon: 'fa-sun',                 bg: '#e65100', border: '#ffa726', label: 'DR' },
+  storm:      { icon: 'fa-cloud-bolt',          bg: '#263238', border: '#78909c', label: 'ST' },
+  snow:       { icon: 'fa-snowflake',           bg: '#01579b', border: '#4fc3f7', label: 'SN' },
+  meteor:     { icon: 'fa-meteor',              bg: '#37474f', border: '#90a4ae', label: 'ME' },
+  disaster:   { icon: 'fa-triangle-exclamation', bg: '#e65100', border: '#ffb74d', label: '!!' },
 };
 
 async function loadWeatherDisasters() {
@@ -4994,18 +5002,19 @@ function renderWeatherLayer() {
     const meta = WEATHER_ICONS[ev.type] || WEATHER_ICONS.disaster;
     const popupContent = `
       <div style="font-size:0.82rem;min-width:180px;">
-        <div style="font-weight:700;color:${meta.color};margin-bottom:4px;">${meta.emoji} ${escapeHtml(ev.type.toUpperCase())}</div>
+        <div style="font-weight:700;color:${meta.border};margin-bottom:4px;display:flex;align-items:center;gap:6px;"><span style="display:inline-flex;width:20px;height:20px;border-radius:50%;background:${meta.bg};align-items:center;justify-content:center;"><i class="fas ${meta.icon}" style="color:#fff;font-size:10px;"></i></span>${escapeHtml(ev.type.toUpperCase())}</div>
         <div style="font-weight:600;margin-bottom:3px;">${escapeHtml(ev.title)}</div>
         ${ev.magnitude ? `<div style="font-size:0.75rem;color:#666;">Magnitude: ${ev.magnitude}</div>` : ''}
         <div style="font-size:0.72rem;color:#888;margin-top:4px;">${escapeHtml(ev.source || '')} · ${escapeHtml((ev.time || '').slice(0,10))}</div>
         ${ev.link && ev.link !== '#' ? `<a href="${escapeAttr(ev.link)}" target="_blank" rel="noopener" style="font-size:0.72rem;color:#1a73e8;">View ↗</a>` : ''}
       </div>`;
 
+    const iconHtml = `<div title="${escapeAttr(ev.title)}" style="width:34px;height:34px;border-radius:50%;background:${meta.bg};border:2.5px solid ${meta.border};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.65);"><i class="fas ${meta.icon}" style="color:#fff;font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,0.5);"></i></div>`;
     const icon = L.divIcon({
       className: 'weather-div-icon',
-      html: `<span title="${escapeAttr(ev.title)}" style="font-size:18px;">${meta.emoji}</span>`,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
+      html: iconHtml,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
     });
     const marker = L.marker([lat, wrapLongitude(lng)], { icon });
     marker.bindPopup(popupContent);
@@ -5024,13 +5033,13 @@ async function toggleWeatherOverlay() {
   if (btn) { btn.classList.toggle('active', weatherEnabled); btn.setAttribute('aria-pressed', String(weatherEnabled)); }
 
   if (weatherEnabled) {
-    if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Weather';
+    if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Nature Events';
     await loadWeatherDisasters();
     renderWeatherLayer();
-    if (btn) btn.innerHTML = `<i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather <span style="font-size:0.65em;opacity:0.8;">(${WEATHER_EVENTS.length})</span>`;
+    if (btn) btn.innerHTML = `<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;">(${WEATHER_EVENTS.length})</span>`;
   } else {
     if (weatherLayerGroup) { try { map.removeLayer(weatherLayerGroup); } catch(e){} weatherLayerGroup = null; }
-    if (btn) btn.innerHTML = '<i class="fas fa-cloud-bolt" aria-hidden="true"></i> Weather';
+    if (btn) btn.innerHTML = '<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events';
   }
 }
 
