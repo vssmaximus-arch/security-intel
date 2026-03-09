@@ -949,6 +949,25 @@ function isNoise(text = "") {
   if (/\b(meeting|talks|summit|visit|conference|agreement|signed|signed an agreement)\b/i.test(t) &&
       !SECURITY_CARVEOUT.test(t)) return true;
 
+  // --- Tier-5: technical cyber noise — patch advisories, CVE disclosures, vendor bulletins.
+  //     These are IT/SOC-level content, NOT operational manager intelligence.
+  //     CARVEOUT: if the title also mentions an actual attack/breach/disruption, keep it.
+  const TECH_CYBER_NOISE = /\b(patch tuesday|security patch(es)?|firmware update|vulnerability (disclosed|discovered|identified|found)|researchers (found|discovered|uncovered|identified)|bug bounty|penetration test|pen test|red team exercise|security researcher|nist nvd|vendor advisory|advisory released|patches? (a |the |cve)|fixes? (a |the )?(vulnerability|flaw|bug)|cve-\d{4}-\d+|proof of concept exploit|security (bulletin|advisory) (released|published)|cvss score|zero.day (patch|fix|announced)|responsible disclosure)\b/i;
+  const CYBER_ATTACK_CARVEOUT = /\b(ransomware|breach|data stolen|hacked|compromised|extortion|demanded ransom|systems (down|offline|disrupted|shut down)|operations (affected|disrupted|halted)|data (leak|leaked|exposed)|nation.?state|apt group|threat actor|supply chain attack|cyber attack|cyberattack|network intrusion|unauthorized access)\b/i;
+  if (TECH_CYBER_NOISE.test(t) && !CYBER_ATTACK_CARVEOUT.test(t)) return true;
+
+  // --- Tier-6: court / legal proceedings noise ---
+  // Individual-crime trials and civil litigation are not RSM intelligence.
+  // Carve-out: terrorism trials, war-crimes proceedings, sanctions/espionage cases ARE relevant.
+  const LEGAL_NOISE = /\b(trial (begins?|starts?|opens?|underway|date set|resumes?)|jury (selection|deliberat|verdict|finds?|acquits?|convicts?)|court (hearing|ruling|verdict|sentenced|case|proceeding|adjourns?)|pleads? (guilty|not guilty|no contest)|sentenced to \d|arraigned|indicted (on|for)|testifies?|testified (in|before|at)|deposition|appeals? court|circuit court|district court|federal court|class action|arbitration hearing|lawsuit (settled|dismissed|resolved)|civil (suit|lawsuit|litigation))\b/i;
+  const LEGAL_CARVEOUT = /\b(terrorism|terror (attack|plot|suspect)|war crimes?|genocide|sanctions (violation|evasion|busting)|espionage|state.?sponsored|cyber crime|ransomware|arms (trafficking|smuggling)|drug cartel|human trafficking|extremis[mt]|militant|insurgent)\b/i;
+  if (LEGAL_NOISE.test(t) && !LEGAL_CARVEOUT.test(t)) return true;
+
+  // --- Tier-7: annual reports / financial results / market research ---
+  // Investor/earnings content and market-analyst reports are not operational security intelligence.
+  const ANNUAL_REPORT_NOISE = /\b(annual (report|review|results)|year in review|\d{4} (annual|year.in.review)|quarterly (report|earnings?|results?)|q[1-4] (results?|earnings?|report|revenue)|fiscal (year|quarter) (results?|ended?|summary)|earnings per share|investor (relations?|day|presentation|briefing)|earnings (call|beat|miss|guidance)|revenue (grew?|increased?|declined?|forecast|outlook)|market cap|gartner (predicts?|report|magic quadrant)|forrester (report|wave)|idc (report|forecast)|shareholder (letter|meeting|value)|return on (equity|investment)|ebitda|operating (margin|income|profit))\b/i;
+  if (ANNUAL_REPORT_NOISE.test(t)) return true;
+
   return false;
 }
 
@@ -2119,7 +2138,7 @@ async function callGroq(env, apiKey, text, retries = 2) {
     temperature: 0,
     max_tokens: 350,
     messages: [
-      { role: "system", content: "Return JSON with fields: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}" },
+      { role: "system", content: "Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. CRITICAL RULE for CYBERSECURITY category: only assign it for ACTUAL attacks, confirmed breaches, active ransomware campaigns, major service outages caused by cyber incidents, or nation-state/APT intrusions with real operational impact on organisations. Do NOT use CYBERSECURITY for: patch releases, CVE disclosures, vulnerability research, vendor security advisories, bug bounties, penetration test findings, or theoretical vulnerabilities — those must get operational_impact=false and impact_score below 15." },
       { role: "user", content: String(text).slice(0, 1200) }
     ],
     response_format: { type: "json_object" }
@@ -4125,6 +4144,477 @@ async function handleApiWeatherAviation(env, req) {
   }
 }
 
+/* ===========================
+   TIER-3 AI ENDPOINTS
+   =========================== */
+
+/* handleApiAiCorrelate — GET /api/ai/correlate
+ * Groups last-48h incidents by region:category, generates signal narratives for clusters ≥3.
+ * Returns { signals[], generated_at, incident_count }. KV-cached 30 min.
+ */
+async function handleApiAiCorrelate(env, req) {
+  const CACHE_KEY = 'correlate_cache_v1';
+  const CACHE_TTL = 1800;
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached.ts && (Date.now() - cached.ts) < CACHE_TTL * 1000) {
+      return new Response(JSON.stringify(cached.data), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'Cache-Control': 'public, max-age=1800' }
+      });
+    }
+    const now = Date.now();
+    const cutoff48h = now - 48 * 60 * 60 * 1000;
+    const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const incidents = (Array.isArray(raw) ? raw : []).filter(i => {
+      try { return new Date(i.time).getTime() >= cutoff48h; } catch { return false; }
+    });
+    if (incidents.length < 3) {
+      const emptyResult = { signals: [], generated_at: new Date().toISOString(), incident_count: incidents.length };
+      return new Response(JSON.stringify(emptyResult), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=900' }
+      });
+    }
+    // Group by region:category
+    const groups = {};
+    for (const inc of incidents) {
+      const key = `${inc.region || 'Global'}:${inc.category || 'UNKNOWN'}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(inc);
+    }
+    // Keep groups with ≥3 incidents, top 8 by count
+    const signalGroups = Object.entries(groups)
+      .filter(([_, items]) => items.length >= 3)
+      .sort(([_, a], [__, b]) => b.length - a.length)
+      .slice(0, 8);
+    if (signalGroups.length === 0) {
+      const emptyResult = { signals: [], generated_at: new Date().toISOString(), incident_count: incidents.length };
+      return new Response(JSON.stringify(emptyResult), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=900' }
+      });
+    }
+    const signals = signalGroups.map(([key, items], idx) => {
+      const [region, category] = key.split(':');
+      const countries = [...new Set(items.map(i => i.country).filter(Boolean))];
+      const maxSev = Math.max(...items.map(i => i.severity || 1));
+      const severity = maxSev >= 5 ? 'CRITICAL' : maxSev >= 4 ? 'HIGH' : 'MEDIUM';
+      return {
+        id: `sig-${idx}`,
+        region,
+        category,
+        title: `${category} Cluster — ${region}`,
+        countries,
+        count: items.length,
+        severity,
+        incident_titles: items.slice(0, 5).map(i => i.title),
+        signal_text: ''
+      };
+    });
+    // LLM narrative
+    const sigList = signals.map((s, i) =>
+      `${i + 1}. ${s.category} in ${s.region} (${s.countries.slice(0, 3).join(', ')}): ${s.count} incidents. Sample: "${s.incident_titles[0]}"`
+    ).join('\n');
+    const { text } = await callLLM(env, [
+      { role: 'user', content: `Analyze these security incident clusters and write ONE concise intelligence signal sentence for each. Focus on patterns, threats, and Dell operational impact. Output exactly ${signals.length} numbered sentences:\n\n${sigList}` }
+    ], {
+      system: 'You are a Dell Global Security Operations analyst. Write brief, factual intelligence signals for security clusters. Each signal must be one sentence only.',
+      max_tokens: 1000,
+      model: 'claude-haiku-4-5'
+    });
+    if (text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      let sigIdx = 0;
+      for (const line of lines) {
+        const match = line.match(/^\d+[\.\)]\s+(.+)/);
+        if (match && sigIdx < signals.length) { signals[sigIdx].signal_text = match[1].trim(); sigIdx++; }
+      }
+    }
+    const result = { signals, generated_at: new Date().toISOString(), incident_count: incidents.length };
+    try { await kvPut(env, CACHE_KEY, { ts: Date.now(), data: result }, { expirationTtl: CACHE_TTL }); } catch (_) {}
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'MISS', 'Cache-Control': 'public, max-age=1800' }
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiCorrelate error', e?.message || e);
+    return new Response(JSON.stringify({ signals: [], error: String(e?.message || e) }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/* handleApiAiEscalation — GET /api/ai/escalation?country=X
+ * Assesses escalation trajectory for a country based on 24h vs prev-48h incident counts.
+ * Returns { country, escalation_score, direction, confidence, narrative, ... }. KV-cached 60 min.
+ */
+async function handleApiAiEscalation(env, req) {
+  try {
+    const url = new URL(req.url);
+    const country = url.searchParams.get('country');
+    if (!country) return { status: 400, body: { error: 'country param required' } };
+    const safeCountry = country.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 30);
+    const CACHE_KEY = `esc_cache_${safeCountry}`;
+    const CACHE_TTL = 3600;
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached.ts && (Date.now() - cached.ts) < CACHE_TTL * 1000) {
+      return { status: 200, body: cached.data };
+    }
+    const now = Date.now();
+    const cutoff72h = now - 72 * 60 * 60 * 1000;
+    const cutoff24h = now - 24 * 60 * 60 * 1000;
+    const cutoff48h = now - 48 * 60 * 60 * 1000;
+    const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const countryLC = country.toLowerCase();
+    const allInc = (Array.isArray(raw) ? raw : []).filter(i => {
+      try {
+        if (new Date(i.time).getTime() < cutoff72h) return false;
+        const c = (i.country || '').toLowerCase();
+        const loc = (i.location || '').toLowerCase();
+        return c.includes(countryLC) || countryLC.includes(c.split(' ')[0]) || loc.includes(countryLC);
+      } catch { return false; }
+    });
+    const period24h = allInc.filter(i => new Date(i.time).getTime() >= cutoff24h);
+    const periodPrev48h = allInc.filter(i => {
+      const t = new Date(i.time).getTime();
+      return t >= cutoff48h && t < cutoff24h;
+    });
+    const severityAvg = period24h.length > 0
+      ? period24h.reduce((sum, i) => sum + (i.severity || 2), 0) / period24h.length : 2;
+    const ratio = period24h.length / Math.max(1, periodPrev48h.length / 2);
+    const rawScore = Math.min(100, Math.round(ratio * 40 + severityAvg * 12));
+    let direction = 'stable';
+    if (ratio > 1.3) direction = 'rising';
+    else if (ratio < 0.7) direction = 'declining';
+    const catBreakdown = {};
+    for (const i of period24h) {
+      const cat = i.category || 'UNKNOWN';
+      catBreakdown[cat] = (catBreakdown[cat] || 0) + 1;
+    }
+    const catStr = Object.entries(catBreakdown).map(([k, v]) => `${k}:${v}`).join(', ');
+    const { text } = await callLLM(env, [
+      { role: 'user', content: `Country: ${country}. Last 24h security incidents: ${period24h.length} (avg severity ${severityAvg.toFixed(1)}). Previous 48h: ${periodPrev48h.length}. Categories in 24h: ${catStr || 'none'}. Output JSON only: {"narrative":"one sentence assessment","direction":"rising|stable|declining","confidence":"high|medium|low"}` }
+    ], {
+      system: 'You are a Dell geopolitical risk analyst. Assess escalation trajectory based on incident data. Respond with JSON only.',
+      max_tokens: 200,
+      model: 'claude-haiku-4-5'
+    });
+    let narrative = `${period24h.length} incidents in the last 24h; trend is ${direction}.`;
+    let llmDirection = direction;
+    let confidence = 'medium';
+    if (text) {
+      try {
+        const m = text.match(/\{[\s\S]*\}/);
+        if (m) {
+          const parsed = JSON.parse(m[0]);
+          if (parsed.narrative) narrative = parsed.narrative;
+          if (parsed.direction && ['rising', 'stable', 'declining'].includes(parsed.direction)) llmDirection = parsed.direction;
+          if (parsed.confidence) confidence = parsed.confidence;
+        }
+      } catch (_) {}
+    }
+    const result = {
+      country, escalation_score: rawScore, direction: llmDirection,
+      confidence, narrative, period_24h: period24h.length,
+      period_prev48h: periodPrev48h.length, generated_at: new Date().toISOString()
+    };
+    try { await kvPut(env, CACHE_KEY, { ts: Date.now(), data: result }, { expirationTtl: CACHE_TTL }); } catch (_) {}
+    return { status: 200, body: result };
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiEscalation error', e?.message || e);
+    return { status: 500, body: { error: String(e?.message || e) } };
+  }
+}
+
+/* handleApiAiExecReport — GET /api/ai/exec-report
+ * Generates a structured AI executive security report with KPIs + 5 sections.
+ * Returns { report_text, kpis, generated_at, incident_count }. KV-cached 30 min.
+ */
+async function handleApiAiExecReport(env, req) {
+  const CACHE_KEY = 'exec_report_cache_v1';
+  const CACHE_TTL = 1800;
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached.ts && (Date.now() - cached.ts) < CACHE_TTL * 1000) {
+      return new Response(JSON.stringify(cached.data), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'Cache-Control': 'public, max-age=1800' }
+      });
+    }
+    const now = Date.now();
+    const cutoff24h = now - 24 * 60 * 60 * 1000;
+    const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const incidents = (Array.isArray(raw) ? raw : []).filter(i => {
+      try { return new Date(i.time).getTime() >= cutoff24h; } catch { return false; }
+    }).slice(0, 50);
+    const kpis = {
+      total: incidents.length,
+      critical: incidents.filter(i => (i.severity || 0) >= 5).length,
+      high: incidents.filter(i => (i.severity || 0) === 4).length,
+      medium: incidents.filter(i => (i.severity || 0) === 3).length,
+      low: incidents.filter(i => (i.severity || 0) <= 2).length,
+      regions: { AMER: 0, EMEA: 0, APJC: 0, LATAM: 0, Global: 0 }
+    };
+    for (const i of incidents) {
+      const r = (i.region || 'Global').toUpperCase();
+      if (r.includes('AMER') || r.includes('AMERICA') || r.includes('NORTH')) kpis.regions.AMER++;
+      else if (r.includes('EMEA') || r.includes('EUROPE') || r.includes('MIDDLE') || r.includes('AFRICA')) kpis.regions.EMEA++;
+      else if (r.includes('APJC') || r.includes('ASIA') || r.includes('PACIFIC')) kpis.regions.APJC++;
+      else if (r.includes('LATAM') || r.includes('LATIN') || r.includes('SOUTH AMERICA')) kpis.regions.LATAM++;
+      else kpis.regions.Global++;
+    }
+    const topThreats = [...incidents]
+      .sort((a, b) => (b.severity || 0) - (a.severity || 0))
+      .slice(0, 5)
+      .map(i => `${i.title} [${i.country || i.region}/${i.category}/${i.severity_label || 'MEDIUM'}]`);
+    const dateStr = new Date().toISOString().split('T')[0];
+    const prompt = `Prepare a concise executive security report for Dell RSM leadership.
+Date: ${dateStr}
+Total incidents (last 24h): ${kpis.total} | Critical: ${kpis.critical} | High: ${kpis.high} | Medium: ${kpis.medium}
+Regional breakdown: AMER=${kpis.regions.AMER}, EMEA=${kpis.regions.EMEA}, APJC=${kpis.regions.APJC}, LATAM=${kpis.regions.LATAM}
+Top threats:
+${topThreats.map((t, i) => `${i + 1}. ${t}`).join('\n')}
+Structure your response EXACTLY with these section headers (use ## prefix):
+## EXECUTIVE SUMMARY
+## KEY THREATS
+## REGIONAL BREAKDOWN
+## DELL IMPACT ASSESSMENT
+## RECOMMENDED ACTIONS`;
+    const { text } = await callLLM(env, [{ role: 'user', content: prompt }], {
+      system: 'You are a Dell Global Security Operations Executive Analyst. Write concise, professional executive-level security briefings. Be specific and action-oriented. Keep each section brief.',
+      max_tokens: 2000,
+      model: 'claude-sonnet-4-5'
+    });
+    const fallback = `## EXECUTIVE SUMMARY\nAI generation unavailable. ${kpis.total} incidents recorded in the last 24 hours. Critical: ${kpis.critical}, High: ${kpis.high}.\n\n## KEY THREATS\n${topThreats.map(t => `- ${t}`).join('\n') || '- No critical threats in period.'}\n\n## REGIONAL BREAKDOWN\nAMER: ${kpis.regions.AMER} incidents | EMEA: ${kpis.regions.EMEA} incidents | APJC: ${kpis.regions.APJC} incidents | LATAM: ${kpis.regions.LATAM} incidents\n\n## DELL IMPACT ASSESSMENT\nReview incidents with HIGH/CRITICAL severity for immediate Dell operational impact.\n\n## RECOMMENDED ACTIONS\n1. Monitor critical incidents and escalate as needed.\n2. Coordinate with regional RSMs for local context.\n3. Update stakeholders on high-severity events.`;
+    const result = {
+      report_text: text || fallback,
+      kpis,
+      generated_at: new Date().toISOString(),
+      incident_count: incidents.length
+    };
+    try { await kvPut(env, CACHE_KEY, { ts: Date.now(), data: result }, { expirationTtl: CACHE_TTL }); } catch (_) {}
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'MISS', 'Cache-Control': 'public, max-age=1800' }
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiExecReport error', e?.message || e);
+    return new Response(JSON.stringify({ report_text: 'Error generating report.', kpis: {}, error: String(e?.message || e) }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/* handleApiAiSentiment — GET /api/ai/sentiment
+ * Computes severity-weighted sentiment score per region + LLM one-sentence narrative.
+ * Returns { regions: { AMER:{score,label,trend,count,narrative}, ... }, generated_at }. KV-cached 30 min.
+ */
+async function handleApiAiSentiment(env, req) {
+  const CACHE_KEY = 'sentiment_cache_v1';
+  const CACHE_TTL = 1800;
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached.ts && (Date.now() - cached.ts) < CACHE_TTL * 1000) {
+      return new Response(JSON.stringify(cached.data), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'Cache-Control': 'public, max-age=1800' }
+      });
+    }
+    const now = Date.now();
+    const cutoff24h = now - 24 * 60 * 60 * 1000;
+    const cutoff12h = now - 12 * 60 * 60 * 1000;
+    const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const incidents = (Array.isArray(raw) ? raw : []).filter(i => {
+      try { return new Date(i.time).getTime() >= cutoff24h; } catch { return false; }
+    });
+    const REGIONS = ['AMER', 'EMEA', 'APJC', 'LATAM'];
+    const regionKeywords = {
+      AMER: ['AMER', 'AMERICA', 'US', 'CANADA', 'NORTH'],
+      EMEA: ['EMEA', 'EUROPE', 'MIDDLE', 'AFRICA', 'UK', 'EAST'],
+      APJC: ['APJC', 'ASIA', 'PACIFIC', 'JAPAN', 'CHINA', 'INDIA', 'AUSTRALIA'],
+      LATAM: ['LATAM', 'LATIN', 'SOUTH AMERICA', 'BRAZIL', 'MEXICO']
+    };
+    function getRegionKey(inc) {
+      const r = (inc.region || '').toUpperCase();
+      for (const [key, kws] of Object.entries(regionKeywords)) {
+        if (kws.some(kw => r.includes(kw))) return key;
+      }
+      return null;
+    }
+    const regionData = {};
+    for (const region of REGIONS) {
+      const rInc = incidents.filter(i => getRegionKey(i) === region);
+      const rInc12h = rInc.filter(i => { try { return new Date(i.time).getTime() >= cutoff12h; } catch { return false; } });
+      const rIncPrev12h = rInc.filter(i => { try { const t = new Date(i.time).getTime(); return t >= cutoff24h && t < cutoff12h; } catch { return false; } });
+      if (rInc.length === 0) { regionData[region] = { score: 0, label: 'STABLE', trend: 'stable', count: 0, narrative: '' }; continue; }
+      const weights = { 5: 100, 4: 70, 3: 40, 2: 15, 1: 15 };
+      const score = Math.min(100, Math.round(rInc.reduce((s, i) => s + (weights[i.severity] || 15), 0) / rInc.length));
+      const label = score >= 75 ? 'CRITICAL' : score >= 55 ? 'HIGH' : score >= 35 ? 'ELEVATED' : 'STABLE';
+      let trend = 'stable';
+      if (rInc12h.length > rIncPrev12h.length * 1.3) trend = 'rising';
+      else if (rInc12h.length < rIncPrev12h.length * 0.7) trend = 'declining';
+      regionData[region] = { score, label, trend, count: rInc.length, narrative: '' };
+    }
+    const statStr = REGIONS.map(r => { const d = regionData[r]; return `${r}: ${d.count} incidents, score=${d.score}, label=${d.label}, trend=${d.trend}`; }).join('; ');
+    const { text } = await callLLM(env, [
+      { role: 'user', content: `Security sentiment drift data: ${statStr}. Write ONE concise sentence per region (AMER, EMEA, APJC, LATAM) describing the current security atmosphere. Format exactly: "AMER: [sentence]. EMEA: [sentence]. APJC: [sentence]. LATAM: [sentence]."` }
+    ], {
+      system: 'You are a Dell regional security analyst. Write brief, factual regional security sentiment assessments.',
+      max_tokens: 400,
+      model: 'claude-haiku-4-5'
+    });
+    if (text) {
+      for (const region of REGIONS) {
+        const regex = new RegExp(`${region}:\\s*([^.]+\\.?)`, 'i');
+        const m = text.match(regex);
+        if (m) regionData[region].narrative = m[1].trim();
+      }
+    }
+    const result = { regions: regionData, generated_at: new Date().toISOString() };
+    try { await kvPut(env, CACHE_KEY, { ts: Date.now(), data: result }, { expirationTtl: CACHE_TTL }); } catch (_) {}
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'MISS', 'Cache-Control': 'public, max-age=1800' }
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAiSentiment error', e?.message || e);
+    return new Response(JSON.stringify({ regions: {}, error: String(e?.message || e) }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/* handleApiThreatIntel — GET /api/threat-intel
+ * Aggregates CISA KEV (free) + CVE CIRCL (free) + optional OTX (env.OTX_API_KEY).
+ * Returns { kev[], cves[], otx[], sources_ok[], sources_failed[], updated_at }. KV-cached 60 min.
+ */
+async function handleApiThreatIntel(env, req) {
+  const CACHE_KEY = 'threat_intel_cache_v1';
+  const CACHE_TTL = 3600;
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached.ts && (Date.now() - cached.ts) < CACHE_TTL * 1000) {
+      return new Response(JSON.stringify(cached.data), {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'Cache-Control': 'public, max-age=3600' }
+      });
+    }
+    const sources_ok = [], sources_failed = [];
+    async function fetchWithTimeout(url, opts, ms = 10000) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), ms);
+      try { const r = await fetch(url, { ...opts, signal: ctrl.signal }); clearTimeout(timer); return r; }
+      catch (e) { clearTimeout(timer); throw e; }
+    }
+    // CISA KEV
+    let kev = [];
+    try {
+      const resp = await fetchWithTimeout('https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json');
+      if (resp.ok) {
+        const data = await resp.json();
+        kev = (Array.isArray(data.vulnerabilities) ? data.vulnerabilities : [])
+          .sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime())
+          .slice(0, 6)
+          .map(v => ({ cveID: v.cveID, vendorProject: v.vendorProject, product: v.product, vulnerabilityName: v.vulnerabilityName, dateAdded: v.dateAdded, shortDescription: (v.shortDescription || '').slice(0, 200) }));
+        sources_ok.push('CISA_KEV');
+      } else { sources_failed.push('CISA_KEV'); }
+    } catch (e) { sources_failed.push('CISA_KEV'); typeof debug === 'function' && debug('threat-intel CISA err', e?.message); }
+    // CVE CIRCL
+    let cves = [];
+    try {
+      const resp = await fetchWithTimeout('https://cve.circl.lu/api/last/5');
+      if (resp.ok) {
+        const data = await resp.json();
+        cves = (Array.isArray(data) ? data : []).map(v => ({
+          id: v.id || v.CVE_data_meta?.ID || 'N/A',
+          summary: (v.summary || '').slice(0, 200),
+          cvss: v.cvss || null,
+          Published: v.Published || '',
+          reference: Array.isArray(v.references) ? (v.references[0] || '') : ''
+        }));
+        sources_ok.push('CVE_CIRCL');
+      } else { sources_failed.push('CVE_CIRCL'); }
+    } catch (e) { sources_failed.push('CVE_CIRCL'); typeof debug === 'function' && debug('threat-intel CIRCL err', e?.message); }
+    // OTX (optional)
+    let otx = [];
+    if (env.OTX_API_KEY) {
+      try {
+        const resp = await fetchWithTimeout('https://otx.alienvault.com/api/v1/pulses/subscribed?limit=5', { headers: { 'X-OTX-API-KEY': env.OTX_API_KEY } });
+        if (resp.ok) {
+          const data = await resp.json();
+          otx = (data.results || []).map(p => ({ id: p.id, name: p.name, description: (p.description || '').slice(0, 200), tags: p.tags || [], tlp: p.tlp || 'white', created: p.created }));
+          sources_ok.push('OTX');
+        } else { sources_failed.push('OTX'); }
+      } catch (e) { sources_failed.push('OTX'); typeof debug === 'function' && debug('threat-intel OTX err', e?.message); }
+    }
+    // GDELT Operational Cyber Events — major breaches, ransomware, nation-state attacks
+    // This is the PRIMARY source for RSM managers: actual attacks on real organisations.
+    let cyber_events = [];
+    try {
+      // Query targets confirmed attacks/breaches, not patch advisories or vulnerability research
+      const cyberQuery = '(ransomware OR "data breach" OR cyberattack OR "cyber attack" OR "network breach" OR "systems compromised" OR "state-sponsored" OR "nation-state" OR "APT group" OR "threat actor" OR "supply chain attack") (company OR organization OR government OR infrastructure OR operations OR manufacturer OR hospital)';
+      const gdeltCyberUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(cyberQuery)}&mode=artlist&maxrecords=20&format=json&timespan=3d&sort=datedesc&sourcelang=english`;
+      const gresp = await fetchWithTimeout(gdeltCyberUrl, {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; DellOSInfohub/1.0)' }
+      }, 15000);
+      if (gresp.ok) {
+        const gtxt = await gresp.text();
+        const gdata = JSON.parse(gtxt);
+        const articles = Array.isArray(gdata.articles) ? gdata.articles : [];
+        // Post-filter: exclude pure technical advisories that slipped through
+        const techNoiseRx = /\b(patch tuesday|vulnerability patch|security update released|researchers (found|discovered)|cve-\d{4}-\d+|bug bounty|proof of concept|vendor advisory|patches vulnerability|security advisory|nist nvd|cvss)\b/i;
+        const attackRx = /\b(ransomware|breach|attack|hacked|compromised|stolen|extortion|demand|shutdown|disrupted|offline|data leaked|nation.?state|apt group|threat actor|supply chain attack)\b/i;
+        cyber_events = articles
+          .filter(a => {
+            const t = (a.title || '').toLowerCase();
+            if (techNoiseRx.test(t) && !attackRx.test(t)) return false;
+            return true;
+          })
+          .slice(0, 12)
+          .map(a => {
+            const title = a.title || '—';
+            let tag = 'CYBER';
+            if (/ransomware/i.test(title)) tag = 'RANSOMWARE';
+            else if (/breach|leak|stolen|data exposed/i.test(title)) tag = 'BREACH';
+            else if (/nation.?state|apt |state.?sponsor|espionage/i.test(title)) tag = 'APT';
+            else if (/outage|down|disrupted|offline|service (disruption|failure)/i.test(title)) tag = 'DISRUPTION';
+            // Format GDELT date (YYYYMMDDTHHMMSSZ) to readable
+            let date = a.seendate || '';
+            try {
+              if (date.length >= 8) {
+                const y = date.slice(0,4), m = date.slice(4,6), d = date.slice(6,8);
+                date = `${y}-${m}-${d}`;
+              }
+            } catch (_) {}
+            return { title, url: a.url || '#', domain: a.domain || '', date, tag };
+          });
+        sources_ok.push('GDELT_CYBER');
+        typeof debug === 'function' && debug('threat-intel GDELT cyber:', cyber_events.length);
+      } else { sources_failed.push('GDELT_CYBER'); }
+    } catch (e) {
+      sources_failed.push('GDELT_CYBER');
+      typeof debug === 'function' && debug('threat-intel GDELT error', e?.message);
+    }
+
+    const result = { cyber_events, kev, cves, otx, sources_ok, sources_failed, updated_at: new Date().toISOString() };
+    try { await kvPut(env, CACHE_KEY, { ts: Date.now(), data: result }, { expirationTtl: CACHE_TTL }); } catch (_) {}
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'X-Cache': 'MISS', 'Cache-Control': 'public, max-age=3600' }
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiThreatIntel error', e?.message || e);
+    return new Response(JSON.stringify({ cyber_events: [], kev: [], cves: [], otx: [], error: String(e?.message || e) }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 /* Root request router */
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
@@ -4190,6 +4680,17 @@ async function handleRequest(req, env, ctx) {
       return handleApiWeatherDisasters(env, req);
     } else if (p.startsWith('/api/weather/aviation')) {
       return handleApiWeatherAviation(env, req);
+    } else if (p.startsWith('/api/ai/correlate')) {
+      return handleApiAiCorrelate(env, req);
+    } else if (p.startsWith('/api/ai/escalation')) {
+      const r = await handleApiAiEscalation(env, req);
+      return _responseFromResult(r);
+    } else if (p.startsWith('/api/ai/exec-report')) {
+      return handleApiAiExecReport(env, req);
+    } else if (p.startsWith('/api/ai/sentiment')) {
+      return handleApiAiSentiment(env, req);
+    } else if (p.startsWith('/api/threat-intel')) {
+      return handleApiThreatIntel(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
