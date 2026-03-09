@@ -85,6 +85,52 @@ let correlationRefreshTimer = null;
 let sentimentRefreshTimer   = null;
 let activeThreatTab    = 'cyber'; // Default: operational incidents, not technical KEV
 
+// --- APJC Sub-region state ---
+let activeApjcSub = null; // null = "All APJC", otherwise one of the sub-keys below
+
+const APJC_SUB_COUNTRIES = {
+  ANZ:          ['AUSTRALIA','NEW ZEALAND','AUS','NZL','AU','NZ','PAPUA NEW GUINEA','FIJI','SOLOMON ISLANDS','VANUATU'],
+  GREATER_CHINA:['CHINA','HONG KONG','TAIWAN','MACAU','MACAO','CHN','HKG','TWN','CN','HK','TW'],
+  PAN_INDIA:    ['INDIA','IND','IN'],
+  JAPAN:        ['JAPAN','JPN','JP'],
+  SOUTH_KOREA:  ['SOUTH KOREA','KOREA','KOR','KR','REPUBLIC OF KOREA'],
+  MYS_SGP:      ['MALAYSIA','SINGAPORE','MYS','SGP','MY','SG','BRUNEI'],
+  SOUTH_ASIA_EM:['BANGLADESH','PAKISTAN','SRI LANKA','NEPAL','MYANMAR','VIETNAM','THAILAND',
+                 'PHILIPPINES','INDONESIA','CAMBODIA','LAOS','MONGOLIA','EAST TIMOR','TIMOR-LESTE',
+                 'MALDIVES','BHUTAN','BGD','PAK','LKA','NPL','MMR','VNM','THA','PHL','IDN'],
+};
+
+function _incidentMatchesApjcSub(incident, sub) {
+  if (!sub || sub === 'ALL') return true;
+  const countries = APJC_SUB_COUNTRIES[sub];
+  if (!countries) return true;
+  const c = (incident.country || incident.location || '').toUpperCase().trim();
+  return countries.some(alias => c === alias || c.includes(alias) || alias.includes(c));
+}
+
+function _setApjcSubNav(visible) {
+  const bar = document.getElementById('apjc-subnav');
+  if (bar) bar.style.display = visible ? 'flex' : 'none';
+  if (!visible) {
+    activeApjcSub = null;
+    document.querySelectorAll('.apjc-sub-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.sub === 'ALL');
+      p.setAttribute('aria-pressed', String(p.dataset.sub === 'ALL'));
+    });
+  }
+}
+
+function toggleApjcSub(sub) {
+  activeApjcSub = (sub === 'ALL') ? null : sub;
+  document.querySelectorAll('.apjc-sub-pill').forEach(p => {
+    const match = (sub === 'ALL') ? (p.dataset.sub === 'ALL') : (p.dataset.sub === sub);
+    p.classList.toggle('active', match);
+    p.setAttribute('aria-pressed', String(match));
+  });
+  const active = document.querySelector('.nav-item-custom.active');
+  filterNews(active ? active.textContent.trim() : 'APJC');
+}
+
 // --- Category Filter state ---
 let ACTIVE_CATEGORIES = new Set(); // empty = "All" (no filter active)
 
@@ -1153,7 +1199,11 @@ function mapSeverityToLabel(s) {
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  const rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  // APJC sub-region drill-down
+  if (region === 'APJC' && activeApjcSub) {
+    rawData = rawData.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
+  }
   // Apply quality gate then category filter (if any categories are selected)
   const data = rawData.filter(_feedIncidentFilter).filter(filterByCategoryAllowed);
   if (!data || data.length === 0) {
@@ -1305,7 +1355,11 @@ function _proxCategoryLabel(cat) {
 function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
-  const regionFiltered = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+  let regionFiltered = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
+  // APJC sub-region drill-down
+  if (region === 'APJC' && activeApjcSub) {
+    regionFiltered = regionFiltered.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
+  }
   // Apply category filter (mirrors general feed behaviour)
   const data = regionFiltered.filter(filterByCategoryAllowed);
   const alerts = [];
@@ -2022,23 +2076,149 @@ function _buildSitrepHtml(s) {
   </div>`;
 }
 
+/**
+ * Build a structured SITREP object from raw incidents (client-side fallback).
+ * Used when the Worker returns incidents but no pre-generated AI sitrep.
+ */
+function _buildSitrepFromIncidents(incidents, region, dateStr) {
+  if (!incidents || !incidents.length) return null;
+
+  const sorted = [...incidents].sort((a, b) => {
+    const sd = (Number(b.severity) || 1) - (Number(a.severity) || 1);
+    return sd !== 0 ? sd : new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime();
+  });
+
+  const total    = sorted.length;
+  const critical = sorted.filter(i => Number(i.severity) >= 4).length;
+  const high     = sorted.filter(i => Number(i.severity) === 3).length;
+  const countries = new Set(sorted.map(i => (i.country || i.location || '')).filter(Boolean)).size;
+  const regionSet = new Set(sorted.map(i => i.region || '').filter(Boolean));
+
+  // Top region (for header)
+  const regionCounts = {};
+  sorted.forEach(i => { const r = i.region || 'Unknown'; regionCounts[r] = (regionCounts[r] || 0) + 1; });
+  const topRegion = (region && region !== 'Global')
+    ? region
+    : Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Global';
+
+  // Key takeaways — group by country, top 8 by severity
+  const byCountry = {};
+  sorted.forEach(i => {
+    const key = (i.country || i.location || 'Unknown').toUpperCase();
+    if (!byCountry[key]) byCountry[key] = { maxSev: 0, items: [] };
+    byCountry[key].items.push(i);
+    byCountry[key].maxSev = Math.max(byCountry[key].maxSev, Number(i.severity) || 1);
+  });
+  const keyTakeaways = Object.entries(byCountry)
+    .sort((a, b) => b[1].maxSev - a[1].maxSev || b[1].items.length - a[1].items.length)
+    .slice(0, 8)
+    .map(([location, d]) => ({
+      location,
+      maxSev: d.maxSev,
+      count: d.items.length,
+      summary: d.items.slice(0, 3).map(i => i.summary || i.title || '').filter(Boolean),
+    }));
+
+  // Escalations — group by category
+  const byCat = {};
+  sorted.forEach(i => {
+    const cat = (i.category || 'UNKNOWN').toUpperCase();
+    if (!byCat[cat]) byCat[cat] = [];
+    byCat[cat].push(i);
+  });
+  const escalations = Object.entries(byCat)
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 5)
+    .filter(([, items]) => items.length >= 2 || (items[0] && Number(items[0].severity) >= 3))
+    .map(([domain, items]) => ({
+      domain,
+      bullets: items.slice(0, 4).map(i => `${i.country ? i.country + ': ' : ''}${i.title || ''}`.trim()),
+    }));
+
+  // Dell exposure — high-sev affected countries + any known ASSETS in those countries
+  const affectedCountries = [...new Set(
+    sorted.filter(i => Number(i.severity) >= 3).map(i => i.country || '').filter(Boolean)
+  )];
+  const dellSiteNames = [];
+  try {
+    if (typeof ASSETS !== 'undefined') {
+      Object.values(ASSETS).forEach(asset => {
+        if (affectedCountries.some(c =>
+          (asset.country || asset.name || '').toUpperCase().includes(c.toUpperCase()) ||
+          c.toUpperCase().includes((asset.country || '').toUpperCase())
+        )) { dellSiteNames.push(asset.name); }
+      });
+    }
+  } catch (_) {}
+
+  // Outlook
+  const maxSev = sorted[0] ? Number(sorted[0].severity) || 1 : 1;
+  const escalation = maxSev >= 4 ? 'HIGH — Immediate attention required'
+                   : maxSev >= 3 ? 'MODERATE-HIGH — Enhanced monitoring advised'
+                   : 'LOW-MODERATE — Standard monitoring posture';
+  const risk = `${total} incident${total !== 1 ? 's' : ''} across ${countries} countr${countries !== 1 ? 'ies' : 'y'}.`
+    + (critical > 0 ? ` ${critical} critical-severity event${critical !== 1 ? 's' : ''} require immediate attention.` : '')
+    + (high > 0     ? ` ${high} high-severity event${high !== 1 ? 's' : ''} under monitoring.` : '');
+  const priorities = Object.entries(byCountry)
+    .filter(([, d]) => d.maxSev >= 3)
+    .sort((a, b) => b[1].maxSev - a[1].maxSev || b[1].items.length - a[1].items.length)
+    .slice(0, 4).map(([c]) => c);
+
+  const topCat = Object.entries(byCat).sort((a, b) => b[1].length - a[1].length)[0];
+  const theme  = topCat
+    ? `Dominant threat category: ${topCat[0]} (${topCat[1].length} incidents).${critical > 0 ? ' Multiple critical-severity events require leadership attention.' : ''}`
+    : '';
+
+  return {
+    title:     `Dell Technologies OS | INFOHUB — ${region || 'Global'} Situation Report`,
+    issue:     1,
+    date:      dateStr || new Date().toISOString().slice(0, 10),
+    topRegion,
+    org:       'Dell Technologies — Global Security Operations',
+    theme,
+    stats:     { total, critical, high, countries, regions: regionSet.size },
+    keyTakeaways,
+    escalations,
+    dellExposure: { affectedCountries, siteNames: dellSiteNames, sitesAffected: dellSiteNames.length },
+    outlook:   { escalation, risk, priorities },
+  };
+}
+
 async function previewBriefing() {
-  const region = document.getElementById('reportRegion')?.value || 'Global';
-  const date   = document.getElementById('reportDate')?.value || '';
-  const fb     = document.getElementById('preview-feedback');
-  const cont   = document.getElementById('briefing-preview');
+  const region  = document.getElementById('reportRegion')?.value || 'Global';
+  const dateEl  = document.getElementById('reportDate');
+  // Default to today if user hasn't picked a date
+  const today   = new Date().toISOString().slice(0, 10);
+  const date    = dateEl?.value || today;
+  if (dateEl && !dateEl.value) dateEl.value = today; // fill the input so user sees it
+
+  const fb      = document.getElementById('preview-feedback');
+  const cont    = document.getElementById('briefing-preview');
+  const pdfBtn  = document.getElementById('download-brief-pdf');
   if (fb)   { fb.style.display = 'block'; fb.textContent = 'Generating SITREP…'; }
   if (cont) { cont.innerHTML = ''; }
-  let url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}`;
-  if (date) url += `&date=${encodeURIComponent(date)}`;
+
+  // Always include date — Worker returns [] when date is omitted
+  const url = `${WORKER_URL}/api/dailybrief?region=${encodeURIComponent(region)}&date=${encodeURIComponent(date)}`;
   try {
-    const res    = await fetchWithTimeout(url, {}, 25000);
+    const res  = await fetchWithTimeout(url, {}, 25000);
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json   = await res.json();
-    const sitrep = json.sitrep;
-    const pdfBtn = document.getElementById('download-brief-pdf');
-    if (!sitrep || !json.incidents || !json.incidents.length) {
-      if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-check-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for this period.</div></div>`;
+    const json = await res.json();
+
+    // Worker returns { incidents: [...] } for archived/live data,
+    // or { sitrep: {...}, incidents: [...] } for admin-generated briefs.
+    const rawIncidents = Array.isArray(json.incidents) ? json.incidents
+                       : Array.isArray(json)           ? json
+                       : [];
+    let sitrep = json.sitrep || null;
+
+    // Build sitrep client-side when not pre-generated
+    if (!sitrep && rawIncidents.length) {
+      sitrep = _buildSitrepFromIncidents(rawIncidents, region, date);
+    }
+
+    if (!sitrep) {
+      if (cont) cont.innerHTML = `<div class="safe-box"><i class="fas fa-info-circle safe-icon" aria-hidden="true"></i><div class="safe-text">No incidents found for ${date}${region !== 'Global' ? ' — ' + region : ''}.</div></div>`;
       if (pdfBtn) pdfBtn.style.display = 'none';
     } else {
       if (cont) cont.innerHTML = _buildSitrepHtml(sitrep);
@@ -2046,7 +2226,7 @@ async function previewBriefing() {
     }
     if (fb) fb.style.display = 'none';
   } catch(e) {
-    const pdfBtn = document.getElementById('download-brief-pdf');
+    if (cont) cont.innerHTML = '';
     if (pdfBtn) pdfBtn.style.display = 'none';
     if (fb) { fb.style.display = 'block'; fb.textContent = `Error: ${e.message}`; }
   }
@@ -4318,7 +4498,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'filter-region') {
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
         t.classList.add('active');
-        filterNews(t.dataset.region || t.textContent.trim());
+        const region = t.dataset.region || t.textContent.trim();
+        // Show APJC sub-nav only when APJC is selected
+        _setApjcSubNav(region === 'APJC');
+        filterNews(region);
+        return;
+      }
+      if (action === 'filter-apjc-sub') {
+        const sub = t.dataset.sub;
+        if (sub) toggleApjcSub(sub);
         return;
       }
       if (action === 'filter-cat') {

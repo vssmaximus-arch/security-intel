@@ -1303,6 +1303,41 @@
     body.light-mode .esc-narrative { color: #555; }
 
     /* ══════════════════════════════════════════════════════════════════
+       APJC SUB-REGION NAV — shown only when APJC tab is active
+       ══════════════════════════════════════════════════════════════════ */
+    .apjc-subnav {
+      padding: 6px 32px;
+      background: #0d1117;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 100;
+    }
+    .apjc-subnav-label {
+      font-size: 0.65rem; font-weight: 700; color: #4b5563;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-right: 4px; white-space: nowrap; flex-shrink: 0;
+    }
+    .apjc-sub-pill {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 10px; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 700; cursor: pointer;
+      border: 1px solid #2d3748; background: transparent; color: #718096;
+      transition: all 0.15s; white-space: nowrap; font-family: inherit;
+    }
+    .apjc-sub-pill:hover  { border-color: #4a5568; color: #e2e8f0; background: rgba(255,255,255,0.05); }
+    .apjc-sub-pill.active { background: #0076ce; border-color: #0076ce; color: #fff; }
+    .apjc-sub-pill:focus  { outline: 2px solid #0076ce; outline-offset: 2px; }
+    body.light-mode .apjc-subnav { background: #eef2f7; border-bottom-color: #d1d5db; }
+    body.light-mode .apjc-subnav-label { color: #9ca3af; }
+    body.light-mode .apjc-sub-pill { color: #6b7280; border-color: #d1d5db; background: #fff; }
+    body.light-mode .apjc-sub-pill:hover { background: #f3f4f6; color: #111827; }
+    body.light-mode .apjc-sub-pill.active { color: #fff; background: #0076ce; border-color: #0076ce; }
+
+    /* ══════════════════════════════════════════════════════════════════
        CATEGORY FILTER BAR — second header row, multi-select toggle pills
        ══════════════════════════════════════════════════════════════════ */
     .cat-filter-bar {
@@ -1450,6 +1485,19 @@
           <span id="theme-label">Dark</span>
         </button>
       </div>
+    </div>
+
+    <!-- APJC Sub-region Nav — shown only when APJC region is active -->
+    <div class="apjc-subnav" id="apjc-subnav" style="display:none;" role="group" aria-label="APJC sub-region filter">
+      <span class="apjc-subnav-label">APJC ▸</span>
+      <button class="apjc-sub-pill active" data-sub="ALL" data-action="filter-apjc-sub" aria-pressed="true">All APJC</button>
+      <button class="apjc-sub-pill" data-sub="ANZ" data-action="filter-apjc-sub" aria-pressed="false" title="Australia &amp; New Zealand">🦘 ANZ</button>
+      <button class="apjc-sub-pill" data-sub="GREATER_CHINA" data-action="filter-apjc-sub" aria-pressed="false" title="China, Hong Kong, Taiwan, Macau">🇨🇳 Greater China</button>
+      <button class="apjc-sub-pill" data-sub="PAN_INDIA" data-action="filter-apjc-sub" aria-pressed="false" title="India">🇮🇳 PAN India</button>
+      <button class="apjc-sub-pill" data-sub="JAPAN" data-action="filter-apjc-sub" aria-pressed="false" title="Japan">🇯🇵 Japan</button>
+      <button class="apjc-sub-pill" data-sub="SOUTH_KOREA" data-action="filter-apjc-sub" aria-pressed="false" title="South Korea">🇰🇷 South Korea</button>
+      <button class="apjc-sub-pill" data-sub="MYS_SGP" data-action="filter-apjc-sub" aria-pressed="false" title="Malaysia &amp; Singapore">🌴 Malaysia &amp; Singapore</button>
+      <button class="apjc-sub-pill" data-sub="SOUTH_ASIA_EM" data-action="filter-apjc-sub" aria-pressed="false" title="Bangladesh, Pakistan, Sri Lanka, SEA Emerging Markets">🌏 South Asia &amp; EM</button>
     </div>
 
     <!-- Category Filter Bar — second header row -->
@@ -1718,10 +1766,19 @@
               <label class="sitrep-lbl" for="reportRegion">Region</label>
               <select class="sitrep-select" id="reportRegion">
                 <option value="Global">Global</option>
-                <option value="APJC">APJC</option>
                 <option value="AMER">AMER</option>
                 <option value="EMEA">EMEA</option>
                 <option value="LATAM">LATAM</option>
+                <optgroup label="── APJC ──">
+                  <option value="APJC">APJC (All)</option>
+                  <option value="ANZ">APJC — ANZ</option>
+                  <option value="Greater China">APJC — Greater China</option>
+                  <option value="India">APJC — PAN India</option>
+                  <option value="Japan">APJC — Japan</option>
+                  <option value="South Korea">APJC — South Korea</option>
+                  <option value="Malaysia">APJC — Malaysia &amp; Singapore</option>
+                  <option value="South Asia">APJC — South Asia &amp; EM</option>
+                </optgroup>
               </select>
             </div>
             <button class="sitrep-btn-primary" data-action="preview-brief" aria-label="Generate SITREP">
