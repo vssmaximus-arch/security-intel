@@ -269,7 +269,7 @@ const NATURAL_MAX_DIST_KM = 200;      // natural events considered regionally im
 const IMPACT_SCORE_THRESHOLD = 50;    // 0..100
 
 /* ======= STRICTER NATURAL THRESHOLDS ======= */
-const NATURAL_MIN_MAGNITUDE = 5.5;   // earthquakes below this are generally non-destructive off-shore
+const NATURAL_MIN_MAGNITUDE = 5.0;   // earthquakes with magnitude ≤ 5.0 are NOT reported (strict > check)
 const NATURAL_MIN_SEVERITY = 4;     // severity threshold to treat natural events as potentially impactful
 
 /* ======= PROXIMITY ALERT GATING THRESHOLDS ======= */
@@ -1763,7 +1763,7 @@ function heuristicOperationalScore(incident, nearest, rgIncident, rgSite) {
   // Final operational flag: more conservative for natural events
   let operational = false;
   if (isNatural) {
-    const magOK = (mag && mag >= NATURAL_MIN_MAGNITUDE);
+    const magOK = (mag && mag > NATURAL_MIN_MAGNITUDE);
     const sevOK = (sev >= NATURAL_MIN_SEVERITY);
     const proxOK = (nearest && Number.isFinite(nearest.dist) && nearest.dist <= NATURAL_MAX_DIST_KM);
     const tsunamiMention = /\b(tsunami|tsunami warning|tsunami threat)\b/i.test(txt);
@@ -1820,7 +1820,7 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       }
       const proxOK = (nearest && Number.isFinite(nearest.dist) && nearest.dist <= NATURAL_MAX_DIST_KM) ||
                      (metaNearestDist !== null && !isNaN(metaNearestDist) && metaNearestDist <= NATURAL_MAX_DIST_KM);
-      const magOK = (mag !== null && Number.isFinite(mag) && mag >= NATURAL_MIN_MAGNITUDE);
+      const magOK = (mag !== null && Number.isFinite(mag) && mag > NATURAL_MIN_MAGNITUDE);
       const sevOK = (Number.isFinite(sev) && sev >= NATURAL_MIN_SEVERITY);
       const tsunamiMention = /\b(tsunami|tsunami warning|tsunami threat)\b/i.test(lowText);
       const countryWide = !!(incidentMeta && incidentMeta.country_wide);
@@ -3015,7 +3015,7 @@ async function runIngestion(env, options = {}, ctx = null) {
           if (cat === 'NATURAL') {
             const mag = Number(incident.magnitude || 0);
             const sev = Number(incident.severity || 0);
-            if (mag < NATURAL_MIN_MAGNITUDE && sev < NATURAL_MIN_SEVERITY) {
+            if (mag <= NATURAL_MIN_MAGNITUDE && sev < NATURAL_MIN_SEVERITY) {
               return { include: false, reason: 'natural_too_small', distanceKm };
             }
             // For natural, if magnitude/severity ok, accept (still subject to distance/recency above)
@@ -4224,6 +4224,8 @@ async function handleApiWeatherDisasters(env, req) {
           if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) continue;
           const alertLevel = String(props.alertlevel || props.AlertLevel || '').toLowerCase();
           const evType = String(props.eventtype || props.EventType || 'disaster').toLowerCase();
+          // Only report MAJOR cyclones/hurricanes and volcanoes — Red alert level only
+          if ((evType === 'tc' || evType === 'vo') && alertLevel !== 'red') continue;
           events.push({
             type: evType === 'tc' ? 'cyclone' : evType === 'fl' ? 'flood' : evType === 'vo' ? 'volcano' : evType === 'ts' ? 'tsunami' : evType,
             lat, lng,
@@ -5278,7 +5280,7 @@ if (globalThis.DEBUG) {
       if (isNaturalCat) {
         const mag = Number.isFinite(Number(magnitude)) ? Number(magnitude) : null;
         const sev = Number(severity || 0);
-        if (!(mag && mag >= NATURAL_MIN_MAGNITUDE) && !(sev >= NATURAL_MIN_SEVERITY) &&
+        if (!(mag && mag > NATURAL_MIN_MAGNITUDE) && !(sev >= NATURAL_MIN_SEVERITY) &&
             !/\b(tsunami)\b/i.test(lowTitle) && !country_wide) return { ok: false, reason: "natural_below_threshold" };
         return { ok: true, reason: "natural_gating" };
       }
