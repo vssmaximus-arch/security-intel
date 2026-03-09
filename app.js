@@ -4820,49 +4820,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     // inputs wiring
     const historyPicker = document.getElementById('history-picker');
     if (historyPicker) historyPicker.addEventListener('change', (ev) => loadHistory(ev.target.value));
-    // Populate date-picker with available archive dates from worker
+
+    // Always init flatpickr immediately so the picker opens on first click
+    // (archived dates are applied asynchronously as restrictions afterwards)
+    let _fpInstance = null;
+    if (typeof flatpickr !== 'undefined' && historyPicker) {
+      try {
+        historyPicker.type = 'text';
+        historyPicker.value = '';
+        historyPicker.removeAttribute('min');
+        historyPicker.removeAttribute('max');
+        historyPicker.removeAttribute('list');
+        _fpInstance = flatpickr(historyPicker, {
+          dateFormat: 'Y-m-d',
+          maxDate: 'today',
+          allowInput: true,
+          disableMobile: true,
+          onClose(selectedDates, dateStr) { if (dateStr) loadHistory(dateStr); },
+        });
+      } catch (fe) { typeof debug === 'function' && debug('flatpickr init', fe?.message || fe); }
+    }
+
+    // Asynchronously fetch archive dates and restrict the picker to only those dates
     (async function populateArchiveDates() {
       try {
         const res = await fetchWithTimeout(`${WORKER_URL}/api/archive`);
         if (!res.ok) return;
         const dates = await res.json();
-        if (!Array.isArray(dates) || dates.length === 0) return;
-        const dl = document.getElementById('archive-dates') || (() => {
-          const d = document.createElement('datalist');
-          d.id = 'archive-dates';
-          document.body.appendChild(d);
-          return d;
-        })();
-        dl.innerHTML = '';
+        if (!Array.isArray(dates) || !dates.length) return;
         dates.sort((a, b) => b.localeCompare(a)); // newest first
-        for (const dt of dates) {
-          const opt = document.createElement('option');
-          opt.value = dt;
-          dl.appendChild(opt);
-        }
-        const picker = document.getElementById('history-picker');
-        if (picker) {
-          picker.setAttribute('list', 'archive-dates');
-          picker.setAttribute('min', dates[dates.length - 1]);
-          picker.setAttribute('max', dates[0]);
-          // Init flatpickr if loaded — disables non-archive dates in the calendar
-          if (typeof flatpickr !== 'undefined') {
-            try {
-              try { picker.blur(); } catch(e){} // close any open native picker first
-              picker.type = 'text';             // must precede flatpickr to suppress native calendar
-              picker.value = '';                // clear Edge's stale 'D' day-slot placeholder value
-              picker.removeAttribute('min');    // flatpickr manages range constraints via enable:[]
-              picker.removeAttribute('max');
-              picker.removeAttribute('list');   // detach datalist — its dropdown conflicts with flatpickr
-              flatpickr(picker, {
-                enable: dates,
-                dateFormat: 'Y-m-d',
-                allowInput: true,
-                placeholder: 'Select archive date…',
-                onClose(selectedDates, dateStr) { if (dateStr) loadHistory(dateStr); },
-              });
-            } catch (fe) { typeof debug === 'function' && debug('flatpickr init', fe?.message || fe); }
-          }
+        if (_fpInstance) {
+          _fpInstance.set('enable', dates);
+          _fpInstance.set('minDate', dates[dates.length - 1]);
+          _fpInstance.set('maxDate', dates[0]);
         }
       } catch (e) { typeof debug === 'function' && debug('populateArchiveDates', e?.message || e); }
     })();
