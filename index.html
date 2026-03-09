@@ -2,7 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Viewport: allow sub-1 zoom from our JS scaler without browser interference -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.1">
+
+  <!-- ── Consistent viewport scaling ──────────────────────────────────────────
+       Forces the page to always render at 1440 px design width and scale
+       proportionally so every screen shows identical layout and positioning.
+       Fires before first paint to avoid any flash of unstyled / mis-sized content.
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <script>
+    (function () {
+      var DESIGN_W = 1440;
+      function _applyScale() {
+        // Scale proportionally; clamp between 0.5 (small laptop) and 1.6 (4K monitor)
+        var s = Math.min(Math.max(window.innerWidth / DESIGN_W, 0.50), 1.60);
+        document.documentElement.style.zoom = s.toFixed(5);
+      }
+      _applyScale();
+      window.addEventListener('resize', _applyScale, { passive: true });
+    })();
+  </script>
 
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
@@ -144,11 +163,18 @@
     body.dark-mode .btn-toggle { background: #1e2029 !important; color: #e8eaed !important; border-color: #3a3d45 !important; }
     /* ─────────────────────────────────────────────────────────────────────── */
 
+    /* Lock the layout to the design width — the JS scaler handles proportional
+       zoom so every screen sees the same 1440 px layout.  min-width prevents
+       Bootstrap's grid from collapsing the sidebar below the map. */
+    html {
+      min-width: 1440px;
+    }
     body {
       background-color: var(--bg-dark);
       font-family: 'Inter', sans-serif;
       padding: 24px;
       color: #333;
+      min-width: 1440px;
     }
 
     /* ACCESSIBILITY */
@@ -333,10 +359,11 @@
     .assets-debug { position: absolute; top: 110px; right: 18px; z-index: 999999; background: #fff; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); max-width: 420px; line-height: 1.25; display:none;}
     .assets-debug pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-size: 12px; color:#222; }
 
-    /* Small responsive tweaks */
-    @media (max-width: 1200px) {
+    /* Responsive breakpoints intentionally removed — layout is maintained at
+       1440 px by the JS viewport scaler (proportional CSS zoom).
+       Keeping only an extreme fallback for very small screens (< 800 px device). */
+    @media (max-width: 800px) {
       .multi-clock-container { display: none; }
-      .sidebar-col { padding-left: 12px; }
     }
 
     /* AI Relevancy Engine — Initiative 1 */
