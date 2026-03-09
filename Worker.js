@@ -4139,8 +4139,16 @@ async function handleApiWeatherAviation(env, req) {
         if (s.area && s.area !== 'Unknown region') return s.area;
         if (s.firName) return s.firName;
         const rawTxt = s.rawAirSigmet || s.rawSigmet || s.text || '';
+        // 1) International: FIR name in text
         const firMatch = rawTxt.match(/\b([A-Z][A-Z\s]+?)\s+FIR\b/);
         if (firMatch) return firMatch[1].trim() + ' FIR';
+        // 2) US Domestic Convective: state codes on line after "VALID UNTIL"
+        const lines = rawTxt.split('\n').map(l => l.trim()).filter(Boolean);
+        const vIdx = lines.findIndex(l => /^VALID UNTIL/.test(l));
+        if (vIdx >= 0 && vIdx + 1 < lines.length) {
+          const sl = lines[vIdx + 1];
+          if (/^[A-Z][A-Z ]+$/.test(sl) && sl.length < 60) return sl;
+        }
         return s.fir || s.firId || s.location || 'Unknown region';
       })(),
       flevel_low: String(s.flevel_low || s.base || ''),

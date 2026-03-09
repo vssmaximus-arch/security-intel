@@ -5017,8 +5017,26 @@ function renderSigmetTicker(sigmets) {
     // Resolve best available area label
     let area = (s.area && s.area !== 'Unknown region') ? s.area : '';
     if (!area && s.rawSigmet) {
-      const m = s.rawSigmet.match(/\b([A-Z][A-Z\s]+?)\s+FIR\b/);
-      if (m) area = m[1].trim() + ' FIR';
+      // 1) International: try FIR name
+      const firM = s.rawSigmet.match(/\b([A-Z][A-Z\s]+?)\s+FIR\b/);
+      if (firM) {
+        area = firM[1].trim() + ' FIR';
+      } else {
+        // 2) US Domestic Convective SIGMET: state codes on line after "VALID UNTIL"
+        const lines = s.rawSigmet.split('\n').map(l => l.trim()).filter(Boolean);
+        const validIdx = lines.findIndex(l => /^VALID UNTIL/.test(l));
+        if (validIdx >= 0 && validIdx + 1 < lines.length) {
+          const statesLine = lines[validIdx + 1];
+          if (/^[A-Z][A-Z ]+$/.test(statesLine) && statesLine.length < 60) {
+            area = statesLine; // e.g. "MN ND" or "NC FL SC GA CSTL WTRS"
+          }
+        }
+        // 3) Last resort: SIGMET identifier (e.g. "CONVECTIVE SIGMET 3C")
+        if (!area) {
+          const idM = s.rawSigmet.match(/SIGMET\s+(\w+)/i);
+          if (idM) area = 'SIGMET ' + idM[1];
+        }
+      }
     }
     if (area) parts.push(area);
     if (s.flevel_low || s.flevel_high) {
