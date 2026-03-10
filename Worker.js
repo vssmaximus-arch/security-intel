@@ -4187,7 +4187,7 @@ async function handleApiWeatherDisasters(env, req) {
 
     const events = [];
 
-    // USGS Earthquakes (M4.5+ last 24h)
+    // USGS Earthquakes — only M > 5.0 reported on map (M ≤ 5.0 are filtered out)
     if (usgsRes.status === 'fulfilled' && usgsRes.value.ok) {
       try {
         const data = await usgsRes.value.json();
@@ -4196,13 +4196,14 @@ async function handleApiWeatherDisasters(env, req) {
           if (!coords || coords.length < 2) continue;
           const [lng, lat] = coords;
           if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-          const mag = f.properties?.mag;
+          const mag = Number(f.properties?.mag);
+          if (!mag || mag <= 5.0) continue;   // ← gate: M ≤ 5.0 excluded
           events.push({
             type: 'earthquake',
             lat: Number(lat), lng: Number(lng),
             title: f.properties?.title || `M${mag} Earthquake`,
             magnitude: mag,
-            severity: mag >= 6.5 ? 'CRITICAL' : mag >= 5.5 ? 'HIGH' : 'MEDIUM',
+            severity: mag >= 7.0 ? 'CRITICAL' : mag >= 6.0 ? 'HIGH' : 'MEDIUM',
             time: new Date(f.properties?.time || Date.now()).toISOString(),
             link: f.properties?.url || 'https://earthquake.usgs.gov',
             source: 'USGS',

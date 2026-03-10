@@ -4586,6 +4586,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Show APJC sub-nav only when APJC is selected
         _setApjcSubNav(region === 'APJC');
         filterNews(region);
+        // Reset map to the region's geographic bounds
+        if (window.map) {
+          const VIEW = {
+            GLOBAL: { center: [20, 10],   zoom: 2 },
+            AMER:   { bounds: [[-60, -170], [75,  -25]] },
+            LATAM:  { bounds: [[-60, -120], [25,  -30]] },
+            EMEA:   { bounds: [[-35,  -25], [72,   65]] },
+            APJC:   { bounds: [[-50,   55], [55,  180]] },
+          };
+          const v = VIEW[region] || VIEW.GLOBAL;
+          try {
+            if (v.bounds) {
+              map.flyToBounds(v.bounds, { padding: [30, 30], duration: 0.8 });
+            } else {
+              map.flyTo(v.center, v.zoom, { duration: 0.8 });
+            }
+          } catch(e) {}
+        }
         return;
       }
       if (action === 'filter-apjc-sub') {
@@ -4834,8 +4852,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         _fpInstance = flatpickr(historyPicker, {
           dateFormat: 'Y-m-d',
           maxDate: 'today',
-          allowInput: true,
+          allowInput: false,
           disableMobile: true,
+          appendTo: document.body,   // render at body level — avoids sidebar overflow:hidden clipping
+          onReady(_, __, fp) {
+            // Ensure calendar z-index is above modals
+            if (fp.calendarContainer) fp.calendarContainer.style.zIndex = '9999';
+          },
           onClose(selectedDates, dateStr) { if (dateStr) loadHistory(dateStr); },
         });
       } catch (fe) { typeof debug === 'function' && debug('flatpickr init', fe?.message || fe); }
