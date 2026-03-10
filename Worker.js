@@ -107,6 +107,7 @@ const SOURCE_META = [
   { match: 'allafrica.com',            key: 'allafrica',    label: 'AllAfrica',        category: 'news' },
   { match: 'latinnews.com',            key: 'latinnews',    label: 'LatinNews',        category: 'news' },
   { match: 'batimes.com.ar',           key: 'batimes',      label: 'BA Times',         category: 'news' },
+  { match: 'abc.net.au',               key: 'abc_au',       label: 'ABC Australia',    category: 'news' },
   // ── Supply Chain / Logistics ────────────────────────────────────────────────
   { match: 'freightwaves.com',         key: 'freightwaves', label: 'FreightWaves',     category: 'logistics' },
   { match: 'joc.com',                  key: 'joc',          label: 'JOC',              category: 'logistics' },
@@ -239,6 +240,8 @@ const ROTATING_SOURCES = [
   "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
   "https://www.latinnews.com/index.php?format=feed",
   "https://www.batimes.com.ar/rss-feed",
+  "https://www.abc.net.au/news/feed/51120/rss.xml",
+  "https://www.abc.net.au/news/feed/48480/rss.xml",
   // ── Supply Chain / Logistics ───────────────────────────────────────────────
   "https://www.freightwaves.com/feed",
   "https://www.joc.com/rss.xml",
@@ -1877,6 +1880,10 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       return false;
     }
 
+    // Pre-computed: detect major natural disaster phrases (e.g. "major flooding", "severe cyclone")
+    // Used in both Step 3 (natural gating bypass) and Step 4 (pre-AI pass acceptance).
+    const majorNaturalKeyword = /\b(major|severe|catastrophic|devastating|widespread|emergency|significant)\b.{0,80}\b(flood|flooding|cyclone|typhoon|wildfire|bushfire|tornado)\b|\b(flood|flooding|cyclone|typhoon|wildfire|bushfire|tornado)\b.{0,80}\b(major|severe|catastrophic|devastating|emergency|significant)\b/i.test(lowText);
+
     // --- Step 3: NATURAL gating (preserved exactly) ---
     const naturalDetected = HIGH_NATURAL_CATS.has((aiCategory || '').toUpperCase()) || isNaturalKeyword(lowText);
     if (naturalDetected) {
@@ -1894,7 +1901,7 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       const sevOK = (Number.isFinite(sev) && sev >= NATURAL_MIN_SEVERITY);
       const tsunamiMention = /\b(tsunami|tsunami warning|tsunami threat)\b/i.test(lowText);
       const countryWide = !!(incidentMeta && incidentMeta.country_wide);
-      if (tsunamiMention || magOK || sevOK || proxOK || countryWide) {
+      if (tsunamiMention || magOK || sevOK || proxOK || countryWide || majorNaturalKeyword) {
         debug("filter", "accepted", { reason: "natural_gating", title });
         return true;
       }
@@ -1902,9 +1909,9 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       return false;
     }
 
-    // --- Step 4: INCIDENT_KEYWORDS_REGEX quick accept — only if keyword is security-domain ---
+    // --- Step 4: INCIDENT_KEYWORDS_REGEX quick accept — only if keyword is security-domain or major natural event ---
     const allowed = INCIDENT_KEYWORDS_REGEX.test(lowText);
-    if (allowed && (hasFocusKeyword || hasOperationalKeyword)) {
+    if (allowed && (hasFocusKeyword || hasOperationalKeyword || majorNaturalKeyword)) {
       debug("filter", "accepted", { reason: "security_keyword_match", title });
       return true;
     }
@@ -2137,6 +2144,7 @@ const ALLOWED_KEYWORDS = [
   "cargo theft","truck hijack","truck hijacking",
   // ── Supply chain.docx: regulatory / trade ────────────────────────────────
   "export ban","export controls","embargo","sanctions","customs strike","customs delays",
+  "travel ban","entry ban","visa ban","travel restriction","travel restrictions","border closure","border closed",
   // ── SECURITY.docx: physical security additions ────────────────────────────
   "stampede","crowd crush","crowd surge","shelling","artillery","airstrike","air strike",
   "car bomb","ied","gunfire","gang violence","armed assault",
@@ -2220,7 +2228,7 @@ const SECURITY_FOCUS_TERMS = [
   "bridge collapse","pipeline","road closure","port congestion","cargo","dock","terminal","truck","lorry",
   "rail","railway","rail disruption","port strike","strike","industrial accident","fire at facility",
   "explosion at site","vandalism","sabotage","physical security","intrusion","perimeter breach",
-  "lockdown","evacuation"
+  "lockdown","evacuation","travel ban","entry ban","visa ban","travel restriction","border closure"
 ];
 const SECURITY_FOCUS_REGEX = new RegExp("\\b(" + SECURITY_FOCUS_TERMS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
 // Minimum number of SECURITY_FOCUS_TERMS tokens needed when falling back to non-security-AI gating.
@@ -2248,7 +2256,8 @@ function normalizeIncident(raw) {
   if (category === "UNKNOWN") {
     const t = String(raw.title || "").toLowerCase();
     if (severity >= 5 || /\b(bomb|attack|hostage|terror|massacre|shooting|explosion)\b/i.test(t)) category = "SECURITY";
-    else if (severity >= 4 || /\b(flood|earthquake|tsunami|hurricane|storm)\b/i.test(t)) category = "NATURAL";
+    else if (/\b(flood|flooding)\b/i.test(t)) category = "FLOOD";
+    else if (severity >= 4 || /\b(earthquake|tsunami|hurricane|storm|cyclone|wildfire|bushfire)\b/i.test(t)) category = "NATURAL";
     else if (/\b(transport|strike|protest|riot|disruption)\b/i.test(t)) category = "DISRUPTION";
     else category = severity >= 4 ? "CRITICAL" : "GENERAL";
   }
