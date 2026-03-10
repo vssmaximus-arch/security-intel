@@ -4587,7 +4587,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         _setApjcSubNav(region === 'APJC');
         filterNews(region);
         // Reset map to the region's geographic bounds
-        if (window.map) {
+        if (map) {
           const VIEW = {
             GLOBAL: { center: [20, 10],   zoom: 2 },
             AMER:   { bounds: [[-60, -170], [75,  -25]] },
@@ -4854,11 +4854,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           maxDate: 'today',
           allowInput: false,
           disableMobile: true,
-          appendTo: document.body,   // render at body level — avoids sidebar overflow:hidden clipping
-          onReady(_, __, fp) {
-            // Ensure calendar z-index is above modals
-            if (fp.calendarContainer) fp.calendarContainer.style.zIndex = '9999';
-          },
+          static: true,             // render inline in DOM (no absolute body positioning)
           onClose(selectedDates, dateStr) { if (dateStr) loadHistory(dateStr); },
         });
       } catch (fe) { typeof debug === 'function' && debug('flatpickr init', fe?.message || fe); }
