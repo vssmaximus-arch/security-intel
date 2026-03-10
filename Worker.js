@@ -4847,6 +4847,78 @@ async function handleApiThreatIntel(env, req) {
   }
 }
 
+/* ===========================
+   /api/markets — Yahoo Finance proxy for Markets & Commodities widget
+   ?symbols=DELL,%5EVIX,GC%3DF,CL%3DF,NG%3DF
+   Returns: { ok, data:[{ symbol, name, price, change, changePct, sparkline, currency }] }
+   Cloudflare caches each symbol 5 minutes.
+=========================== */
+async function handleApiMarkets(env, req) {
+  try {
+    const url     = new URL(req.url);
+    const raw     = url.searchParams.get('symbols') || '';
+    const symbols = raw.split(',').map(s => s.trim()).filter(Boolean).slice(0, 12);
+
+    if (!symbols.length) {
+      return new Response(JSON.stringify({ ok: false, error: 'No symbols', data: [] }), {
+        status: 400,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const fetches = symbols.map(sym => {
+      const enc = encodeURIComponent(sym);
+      return fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=1d&range=7d`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OSInfoHub/1.0)', Accept: 'application/json' },
+        cf: { cacheEverything: true, cacheTtl: 300 },
+      });
+    });
+
+    const settled = await Promise.allSettled(fetches);
+    const data    = [];
+
+    for (let i = 0; i < symbols.length; i++) {
+      const sym    = symbols[i];
+      const result = settled[i];
+      if (result.status !== 'fulfilled' || !result.value.ok) {
+        data.push({ symbol: sym, name: sym, price: null, change: null, changePct: null, sparkline: [], currency: 'USD', error: 'fetch_failed' });
+        continue;
+      }
+      try {
+        const json    = await result.value.json();
+        const meta    = json?.chart?.result?.[0]?.meta;
+        const quote   = json?.chart?.result?.[0]?.indicators?.quote?.[0];
+        const closes  = (quote?.close || []).map(v => (v == null ? null : Number(v)));
+        const price   = meta?.regularMarketPrice ?? null;
+        const prev    = meta?.previousClose ?? null;
+        const change  = (price !== null && prev !== null) ? +((price - prev).toFixed(4)) : null;
+        const pct     = (change !== null && prev)        ? +((change / prev * 100).toFixed(2)) : null;
+        data.push({
+          symbol:    sym,
+          name:      meta?.shortName || meta?.longName || sym,
+          price,
+          change,
+          changePct: pct,
+          sparkline: closes.filter(v => v !== null),
+          currency:  meta?.currency || 'USD',
+        });
+      } catch {
+        data.push({ symbol: sym, name: sym, price: null, change: null, changePct: null, sparkline: [], currency: 'USD', error: 'parse_failed' });
+      }
+    }
+
+    return new Response(JSON.stringify({ ok: true, data }), {
+      status: 200,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), data: [] }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 /* Root request router */
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
@@ -4923,6 +4995,8 @@ async function handleRequest(req, env, ctx) {
       return handleApiAiSentiment(env, req);
     } else if (p.startsWith('/api/threat-intel')) {
       return handleApiThreatIntel(env, req);
+    } else if (p.startsWith('/api/markets')) {
+      return handleApiMarkets(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
