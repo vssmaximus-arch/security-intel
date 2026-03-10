@@ -4200,7 +4200,7 @@ async function sendTestAlert() {
         const key      = _alertKey(a);
         return `
           <div class="conv-alert-row" data-conv-key="${escapeAttr(key)}">
-            <span class="conv-level conv-level-${a.level}">${a.levelEmoji || ''} ${a.level}</span>
+            <span class="conv-level conv-level-${a.level}">${(()=>{const c={CRITICAL:'#e53e3e',HIGH:'#ed8936',ELEVATED:'#ecc94b',NORMAL:'#48bb78',LOW:'#a0aec0'}[String(a.level||'').toUpperCase()]||'#718096';return`<i class="fas fa-circle" style="color:${c};font-size:0.6em;vertical-align:middle" aria-hidden="true"></i>`;})()}&nbsp;${a.level}</span>
             <div class="conv-body">
               <div class="conv-country">${escapeHtml(capName)}</div>
               <div class="conv-sub">
@@ -4425,6 +4425,19 @@ async function sendTestAlert() {
     return `${Math.round(d/1440)}d ago`;
   }
 
+  /* Client-side level dot — avoids UTF-8 mojibake from Worker JSON emoji */
+  const _LEVEL_COLORS = { CRITICAL:'#e53e3e', HIGH:'#ed8936', ELEVATED:'#ecc94b', NORMAL:'#48bb78', LOW:'#a0aec0' };
+  function _levelDot(level) {
+    const col = _LEVEL_COLORS[String(level || '').toUpperCase()] || '#718096';
+    return `<i class="fas fa-circle" style="color:${col};font-size:0.6em;vertical-align:middle" aria-hidden="true"></i>`;
+  }
+  /* Client-side trend arrow — HTML entity, no emoji encoding issues */
+  function _trendArrow(trendCls) {
+    if (trendCls === 'cii-rising')  return '&uarr;';
+    if (trendCls === 'cii-falling') return '&darr;';
+    return '&rarr;';
+  }
+
   function _render() {
     const list = document.getElementById('cii-list');
     if (!list) return;
@@ -4449,9 +4462,9 @@ async function sendTestAlert() {
           </span>
           <div class="cii-score-wrap">
             <span class="cii-score">${item.score}</span>
-            <span class="cii-level-badge">${item.levelEmoji} ${item.level}</span>
+            <span class="cii-level-badge">${_levelDot(item.level)} ${item.level}</span>
           </div>
-          <span class="cii-trend ${item.trendCls || ''}">${item.trendArrow}</span>
+          <span class="cii-trend ${item.trendCls || ''}">${_trendArrow(item.trendCls)}</span>
         </div>`;
     }).join('');
   }
@@ -5101,9 +5114,8 @@ function renderCriticalAlertsTicker() {
   const inner = document.getElementById('sigmet-inner');
   if (!strip || !inner) return;
 
-  // Show CRITICAL (severity >= 4) first; fall back to HIGH (severity >= 3) if none
-  let alerts = INCIDENTS.filter(i => Number(i.severity || 1) >= 4);
-  if (!alerts.length) alerts = INCIDENTS.filter(i => Number(i.severity || 1) >= 3);
+  // Only show CRITICAL events (severity >= 4) — no fallback to lower severity
+  const alerts = INCIDENTS.filter(i => Number(i.severity || 1) >= 4);
 
   if (!alerts.length) { strip.style.display = 'none'; return; }
 
