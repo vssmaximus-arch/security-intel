@@ -157,6 +157,41 @@ const SOURCE_META = [
   // ── Humanitarian / OSINT ────────────────────────────────────────────────────
   { match: 'reliefweb.int',            key: 'reliefweb',    label: 'ReliefWeb',        category: 'news' },
   { match: 'ifrc.org',                 key: 'ifrc',         label: 'IFRC',             category: 'news' },
+  // ── UN & International Organizations ────────────────────────────────────────
+  { match: 'news.un.org',              key: 'un',           label: 'UN News',          category: 'news' },
+  { match: 'nato.int',                 key: 'nato',         label: 'NATO',             category: 'security' },
+  { match: 'who.int',                  key: 'who',          label: 'WHO',              category: 'security' },
+  { match: 'icrc.org',                 key: 'icrc',         label: 'ICRC',             category: 'security' },
+  { match: 'unicef.org',               key: 'unicef',       label: 'UNICEF',           category: 'news' },
+  // ── Additional Regional News ─────────────────────────────────────────────────
+  { match: 'nhk.or.jp',               key: 'nhk',          label: 'NHK World',        category: 'news' },
+  { match: 'middleeasteye.net',        key: 'mee',          label: 'Middle East Eye',  category: 'news' },
+  { match: 'timesofindia',             key: 'toi',          label: 'Times of India',   category: 'news' },
+  { match: 'tass.com',                 key: 'tass',         label: 'TASS',             category: 'news' },
+  { match: 'mercopress.com',           key: 'mercopress',   label: 'Merco Press',      category: 'news' },
+  // ── Think Tanks / Security Research ─────────────────────────────────────────
+  { match: 'cfr.org',                  key: 'cfr',          label: 'CFR',              category: 'security' },
+  { match: 'chathamhouse.org',         key: 'chatham',      label: 'Chatham House',    category: 'security' },
+  { match: 'sipri.org',                key: 'sipri',        label: 'SIPRI',            category: 'security' },
+  { match: 'rand.org',                 key: 'rand',         label: 'RAND',             category: 'security' },
+  { match: 'acleddata.com',            key: 'acled',        label: 'ACLED',            category: 'security' },
+  // ── US Government Security ───────────────────────────────────────────────────
+  { match: 'state.gov',                key: 'statedept',    label: 'US State Dept',    category: 'security' },
+  { match: 'dhs.gov',                  key: 'dhs',          label: 'US DHS',           category: 'security' },
+  { match: 'cbp.gov',                  key: 'cbp',          label: 'US CBP',           category: 'security' },
+  // ── Additional Cybersecurity ─────────────────────────────────────────────────
+  { match: 'krebsonsecurity.com',      key: 'krebs',        label: 'Krebs Security',   category: 'cyber' },
+  { match: 'securityweek',             key: 'secwk',        label: 'SecurityWeek',     category: 'cyber' },
+  { match: 'infosecurity-magazine.com',key: 'infosecmag',   label: 'Infosecurity Mag', category: 'cyber' },
+  { match: 'isc.sans.edu',             key: 'sansiscd',     label: 'SANS ISC',         category: 'cyber' },
+  { match: 'unit42.paloalto',          key: 'unit42',       label: 'Palo Alto Unit42', category: 'cyber' },
+  { match: 'welivesecurity.com',       key: 'eset',         label: 'ESET WeLiveSec',   category: 'cyber' },
+  { match: 'securelist.com',           key: 'securelist',   label: 'Securelist',       category: 'cyber' },
+  { match: 'nakedsecurity.sophos',     key: 'sophos',       label: 'Sophos NakedSec',  category: 'cyber' },
+  { match: 'rapid7.com',               key: 'rapid7',       label: 'Rapid7',           category: 'cyber' },
+  // ── Emergency Management / Natural Hazards ────────────────────────────────────
+  { match: 'copernicus.eu',            key: 'copernicus',   label: 'Copernicus EMS',   category: 'hazards' },
+  { match: 'fema.gov',                 key: 'fema',         label: 'FEMA',             category: 'hazards' },
 ];
 function _getSourceMeta(src) {
   if (!src) return { key: 'other', label: 'Other', category: 'news' };
@@ -249,6 +284,41 @@ const ROTATING_SOURCES = [
   "https://www.ifrc.org/feeds/all.xml",
   "https://www.globalsecurity.org/military/world/rss.xml",
   "https://www.crisisgroup.org/rss.xml",
+  // ── UN & International Organizations ───────────────────────────────────────
+  "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
+  "https://www.nato.int/cps/en/natolive/news.rss",
+  "https://www.who.int/rss-feeds/news-english.xml",
+  "https://www.icrc.org/en/rss-feed",
+  "https://www.unicef.org/press-releases/rss",
+  // ── Additional Regional / International News ────────────────────────────────
+  "https://www3.nhk.or.jp/nhkworld/en/news/feeds/",
+  "https://www.middleeasteye.net/rss",
+  "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+  "https://tass.com/rss/v2.xml",
+  "https://en.mercopress.com/rss",
+  // ── Security / Intelligence Think Tanks ────────────────────────────────────
+  "https://www.cfr.org/rss.xml",
+  "https://www.chathamhouse.org/rss-feeds/all",
+  "https://www.sipri.org/rss.xml",
+  "https://www.rand.org/tools/rss.xml",
+  "https://acleddata.com/feed/",
+  // ── US Government Security & Alerts ────────────────────────────────────────
+  "https://www.state.gov/press-releases/rss/",
+  "https://www.dhs.gov/news-releases.xml",
+  "https://www.cbp.gov/newsroom/rss/",
+  // ── Additional Cybersecurity ────────────────────────────────────────────────
+  "https://krebsonsecurity.com/feed/",
+  "https://feeds.feedburner.com/securityweek",
+  "https://www.infosecurity-magazine.com/rss/news/",
+  "https://isc.sans.edu/rssfeed.xml",
+  "https://unit42.paloaltonetworks.com/feed/",
+  "https://www.welivesecurity.com/feed/",
+  "https://securelist.com/feed/",
+  "https://nakedsecurity.sophos.com/feed/",
+  "https://blog.rapid7.com/rss/",
+  // ── Natural Hazards / Emergency Management ──────────────────────────────────
+  "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
+  "https://www.fema.gov/rss/disaster_declarations.rss",
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
