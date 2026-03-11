@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       PROXIMITY_RADIUS_KM: ${{ secrets.PROXIMITY_RADIUS_KM || '50' }}
 
     steps:
@@ -40,7 +40,7 @@ jobs:
             pip install -r requirements.txt
           fi
           # Belt-and-braces: ensure these core libs are present even if requirements.txt path/contents change
-          pip install feedparser folium requests beautifulsoup4 google-generativeai
+          pip install feedparser folium requests beautifulsoup4
 
       - name: Run news ingest (RSS -> public/data/news.json)
         run: python scripts/news_agent.py

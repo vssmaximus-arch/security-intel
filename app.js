@@ -1960,7 +1960,7 @@ async function adminTriggerIngest() {
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
   adminSetFeedback('Triggering ingestion…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
+    const res = await fetch(`${WORKER_URL}/api/admin/ingest`, { method:'POST', headers:{ 'secret': sec } });
     const txt = await res.text().catch(()=>'');
     if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
     adminSetFeedback(txt || 'Ingestion triggered.');
@@ -1977,6 +1977,18 @@ async function adminUnlock() {
     if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
     adminSetFeedback(txt || 'Unblock requested.');
   } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
+}
+
+async function adminResetAICircuit() {
+  const sec = adminGetSecret();
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  adminSetFeedback('Resetting AI circuit breaker…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/reset-ai`, { method:'POST', headers:{ 'secret': sec } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Reset failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
+    adminSetFeedback(txt || 'AI circuit breaker reset. AI enrichment will resume on next ingest.');
+  } catch(e) { adminSetFeedback('Reset failed (network).', true); console.error(e); }
 }
 
 async function adminThumbsStatus() {
@@ -5082,6 +5094,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-save-secret') { adminSaveSecret(); return; }
       if (action === 'admin-clear-secret') { adminClearSecret(); return; }
       if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
+      if (action === 'admin-reset-ai') { adminResetAICircuit(); return; }
       if (action === 'admin-unlock') { adminUnlock(); return; }
       if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
       if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
