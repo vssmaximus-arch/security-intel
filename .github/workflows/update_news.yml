@@ -50,11 +50,26 @@ jobs:
       - name: Generate proximity alerts + daily reports
         run: python scripts/generate_reports.py
 
+      # ===== NEW: Mirror public outputs into the site root so Pages publishes /data/news.json =====
+      - name: Mirror public outputs to site root
+        run: |
+          # ensure destination directories exist
+          mkdir -p data
+          mkdir -p reports
+          # copy generated public outputs into repo root folders expected by the front-end
+          cp -a public/data/* data/ || true
+          cp -a public/reports/* reports/ || true
+      # ============================================================================================
+
       - name: Stage updated artifacts
         run: |
-          git add public/data/news.json
-          git add public/data/proximity.json
-          git add public/reports/
+          # add both the generated public outputs and the mirrored site-root files
+          git add public/data/news.json || true
+          git add public/data/proximity.json || true
+          git add public/reports/ || true
+          git add data/news.json || true
+          git add data/proximity.json || true
+          git add reports/ || true
 
       - name: Commit changes
         run: |
