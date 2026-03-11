@@ -21,126 +21,6 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type,secret,X-User-Id",
 };
 
-/* ── AIRPORT COORDINATES LOOKUP TABLE ────────────────────────────────────────
-   Keyed by 3-letter IATA code. Used by /api/aviation/disruptions to enrich
-   AI-extracted disruptions with accurate lat/lng for Leaflet map markers.
-   Coverage: major hubs + conflict-zone airports + regional coverage.
-   ─────────────────────────────────────────────────────────────────────────── */
-const AIRPORT_COORDS = {
-  // ── Major European Hubs ─────────────────────────────────────────────────
-  'LHR':{ name:'London Heathrow',          city:'London',       country:'United Kingdom',  lat:51.4775, lng:-0.4614 },
-  'LGW':{ name:'London Gatwick',           city:'London',       country:'United Kingdom',  lat:51.1537, lng:-0.1821 },
-  'CDG':{ name:'Charles de Gaulle',        city:'Paris',        country:'France',          lat:49.0097, lng:2.5479  },
-  'ORY':{ name:'Paris Orly',               city:'Paris',        country:'France',          lat:48.7233, lng:2.3794  },
-  'AMS':{ name:'Amsterdam Schiphol',       city:'Amsterdam',    country:'Netherlands',     lat:52.3086, lng:4.7639  },
-  'FRA':{ name:'Frankfurt Airport',        city:'Frankfurt',    country:'Germany',         lat:50.0333, lng:8.5706  },
-  'MUC':{ name:'Munich Airport',           city:'Munich',       country:'Germany',         lat:48.3538, lng:11.7861 },
-  'MAD':{ name:'Adolfo Suárez Madrid',     city:'Madrid',       country:'Spain',           lat:40.4936, lng:-3.5668 },
-  'BCN':{ name:'Barcelona El Prat',        city:'Barcelona',    country:'Spain',           lat:41.2971, lng:2.0785  },
-  'FCO':{ name:'Leonardo da Vinci Rome',   city:'Rome',         country:'Italy',           lat:41.7999, lng:12.2462 },
-  'ZRH':{ name:'Zurich Airport',           city:'Zurich',       country:'Switzerland',     lat:47.4647, lng:8.5492  },
-  'VIE':{ name:'Vienna International',     city:'Vienna',       country:'Austria',         lat:48.1103, lng:16.5697 },
-  'BRU':{ name:'Brussels Airport',         city:'Brussels',     country:'Belgium',         lat:50.9010, lng:4.4844  },
-  'CPH':{ name:'Copenhagen Airport',       city:'Copenhagen',   country:'Denmark',         lat:55.6180, lng:12.6560 },
-  'ARN':{ name:'Stockholm Arlanda',        city:'Stockholm',    country:'Sweden',          lat:59.6519, lng:17.9186 },
-  'OSL':{ name:'Oslo Gardermoen',          city:'Oslo',         country:'Norway',          lat:60.1939, lng:11.1004 },
-  'HEL':{ name:'Helsinki Vantaa',          city:'Helsinki',     country:'Finland',         lat:60.3172, lng:24.9633 },
-  'ATH':{ name:'Athens International',     city:'Athens',       country:'Greece',          lat:37.9364, lng:23.9445 },
-  'WAW':{ name:'Warsaw Chopin',            city:'Warsaw',       country:'Poland',          lat:52.1657, lng:20.9671 },
-  'PRG':{ name:'Prague Václav Havel',      city:'Prague',       country:'Czech Republic',  lat:50.1008, lng:14.2600 },
-  'IST':{ name:'Istanbul Airport',         city:'Istanbul',     country:'Turkey',          lat:41.2608, lng:28.7418 },
-  'SAW':{ name:'Istanbul Sabiha Gökçen',  city:'Istanbul',     country:'Turkey',          lat:40.8986, lng:29.3092 },
-  // ── North America ───────────────────────────────────────────────────────
-  'JFK':{ name:'John F. Kennedy Intl',     city:'New York',     country:'United States',   lat:40.6413, lng:-73.7781 },
-  'EWR':{ name:'Newark Liberty Intl',      city:'Newark',       country:'United States',   lat:40.6895, lng:-74.1745 },
-  'LAX':{ name:'Los Angeles Intl',         city:'Los Angeles',  country:'United States',   lat:33.9425, lng:-118.408 },
-  'ORD':{ name:"Chicago O'Hare Intl",     city:'Chicago',      country:'United States',   lat:41.9742, lng:-87.9073 },
-  'ATL':{ name:'Hartsfield-Jackson',       city:'Atlanta',      country:'United States',   lat:33.6407, lng:-84.4277 },
-  'DFW':{ name:'Dallas/Fort Worth Intl',   city:'Dallas',       country:'United States',   lat:32.8998, lng:-97.0403 },
-  'MIA':{ name:'Miami Intl',               city:'Miami',        country:'United States',   lat:25.7959, lng:-80.2870 },
-  'SFO':{ name:'San Francisco Intl',       city:'San Francisco',country:'United States',   lat:37.6213, lng:-122.379 },
-  'SEA':{ name:'Seattle-Tacoma Intl',      city:'Seattle',      country:'United States',   lat:47.4502, lng:-122.309 },
-  'BOS':{ name:'Boston Logan Intl',        city:'Boston',       country:'United States',   lat:42.3656, lng:-71.0096 },
-  'IAD':{ name:'Washington Dulles Intl',   city:'Washington',   country:'United States',   lat:38.9531, lng:-77.4565 },
-  'DCA':{ name:'Ronald Reagan National',   city:'Washington',   country:'United States',   lat:38.8521, lng:-77.0377 },
-  'YYZ':{ name:'Toronto Pearson Intl',     city:'Toronto',      country:'Canada',          lat:43.6777, lng:-79.6248 },
-  'YVR':{ name:'Vancouver Intl',           city:'Vancouver',    country:'Canada',          lat:49.1947, lng:-123.184 },
-  'YUL':{ name:'Montreal-Trudeau Intl',    city:'Montreal',     country:'Canada',          lat:45.4706, lng:-73.7408 },
-  'MEX':{ name:'Benito Juárez Intl',       city:'Mexico City',  country:'Mexico',          lat:19.4363, lng:-99.0721 },
-  // ── Middle East & Africa ────────────────────────────────────────────────
-  'DXB':{ name:'Dubai Intl',               city:'Dubai',        country:'UAE',             lat:25.2532, lng:55.3657  },
-  'AUH':{ name:'Abu Dhabi Intl',           city:'Abu Dhabi',    country:'UAE',             lat:24.4330, lng:54.6511  },
-  'DOH':{ name:'Hamad Intl',               city:'Doha',         country:'Qatar',           lat:25.2609, lng:51.6138  },
-  'RUH':{ name:'King Khalid Intl',         city:'Riyadh',       country:'Saudi Arabia',    lat:24.9578, lng:46.6988  },
-  'JED':{ name:'King Abdulaziz Intl',      city:'Jeddah',       country:'Saudi Arabia',    lat:21.6796, lng:39.1565  },
-  'KWI':{ name:'Kuwait Intl',              city:'Kuwait City',  country:'Kuwait',          lat:29.2267, lng:47.9689  },
-  'MCT':{ name:'Muscat Intl',              city:'Muscat',       country:'Oman',            lat:23.5933, lng:58.2844  },
-  'BAH':{ name:'Bahrain Intl',             city:'Manama',       country:'Bahrain',         lat:26.2708, lng:50.6336  },
-  'TLV':{ name:'Ben Gurion Intl',          city:'Tel Aviv',     country:'Israel',          lat:32.0114, lng:34.8867  },
-  'AMM':{ name:'Queen Alia Intl',          city:'Amman',        country:'Jordan',          lat:31.7226, lng:35.9932  },
-  'BEY':{ name:'Rafic Hariri Intl',        city:'Beirut',       country:'Lebanon',         lat:33.8209, lng:35.4884  },
-  'CAI':{ name:'Cairo Intl',               city:'Cairo',        country:'Egypt',           lat:30.1219, lng:31.4056  },
-  'CMN':{ name:'Mohammed V Intl',          city:'Casablanca',   country:'Morocco',         lat:33.3675, lng:-7.5898  },
-  'ADD':{ name:'Addis Ababa Bole Intl',    city:'Addis Ababa',  country:'Ethiopia',        lat:8.9779,  lng:38.7993  },
-  'NBO':{ name:'Jomo Kenyatta Intl',       city:'Nairobi',      country:'Kenya',           lat:-1.3192, lng:36.9275  },
-  'LOS':{ name:'Murtala Muhammed Intl',    city:'Lagos',        country:'Nigeria',         lat:6.5774,  lng:3.3214   },
-  'ABJ':{ name:'Félix-Houphouët-Boigny',   city:'Abidjan',      country:'Ivory Coast',     lat:5.2614,  lng:-3.9262  },
-  'JNB':{ name:'O.R. Tambo Intl',         city:'Johannesburg', country:'South Africa',    lat:-26.1392,lng:28.2460  },
-  'CPT':{ name:'Cape Town Intl',           city:'Cape Town',    country:'South Africa',    lat:-33.9648,lng:18.6017  },
-  'KRT':{ name:'Khartoum Intl',            city:'Khartoum',     country:'Sudan',           lat:15.5895, lng:32.5532  },
-  'DAM':{ name:'Damascus Intl',            city:'Damascus',     country:'Syria',           lat:33.4114, lng:36.5156  },
-  'BGW':{ name:'Baghdad Intl',             city:'Baghdad',      country:'Iraq',            lat:33.2625, lng:44.2346  },
-  'BSR':{ name:'Basra Intl',               city:'Basra',        country:'Iraq',            lat:30.5491, lng:47.6621  },
-  'EBL':{ name:'Erbil Intl',               city:'Erbil',        country:'Iraq',            lat:36.2376, lng:43.9632  },
-  // ── Conflict / High-Risk Zone Airports ─────────────────────────────────
-  'KBL':{ name:'Kabul Intl',               city:'Kabul',        country:'Afghanistan',     lat:34.5659, lng:69.2120  },
-  'KDH':{ name:'Kandahar Intl',            city:'Kandahar',     country:'Afghanistan',     lat:31.5058, lng:65.8478  },
-  'SAH':{ name:"Sana'a Intl",              city:"Sana'a",       country:'Yemen',           lat:15.4763, lng:44.2197  },
-  'ADE':{ name:'Aden Intl',                city:'Aden',         country:'Yemen',           lat:12.8295, lng:45.0288  },
-  'IEV':{ name:'Kyiv Boryspil Intl',       city:'Kyiv',         country:'Ukraine',         lat:50.3450, lng:30.8947  },
-  'HRK':{ name:'Kharkiv Intl',             city:'Kharkiv',      country:'Ukraine',         lat:49.9248, lng:36.2900  },
-  'ODS':{ name:'Odessa Intl',              city:'Odessa',       country:'Ukraine',         lat:46.4268, lng:30.6765  },
-  'TIP':{ name:'Tripoli Intl',             city:'Tripoli',      country:'Libya',           lat:32.6635, lng:13.1590  },
-  // ── Asia-Pacific ────────────────────────────────────────────────────────
-  'SIN':{ name:'Singapore Changi',         city:'Singapore',    country:'Singapore',       lat:1.3644,  lng:103.9915 },
-  'HKG':{ name:'Hong Kong Intl',           city:'Hong Kong',    country:'China',           lat:22.3080, lng:113.9185 },
-  'PEK':{ name:'Beijing Capital Intl',     city:'Beijing',      country:'China',           lat:40.0799, lng:116.6031 },
-  'PVG':{ name:'Shanghai Pudong Intl',     city:'Shanghai',     country:'China',           lat:31.1443, lng:121.8083 },
-  'CAN':{ name:'Guangzhou Baiyun Intl',    city:'Guangzhou',    country:'China',           lat:23.3924, lng:113.2988 },
-  'NRT':{ name:'Tokyo Narita Intl',        city:'Tokyo',        country:'Japan',           lat:35.7720, lng:140.3929 },
-  'HND':{ name:'Tokyo Haneda',             city:'Tokyo',        country:'Japan',           lat:35.5494, lng:139.7798 },
-  'KIX':{ name:'Osaka Kansai Intl',        city:'Osaka',        country:'Japan',           lat:34.4347, lng:135.2440 },
-  'ICN':{ name:'Seoul Incheon Intl',       city:'Seoul',        country:'South Korea',     lat:37.4602, lng:126.4407 },
-  'BKK':{ name:'Suvarnabhumi',             city:'Bangkok',      country:'Thailand',        lat:13.6900, lng:100.7501 },
-  'KUL':{ name:'Kuala Lumpur Intl',        city:'Kuala Lumpur', country:'Malaysia',        lat:2.7456,  lng:101.7099 },
-  'CGK':{ name:'Soekarno-Hatta Intl',      city:'Jakarta',      country:'Indonesia',       lat:-6.1256, lng:106.6559 },
-  'MNL':{ name:'Ninoy Aquino Intl',        city:'Manila',       country:'Philippines',     lat:14.5086, lng:121.0194 },
-  'SYD':{ name:'Sydney Kingsford Smith',   city:'Sydney',       country:'Australia',       lat:-33.9399,lng:151.1753 },
-  'MEL':{ name:'Melbourne Airport',        city:'Melbourne',    country:'Australia',       lat:-37.6733,lng:144.8430 },
-  'BNE':{ name:'Brisbane Airport',         city:'Brisbane',     country:'Australia',       lat:-27.3842,lng:153.1175 },
-  'AKL':{ name:'Auckland Airport',         city:'Auckland',     country:'New Zealand',     lat:-37.0082,lng:174.7850 },
-  'BOM':{ name:'Chhatrapati Shivaji Intl', city:'Mumbai',       country:'India',           lat:19.0896, lng:72.8656  },
-  'DEL':{ name:'Indira Gandhi Intl',       city:'New Delhi',    country:'India',           lat:28.5665, lng:77.1031  },
-  'MAA':{ name:'Chennai Intl',             city:'Chennai',      country:'India',           lat:12.9941, lng:80.1709  },
-  'BLR':{ name:'Kempegowda Intl',          city:'Bengaluru',    country:'India',           lat:13.1986, lng:77.7066  },
-  'HYD':{ name:'Rajiv Gandhi Intl',        city:'Hyderabad',    country:'India',           lat:17.2313, lng:78.4298  },
-  'ISB':{ name:'Islamabad Intl',           city:'Islamabad',    country:'Pakistan',        lat:33.6167, lng:72.8500  },
-  'KHI':{ name:'Jinnah Intl',              city:'Karachi',      country:'Pakistan',        lat:24.9065, lng:67.1608  },
-  'LHE':{ name:'Allama Iqbal Intl',        city:'Lahore',       country:'Pakistan',        lat:31.5216, lng:74.4036  },
-  'DAC':{ name:'Hazrat Shahjalal Intl',    city:'Dhaka',        country:'Bangladesh',      lat:23.8433, lng:90.3978  },
-  'CMB':{ name:'Bandaranaike Intl',        city:'Colombo',      country:'Sri Lanka',       lat:7.1808,  lng:79.8841  },
-  'RGN':{ name:'Yangon Intl',              city:'Yangon',       country:'Myanmar',         lat:16.9073, lng:96.1332  },
-  // ── Latin America & Caribbean ────────────────────────────────────────────
-  'GRU':{ name:'São Paulo Guarulhos Intl', city:'São Paulo',    country:'Brazil',          lat:-23.4356,lng:-46.4731 },
-  'GIG':{ name:'Rio Galeão Intl',          city:'Rio de Janeiro',country:'Brazil',         lat:-22.8099,lng:-43.2505 },
-  'EZE':{ name:'Ministro Pistarini Intl',  city:'Buenos Aires', country:'Argentina',       lat:-34.8222,lng:-58.5358 },
-  'SCL':{ name:'Arturo Merino Benítez',    city:'Santiago',     country:'Chile',           lat:-33.3930,lng:-70.7858 },
-  'BOG':{ name:'El Dorado Intl',           city:'Bogotá',       country:'Colombia',        lat:4.7016,  lng:-74.1469 },
-  'LIM':{ name:'Jorge Chávez Intl',        city:'Lima',         country:'Peru',            lat:-12.0219,lng:-77.1143 },
-  'CCS':{ name:'Simón Bolívar Intl',       city:'Caracas',      country:'Venezuela',       lat:10.6013, lng:-66.9913 },
-  'HAV':{ name:'José Martí Intl',          city:'Havana',       country:'Cuba',            lat:22.9892, lng:-82.4091 },
-};
-
 const ARCHIVE_PREFIX = "archive_";
 const PROXIMITY_KV_KEY = "proximity_incidents_v1";
 const INCIDENTS_KV_KEY = "incidents";
@@ -173,8 +53,9 @@ const AUTO_48H_MS = 48 * 3600 * 1000;
 const MAX_INCIDENTS_STORED = 300;
 
 const DETERMINISTIC_SOURCES = [
-  // M4.5+ weekly feed only — all_hour/all_day removed (too noisy, captures M1-4 micro-quakes)
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
@@ -185,6 +66,8 @@ const DETERMINISTIC_SOURCES = [
 // Dell site is silently dropped — prevents global earthquake/flood noise.
 const NATURAL_HAZARD_SOURCES = new Set([
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
@@ -224,7 +107,6 @@ const SOURCE_META = [
   { match: 'allafrica.com',            key: 'allafrica',    label: 'AllAfrica',        category: 'news' },
   { match: 'latinnews.com',            key: 'latinnews',    label: 'LatinNews',        category: 'news' },
   { match: 'batimes.com.ar',           key: 'batimes',      label: 'BA Times',         category: 'news' },
-  { match: 'abc.net.au',               key: 'abc_au',       label: 'ABC Australia',    category: 'news' },
   // ── Supply Chain / Logistics ────────────────────────────────────────────────
   { match: 'freightwaves.com',         key: 'freightwaves', label: 'FreightWaves',     category: 'logistics' },
   { match: 'joc.com',                  key: 'joc',          label: 'JOC',              category: 'logistics' },
@@ -310,38 +192,6 @@ const SOURCE_META = [
   // ── Emergency Management / Natural Hazards ────────────────────────────────────
   { match: 'copernicus.eu',            key: 'copernicus',   label: 'Copernicus EMS',   category: 'hazards' },
   { match: 'fema.gov',                 key: 'fema',         label: 'FEMA',             category: 'hazards' },
-  // ── OSINT / Cyber Threat Intelligence ────────────────────────────────────────
-  { match: 'ransomware.live',          key: 'rwlive',       label: 'Ransomware.live',  category: 'cyber'     },
-  { match: 'schneier.com',             key: 'schneier',     label: 'Schneier Security',category: 'cyber'     },
-  { match: 'bellingcat.com',           key: 'bellingcat',   label: 'Bellingcat',       category: 'security'  },
-  { match: 'zdnet.com',               key: 'zdnet',        label: 'ZDNet',            category: 'cyber'     },
-  // ── Government / Security (additional) ───────────────────────────────────────
-  { match: 'ministry-of-defence',      key: 'ukmod',        label: 'UK MOD',           category: 'security'  },
-  { match: 'iaea.org',                 key: 'iaea',         label: 'IAEA',             category: 'security'  },
-  // ── Security Think Tanks (additional) ────────────────────────────────────────
-  { match: 'nti.org',                  key: 'nti',          label: 'NTI',              category: 'security'  },
-  { match: 'jamestown.org',            key: 'jamestown',    label: 'Jamestown Fdn',    category: 'security'  },
-  { match: 'carnegieendowment.org',    key: 'carnegie',     label: 'Carnegie Endow.',  category: 'security'  },
-  { match: 'stimson.org',              key: 'stimson',      label: 'Stimson Center',   category: 'security'  },
-  { match: 'brookings.edu',            key: 'brookings',    label: 'Brookings',        category: 'news'      },
-  { match: 'fpri.org',                 key: 'fpri',         label: 'FPRI',             category: 'security'  },
-  { match: 'responsiblestatecraft.org',key: 'rsc',          label: 'Resp. Statecraft', category: 'news'      },
-  // ── Regional News (coverage gaps) ────────────────────────────────────────────
-  { match: 'meduza.io',               key: 'meduza',       label: 'Meduza',           category: 'news'      },
-  { match: 'themoscowtimes.com',       key: 'moscowtimes',  label: 'Moscow Times',     category: 'news'      },
-  { match: 'novayagazeta.eu',          key: 'novaya',       label: 'Novaya Gazeta EU', category: 'news'      },
-  { match: 'asahi.com',               key: 'asahi',        label: 'Asahi Shimbun',    category: 'news'      },
-  { match: 'japantoday.com',           key: 'japantoday',   label: 'Japan Today',      category: 'news'      },
-  { match: 'bangkokpost.com',          key: 'bangkokpost',  label: 'Bangkok Post',     category: 'news'      },
-  { match: 'vnexpress.net',            key: 'vnexpress',    label: 'VNExpress',        category: 'news'      },
-  { match: 'dailytrust.com',           key: 'dailytrust',   label: 'Daily Trust NG',   category: 'news'      },
-  { match: 'channelstv.com',           key: 'channelstv',   label: 'Channels TV NG',   category: 'news'      },
-  { match: 'spiegel.de',              key: 'spiegel',      label: 'Der Spiegel',      category: 'news'      },
-  // ── Aviation-specific feeds ──────────────────────────────────────────────
-  { match: 'avherald.com',            key: 'avherald',     label: 'Aviation Herald',  category: 'news'      },
-  { match: 'simpleflying.com',        key: 'simpleflying', label: 'Simple Flying',    category: 'news'      },
-  { match: 'aerotelegraph.com',       key: 'aerotelegraph',label: 'AeroTelegraph',    category: 'news'      },
-  { match: 'air-accidents-investigation-branch', key: 'aaib', label: 'UK AAIB',       category: 'news'      },
 ];
 function _getSourceMeta(src) {
   if (!src) return { key: 'other', label: 'Other', category: 'news' };
@@ -389,8 +239,6 @@ const ROTATING_SOURCES = [
   "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
   "https://www.latinnews.com/index.php?format=feed",
   "https://www.batimes.com.ar/rss-feed",
-  "https://www.abc.net.au/news/feed/51120/rss.xml",
-  "https://www.abc.net.au/news/feed/48480/rss.xml",
   // ── Supply Chain / Logistics ───────────────────────────────────────────────
   "https://www.freightwaves.com/feed",
   "https://www.joc.com/rss.xml",
@@ -471,39 +319,6 @@ const ROTATING_SOURCES = [
   // ── Natural Hazards / Emergency Management ──────────────────────────────────
   "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
   "https://www.fema.gov/rss/disaster_declarations.rss",
-  // ── OSINT / Cyber Threat Intelligence ───────────────────────────────────────
-  "https://www.ransomware.live/rss.xml",
-  "https://www.schneier.com/feed/",
-  "https://www.bellingcat.com/feed/",
-  "https://www.zdnet.com/news/rss.xml",
-  // ── Government / Security (additional) ──────────────────────────────────────
-  "https://www.gov.uk/government/organisations/ministry-of-defence.atom",
-  "https://www.iaea.org/feeds/topnews",
-  // ── Security Think Tanks (additional) ───────────────────────────────────────
-  "https://www.nti.org/rss/",
-  "https://jamestown.org/feed/",
-  "https://carnegieendowment.org/rss/",
-  "https://www.stimson.org/feed/",
-  "https://www.brookings.edu/feed/",
-  "https://www.fpri.org/feed/",
-  "https://responsiblestatecraft.org/feed/",
-  // ── Regional News (coverage gaps) ───────────────────────────────────────────
-  "https://meduza.io/rss/all",
-  "https://www.themoscowtimes.com/rss/news",
-  "https://novayagazeta.eu/feed/rss",
-  "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
-  "https://japantoday.com/feed/atom",
-  "https://www.bangkokpost.com/rss",
-  "https://vnexpress.net/rss",
-  "https://www.theguardian.com/australia-news/rss",
-  "https://dailytrust.com/feed/",
-  "https://www.channelstv.com/feed/",
-  "https://www.spiegel.de/schlagzeilen/tops/index.rss",
-  // ── Aviation-specific sources ─────────────────────────────────────────────
-  "https://avherald.com/h?subscribe=rss",
-  "https://simpleflying.com/feed/",
-  "https://www.aerotelegraph.com/feed",
-  "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
@@ -1367,32 +1182,6 @@ function isNoise(text = "") {
   const ANNUAL_REPORT_NOISE = /\b(annual (report|review|results)|year in review|\d{4} (annual|year.in.review)|quarterly (report|earnings?|results?)|q[1-4] (results?|earnings?|report|revenue)|fiscal (year|quarter) (results?|ended?|summary)|earnings per share|investor (relations?|day|presentation|briefing)|earnings (call|beat|miss|guidance)|revenue (grew?|increased?|declined?|forecast|outlook)|market cap|gartner (predicts?|report|magic quadrant)|forrester (report|wave)|idc (report|forecast)|shareholder (letter|meeting|value)|return on (equity|investment)|ebitda|operating (margin|income|profit))\b/i;
   if (ANNUAL_REPORT_NOISE.test(t)) return true;
 
-  // --- Tier-8: non-critical retail/consumer data breaches ---
-  // Only data breaches involving Dell, critical infrastructure, financial systems,
-  // government, healthcare, or confirmed active ransomware on enterprise systems are relevant.
-  // Retail loyalty card breaches, supermarket investigations, consumer apps are noise.
-  const DATA_BREACH_GENERIC = /\b(data breach|data leak|hack(ed)?|cyber(attack)?|investigation|compromised)\b/i;
-  if (DATA_BREACH_GENERIC.test(t)) {
-    const CRITICAL_BREACH_SCOPE = /\b(dell|hospital|healthcare|power grid|water treatment|airport|seaport|port authority|government|federal|ministry|military|defense|nuclear|pipeline|telecom|bank|financial institution|stock exchange|critical infrastructure|supply chain attack|nation.?state|apt group|ransomware (attack|group|gang))\b/i;
-    const DELL_DIRECT = /\bdell(\s+(technologies|emc|secureworks|boomi))?|poweredge|powerstore|isilon|avamar\b/i;
-    if (!CRITICAL_BREACH_SCOPE.test(t) && !DELL_DIRECT.test(t)) return true; // noise
-  }
-
-  // --- Tier-9: commodity/fuel price movements without physical disruption ---
-  // Price records, market benchmarks, and trading gains are financial noise unless
-  // they describe actual physical supply chain disruptions (closures, blockades, shortages).
-  const COMMODITY_PRICE_NOISE = /\b(diesel|crude oil|gasoline|fuel|commodity|benchmark|brent|wti)\b.{0,80}\b(record (gain|high|price|rise)|sets a record|benchmark (sets|hits|reaches)|price (surge|soar|rally|spike)|all.time high)\b/i;
-  const PHYSICAL_DISRUPTION_CARVEOUT = /\b(port (closed|blocked|seized|disrupted)|shipping (disrupted|halted|suspended)|strait (blocked|closed|mined)|sanctions (imposed|enacted)|export (ban|embargo)|supply (shortage|disruption)|refinery (fire|closure|attack)|pipeline (attack|closure|outage))\b/i;
-  if (COMMODITY_PRICE_NOISE.test(t) && !PHYSICAL_DISRUPTION_CARVEOUT.test(t)) return true;
-
-  // --- Tier-10: routine war casualty updates (not new threat events) ---
-  // Single-digit or low-number casualties in established conflict zones are routine
-  // war-of-attrition updates, not actionable intelligence for Dell RSMs.
-  // Carve-out: Mass casualty events, new major attacks, or previously-unknown escalation.
-  const ROUTINE_WAR_CASUALTY = /\b(kills?\s+(one|two|three|four|five|six|seven|eight|nine|\d person)|(\d+|one|two|three|four|five) (people |civilians? )?(killed|dead|died)|priest|monk|clergy|pastor|civilian|soldier) (killed|shot|struck|died)\b/i;
-  const MAJOR_ESCALATION = /\b(mass casualt|dozens (killed|dead|wounded)|hundreds (killed|dead)|major (attack|offensive|strike|bombing)|car bomb|suicide bomb(er|ing)|multiple explosion|coordinated attack|new front|military offensive|ground invasion)\b/i;
-  if (ROUTINE_WAR_CASUALTY.test(t) && !MAJOR_ESCALATION.test(t)) return true;
-
   return false;
 }
 
@@ -2088,10 +1877,6 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       return false;
     }
 
-    // Pre-computed: detect major natural disaster phrases (e.g. "major flooding", "severe cyclone")
-    // Used in both Step 3 (natural gating bypass) and Step 4 (pre-AI pass acceptance).
-    const majorNaturalKeyword = /\b(major|severe|catastrophic|devastating|widespread|emergency|significant)\b.{0,80}\b(flood|flooding|cyclone|typhoon|wildfire|bushfire|tornado)\b|\b(flood|flooding|cyclone|typhoon|wildfire|bushfire|tornado)\b.{0,80}\b(major|severe|catastrophic|devastating|emergency|significant)\b/i.test(lowText);
-
     // --- Step 3: NATURAL gating (preserved exactly) ---
     const naturalDetected = HIGH_NATURAL_CATS.has((aiCategory || '').toUpperCase()) || isNaturalKeyword(lowText);
     if (naturalDetected) {
@@ -2109,7 +1894,7 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       const sevOK = (Number.isFinite(sev) && sev >= NATURAL_MIN_SEVERITY);
       const tsunamiMention = /\b(tsunami|tsunami warning|tsunami threat)\b/i.test(lowText);
       const countryWide = !!(incidentMeta && incidentMeta.country_wide);
-      if (tsunamiMention || magOK || sevOK || proxOK || countryWide || majorNaturalKeyword) {
+      if (tsunamiMention || magOK || sevOK || proxOK || countryWide) {
         debug("filter", "accepted", { reason: "natural_gating", title });
         return true;
       }
@@ -2117,9 +1902,9 @@ async function isRelevantIncident(env, text = "", src = "", aiCategory = null, s
       return false;
     }
 
-    // --- Step 4: INCIDENT_KEYWORDS_REGEX quick accept — only if keyword is security-domain or major natural event ---
+    // --- Step 4: INCIDENT_KEYWORDS_REGEX quick accept — only if keyword is security-domain ---
     const allowed = INCIDENT_KEYWORDS_REGEX.test(lowText);
-    if (allowed && (hasFocusKeyword || hasOperationalKeyword || majorNaturalKeyword)) {
+    if (allowed && (hasFocusKeyword || hasOperationalKeyword)) {
       debug("filter", "accepted", { reason: "security_keyword_match", title });
       return true;
     }
@@ -2352,7 +2137,6 @@ const ALLOWED_KEYWORDS = [
   "cargo theft","truck hijack","truck hijacking",
   // ── Supply chain.docx: regulatory / trade ────────────────────────────────
   "export ban","export controls","embargo","sanctions","customs strike","customs delays",
-  "travel ban","entry ban","visa ban","travel restriction","travel restrictions","border closure","border closed",
   // ── SECURITY.docx: physical security additions ────────────────────────────
   "stampede","crowd crush","crowd surge","shelling","artillery","airstrike","air strike",
   "car bomb","ied","gunfire","gang violence","armed assault",
@@ -2436,7 +2220,7 @@ const SECURITY_FOCUS_TERMS = [
   "bridge collapse","pipeline","road closure","port congestion","cargo","dock","terminal","truck","lorry",
   "rail","railway","rail disruption","port strike","strike","industrial accident","fire at facility",
   "explosion at site","vandalism","sabotage","physical security","intrusion","perimeter breach",
-  "lockdown","evacuation","travel ban","entry ban","visa ban","travel restriction","border closure"
+  "lockdown","evacuation"
 ];
 const SECURITY_FOCUS_REGEX = new RegExp("\\b(" + SECURITY_FOCUS_TERMS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "i");
 // Minimum number of SECURITY_FOCUS_TERMS tokens needed when falling back to non-security-AI gating.
@@ -2464,8 +2248,7 @@ function normalizeIncident(raw) {
   if (category === "UNKNOWN") {
     const t = String(raw.title || "").toLowerCase();
     if (severity >= 5 || /\b(bomb|attack|hostage|terror|massacre|shooting|explosion)\b/i.test(t)) category = "SECURITY";
-    else if (/\b(flood|flooding)\b/i.test(t)) category = "FLOOD";
-    else if (severity >= 4 || /\b(earthquake|tsunami|hurricane|storm|cyclone|wildfire|bushfire)\b/i.test(t)) category = "NATURAL";
+    else if (severity >= 4 || /\b(flood|earthquake|tsunami|hurricane|storm)\b/i.test(t)) category = "NATURAL";
     else if (/\b(transport|strike|protest|riot|disruption)\b/i.test(t)) category = "DISRUPTION";
     else category = severity >= 4 ? "CRITICAL" : "GENERAL";
   }
@@ -2569,7 +2352,7 @@ async function callGroq(env, apiKey, text, retries = 2) {
     temperature: 0,
     max_tokens: 350,
     messages: [
-      { role: "system", content: "You are a Dell Technologies GSOC analyst. Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. SEVERITY SCALE (Dell-specific): severity=5 CRITICAL: direct attack on/near Dell facility, confirmed disruption to Dell supply chain, earthquake M7+, active ransomware on critical infrastructure; severity=4 HIGH: earthquake M5.5-7.0 near Dell sites, major civil unrest/attack within 50km of Dell office, port/airport closure disrupting Dell supply chain, active military conflict in a country where Dell operates; severity=3 MEDIUM: regional security event that may affect Dell employee travel, natural disaster in a Dell-operating country, general supply chain risk; severity=2 LOW: distant events, routine conflict updates, single-casualty incidents, commodity price movements, non-critical data breaches. CRITICAL RULES: (1) operational_impact=true ONLY when directly affecting Dell staff safety, Dell facility, or Dell supply chain logistics. (2) Retailer/supermarket/consumer data breaches (e.g. Loblaw, Target, retail stores) = severity 2, operational_impact false. (3) Single civilian casualties in existing conflict zones = severity 2, operational_impact false. (4) Commodity price records without physical supply disruption = severity 2, operational_impact false. (5) Routine war casualty updates ('X killed in Y') without major new attack = severity 2. (6) CYBERSECURITY category: only for ACTUAL attacks, confirmed breaches, active ransomware, major outages, or nation-state/APT intrusions — NOT for patch releases, CVE disclosures, or theoretical vulnerabilities." },
+      { role: "system", content: "Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. CRITICAL RULE for CYBERSECURITY category: only assign it for ACTUAL attacks, confirmed breaches, active ransomware campaigns, major service outages caused by cyber incidents, or nation-state/APT intrusions with real operational impact on organisations. Do NOT use CYBERSECURITY for: patch releases, CVE disclosures, vulnerability research, vendor security advisories, bug bounties, penetration test findings, or theoretical vulnerabilities — those must get operational_impact=false and impact_score below 15." },
       { role: "user", content: String(text).slice(0, 1200) }
     ],
     response_format: { type: "json_object" }
@@ -3075,21 +2858,13 @@ async function runIngestion(env, options = {}, ctx = null) {
           const combined = `${itm.title} — ${itm.summary || ""}`.trim();
           if (isNoise(combined)) continue;
           const isDeterministic = DETERMINISTIC_SOURCES.includes(src);
-          // For earthquake/natural feeds, compute magnitude-based severity
-          const _titleForMag = itm.title || "";
-          const _detMag = isDeterministic ? extractMagnitudeFromText(_titleForMag) : null;
-          let _detSev = isDeterministic ? 4 : 3; // default HIGH for deterministic
-          if (_detMag !== null) {
-            // Magnitude-based severity: M7+ = CRITICAL(5), M6-7 = HIGH(4), M5-6 = MEDIUM(3), <5 = LOW(2)
-            _detSev = _detMag >= 7.0 ? 5 : _detMag >= 6.0 ? 4 : _detMag >= 5.0 ? 3 : 2;
-          }
           const incBase = {
             id: stableId(itm.link || itm.title),
             title: itm.title,
             summary: itm.summary || "",
             category: "UNKNOWN",
-            severity: _detSev,
-            severity_label: _detSev >= 5 ? "CRITICAL" : _detSev >= 4 ? "HIGH" : _detSev === 3 ? "MEDIUM" : "LOW",
+            severity: isDeterministic ? 4 : 3,
+            severity_label: isDeterministic ? "HIGH" : "MEDIUM",
             region: "Global",
             country: "GLOBAL",
             location: "UNKNOWN",
@@ -3133,15 +2908,6 @@ async function runIngestion(env, options = {}, ctx = null) {
                   incBase.distance_km > NATURAL_MAX_DIST_KM) {
                 debug("gdacs_prox_gate rejected", { title: incBase.title.slice(0, 100), distKm: incBase.distance_km });
                 continue;
-              }
-              // Additional magnitude gate for seismic sources — reject sub-threshold earthquakes
-              // even if they happen to be near a Dell site (M<5 = felt locally but not operationally significant)
-              if (src.includes('usgs.gov') || src.includes('emsc-csem.org') || src.includes('jma.go.jp')) {
-                const _mag = extractMagnitudeFromText(incBase.title || '');
-                if (_mag !== null && _mag < NATURAL_MIN_MAGNITUDE) {
-                  debug("seismic_mag_gate rejected", { title: incBase.title.slice(0, 80), mag: _mag });
-                  continue;
-                }
               }
             }
           }
@@ -3303,15 +3069,6 @@ async function runIngestion(env, options = {}, ctx = null) {
           if (distanceKm > (typeof PROXIMITY_MAX_DISTANCE_KM !== 'undefined' ? PROXIMITY_MAX_DISTANCE_KM : OPERATIONAL_MAX_DIST_KM)) {
             return { include: false, reason: 'distance_exceeded', distanceKm };
           }
-          // Operational impact gate: if AI explicitly marked operational_impact=false
-          // AND severity is low (< 3 MEDIUM), skip — reduces noisy non-Dell events
-          if (incident.operational_impact === false && Number(incident.severity || 0) < 3) {
-            return { include: false, reason: 'no_operational_impact', distanceKm };
-          }
-          // Minimum severity gate: only severity >= 2 (LOW) events qualify at all
-          if (Number(incident.severity || 0) < 2) {
-            return { include: false, reason: 'severity_too_low', distanceKm };
-          }
           // Noise / blacklist
           const title = String(incident.title || incident.summary || '').toLowerCase();
           if (isNoise(title) || (Array.isArray(BLACKLIST_TERMS) && BLACKLIST_TERMS.some(tok => title.indexOf(tok) !== -1))) {
@@ -3323,20 +3080,6 @@ async function runIngestion(env, options = {}, ctx = null) {
             const cutoff = Date.now() - (typeof PROXIMITY_WINDOW_HOURS !== 'undefined' ? PROXIMITY_WINDOW_HOURS : 72) * 3600 * 1000;
             if (incidentTs < cutoff) return { include: false, reason: 'too_old', distanceKm };
           }
-          // Geopolitical conflict zone filter: background conflict news (casualties,
-          // settler attacks, ongoing war updates) without direct Dell impact are rejected.
-          // These events are geographically near Dell sites in conflict regions (e.g. Israel,
-          // Iraq, Lebanon) but represent background noise, not operational threats to Dell.
-          const titleLow = String(incident.title || '').toLowerCase();
-          const isBackgroundConflict = (
-            incident.operational_impact !== true &&
-            Number(incident.severity || 0) < 4 &&
-            /\b(killed|wounded|casualties|settlers?|clashes?|gunfire|airstrike|shelling|militia|troops|soldiers?|protesters? killed|civilians? killed|attack on|bombing|explosi)\b/i.test(titleLow)
-          );
-          if (isBackgroundConflict) {
-            return { include: false, reason: 'background_conflict_noise', distanceKm };
-          }
-
           // Natural events: require magnitude/severity
           const cat = String((incident.category || '')).toUpperCase();
           if (cat === 'NATURAL') {
@@ -3348,15 +3091,9 @@ async function runIngestion(env, options = {}, ctx = null) {
             // For natural, if magnitude/severity ok, accept (still subject to distance/recency above)
             return { include: true, reason: 'natural_ok', distanceKm };
           }
-          // AI-security categories accept — but require operational_impact or MEDIUM+ severity
-          // to cut down on low-severity/irrelevant events near Dell sites
+          // AI-security categories accept (still require distance & recency)
           if (typeof AI_SECURITY_CATEGORIES !== 'undefined' && AI_SECURITY_CATEGORIES.has(cat)) {
-            const sev = Number(incident.severity || 0);
-            const hasOpImpact = incident.operational_impact === true;
-            if (hasOpImpact || sev >= 3) {
-              return { include: true, reason: 'ai_security', distanceKm };
-            }
-            return { include: false, reason: 'ai_security_low_impact', distanceKm };
+            return { include: true, reason: 'ai_security', distanceKm };
           }
           // Security focus keyword or operational keywords
           const hasSecurityFocus = (typeof SECURITY_FOCUS_REGEX !== 'undefined' && SECURITY_FOCUS_REGEX.test(title))
@@ -3583,51 +3320,22 @@ async function handleApiLogisticsTrack(env, req) {
       }};
     }
 
-    // ── BBOX branch (hub radar): try adsb.fi geographic bounds first, OpenSky as fallback ──
+    // ── BBOX branch (hub radar): no schedule fallback, return aircraft count ───
     if (isBbox) {
       const bboxKey = `logistics_bbox_${lamin}_${lamax}_${lomin}_${lomax}`;
       try {
         const cached = await kvGetJson(env, bboxKey, null);
         if (cached) return { ok: true, status: 200, body: { ...cached, _cached: true } };
       } catch(e) {}
-
-      // Primary: adsb.fi geo bounds (no auth required, faster than OpenSky)
-      try {
-        const adsbBboxUrl = `https://opendata.adsb.fi/api/v2/lat/${lamin}/${lamax}/lon/${lomin}/${lomax}/dist/500`;
-        const adsbBboxRes = await fetchWithTimeout(adsbBboxUrl, {}, 6000);
-        if (adsbBboxRes.ok) {
-          const adsbBboxData = await adsbBboxRes.json().catch(() => ({}));
-          const acList = Array.isArray(adsbBboxData.ac) ? adsbBboxData.ac : [];
-          if (acList.length > 0 || adsbBboxData.total === 0) {
-            const bboxStates = acList.map(a => ({
-              icao24: (a.hex || '').toLowerCase(),
-              callsign: (a.flight || '').trim(),
-              latitude: a.lat, longitude: a.lon,
-            }));
-            const bboxResult = { states: bboxStates, source: 'adsb.fi', fetched_at: new Date().toISOString() };
-            if (bboxStates.length > 0) await kvPut(env, bboxKey, bboxResult, { expirationTtl: 60 }).catch(() => {});
-            typeof debug === 'function' && debug('logistics:track:bbox-adsb', bboxStates.length);
-            return { ok: true, status: 200, body: bboxResult };
-          }
-        }
-      } catch (adsbBboxErr) {
-        typeof debug === 'function' && debug('logistics:bbox:adsb-fail', adsbBboxErr?.message);
-      }
-
-      // Fallback: OpenSky (may require auth)
       const token = await getOpenSkyToken(env);
       const hdr = token ? { 'Authorization': `Bearer ${token}` } : {};
       const bboxRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?lamin=${lamin}&lamax=${lamax}&lomin=${lomin}&lomax=${lomax}`, { headers: hdr }, 10000);
-      if (!bboxRes.ok) {
-        // OpenSky auth required or rate-limited — return empty gracefully
-        typeof debug === 'function' && debug('logistics:bbox:opensky-fail', bboxRes.status);
-        return { ok: true, status: 200, body: { states: [], source: 'unavailable', note: `OpenSky error ${bboxRes.status} — adsb.fi returned no results for this region`, fetched_at: new Date().toISOString() } };
-      }
+      if (!bboxRes.ok) return { ok: false, status: bboxRes.status, body: { ok: false, error: `OpenSky upstream error (${bboxRes.status})` } };
       const bboxData = await bboxRes.json();
       const bboxStates = (bboxData.states || []).map(s => ({ icao24: s[0], callsign: (s[1] || '').trim(), latitude: s[6], longitude: s[5] }));
-      const bboxResult = { states: bboxStates, source: 'opensky', fetched_at: new Date().toISOString() };
+      const bboxResult = { states: bboxStates, fetched_at: new Date().toISOString() };
       if (bboxStates.length > 0) await kvPut(env, bboxKey, bboxResult, { expirationTtl: 60 });
-      typeof debug === 'function' && debug('logistics:track:bbox-opensky', bboxStates.length);
+      typeof debug === 'function' && debug('logistics:track:bbox', bboxStates.length);
       return { ok: true, status: 200, body: bboxResult };
     }
 
@@ -3736,14 +3444,7 @@ async function handleApiLogisticsWatch(env, req) {
       const action = String(body.action || 'add').toLowerCase();
       let list = await kvGetJson(env, watchKey, []);
       if (!Array.isArray(list)) list = [];
-      if (action === 'set') {
-        // Replace entire watchlist — sent by app.js addToWatchlist (optimistic local cache sync)
-        const incoming = Array.isArray(body.watchlist) ? body.watchlist : [];
-        list = incoming.map(item => {
-          if (typeof item === 'string') return { id: item, type: 'flight', label: item, added_at: new Date().toISOString() };
-          return { id: String(item.id || '').trim().toLowerCase(), type: item.type || 'flight', label: String(item.label || item.id || '').slice(0, 80), added_at: item.added_at || new Date().toISOString() };
-        }).filter(w => w.id).slice(0, 100);
-      } else if (action === 'remove') {
+      if (action === 'remove') {
         list = list.filter(w => w.id !== id);
       } else if (action === 'test-alert') {
         // Fire a test alert to the user's notification channel via existing sendAlertEmail
@@ -4457,18 +4158,13 @@ async function handleApiAiChat(env, req) {
       .map(i => `[${i.severity_label || 'INFO'}][${i.region || '?'}] ${i.country || ''}: ${i.title}`)
       .join('\n');
 
-    const systemPrompt = `You are "InfoHub Assistant", an intelligent AI assistant embedded in Dell Technologies' OS INFOHUB global intelligence platform.
-
-PRIMARY ROLE: Help RSM (Regional Security Manager) teams understand current threats, incidents, and operational risks — using the live feed context below.
-
-GENERAL KNOWLEDGE: You also answer general knowledge questions confidently — world leaders, geography, time zones, history, science, current events up to your knowledge cutoff, and more. For time-zone questions, calculate the time accurately using the UTC offset. For questions outside the security domain, be helpful and direct.
-
-STYLE: Concise and professional. Cite specific incidents from the live feed when relevant. Flag uncertainty when information is limited. For general questions, be conversational and clear.
+    const systemPrompt = `You are "InfoHub Assistant", an AI analyst embedded in Dell Technologies' OS INFOHUB global intelligence platform.
+You have access to the live threat feed and help the RSM (Regional Security Manager) team understand current events, risks, and operational impacts.
+Be concise, professional, and intelligence-focused. Cite specific incidents when relevant.
+Suggest RSM actions when appropriate. Flag uncertainty if information is limited.
 
 Current live feed (last 24h — ${all.length} total incidents):
-${recentCtx || '(no recent incidents)'}
-
-Today's date (UTC): ${new Date().toISOString().slice(0, 10)}`;
+${recentCtx || '(no recent incidents)'}`;
 
     const result = await callLLM(env, messages, {
       system: systemPrompt,
@@ -4678,534 +4374,6 @@ async function handleApiWeatherAviation(env, req) {
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });
   }
-}
-
-/* ── AVIATION CANCELLATIONS ENDPOINT ────────────────────────────────────────
- * GET /api/aviation/cancellations
- * Proxies Airlabs /schedules?status=cancelled to return a per-airline table.
- * Requires AIRLABS_KEY env var (free tier: 500 req/month, no credit card).
- * Cache TTL = 2 hours to stay well within the 500 req/month free quota (~360/mo).
- * Returns { ok, airlines[{airline,iata,cancelled,delayed}], total_cancelled, updated_at }
- * Falls back gracefully with { ok:false, fallback_url } if no key configured.
- * ─────────────────────────────────────────────────────────────────────────── */
-async function handleApiAviationCancellations(env) {
-  const apiKey = env && env.AIRLABS_KEY;
-  const FALLBACK = 'https://www.flightaware.com/live/cancelled';
-
-  if (!apiKey) {
-    return new Response(JSON.stringify({ ok: false, reason: 'no_api_key', fallback_url: FALLBACK }), {
-      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // Airlabs /schedules requires dep_iata or arr_iata — query 4 major hubs in parallel.
-  // Rate limit: 4 airports × 4 refreshes/day × 30 days = 480 calls/month (within 500/month free quota).
-  const CACHE_KEY = 'aviation_cancellations_v3';
-  const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
-
-  try {
-    const cached = await kvGetJson(env, CACHE_KEY, null);
-    if (cached && cached._ts && (Date.now() - cached._ts) < CACHE_TTL_MS) {
-      return new Response(JSON.stringify(cached), {
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-  } catch (_) {}
-
-  // Inline IATA code → full airline name for the most common carriers
-  const AIRLINE_NAMES = {
-    AA:'American Airlines', UA:'United Airlines', DL:'Delta Air Lines',
-    WN:'Southwest Airlines', B6:'JetBlue', AS:'Alaska Airlines', F9:'Frontier',
-    NK:'Spirit Airlines', G4:'Allegiant Air', SY:'Sun Country',
-    BA:'British Airways', LH:'Lufthansa', AF:'Air France', KL:'KLM',
-    IB:'Iberia', AZ:'ITA Airways', LX:'Swiss', OS:'Austrian',
-    SK:'SAS', AY:'Finnair', EI:'Aer Lingus', TP:'TAP Air Portugal',
-    EK:'Emirates', QR:'Qatar Airways', EY:'Etihad Airways', SV:'Saudia',
-    TK:'Turkish Airlines', MS:'EgyptAir', RJ:'Royal Jordanian',
-    SQ:'Singapore Airlines', CX:'Cathay Pacific', JL:'Japan Airlines',
-    NH:'All Nippon Airways', KE:'Korean Air', OZ:'Asiana Airlines',
-    QF:'Qantas', NZ:'Air New Zealand', MH:'Malaysia Airlines',
-    TG:'Thai Airways', CI:'China Airlines', CA:'Air China',
-    MU:'China Eastern', CZ:'China Southern', AI:'Air India',
-    AC:'Air Canada', LA:'LATAM Airlines', AM:'Aeromexico', AV:'Avianca',
-    CM:'Copa Airlines', G3:'Gol', AD:'Azul',
-    FR:'Ryanair', U2:'easyJet', VY:'Vueling', W6:'Wizz Air', EW:'Eurowings',
-    HV:'Transavia', PC:'Pegasus', DY:'Norwegian',
-    FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
-  };
-
-  // 4 major hub airports covering AMER / EMEA / MENA — queried in parallel
-  const HUB_AIRPORTS = ['ATL', 'LHR', 'CDG', 'DXB'];
-
-  try {
-    const responses = await Promise.allSettled(
-      HUB_AIRPORTS.map(iata =>
-        fetchWithTimeout(
-          `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&dep_iata=${iata}&status=cancelled&limit=100`,
-          { headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' } },
-          12000
-        ).then(async r => {
-          if (!r.ok) throw new Error(`Airlabs HTTP ${r.status}`);
-          const d = await r.json();
-          if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
-          return Array.isArray(d.response) ? d.response : [];
-        })
-      )
-    );
-
-    // Deduplicate by flight_iata across all hub results, then group by airline
-    const seen = new Set();
-    const allFlights = [];
-    for (const res of responses) {
-      if (res.status !== 'fulfilled') continue;
-      for (const f of res.value) {
-        const key = f.flight_iata || f.flight_icao || `${f.airline_iata}${f.dep_iata}${f.dep_time}`;
-        if (!seen.has(key)) { seen.add(key); allFlights.push(f); }
-      }
-    }
-
-    const byAirline = {};
-    for (const f of allFlights) {
-      const iata = f.airline_iata || f.airline_icao || '';
-      const name = AIRLINE_NAMES[iata] || (iata ? `${iata}` : 'Unknown Airline');
-      const hub  = f.dep_iata || '';
-      if (!byAirline[iata || name]) byAirline[iata || name] = { airline: name, iata, hub_airport: hub, cancelled: 0, delayed: 0 };
-      if (f.status === 'delayed') byAirline[iata || name].delayed++;
-      else byAirline[iata || name].cancelled++; // status=cancelled or default
-    }
-
-    const airlines = Object.values(byAirline)
-      .filter(a => a.cancelled > 0)
-      .sort((a, b) => b.cancelled - a.cancelled)
-      .slice(0, 30);
-
-    const result = {
-      ok: true, airlines,
-      total_cancelled: allFlights.length,
-      airports_sampled: HUB_AIRPORTS,
-      updated_at: new Date().toISOString(), _ts: Date.now(),
-    };
-    try { await kvPut(env, CACHE_KEY, result); } catch (_) {}
-    return new Response(JSON.stringify(result), {
-      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    });
-  } catch (e) {
-    typeof debug === 'function' && debug('handleApiAviationCancellations error', e?.message || e);
-    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), fallback_url: FALLBACK }), {
-      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    });
-  }
-}
-
-/* ── AVIATION DISRUPTIONS ENDPOINT ──────────────────────────────────────────
- * GET /api/aviation/disruptions
- * Scans stored incidents for aviation keywords, fetches live SIGMETs, runs a
- * single AI call to extract structured disruption data (airport, IATA, cause,
- * AI summary, affected routes, duration). Results cached in KV for 15 minutes.
- * Returns: { disruptions[], sigmets[], total, updated_at }
- * ─────────────────────────────────────────────────────────────────────────── */
-async function handleApiAviationDisruptions(env, req) {
-  const CACHE_KEY = 'aviation_disruptions_v6';
-  const CACHE_TTL = 5 * 60; // 5 min — near-real-time operational data
-
-  try {
-    const cached = await kvGetJson(env, CACHE_KEY, null);
-    if (cached && cached._ts && (Date.now() - cached._ts) < CACHE_TTL * 1000) {
-      return new Response(JSON.stringify(cached), {
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-  } catch (_) {}
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
-  const fetchSafe = async (url, opts, ms) => {
-    const ac = new AbortController();
-    const t  = setTimeout(() => ac.abort(), ms || 7000);
-    try { return await fetch(url, Object.assign({}, opts, { signal: ac.signal })); }
-    finally { clearTimeout(t); }
-  };
-
-  const parseRssItems = (xml, sourceDomain) => {
-    const items = [];
-    const tagRe = /<(?:item|entry)[\s>]([\s\S]*?)<\/(?:item|entry)>/gi;
-    let m2;
-    while ((m2 = tagRe.exec(xml)) !== null) {
-      const block = m2[1] || '';
-      const getField = (field) => {
-        const cdRe = new RegExp('<' + field + '>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\\/' + field + '>', 'i');
-        const cdHit = cdRe.exec(block);
-        if (cdHit) return cdHit[1].trim();
-        const plRe = new RegExp('<' + field + '>([\\s\\S]*?)<\\/' + field + '>', 'i');
-        const plHit = plRe.exec(block);
-        return plHit ? plHit[1].replace(/<[^>]+>/g, '').trim() : '';
-      };
-      const linkHref = /<link[^>]+href="([^"]+)"/i.exec(block);
-      const title   = getField('title').slice(0, 200);
-      const desc    = getField('description').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#[0-9]+;/g,'').slice(0, 400);
-      const content = getField('content').slice(0, 200);
-      const link    = linkHref ? linkHref[1] : getField('link');
-      const pubDate = getField('pubDate') || getField('updated') || getField('published') || new Date().toISOString();
-      if (title) items.push({ title, summary: desc || content, link, time: pubDate, source: sourceDomain });
-    }
-    return items;
-  };
-
-  // ── 1. KNOWN GLOBAL DISRUPTIONS — always shown, sourced from authoritative intel ─
-  // These are CONFIRMED current closures/restrictions as of March 2026.
-  // Scored on 0–5 scale (matches FAA disruption index).
-  const KNOWN_DISRUPTIONS = [
-    {
-      iata: 'SAA', airport_name: 'Sanaa International Airport', city: 'Sanaa', country: 'Yemen',
-      cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
-      ai_summary: 'CURRENTLY CLOSED — Zero commercial flights. Airport permanently closed to civil aviation since 2016. Under Houthi control; heavily damaged in airstrikes. UN and humanitarian flights only. No scheduled service of any kind.',
-      current_flights_impacted: 'ALL commercial flights indefinitely suspended. NO airlines operating. UN/ICRC humanitarian only.',
-      affected_routes: 'No commercial service — closed to all airlines.',
-      duration_estimate: 'Indefinitely closed — conflict ongoing',
-      lat: 15.4783, lng: 44.2197,
-    },
-    {
-      iata: null, airport_name: 'Russian Airspace (FIR UUWW / URRR / UFFF)', city: 'Russia', country: 'Russia',
-      cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.8,
-      ai_summary: 'CURRENTLY CLOSED TO WESTERN CARRIERS — Russian airspace banned for EU, US, UK, Canadian, and Australian airlines since Feb 2022 (Ukraine war). 140+ carriers rerouted. Europe–Asia flights now 2–4 hours longer. Adds billions in annual fuel costs. No end date while Ukraine conflict continues.',
-      current_flights_impacted: 'Lufthansa, Air France, BA, KLM, Delta, United, Air Canada, Qantas, JAL, ANA, Korean Air and 135+ others completely banned. Adds 2–4h to Europe–Japan/Korea/China routes.',
-      affected_routes: '140+ carriers globally rerouted around Russia via Middle East or polar routes.',
-      duration_estimate: 'Indefinite — Ukraine conflict ongoing (year 4)',
-      lat: 55.4146, lng: 37.9004,
-    },
-    {
-      iata: 'DAM', airport_name: 'Damascus International Airport', city: 'Damascus', country: 'Syria',
-      cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.5,
-      ai_summary: 'CURRENTLY SEVERELY RESTRICTED — Only Syrian Arab Airlines and Cham Wings operate limited domestic/regional routes. Zero major international carriers present. Post-Assad transitional government (late 2024) is working to restore aviation. Full international connectivity not expected until 2026–2027.',
-      current_flights_impacted: 'Syrian Arab Airlines, Cham Wings only. No EU, US, Gulf, or Asian carriers operating. Most international routes suspended.',
-      affected_routes: 'Syrian Arab Airlines + Cham Wings regional service only.',
-      duration_estimate: 'Gradual recovery — 2026–2027 estimate',
-      lat: 33.4114, lng: 36.5156,
-    },
-    {
-      iata: 'BEY', airport_name: 'Rafic Hariri International Airport', city: 'Beirut', country: 'Lebanon',
-      cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 4.0,
-      ai_summary: 'CURRENTLY RESTRICTED — Recovering post-November 2024 ceasefire. MEA, Turkish Airlines, and flydubai operating. Air France, Lufthansa, BA have partial/cautious resumptions. Ongoing infrastructure repairs. Capacity well below pre-war levels. Risk of suspension during security incidents.',
-      current_flights_impacted: 'MEA (primary carrier), Turkish Airlines, flydubai, Air Arabia operating. Air France, Lufthansa, BA — limited/partial service. Most US carriers absent.',
-      affected_routes: 'MEA, Turkish Airlines, flydubai, Air Arabia. Air France/Lufthansa/BA partial.',
-      duration_estimate: 'Recovery phase — elevated risk of new suspensions',
-      lat: 33.8209, lng: 35.4884,
-    },
-    {
-      iata: 'TLV', airport_name: 'Ben Gurion International Airport', city: 'Tel Aviv', country: 'Israel',
-      cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 4.0,
-      ai_summary: 'CURRENTLY OPERATIONAL WITH RISK — Post-January 2025 ceasefire. Most carriers resumed including El Al, Delta, United, Ryanair, Wizz Air, EasyJet. RISK: Airspace closes immediately during missile/drone incidents — has happened repeatedly since Oct 2023. Verify flight status with airline before travel.',
-      current_flights_impacted: 'El Al (full ops), Delta, United, American, Ryanair, Wizz Air, EasyJet operating. Emirates, Etihad, Qatar — not flying. Airspace may close without warning during security incidents.',
-      affected_routes: 'El Al, Delta, United, AA, Ryanair, Wizz Air, EasyJet operating. Gulf carriers absent.',
-      duration_estimate: 'Operational but volatile — sudden closures possible',
-      lat: 32.0114, lng: 34.8867,
-    },
-    {
-      iata: 'BGW', airport_name: 'Baghdad International Airport', city: 'Baghdad', country: 'Iraq',
-      cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.5,
-      ai_summary: 'CURRENTLY OPERATING WITH RESTRICTIONS — Iraqi Airways, Turkish Airlines, flydubai, Qatar Airways, Emirates operating. Most US and UK carriers avoid Iraqi airspace per government advisories. Ongoing militia threat and drone activity near the airport. Drone/missile incidents continue periodically.',
-      current_flights_impacted: 'Iraqi Airways, Turkish, flydubai, Qatar, Emirates, Air Arabia operating. US/UK/EU major carriers largely absent. US government advises against Iraqi airspace use.',
-      affected_routes: 'Regional carriers operating. Western carriers avoid per government advisories.',
-      duration_estimate: 'Ongoing high-risk operations',
-      lat: 33.2625, lng: 44.2346,
-    },
-    {
-      iata: 'GZA', airport_name: 'Gaza International Airport', city: 'Rafah / Gaza', country: 'Palestinian Territory',
-      cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
-      ai_summary: 'PERMANENTLY DESTROYED — Gaza Airport (Yasser Arafat International) was destroyed in 2002 Israeli airstrikes and has not operated since. No reconstruction planned during active conflict. Entire Gaza airspace closed; controlled by Israeli military.',
-      current_flights_impacted: 'No flights — airport destroyed. Entire Gaza airspace militarized. No civilian aviation possible.',
-      affected_routes: 'Zero — airport non-operational since 2002, destroyed.',
-      duration_estimate: 'Indefinitely closed',
-      lat: 31.2461, lng: 34.2760,
-    },
-    {
-      iata: 'KRT', airport_name: 'Khartoum International Airport', city: 'Khartoum', country: 'Sudan',
-      cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
-      ai_summary: 'CURRENTLY CLOSED — Khartoum Airport closed since April 2023 (Sudan civil war between SAF and RSF). Airport damaged in fighting. All airlines suspended operations. Flights diverted to Port Sudan (PZU). No reopening timeline while civil war continues.',
-      current_flights_impacted: 'ALL airlines suspended. EgyptAir, Ethiopian, Badr Airlines have all ceased Khartoum service. Port Sudan (PZU) serves as limited alternative.',
-      affected_routes: 'Zero — all operations suspended. Alternative: Port Sudan (PZU).',
-      duration_estimate: 'Indefinitely closed — Sudan civil war ongoing',
-      lat: 15.5895, lng: 32.5532,
-    },
-    {
-      iata: 'KBL', airport_name: 'Kabul International Airport (HKIA)', city: 'Kabul', country: 'Afghanistan',
-      cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.8,
-      ai_summary: 'CURRENTLY SEVERELY RESTRICTED — Taliban-controlled since Aug 2021. Kam Air and Afghan airlines operate limited regional routes. International airlines largely absent. Major airport infrastructure remains damaged. No Western carriers operate.',
-      current_flights_impacted: 'Kam Air, Ariana Afghan, some Pakistani/UAE airlines only. All Western carriers absent. Severely reduced international connectivity.',
-      affected_routes: 'Regional service only — Kam Air, Ariana Afghan, Air Arabia, flydubai limited.',
-      duration_estimate: 'Ongoing restrictions under Taliban administration',
-      lat: 34.566, lng: 69.212,
-    },
-    {
-      iata: 'MHD', airport_name: 'Mashhad International Airport', city: 'Mashhad', country: 'Iran',
-      cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.8,
-      ai_summary: 'CURRENTLY RESTRICTED — Iranian airspace under elevated restrictions. Most Western carriers banned from Iranian airspace. Multiple NOTAM-based airspace closures triggered during regional tensions (Apr 2024 missile exchanges). US, EU, UK carriers do not overfly Iran.',
-      current_flights_impacted: 'Iranian carriers (IranAir, Mahan Air) + limited regional service. US, EU, UK, Israeli carriers banned. Periodic full airspace closures during military incidents.',
-      affected_routes: 'Western carriers absent. Iranian airlines + select regional carriers operating.',
-      duration_estimate: 'Ongoing — geopolitical tensions persist',
-      lat: 36.2352, lng: 59.6410,
-    },
-  ];
-
-  // ── 2. FAA Live Status — top 25 US airports (real-time, no API key needed) ─
-  const US_HUBS = [
-    'ATL','ORD','DFW','DEN','LAX','JFK','SFO','SEA','LAS','MCO',
-    'EWR','CLT','PHX','MIA','IAH','BOS','MSP','DTW','PHL','LGA',
-    'SLC','MDW','TPA','DCA','IAD',
-  ];
-  const US_HUB_NAMES = {
-    ATL:'Hartsfield-Jackson Atlanta', ORD:"O'Hare International", DFW:'Dallas/Fort Worth',
-    DEN:'Denver International', LAX:'Los Angeles International', JFK:'John F. Kennedy Intl',
-    SFO:'San Francisco International', SEA:'Seattle-Tacoma International', LAS:'Harry Reid International',
-    MCO:'Orlando International', EWR:'Newark Liberty International', CLT:'Charlotte Douglas International',
-    PHX:'Phoenix Sky Harbor', MIA:'Miami International', IAH:'George Bush Intercontinental',
-    BOS:'Boston Logan International', MSP:'Minneapolis-Saint Paul Intl', DTW:'Detroit Metropolitan',
-    PHL:'Philadelphia International', LGA:'LaGuardia', SLC:'Salt Lake City International',
-    MDW:'Chicago Midway', TPA:'Tampa International', DCA:'Reagan Washington National',
-    IAD:'Washington Dulles International',
-  };
-
-  const faaResults = await Promise.allSettled(
-    US_HUBS.map(iata =>
-      fetchSafe('https://soa.smext.faa.gov/asws/api/airport/status/' + iata, {
-        headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' },
-      }, 6000).then(r => r.ok ? r.json() : null).catch(() => null)
-    )
-  );
-
-  const faaDisruptions = [];
-  US_HUBS.forEach((iata, i) => {
-    const res = faaResults[i];
-    const d   = (res.status === 'fulfilled') ? res.value : null;
-    if (!d || !d.delay) return;
-
-    const programs = Array.isArray(d.status) ? d.status : [];
-    let score = 2.0;
-    const progTexts = [];
-
-    programs.forEach(function(p) {
-      const type   = (p.type   || p.Type   || '').toLowerCase();
-      const reason = (p.reason || p.Reason || 'N/A');
-      const maxD   = p.maxDelay || p.Max || '';
-      const minD   = p.minDelay || p.Min || '';
-      const hm = (maxD || minD).match(/(\d+)\s*hour/i);
-      const mm = (maxD || minD).match(/(\d+)\s*min/i);
-      const maxMins = (hm ? parseInt(hm[1]) * 60 : 0) + (mm ? parseInt(mm[1]) : 0);
-
-      if (type.includes('ground stop') || type.includes('closure')) {
-        score = Math.max(score, 5.0);
-        progTexts.push('GROUND STOP — ' + reason);
-      } else if (type.includes('ground delay')) {
-        score = Math.max(score, maxMins >= 90 ? 4.5 : 4.0);
-        progTexts.push('GROUND DELAY ' + (maxD || minD || '') + ' — ' + reason);
-      } else if (type.includes('airspace flow')) {
-        score = Math.max(score, 3.5);
-        progTexts.push('AIRSPACE FLOW PROGRAM — ' + reason);
-      } else if (type.includes('departure')) {
-        score = Math.max(score, maxMins >= 120 ? 3.5 : maxMins >= 60 ? 3.0 : 2.5);
-        progTexts.push('DEP DELAY ' + (maxD || minD || '') + ' — ' + reason);
-      } else if (type.includes('arrival')) {
-        score = Math.max(score, maxMins >= 90 ? 3.0 : 2.0);
-        progTexts.push('ARR DELAY ' + (maxD || minD || '') + ' — ' + reason);
-      } else {
-        score = Math.max(score, 2.0);
-        progTexts.push((p.type || 'DELAY') + ' — ' + reason);
-      }
-    });
-
-    const allText = programs.map(function(p) { return p.reason || ''; }).join(' ').toLowerCase();
-    const cause   = /wind|weather|storm|fog|snow|ice|thunder|vis|rain/i.test(allText) ? 'WEATHER'
-                  : /vol|capacity|traffic|staffing|equip|tech/i.test(allText) ? 'TECHNICAL'
-                  : 'OTHER';
-    const sev     = score >= 5 ? 'CRITICAL' : score >= 4 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
-    const coords  = AIRPORT_COORDS[iata];
-
-    faaDisruptions.push({
-      id:                    'faa-' + iata,
-      iata,
-      airport_name:          d.name || US_HUB_NAMES[iata] || iata,
-      city:                  d.city  || '',
-      country:               'United States',
-      cause_type:            cause,
-      severity:              sev,
-      disruption_score:      score,
-      ai_summary:            progTexts.join(' | ') || 'Active delay program at ' + iata,
-      current_flights_impacted: progTexts.join(' | '),
-      affected_routes:       'All flights at ' + (d.name || iata),
-      duration_estimate:     'Active now — check FAA NASSTATUS for updates',
-      link:                  'https://nasstatus.faa.gov/',
-      time:                  new Date().toISOString(),
-      source:                'FAA Live Status',
-      source_type:           'FAA_LIVE',
-      confidence:            'HIGH',
-      lat:                   coords ? coords.lat : 0,
-      lng:                   coords ? coords.lng : 0,
-    });
-  });
-
-  // ── 3. Live aviation + Middle East RSS feeds ──────────────────────────────
-  const LIVE_FEEDS = [
-    { url: 'https://avherald.com/h?subscribe=rss',                    label: 'avherald.com' },
-    { url: 'https://simpleflying.com/feed/',                          label: 'simpleflying.com' },
-    { url: 'https://feeds.bbci.co.uk/news/world/middle_east/rss.xml', label: 'bbc.com/middleeast' },
-    { url: 'https://www.aljazeera.com/xml/rss/all.xml',               label: 'aljazeera.com' },
-    { url: 'https://theaircurrent.com/feed/',                         label: 'theaircurrent.com' },
-    { url: 'https://www.flightglobal.com/rss/all',                    label: 'flightglobal.com' },
-  ];
-
-  const feedResults = await Promise.allSettled(
-    LIVE_FEEDS.map(f =>
-      fetchSafe(f.url, {
-        headers: { 'User-Agent': 'OSInfoHub-AviationIntel/2.0', 'Accept': 'text/xml,application/rss+xml,*/*' },
-        cf: { cacheEverything: true, cacheTtl: 300 },
-      }, 8000).then(r => r.ok ? r.text().then(t => ({ text: t, label: f.label })) : Promise.reject(r.status))
-    )
-  );
-
-  const liveItems = [];
-  feedResults.forEach(function(result) {
-    if (result.status === 'fulfilled') liveItems.push(...parseRssItems(result.value.text, result.value.label));
-  });
-
-  // ── 4. KV-ingested news supplement ───────────────────────────────────────
-  const raw     = await kvGetJson(env, INCIDENTS_KV_KEY, []);
-  const kvItems = Array.isArray(raw) ? raw.slice(0, 150) : [];
-
-  const AVIATION_RE = /\b(airport|airspace|flight\s+cancel|flight\s+suspend|airline|runway|aviation|aerodrome|no.fly|grounded|diverted|atc|notam|sigmet|terminal\s+clos|air\s+traffic|departure\s+halt|flights?\s+suspended|airspace\s+clos|airport\s+clos|airport\s+shut)\b/i;
-  const MIDEAST_RE  = /\b(israel|gaza|beirut|lebanon|iraq|iran|tehran|yemen|sanaa|jordan|amman|syria|damascus|hamas|hezbollah|houthi|sudan|khartoum|kabul|afghanistan)\b/i;
-  const FLIGHT_RE   = /\b(flight|airport|air|airspace|missile|attack|strike|close|restrict|suspend|cancel)\b/i;
-
-  const seenTitles = new Set();
-  const aviationItems = [...liveItems, ...kvItems].filter(function(i) {
-    const text = (i.title || '') + ' ' + (i.summary || '');
-    if (!AVIATION_RE.test(text) && !(MIDEAST_RE.test(text) && FLIGHT_RE.test(text))) return false;
-    const key = (i.title || '').slice(0, 60);
-    if (seenTitles.has(key)) return false;
-    seenTitles.add(key);
-    return true;
-  }).sort(function(a, b) { return new Date(b.time).getTime() - new Date(a.time).getTime(); }).slice(0, 30);
-
-  // ── 5. Active SIGMETs ────────────────────────────────────────────────────
-  let sigmets = [];
-  try {
-    const sr = await fetchSafe('https://aviationweather.gov/api/data/sigmet?format=json', {
-      headers: { 'User-Agent': 'OSInfoHub/1.0', 'Accept': 'application/json' },
-      cf: { cacheEverything: true, cacheTtl: 600 },
-    }, 10000);
-    if (sr.ok) {
-      const sd = await sr.json();
-      const rawS = Array.isArray(sd) ? sd : (sd.data || sd.features || []);
-      sigmets = rawS.slice(0, 25).map(function(s, idx) {
-        return {
-          id:            s.isigmetId || s.sigmetId || s.id || ('sigmet-' + idx),
-          hazard:        s.hazard    || s.phenomenon || 'UNKNOWN',
-          qualifier:     s.qualifier || '',
-          area:          s.area      || s.firName    || s.fir || '',
-          validTimeFrom: s.validTimeFrom || s.validTime || '',
-          validTimeTo:   s.validTimeTo   || '',
-          rawSigmet:    (s.rawAirSigmet  || s.rawSigmet || s.text || '').slice(0, 250),
-        };
-      });
-    }
-  } catch (_) {}
-
-  // ── 6. AI extraction — news-based NEW/ADDITIONAL disruptions ──────────────
-  // Only supplement — known disruptions are already covered by KNOWN_DISRUPTIONS
-  let aiDisruptions = [];
-  if ((env.ANTHROPIC_API_KEY || env.GROQ_API_KEY) && aviationItems.length > 0) {
-    const sysPrompt = 'You are an aviation analyst. Return only valid JSON arrays. Only extract CURRENT, CONFIRMED, OPERATIONAL disruptions happening RIGHT NOW in 2026.';
-    const itemLines = aviationItems.slice(0, 20).map(function(i, n) {
-      return '[' + (n + 1) + '] SOURCE: ' + (i.source || 'news') +
-             '\nTITLE: ' + (i.title || '') +
-             '\nDETAILS: ' + (i.summary || '').slice(0, 250) +
-             '\nTIME: ' + (i.time || '');
-    }).join('\n\n');
-    const userPrompt = 'Extract CURRENT operational flight disruptions from these 2026 news items.\n\n'
-      + 'INCLUDE ONLY: active cancellations, new airport closures, new airspace restrictions, ATC strikes, weather groundings happening NOW.\n'
-      + 'SKIP: past events, articles about Yemen/Syria/Sudan (already tracked), new route announcements, resolved events, 2024 or earlier events.\n'
-      + 'For each NEW disruption: {"airport_name":"name","iata":"code or null","country":"country",'
-      + '"cause_type":"WEATHER|CONFLICT|STRIKE|TECHNICAL|OTHER","severity":"CRITICAL|HIGH|MEDIUM|LOW",'
-      + '"disruption_score":number_0_to_5,'
-      + '"ai_summary":"CURRENTLY [STATUS] — specific details with airline/route names",'
-      + '"current_flights_impacted":"specific airlines and routes affected RIGHT NOW",'
-      + '"affected_routes":"affected airlines/routes","duration_estimate":"duration",'
-      + '"lat":number,"lng":number,"confidence":"HIGH|MEDIUM"}\n\n'
-      + 'NEWS:\n' + itemLines + '\n\nReturn ONLY valid JSON array. Return [] if no new disruptions found.';
-    try {
-      const aiText = await callLLM(env, [{ role: 'user', content: userPrompt }], {
-        max_tokens: 3000, system: sysPrompt,
-      });
-      const m = aiText.match(/\[[\s\S]*\]/);
-      if (m) {
-        const parsed = JSON.parse(m[0]);
-        aiDisruptions = parsed.map(function(d, idx) {
-          const inc   = aviationItems[idx] || {};
-          const known = d.iata && AIRPORT_COORDS[d.iata];
-          return Object.assign({}, d, {
-            id:          inc.id   || ('aviation-live-' + Date.now() + '-' + idx),
-            link:        inc.link || '',
-            time:        inc.time || new Date().toISOString(),
-            source:      inc.source || 'live-feed',
-            source_type: 'LIVE_FEED',
-            disruption_score: d.disruption_score || (d.severity === 'CRITICAL' ? 4.5 : d.severity === 'HIGH' ? 3.5 : 2.5),
-            lat: (known ? known.lat : null) || (typeof d.lat === 'number' ? d.lat : null) || 0,
-            lng: (known ? known.lng : null) || (typeof d.lng === 'number' ? d.lng : null) || 0,
-          });
-        }).filter(function(d) { return d.airport_name && (d.lat !== 0 || d.lng !== 0); });
-      }
-    } catch (e) {
-      typeof debug === 'function' && debug('handleApiAviationDisruptions AI', e && e.message);
-    }
-  }
-
-  // ── 7. Build final disruptions list — KNOWN always included ──────────────
-  // Known disruptions mapped to full structure
-  const knownDisruptions = KNOWN_DISRUPTIONS.map(function(k, i) {
-    return Object.assign({}, k, {
-      id:          'known-' + (k.iata || i),
-      link:        '',
-      time:        new Date().toISOString(),
-      source:      'Intel Database',
-      source_type: 'VERIFIED_ONGOING',
-      confidence:  'HIGH',
-    });
-  });
-
-  // FAA disruptions take priority; known disruptions for non-US airports
-  const seenFaaIata = new Set(faaDisruptions.map(function(d) { return d.iata; }).filter(Boolean));
-
-  // AI disruptions that don't duplicate known ones
-  const knownIatas = new Set(KNOWN_DISRUPTIONS.map(function(d) { return d.iata; }).filter(Boolean));
-  const aiNotDuplicate = aiDisruptions.filter(function(d) {
-    return !d.iata || (!seenFaaIata.has(d.iata) && !knownIatas.has(d.iata));
-  });
-
-  // Final list: FAA live (top US) + Known global disruptions + AI new finds
-  const disruptions = faaDisruptions
-    .concat(knownDisruptions)
-    .concat(aiNotDuplicate)
-    .sort(function(a, b) { return (b.disruption_score || 0) - (a.disruption_score || 0); });
-
-  const result = {
-    disruptions,
-    conflict_context:     [],  // now merged into disruptions
-    sigmets,
-    total:                disruptions.length,
-    faa_airports_checked: US_HUBS.length,
-    faa_airports_delayed: faaDisruptions.length,
-    live_items_fetched:   aviationItems.length,
-    known_disruptions:    knownDisruptions.length,
-    updated_at:           new Date().toISOString(),
-    _ts:                  Date.now(),
-  };
-
-  try {
-    await env.INTEL_KV.put(CACHE_KEY, JSON.stringify(result), { expirationTtl: CACHE_TTL });
-  } catch (_) {}
-
-  return new Response(JSON.stringify(result), {
-    status: 200,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-  });
 }
 
 /* ===========================
@@ -5445,7 +4613,6 @@ Structure your response EXACTLY with these section headers (use ## prefix):
 ## KEY THREATS
 ## REGIONAL BREAKDOWN
 ## DELL IMPACT ASSESSMENT
-(List ONLY specific, concrete impacts — e.g. "Airport closures in X affect Dell logistics routes to Y" or "Strike at port Z delays component shipments". Do NOT include generic boilerplate about monitoring or emergency plans. If there are no specific Dell impacts, write "No direct Dell operational impacts identified in this period." Maximum 3 bullet points.)
 ## RECOMMENDED ACTIONS`;
     const { text } = await callLLM(env, [{ role: 'user', content: prompt }], {
       system: 'You are a Dell Global Security Operations Executive Analyst. Write concise, professional executive-level security briefings. Be specific and action-oriented. Keep each section brief.',
@@ -5813,10 +4980,6 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/acknowledge')) {
       const r = await handleApiAcknowledge(env, req);
       return _responseFromResult(r);
-    } else if (p.startsWith('/api/aviation/cancellations')) {
-      return handleApiAviationCancellations(env);
-    } else if (p.startsWith('/api/aviation/disruptions')) {
-      return handleApiAviationDisruptions(env, req);
     } else if (p.startsWith('/api/weather/disasters')) {
       return handleApiWeatherDisasters(env, req);
     } else if (p.startsWith('/api/weather/aviation')) {
