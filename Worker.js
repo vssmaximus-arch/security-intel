@@ -3722,7 +3722,14 @@ async function handleApiLogisticsWatch(env, req) {
       const action = String(body.action || 'add').toLowerCase();
       let list = await kvGetJson(env, watchKey, []);
       if (!Array.isArray(list)) list = [];
-      if (action === 'remove') {
+      if (action === 'set') {
+        // Replace entire watchlist — sent by app.js addToWatchlist (optimistic local cache sync)
+        const incoming = Array.isArray(body.watchlist) ? body.watchlist : [];
+        list = incoming.map(item => {
+          if (typeof item === 'string') return { id: item, type: 'flight', label: item, added_at: new Date().toISOString() };
+          return { id: String(item.id || '').trim().toLowerCase(), type: item.type || 'flight', label: String(item.label || item.id || '').slice(0, 80), added_at: item.added_at || new Date().toISOString() };
+        }).filter(w => w.id).slice(0, 100);
+      } else if (action === 'remove') {
         list = list.filter(w => w.id !== id);
       } else if (action === 'test-alert') {
         // Fire a test alert to the user's notification channel via existing sendAlertEmail

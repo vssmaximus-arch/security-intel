@@ -881,12 +881,12 @@ function initMap() {
     scrollWheelZoom: false,
     zoomControl: false,
     attributionControl: true,
-    minZoom: 2,
+    minZoom: 3,
     maxZoom: 19,
     maxBounds: bounds,
     maxBoundsViscosity: 1.0,
     worldCopyJump: false
-  }).setView([20, 0], 2);
+  }).setView([20, 0], 3);
 
   L.control.zoom({ position: "topleft" }).addTo(map);
 
