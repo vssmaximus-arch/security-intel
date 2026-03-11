@@ -3323,6 +3323,20 @@ async function runIngestion(env, options = {}, ctx = null) {
             const cutoff = Date.now() - (typeof PROXIMITY_WINDOW_HOURS !== 'undefined' ? PROXIMITY_WINDOW_HOURS : 72) * 3600 * 1000;
             if (incidentTs < cutoff) return { include: false, reason: 'too_old', distanceKm };
           }
+          // Geopolitical conflict zone filter: background conflict news (casualties,
+          // settler attacks, ongoing war updates) without direct Dell impact are rejected.
+          // These events are geographically near Dell sites in conflict regions (e.g. Israel,
+          // Iraq, Lebanon) but represent background noise, not operational threats to Dell.
+          const titleLow = String(incident.title || '').toLowerCase();
+          const isBackgroundConflict = (
+            incident.operational_impact !== true &&
+            Number(incident.severity || 0) < 4 &&
+            /\b(killed|wounded|casualties|settlers?|clashes?|gunfire|airstrike|shelling|militia|troops|soldiers?|protesters? killed|civilians? killed|attack on|bombing|explosi)\b/i.test(titleLow)
+          );
+          if (isBackgroundConflict) {
+            return { include: false, reason: 'background_conflict_noise', distanceKm };
+          }
+
           // Natural events: require magnitude/severity
           const cat = String((incident.category || '')).toUpperCase();
           if (cat === 'NATURAL') {

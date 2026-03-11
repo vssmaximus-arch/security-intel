@@ -1664,31 +1664,36 @@
        HORIZONTAL RESIZE HANDLE — drag between main and sidebar
        ================================================================ */
     #dash-resize-handle {
-      width: 6px;
+      width: 12px;
       flex-shrink: 0;
       cursor: col-resize;
-      background: linear-gradient(to bottom, transparent 15%, rgba(255,255,255,.06) 40%, rgba(255,255,255,.06) 60%, transparent 85%);
-      border-radius: 3px;
+      background: transparent;
+      border-radius: 4px;
       position: relative;
       z-index: 10;
-      transition: background .2s;
+      transition: background .15s;
       align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #dash-resize-handle:hover,
     #dash-resize-handle.dragging {
-      background: linear-gradient(to bottom, transparent 10%, rgba(79,195,247,.35) 30%, rgba(79,195,247,.35) 70%, transparent 90%);
+      background: rgba(79,195,247,.12);
     }
     #dash-resize-handle::after {
       content: '';
       display: block;
-      width: 2px;
-      height: 48px;
-      background: rgba(255,255,255,.22);
-      border-radius: 2px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      width: 3px;
+      height: 60px;
+      background: rgba(255,255,255,.28);
+      border-radius: 3px;
+      transition: background .15s, height .15s;
+    }
+    #dash-resize-handle:hover::after,
+    #dash-resize-handle.dragging::after {
+      background: rgba(79,195,247,.8);
+      height: 80px;
     }
     /* Hide handle on mobile/tablet where layout stacks vertically */
     @media (max-width: 991px) {
@@ -3039,7 +3044,7 @@
     var sidebar = document.querySelector('.dashboard-sidebar');
     if (!handle || !sidebar) return;
 
-    var MIN_W = 280, MAX_W = 600;
+    var MIN_W = 280, MAX_W = 980; /* wide enough for 2 widget columns */
 
     /* Restore saved width */
     var saved = parseInt(localStorage.getItem(SIDEBAR_W_KEY), 10);
