@@ -4656,13 +4656,14 @@ async function handleApiWeatherAviation(env, req) {
 
 /* ── AVIATION CANCELLATIONS ENDPOINT ────────────────────────────────────────
  * GET /api/aviation/cancellations
- * Proxies AviationStack /flights?flight_status=cancelled to return a per-airline
- * cancellation table.  Requires AVIATIONSTACK_KEY env var (free-tier HTTP key).
- * Returns { ok, airlines[{airline,iata,cancelled}], total_cancelled, updated_at }
+ * Proxies Airlabs /schedules?status=cancelled to return a per-airline table.
+ * Requires AIRLABS_KEY env var (free tier: 500 req/month, no credit card).
+ * Cache TTL = 2 hours to stay well within the 500 req/month free quota (~360/mo).
+ * Returns { ok, airlines[{airline,iata,cancelled,delayed}], total_cancelled, updated_at }
  * Falls back gracefully with { ok:false, fallback_url } if no key configured.
  * ─────────────────────────────────────────────────────────────────────────── */
 async function handleApiAviationCancellations(env) {
-  const apiKey = env && env.AVIATIONSTACK_KEY;
+  const apiKey = env && env.AIRLABS_KEY;
   const FALLBACK = 'https://www.flightaware.com/live/cancelled';
 
   if (!apiKey) {
@@ -4671,8 +4672,8 @@ async function handleApiAviationCancellations(env) {
     });
   }
 
-  const CACHE_KEY = 'aviation_cancellations_v1';
-  const CACHE_TTL_MS = 15 * 60 * 1000; // 15 min
+  const CACHE_KEY = 'aviation_cancellations_v2';
+  const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours — protects 500 req/month quota (~360/mo)
 
   try {
     const cached = await kvGetJson(env, CACHE_KEY, null);
@@ -4683,27 +4684,60 @@ async function handleApiAviationCancellations(env) {
     }
   } catch (_) {}
 
-  try {
-    // AviationStack free tier is HTTP-only
-    const url = `http://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_status=cancelled&limit=100`;
-    const resp = await fetchWithTimeout(url, {}, 10000);
-    if (!resp.ok) throw new Error(`AviationStack HTTP ${resp.status}`);
-    const data = await resp.json();
-    const flights = Array.isArray(data.data) ? data.data : [];
+  // Inline IATA code → full airline name for the most common carriers
+  const AIRLINE_NAMES = {
+    AA:'American Airlines', UA:'United Airlines', DL:'Delta Air Lines',
+    WN:'Southwest Airlines', B6:'JetBlue', AS:'Alaska Airlines', F9:'Frontier',
+    NK:'Spirit Airlines', G4:'Allegiant Air', SY:'Sun Country',
+    BA:'British Airways', LH:'Lufthansa', AF:'Air France', KL:'KLM',
+    IB:'Iberia', AZ:'ITA Airways', LX:'Swiss', OS:'Austrian',
+    SK:'SAS', AY:'Finnair', EI:'Aer Lingus', TP:'TAP Air Portugal',
+    EK:'Emirates', QR:'Qatar Airways', EY:'Etihad Airways', SV:'Saudia',
+    TK:'Turkish Airlines', MS:'EgyptAir', RJ:'Royal Jordanian',
+    SQ:'Singapore Airlines', CX:'Cathay Pacific', JL:'Japan Airlines',
+    NH:'All Nippon Airways', KE:'Korean Air', OZ:'Asiana Airlines',
+    QF:'Qantas', NZ:'Air New Zealand', MH:'Malaysia Airlines',
+    TG:'Thai Airways', CI:'China Airlines', CA:'Air China',
+    MU:'China Eastern', CZ:'China Southern', AI:'Air India',
+    AC:'Air Canada', LA:'LATAM Airlines', AM:'Aeromexico', AV:'Avianca',
+    CM:'Copa Airlines', G3:'Gol', AD:'Azul',
+    FR:'Ryanair', U2:'easyJet', VY:'Vueling', W6:'Wizz Air', EW:'Eurowings',
+    HV:'Transavia', PC:'Pegasus', DY:'Norwegian',
+    FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
+  };
 
-    // Group by airline
+  try {
+    // Airlabs /schedules endpoint — cancelled flights
+    const url = `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&status=cancelled&limit=100`;
+    const resp = await fetchWithTimeout(url, {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' },
+    }, 12000);
+    if (!resp.ok) throw new Error(`Airlabs HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    // Airlabs wraps results in data.response array
+    const flights = Array.isArray(data.response) ? data.response : [];
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+    // Group by airline IATA code
     const byAirline = {};
     for (const f of flights) {
-      const name = (f.airline && (f.airline.name || f.airline.iata)) || 'Unknown Airline';
-      const iata = (f.airline && f.airline.iata) || '';
-      if (!byAirline[name]) byAirline[name] = { airline: name, iata, cancelled: 0 };
-      byAirline[name].cancelled++;
+      const iata = f.airline_iata || f.airline_icao || '';
+      const name = AIRLINE_NAMES[iata] || (iata ? `${iata}` : 'Unknown Airline');
+      const hub  = f.dep_iata || '';
+      if (!byAirline[iata || name]) byAirline[iata || name] = { airline: name, iata, hub_airport: hub, cancelled: 0, delayed: 0 };
+      if (f.status === 'cancelled') byAirline[iata || name].cancelled++;
+      else if (f.status === 'delayed')  byAirline[iata || name].delayed++;
+      else byAirline[iata || name].cancelled++; // default bucket
     }
-    const airlines = Object.values(byAirline).sort((a, b) => b.cancelled - a.cancelled);
+    const airlines = Object.values(byAirline)
+      .filter(a => a.cancelled > 0)
+      .sort((a, b) => b.cancelled - a.cancelled)
+      .slice(0, 30);
 
     const result = {
       ok: true, airlines,
-      total_cancelled: flights.length,
+      total_cancelled: flights.filter(f => !f.status || f.status === 'cancelled').length,
       updated_at: new Date().toISOString(), _ts: Date.now(),
     };
     try { await kvPut(env, CACHE_KEY, result); } catch (_) {}
