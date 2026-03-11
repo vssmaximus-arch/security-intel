@@ -1,11 +1,31 @@
 [
   {
-    "title": "Iran War Live Updates: Airstrikes Shake Beirut, and Drones Spread Fear in Tehran",
+    "title": "Iran War Live Updates: Israeli Airstrikes Shake Beirut and Drone Attacks Hit Tehran on 12th Day of Fighting",
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event detected via keyword matching.",
     "source": "nytimes.com",
-    "time": "2026-03-11T20:14:10+00:00",
+    "time": "2026-03-11T21:06:20+00:00",
     "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How Trump’s War With Iran Changed the World in a Week",
+    "url": "https://www.nytimes.com/2026/03/11/world/europe/trump-iran-war-global-impact.html",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T20:30:05+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Two killed as tornadoes sweep across US Midwest in latest extreme weather",
+    "url": "https://www.aljazeera.com/news/2026/3/11/two-killed-as-tornadoes-sweep-across-us-midwest-in-latest-extreme-weather?traffic_source=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T20:26:04+00:00",
+    "region": "APJC",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -130,16 +150,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "How Trump’s War With Iran Changed the World in a Week",
-    "url": "https://www.nytimes.com/2026/03/11/world/europe/trump-iran-war-global-impact.html",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T09:44:07+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "UAE, an oasis for business and partying, faces war",
     "url": "https://www.washingtonpost.com/world/2026/03/10/dubai-gulf-iran-war-strikes/",
     "snippet": "Physical security event detected via keyword matching.",
@@ -157,6 +167,26 @@
     "time": "2026-03-10T22:50:11+00:00",
     "region": "Global",
     "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Aid worker killed in drone strike on building used by Congo relief staff",
+    "url": "https://www.washingtonpost.com/world/2026/03/11/congo-drc-drone-strike-french-aid-worker-unicef/",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-11T20:58:37+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "AI chatbots help plot attacks, study shows: ‘happy (and safe) shooting!’",
+    "url": "https://www.scmp.com/news/world/united-states-canada/article/3346276/ai-chatbots-help-plot-attacks-study-shows-happy-and-safe-shooting?utm_source=rss_feed",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "scmp.com",
+    "time": "2026-03-11T20:25:47+00:00",
+    "region": "EMEA",
+    "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
@@ -330,31 +360,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Chile’s Boric leaves office, calls for unity after split with successor over China cable",
-    "url": "https://www.scmp.com/news/china/diplomacy/article/3346275/chiles-boric-leaves-office-calls-unity-after-split-successor-over-china-cable?utm_source=rss_feed",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "scmp.com",
-    "time": "2026-03-11T18:30:28+00:00",
-    "region": "APJC",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Three brothers arrested after explosion at US embassy in Oslo",
     "url": "https://www.bbc.com/news/articles/cx2grl7lrrmo?at_medium=RSS&at_campaign=rss",
     "snippet": "Classified by keyword heuristic; review recommended.",
     "source": "bbc.com",
     "time": "2026-03-11T18:28:46+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "3 brothers with Iraq links arrested for ‘terrorist bombing’ of US embassy in Norway",
-    "url": "https://www.scmp.com/news/world/europe/article/3346274/3-brothers-iraq-links-arrested-terrorist-bombing-us-embassy-norway?utm_source=rss_feed",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "scmp.com",
-    "time": "2026-03-11T18:16:23+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -566,16 +576,6 @@
     "source": "washingtonpost.com",
     "time": "2026-03-10T14:22:28+00:00",
     "region": "APJC",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Punch the monkey isn’t alone in bonding with his emotional support toy",
-    "url": "https://www.washingtonpost.com/lifestyle/2026/03/10/punch-monkey-animal-support-toys-rescue/",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-10T12:00:51+00:00",
-    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
