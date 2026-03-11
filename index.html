@@ -1537,6 +1537,14 @@
     .airport-card-meta i { color: #9aa0a6; }
     .airport-card-time { margin-left: auto; font-size: 0.72rem; color: #9aa0a6; }
     .airport-card-foot { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+    .airport-header-right { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; }
+    .airport-tags { display:flex; flex-wrap:wrap; gap:4px; align-items:center; }
+    /* Flight impact row — primary information, shown prominently */
+    .flight-impact-row { display:flex; align-items:flex-start; gap:7px; background:rgba(255,255,255,0.04); border-radius:5px; padding:7px 10px; margin:6px 0; font-size:0.78rem; color:#cfe2f3; border-left:3px solid #4fc3f7; }
+    .flight-impact-row i { color:#4fc3f7; margin-top:2px; flex-shrink:0; }
+    .flight-impact-row span { line-height:1.4; }
+    body.light-mode .flight-impact-row { background:rgba(26,115,232,0.06); color:#1a4a7a; border-left-color:#1a73e8; }
+    body.light-mode .flight-impact-row i { color:#1a73e8; }
 
     /* Source + confidence badges */
     .src-badge { display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 8px; letter-spacing: 0.4px; white-space: nowrap; }
@@ -3248,15 +3256,17 @@
     /* ── Leaflet map initialisation ─────────────────────────────────────── */
     function initAirportMap() {
       if (typeof L === 'undefined') return;
+      var isLight = document.body.classList.contains('light-mode');
       airportMap = L.map('airport-map', {
-        center: [20, 0], zoom: 2,
+        center: [28, 42], zoom: 3,
         scrollWheelZoom: true,
         zoomControl: true,
         attributionControl: false,
       });
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd', maxZoom: 19,
-      }).addTo(airportMap);
+      var tileUrl = isLight
+        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19 }).addTo(airportMap);
       airportMarkerLayer = L.layerGroup().addTo(airportMap);
     }
 
@@ -3370,7 +3380,7 @@
       }
     }
 
-    /* ── Card renderer ──────────────────────────────────────────────────── */
+    /* ── Card renderer — flight-first layout ────────────────────────────── */
     function renderDisruptionCard(d) {
       var color      = CAUSE_COLORS[d.cause_type] || '#9aa0a6';
       var sevCls     = SEV_CLASS[d.severity] || 'ftag-info';
@@ -3379,33 +3389,35 @@
       /* Source badge */
       var srcBadge = '';
       if (d.source_type === 'VERIFIED_ONGOING') {
-        srcBadge = '<span class="src-badge src-badge-ongoing" title="Authoritative verified ongoing disruption">✅ VERIFIED ONGOING</span>';
+        srcBadge = '<span class="src-badge src-badge-ongoing" title="Verified ongoing — review with airline for latest status">✅ VERIFIED</span>';
       } else if (d.source_type === 'LIVE_FEED') {
-        srcBadge = '<span class="src-badge src-badge-live" title="Extracted from live aviation news feed">📡 LIVE FEED</span>';
+        srcBadge = '<span class="src-badge src-badge-live" title="Extracted from live aviation feed">📡 LIVE</span>';
       }
-      /* Confidence dot */
-      var confDot = d.confidence === 'HIGH'
-        ? '<span class="conf-dot conf-high" title="High confidence">●</span>'
-        : '<span class="conf-dot conf-med" title="Medium confidence">●</span>';
+      /* Flight impact block — the most important info */
+      var flightImpact = d.current_flights_impacted || d.affected_routes || '';
+      var flightBlock = flightImpact
+        ? '<div class="flight-impact-row"><i class="fas fa-plane-departure" aria-hidden="true"></i><span>' + escHtml(flightImpact) + '</span></div>'
+        : '';
       return [
         '<div class="airport-card" data-link="' + escHtml(link) + '" role="article" tabindex="0">',
           '<div class="airport-card-bar" style="background:' + color + '"></div>',
           '<div class="airport-card-body">',
             '<div class="airport-card-header">',
-              confDot,
               '<span class="airport-iata-badge" style="background:' + color + '22;color:' + color + ';">' + escHtml(d.iata || '✈') + '</span>',
-              '<span class="airport-name">' + escHtml(d.airport_name || 'Unknown Airport') + '</span>',
-              '<span class="ftag ' + sevCls + '">' + escHtml(d.severity || 'LOW') + '</span>',
-              '<span class="airport-cause-badge cause-' + escHtml(d.cause_type || 'OTHER') + '">' + escHtml(causeLabel) + '</span>',
+              '<div class="airport-header-right">',
+                '<span class="airport-name">' + escHtml(d.airport_name || 'Unknown') + '</span>',
+                '<div class="airport-tags">',
+                  '<span class="ftag ' + sevCls + '">' + escHtml(d.severity || 'LOW') + '</span>',
+                  '<span class="airport-cause-badge cause-' + escHtml(d.cause_type || 'OTHER') + '">' + escHtml(causeLabel) + '</span>',
+                  srcBadge,
+                '</div>',
+              '</div>',
             '</div>',
-            '<div class="airport-ai-text">' + escHtml(d.ai_summary || 'No summary available.') + '</div>',
+            flightBlock,
+            '<div class="airport-ai-text">' + escHtml(d.ai_summary || '') + '</div>',
             '<div class="airport-card-meta">',
-              '<span><i class="fas fa-plane-departure" aria-hidden="true"></i> ' + escHtml(d.affected_routes || 'Unknown routes') + '</span>',
               '<span><i class="fas fa-clock" aria-hidden="true"></i> ' + escHtml(d.duration_estimate || 'Unknown') + '</span>',
-              '<span class="airport-card-foot">',
-                srcBadge,
-                '<span class="airport-card-time">' + timeAgoShort(new Date(d.time || Date.now())) + '</span>',
-              '</span>',
+              '<span class="airport-card-time">' + timeAgoShort(new Date(d.time || Date.now())) + '</span>',
             '</div>',
           '</div>',
         '</div>',

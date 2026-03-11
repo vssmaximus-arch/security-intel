@@ -4694,63 +4694,89 @@ async function handleApiAviationDisruptions(env, req) {
     }
   } catch (_) {}
 
-  // 5. Verified Ongoing Disruptions — leadership-grade authoritative baseline
-  // Middle East war closures displayed even when no fresh articles are available.
+  // 5. Verified Ongoing Disruptions — leadership-grade authoritative baseline (March 2026)
+  // These reflect the CURRENT situation. Shown even when live feeds have no new articles.
+  // Status last reviewed: March 2026. AI live feed data takes priority if it detects updates.
   const KNOWN_ONGOING = [
     {
       airport_name: 'Ben Gurion International Airport', iata: 'TLV', country: 'Israel',
-      cause_type: 'CONFLICT', severity: 'CRITICAL',
-      ai_summary: 'Ben Gurion Airport under active missile and drone threat since October 2023 Israel-Hamas war. Carriers including Lufthansa, Air France, Delta, United, British Airways, Wizz Air and ITA have suspended routes on rotating basis. Emergency airspace closures occur during missile alerts. El Al continues operating. Verify airline status before all travel.',
-      affected_routes: 'Lufthansa, Air France, Delta, United, British Airways, Wizz Air, ITA — suspended/partially restored. El Al operating.',
-      duration_estimate: 'Ongoing — active regional conflict',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'Many European/US carriers have RESUMED Tel Aviv routes following Jan 2025 Gaza ceasefire, but with booking flexibility. El Al, Ryanair, EasyJet, Wizz Air, Delta, United currently operating. Some carriers still suspended or operating reduced schedules.',
+      ai_summary: 'Ben Gurion Airport operational but under elevated threat from ongoing Gaza conflict and Iran tensions. Post-January 2025 ceasefire deal, most major Western airlines have restored or partially restored routes, though airspace can be closed without notice during security incidents. Elevated security protocols in effect.',
+      affected_routes: 'Currently operating: El Al, Ryanair, EasyJet, Delta, United, Wizz Air (verify before booking). Risk of sudden airspace closure remains.',
+      duration_estimate: 'Ongoing — elevated risk, ceasefire fragile',
       lat: 32.0114, lng: 34.8867,
     },
     {
       airport_name: 'Rafic Hariri International Airport', iata: 'BEY', country: 'Lebanon',
-      cause_type: 'CONFLICT', severity: 'CRITICAL',
-      ai_summary: 'Beirut Airport severely disrupted by the 2024 Israel-Lebanon conflict. Israeli strikes near Beirut forced multiple emergency airspace closures. Middle East Airlines (MEA) operates when conditions allow. Air France, Lufthansa, British Airways, Wizz Air and most European carriers have suspended all Beirut routes.',
-      affected_routes: 'Middle East Airlines (MEA) — limited operations. Air France, Lufthansa, BA, Wizz Air — suspended.',
-      duration_estimate: 'Ongoing — ceasefire fragile',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'Airlines gradually returning to Beirut following November 2024 ceasefire. Middle East Airlines (MEA), Air Arabia, flydubai, Turkish Airlines operating. Air France, Lufthansa, British Airways have announced partial resumptions. Ongoing reconstruction reduces ground infrastructure capacity.',
+      ai_summary: 'Beirut Airport recovering following November 2024 Lebanon-Israel ceasefire. Most major carriers suspended during conflict are progressively resuming routes in 2025-2026. MEA is the primary operator. Airport is operational but some airlines cite ongoing security risk assessments before full resumption.',
+      affected_routes: 'MEA, Turkish Airlines, flydubai, Air Arabia operating. Air France, Lufthansa, BA — partial/limited resumption. Verify current schedule with airline.',
+      duration_estimate: 'Recovering — some carriers still evaluating',
       lat: 33.8209, lng: 35.4884,
     },
     {
       airport_name: 'Sanaa International Airport', iata: 'SAA', country: 'Yemen',
       cause_type: 'CONFLICT', severity: 'CRITICAL',
-      ai_summary: 'Sanaa Airport closed to all commercial traffic since 2016 due to Yemen civil war and Houthi control of the capital. Airport subjected to Saudi-led coalition airstrikes. Only UN and humanitarian flights operate. No scheduled commercial service for nearly a decade.',
-      affected_routes: 'All commercial airlines suspended indefinitely since 2016',
-      duration_estimate: 'Indefinite — ongoing conflict since 2015',
+      current_flights_impacted: 'ZERO commercial flights. Airport effectively closed since 2016. No scheduled domestic or international commercial service. Only UN, ICRC, and humanitarian relief flights operate with special coordination.',
+      ai_summary: 'Sanaa Airport remains closed to all commercial aviation. Houthi forces control the capital; the airport has been subjected to airstrikes and remains a conflict zone. No commercial airline operates scheduled service. Only humanitarian and UN relief flights with special coordination are permitted.',
+      affected_routes: 'ALL commercial airlines — no service. UN/ICRC humanitarian flights only.',
+      duration_estimate: 'Indefinite — no commercial service',
       lat: 15.4783, lng: 44.2197,
+    },
+    {
+      airport_name: 'Gaza Strip Airspace', iata: null, country: 'Palestinian Territories',
+      cause_type: 'CONFLICT', severity: 'CRITICAL',
+      current_flights_impacted: 'Gaza airspace is a designated combat zone. All civilian aviation prohibited. Gaza International Airport (GZA) was destroyed in 2001 and has never been rebuilt. Israeli military operations enforce total airspace exclusion zone.',
+      ai_summary: 'Gaza airspace permanently closed to all civilian flights due to active military operations. Israeli Air Force maintains exclusive control of the airspace. Gaza International Airport infrastructure was destroyed and is not operational. The conflict has caused Israeli airspace adjacent restrictions affecting regional flight paths.',
+      affected_routes: 'All civilian flights prohibited. Israeli airspace restrictions affect routing of flights to/from Jordan, Egypt, and Cyprus.',
+      duration_estimate: 'Indefinite — active conflict zone',
+      lat: 31.4000, lng: 34.3667,
     },
     {
       airport_name: 'Baghdad International Airport', iata: 'BGW', country: 'Iraq',
       cause_type: 'CONFLICT', severity: 'HIGH',
-      ai_summary: 'Baghdad International under persistent threat from Iran-backed militia rocket and drone attacks on the International Zone. Most Western airlines avoid Iraqi airspace. Periodic emergency diversions occur. Iraqi Airways, Turkish Airlines, flydubai and Air Arabia operate with heightened security protocols.',
-      affected_routes: 'Most Western carriers avoid Iraqi airspace. Iraqi Airways, Turkish Airlines, flydubai operating with restrictions.',
-      duration_estimate: 'Ongoing — periodic escalations',
+      current_flights_impacted: 'Iraqi Airways, Turkish Airlines, flydubai, Air Arabia, Qatar Airways, Emirates operating regular services. Most US and UK carriers avoid Iraqi airspace due to NOTAM restrictions. Rocket/drone attacks on the International Zone remain an ongoing threat requiring flight path adjustments.',
+      ai_summary: 'Baghdad International Airport operational with regular services from regional and some international carriers. The airport operates under ongoing security threat from Iran-aligned militia groups. US, UK, and Australian government advisories warn against flying over or into Iraq. Emergency diversions to Kuwait, Jordan or UAE occur periodically.',
+      affected_routes: 'Iraqi Airways, Turkish, flydubai, Qatar, Emirates operating. US/UK/Australian carriers avoid Iraqi airspace per government advisories.',
+      duration_estimate: 'Ongoing — periodic threat escalations',
       lat: 33.2625, lng: 44.2346,
     },
     {
       airport_name: 'Damascus International Airport', iata: 'DAM', country: 'Syria',
-      cause_type: 'CONFLICT', severity: 'CRITICAL',
-      ai_summary: 'Damascus Airport repeatedly struck by Israeli airstrikes on Hezbollah and Iranian military infrastructure. Following fall of Assad in late 2024, operations remain severely limited and unpredictable. No major international carriers serve Damascus; connectivity is minimal.',
-      affected_routes: 'Syrian Arab Airlines, Cham Wings only. No major international carriers.',
-      duration_estimate: 'Indefinite — ongoing instability since 2011',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'Limited services resuming under new Syrian transitional government (post-Assad, late 2024). Syrian Arab Airlines and Cham Wings operate domestically and limited regional routes. Some Gulf carriers exploring resumption. No European, US, or major international carrier operates Damascus routes.',
+      ai_summary: 'Damascus Airport in a recovery phase following the fall of the Assad government in late 2024. New transitional authorities have prioritised restoring commercial aviation as part of economic reconstruction. Some regional carriers are exploring resumption. Airspace security has improved but normalisation of major international routes is expected to take 12-24 months.',
+      affected_routes: 'Syrian Arab Airlines, Cham Wings — domestic/limited regional. Some Gulf carriers exploring routes. No Western international carriers.',
+      duration_estimate: 'Gradual recovery — 12-24 months to normalise',
       lat: 33.4114, lng: 36.5156,
+    },
+    {
+      airport_name: 'Russian Airspace (UUWW/URRR FIR)', iata: null, country: 'Russia',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'EU, US, UK, Canadian and most Western carriers barred from Russian airspace since February 2022. Affects ALL Europe-to-East-Asia routes. Carriers including Lufthansa, Air France, BA, Finnair, SAS, Delta, United, American, Air Canada forced onto longer southerly routes via Central Asia or Middle East. Average 2-4 hour route extension. Russian carriers banned from EU/UK/US airspace.',
+      ai_summary: 'Russian airspace closure to Western carriers — now in its fourth year — remains one of the most significant ongoing flight disruptions globally. Over 150 international airlines cannot use Russian airspace, adding billions in fuel costs and hours of flight time to Europe-Asia routes. Aeroflot and Russian carriers remain banned from EU, UK, US airspace. No resolution in sight pending Ukraine conflict settlement.',
+      affected_routes: 'ALL EU, US, UK, Canadian, Australian, Japanese, Korean carriers. Affected routes: Europe-Japan, Europe-Korea, Europe-China, Europe-India (extended). Aeroflot/Russian carriers banned from EU/UK/US.',
+      duration_estimate: 'Indefinite — Ukraine conflict ongoing',
+      lat: 55.4146, lng: 37.9004,
     },
     {
       airport_name: 'Imam Khomeini International Airport', iata: 'IKA', country: 'Iran',
       cause_type: 'CONFLICT', severity: 'HIGH',
-      ai_summary: 'Iranian airspace fully closed during April 2024 Israeli retaliatory strikes on Iran. Ongoing Israel-Iran tensions maintain elevated risk of further sudden airspace closures. No Western carriers operate to Iran due to US/EU sanctions. Aircraft overflying the region face elevated risk during escalation events.',
-      affected_routes: 'No Western carriers. Regional airlines subject to periodic airspace closure during escalations.',
-      duration_estimate: 'Ongoing — episodic closures during escalations',
+      current_flights_impacted: 'No US, EU, UK carriers operate to Iran due to sanctions. Iranian airspace was closed during regional escalations. Mahan Air, Iran Air, Turkish Airlines, Flydubai and some Central Asian carriers operate limited services. Risk of sudden airspace closure remains during any new Iran-Israel military exchange.',
+      ai_summary: 'Iran remains effectively isolated from Western aviation. US, EU and UK economic sanctions prohibit Western carriers. Iranian airspace closures during military exchanges with Israel remain a credible near-term risk. Regional and Central Asian carriers maintain limited connections. Aircraft overflying Iranian FIR must have contingency diversion plans.',
+      affected_routes: 'No Western carriers. Iran Air, Mahan Air, Turkish Airlines, flydubai operating. Sudden closure risk for overflying aircraft.',
+      duration_estimate: 'Ongoing — no near-term normalisation expected',
       lat: 35.4161, lng: 51.1522,
     },
     {
       airport_name: 'Aden International Airport', iata: 'ADE', country: 'Yemen',
       cause_type: 'CONFLICT', severity: 'HIGH',
-      ai_summary: 'Aden Airport in southern Yemen faces Houthi missile and drone attacks. Operations severely limited. Houthi Red Sea shipping campaign has disrupted regional aviation corridors overflying Yemeni airspace, forcing Gulf-to-Africa route changes for multiple carriers.',
-      affected_routes: 'Yemenia Airways only. Air cargo severely restricted. Gulf-Africa routing altered.',
-      duration_estimate: 'Ongoing — active Houthi campaign',
+      current_flights_impacted: 'Yemenia Airways operates extremely limited domestic and regional services. Houthi drone and missile attacks on Aden remain ongoing. Gulf carriers avoid Aden. Red Sea Houthi threat forces Gulf-Africa routes to avoid Yemeni airspace FIR, adding significant route extensions for East Africa-Gulf flights.',
+      ai_summary: 'Aden Airport in southern Yemen faces ongoing Houthi missile and drone attacks despite ceasefire negotiations. Operations are extremely limited. The Houthi Red Sea maritime campaign directly impacts regional aviation corridors overflying Yemeni FIR, forcing route changes for carriers operating Gulf-East Africa routes. No normalisation expected while Houthi campaign continues.',
+      affected_routes: 'Yemenia Airways only (limited). Gulf-to-East-Africa carriers rerouting to avoid Yemeni airspace FIR.',
+      duration_estimate: 'Ongoing — Houthi campaign active',
       lat: 12.8295, lng: 45.0288,
     },
   ];
@@ -4765,17 +4791,29 @@ async function handleApiAviationDisruptions(env, req) {
       '\nDETAILS: ' + (i.summary || '').slice(0, 250) +
       '\nTIME: ' + (i.time || '')
     ).join('\n\n');
-    const userPrompt = 'Analyze ' + aviationItems.length + ' news items. Extract CONFIRMED aviation disruptions only.\n\n'
-      + 'RULES: Only include confirmed disruptions (airport closure, airspace restriction, flight suspension, missile/military threat to aviation). '
-      + 'Prioritize Middle East conflict (Israel, Lebanon, Gaza, Yemen, Iraq, Iran), major weather events, ATC strikes. '
-      + 'Include specific airline names, airport names, dates. '
-      + 'SKIP: routine schedules, minor delays, airline earnings, new routes.\n\n'
-      + 'For each disruption return: {"airport_name":"Full airport name","iata":"code or null","country":"Country",'
+    const userPrompt = 'Analyze ' + aviationItems.length + ' current news items. Extract CONFIRMED CURRENT flight and aviation disruptions only.\n\n'
+      + 'PRIORITY — extract these types (highest to lowest priority):\n'
+      + '1. AIRLINE ROUTE SUSPENSIONS: "Airline X suspends/cancels all flights to Y" — name the specific airline and route\n'
+      + '2. AIRSPACE CLOSURES: national airspace closed or restricted — which country, which airlines affected\n'
+      + '3. AIRPORT CLOSURES/RESTRICTIONS: full or partial closures with CURRENT status\n'
+      + '4. FLIGHT DIVERSIONS/GROUNDINGS: specific aircraft or fleets grounded\n'
+      + '5. WEATHER DISRUPTIONS: storms, volcanic ash, causing CURRENT flight cancellations\n'
+      + '6. ATC/STRIKE DISRUPTIONS: affecting specific airports or regions\n\n'
+      + 'RULES:\n'
+      + '- Only include CURRENT disruptions — discard anything resolved or historical\n'
+      + '- Must name specific airline(s) or route(s) affected where possible\n'
+      + '- Prioritize: Middle East (Israel/Gaza, Lebanon, Yemen, Iraq, Iran), Russia/Ukraine, major weather\n'
+      + '- SKIP: new route announcements, airline earnings, minor delays, past events\n\n'
+      + 'For each disruption return:\n'
+      + '{"airport_name":"Airport or region name","iata":"IATA code or null","country":"Country",'
       + '"cause_type":"CONFLICT|WEATHER|STRIKE|TECHNICAL|OTHER","severity":"CRITICAL|HIGH|MEDIUM|LOW",'
-      + '"ai_summary":"2-sentence factual summary with specific airlines and timeline",'
-      + '"affected_routes":"Specific airlines or region","duration_estimate":"Specific or Ongoing or Unknown",'
+      + '"ai_summary":"2-sentence current status with specific airlines, routes, and impact",'
+      + '"current_flights_impacted":"List specific airlines and routes currently impacted",'
+      + '"affected_routes":"Specific airlines/routes affected RIGHT NOW",'
+      + '"duration_estimate":"Current expected duration or Ongoing",'
       + '"lat":number,"lng":number,"confidence":"HIGH|MEDIUM"}\n\n'
-      + 'NEWS ITEMS:\n' + itemLines + '\n\nReturn ONLY valid JSON array. Empty [] if no confirmed disruptions.';
+      + 'NEWS ITEMS (from live aviation + conflict feeds — analyze what is CURRENT):\n'
+      + itemLines + '\n\nReturn ONLY valid JSON array. Empty [] if no confirmed CURRENT disruptions.';
 
     try {
       const aiText = await callLLM(env, [{ role: 'user', content: userPrompt }], {
