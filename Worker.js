@@ -5040,6 +5040,11 @@ async function handleRequest(req, env, ctx) {
       return handleApiThreatIntel(env, req);
     } else if (p.startsWith('/api/markets')) {
       return handleApiMarkets(env, req);
+    } else if (p === '/api/ingest' && req.method === 'POST') {
+      // Public ingest trigger — no auth required (only reads public RSS feeds)
+      if (ctx) ctx.waitUntil(runIngestion(env, { force: true }, ctx).catch(e => debug("pub ingest err", e?.message)));
+      else runIngestion(env, { force: true }).catch(e => debug("pub ingest err no-ctx", e?.message));
+      return new Response('ingest_started', { status: 200, headers: CORS_HEADERS });
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });

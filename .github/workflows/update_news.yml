@@ -67,6 +67,5 @@ jobs:
       - name: Trigger Worker KV update
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            "https://osinfohub.vssmaximus.workers.dev/api/admin/ingest" \
-            -H "secret: ${{ secrets.GROQ_API_KEY }}")
+            "https://osinfohub.vssmaximus.workers.dev/api/ingest")
           echo "Worker ingest trigger status: $STATUS"
