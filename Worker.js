@@ -2953,10 +2953,14 @@ async function runIngestion(env, options = {}, ctx = null) {
       } catch (e) { debug("fetch src err", src, e?.message || e); }
     }
 
-    // Optional AI enrichment — similar to original logic
+    // Optional AI enrichment — capped at MAX_GROQ_CALLS per run to avoid rate-limit exhaustion.
+    // Skip items whose IDs already have high-quality enrichment in existing KV to save quota.
     const groqKey = env.GROQ_API_KEY || null;
+    const MAX_GROQ_CALLS = 45; // Groq free tier: ~30 req/min; 45 items per hourly run is safe
+    let groqCallCount = 0;
     if (groqKey) {
       for (const src of ROTATING_SOURCES) {
+        if (groqCallCount >= MAX_GROQ_CALLS) { debug("Groq call cap reached; stopping enrichment"); break; }
         try {
           if (await checkGroqCircuitBreaker(env)) { debug("Groq circuit breaker opened; skipping AI enrichment"); break; }
           const res = await fetchWithTimeout(src, {}, 15000);
@@ -2964,8 +2968,14 @@ async function runIngestion(env, options = {}, ctx = null) {
           const text = await res.text();
           const items = parseRssAtom(text).slice(0, 4);
           for (const itm of items) {
+            if (groqCallCount >= MAX_GROQ_CALLS) break;
             const combined = `${itm.title} — ${itm.summary}`.trim();
             if (isNoise(combined)) continue;
+            // Skip re-enriching items already well-categorised in existing KV
+            const existId = stableId(itm.link || itm.title);
+            const existEnriched = existing.find(e => e && e.id === existId && e.category && e.category !== 'UNKNOWN' && (e.severity || 0) >= 3);
+            if (existEnriched) { debug("skip Groq — already enriched", existId); continue; }
+            groqCallCount++;
             const aiRes = await callGroq(env, groqKey, combined);
             if (aiRes.error || !aiRes.data) { debug("callGroq failed/skipped", aiRes.error); continue; }
             const data = aiRes.data || {};
@@ -3651,6 +3661,9 @@ async function handleAdminAction(env, req, ctx) {
     } else if (action === 'list-briefs') {
       const dates = await listArchiveDates(env);
       return { ok:true, status:200, body: dates };
+    } else if (action === 'reset-ai') {
+      await clearGroqFailures(env);
+      return { ok:true, status:200, body: "circuit_reset" };
     }
     return { ok:false, status:400, body: "unknown_action" };
   } catch (e) {
