@@ -780,6 +780,19 @@ async function loadFromWorker(silent=false) {
       list = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident);
     }
 
+    // Fallback: if Worker KV is empty, load from static news.json
+    if (list.filter(Boolean).length === 0) {
+      try {
+        const fbRes = await fetchWithTimeout('public/data/news.json', {}, 10000);
+        if (fbRes.ok) {
+          const fbRaw = await fbRes.json();
+          const fbItems = Array.isArray(fbRaw) ? fbRaw : [];
+          list = fbItems.map(item => normaliseWorkerIncident({ ...item, summary: item.snippet || '' }));
+          console.info('[feed] Worker KV empty — using static fallback (news.json)');
+        }
+      } catch (fbErr) { console.warn('[feed] Fallback news.json failed:', fbErr); }
+    }
+
     INCIDENTS = list
       .filter(Boolean)
       .filter(i => {
