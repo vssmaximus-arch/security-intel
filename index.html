@@ -1959,12 +1959,6 @@
           <i class="fas fa-route" aria-hidden="true"></i> Logistics
         </button>
 
-        <!-- S2.5 — Live News Modal trigger -->
-        <button class="logistics-open-btn ms-1" data-action="open-live-news" aria-label="Open Live Global News Feed" tabindex="0"
-          style="background:#1a3a2c;color:#4caf50;">
-          <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
-        </button>
-
         <!-- Phase 2 — GDELT OSINT Intel Panel trigger -->
         <button class="logistics-open-btn ms-1" data-action="open-gdelt-intel" aria-label="Open OSINT Intelligence Panel" tabindex="0"
           style="background:#1a1a3a;color:#9fa8da;">
@@ -2065,13 +2059,16 @@
       </button>
     </div>
 
-    <!-- ✈ View Switcher — Intelligence / Airport Disruptions -->
+    <!-- ✈ View Switcher — Intelligence / Airport Disruptions / Live News -->
     <div class="view-switcher" role="tablist" aria-label="Dashboard view">
       <button class="view-tab active" data-view="intelligence" role="tab" aria-selected="true" tabindex="0">
         <i class="fas fa-shield-alt" aria-hidden="true"></i> Intelligence
       </button>
       <button class="view-tab" data-view="airport" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-plane-departure" aria-hidden="true"></i> Airport Disruptions
+      </button>
+      <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
+        <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
       </button>
     </div>
 
@@ -2161,7 +2158,7 @@
           <div class="grid-stack" id="sidebar-grid">
 
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="10" gs-w="12" gs-h="5" gs-min-h="3">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="10" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2187,7 +2184,7 @@
             </div>
 
             <!-- ② History Search -->
-            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="8" gs-w="12" gs-h="2" gs-min-h="2">
+            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="8" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2207,7 +2204,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="3">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2243,7 +2240,7 @@
             </div>
 
             <!-- ⑤ Country Instability Index -->
-            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="15" gs-w="12" gs-h="7" gs-min-h="3">
+            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="15" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2279,7 +2276,7 @@
             </div>
 
             <!-- ⑥ Currency Rates Chart -->
-            <div class="grid-stack-item" gs-id="currencies" gs-x="0" gs-y="22" gs-w="12" gs-h="6" gs-min-h="4">
+            <div class="grid-stack-item" gs-id="currencies" gs-x="0" gs-y="22" gs-w="12" gs-h="6" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2512,6 +2509,58 @@
 
   </div><!-- /view-airport -->
   <div id="airport-conflict-section" style="display:none;"></div>
+
+  <!-- 📡 LIVE NEWS VIEW ────────────────────────────────────────────────────── -->
+  <div id="view-live-news" style="display:none;" role="tabpanel" aria-label="Live News">
+
+    <!-- Top bar: badge + Headlines/TV tabs + source filter pills + timestamp -->
+    <div class="lnm-topbar" id="ln-topbar">
+      <span class="lnm-badge">&#128225; GLOBAL INTELLIGENCE FEED</span>
+      <div class="lnm-tabs">
+        <button class="lnm-tab-btn active" data-action="ln-tab" data-tab="headlines">&#128240; Headlines</button>
+        <button class="lnm-tab-btn" data-action="ln-tab" data-tab="tv">&#128250; Live TV</button>
+      </div>
+      <div class="lnm-src-pills" id="ln-src-pills">
+        <button class="lnm-pill active" data-action="ln-filter" data-src="all">All Sources</button>
+        <button class="lnm-pill" data-action="ln-filter" data-src="news">&#128240; News</button>
+        <button class="lnm-pill" data-action="ln-filter" data-src="logistics">&#128674; Logistics</button>
+        <button class="lnm-pill" data-action="ln-filter" data-src="security">&#128737; Security</button>
+        <button class="lnm-pill" data-action="ln-filter" data-src="hazards">&#9888; Hazards</button>
+        <button class="lnm-pill" data-action="ln-filter" data-src="cyber">&#128187; Cyber</button>
+      </div>
+      <span class="lnm-ts" id="ln-ts">Loading&hellip;</span>
+      <button class="lnm-refresh-btn" data-action="ln-refresh-now" style="margin-left:8px">&#8635; Refresh</button>
+    </div>
+
+    <!-- Headlines feed -->
+    <div class="lnm-feed" id="ln-feed">
+      <div class="lnm-loading"><i class="fas fa-spinner fa-spin"></i> Fetching global intelligence feed&hellip;</div>
+    </div>
+
+    <!-- Live TV panel -->
+    <div class="lnm-tv-panel" id="ln-tv-panel">
+      <div class="lnm-ch-bar" id="ln-ch-bar">
+        <span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>
+        <!-- Channel buttons populated by _lnTabInit() -->
+      </div>
+      <video class="lnm-tv-video" id="ln-tv-video" autoplay muted playsinline controls></video>
+      <iframe class="lnm-tv-frame" id="ln-tv-frame" src=""
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen></iframe>
+      <div class="lnm-tv-notice">
+        Select a channel above &middot;
+        <span id="ln-stream-badge" class="lnm-stream-badge" style="background:#1a3a5c;color:#4fc3f7">&#128225; Ready</span>
+        &middot; Direct HLS stream where available
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="lnm-footer" id="ln-tab-footer">
+      <span>&#128240; 26 sources &middot; &#128240; News &middot; &#128674; Logistics &middot; &#128737; Security &middot; &#9888; Hazards &middot; &#128187; Cyber</span>
+      <button class="lnm-refresh-btn" data-action="ln-refresh-now">&#8635; Refresh Headlines</button>
+    </div>
+
+  </div><!-- /view-live-news -->
 
   </div>
 
@@ -2968,7 +3017,7 @@
         float: false,
         animate: true,
         alwaysShowResizeHandle: true,
-        resizable: { handles: 's' },
+        resizable: { handles: 'se, s, sw, e, w' },
         draggable:  { handle: '.widget-header-bar' },
         minRow: 1,
       }, '#sidebar-grid');
@@ -3384,6 +3433,37 @@
     #view-airport { padding-bottom: 40px; }
     #airport-conflict-section { display: none !important; }
 
+    /* ── Live News tab panel layout ─────────────────────────────────────── */
+    #view-live-news {
+      display: flex; flex-direction: column;
+      background: #131416; min-height: 500px;
+    }
+    /* Force the injected .lnm-topbar to stay as a non-scrollable header */
+    #view-live-news .lnm-topbar {
+      flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+    }
+    /* Constrain the feed so it scrolls within the viewport */
+    #ln-feed {
+      flex: 1;
+      max-height: calc(100vh - 360px);
+      min-height: 280px;
+    }
+    /* TV panel fills remaining height */
+    #ln-tv-panel {
+      height: calc(100vh - 330px);
+      min-height: 350px;
+    }
+    /* Footer stays at bottom of panel */
+    #view-live-news .lnm-footer { flex-shrink: 0; }
+    /* Light mode */
+    body.light-mode #view-live-news { background: #ffffff; }
+    body.light-mode #view-live-news .lnm-topbar  { background: #f1f3f4; border-bottom-color: #e0e0e0; }
+    body.light-mode #view-live-news .lnm-badge   { background: #e8f0fe; color: #1a73e8; }
+    body.light-mode #view-live-news .lnm-item    { background: #f8f9fa; }
+    body.light-mode #view-live-news .lnm-item:hover { background: #e8f0fe; }
+    body.light-mode #view-live-news .lnm-title a { color: #202124; }
+    body.light-mode #view-live-news .lnm-footer  { background: #f1f3f4; border-top-color: #e0e0e0; }
+
     /* Light-mode overrides */
     body.light-mode .live-table-header { background: #f1f3f4; border-color: #e0e0e0; color: #80868b; }
     body.light-mode .live-row { background: #fff; border-color: #e0e0e0; }
@@ -3555,26 +3635,50 @@
     }
 
     /* ── View switcher ───────────────────────────────────────────────────── */
+    var _lnTabRefreshInterval = null;
     function switchView(view) {
       if (view === currentView) return;
       currentView = view;
-      var intel   = document.getElementById('view-intelligence');
-      var airport = document.getElementById('view-airport');
-      var catBar  = document.getElementById('cat-filter-bar');
-      var apjcBar = document.getElementById('apjc-subnav');
-      var sigmet  = document.getElementById('sigmet-ticker-strip');
+      var intel    = document.getElementById('view-intelligence');
+      var airport  = document.getElementById('view-airport');
+      var liveNews = document.getElementById('view-live-news');
+      var catBar   = document.getElementById('cat-filter-bar');
+      var apjcBar  = document.getElementById('apjc-subnav');
+      var sigmet   = document.getElementById('sigmet-ticker-strip');
+      /* Hide all panels first */
+      if (intel)    intel.style.display    = 'none';
+      if (airport)  airport.style.display  = 'none';
+      if (liveNews) liveNews.style.display = 'none';
+      if (catBar)   catBar.style.display   = 'none';
+      if (apjcBar)  apjcBar.style.display  = 'none';
+      if (sigmet)   sigmet.style.display   = 'none';
+      /* Stop live-news auto-refresh when leaving */
+      if (_lnTabRefreshInterval) { clearInterval(_lnTabRefreshInterval); _lnTabRefreshInterval = null; }
+
       if (view === 'airport') {
-        if (intel)   intel.style.display   = 'none';
         if (airport) airport.style.display = '';
-        if (catBar)  catBar.style.display  = 'none';
-        if (apjcBar) apjcBar.style.display = 'none';
-        if (sigmet)  sigmet.style.display  = 'none';
         if (!mapInitialized) { initAirportMap(); mapInitialized = true; }
         loadAirportData(false);
+      } else if (view === 'live-news') {
+        if (liveNews) liveNews.style.display = '';
+        /* Init tab (CSS + channel buttons) — only runs once */
+        if (typeof _lnTabInit === 'function') _lnTabInit();
+        /* Switch to Headlines and fetch data if not already loaded */
+        if (typeof _lnTabSwitchTab  === 'function') _lnTabSwitchTab('headlines');
+        if (typeof _lnTabFetch      === 'function' &&
+            typeof _lnmItems        !== 'undefined' && !_lnmItems.length) {
+          _lnTabFetch();
+        } else if (typeof _lnTabRender === 'function') {
+          _lnTabRender(); /* re-render cached items into tab panel */
+        }
+        /* Auto-refresh every 5 min while on this tab */
+        _lnTabRefreshInterval = setInterval(function () {
+          if (currentView === 'live-news' && typeof _lnTabFetch === 'function') _lnTabFetch();
+        }, 5 * 60 * 1000);
       } else {
-        if (intel)   intel.style.display   = '';
-        if (airport) airport.style.display = 'none';
-        if (catBar)  catBar.style.display  = '';
+        /* intelligence (default) */
+        if (intel)   intel.style.display  = '';
+        if (catBar)  catBar.style.display = '';
       }
       document.querySelectorAll('.view-tab').forEach(function (btn) {
         var isActive = btn.dataset.view === view;
@@ -3629,7 +3733,7 @@
           lastFetchTs = Date.now();
           renderAirportTab();
           var aiEl = document.getElementById('airport-ai-text');
-          if (aiEl) aiEl.textContent = 'Live data unavailable — showing ' + CLIENT_KNOWN_DISRUPTIONS.length + ' confirmed global disruptions from verified sources.';
+          if (aiEl) aiEl.textContent = 'Showing ' + CLIENT_KNOWN_DISRUPTIONS.length + ' verified active disruptions from known conflict zones and operational alerts. Live AI enrichment will resume on next refresh.';
         });
     }
 
@@ -3908,9 +4012,9 @@
           if (data.ok === false && data.reason === 'no_api_key') {
             if (body) body.innerHTML = '<div class="canc-no-key">'
               + '<i class="fas fa-key" style="font-size:1.5rem;color:#f9ab00;margin-bottom:8px;display:block;"></i>'
-              + '<b>AviationStack API key not configured.</b><br>'
-              + 'Add <code>AVIATIONSTACK_KEY</code> to your Cloudflare Worker environment variables.<br>'
-              + 'Get a free key at <a href="https://aviationstack.com" target="_blank" rel="noopener">aviationstack.com</a>.'
+              + '<b>Airlabs API key not configured.</b><br>'
+              + 'Add <code>AIRLABS_KEY</code> to your Cloudflare Worker environment variables.<br>'
+              + 'Get a free key at <a href="https://airlabs.co" target="_blank" rel="noopener">airlabs.co</a>.'
               + '</div>';
             return;
           }

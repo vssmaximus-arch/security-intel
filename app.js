@@ -3791,6 +3791,156 @@ function closeLiveNewsModal() {
   if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   LIVE NEWS TAB  (view-switcher panel — shares data with modal)
+   Uses same _lnmItems state and LNM_* constants as the modal.
+   Separate HLS instance (_lnTabHls) so streams don't conflict.
+   ───────────────────────────────────────────────────────────────── */
+let _lnTabHls           = null;
+let _lnTabFilter        = 'all';
+let _lnTabActiveChannel = (LNM_TV_CHANNELS[0] || {}).key || 'dw';
+let _lnTabInitDone      = false;
+
+function _lnTabInit() {
+  if (_lnTabInitDone) return;
+  _lnTabInitDone = true;
+  /* Inject shared lnm CSS (idempotent — also creates hidden modal) */
+  _ensureLiveNewsModal();
+  /* Build TV channel buttons in the tab panel's channel bar */
+  const bar = document.getElementById('ln-ch-bar');
+  if (bar) {
+    bar.innerHTML = '<span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>' +
+      LNM_TV_CHANNELS.map((ch, i) =>
+        '<button class="lnm-ch-btn' + (i === 0 ? ' active' : '') +
+        '" data-action="ln-channel" data-ch="' + ch.key + '">' + ch.label + '</button>'
+      ).join('');
+  }
+}
+
+function _lnTabRender() {
+  const feed = document.getElementById('ln-feed');
+  if (!feed) return;
+  const items    = _lnmItems || [];
+  const filtered = (_lnTabFilter === 'all')
+    ? items
+    : items.filter(i => (i.category || i.source_category || 'news') === _lnTabFilter);
+  if (!filtered.length) {
+    feed.innerHTML = '<div class="lnm-empty">' +
+      (items.length ? 'No items for this filter.' : 'Loading global intelligence feed…') + '</div>';
+    return;
+  }
+  feed.innerHTML = filtered.map(function(item) {
+    const sc      = LNM_SOURCE_COLORS[item.source_key] || { bg: '#37474f', text: '#fff' };
+    const ageStr  = _lnmTimeAgo(item.published || item.time || '');
+    const summary = (item.summary || '').slice(0, 200);
+    return '<div class="lnm-item" style="border-left-color:' + sc.bg + '">' +
+      '<div class="lnm-src"><span class="lnm-src-badge" style="background:' + sc.bg +
+      ';color:' + sc.text + '">' +
+      (item.source_label || item.source_key || '?').toUpperCase().slice(0, 10) + '</span></div>' +
+      '<div class="lnm-body">' +
+      '<div class="lnm-title"><a href="' + (item.link || '#') +
+      '" target="_blank" rel="noopener noreferrer">' + (item.title || '') + '</a></div>' +
+      '<div class="lnm-meta">' + (item.region || '') + (ageStr ? ' &middot; ' + ageStr : '') + '</div>' +
+      (summary ? '<div class="lnm-summary">' + summary + '</div>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+async function _lnTabFetch() {
+  try {
+    const res  = await fetchWithTimeout(WORKER_URL + '/api/live-news',
+      { headers: { 'X-User-Id': OSINFO_USER_ID } }, 15000);
+    const data = await res.json().catch(() => ({}));
+    if (data.ok && Array.isArray(data.items)) {
+      _lnmItems = data.items;                           // update shared state
+      _lnTabRender();
+      const ts = document.getElementById('ln-ts');
+      if (ts) ts.textContent = 'Updated ' + new Date().toLocaleTimeString();
+    } else {
+      _lnTabRender();
+    }
+  } catch (_) {
+    _lnTabRender();
+  }
+}
+
+function _lnTabSwitchTab(tab) {
+  const container = document.getElementById('view-live-news');
+  if (!container) return;
+  container.querySelectorAll('.lnm-tab-btn').forEach(
+    b => b.classList.toggle('active', b.dataset.tab === tab));
+  const pills   = document.getElementById('ln-src-pills');
+  const feed    = document.getElementById('ln-feed');
+  const tvPanel = document.getElementById('ln-tv-panel');
+  const footer  = document.getElementById('ln-tab-footer');
+  if (pills)  pills.style.display  = (tab === 'headlines') ? 'flex' : 'none';
+  if (feed)   feed.style.display   = (tab === 'headlines') ? ''     : 'none';
+  if (footer) footer.style.display = (tab === 'headlines') ? ''     : 'none';
+  if (tvPanel) {
+    if (tab === 'tv') {
+      tvPanel.classList.add('visible');
+      const frame = document.getElementById('ln-tv-frame');
+      const video = document.getElementById('ln-tv-video');
+      const noStream = !_lnTabHls &&
+        (!frame || !frame.getAttribute('src')) &&
+        (!video || !video.getAttribute('src'));
+      if (noStream) setTimeout(() => _lnTabSwitchChannel(_lnTabActiveChannel), 80);
+    } else {
+      tvPanel.classList.remove('visible');
+    }
+  }
+}
+
+function _lnTabSwitchChannel(key) {
+  _lnTabActiveChannel = key;
+  const ch = LNM_TV_CHANNELS.find(c => c.key === key);
+  if (!ch) return;
+  /* Update channel button highlight */
+  const container = document.getElementById('view-live-news');
+  if (container) container.querySelectorAll('.lnm-ch-btn')
+    .forEach(b => b.classList.toggle('active', b.dataset.ch === key));
+  /* Destroy previous HLS instance */
+  if (_lnTabHls) { try { _lnTabHls.destroy(); } catch (_) {} _lnTabHls = null; }
+  const video = document.getElementById('ln-tv-video');
+  const frame = document.getElementById('ln-tv-frame');
+  const badge = document.getElementById('ln-stream-badge');
+  function _noSig() {
+    if (video) { video.style.display = 'none'; video.src = ''; }
+    if (frame) {
+      frame.style.display = 'block'; frame.src = '';
+      frame.srcdoc = '<html><body style="margin:0;background:#090909;display:flex;' +
+        'flex-direction:column;align-items:center;justify-content:center;height:100vh;' +
+        'color:#555;font-family:sans-serif;text-align:center;gap:10px">' +
+        '<div style="font-size:3em;opacity:.35">&#128225;</div>' +
+        '<div style="font-size:15px;color:#777;font-weight:600">' + ch.label + '</div>' +
+        '<div style="font-size:12px;color:#555">Direct stream unavailable</div></body></html>';
+    }
+    if (badge) { badge.textContent = '\u26a1 No Signal'; badge.style.background = '#1a1a1a'; badge.style.color = '#666'; }
+  }
+  if (ch.hlsUrl) {
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      if (frame) { frame.style.display = 'none'; frame.src = ''; }
+      if (video) { video.style.display = 'block'; }
+      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
+      _lnTabHls = new Hls({ autoStartLoad: true, enableWorker: true, lowLatencyMode: true });
+      _lnTabHls.loadSource(ch.hlsUrl);
+      _lnTabHls.attachMedia(video);
+      _lnTabHls.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(() => {}); });
+      _lnTabHls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) { try { _lnTabHls.destroy(); } catch (_) {} _lnTabHls = null; _noSig(); }
+      });
+    } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
+      if (frame) { frame.style.display = 'none'; frame.src = ''; }
+      if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
+      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
+    } else {
+      _noSig();
+    }
+  } else {
+    _noSig();
+  }
+}
+
 /* ============================================================
    PHASE 2 — GDELT OSINT INTEL PANEL
    5-tab modal: Military · Cyber · Nuclear · Maritime · Sanctions
@@ -4950,6 +5100,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const mo = _ltmEl('live-news-modal');
         if (mo) mo.querySelectorAll('.lnm-pill').forEach(p => p.classList.toggle('active', p.dataset.src === src));
         _lnmRender();
+        return;
+      }
+
+      // Live News Tab actions (view panel)
+      if (action === 'ln-refresh-now') { _lnTabFetch(); return; }
+      if (action === 'ln-tab')         { _lnTabSwitchTab(t.dataset.tab || 'headlines'); return; }
+      if (action === 'ln-channel')     { _lnTabSwitchChannel(t.dataset.ch || _lnTabActiveChannel); return; }
+      if (action === 'ln-filter') {
+        _lnTabFilter = t.dataset.src || 'all';
+        const cont = document.getElementById('view-live-news');
+        if (cont) cont.querySelectorAll('.lnm-pill')
+          .forEach(p => p.classList.toggle('active', p.dataset.src === _lnTabFilter));
+        _lnTabRender();
         return;
       }
 
