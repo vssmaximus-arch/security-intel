@@ -2585,8 +2585,10 @@ function connectSSE() {
   es.addEventListener('incidents', (ev) => {
     try {
       const raw = JSON.parse(ev.data);
+      // Don't overwrite fallback data with an empty Worker KV response
+      if (!Array.isArray(raw) || raw.length === 0) return;
       const cutoffMs = Date.now() - 72 * 3600 * 1000;
-      INCIDENTS = (Array.isArray(raw) ? raw : [])
+      INCIDENTS = raw
         .map(normaliseWorkerIncident).filter(Boolean)
         .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
         .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
