@@ -14,6 +14,8 @@ jobs:
 
     env:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
       PROXIMITY_RADIUS_KM: ${{ secrets.PROXIMITY_RADIUS_KM || '50' }}
 
     steps:
@@ -67,5 +69,9 @@ jobs:
       - name: Trigger Worker KV update
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            "https://osinfohub.vssmaximus.workers.dev/api/ingest")
+            -H "secret: ${INGEST_SECRET}" \
+            "https://osinfohub.vssmaximus.workers.dev/api/admin/ingest")
           echo "Worker ingest trigger status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "WARNING: Worker ingest returned HTTP $STATUS (expected 200)"
+          fi

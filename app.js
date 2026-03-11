@@ -762,15 +762,25 @@ async function loadFromWorker(silent=false) {
     if (AI_ENABLED) {
       // AI path: /api/ai/rank returns items pre-sorted by relevance_score desc
       const items = await loadAiRankedFeed({ limit: 50 });
-      list = items.map(item => {
-        const norm = normaliseWorkerIncident(item);
-        if (!norm) return null;
-        // Preserve AI scoring fields so renderGeneralFeed can display the badge + brief
-        norm.relevance_score   = item.relevance_score;
-        norm.canonical_summary = item.canonical_summary || '';
-        return norm;
-      });
-      // AI rank is pre-sorted; do not re-sort by time
+      if (items && items.length > 0) {
+        list = items.map(item => {
+          const norm = normaliseWorkerIncident(item);
+          if (!norm) return null;
+          // Preserve AI scoring fields so renderGeneralFeed can display the badge + brief
+          norm.relevance_score   = item.relevance_score;
+          norm.canonical_summary = item.canonical_summary || '';
+          return norm;
+        });
+        // AI rank is pre-sorted; do not re-sort by time
+      } else {
+        // AI rank returned empty — fall back to standard /api/incidents feed
+        console.warn('[AI] /api/ai/rank returned no items — falling back to /api/incidents');
+        const fetchOpts = OSINFO_USER_ID ? { headers: { 'X-User-Id': OSINFO_USER_ID } } : {};
+        const res = await fetchWithTimeout(`${WORKER_URL}/api/incidents`, fetchOpts);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const raw = await res.json();
+        list = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident);
+      }
     } else {
       // Standard path: /api/incidents sorted by time
       const fetchOpts = OSINFO_USER_ID ? { headers: { 'X-User-Id': OSINFO_USER_ID } } : {};
