@@ -97,7 +97,6 @@ const AIRPORT_COORDS = {
   'KDH':{ name:'Kandahar Intl',            city:'Kandahar',     country:'Afghanistan',     lat:31.5058, lng:65.8478  },
   'SAH':{ name:"Sana'a Intl",              city:"Sana'a",       country:'Yemen',           lat:15.4763, lng:44.2197  },
   'ADE':{ name:'Aden Intl',                city:'Aden',         country:'Yemen',           lat:12.8295, lng:45.0288  },
-  'KBL':{ name:'Kabul Intl',               city:'Kabul',        country:'Afghanistan',     lat:34.5659, lng:69.2120  },
   'IEV':{ name:'Kyiv Boryspil Intl',       city:'Kyiv',         country:'Ukraine',         lat:50.3450, lng:30.8947  },
   'HRK':{ name:'Kharkiv Intl',             city:'Kharkiv',      country:'Ukraine',         lat:49.9248, lng:36.2900  },
   'ODS':{ name:'Odessa Intl',              city:'Odessa',       country:'Ukraine',         lat:46.4268, lng:30.6765  },
@@ -4600,7 +4599,7 @@ async function handleApiAviationDisruptions(env, req) {
   const AVIATION_RE = /\b(airport|airspace|air\s?space|flight\s+cancel|airline|runway|aviation|aerodrome|airstrip|no.fly\s+zone|grounded|diverted|diversion|atc\s+strike|notam|sigmet|terminal\s+clos|air\s+traffic\s+control|departure\s+halt|arrival\s+halt|flight\s+suspension|flights?\s+suspended|airspace\s+clos|airport\s+clos|airport\s+shut)\b/i;
   const aviationIncs = incidents
     .filter(i => AVIATION_RE.test((i.title || '') + ' ' + (i.summary || '')))
-    .sort((a, b) => new Date(b.time) - new Date(a.time))
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     .slice(0, 25);
 
   // 3. Fetch live SIGMETs (re-use aviationweather.gov same as /api/weather/aviation)
