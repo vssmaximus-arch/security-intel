@@ -1474,13 +1474,11 @@
     body.light-mode .airport-select { background: #f8f9fa; border-color: #dadce0; color: #202124; }
     body.light-mode .airport-refresh-btn { background: #f8f9fa; border-color: #dadce0; color: #5f6368; }
 
-    /* Layout: map + cards side-by-side */
-    .airport-layout { display: flex; gap: 20px; align-items: flex-start; }
-    .airport-map-wrap { flex: 0 0 55%; min-width: 0; }
-    .airport-cards-wrap {
-      flex: 1; min-width: 0; max-height: 540px;
-      overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-    }
+    /* Layout: two-column (left: map+sigmet+table, right: TSC sidebar) */
+    .airport-two-col { display: flex; gap: 20px; align-items: flex-start; }
+    .airport-left-col { flex: 1; min-width: 0; }
+    .airport-right-sidebar { flex: 0 0 330px; min-width: 0; position: sticky; top: 10px; }
+    .airport-table-section { margin-top: 12px; }
 
     /* Map */
     #airport-map { height: 360px; border-radius: 12px; border: 1px solid #2a2d35; background: #0d1117; }
@@ -1575,9 +1573,8 @@
     body.light-mode .airport-select { background: #fff; border-color: #dadce0; color: #202124; }
 
     @media (max-width: 991px) {
-      .airport-layout { flex-direction: column; }
-      .airport-map-wrap { flex: none; width: 100%; }
-      .airport-cards-wrap { max-height: 400px; }
+      .airport-two-col { flex-direction: column; }
+      .airport-right-sidebar { flex: none; width: 100%; position: static; }
       #airport-map { height: 280px; }
     }
 
@@ -2397,7 +2394,7 @@
       <span id="airport-ai-text">Switch to this tab to load live disruption analysis…</span>
     </div>
 
-    <!-- Filter Controls -->
+    <!-- Filter + Sort Controls -->
     <div class="airport-controls">
       <span class="airport-ctrl-label">Type</span>
       <select id="airport-filter-type" class="airport-select" aria-label="Filter by disruption type">
@@ -2416,59 +2413,61 @@
         <option value="MEDIUM">🟡 Medium</option>
         <option value="LOW">🟢 Low</option>
       </select>
+      <span class="airport-ctrl-label">Sort</span>
+      <select id="airport-sort-by" class="airport-select" aria-label="Sort disruptions">
+        <option value="SCORE">Severity</option>
+        <option value="RECENT">Most Recent</option>
+        <option value="NAME">Name A–Z</option>
+      </select>
       <button id="airport-refresh-btn" class="airport-refresh-btn" aria-label="Refresh disruption data">
         <i class="fas fa-sync" aria-hidden="true"></i> Refresh
       </button>
       <span id="airport-updated-at" class="airport-ts"></span>
     </div>
 
-    <!-- Map + Cards layout -->
-    <div class="airport-layout">
+    <!-- Two-column: left = map + SIGMET + table; right = TSC sidebar -->
+    <div class="airport-two-col">
 
-      <!-- Left: Leaflet map + SIGMET strip -->
-      <div class="airport-map-wrap">
-        <div id="airport-map" aria-label="Airport disruptions world map" role="application"></div>
-        <div class="sigmet-mini-wrap">
-          <div class="sigmet-mini-label">
-            <i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Active Aviation SIGMETs
+      <!-- Left column: map + SIGMET strip + disruption table -->
+      <div class="airport-left-col">
+        <div class="airport-map-wrap">
+          <div id="airport-map" aria-label="Airport disruptions world map" role="application"></div>
+          <div class="sigmet-mini-wrap">
+            <div class="sigmet-mini-label">
+              <i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Active Aviation SIGMETs
+              <span class="sigmet-help" title="SIGMETs are official aviation weather warnings for severe turbulence, icing, volcanic ash, or tropical cyclones affecting flight safety">ⓘ</span>
+            </div>
+            <div id="sigmet-mini-list" class="sigmet-mini-list">
+              <div class="sigmet-none">Loading aviation weather hazards…</div>
+            </div>
           </div>
-          <div id="sigmet-mini-list" class="sigmet-mini-list">
-            <div class="sigmet-none">No SIGMETs loaded yet</div>
+        </div>
+
+        <!-- Disruption status table — under map -->
+        <div class="airport-table-section" id="airport-disruptions-list" aria-live="polite">
+          <div class="airport-loading">
+            <i class="fas fa-plane fa-bounce" aria-hidden="true"></i><br>
+            Click "✈ Airport Disruptions" tab to load data
           </div>
         </div>
       </div>
 
-      <!-- Right: Disruption cards -->
-      <div class="airport-cards-wrap" id="airport-disruptions-list" aria-live="polite">
-        <div class="airport-loading">
-          <i class="fas fa-plane fa-bounce" aria-hidden="true"></i><br>
-          Click "✈ Airport Disruptions" tab to load data
-        </div>
-      </div>
-
-    </div>
-  </div>
-    <!-- Conflict Zone Context ΓÇö collapsible section -->
-
-    <!-- Travel Safety Check - moved from Intelligence sidebar -->
-    <div class="airport-tsc-section">
-      <div class="airport-tsc-hdr">
-        <i class="fas fa-passport" aria-hidden="true"></i>
-        <span>Travel Safety Check</span>
-        <small>Select a country to see US State Dept advisory &amp; recent news</small>
-      </div>
-      <div class="airport-tsc-body">
-        <div class="side-card">
-          <div class="card-label"><i class="fas fa-plane"></i> Travel Safety Check</div>
+      <!-- Right column: Travel Safety Check sidebar -->
+      <div class="airport-right-sidebar">
+        <div class="side-card airport-tsc-card">
+          <div class="card-label"><i class="fas fa-passport"></i> Travel Safety Check</div>
+          <p class="tsc-subtitle">Select a country for US &amp; AU government advisory and recent travel news</p>
           <label for="countrySelect" class="form-label visually-hidden">Select Country</label>
           <select class="travel-select" id="countrySelect" aria-label="Select country for travel info">
-            <option selected disabled>Loading countries...</option>
+            <option selected disabled>Loading countries…</option>
           </select>
           <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
           <div id="travel-news" class="mt-2"></div>
         </div>
       </div>
-    </div>
+
+    </div><!-- /airport-two-col -->
+
   </div><!-- /view-airport -->
   <div id="airport-conflict-section" style="display:none;"></div>
 
@@ -3242,38 +3241,28 @@
       color: #fff;
     }
 
-    /* Layout: map narrower, table wider */
-    .airport-map-wrap { flex: 0 0 36%; }
-    .airport-cards-wrap { flex: 1; max-height: none; overflow-y: visible; }
+    /* Airport table section */
+    .airport-table-section { min-height: 200px; }
+
+    /* SIGMET help icon */
+    .sigmet-help { cursor: help; opacity: 0.6; margin-left: 6px; font-size: 0.75rem; }
+    .sigmet-valid { font-size: 0.65rem; color: #5f6368; margin-left: 4px; }
+
+    /* TSC sidebar card */
+    .airport-tsc-card {
+      background: #1a1d27 !important; border: 1px solid #2a2d35 !important;
+      border-radius: 10px !important; padding: 16px !important;
+    }
+    .airport-tsc-card .card-label {
+      font-size: 0.8rem; font-weight: 700; color: #4fc3f7; margin-bottom: 8px; display: block;
+    }
+    .tsc-subtitle {
+      font-size: 0.72rem; color: #5f6368; margin: 0 0 12px 0; line-height: 1.4;
+    }
 
     /* Remove dead blank space */
     #view-airport { padding-bottom: 40px; }
     #airport-conflict-section { display: none !important; }
-
-    /* Travel Safety Check — Airport panel embed */
-    .airport-tsc-section {
-      margin-top: 28px;
-      border: 1px solid #2a2d35;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .airport-tsc-hdr {
-      display: flex; align-items: center; gap: 10px;
-      background: #151820; padding: 12px 18px;
-      font-size: 0.82rem; font-weight: 700; color: #e8eaed;
-      border-bottom: 1px solid #2a2d35;
-    }
-    .airport-tsc-hdr i { color: #4fc3f7; font-size: 1rem; }
-    .airport-tsc-hdr small { font-weight: 400; font-size: 0.72rem; color: #5f6368; margin-left: 6px; }
-    .airport-tsc-body { padding: 18px 20px; background: #1a1d27; }
-    .airport-tsc-body .side-card {
-      max-width: 640px;
-      background: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      box-shadow: none !important;
-    }
-    .airport-tsc-body .card-label { display: none; }
 
     /* Light-mode overrides */
     body.light-mode .live-table-header { background: #f1f3f4; border-color: #e0e0e0; color: #80868b; }
@@ -3285,9 +3274,7 @@
     body.light-mode .score-bar-wrap { background: #e0e0e0; }
     body.light-mode .src-badge-faa      { background: #e8f0fe; color: #1967d2; border-color: #c5d5f8; }
     body.light-mode .src-badge-verified { background: #fce8e6; color: #c5221f; border-color: #f5c6c4; }
-    body.light-mode .airport-tsc-section { border-color: #e0e0e0; }
-    body.light-mode .airport-tsc-hdr { background: #f1f3f4; border-color: #e0e0e0; color: #202124; }
-    body.light-mode .airport-tsc-body { background: #fff; }
+    body.light-mode .airport-tsc-card { background: #fff !important; border-color: #e0e0e0 !important; }
   </style>
   <script>
   (function () {
@@ -3299,52 +3286,86 @@
         cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
         ai_summary: 'CURRENTLY CLOSED — All airspace completely closed due to ongoing military operations. All civilian aviation suspended.',
         affected_routes: 'All airlines', duration_estimate: 'Indefinite',
+        disruption_date: '2023-10-07',
         lat: 31.52, lng: 34.45, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-saa', iata: 'SAA', airport_name: 'Sanaa International Airport', country: 'Yemen',
-        cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
-        ai_summary: 'CURRENTLY CLOSED — Zero commercial operations. Permanently closed since 2016. Houthi-controlled territory.',
-        affected_routes: 'All airlines', duration_estimate: 'Indefinite',
-        lat: 15.477, lng: 44.219, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-krt', iata: 'KRT', airport_name: 'Khartoum International Airport', country: 'Sudan',
         cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
         ai_summary: 'CURRENTLY CLOSED — Destroyed by airstrikes April 2023. Sudan civil war ongoing. No commercial flights.',
         affected_routes: 'All airlines', duration_estimate: 'Indefinite',
+        disruption_date: '2023-04-15',
         lat: 15.589, lng: 32.553, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-russia', iata: null, airport_name: 'Russian Airspace (FIR UUWW/URRV/UUOO)', country: 'Russia',
         cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.8,
         ai_summary: 'CURRENTLY CLOSED TO WESTERN CARRIERS — 140+ airlines banned from Russian airspace since Feb 2022 due to Ukraine invasion. Transpolar routes severely impacted.',
         affected_routes: 'European / North American carriers', duration_estimate: 'Indefinite',
+        disruption_date: '2022-02-24',
         lat: 55.75, lng: 37.62, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-kbl', iata: 'KBL', airport_name: 'Kabul International Airport', country: 'Afghanistan',
         cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.8,
         ai_summary: 'SEVERELY RESTRICTED — Taliban control since 2021. Most Western airlines suspended indefinitely. Extremely limited international service remains.',
         affected_routes: 'Western carriers', duration_estimate: 'Indefinite',
+        disruption_date: '2021-08-15',
         lat: 34.566, lng: 69.212, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-dam', iata: 'DAM', airport_name: 'Damascus International Airport', country: 'Syria',
         cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.5,
-        ai_summary: 'CURRENTLY SEVERELY RESTRICTED — Repeated airstrikes on airport infrastructure. Most Western and Arab airlines have suspended all Syria operations.',
+        ai_summary: 'CURRENTLY SEVERELY RESTRICTED — Repeated Israeli airstrikes on airport infrastructure. Most Western and Arab airlines have suspended all Syria operations.',
         affected_routes: 'International flights', duration_estimate: 'Indefinite',
+        disruption_date: '2024-01-20',
         lat: 33.411, lng: 36.516, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-bey', iata: 'BEY', airport_name: 'Beirut Rafic Hariri International Airport', country: 'Lebanon',
         cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 4.0,
-        ai_summary: 'PARTIALLY RESTRICTED — Multiple airline suspensions due to regional conflict. European and US carriers significantly reduced service.',
+        ai_summary: 'PARTIALLY RESTRICTED — Multiple airline suspensions due to Israel-Hezbollah conflict. European and US carriers significantly reduced service.',
         affected_routes: 'European carriers', duration_estimate: 'Until further notice',
+        disruption_date: '2024-09-23',
         lat: 33.821, lng: 35.488, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-tlv', iata: 'TLV', airport_name: 'Ben Gurion International Airport', country: 'Israel',
         cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 4.0,
         ai_summary: 'PARTIALLY RESTRICTED — Multiple airlines suspended or drastically reduced service due to ongoing regional conflict. Airspace occasionally closed during incidents.',
         affected_routes: 'Most international carriers', duration_estimate: 'Until further notice',
+        disruption_date: '2023-10-07',
         lat: 32.011, lng: 34.887, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-mhd', iata: 'MHD', airport_name: 'Mashhad International Airport', country: 'Iran',
-        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.8,
-        ai_summary: 'CURRENTLY RESTRICTED TO WESTERN CARRIERS — US, EU and allied airlines banned. Iranian airspace closed to most Western operators due to sanctions.',
-        affected_routes: 'Western carriers', duration_estimate: 'Indefinite',
-        lat: 36.235, lng: 59.641, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
       { id: 'ckd-bgw', iata: 'BGW', airport_name: 'Baghdad International Airport', country: 'Iraq',
         cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.5,
         ai_summary: 'PARTIALLY RESTRICTED — Elevated security risk. Several airlines reduced or suspended service. Sporadic airspace closures during security incidents.',
         affected_routes: 'Multiple carriers', duration_estimate: 'Ongoing',
+        disruption_date: '2024-10-08',
         lat: 33.262, lng: 44.234, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
+      { id: 'ckd-mhd', iata: 'MHD', airport_name: 'Mashhad International Airport', country: 'Iran',
+        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.8,
+        ai_summary: 'CURRENTLY RESTRICTED TO WESTERN CARRIERS — US, EU and allied airlines banned. Iranian airspace closed to most Western operators due to sanctions.',
+        affected_routes: 'Western carriers', duration_estimate: 'Indefinite',
+        disruption_date: '2022-05-08',
+        lat: 36.235, lng: 59.641, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
+      { id: 'ckd-kwi', iata: 'KWI', airport_name: 'Kuwait International Airport', country: 'Kuwait',
+        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.2,
+        ai_summary: 'PERIODIC CLOSURES — Kuwait airspace closed multiple times in 2024-2025 during Iranian ballistic missile launches toward Israel. Emergency closure protocols remain active.',
+        affected_routes: 'International flights', duration_estimate: 'Alert protocols active',
+        disruption_date: '2024-04-14',
+        lat: 29.226, lng: 47.969, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
+      { id: 'ckd-amm', iata: 'AMM', airport_name: 'Queen Alia International Airport', country: 'Jordan',
+        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.8,
+        ai_summary: 'AIRSPACE ADVISORIES ACTIVE — Jordan intercepted Houthi missiles and Iranian drones in 2024. Temporary air defence activations have caused brief diversions. Operations continuing with heightened alert protocols.',
+        affected_routes: 'Regional and international carriers', duration_estimate: 'Advisories active',
+        disruption_date: '2024-04-13',
+        lat: 31.722, lng: 35.993, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
+      { id: 'ckd-dxb', iata: 'DXB', airport_name: 'Dubai International Airport', country: 'UAE',
+        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.8,
+        ai_summary: 'DISRUPTION ADVISORIES ACTIVE — Houthi drone and missile threats from Yemen have caused temporary UAE airspace ground stops. Iranian airspace restrictions force longer routing. Airlines operating with elevated security protocols.',
+        affected_routes: 'Gulf carriers, European and Asian transit', duration_estimate: 'Ongoing risk',
+        disruption_date: '2024-01-18',
+        lat: 25.253, lng: 55.366, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
+      { id: 'ckd-doh', iata: 'DOH', airport_name: 'Hamad International Airport', country: 'Qatar',
+        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.5,
+        ai_summary: 'ROUTE DISRUPTIONS ACTIVE — Qatar Airways and other carriers rerouting flights to avoid Red Sea conflict corridor. Iranian airspace restrictions and Houthi threat zones have increased flight times and fuel costs.',
+        affected_routes: 'Qatar Airways, European and Asian carriers', duration_estimate: 'Ongoing',
+        disruption_date: '2024-02-01',
+        lat: 25.273, lng: 51.608, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
+      { id: 'ckd-auh', iata: 'AUH', airport_name: 'Abu Dhabi International Airport', country: 'UAE',
+        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.5,
+        ai_summary: 'DISRUPTION ADVISORIES ACTIVE — UAE airspace subject to same Houthi drone/missile threat protocols as DXB. Etihad Airways and other carriers operating with Gulf conflict awareness procedures.',
+        affected_routes: 'Etihad Airways, international carriers', duration_estimate: 'Ongoing risk',
+        disruption_date: '2024-01-18',
+        lat: 24.433, lng: 54.651, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
     ];
 
     /* ── Config ──────────────────────────────────────────────────────────── */
@@ -3362,6 +3383,7 @@
     var currentView        = 'intelligence';
     var activeType         = 'ALL';
     var activeSev          = 'ALL';
+    var activeSort         = 'SCORE';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
     var CAUSE_COLORS = {
@@ -3498,6 +3520,22 @@
         return true;
       });
 
+      /* Apply sort */
+      filtered = filtered.slice().sort(function (a, b) {
+        if (activeSort === 'RECENT') {
+          var da = a.disruption_date || a.time || '1970';
+          var db = b.disruption_date || b.time || '1970';
+          return db < da ? -1 : db > da ? 1 : 0;
+        }
+        if (activeSort === 'NAME') {
+          var na = (a.airport_name || a.iata || '').toLowerCase();
+          var nb = (b.airport_name || b.iata || '').toLowerCase();
+          return na < nb ? -1 : na > nb ? 1 : 0;
+        }
+        /* Default: SCORE - severity descending */
+        return (b.disruption_score || 0) - (a.disruption_score || 0);
+      });
+
       /* AI overview bar */
       var aiEl = document.getElementById('airport-ai-text');
       if (aiEl && !AIRPORT_DATA._offline) {
@@ -3625,12 +3663,25 @@
       var el = document.getElementById('sigmet-mini-list');
       if (!el) return;
       if (!sigmets || sigmets.length === 0) {
-        el.innerHTML = '<div class="sigmet-none">No active SIGMETs reported</div>'; return;
+        el.innerHTML = '<div class="sigmet-none">No active significant weather hazards</div>'; return;
       }
+      var HAZARD_NAMES = {
+        TURB: 'Turbulence', SEV_TURB: 'Severe Turbulence', MOD_TURB: 'Moderate Turbulence',
+        ICE: 'Icing', SEV_ICE: 'Severe Icing', MOD_ICE: 'Moderate Icing',
+        TS: 'Thunderstorm', TSGR: 'Thunderstorm w/Hail',
+        VA: 'Volcanic Ash', TC: 'Tropical Cyclone', MTW: 'Mountain Wave',
+        SS: 'Sandstorm', DS: 'Duststorm',
+      };
       el.innerHTML = sigmets.slice(0, 8).map(function (s) {
-        var area = (s.area || s.rawSigmet || '').replace(/^[A-Z]{2}\d+\s+/, '').slice(0, 80);
+        var code = (s.hazard || 'UNKNOWN').toUpperCase();
+        var name = HAZARD_NAMES[code] || code;
+        var qual = s.qualifier ? ' (' + s.qualifier + ')' : '';
+        var area = (s.area || '').replace(/\s+FIR$/, ' FIR').slice(0, 55);
+        var validTo = s.validTimeTo ? s.validTimeTo.replace('T', ' ').slice(0, 16) + 'Z' : '';
         return '<div class="sigmet-mini-item">'
-          + escHtml((s.hazard || 'UNKNOWN') + (s.qualifier ? '/' + s.qualifier : '') + (area ? ' \u2014 ' + area : ''))
+          + '<b>' + escHtml(name + qual) + '</b>'
+          + (area ? ' \u2014 ' + escHtml(area) : '')
+          + (validTo ? '<span class="sigmet-valid"> until ' + escHtml(validTo) + '</span>' : '')
           + '</div>';
       }).join('');
     }
@@ -3664,6 +3715,9 @@
 
     var sevSelect = document.getElementById('airport-filter-severity');
     if (sevSelect) sevSelect.addEventListener('change', function () { activeSev = this.value; if (AIRPORT_DATA) renderAirportTab(); });
+
+    var sortSelect = document.getElementById('airport-sort-by');
+    if (sortSelect) sortSelect.addEventListener('change', function () { activeSort = this.value; if (AIRPORT_DATA) renderAirportTab(); });
 
     var refreshBtn = document.getElementById('airport-refresh-btn');
     if (refreshBtn) {
