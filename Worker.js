@@ -4578,10 +4578,9 @@ async function handleApiWeatherAviation(env, req) {
  * Returns: { disruptions[], sigmets[], total, updated_at }
  * ─────────────────────────────────────────────────────────────────────────── */
 async function handleApiAviationDisruptions(env, req) {
-  const CACHE_KEY = 'aviation_disruptions_v3';
-  const CACHE_TTL = 10 * 60; // 10 minutes — near-real-time for leadership
+  const CACHE_KEY = 'aviation_disruptions_v4';
+  const CACHE_TTL = 5 * 60; // 5 min — near-real-time operational data
 
-  // Serve from KV cache if still fresh
   try {
     const cached = await kvGetJson(env, CACHE_KEY, null);
     if (cached && cached._ts && (Date.now() - cached._ts) < CACHE_TTL * 1000) {
@@ -4591,19 +4590,14 @@ async function handleApiAviationDisruptions(env, req) {
     }
   } catch (_) {}
 
-  // Helper: fetch with hard timeout
-  const fetchSafe = async (url, opts, timeoutMs) => {
-    const ms = timeoutMs || 8000;
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  const fetchSafe = async (url, opts, ms) => {
     const ac = new AbortController();
-    const t  = setTimeout(() => ac.abort(), ms);
-    try {
-      return await fetch(url, Object.assign({}, opts, { signal: ac.signal }));
-    } finally {
-      clearTimeout(t);
-    }
+    const t  = setTimeout(() => ac.abort(), ms || 7000);
+    try { return await fetch(url, Object.assign({}, opts, { signal: ac.signal })); }
+    finally { clearTimeout(t); }
   };
 
-  // Helper: parse RSS/Atom XML into item array (no DOMParser in Workers)
   const parseRssItems = (xml, sourceDomain) => {
     const items = [];
     const tagRe = /<(?:item|entry)[\s>]([\s\S]*?)<\/(?:item|entry)>/gi;
@@ -4629,7 +4623,103 @@ async function handleApiAviationDisruptions(env, req) {
     return items;
   };
 
-  // 1. Live aviation + Middle East RSS feeds — fetched directly for near-real-time data
+  // ── 1. FAA Live Status — top 25 US airports (real-time, no API key needed) ─
+  const US_HUBS = [
+    'ATL','ORD','DFW','DEN','LAX','JFK','SFO','SEA','LAS','MCO',
+    'EWR','CLT','PHX','MIA','IAH','BOS','MSP','DTW','PHL','LGA',
+    'SLC','MDW','TPA','DCA','IAD',
+  ];
+  const US_HUB_NAMES = {
+    ATL:'Hartsfield-Jackson Atlanta', ORD:"O'Hare International", DFW:'Dallas/Fort Worth',
+    DEN:'Denver International', LAX:'Los Angeles International', JFK:'John F. Kennedy Intl',
+    SFO:'San Francisco International', SEA:'Seattle-Tacoma International', LAS:'Harry Reid International',
+    MCO:'Orlando International', EWR:'Newark Liberty International', CLT:'Charlotte Douglas International',
+    PHX:'Phoenix Sky Harbor', MIA:'Miami International', IAH:'George Bush Intercontinental',
+    BOS:'Boston Logan International', MSP:'Minneapolis-Saint Paul Intl', DTW:'Detroit Metropolitan',
+    PHL:'Philadelphia International', LGA:'LaGuardia', SLC:'Salt Lake City International',
+    MDW:'Chicago Midway', TPA:'Tampa International', DCA:'Reagan Washington National',
+    IAD:'Washington Dulles International',
+  };
+
+  const faaResults = await Promise.allSettled(
+    US_HUBS.map(iata =>
+      fetchSafe('https://soa.smext.faa.gov/asws/api/airport/status/' + iata, {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' },
+      }, 6000).then(r => r.ok ? r.json() : null).catch(() => null)
+    )
+  );
+
+  const faaDisruptions = [];
+  US_HUBS.forEach((iata, i) => {
+    const res = faaResults[i];
+    const d   = (res.status === 'fulfilled') ? res.value : null;
+    if (!d || !d.delay) return;
+
+    const programs = Array.isArray(d.status) ? d.status : [];
+    let score = 2.0;
+    const progTexts = [];
+
+    programs.forEach(function(p) {
+      const type   = (p.type   || p.Type   || '').toLowerCase();
+      const reason = (p.reason || p.Reason || 'N/A');
+      const maxD   = p.maxDelay || p.Max || '';
+      const minD   = p.minDelay || p.Min || '';
+      const hm = (maxD || minD).match(/(\d+)\s*hour/i);
+      const mm = (maxD || minD).match(/(\d+)\s*min/i);
+      const maxMins = (hm ? parseInt(hm[1]) * 60 : 0) + (mm ? parseInt(mm[1]) : 0);
+
+      if (type.includes('ground stop') || type.includes('closure')) {
+        score = Math.max(score, 5.0);
+        progTexts.push('GROUND STOP — ' + reason);
+      } else if (type.includes('ground delay')) {
+        score = Math.max(score, maxMins >= 90 ? 4.5 : 4.0);
+        progTexts.push('GROUND DELAY ' + (maxD || minD || '') + ' — ' + reason);
+      } else if (type.includes('airspace flow')) {
+        score = Math.max(score, 3.5);
+        progTexts.push('AIRSPACE FLOW — ' + reason);
+      } else if (type.includes('departure')) {
+        score = Math.max(score, maxMins >= 120 ? 3.5 : maxMins >= 60 ? 3.0 : 2.5);
+        progTexts.push('DEP DELAY ' + (maxD || minD || '') + ' — ' + reason);
+      } else if (type.includes('arrival')) {
+        score = Math.max(score, maxMins >= 90 ? 3.0 : 2.0);
+        progTexts.push('ARR DELAY ' + (maxD || minD || '') + ' — ' + reason);
+      } else {
+        score = Math.max(score, 2.0);
+        progTexts.push((p.type || 'DELAY') + ' — ' + reason);
+      }
+    });
+
+    const allText = programs.map(function(p) { return p.reason || ''; }).join(' ').toLowerCase();
+    const cause   = /wind|weather|storm|fog|snow|ice|thunder|vis|rain/i.test(allText) ? 'WEATHER'
+                  : /vol|capacity|traffic|staffing|equip|tech/i.test(allText) ? 'TECHNICAL'
+                  : 'OTHER';
+    const sev     = score >= 5 ? 'CRITICAL' : score >= 4 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
+    const coords  = AIRPORT_COORDS[iata];
+
+    faaDisruptions.push({
+      id:                    'faa-' + iata,
+      iata,
+      airport_name:          d.name || US_HUB_NAMES[iata] || iata,
+      city:                  d.city  || '',
+      country:               'United States',
+      cause_type:            cause,
+      severity:              sev,
+      disruption_score:      score,
+      ai_summary:            progTexts.join('; ') || 'Active delay at ' + iata,
+      current_flights_impacted: progTexts.join(' | '),
+      affected_routes:       'All flights at ' + (d.name || iata),
+      duration_estimate:     'Active now — check FAA for updates',
+      link:                  'https://nasstatus.faa.gov/',
+      time:                  new Date().toISOString(),
+      source:                'FAA Live Status',
+      source_type:           'FAA_LIVE',
+      confidence:            'HIGH',
+      lat:                   coords ? coords.lat : 0,
+      lng:                   coords ? coords.lng : 0,
+    });
+  });
+
+  // ── 2. Live aviation + Middle East RSS feeds ──────────────────────────────
   const LIVE_FEEDS = [
     { url: 'https://avherald.com/h?subscribe=rss',                    label: 'avherald.com' },
     { url: 'https://simpleflying.com/feed/',                          label: 'simpleflying.com' },
@@ -4649,30 +4739,29 @@ async function handleApiAviationDisruptions(env, req) {
   );
 
   const liveItems = [];
-  feedResults.forEach(result => {
+  feedResults.forEach(function(result) {
     if (result.status === 'fulfilled') liveItems.push(...parseRssItems(result.value.text, result.value.label));
   });
 
-  // 2. KV-ingested news items (supplement)
+  // ── 3. KV-ingested news supplement ───────────────────────────────────────
   const raw     = await kvGetJson(env, INCIDENTS_KV_KEY, []);
   const kvItems = Array.isArray(raw) ? raw.slice(0, 150) : [];
 
-  // 3. Filter: aviation keywords OR Middle East + flight-related keywords
-  const AVIATION_RE = /\b(airport|airspace|air\s?space|flight\s+cancel|flight\s+suspend|airline|runway|aviation|aerodrome|no.fly\s+zone|grounded|diverted|diversion|atc|notam|sigmet|terminal\s+clos|air\s+traffic|departure\s+halt|arrival\s+halt|flights?\s+suspended|airspace\s+clos|airport\s+clos|airport\s+shut|air\s+route|fly\s+ban|airfield)\b/i;
-  const MIDEAST_RE  = /\b(israel|gaza|beirut|lebanon|iraq|baghdad|iran|tehran|yemen|sanaa|jordan|amman|syria|damascus|hamas|hezbollah|houthi|persian\s+gulf|red\s+sea)\b/i;
+  const AVIATION_RE = /\b(airport|airspace|flight\s+cancel|flight\s+suspend|airline|runway|aviation|aerodrome|no.fly|grounded|diverted|atc|notam|sigmet|terminal\s+clos|air\s+traffic|departure\s+halt|flights?\s+suspended|airspace\s+clos|airport\s+clos|airport\s+shut)\b/i;
+  const MIDEAST_RE  = /\b(israel|gaza|beirut|lebanon|iraq|iran|tehran|yemen|sanaa|jordan|amman|syria|damascus|hamas|hezbollah|houthi)\b/i;
   const FLIGHT_RE   = /\b(flight|airport|air|airspace|missile|attack|strike|close|restrict|suspend)\b/i;
 
   const seenTitles = new Set();
-  const aviationItems = [...liveItems, ...kvItems].filter(i => {
+  const aviationItems = [...liveItems, ...kvItems].filter(function(i) {
     const text = (i.title || '') + ' ' + (i.summary || '');
     if (!AVIATION_RE.test(text) && !(MIDEAST_RE.test(text) && FLIGHT_RE.test(text))) return false;
     const key = (i.title || '').slice(0, 60);
     if (seenTitles.has(key)) return false;
     seenTitles.add(key);
     return true;
-  }).sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 30);
+  }).sort(function(a, b) { return new Date(b.time).getTime() - new Date(a.time).getTime(); }).slice(0, 30);
 
-  // 4. Active SIGMETs
+  // ── 4. Active SIGMETs ────────────────────────────────────────────────────
   let sigmets = [];
   try {
     const sr = await fetchSafe('https://aviationweather.gov/api/data/sigmet?format=json', {
@@ -4682,148 +4771,49 @@ async function handleApiAviationDisruptions(env, req) {
     if (sr.ok) {
       const sd = await sr.json();
       const rawS = Array.isArray(sd) ? sd : (sd.data || sd.features || []);
-      sigmets = rawS.slice(0, 25).map((s, idx) => ({
-        id: s.isigmetId || s.sigmetId || s.id || ('sigmet-' + idx),
-        hazard:        s.hazard    || s.phenomenon || 'UNKNOWN',
-        qualifier:     s.qualifier || '',
-        area:          s.area      || s.firName || s.fir || 'Unknown region',
-        validTimeFrom: s.validTimeFrom || s.validTime || '',
-        validTimeTo:   s.validTimeTo   || '',
-        rawSigmet:    (s.rawAirSigmet  || s.rawSigmet || s.text || '').slice(0, 250),
-      }));
+      sigmets = rawS.slice(0, 25).map(function(s, idx) {
+        return {
+          id:            s.isigmetId || s.sigmetId || s.id || ('sigmet-' + idx),
+          hazard:        s.hazard    || s.phenomenon || 'UNKNOWN',
+          qualifier:     s.qualifier || '',
+          area:          s.area      || s.firName || s.fir || 'Unknown region',
+          validTimeFrom: s.validTimeFrom || s.validTime || '',
+          validTimeTo:   s.validTimeTo   || '',
+          rawSigmet:    (s.rawAirSigmet  || s.rawSigmet || s.text || '').slice(0, 250),
+        };
+      });
     }
   } catch (_) {}
 
-  // 5. Verified Ongoing Disruptions — leadership-grade authoritative baseline (March 2026)
-  // These reflect the CURRENT situation. Shown even when live feeds have no new articles.
-  // Status last reviewed: March 2026. AI live feed data takes priority if it detects updates.
-  const KNOWN_ONGOING = [
-    {
-      airport_name: 'Ben Gurion International Airport', iata: 'TLV', country: 'Israel',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'Many European/US carriers have RESUMED Tel Aviv routes following Jan 2025 Gaza ceasefire, but with booking flexibility. El Al, Ryanair, EasyJet, Wizz Air, Delta, United currently operating. Some carriers still suspended or operating reduced schedules.',
-      ai_summary: 'Ben Gurion Airport operational but under elevated threat from ongoing Gaza conflict and Iran tensions. Post-January 2025 ceasefire deal, most major Western airlines have restored or partially restored routes, though airspace can be closed without notice during security incidents. Elevated security protocols in effect.',
-      affected_routes: 'Currently operating: El Al, Ryanair, EasyJet, Delta, United, Wizz Air (verify before booking). Risk of sudden airspace closure remains.',
-      duration_estimate: 'Ongoing — elevated risk, ceasefire fragile',
-      lat: 32.0114, lng: 34.8867,
-    },
-    {
-      airport_name: 'Rafic Hariri International Airport', iata: 'BEY', country: 'Lebanon',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'Airlines gradually returning to Beirut following November 2024 ceasefire. Middle East Airlines (MEA), Air Arabia, flydubai, Turkish Airlines operating. Air France, Lufthansa, British Airways have announced partial resumptions. Ongoing reconstruction reduces ground infrastructure capacity.',
-      ai_summary: 'Beirut Airport recovering following November 2024 Lebanon-Israel ceasefire. Most major carriers suspended during conflict are progressively resuming routes in 2025-2026. MEA is the primary operator. Airport is operational but some airlines cite ongoing security risk assessments before full resumption.',
-      affected_routes: 'MEA, Turkish Airlines, flydubai, Air Arabia operating. Air France, Lufthansa, BA — partial/limited resumption. Verify current schedule with airline.',
-      duration_estimate: 'Recovering — some carriers still evaluating',
-      lat: 33.8209, lng: 35.4884,
-    },
-    {
-      airport_name: 'Sanaa International Airport', iata: 'SAA', country: 'Yemen',
-      cause_type: 'CONFLICT', severity: 'CRITICAL',
-      current_flights_impacted: 'ZERO commercial flights. Airport effectively closed since 2016. No scheduled domestic or international commercial service. Only UN, ICRC, and humanitarian relief flights operate with special coordination.',
-      ai_summary: 'Sanaa Airport remains closed to all commercial aviation. Houthi forces control the capital; the airport has been subjected to airstrikes and remains a conflict zone. No commercial airline operates scheduled service. Only humanitarian and UN relief flights with special coordination are permitted.',
-      affected_routes: 'ALL commercial airlines — no service. UN/ICRC humanitarian flights only.',
-      duration_estimate: 'Indefinite — no commercial service',
-      lat: 15.4783, lng: 44.2197,
-    },
-    {
-      airport_name: 'Gaza Strip Airspace', iata: null, country: 'Palestinian Territories',
-      cause_type: 'CONFLICT', severity: 'CRITICAL',
-      current_flights_impacted: 'Gaza airspace is a designated combat zone. All civilian aviation prohibited. Gaza International Airport (GZA) was destroyed in 2001 and has never been rebuilt. Israeli military operations enforce total airspace exclusion zone.',
-      ai_summary: 'Gaza airspace permanently closed to all civilian flights due to active military operations. Israeli Air Force maintains exclusive control of the airspace. Gaza International Airport infrastructure was destroyed and is not operational. The conflict has caused Israeli airspace adjacent restrictions affecting regional flight paths.',
-      affected_routes: 'All civilian flights prohibited. Israeli airspace restrictions affect routing of flights to/from Jordan, Egypt, and Cyprus.',
-      duration_estimate: 'Indefinite — active conflict zone',
-      lat: 31.4000, lng: 34.3667,
-    },
-    {
-      airport_name: 'Baghdad International Airport', iata: 'BGW', country: 'Iraq',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'Iraqi Airways, Turkish Airlines, flydubai, Air Arabia, Qatar Airways, Emirates operating regular services. Most US and UK carriers avoid Iraqi airspace due to NOTAM restrictions. Rocket/drone attacks on the International Zone remain an ongoing threat requiring flight path adjustments.',
-      ai_summary: 'Baghdad International Airport operational with regular services from regional and some international carriers. The airport operates under ongoing security threat from Iran-aligned militia groups. US, UK, and Australian government advisories warn against flying over or into Iraq. Emergency diversions to Kuwait, Jordan or UAE occur periodically.',
-      affected_routes: 'Iraqi Airways, Turkish, flydubai, Qatar, Emirates operating. US/UK/Australian carriers avoid Iraqi airspace per government advisories.',
-      duration_estimate: 'Ongoing — periodic threat escalations',
-      lat: 33.2625, lng: 44.2346,
-    },
-    {
-      airport_name: 'Damascus International Airport', iata: 'DAM', country: 'Syria',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'Limited services resuming under new Syrian transitional government (post-Assad, late 2024). Syrian Arab Airlines and Cham Wings operate domestically and limited regional routes. Some Gulf carriers exploring resumption. No European, US, or major international carrier operates Damascus routes.',
-      ai_summary: 'Damascus Airport in a recovery phase following the fall of the Assad government in late 2024. New transitional authorities have prioritised restoring commercial aviation as part of economic reconstruction. Some regional carriers are exploring resumption. Airspace security has improved but normalisation of major international routes is expected to take 12-24 months.',
-      affected_routes: 'Syrian Arab Airlines, Cham Wings — domestic/limited regional. Some Gulf carriers exploring routes. No Western international carriers.',
-      duration_estimate: 'Gradual recovery — 12-24 months to normalise',
-      lat: 33.4114, lng: 36.5156,
-    },
-    {
-      airport_name: 'Russian Airspace (UUWW/URRR FIR)', iata: null, country: 'Russia',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'EU, US, UK, Canadian and most Western carriers barred from Russian airspace since February 2022. Affects ALL Europe-to-East-Asia routes. Carriers including Lufthansa, Air France, BA, Finnair, SAS, Delta, United, American, Air Canada forced onto longer southerly routes via Central Asia or Middle East. Average 2-4 hour route extension. Russian carriers banned from EU/UK/US airspace.',
-      ai_summary: 'Russian airspace closure to Western carriers — now in its fourth year — remains one of the most significant ongoing flight disruptions globally. Over 150 international airlines cannot use Russian airspace, adding billions in fuel costs and hours of flight time to Europe-Asia routes. Aeroflot and Russian carriers remain banned from EU, UK, US airspace. No resolution in sight pending Ukraine conflict settlement.',
-      affected_routes: 'ALL EU, US, UK, Canadian, Australian, Japanese, Korean carriers. Affected routes: Europe-Japan, Europe-Korea, Europe-China, Europe-India (extended). Aeroflot/Russian carriers banned from EU/UK/US.',
-      duration_estimate: 'Indefinite — Ukraine conflict ongoing',
-      lat: 55.4146, lng: 37.9004,
-    },
-    {
-      airport_name: 'Imam Khomeini International Airport', iata: 'IKA', country: 'Iran',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'No US, EU, UK carriers operate to Iran due to sanctions. Iranian airspace was closed during regional escalations. Mahan Air, Iran Air, Turkish Airlines, Flydubai and some Central Asian carriers operate limited services. Risk of sudden airspace closure remains during any new Iran-Israel military exchange.',
-      ai_summary: 'Iran remains effectively isolated from Western aviation. US, EU and UK economic sanctions prohibit Western carriers. Iranian airspace closures during military exchanges with Israel remain a credible near-term risk. Regional and Central Asian carriers maintain limited connections. Aircraft overflying Iranian FIR must have contingency diversion plans.',
-      affected_routes: 'No Western carriers. Iran Air, Mahan Air, Turkish Airlines, flydubai operating. Sudden closure risk for overflying aircraft.',
-      duration_estimate: 'Ongoing — no near-term normalisation expected',
-      lat: 35.4161, lng: 51.1522,
-    },
-    {
-      airport_name: 'Aden International Airport', iata: 'ADE', country: 'Yemen',
-      cause_type: 'CONFLICT', severity: 'HIGH',
-      current_flights_impacted: 'Yemenia Airways operates extremely limited domestic and regional services. Houthi drone and missile attacks on Aden remain ongoing. Gulf carriers avoid Aden. Red Sea Houthi threat forces Gulf-Africa routes to avoid Yemeni airspace FIR, adding significant route extensions for East Africa-Gulf flights.',
-      ai_summary: 'Aden Airport in southern Yemen faces ongoing Houthi missile and drone attacks despite ceasefire negotiations. Operations are extremely limited. The Houthi Red Sea maritime campaign directly impacts regional aviation corridors overflying Yemeni FIR, forcing route changes for carriers operating Gulf-East Africa routes. No normalisation expected while Houthi campaign continues.',
-      affected_routes: 'Yemenia Airways only (limited). Gulf-to-East-Africa carriers rerouting to avoid Yemeni airspace FIR.',
-      duration_estimate: 'Ongoing — Houthi campaign active',
-      lat: 12.8295, lng: 45.0288,
-    },
-  ];
-
-  // 6. AI extraction from live + KV articles
+  // ── 5. AI extraction — news-based international disruptions ──────────────
   let aiDisruptions = [];
   if ((env.ANTHROPIC_API_KEY || env.GROQ_API_KEY) && aviationItems.length > 0) {
-    const sysPrompt = 'You are an aviation intelligence analyst providing real-time data to executive leadership. Return only valid JSON arrays. Be accurate and factual — only extract confirmed disruptions from the source articles provided.';
-    const itemLines = aviationItems.slice(0, 20).map((i, n) =>
-      '[' + (n + 1) + '] SOURCE: ' + (i.source || 'news') +
-      '\nTITLE: ' + (i.title || '') +
-      '\nDETAILS: ' + (i.summary || '').slice(0, 250) +
-      '\nTIME: ' + (i.time || '')
-    ).join('\n\n');
-    const userPrompt = 'Analyze ' + aviationItems.length + ' current news items. Extract CONFIRMED CURRENT flight and aviation disruptions only.\n\n'
-      + 'PRIORITY — extract these types (highest to lowest priority):\n'
-      + '1. AIRLINE ROUTE SUSPENSIONS: "Airline X suspends/cancels all flights to Y" — name the specific airline and route\n'
-      + '2. AIRSPACE CLOSURES: national airspace closed or restricted — which country, which airlines affected\n'
-      + '3. AIRPORT CLOSURES/RESTRICTIONS: full or partial closures with CURRENT status\n'
-      + '4. FLIGHT DIVERSIONS/GROUNDINGS: specific aircraft or fleets grounded\n'
-      + '5. WEATHER DISRUPTIONS: storms, volcanic ash, causing CURRENT flight cancellations\n'
-      + '6. ATC/STRIKE DISRUPTIONS: affecting specific airports or regions\n\n'
-      + 'RULES:\n'
-      + '- Only include CURRENT disruptions — discard anything resolved or historical\n'
-      + '- Must name specific airline(s) or route(s) affected where possible\n'
-      + '- Prioritize: Middle East (Israel/Gaza, Lebanon, Yemen, Iraq, Iran), Russia/Ukraine, major weather\n'
-      + '- SKIP: new route announcements, airline earnings, minor delays, past events\n\n'
-      + 'For each disruption return:\n'
-      + '{"airport_name":"Airport or region name","iata":"IATA code or null","country":"Country",'
-      + '"cause_type":"CONFLICT|WEATHER|STRIKE|TECHNICAL|OTHER","severity":"CRITICAL|HIGH|MEDIUM|LOW",'
-      + '"ai_summary":"2-sentence current status with specific airlines, routes, and impact",'
-      + '"current_flights_impacted":"List specific airlines and routes currently impacted",'
-      + '"affected_routes":"Specific airlines/routes affected RIGHT NOW",'
-      + '"duration_estimate":"Current expected duration or Ongoing",'
+    const sysPrompt = 'You are an aviation analyst. Return only valid JSON arrays. Only extract CURRENT, CONFIRMED, OPERATIONAL disruptions happening RIGHT NOW.';
+    const itemLines = aviationItems.slice(0, 20).map(function(i, n) {
+      return '[' + (n + 1) + '] SOURCE: ' + (i.source || 'news') +
+             '\nTITLE: ' + (i.title || '') +
+             '\nDETAILS: ' + (i.summary || '').slice(0, 250) +
+             '\nTIME: ' + (i.time || '');
+    }).join('\n\n');
+    const userPrompt = 'Extract CURRENT operational flight disruptions from these news items.\n\n'
+      + 'INCLUDE: active cancellations, delays, airport closures, airspace restrictions, ATC strikes, weather groundings.\n'
+      + 'SKIP: past events, new route announcements, airline business news, anything resolved.\n'
+      + 'For each disruption: {"airport_name":"name","iata":"code or null","country":"country",'
+      + '"cause_type":"WEATHER|CONFLICT|STRIKE|TECHNICAL|OTHER","severity":"CRITICAL|HIGH|MEDIUM|LOW",'
+      + '"disruption_score":number_0_to_5,'
+      + '"ai_summary":"current status in 2 sentences with specific airline/route names",'
+      + '"current_flights_impacted":"specific airlines and routes affected RIGHT NOW",'
+      + '"affected_routes":"affected airlines/routes","duration_estimate":"duration",'
       + '"lat":number,"lng":number,"confidence":"HIGH|MEDIUM"}\n\n'
-      + 'NEWS ITEMS (from live aviation + conflict feeds — analyze what is CURRENT):\n'
-      + itemLines + '\n\nReturn ONLY valid JSON array. Empty [] if no confirmed CURRENT disruptions.';
-
+      + 'NEWS:\n' + itemLines + '\n\nReturn ONLY valid JSON array. [] if nothing current.';
     try {
       const aiText = await callLLM(env, [{ role: 'user', content: userPrompt }], {
-        max_tokens: 3000,
-        system: sysPrompt,
+        max_tokens: 3000, system: sysPrompt,
       });
       const m = aiText.match(/\[[\s\S]*\]/);
       if (m) {
         const parsed = JSON.parse(m[0]);
-        aiDisruptions = parsed.map((d, idx) => {
+        aiDisruptions = parsed.map(function(d, idx) {
           const inc   = aviationItems[idx] || {};
           const known = d.iata && AIRPORT_COORDS[d.iata];
           return Object.assign({}, d, {
@@ -4832,39 +4822,103 @@ async function handleApiAviationDisruptions(env, req) {
             time:        inc.time || new Date().toISOString(),
             source:      inc.source || 'live-feed',
             source_type: 'LIVE_FEED',
-            lat:  (known ? known.lat : null) || (typeof d.lat === 'number' ? d.lat : null) || 0,
-            lng:  (known ? known.lng : null) || (typeof d.lng === 'number' ? d.lng : null) || 0,
+            disruption_score: d.disruption_score || (d.severity === 'CRITICAL' ? 4.5 : d.severity === 'HIGH' ? 3.5 : 2.5),
+            lat: (known ? known.lat : null) || (typeof d.lat === 'number' ? d.lat : null) || 0,
+            lng: (known ? known.lng : null) || (typeof d.lng === 'number' ? d.lng : null) || 0,
           });
-        }).filter(d => d.airport_name && (d.lat !== 0 || d.lng !== 0));
+        }).filter(function(d) { return d.airport_name && (d.lat !== 0 || d.lng !== 0); });
       }
     } catch (e) {
       typeof debug === 'function' && debug('handleApiAviationDisruptions AI', e && e.message);
     }
   }
 
-  // 7. Merge AI live results + KNOWN_ONGOING (skip duplicate IATA codes)
-  const seenIata = new Set(aiDisruptions.map(d => d.iata).filter(Boolean));
-  const ongoingToAdd = KNOWN_ONGOING
-    .filter(k => !seenIata.has(k.iata))
-    .map((k, i) => Object.assign({}, k, {
-      id:          'known-ongoing-' + (k.iata || i),
+  // ── 6. Operational disruptions (FAA live + AI from news) — sorted by score ─
+  const seenFaaIata = new Set(faaDisruptions.map(function(d) { return d.iata; }).filter(Boolean));
+  const aiNotFaa    = aiDisruptions.filter(function(d) { return !d.iata || !seenFaaIata.has(d.iata); });
+  const disruptions = faaDisruptions.concat(aiNotFaa)
+    .sort(function(a, b) { return (b.disruption_score || 0) - (a.disruption_score || 0); });
+
+  // ── 7. Conflict context — SEPARATE from operational disruptions ───────────
+  // Geopolitical risk zones: not real-time operational data, but important context.
+  const CONFLICT_CONTEXT = [
+    {
+      airport_name: 'Ben Gurion International Airport', iata: 'TLV', country: 'Israel',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'Currently operating: El Al, Ryanair, EasyJet, Delta, United, Wizz Air. Risk of sudden airspace closure during security incidents remains. Verify with airline before travel.',
+      ai_summary: 'Ben Gurion operational post-January 2025 ceasefire. Most Western carriers have resumed routes. Elevated security protocols remain. Emergency airspace closures possible during security incidents.',
+      affected_routes: 'Most carriers restored. El Al, Delta, United, Wizz Air, Ryanair operating.',
+      duration_estimate: 'Ongoing elevated risk',
+      lat: 32.0114, lng: 34.8867,
+    },
+    {
+      airport_name: 'Rafic Hariri International Airport', iata: 'BEY', country: 'Lebanon',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'MEA, Turkish Airlines, flydubai operating. Air France, Lufthansa, BA have partial resumptions. Ongoing infrastructure repairs limit capacity.',
+      ai_summary: 'Beirut recovering following November 2024 ceasefire. Airlines gradually resuming. MEA primary operator. Some Western carriers still evaluating full return.',
+      affected_routes: 'MEA, Turkish Airlines, flydubai, Air Arabia. Air France/Lufthansa/BA partial.',
+      duration_estimate: 'Recovery phase',
+      lat: 33.8209, lng: 35.4884,
+    },
+    {
+      airport_name: 'Sanaa International Airport', iata: 'SAA', country: 'Yemen',
+      cause_type: 'CONFLICT', severity: 'CRITICAL',
+      current_flights_impacted: 'ZERO commercial flights. Closed since 2016. UN/humanitarian only.',
+      ai_summary: 'Completely closed to commercial aviation since 2016. Houthi-controlled. No scheduled service.',
+      affected_routes: 'No commercial service — UN/humanitarian only.',
+      duration_estimate: 'Indefinite',
+      lat: 15.4783, lng: 44.2197,
+    },
+    {
+      airport_name: 'Baghdad International Airport', iata: 'BGW', country: 'Iraq',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'Iraqi Airways, Turkish Airlines, flydubai, Qatar Airways, Emirates operating. Most US/UK carriers avoid Iraqi airspace per government advisories.',
+      ai_summary: 'Operational but under persistent militia threat. Most regional carriers operating. Western carriers largely absent due to government travel advisories.',
+      affected_routes: 'Iraqi Airways, Turkish Airlines, Qatar, Emirates operating. US/UK carriers avoid.',
+      duration_estimate: 'Ongoing risk',
+      lat: 33.2625, lng: 44.2346,
+    },
+    {
+      airport_name: 'Russian Airspace (UUWW FIR)', iata: null, country: 'Russia',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'ALL EU, US, UK, Canadian, Australian carriers banned from Russian airspace since Feb 2022. Forces 2-4h longer routes for ALL Europe-Asia flights. Affects Lufthansa, Air France, BA, Delta, United, Air Canada, JAL, ANA, Korean Air, and 140+ other carriers.',
+      ai_summary: 'Russian airspace ban for Western carriers in its 4th year. Affects every Europe-Asia route. Billions in extra fuel costs annually. No resolution expected pending Ukraine conflict end.',
+      affected_routes: '140+ carriers globally rerouted. Europe-Japan/Korea/China routes most affected.',
+      duration_estimate: 'Indefinite — Ukraine conflict ongoing',
+      lat: 55.4146, lng: 37.9004,
+    },
+    {
+      airport_name: 'Damascus International Airport', iata: 'DAM', country: 'Syria',
+      cause_type: 'CONFLICT', severity: 'HIGH',
+      current_flights_impacted: 'Syrian Arab Airlines, Cham Wings only. No major international carriers. Post-Assad transitional government working to restore aviation connections.',
+      ai_summary: 'Damascus in recovery phase post-Assad (late 2024). Limited international connectivity. New government seeking to normalise aviation. Full recovery expected 2026-2027.',
+      affected_routes: 'Syrian Arab Airlines, Cham Wings only.',
+      duration_estimate: 'Gradual recovery 2026-2027',
+      lat: 33.4114, lng: 36.5156,
+    },
+  ];
+
+  const conflictContext = CONFLICT_CONTEXT.map(function(k, i) {
+    return Object.assign({}, k, {
+      id:          'conflict-ctx-' + (k.iata || i),
       link:        '',
       time:        new Date().toISOString(),
-      source:      'Verified Ongoing',
+      source:      'Conflict Context',
       source_type: 'VERIFIED_ONGOING',
       confidence:  'HIGH',
-    }));
-
-  const disruptions = aiDisruptions.concat(ongoingToAdd);
+    });
+  });
 
   const result = {
-    disruptions,
+    disruptions,          // operational: FAA live + AI news-extracted
+    conflict_context:     conflictContext,  // geopolitical risk context (separate section)
     sigmets,
-    total:              disruptions.length,
-    live_items_fetched: aviationItems.length,
-    live_feeds_checked: LIVE_FEEDS.length,
-    updated_at:         new Date().toISOString(),
-    _ts:                Date.now(),
+    total:                disruptions.length,
+    faa_airports_checked: US_HUBS.length,
+    faa_airports_delayed: faaDisruptions.length,
+    live_items_fetched:   aviationItems.length,
+    updated_at:           new Date().toISOString(),
+    _ts:                  Date.now(),
   };
 
   try {
@@ -4876,6 +4930,7 @@ async function handleApiAviationDisruptions(env, req) {
     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
   });
 }
+
 /* ===========================
    TIER-3 AI ENDPOINTS
    =========================== */
