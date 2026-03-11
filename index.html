@@ -1904,7 +1904,7 @@
     body.dark-mode #btn-reset-layout:hover { background: #3a2000; }
 
     /* ================================================================
-       STREAM SECTION — resizable height
+       STREAM SECTION — resizable height (legacy selectors kept)
        ================================================================ */
     .stream-section {
       position: relative;
@@ -1914,6 +1914,16 @@
       resize: vertical;
       min-height: 300px;
       padding-bottom: 4px;
+    }
+
+    /* ── Stream widget inside GridStack — feed must scroll in cell ──── */
+    #sidebar-grid .grid-stack-item[gs-id="stream"] .stream-header    { flex-shrink: 0; }
+    #sidebar-grid .grid-stack-item[gs-id="stream"] .critical-alert-bar { flex-shrink: 0; }
+    #sidebar-grid .grid-stack-item[gs-id="stream"] #convergence-strip  { flex-shrink: 0; }
+    #sidebar-grid .grid-stack-item[gs-id="stream"] #general-news-feed  {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
     }
   </style>
 </head>
@@ -2210,7 +2220,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="15" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2246,7 +2256,7 @@
             </div>
 
             <!-- ⑤ Country Instability Index -->
-            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="15" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="23" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2898,27 +2908,29 @@
   (function () {
     'use strict';
 
-    var LAYOUT_KEY  = 'infohub_sidebar_layout_v1';
-    var HIDDEN_KEY  = 'infohub_hidden_widgets_v1';
+    var LAYOUT_KEY  = 'infohub_sidebar_layout_v2';
+    var HIDDEN_KEY  = 'infohub_hidden_widgets_v2';
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {
-      markets:    { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
-      history:    { label: 'History Search',        icon: 'fa-history'       },
-      travel:     { label: 'Travel Safety Check',   icon: 'fa-plane'         },
-      proximity:  { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
-      cii:        { label: 'Country Instability',   icon: 'fa-globe-americas'},
-      currencies: { label: 'Currency Rates',        icon: 'fa-exchange-alt'  },
+      stream:           { label: 'Intelligence Stream',  icon: 'fa-rss'            },
+      markets:          { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
+      history:          { label: 'History Search',        icon: 'fa-history'       },
+      proximity:        { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
+      cii:              { label: 'Country Instability',   icon: 'fa-globe-americas'},
+      'intel-signals':  { label: 'Intel Signals',         icon: 'fa-project-diagram'},
+      sentiment:        { label: 'Sentiment Drift',       icon: 'fa-wave-square'   },
     };
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'markets',    x: 0, y: 0,  w: 12, h: 5 },
-      { id: 'history',    x: 0, y: 5,  w: 12, h: 2 },
-      { id: 'travel',     x: 0, y: 7,  w: 12, h: 3 },
-      { id: 'proximity',  x: 0, y: 10, w: 12, h: 8 },
-      { id: 'cii',        x: 0, y: 18, w: 12, h: 7 },
-      { id: 'currencies', x: 0, y: 25, w: 12, h: 6 },
+      { id: 'stream',         x: 0, y: 0,  w: 12, h: 8 },
+      { id: 'history',        x: 0, y: 8,  w: 12, h: 2 },
+      { id: 'markets',        x: 0, y: 10, w: 12, h: 5 },
+      { id: 'proximity',      x: 0, y: 15, w: 12, h: 8 },
+      { id: 'cii',            x: 0, y: 23, w: 12, h: 7 },
+      { id: 'intel-signals',  x: 0, y: 30, w: 12, h: 5 },
+      { id: 'sentiment',      x: 0, y: 35, w: 12, h: 6 },
     ];
 
     var grid;
