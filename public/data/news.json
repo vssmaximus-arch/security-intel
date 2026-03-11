@@ -4,18 +4,8 @@
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event detected via keyword matching.",
     "source": "nytimes.com",
-    "time": "2026-03-11T22:01:37+00:00",
+    "time": "2026-03-11T22:56:46+00:00",
     "region": "EMEA",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Why does Iran war pose more dilemmas for Europe?",
-    "url": "https://www.aljazeera.com/video/inside-story/2026/3/11/why-does-the-iran-war-pose-more-dilemmas-for-europe?traffic_source=rss",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T20:41:48+00:00",
-    "region": "APJC",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -25,26 +15,6 @@
     "snippet": "Physical security event detected via keyword matching.",
     "source": "nytimes.com",
     "time": "2026-03-11T20:30:05+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Two killed as tornadoes sweep across US Midwest in latest extreme weather",
-    "url": "https://www.aljazeera.com/news/2026/3/11/two-killed-as-tornadoes-sweep-across-us-midwest-in-latest-extreme-weather?traffic_source=rss",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T20:26:04+00:00",
-    "region": "APJC",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Three brothers arrested in Norway over bomb attack on US embassy in Oslo",
-    "url": "https://www.aljazeera.com/news/2026/3/11/three-brothers-arrested-in-norway-over-bomb-attack-on-us-embassy-in-oslo?traffic_source=rss",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T19:34:22+00:00",
     "region": "Global",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
@@ -170,6 +140,36 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "China’s Military Has Quietly Cut Flying Near Taiwan",
+    "url": "https://www.nytimes.com/2026/03/11/world/asia/taiwan-china-military-planes.html",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T23:05:47+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump: ‘I don’t know’ about report US at fault in school strike",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/11/trump-i-dont-know-about-report-us-at-fault-in-school-strike?traffic_source=rss",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T22:38:41+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "How Trump has addressed the deadly Iran school bombing",
+    "url": "https://www.aljazeera.com/news/2026/3/11/how-trump-has-addressed-the-deadly-iran-school-bombing?traffic_source=rss",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T21:55:51+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
     "title": "Iranian school was on U.S. target list, may have been mistaken as military site",
     "url": "https://www.washingtonpost.com/national-security/2026/03/11/us-strike-iran-elementary-school-ai-target-list/",
     "snippet": "Supply chain or logistics disruption detected.",
@@ -228,16 +228,6 @@
     "region": "EMEA",
     "severity": 2,
     "type": "CRISIS / WEATHER"
-  },
-  {
-    "title": "China’s Military Has Quietly Cut Flying Near Taiwan",
-    "url": "https://www.nytimes.com/2026/03/11/world/asia/taiwan-china-military-planes.html",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T15:07:46+00:00",
-    "region": "APJC",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "IEA orders largest ever release of stockpiled oil to reduce crude price",
@@ -310,6 +300,36 @@
     "type": "SUPPLY CHAIN"
   },
   {
+    "title": "Big Tech backs Anthropic in fight against Trump administration",
+    "url": "https://www.bbc.com/news/articles/c4g7k7zdd0zo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T22:46:44+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "South Africa summons new US ambassador over ‘undiplomatic remarks’",
+    "url": "https://www.aljazeera.com/news/2026/3/11/south-africa-summons-new-us-ambassador-over-undiplomatic-remarks?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T22:33:32+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Iran-linked hackers hit medical giant Stryker in retaliatory cyberattack",
+    "url": "https://www.aljazeera.com/news/2026/3/11/iran-linked-hackers-hit-medical-giant-stryker-in-retaliatory-cyberattack?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T22:32:40+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "New US ambassador to South Africa summoned over 'undiplomatic remarks'",
     "url": "https://www.bbc.com/news/articles/c14m1vzmxz3o?at_medium=RSS&at_campaign=rss",
     "snippet": "Classified by keyword heuristic; review recommended.",
@@ -340,16 +360,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "UN’s failure to stop Iranian attacks sending ‘dangerous signal’: Qatar",
-    "url": "https://www.aljazeera.com/news/2026/3/11/uns-failure-to-stop-iranian-attacks-sending-dangerous-signal-qatar?traffic_source=rss",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T20:01:42+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "World Leaders Will Release 400 Million Barrels of Oil to Stabilize Prices",
     "url": "https://www.nytimes.com/2026/03/11/business/energy-environment/iran-oil-reserves-release.html",
     "snippet": "Classified by keyword heuristic; review recommended.",
@@ -376,16 +386,6 @@
     "source": "nytimes.com",
     "time": "2026-03-11T19:02:06+00:00",
     "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Six die in Swiss bus fire after man thought to have set himself alight",
-    "url": "https://www.aljazeera.com/news/2026/3/11/six-die-in-swiss-bus-fire-after-man-thought-to-have-set-himself-alight?traffic_source=rss",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T18:47:49+00:00",
-    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -465,16 +465,6 @@
     "snippet": "Classified by keyword heuristic; review recommended.",
     "source": "bbc.com",
     "time": "2026-03-11T13:40:51+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "US inflation stable ahead of Iran shock",
-    "url": "https://www.bbc.com/news/articles/cde4w32573xo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "bbc.com",
-    "time": "2026-03-11T13:38:42+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -585,6 +575,16 @@
     "snippet": "Classified by keyword heuristic; review recommended.",
     "source": "washingtonpost.com",
     "time": "2026-03-10T20:35:12+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Live Nation reaches surprise settlement with justice department in antitrust case",
+    "url": "https://www.theguardian.com/business/2026/mar/09/live-nation-settlement-antitrust-case",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-09T15:01:58+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
