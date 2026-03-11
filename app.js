@@ -5918,7 +5918,7 @@ async function loadCorrelationSignals(force = false) {
 
   if (!panel) return;
   if (bodyEl) bodyEl.innerHTML = '<div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>';
-  panel.style.display = 'block';
+  panel.style.display = ''; /* clear any inline override — let CSS flex rule apply */
 
   try {
     const url = `${WORKER_URL}/api/ai/correlate${force ? '?force=1' : ''}`;
@@ -6173,14 +6173,14 @@ async function loadSentimentDrift() {
 
     if (data.regions) {
       renderSentimentDrift(data.regions);
-      panel.style.display = 'block';
+      panel.style.display = ''; /* clear any inline override — let CSS flex rule apply */
       if (updatedEl) updatedEl.textContent = data.generated_at ? new Date(data.generated_at).toLocaleTimeString() : '—';
       console.log('[SENTIMENT] Drift data loaded');
     }
   } catch(e) {
     console.warn('[SENTIMENT] load failed:', e.message);
     if (bodyEl) bodyEl.innerHTML = `<div class="text-center text-secondary py-2" style="font-size:0.76rem;">Unavailable</div>`;
-    if (panel) panel.style.display = 'block'; // Still show panel, just with error state
+    if (panel) panel.style.display = ''; /* clear any inline override — let CSS flex rule apply */
   }
 }
 
