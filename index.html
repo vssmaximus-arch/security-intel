@@ -2157,7 +2157,7 @@
           <div class="grid-stack" id="sidebar-grid">
 
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="2" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="9" gs-w="12" gs-h="4" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2183,7 +2183,7 @@
             </div>
 
             <!-- ② History Search -->
-            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="0" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="7" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2203,7 +2203,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="7" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2239,7 +2239,7 @@
             </div>
 
             <!-- ⑤ Country Instability Index -->
-            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="15" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="13" gs-w="6" gs-h="7" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2275,7 +2275,7 @@
             </div>
 
             <!-- ⑦ Intel Signals -->
-            <div class="grid-stack-item" gs-id="intel-signals" gs-x="0" gs-y="22" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="intel-signals" gs-x="6" gs-y="13" gs-w="6" gs-h="7" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2299,7 +2299,7 @@
             </div>
 
             <!-- ⑧ Sentiment Drift -->
-            <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="27" gs-w="12" gs-h="6" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="20" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2906,12 +2906,12 @@
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'history',        x: 0, y: 0,  w: 12, h: 2 },
-      { id: 'markets',        x: 0, y: 2,  w: 12, h: 5 },
-      { id: 'proximity',      x: 0, y: 7,  w: 12, h: 8 },
-      { id: 'cii',            x: 0, y: 15, w: 12, h: 7 },
-      { id: 'intel-signals',  x: 0, y: 22, w: 12, h: 5 },
-      { id: 'sentiment',      x: 0, y: 27, w: 12, h: 6 },
+      { id: 'proximity',      x: 0,  y: 0,  w: 12, h: 7 },
+      { id: 'history',        x: 0,  y: 7,  w: 12, h: 2 },
+      { id: 'markets',        x: 0,  y: 9,  w: 12, h: 4 },
+      { id: 'cii',            x: 0,  y: 13, w: 6,  h: 7 },
+      { id: 'intel-signals',  x: 6,  y: 13, w: 6,  h: 7 },
+      { id: 'sentiment',      x: 0,  y: 20, w: 12, h: 5 },
     ];
 
     var grid;
@@ -3057,9 +3057,21 @@
       if (resetBtn) {
         resetBtn.addEventListener('click', function() {
           if (window.confirm('Reset dashboard to the default layout?\n\nAll widget positions and sizes will be restored.')) {
-            localStorage.removeItem(LAYOUT_KEY);
+            /* 1. Restore any hidden widgets back into the grid */
+            var store     = document.getElementById('hidden-widgets-container');
+            var container = document.getElementById('sidebar-grid');
+            if (store && container) {
+              Array.from(store.querySelectorAll('.grid-stack-item[gs-id]')).forEach(function(item) {
+                container.appendChild(item);
+                try { grid.makeWidget(item); } catch(e) {}
+              });
+            }
+            /* 2. Apply default layout (positions + sizes) */
+            grid.load(DEFAULT_LAYOUT);
+            /* 3. Persist and update picker */
             localStorage.removeItem(HIDDEN_KEY);
-            location.reload();
+            saveLayout();
+            renderPicker();
           }
         });
       }
