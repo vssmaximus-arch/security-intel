@@ -1,1 +1,602 @@
-[]
+[
+  {
+    "title": "Iran War Live Updates: Airstrikes Shake Beirut, and Drones Spread Fear in Tehran",
+    "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T19:53:05+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Three brothers arrested in Norway over bomb attack on US embassy in Oslo",
+    "url": "https://www.aljazeera.com/news/2026/3/11/three-brothers-arrested-in-norway-over-bomb-attack-on-us-embassy-in-oslo?traffic_source=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T19:34:22+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "The hidden battlefield: Censorship in the Israel–Iran war",
+    "url": "https://www.aljazeera.com/video/the-take-2/2026/3/11/aje-onl-isr_mediacensorship_av_v2_1-110326?traffic_source=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T18:45:20+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Nations agree to release oil reserves as war in Iran hits global economy",
+    "url": "https://www.washingtonpost.com/world/2026/03/11/strait-hormuz-cargo-ships-iran/",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-11T17:55:26+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump says Iran war to end ‘soon’ as Israel claims no time limit",
+    "url": "https://www.aljazeera.com/news/2026/3/11/trump-says-iran-war-to-end-soon-as-israel-claims-no-time-limit?traffic_source=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T17:18:19+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "'Even under missiles we carry on living' - how young Iranians are coping with war",
+    "url": "https://www.bbc.com/news/articles/c1mj1pyrzryo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "bbc.com",
+    "time": "2026-03-11T16:00:34+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "French aid worker among three killed in drone strikes in rebel-held DR Congo city",
+    "url": "https://www.bbc.com/news/articles/cvgj8veg0gno?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "bbc.com",
+    "time": "2026-03-11T15:24:57+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "French aid worker among three killed in dronestrike in east DRC, M23 rebels say",
+    "url": "https://www.theguardian.com/world/2026/mar/11/drone-attack-goma-eastern-democratic-republic-of-the-congo-m23-rebels",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T15:06:01+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "EU and UK demand Israel stop surge in West Bank settler violence since Iran war",
+    "url": "https://www.bbc.com/news/articles/c620vwl97vyo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "bbc.com",
+    "time": "2026-03-11T14:13:52+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Argentina grants asylum to Brasília rioter in move that may sway Brazil vote",
+    "url": "https://www.theguardian.com/world/2026/mar/11/argentina-asylum-brasil-elections",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T14:11:07+00:00",
+    "region": "AMER",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US inflation stayed flat at 2.4% in February before effects of war on Iran kicked in",
+    "url": "https://www.theguardian.com/business/2026/mar/11/inflation-february",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T13:46:20+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "At least 65 Nigerian soldiers killed in jihadist raids in country’s north-east",
+    "url": "https://www.theguardian.com/world/2026/mar/11/nigerian-soldiers-killed-jihadist-raids-north-east",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T13:18:05+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Mortgage rates rise and deals pulled over Iran war turmoil",
+    "url": "https://www.bbc.com/news/articles/c24dm9vgrz7o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "bbc.com",
+    "time": "2026-03-11T12:40:30+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "After Iran assault, Russians say U.S. can’t be trusted in Ukraine talks",
+    "url": "https://www.washingtonpost.com/world/2026/03/11/russia-ukraine-iran-trump-negotiations-trust/",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-11T10:00:22+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How Trump’s War With Iran Changed the World in a Week",
+    "url": "https://www.nytimes.com/2026/03/11/world/europe/trump-iran-war-global-impact.html",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T09:44:07+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UAE, an oasis for business and partying, faces war",
+    "url": "https://www.washingtonpost.com/world/2026/03/10/dubai-gulf-iran-war-strikes/",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-11T02:23:01+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Pentagon says about 140 troops wounded, 8 severely, in war with Iran",
+    "url": "https://www.washingtonpost.com/national-security/2026/03/10/us-troops-wounded-iran-war/",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-10T22:50:11+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "At least 17 killed after drone strikes school in Sudan",
+    "url": "https://www.theguardian.com/world/2026/mar/11/at-least-17-killed-after-drone-strikes-school-in-sudan",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T19:08:31+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "At Least 3 Ships Are Struck Around Strait of Hormuz, and Iran Claims One",
+    "url": "https://www.nytimes.com/2026/03/11/world/middleeast/ships-attack-strait-hormuz-iran.html",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T17:03:49+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Countries agree to record release of emergency oil reserves as prices surge",
+    "url": "https://www.bbc.com/news/articles/cly093xxlzzo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Natural disaster or emergency detected.",
+    "source": "bbc.com",
+    "time": "2026-03-11T15:51:11+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "China’s Military Has Quietly Cut Flying Near Taiwan",
+    "url": "https://www.nytimes.com/2026/03/11/world/asia/taiwan-china-military-planes.html",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T15:07:46+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "IEA orders largest ever release of stockpiled oil to reduce crude price",
+    "url": "https://www.theguardian.com/business/2026/mar/11/international-energy-agency-release-oil-stockpile-iran-war",
+    "snippet": "Natural disaster or emergency detected.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T14:27:50+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Trump’s Actions in Iran and Venezuela Show Limits of U.S. Sanctions",
+    "url": "https://www.nytimes.com/2026/03/11/us/politics/trump-sanctions-iran-venezuela.html",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T14:20:04+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Nearly 4,000 US meatpacking workers to strike at plant run by top Trump donor",
+    "url": "https://www.theguardian.com/environment/2026/mar/11/jbs-usa-meatpacking-strike-trump",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T13:00:49+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Ukraine says it has hit Russian 'missile component' plant",
+    "url": "https://www.bbc.com/news/articles/ckg1eqw30l9o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "bbc.com",
+    "time": "2026-03-11T11:16:02+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Iran war cost will be passed to consumers, shipping giant boss tells BBC",
+    "url": "https://www.bbc.com/news/articles/c5ykzyd0rkyo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "bbc.com",
+    "time": "2026-03-11T08:38:27+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "As Israel targets Iran, Gaza’s nascent recovery stalls and Hamas gains strength",
+    "url": "https://www.washingtonpost.com/world/2026/03/11/gaza-iran-war-israel-trump/",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-11T08:30:55+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Aramco warns of oil market ‘catastrophe’ unless strait of Hormuz reopens soon",
+    "url": "https://www.theguardian.com/business/2026/mar/10/aramco-warns-oil-market-catastrophe-strait-of-hormuz",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "theguardian.com",
+    "time": "2026-03-10T19:01:45+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "World Leaders Will Release 400 Million Barrels of Oil to Stabilize Prices",
+    "url": "https://www.nytimes.com/2026/03/11/business/energy-environment/iran-oil-reserves-release.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T19:34:37+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Starmer Was Warned About Risk of Appointing Friend of Epstein As Ambassador",
+    "url": "https://www.nytimes.com/live/2026/03/11/world/mandelson-files-epstein-uk",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T19:02:42+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Why Did the UK Police Repeatedly Decline to Investigate Claims About Epstein and Prince Andrew?",
+    "url": "https://www.nytimes.com/2026/03/11/world/europe/uk-police-epstein-giuffre-maxwell-prince-andrew.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T19:02:06+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Six die in Swiss bus fire after man thought to have set himself alight",
+    "url": "https://www.aljazeera.com/news/2026/3/11/six-die-in-swiss-bus-fire-after-man-thought-to-have-set-himself-alight?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T18:47:49+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "U.S. Seeks Extradition of Maduro Ally Alex Saab From Venezuela",
+    "url": "https://www.nytimes.com/2026/03/11/world/americas/us-alex-saab-extradition-maduro-ally.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T18:35:07+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Chile’s Boric leaves office, calls for unity after split with successor over China cable",
+    "url": "https://www.scmp.com/news/china/diplomacy/article/3346275/chiles-boric-leaves-office-calls-unity-after-split-successor-over-china-cable?utm_source=rss_feed",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "scmp.com",
+    "time": "2026-03-11T18:30:28+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Three brothers arrested after explosion at US embassy in Oslo",
+    "url": "https://www.bbc.com/news/articles/cx2grl7lrrmo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T18:28:46+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "3 brothers with Iraq links arrested for ‘terrorist bombing’ of US embassy in Norway",
+    "url": "https://www.scmp.com/news/world/europe/article/3346274/3-brothers-iraq-links-arrested-terrorist-bombing-us-embassy-norway?utm_source=rss_feed",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "scmp.com",
+    "time": "2026-03-11T18:16:23+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "What’s left in Iran ‘could be taken out in an hour’, says Trump",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/11/whats-left-in-iran-could-be-taken-out-in-an-hour-says-trump?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T18:13:06+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Consumer prices stayed subdued in February.",
+    "url": "https://www.nytimes.com/live/2026/03/11/business/inflation-report-cpi/consumer-prices-stayed-subdued-in-february",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T17:54:40+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UK court rejects bid to reinstate ‘terrorism’ charge against Kneecap rapper",
+    "url": "https://www.aljazeera.com/news/2026/3/11/uk-court-rejects-bid-to-reinstate-terrorism-charge-against-kneecap-rapper?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T17:33:03+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Trump Administration to Announce New Trade Investigations",
+    "url": "https://www.nytimes.com/2026/03/11/business/economy/trump-trade-investigations-tariffs.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T17:09:46+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Bowen: Trump has called for an Iran uprising but the lessons from Iraq in 1991 loom large",
+    "url": "https://www.bbc.com/news/articles/cn0znx4xrl9o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T16:45:28+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "What’s Better Than One Top Oscar Nominee? How About Two?",
+    "url": "https://www.nytimes.com/2026/03/11/business/media/sinners-one-battle-warner-oscars.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T15:36:44+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "El Salvador’s mass arrest policy may have led to crimes against humanity, study shows",
+    "url": "https://www.theguardian.com/world/2026/mar/11/el-salvador-mass-incarceration-crimes-against-humanity-study",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T15:00:44+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Fuel tax hike plan to be kept under review over Iran, says PM",
+    "url": "https://www.bbc.com/news/articles/cvg593l3yd5o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T13:40:51+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US inflation stable ahead of Iran shock",
+    "url": "https://www.bbc.com/news/articles/cde4w32573xo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T13:38:42+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Microsoft Takes a Stand Against the Trump Administration in Anthropic Fight",
+    "url": "https://www.nytimes.com/2026/03/11/business/dealbook/microsoft-anthropic-pentagon.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T11:18:33+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "A Trump-Xi Summit Nears, but China Doesn’t Know What Trump Wants",
+    "url": "https://www.nytimes.com/2026/03/11/world/asia/china-us-trump-ceos.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T11:06:58+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Experts fear ‘unethical’ vaccine trial in Africa is ‘prototype’ for US studies under RFK Jr",
+    "url": "https://www.theguardian.com/us-news/2026/mar/11/rfk-vaccine-trials-guinea-bissau",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T11:00:01+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Amazon is determined to use AI for everything – even when it slows down work",
+    "url": "https://www.theguardian.com/technology/ng-interactive/2026/mar/11/amazon-artificial-intelligence",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T11:00:01+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "The Aldi-style disruptors who could be about to shake up the vets market",
+    "url": "https://www.bbc.com/news/articles/cj6dw3r09x0o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T10:49:39+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Wildlife to replace historical figures on banknotes - and you get a say",
+    "url": "https://www.bbc.com/news/articles/c4geyyg9en6o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T10:36:33+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "José Antonio Kast, the Pinochet fan about to swerve Chile to the far right",
+    "url": "https://www.theguardian.com/world/2026/mar/11/jose-antonio-kast-pinochet-fan-chile-far-right",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T08:00:12+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Prison sentences for pair who attacked gay men hailed as sign of hope for Kenya’s LGBTQ+ community",
+    "url": "https://www.theguardian.com/global-development/2026/mar/11/prison-sentences-attacked-gay-men-hope-kenya-lgbtq-community",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T06:00:12+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Why Iran’s vital Kharg Island oil hub is still untouched by US-Israel bombers",
+    "url": "https://www.theguardian.com/world/2026/mar/11/why-irans-vital-kharg-island-oil-hub-is-still-untouched-by-us-israel-bombers",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-11T06:00:12+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Ukraine Can Now Manufacture ‘China-Free’ Drones",
+    "url": "https://www.nytimes.com/2026/03/11/world/europe/ukraine-drones-china.html",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "nytimes.com",
+    "time": "2026-03-11T04:01:06+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Two men fire gun toward U.S. Consulate in Toronto, police say",
+    "url": "https://www.washingtonpost.com/world/2026/03/10/canada-shots-consulate-american-us-embassy/",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-10T20:35:12+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Democrats argue Trump’s China policy risks ‘strategic failure’",
+    "url": "https://www.washingtonpost.com/national-security/2026/03/10/trump-china-democrats/",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-10T14:22:28+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Punch the monkey isn’t alone in bonding with his emotional support toy",
+    "url": "https://www.washingtonpost.com/lifestyle/2026/03/10/punch-monkey-animal-support-toys-rescue/",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-10T12:00:51+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Live Nation reaches surprise settlement with justice department in antitrust case",
+    "url": "https://www.theguardian.com/business/2026/mar/09/live-nation-settlement-antitrust-case",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-09T15:01:58+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Top US banks weigh suing federal regulator over crypto banking rules",
+    "url": "https://www.theguardian.com/business/2026/mar/09/bank-policy-institute-regulator-lawsuit",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "theguardian.com",
+    "time": "2026-03-09T11:00:47+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  }
+]
