@@ -1904,7 +1904,7 @@
     body.dark-mode #btn-reset-layout:hover { background: #3a2000; }
 
     /* ================================================================
-       STREAM SECTION — resizable height
+       STREAM SECTION — resizable height (legacy selectors kept)
        ================================================================ */
     .stream-section {
       position: relative;
@@ -1915,6 +1915,7 @@
       min-height: 300px;
       padding-bottom: 4px;
     }
+
   </style>
 </head>
 
@@ -1939,19 +1940,10 @@
           <a class="nav-item-custom" data-action="filter-region" data-region="LATAM" role="tab" aria-selected="false" tabindex="0">LATAM</a>
         </div>
 
-        <div id="btn-refresh" class="btn-daily ms-3" data-action="refresh" role="button" aria-label="Refresh Data" tabindex="0">
-          <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
-        </div>
-
         <!-- Daily Brief — combines Daily Briefings + Shift Brief -->
-        <button class="logistics-open-btn ms-1" data-bs-toggle="modal" data-bs-target="#shiftBriefModal"
+        <button class="logistics-open-btn ms-3" data-bs-toggle="modal" data-bs-target="#shiftBriefModal"
           style="background:#202124;" aria-label="Open Daily Briefing" tabindex="0">
           <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Brief
-        </button>
-
-        <button id="btn-ai-toggle" class="ai-toggle-btn ms-1" data-action="toggle-ai" aria-label="Toggle AI ranking" aria-pressed="false" tabindex="0">
-          <i class="fas fa-brain" aria-hidden="true"></i>
-          <span id="ai-toggle-label">AI: OFF</span>
         </button>
 
         <!-- S2.5 — Logistics Drawer trigger -->
@@ -1993,6 +1985,17 @@
           <div id="widget-picker-dropdown" role="menu" aria-label="Hidden widgets">
             <!-- filled by dashboard JS -->
           </div>
+        </div>
+
+        <!-- AI toggle — before Refresh/Reset group -->
+        <button id="btn-ai-toggle" class="ai-toggle-btn ms-1" data-action="toggle-ai" aria-label="Toggle AI ranking" aria-pressed="false" tabindex="0">
+          <i class="fas fa-brain" aria-hidden="true"></i>
+          <span id="ai-toggle-label">AI: OFF</span>
+        </button>
+
+        <!-- Refresh — grouped with Reset -->
+        <div id="btn-refresh" class="btn-daily ms-1" data-action="refresh" role="button" aria-label="Refresh Data" tabindex="0">
+          <i class="fas fa-rotate" aria-hidden="true"></i> Refresh
         </div>
 
         <!-- Reset Layout -->
@@ -2103,48 +2106,44 @@
             </div>
           </div>
 
+          <!-- ── Real-time Intelligence Stream (under map) ────────────── -->
           <div class="stream-section">
-            <div class="stream-header">
-              <div class="stream-label">
-                <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
-                <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
+            <div class="stream-section-inner">
+              <div class="stream-header">
+                <div class="stream-label">
+                  <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
+                  <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
+                </div>
+                <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
+                  VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+                </div>
               </div>
-              <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
-                VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+              <div class="critical-alert-bar" role="alert">
+                <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+                <div class="alert-content-main" id="headline-alert">Loading headline…</div>
+                <div class="alert-tags" id="headline-tags">
+                  <span class="tag" id="headline-sev">SEV?</span>
+                  <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
+                  <span class="tag tag-reg" id="headline-reg">REGION</span>
+                </div>
               </div>
-            </div>
-
-            <div class="critical-alert-bar" role="alert">
-              <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
-              <div class="alert-content-main" id="headline-alert">Loading headline…</div>
-              <div class="alert-tags" id="headline-tags">
-                <span class="tag" id="headline-sev">SEV?</span>
-                <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-                <span class="tag tag-reg" id="headline-reg">REGION</span>
+              <!-- PHASE 4: Signal Convergence Alert Strip -->
+              <div id="convergence-strip" aria-live="polite" aria-label="Signal Convergence Alerts" style="display:none;">
+                <div class="conv-header">
+                  <span class="conv-title"><i class="fas fa-project-diagram"></i> Signal Convergence Detected</span>
+                  <button class="conv-collapse" id="conv-collapse-btn" aria-label="Collapse convergence alerts" title="Collapse">
+                    <i class="fas fa-chevron-up" id="conv-chevron"></i>
+                  </button>
+                </div>
+                <div id="conv-alerts-body"></div>
+                <div class="conv-footer"><span id="conv-meta" class="conv-meta"></span></div>
               </div>
-            </div>
-
-            <!-- PHASE 4: Signal Convergence Alert Strip -->
-            <div id="convergence-strip" aria-live="polite" aria-label="Signal Convergence Alerts" style="display:none;">
-              <div class="conv-header">
-                <span class="conv-title"><i class="fas fa-project-diagram"></i> Signal Convergence Detected</span>
-                <button class="conv-collapse" id="conv-collapse-btn" aria-label="Collapse convergence alerts" title="Collapse">
-                  <i class="fas fa-chevron-up" id="conv-chevron"></i>
-                </button>
+              <div id="general-news-feed" aria-live="polite">
+                <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
               </div>
-              <div id="conv-alerts-body">
-                <!-- alerts injected by JS -->
-              </div>
-              <div class="conv-footer">
-                <span id="conv-meta" class="conv-meta"></span>
-              </div>
-            </div>
-            <!-- /PHASE 4 -->
-
-            <div id="general-news-feed" aria-live="polite">
-              <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
             </div>
           </div>
+
         </div>
         <!-- /Main Column -->
 
@@ -2158,7 +2157,7 @@
           <div class="grid-stack" id="sidebar-grid">
 
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="10" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="2" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2184,7 +2183,7 @@
             </div>
 
             <!-- ② History Search -->
-            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="8" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="0" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2204,7 +2203,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="7" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2275,25 +2274,46 @@
               </div>
             </div>
 
-            <!-- ⑥ Currency Rates Chart -->
-            <div class="grid-stack-item" gs-id="currencies" gs-x="0" gs-y="22" gs-w="12" gs-h="6" gs-min-h="4" gs-min-w="4">
+            <!-- ⑦ Intel Signals -->
+            <div class="grid-stack-item" gs-id="intel-signals" gs-x="0" gs-y="22" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
-                  <button class="widget-close-btn" data-widget-id="currencies" aria-label="Hide Currency Rates widget" title="Hide widget">
+                  <button class="widget-close-btn" data-widget-id="intel-signals" aria-label="Hide Intel Signals widget" title="Hide widget">
                     <i class="fas fa-times" aria-hidden="true"></i>
                   </button>
                 </div>
-                <div class="side-card" id="currencies-card">
-                  <div class="card-label" style="margin-bottom:6px;">
-                    <i class="fas fa-exchange-alt"></i> Currency Rates
-                    <span style="font-size:.7rem;font-weight:400;color:#888;margin-left:8px;">vs USD · 7-day</span>
+                <div class="side-card" id="correlate-panel" role="complementary" aria-label="Intel Signals">
+                  <div class="correlate-header">
+                    <span class="correlate-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Intel Signals</span>
+                    <span class="correlate-badge" id="correlate-count" aria-label="Signal count">0</span>
+                    <button class="correlate-refresh-btn" data-action="refresh-correlate" title="Refresh signals" aria-label="Refresh correlation signals">
+                      <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                    </button>
                   </div>
-                  <div class="currency-chart-wrap">
-                    <canvas id="currency-chart" aria-label="7-day currency exchange rates chart" role="img"></canvas>
+                  <div id="correlate-body" class="correlate-body" aria-live="polite">
+                    <div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>
                   </div>
-                  <div class="markets-footer" style="padding:4px 10px;">
-                    <span id="currency-updated" style="color:#aaa;font-size:.7rem;"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⑧ Sentiment Drift -->
+            <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="27" gs-w="12" gs-h="6" gs-min-h="3" gs-min-w="4">
+              <div class="grid-stack-item-content">
+                <div class="widget-header-bar" title="Drag to reposition">
+                  <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
+                  <button class="widget-close-btn" data-widget-id="sentiment" aria-label="Hide Sentiment Drift widget" title="Hide widget">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="side-card" id="sentiment-panel" role="complementary" aria-label="Sentiment Drift">
+                  <div class="sentiment-header">
+                    <span><i class="fas fa-wave-square" aria-hidden="true"></i> Sentiment Drift</span>
+                    <span class="sentiment-updated" id="sentiment-updated" aria-label="Last updated">—</span>
+                  </div>
+                  <div id="sentiment-body" class="sentiment-body" aria-live="polite">
+                    <!-- Rendered by JS -->
                   </div>
                 </div>
               </div>
@@ -2350,31 +2370,6 @@
               </div>
               <div id="crp-body" class="crp-body" aria-live="polite">
                 <div class="text-center py-3 text-secondary"><i class="fas fa-spinner fa-spin"></i> Analysing…</div>
-              </div>
-            </div>
-
-            <!-- AI Threat Correlation Signals Panel (auto-shown when signals load) -->
-            <div class="side-card" id="correlate-panel" style="display:none;" role="complementary" aria-label="Intel Signals">
-              <div class="correlate-header">
-                <span class="correlate-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Intel Signals</span>
-                <span class="correlate-badge" id="correlate-count" aria-label="Signal count">0</span>
-                <button class="correlate-refresh-btn" data-action="refresh-correlate" title="Refresh signals" aria-label="Refresh correlation signals">
-                  <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                </button>
-              </div>
-              <div id="correlate-body" class="correlate-body" aria-live="polite">
-                <div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>
-              </div>
-            </div>
-
-            <!-- Sentiment Drift Monitor (auto-shown when sentiment data loads) -->
-            <div class="side-card" id="sentiment-panel" style="display:none;" role="complementary" aria-label="Sentiment Drift">
-              <div class="sentiment-header">
-                <span><i class="fas fa-wave-square" aria-hidden="true"></i> Sentiment Drift</span>
-                <span class="sentiment-updated" id="sentiment-updated" aria-label="Last updated">—</span>
-              </div>
-              <div id="sentiment-body" class="sentiment-body" aria-live="polite">
-                <!-- Rendered by JS -->
               </div>
             </div>
 
@@ -2896,27 +2891,27 @@
   (function () {
     'use strict';
 
-    var LAYOUT_KEY  = 'infohub_sidebar_layout_v1';
-    var HIDDEN_KEY  = 'infohub_hidden_widgets_v1';
+    var LAYOUT_KEY  = 'infohub_sidebar_layout_v2';
+    var HIDDEN_KEY  = 'infohub_hidden_widgets_v2';
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {
-      markets:    { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
-      history:    { label: 'History Search',        icon: 'fa-history'       },
-      travel:     { label: 'Travel Safety Check',   icon: 'fa-plane'         },
-      proximity:  { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
-      cii:        { label: 'Country Instability',   icon: 'fa-globe-americas'},
-      currencies: { label: 'Currency Rates',        icon: 'fa-exchange-alt'  },
+      markets:          { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
+      history:          { label: 'History Search',        icon: 'fa-history'       },
+      proximity:        { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
+      cii:              { label: 'Country Instability',   icon: 'fa-globe-americas'},
+      'intel-signals':  { label: 'Intel Signals',         icon: 'fa-project-diagram'},
+      sentiment:        { label: 'Sentiment Drift',       icon: 'fa-wave-square'   },
     };
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'markets',    x: 0, y: 0,  w: 12, h: 5 },
-      { id: 'history',    x: 0, y: 5,  w: 12, h: 2 },
-      { id: 'travel',     x: 0, y: 7,  w: 12, h: 3 },
-      { id: 'proximity',  x: 0, y: 10, w: 12, h: 8 },
-      { id: 'cii',        x: 0, y: 18, w: 12, h: 7 },
-      { id: 'currencies', x: 0, y: 25, w: 12, h: 6 },
+      { id: 'history',        x: 0, y: 0,  w: 12, h: 2 },
+      { id: 'markets',        x: 0, y: 2,  w: 12, h: 5 },
+      { id: 'proximity',      x: 0, y: 7,  w: 12, h: 8 },
+      { id: 'cii',            x: 0, y: 15, w: 12, h: 7 },
+      { id: 'intel-signals',  x: 0, y: 22, w: 12, h: 5 },
+      { id: 'sentiment',      x: 0, y: 27, w: 12, h: 6 },
     ];
 
     var grid;
@@ -3157,116 +3152,6 @@
   })();
   </script>
 
-  <!-- ================================================================
-       CURRENCY RATES CHART — 7-day multi-line chart via api.frankfurter.app
-       ================================================================ -->
-  <script>
-  (function () {
-    'use strict';
-    if (typeof Chart === 'undefined') return; /* Chart.js not loaded yet */
-
-    var CURRENCIES = ['EUR', 'GBP', 'JPY', 'AUD'];
-    var LABELS     = { EUR: 'EUR/USD', GBP: 'GBP/USD', JPY: 'USD/JPY', AUD: 'AUD/USD' };
-    var COLORS     = { EUR: '#4fc3f7', GBP: '#81c995', JPY: '#f6c026', AUD: '#ff8a65' };
-    var chartInstance = null;
-
-    function isoDate(d) { return d.toISOString().slice(0, 10); }
-
-    async function fetchRates() {
-      var today = new Date();
-      var week  = new Date(today.getTime() - 8 * 86400000);
-      var url   = 'https://api.frankfurter.app/' + isoDate(week) + '..' + isoDate(today) +
-                  '?from=USD&to=EUR,GBP,JPY,AUD';
-      var r = await fetch(url);
-      if (!r.ok) throw new Error('Frankfurter API ' + r.status);
-      return r.json();
-    }
-
-    function renderChart(data) {
-      var canvas = document.getElementById('currency-chart');
-      if (!canvas) return;
-      var dates    = Object.keys(data.rates).sort();
-      var labels   = dates.map(function (d) { return d.slice(5); }); /* MM-DD */
-      var datasets = CURRENCIES.map(function (sym) {
-        return {
-          label:           LABELS[sym],
-          data:            dates.map(function (d) { return data.rates[d] ? (data.rates[d][sym] || null) : null; }),
-          borderColor:     COLORS[sym],
-          backgroundColor: 'transparent',
-          borderWidth:     1.8,
-          pointRadius:     2,
-          pointHoverRadius:4,
-          tension:         0.35
-        };
-      });
-
-      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-      chartInstance = new Chart(canvas, {
-        type: 'line',
-        data: { labels: labels, datasets: datasets },
-        options: {
-          responsive:          true,
-          maintainAspectRatio: false,
-          animation:           { duration: 600 },
-          interaction:         { mode: 'index', intersect: false },
-          plugins: {
-            legend: {
-              position: 'top',
-              labels:   { color: '#ccc', boxWidth: 10, font: { size: 10 }, padding: 8 }
-            },
-            tooltip: { bodyFont: { size: 10 }, titleFont: { size: 10 } }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#888', font: { size: 9 }, maxRotation: 0 },
-              grid:  { color: 'rgba(255,255,255,.04)' }
-            },
-            y: {
-              ticks: { color: '#888', font: { size: 9 } },
-              grid:  { color: 'rgba(255,255,255,.04)' }
-            }
-          }
-        }
-      });
-
-      var el = document.getElementById('currency-updated');
-      if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function showError(msg) {
-      var canvas = document.getElementById('currency-chart');
-      if (!canvas) return;
-      var ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#888';
-      ctx.font = '11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
-    }
-
-    async function loadCurrencies() {
-      try {
-        var data = await fetchRates();
-        renderChart(data);
-      } catch (e) {
-        console.warn('[Currencies]', e.message);
-        showError('Data unavailable');
-      }
-    }
-
-    /* Wait for DOM, then load */
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadCurrencies);
-    } else {
-      loadCurrencies();
-    }
-
-    /* Refresh every 10 minutes */
-    setInterval(loadCurrencies, 600000);
-  })();
-  </script>
 
     <!-- ✈ AIRPORT DISRUPTIONS — view switcher + map + data rendering ──────── -->
   <style>
