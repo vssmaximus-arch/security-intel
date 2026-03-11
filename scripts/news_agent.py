@@ -38,7 +38,7 @@ NEWS_PATH = os.path.join(DATA_DIR, "news.json")
 FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
 
 # ---------- CONFIG ----------
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 # News / alert feeds (kept as provided)
 FEEDS = [
@@ -353,12 +353,12 @@ OUTPUT STRICTLY AS JSON:
             raise ValueError("Model response not a string")
     except Exception as e:
         print(f"AI Processing Error: {e}")
-        # Return a safe default classification
+        # Return a permissive default so items are NOT silently dropped when Gemini fails
         return {
-            "category": "NOT_RELEVANT",
-            "likelihood_relevant": 0,
-            "severity": "LOW",
-            "primary_reason": "AI processing error.",
+            "category": "PHYSICAL_SECURITY",
+            "likelihood_relevant": 70,
+            "severity": "MEDIUM",
+            "primary_reason": "Gemini unavailable – default relevance.",
             "geo_relevance": {"mentioned_countries_or_cities": []},
         }
 
