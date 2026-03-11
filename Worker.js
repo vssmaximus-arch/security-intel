@@ -21,6 +21,127 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type,secret,X-User-Id",
 };
 
+/* ── AIRPORT COORDINATES LOOKUP TABLE ────────────────────────────────────────
+   Keyed by 3-letter IATA code. Used by /api/aviation/disruptions to enrich
+   AI-extracted disruptions with accurate lat/lng for Leaflet map markers.
+   Coverage: major hubs + conflict-zone airports + regional coverage.
+   ─────────────────────────────────────────────────────────────────────────── */
+const AIRPORT_COORDS = {
+  // ── Major European Hubs ─────────────────────────────────────────────────
+  'LHR':{ name:'London Heathrow',          city:'London',       country:'United Kingdom',  lat:51.4775, lng:-0.4614 },
+  'LGW':{ name:'London Gatwick',           city:'London',       country:'United Kingdom',  lat:51.1537, lng:-0.1821 },
+  'CDG':{ name:'Charles de Gaulle',        city:'Paris',        country:'France',          lat:49.0097, lng:2.5479  },
+  'ORY':{ name:'Paris Orly',               city:'Paris',        country:'France',          lat:48.7233, lng:2.3794  },
+  'AMS':{ name:'Amsterdam Schiphol',       city:'Amsterdam',    country:'Netherlands',     lat:52.3086, lng:4.7639  },
+  'FRA':{ name:'Frankfurt Airport',        city:'Frankfurt',    country:'Germany',         lat:50.0333, lng:8.5706  },
+  'MUC':{ name:'Munich Airport',           city:'Munich',       country:'Germany',         lat:48.3538, lng:11.7861 },
+  'MAD':{ name:'Adolfo Suárez Madrid',     city:'Madrid',       country:'Spain',           lat:40.4936, lng:-3.5668 },
+  'BCN':{ name:'Barcelona El Prat',        city:'Barcelona',    country:'Spain',           lat:41.2971, lng:2.0785  },
+  'FCO':{ name:'Leonardo da Vinci Rome',   city:'Rome',         country:'Italy',           lat:41.7999, lng:12.2462 },
+  'ZRH':{ name:'Zurich Airport',           city:'Zurich',       country:'Switzerland',     lat:47.4647, lng:8.5492  },
+  'VIE':{ name:'Vienna International',     city:'Vienna',       country:'Austria',         lat:48.1103, lng:16.5697 },
+  'BRU':{ name:'Brussels Airport',         city:'Brussels',     country:'Belgium',         lat:50.9010, lng:4.4844  },
+  'CPH':{ name:'Copenhagen Airport',       city:'Copenhagen',   country:'Denmark',         lat:55.6180, lng:12.6560 },
+  'ARN':{ name:'Stockholm Arlanda',        city:'Stockholm',    country:'Sweden',          lat:59.6519, lng:17.9186 },
+  'OSL':{ name:'Oslo Gardermoen',          city:'Oslo',         country:'Norway',          lat:60.1939, lng:11.1004 },
+  'HEL':{ name:'Helsinki Vantaa',          city:'Helsinki',     country:'Finland',         lat:60.3172, lng:24.9633 },
+  'ATH':{ name:'Athens International',     city:'Athens',       country:'Greece',          lat:37.9364, lng:23.9445 },
+  'WAW':{ name:'Warsaw Chopin',            city:'Warsaw',       country:'Poland',          lat:52.1657, lng:20.9671 },
+  'PRG':{ name:'Prague Václav Havel',      city:'Prague',       country:'Czech Republic',  lat:50.1008, lng:14.2600 },
+  'IST':{ name:'Istanbul Airport',         city:'Istanbul',     country:'Turkey',          lat:41.2608, lng:28.7418 },
+  'SAW':{ name:'Istanbul Sabiha Gökçen',  city:'Istanbul',     country:'Turkey',          lat:40.8986, lng:29.3092 },
+  // ── North America ───────────────────────────────────────────────────────
+  'JFK':{ name:'John F. Kennedy Intl',     city:'New York',     country:'United States',   lat:40.6413, lng:-73.7781 },
+  'EWR':{ name:'Newark Liberty Intl',      city:'Newark',       country:'United States',   lat:40.6895, lng:-74.1745 },
+  'LAX':{ name:'Los Angeles Intl',         city:'Los Angeles',  country:'United States',   lat:33.9425, lng:-118.408 },
+  'ORD':{ name:"Chicago O'Hare Intl",     city:'Chicago',      country:'United States',   lat:41.9742, lng:-87.9073 },
+  'ATL':{ name:'Hartsfield-Jackson',       city:'Atlanta',      country:'United States',   lat:33.6407, lng:-84.4277 },
+  'DFW':{ name:'Dallas/Fort Worth Intl',   city:'Dallas',       country:'United States',   lat:32.8998, lng:-97.0403 },
+  'MIA':{ name:'Miami Intl',               city:'Miami',        country:'United States',   lat:25.7959, lng:-80.2870 },
+  'SFO':{ name:'San Francisco Intl',       city:'San Francisco',country:'United States',   lat:37.6213, lng:-122.379 },
+  'SEA':{ name:'Seattle-Tacoma Intl',      city:'Seattle',      country:'United States',   lat:47.4502, lng:-122.309 },
+  'BOS':{ name:'Boston Logan Intl',        city:'Boston',       country:'United States',   lat:42.3656, lng:-71.0096 },
+  'IAD':{ name:'Washington Dulles Intl',   city:'Washington',   country:'United States',   lat:38.9531, lng:-77.4565 },
+  'DCA':{ name:'Ronald Reagan National',   city:'Washington',   country:'United States',   lat:38.8521, lng:-77.0377 },
+  'YYZ':{ name:'Toronto Pearson Intl',     city:'Toronto',      country:'Canada',          lat:43.6777, lng:-79.6248 },
+  'YVR':{ name:'Vancouver Intl',           city:'Vancouver',    country:'Canada',          lat:49.1947, lng:-123.184 },
+  'YUL':{ name:'Montreal-Trudeau Intl',    city:'Montreal',     country:'Canada',          lat:45.4706, lng:-73.7408 },
+  'MEX':{ name:'Benito Juárez Intl',       city:'Mexico City',  country:'Mexico',          lat:19.4363, lng:-99.0721 },
+  // ── Middle East & Africa ────────────────────────────────────────────────
+  'DXB':{ name:'Dubai Intl',               city:'Dubai',        country:'UAE',             lat:25.2532, lng:55.3657  },
+  'AUH':{ name:'Abu Dhabi Intl',           city:'Abu Dhabi',    country:'UAE',             lat:24.4330, lng:54.6511  },
+  'DOH':{ name:'Hamad Intl',               city:'Doha',         country:'Qatar',           lat:25.2609, lng:51.6138  },
+  'RUH':{ name:'King Khalid Intl',         city:'Riyadh',       country:'Saudi Arabia',    lat:24.9578, lng:46.6988  },
+  'JED':{ name:'King Abdulaziz Intl',      city:'Jeddah',       country:'Saudi Arabia',    lat:21.6796, lng:39.1565  },
+  'KWI':{ name:'Kuwait Intl',              city:'Kuwait City',  country:'Kuwait',          lat:29.2267, lng:47.9689  },
+  'MCT':{ name:'Muscat Intl',              city:'Muscat',       country:'Oman',            lat:23.5933, lng:58.2844  },
+  'BAH':{ name:'Bahrain Intl',             city:'Manama',       country:'Bahrain',         lat:26.2708, lng:50.6336  },
+  'TLV':{ name:'Ben Gurion Intl',          city:'Tel Aviv',     country:'Israel',          lat:32.0114, lng:34.8867  },
+  'AMM':{ name:'Queen Alia Intl',          city:'Amman',        country:'Jordan',          lat:31.7226, lng:35.9932  },
+  'BEY':{ name:'Rafic Hariri Intl',        city:'Beirut',       country:'Lebanon',         lat:33.8209, lng:35.4884  },
+  'CAI':{ name:'Cairo Intl',               city:'Cairo',        country:'Egypt',           lat:30.1219, lng:31.4056  },
+  'CMN':{ name:'Mohammed V Intl',          city:'Casablanca',   country:'Morocco',         lat:33.3675, lng:-7.5898  },
+  'ADD':{ name:'Addis Ababa Bole Intl',    city:'Addis Ababa',  country:'Ethiopia',        lat:8.9779,  lng:38.7993  },
+  'NBO':{ name:'Jomo Kenyatta Intl',       city:'Nairobi',      country:'Kenya',           lat:-1.3192, lng:36.9275  },
+  'LOS':{ name:'Murtala Muhammed Intl',    city:'Lagos',        country:'Nigeria',         lat:6.5774,  lng:3.3214   },
+  'ABJ':{ name:'Félix-Houphouët-Boigny',   city:'Abidjan',      country:'Ivory Coast',     lat:5.2614,  lng:-3.9262  },
+  'JNB':{ name:'O.R. Tambo Intl',         city:'Johannesburg', country:'South Africa',    lat:-26.1392,lng:28.2460  },
+  'CPT':{ name:'Cape Town Intl',           city:'Cape Town',    country:'South Africa',    lat:-33.9648,lng:18.6017  },
+  'KRT':{ name:'Khartoum Intl',            city:'Khartoum',     country:'Sudan',           lat:15.5895, lng:32.5532  },
+  'DAM':{ name:'Damascus Intl',            city:'Damascus',     country:'Syria',           lat:33.4114, lng:36.5156  },
+  'BGW':{ name:'Baghdad Intl',             city:'Baghdad',      country:'Iraq',            lat:33.2625, lng:44.2346  },
+  'BSR':{ name:'Basra Intl',               city:'Basra',        country:'Iraq',            lat:30.5491, lng:47.6621  },
+  'EBL':{ name:'Erbil Intl',               city:'Erbil',        country:'Iraq',            lat:36.2376, lng:43.9632  },
+  // ── Conflict / High-Risk Zone Airports ─────────────────────────────────
+  'KBL':{ name:'Kabul Intl',               city:'Kabul',        country:'Afghanistan',     lat:34.5659, lng:69.2120  },
+  'KDH':{ name:'Kandahar Intl',            city:'Kandahar',     country:'Afghanistan',     lat:31.5058, lng:65.8478  },
+  'SAH':{ name:"Sana'a Intl",              city:"Sana'a",       country:'Yemen',           lat:15.4763, lng:44.2197  },
+  'ADE':{ name:'Aden Intl',                city:'Aden',         country:'Yemen',           lat:12.8295, lng:45.0288  },
+  'KBL':{ name:'Kabul Intl',               city:'Kabul',        country:'Afghanistan',     lat:34.5659, lng:69.2120  },
+  'IEV':{ name:'Kyiv Boryspil Intl',       city:'Kyiv',         country:'Ukraine',         lat:50.3450, lng:30.8947  },
+  'HRK':{ name:'Kharkiv Intl',             city:'Kharkiv',      country:'Ukraine',         lat:49.9248, lng:36.2900  },
+  'ODS':{ name:'Odessa Intl',              city:'Odessa',       country:'Ukraine',         lat:46.4268, lng:30.6765  },
+  'TIP':{ name:'Tripoli Intl',             city:'Tripoli',      country:'Libya',           lat:32.6635, lng:13.1590  },
+  // ── Asia-Pacific ────────────────────────────────────────────────────────
+  'SIN':{ name:'Singapore Changi',         city:'Singapore',    country:'Singapore',       lat:1.3644,  lng:103.9915 },
+  'HKG':{ name:'Hong Kong Intl',           city:'Hong Kong',    country:'China',           lat:22.3080, lng:113.9185 },
+  'PEK':{ name:'Beijing Capital Intl',     city:'Beijing',      country:'China',           lat:40.0799, lng:116.6031 },
+  'PVG':{ name:'Shanghai Pudong Intl',     city:'Shanghai',     country:'China',           lat:31.1443, lng:121.8083 },
+  'CAN':{ name:'Guangzhou Baiyun Intl',    city:'Guangzhou',    country:'China',           lat:23.3924, lng:113.2988 },
+  'NRT':{ name:'Tokyo Narita Intl',        city:'Tokyo',        country:'Japan',           lat:35.7720, lng:140.3929 },
+  'HND':{ name:'Tokyo Haneda',             city:'Tokyo',        country:'Japan',           lat:35.5494, lng:139.7798 },
+  'KIX':{ name:'Osaka Kansai Intl',        city:'Osaka',        country:'Japan',           lat:34.4347, lng:135.2440 },
+  'ICN':{ name:'Seoul Incheon Intl',       city:'Seoul',        country:'South Korea',     lat:37.4602, lng:126.4407 },
+  'BKK':{ name:'Suvarnabhumi',             city:'Bangkok',      country:'Thailand',        lat:13.6900, lng:100.7501 },
+  'KUL':{ name:'Kuala Lumpur Intl',        city:'Kuala Lumpur', country:'Malaysia',        lat:2.7456,  lng:101.7099 },
+  'CGK':{ name:'Soekarno-Hatta Intl',      city:'Jakarta',      country:'Indonesia',       lat:-6.1256, lng:106.6559 },
+  'MNL':{ name:'Ninoy Aquino Intl',        city:'Manila',       country:'Philippines',     lat:14.5086, lng:121.0194 },
+  'SYD':{ name:'Sydney Kingsford Smith',   city:'Sydney',       country:'Australia',       lat:-33.9399,lng:151.1753 },
+  'MEL':{ name:'Melbourne Airport',        city:'Melbourne',    country:'Australia',       lat:-37.6733,lng:144.8430 },
+  'BNE':{ name:'Brisbane Airport',         city:'Brisbane',     country:'Australia',       lat:-27.3842,lng:153.1175 },
+  'AKL':{ name:'Auckland Airport',         city:'Auckland',     country:'New Zealand',     lat:-37.0082,lng:174.7850 },
+  'BOM':{ name:'Chhatrapati Shivaji Intl', city:'Mumbai',       country:'India',           lat:19.0896, lng:72.8656  },
+  'DEL':{ name:'Indira Gandhi Intl',       city:'New Delhi',    country:'India',           lat:28.5665, lng:77.1031  },
+  'MAA':{ name:'Chennai Intl',             city:'Chennai',      country:'India',           lat:12.9941, lng:80.1709  },
+  'BLR':{ name:'Kempegowda Intl',          city:'Bengaluru',    country:'India',           lat:13.1986, lng:77.7066  },
+  'HYD':{ name:'Rajiv Gandhi Intl',        city:'Hyderabad',    country:'India',           lat:17.2313, lng:78.4298  },
+  'ISB':{ name:'Islamabad Intl',           city:'Islamabad',    country:'Pakistan',        lat:33.6167, lng:72.8500  },
+  'KHI':{ name:'Jinnah Intl',              city:'Karachi',      country:'Pakistan',        lat:24.9065, lng:67.1608  },
+  'LHE':{ name:'Allama Iqbal Intl',        city:'Lahore',       country:'Pakistan',        lat:31.5216, lng:74.4036  },
+  'DAC':{ name:'Hazrat Shahjalal Intl',    city:'Dhaka',        country:'Bangladesh',      lat:23.8433, lng:90.3978  },
+  'CMB':{ name:'Bandaranaike Intl',        city:'Colombo',      country:'Sri Lanka',       lat:7.1808,  lng:79.8841  },
+  'RGN':{ name:'Yangon Intl',              city:'Yangon',       country:'Myanmar',         lat:16.9073, lng:96.1332  },
+  // ── Latin America & Caribbean ────────────────────────────────────────────
+  'GRU':{ name:'São Paulo Guarulhos Intl', city:'São Paulo',    country:'Brazil',          lat:-23.4356,lng:-46.4731 },
+  'GIG':{ name:'Rio Galeão Intl',          city:'Rio de Janeiro',country:'Brazil',         lat:-22.8099,lng:-43.2505 },
+  'EZE':{ name:'Ministro Pistarini Intl',  city:'Buenos Aires', country:'Argentina',       lat:-34.8222,lng:-58.5358 },
+  'SCL':{ name:'Arturo Merino Benítez',    city:'Santiago',     country:'Chile',           lat:-33.3930,lng:-70.7858 },
+  'BOG':{ name:'El Dorado Intl',           city:'Bogotá',       country:'Colombia',        lat:4.7016,  lng:-74.1469 },
+  'LIM':{ name:'Jorge Chávez Intl',        city:'Lima',         country:'Peru',            lat:-12.0219,lng:-77.1143 },
+  'CCS':{ name:'Simón Bolívar Intl',       city:'Caracas',      country:'Venezuela',       lat:10.6013, lng:-66.9913 },
+  'HAV':{ name:'José Martí Intl',          city:'Havana',       country:'Cuba',            lat:22.9892, lng:-82.4091 },
+};
+
 const ARCHIVE_PREFIX = "archive_";
 const PROXIMITY_KV_KEY = "proximity_incidents_v1";
 const INCIDENTS_KV_KEY = "incidents";
@@ -220,6 +341,11 @@ const SOURCE_META = [
   { match: 'dailytrust.com',           key: 'dailytrust',   label: 'Daily Trust NG',   category: 'news'      },
   { match: 'channelstv.com',           key: 'channelstv',   label: 'Channels TV NG',   category: 'news'      },
   { match: 'spiegel.de',              key: 'spiegel',      label: 'Der Spiegel',      category: 'news'      },
+  // ── Aviation-specific feeds ──────────────────────────────────────────────
+  { match: 'avherald.com',            key: 'avherald',     label: 'Aviation Herald',  category: 'news'      },
+  { match: 'simpleflying.com',        key: 'simpleflying', label: 'Simple Flying',    category: 'news'      },
+  { match: 'aerotelegraph.com',       key: 'aerotelegraph',label: 'AeroTelegraph',    category: 'news'      },
+  { match: 'air-accidents-investigation-branch', key: 'aaib', label: 'UK AAIB',       category: 'news'      },
 ];
 function _getSourceMeta(src) {
   if (!src) return { key: 'other', label: 'Other', category: 'news' };
@@ -377,6 +503,11 @@ const ROTATING_SOURCES = [
   "https://dailytrust.com/feed/",
   "https://www.channelstv.com/feed/",
   "https://www.spiegel.de/schlagzeilen/tops/index.rss",
+  // ── Aviation-specific sources ─────────────────────────────────────────────
+  "https://avherald.com/h?subscribe=rss",
+  "https://simpleflying.com/feed/",
+  "https://www.aerotelegraph.com/feed",
+  "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
@@ -4440,6 +4571,133 @@ async function handleApiWeatherAviation(env, req) {
   }
 }
 
+/* ── AVIATION DISRUPTIONS ENDPOINT ──────────────────────────────────────────
+ * GET /api/aviation/disruptions
+ * Scans stored incidents for aviation keywords, fetches live SIGMETs, runs a
+ * single AI call to extract structured disruption data (airport, IATA, cause,
+ * AI summary, affected routes, duration). Results cached in KV for 15 minutes.
+ * Returns: { disruptions[], sigmets[], total, updated_at }
+ * ─────────────────────────────────────────────────────────────────────────── */
+async function handleApiAviationDisruptions(env, req) {
+  const CACHE_KEY = 'aviation_disruptions_v1';
+  const CACHE_TTL = 15 * 60; // 15 minutes
+
+  // Serve from KV cache if still fresh
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached._ts && (Date.now() - cached._ts) < CACHE_TTL * 1000) {
+      return new Response(JSON.stringify(cached), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+  } catch (_) {}
+
+  // 1. Load incidents from KV store
+  const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+  const incidents = Array.isArray(raw) ? raw : [];
+
+  // 2. Filter for aviation-relevant keywords
+  const AVIATION_RE = /\b(airport|airspace|air\s?space|flight\s+cancel|airline|runway|aviation|aerodrome|airstrip|no.fly\s+zone|grounded|diverted|diversion|atc\s+strike|notam|sigmet|terminal\s+clos|air\s+traffic\s+control|departure\s+halt|arrival\s+halt|flight\s+suspension|flights?\s+suspended|airspace\s+clos|airport\s+clos|airport\s+shut)\b/i;
+  const aviationIncs = incidents
+    .filter(i => AVIATION_RE.test((i.title || '') + ' ' + (i.summary || '')))
+    .sort((a, b) => new Date(b.time) - new Date(a.time))
+    .slice(0, 25);
+
+  // 3. Fetch live SIGMETs (re-use aviationweather.gov same as /api/weather/aviation)
+  let sigmets = [];
+  try {
+    const sr = await fetch('https://aviationweather.gov/api/data/sigmet?format=json', {
+      headers: { 'User-Agent': 'OSInfoHub/1.0', 'Accept': 'application/json' },
+      cf: { cacheEverything: true, cacheTtl: 600 },
+    });
+    if (sr.ok) {
+      const sd = await sr.json();
+      const rawS = Array.isArray(sd) ? sd : (sd.data || sd.features || []);
+      sigmets = rawS.slice(0, 20).map((s, idx) => ({
+        id: s.isigmetId || s.sigmetId || s.id || `sigmet-${idx}`,
+        hazard: s.hazard || s.phenomenon || 'UNKNOWN',
+        qualifier: s.qualifier || '',
+        area: s.area || s.firName || s.fir || 'Unknown region',
+        validTimeFrom: s.validTimeFrom || s.validTime || '',
+        validTimeTo: s.validTimeTo || '',
+        rawSigmet: (s.rawAirSigmet || s.rawSigmet || s.text || '').slice(0, 250),
+      }));
+    }
+  } catch (_) {}
+
+  // 4. Single AI call over all filtered incidents → structured disruption JSON
+  let disruptions = [];
+  if (aviationIncs.length > 0 && (env.ANTHROPIC_API_KEY || env.GROQ_API_KEY)) {
+    const sysPrompt = 'You are an aviation safety analyst. Return only a valid JSON array. No markdown, no explanation, no code fences.';
+    const userPrompt = `Analyze these ${aviationIncs.length} news items about potential aviation disruptions.
+
+For EACH item that describes a real airport closure, airspace restriction, flight suspension, or major travel disruption, return ONE JSON object. SKIP items about new routes, airline earnings, schedules, or unrelated topics.
+
+Required fields per object:
+- airport_name: string — full airport name (best guess from context, or "Unknown Airport")
+- iata: string|null — 3-letter IATA code if determinable, else null
+- country: string — country name
+- cause_type: string — exactly one of: CONFLICT | WEATHER | STRIKE | TECHNICAL | OTHER
+- severity: string — exactly one of: CRITICAL | HIGH | MEDIUM | LOW
+- ai_summary: string — 1-2 sentence plain English summary of the disruption and its impact
+- affected_routes: string — affected airlines or route areas (e.g. "All international routes", "European carriers", or "Unknown")
+- duration_estimate: string — e.g. "Indefinite", "24-48 hours", "Resolved", "Unknown"
+- lat: number — decimal latitude of airport or city
+- lng: number — decimal longitude
+
+News items (title | first 200 chars of summary | time):
+${aviationIncs.map((i, n) => `[${n + 1}] TITLE: ${i.title}\nSUMMARY: ${(i.summary || '').slice(0, 200)}\nTIME: ${i.time}`).join('\n\n')}
+
+Return ONLY a valid JSON array (can be empty [] if none qualify).`;
+
+    try {
+      const aiText = await callLLM(env, [{ role: 'user', content: userPrompt }], {
+        max_tokens: 2500,
+        system: sysPrompt,
+      });
+      // Extract JSON array from response (handle any stray markdown wrapping)
+      const m = aiText.match(/\[[\s\S]*\]/);
+      if (m) {
+        const parsed = JSON.parse(m[0]);
+        disruptions = parsed.map((d, idx) => {
+          const inc = aviationIncs[idx] || {};
+          // Prefer known AIRPORT_COORDS coords over AI-guessed ones
+          const known = d.iata && AIRPORT_COORDS[d.iata];
+          return {
+            ...d,
+            id: inc.id || `aviation-${Date.now()}-${idx}`,
+            link: inc.link || '',
+            time: inc.time || new Date().toISOString(),
+            source: inc.source || '',
+            lat: (known ? known.lat : null) || (typeof d.lat === 'number' ? d.lat : null) || inc.lat || 0,
+            lng: (known ? known.lng : null) || (typeof d.lng === 'number' ? d.lng : null) || inc.lng || 0,
+          };
+        }).filter(d => d.airport_name); // drop malformed entries
+      }
+    } catch (e) {
+      typeof debug === 'function' && debug('handleApiAviationDisruptions AI error', e?.message || e);
+    }
+  }
+
+  const result = {
+    disruptions,
+    sigmets,
+    total: disruptions.length,
+    updated_at: new Date().toISOString(),
+    _ts: Date.now(),
+  };
+
+  // Cache in KV for 15 min
+  try {
+    await env.INTEL_KV.put(CACHE_KEY, JSON.stringify(result), { expirationTtl: CACHE_TTL });
+  } catch (_) {}
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+  });
+}
+
 /* ===========================
    TIER-3 AI ENDPOINTS
    =========================== */
@@ -5044,6 +5302,8 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/acknowledge')) {
       const r = await handleApiAcknowledge(env, req);
       return _responseFromResult(r);
+    } else if (p.startsWith('/api/aviation/disruptions')) {
+      return handleApiAviationDisruptions(env, req);
     } else if (p.startsWith('/api/weather/disasters')) {
       return handleApiWeatherDisasters(env, req);
     } else if (p.startsWith('/api/weather/aviation')) {

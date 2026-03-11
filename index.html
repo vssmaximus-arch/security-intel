@@ -1419,6 +1419,149 @@
     body.dark-mode .cat-filter-bar { background: #13151b; border-bottom-color: #2a2d35; }
     body.dark-mode .cat-pill { border-color: #3a3d45; color: #9aa0a6; }
 
+    /* ══════════════════════════════════════════════════════════════════
+       VIEW SWITCHER — main tab bar (Intelligence vs Airport Disruptions)
+       ══════════════════════════════════════════════════════════════════ */
+    .view-switcher {
+      display: flex; gap: 0; background: #0d1117;
+      border-bottom: 1px solid #2a2d35; padding: 0 32px;
+    }
+    .view-tab {
+      background: none; border: none; border-bottom: 3px solid transparent;
+      color: #9aa0a6; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.3px;
+      padding: 10px 22px; cursor: pointer; transition: color 0.15s, border-color 0.15s;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .view-tab:hover:not(.active) { color: #e8eaed; }
+    .view-tab.active { color: #4fc3f7; border-bottom-color: #4fc3f7; }
+    body.light-mode .view-switcher { background: #fff; border-bottom-color: #e0e0e0; }
+    body.light-mode .view-tab { color: #5f6368; }
+    body.light-mode .view-tab.active { color: #0076ce; border-bottom-color: #0076ce; }
+    body.dark-mode .view-switcher { background: #0a0c10; border-bottom-color: #2a2d35; }
+
+    /* ══════════════════════════════════════════════════════════════════
+       AIRPORT DISRUPTIONS PANEL
+       ══════════════════════════════════════════════════════════════════ */
+    .airport-panel { padding: 24px 30px 30px; }
+
+    /* AI summary bar */
+    .airport-ai-bar {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #0d2137; border-left: 4px solid #f9ab00;
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
+      font-size: 0.85rem; color: #cfe2f3; line-height: 1.5;
+    }
+    .airport-ai-bar i { color: #f9ab00; margin-top: 2px; flex-shrink: 0; }
+    body.light-mode .airport-ai-bar { background: #fff8e1; border-left-color: #f9ab00; color: #4a3700; }
+
+    /* Controls row */
+    .airport-controls {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .airport-ctrl-label { font-size: 0.78rem; font-weight: 700; color: #9aa0a6; }
+    .airport-select {
+      background: #1e2029; border: 1px solid #3a3d45; border-radius: 6px;
+      color: #e8eaed; font-size: 0.8rem; padding: 5px 10px; cursor: pointer;
+    }
+    .airport-refresh-btn {
+      background: #1e2029; border: 1px solid #3a3d45; border-radius: 6px;
+      color: #9aa0a6; font-size: 0.8rem; padding: 5px 12px; cursor: pointer;
+      transition: background 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .airport-refresh-btn:hover { background: #2a2d35; color: #e8eaed; }
+    .airport-ts { font-size: 0.75rem; color: #5f6368; margin-left: auto; }
+    body.light-mode .airport-select { background: #f8f9fa; border-color: #dadce0; color: #202124; }
+    body.light-mode .airport-refresh-btn { background: #f8f9fa; border-color: #dadce0; color: #5f6368; }
+
+    /* Layout: map + cards side-by-side */
+    .airport-layout { display: flex; gap: 20px; align-items: flex-start; }
+    .airport-map-wrap { flex: 0 0 55%; min-width: 0; }
+    .airport-cards-wrap {
+      flex: 1; min-width: 0; max-height: 540px;
+      overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+    }
+
+    /* Map */
+    #airport-map { height: 360px; border-radius: 12px; border: 1px solid #2a2d35; background: #0d1117; }
+
+    /* Map marker pin */
+    .airport-map-pin {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px; border: 2px solid rgba(255,255,255,0.4);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    /* SIGMET mini strip below map */
+    .sigmet-mini-wrap {
+      background: #0d1117; border: 1px solid #2a2d35; border-top: none;
+      border-radius: 0 0 10px 10px; padding: 7px 12px; margin-top: -1px;
+    }
+    .sigmet-mini-label { font-size: 0.7rem; font-weight: 800; color: #f9ab00; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .sigmet-mini-list { display: flex; flex-direction: column; gap: 3px; max-height: 90px; overflow-y: auto; }
+    .sigmet-mini-item { font-size: 0.72rem; color: #9aa0a6; border-left: 2px solid #f9ab00; padding-left: 7px; }
+    .sigmet-none { font-size: 0.72rem; color: #5f6368; font-style: italic; }
+
+    /* Disruption card */
+    .airport-card {
+      display: flex; overflow: hidden; border-radius: 8px;
+      border: 1px solid #2a2d35; background: #1e2029;
+      cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .airport-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.4); border-color: #4a4d55; }
+    .airport-card-bar { width: 5px; flex-shrink: 0; }
+    .airport-card-body { padding: 12px 14px; flex: 1; min-width: 0; }
+    .airport-card-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .airport-iata-badge {
+      font-family: 'Share Tech Mono', monospace; font-size: 1rem; font-weight: 700;
+      background: rgba(255,255,255,0.07); border-radius: 5px; padding: 1px 7px;
+      color: #e8eaed; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.12);
+    }
+    .airport-name { font-weight: 700; font-size: 0.85rem; color: #e8eaed; flex: 1; min-width: 0; }
+    .airport-cause-badge {
+      font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .airport-cause-badge.cause-CONFLICT   { background: #3d1412; color: #ef9a9a; }
+    .airport-cause-badge.cause-WEATHER    { background: #3d2c00; color: #ffe082; }
+    .airport-cause-badge.cause-STRIKE     { background: #3d3300; color: #fff176; }
+    .airport-cause-badge.cause-TECHNICAL  { background: #0d2137; color: #82b1ff; }
+    .airport-cause-badge.cause-OTHER      { background: #2a2d35; color: #9aa0a6; }
+    .airport-ai-text { font-size: 0.82rem; color: #bdc1c6; line-height: 1.5; margin-bottom: 7px; }
+    .airport-card-meta {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      font-size: 0.75rem; color: #5f6368;
+    }
+    .airport-card-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .airport-card-meta i { color: #9aa0a6; }
+    .airport-card-time { margin-left: auto; }
+
+    /* Empty / loading states */
+    .airport-loading { text-align: center; color: #9aa0a6; padding: 40px 0; font-size: 0.9rem; }
+    .airport-empty   { text-align: center; color: #5f6368; padding: 30px 0; font-size: 0.85rem; font-style: italic; }
+
+    /* Light-mode overrides */
+    body.light-mode .airport-panel { background: #f5f7fa; }
+    body.light-mode #airport-map { border-color: #e0e0e0; }
+    body.light-mode .airport-card { background: #fff; border-color: #e0e0e0; }
+    body.light-mode .airport-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    body.light-mode .airport-card-bar { opacity: 0.85; }
+    body.light-mode .airport-name { color: #202124; }
+    body.light-mode .airport-ai-text { color: #3c4043; }
+    body.light-mode .airport-card-meta { color: #80868b; }
+    body.light-mode .airport-iata-badge { background: #f1f3f4; border-color: #e0e0e0; color: #202124; }
+    body.light-mode .sigmet-mini-wrap { background: #f5f7fa; border-color: #e0e0e0; }
+    body.light-mode .sigmet-mini-item { color: #5f6368; }
+    body.light-mode .airport-select { background: #fff; border-color: #dadce0; color: #202124; }
+
+    @media (max-width: 991px) {
+      .airport-layout { flex-direction: column; }
+      .airport-map-wrap { flex: none; width: 100%; }
+      .airport-cards-wrap { max-height: 400px; }
+      #airport-map { height: 280px; }
+    }
+
     /* ── MARKETS & COMMODITIES WIDGET ─────────────────────────────── */
     #markets-settings-btn { margin-left:auto; background:none; border:1px solid #dadce0; border-radius:6px; padding:2px 7px; font-size:0.75rem; cursor:pointer; color:#5f6368; line-height:1.4; transition:background .15s; }
     #markets-settings-btn:hover { background:#f1f3f4; }
@@ -1901,6 +2044,16 @@
       </button>
     </div>
 
+    <!-- ✈ View Switcher — Intelligence / Airport Disruptions -->
+    <div class="view-switcher" role="tablist" aria-label="Dashboard view">
+      <button class="view-tab active" data-view="intelligence" role="tab" aria-selected="true" tabindex="0">
+        <i class="fas fa-shield-alt" aria-hidden="true"></i> Intelligence
+      </button>
+      <button class="view-tab" data-view="airport" role="tab" aria-selected="false" tabindex="0">
+        <i class="fas fa-plane-departure" aria-hidden="true"></i> Airport Disruptions
+      </button>
+    </div>
+
     <!-- Critical Security Alerts Ticker Strip -->
     <div id="sigmet-ticker-strip" class="sigmet-ticker-strip" style="display:none;" aria-live="polite" aria-label="Critical security alerts">
       <span class="sigmet-label"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>&nbsp;CRITICAL</span>
@@ -1912,7 +2065,7 @@
       </button>
     </div>
 
-    <div class="content-area">
+    <div class="content-area" id="view-intelligence">
       <div class="dashboard-layout">
 
         <!-- ── Main Column: Map + Stream ─────────────────────────────── -->
@@ -2238,6 +2391,68 @@
       </div>
     </div>
   </div>
+
+  <!-- ✈ AIRPORT DISRUPTIONS VIEW ──────────────────────────────────────────── -->
+  <div id="view-airport" class="airport-panel" style="display:none;" role="tabpanel" aria-label="Airport Disruptions">
+
+    <!-- AI Overview Bar -->
+    <div class="airport-ai-bar" id="airport-ai-bar">
+      <i class="fas fa-brain" aria-hidden="true"></i>
+      <span id="airport-ai-text">Switch to this tab to load live disruption analysis…</span>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="airport-controls">
+      <span class="airport-ctrl-label">Type</span>
+      <select id="airport-filter-type" class="airport-select" aria-label="Filter by disruption type">
+        <option value="ALL">All Types</option>
+        <option value="CONFLICT">⚔️ Conflict / War</option>
+        <option value="WEATHER">🌪️ Weather / Disaster</option>
+        <option value="STRIKE">🪧 Strike / Industrial</option>
+        <option value="TECHNICAL">⚙️ Technical</option>
+        <option value="OTHER">Other</option>
+      </select>
+      <span class="airport-ctrl-label">Severity</span>
+      <select id="airport-filter-severity" class="airport-select" aria-label="Filter by severity">
+        <option value="ALL">All Severity</option>
+        <option value="CRITICAL">🔴 Critical</option>
+        <option value="HIGH">🟠 High</option>
+        <option value="MEDIUM">🟡 Medium</option>
+        <option value="LOW">🟢 Low</option>
+      </select>
+      <button id="airport-refresh-btn" class="airport-refresh-btn" aria-label="Refresh disruption data">
+        <i class="fas fa-sync" aria-hidden="true"></i> Refresh
+      </button>
+      <span id="airport-updated-at" class="airport-ts"></span>
+    </div>
+
+    <!-- Map + Cards layout -->
+    <div class="airport-layout">
+
+      <!-- Left: Leaflet map + SIGMET strip -->
+      <div class="airport-map-wrap">
+        <div id="airport-map" aria-label="Airport disruptions world map" role="application"></div>
+        <div class="sigmet-mini-wrap">
+          <div class="sigmet-mini-label">
+            <i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Active Aviation SIGMETs
+          </div>
+          <div id="sigmet-mini-list" class="sigmet-mini-list">
+            <div class="sigmet-none">No SIGMETs loaded yet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Disruption cards -->
+      <div class="airport-cards-wrap" id="airport-disruptions-list" aria-live="polite">
+        <div class="airport-loading">
+          <i class="fas fa-plane fa-bounce" aria-hidden="true"></i><br>
+          Click "✈ Airport Disruptions" tab to load data
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- /AIRPORT DISRUPTIONS VIEW -->
 
   <!-- REPORT MODAL -->
   <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
@@ -2940,6 +3155,290 @@
 
     /* Refresh every 10 minutes */
     setInterval(loadCurrencies, 600000);
+  })();
+  </script>
+
+  <!-- ✈ AIRPORT DISRUPTIONS — view switcher + map + data rendering ──────── -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Config ─────────────────────────────────────────────────────────── */
+    var WORKER_URL = 'https://osinfohub.vssmaximus.workers.dev';
+    var CACHE_MS   = 15 * 60 * 1000; // 15 min client-side cache
+
+    /* Cause-type colours and labels */
+    var CAUSE_COLORS = {
+      CONFLICT:  '#d93025',
+      WEATHER:   '#f9ab00',
+      STRIKE:    '#fbbc04',
+      TECHNICAL: '#1a73e8',
+      OTHER:     '#9aa0a6',
+    };
+    var CAUSE_LABELS = {
+      CONFLICT:  '⚔️ Conflict',
+      WEATHER:   '🌪️ Weather',
+      STRIKE:    '🪧 Strike',
+      TECHNICAL: '⚙️ Technical',
+      OTHER:     'Other',
+    };
+    var SEV_CLASS = {
+      CRITICAL: 'ftag-crit',
+      HIGH:     'ftag-warn',
+      MEDIUM:   'ftag-info',
+      LOW:      'ftag-info',
+    };
+
+    /* ── State ──────────────────────────────────────────────────────────── */
+    var airportMap          = null;
+    var airportMarkerLayer  = null;
+    var AIRPORT_DATA        = null;
+    var lastFetchTs         = 0;
+    var activeType          = 'ALL';
+    var activeSev           = 'ALL';
+    var mapInitialized      = false;
+    var currentView         = 'intelligence';
+
+    /* ── View switcher ──────────────────────────────────────────────────── */
+    function switchView(view) {
+      if (view === currentView) return;
+      currentView = view;
+
+      var intel   = document.getElementById('view-intelligence');
+      var airport = document.getElementById('view-airport');
+      var catBar  = document.getElementById('cat-filter-bar');
+      var apjcBar = document.getElementById('apjc-subnav');
+      var sigmet  = document.getElementById('sigmet-ticker-strip');
+
+      if (view === 'airport') {
+        if (intel)   intel.style.display   = 'none';
+        if (airport) airport.style.display = '';
+        if (catBar)  catBar.style.display  = 'none';
+        if (apjcBar) apjcBar.style.display = 'none';
+        if (sigmet && sigmet.style.display !== 'none') sigmet.style.display = 'none';
+        // Lazy-init map and load data on first switch
+        if (!mapInitialized) { initAirportMap(); mapInitialized = true; }
+        loadAirportData(false);
+      } else {
+        if (intel)   intel.style.display   = '';
+        if (airport) airport.style.display = 'none';
+        if (catBar)  catBar.style.display  = '';
+      }
+
+      // Update tab aria state
+      document.querySelectorAll('.view-tab').forEach(function (btn) {
+        var isActive = btn.dataset.view === view;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+    }
+
+    /* ── Leaflet map initialisation ─────────────────────────────────────── */
+    function initAirportMap() {
+      if (typeof L === 'undefined') return;
+      airportMap = L.map('airport-map', {
+        center: [20, 0], zoom: 2,
+        scrollWheelZoom: true,
+        zoomControl: true,
+        attributionControl: false,
+      });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd', maxZoom: 19,
+      }).addTo(airportMap);
+      airportMarkerLayer = L.layerGroup().addTo(airportMap);
+    }
+
+    /* ── Data fetch ─────────────────────────────────────────────────────── */
+    function loadAirportData(force) {
+      if (!force && AIRPORT_DATA && (Date.now() - lastFetchTs) < CACHE_MS) {
+        renderAirportTab();
+        return;
+      }
+      showAirportLoading();
+      fetch(WORKER_URL + '/api/aviation/disruptions', {
+        headers: { 'Accept': 'application/json' },
+      })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        AIRPORT_DATA = data;
+        lastFetchTs  = Date.now();
+        renderAirportTab();
+      })
+      .catch(function (err) {
+        var el = document.getElementById('airport-disruptions-list');
+        if (el) el.innerHTML = '<div class="airport-empty">⚠️ Could not load disruption data. Deploy the Worker first.<br><small>' + String(err.message || err) + '</small></div>';
+        var aiEl = document.getElementById('airport-ai-text');
+        if (aiEl) aiEl.textContent = 'Data unavailable — Worker not yet deployed to Cloudflare.';
+      });
+    }
+
+    function showAirportLoading() {
+      var el = document.getElementById('airport-disruptions-list');
+      if (el) el.innerHTML = '<div class="airport-loading"><i class="fas fa-spinner fa-spin"></i> Loading disruption data…</div>';
+    }
+
+    /* ── Render ─────────────────────────────────────────────────────────── */
+    function renderAirportTab() {
+      if (!AIRPORT_DATA) return;
+      var disruptions = AIRPORT_DATA.disruptions || [];
+      var sigmets     = AIRPORT_DATA.sigmets     || [];
+
+      /* Apply filters */
+      var filtered = disruptions.filter(function (d) {
+        if (activeType !== 'ALL' && d.cause_type !== activeType) return false;
+        if (activeSev  !== 'ALL' && d.severity   !== activeSev)  return false;
+        return true;
+      });
+
+      /* AI overview bar */
+      var aiEl = document.getElementById('airport-ai-text');
+      if (aiEl) {
+        if (disruptions.length === 0) {
+          aiEl.textContent = 'No aviation disruptions detected in current feed. This may improve as aviation-specific RSS sources propagate into the system.';
+        } else {
+          var crit = disruptions.filter(function (d) { return d.severity === 'CRITICAL'; });
+          var msg = disruptions.length + ' disruption' + (disruptions.length !== 1 ? 's' : '') + ' detected globally';
+          if (crit.length) {
+            msg += ' — ⚠️ CRITICAL: ' + crit[0].airport_name + ' (' + (crit[0].iata || '—') + '): ' + (crit[0].ai_summary || '').slice(0, 100);
+          }
+          aiEl.textContent = msg;
+        }
+      }
+
+      /* Map markers */
+      if (airportMarkerLayer) {
+        airportMarkerLayer.clearLayers();
+        filtered.forEach(function (d) {
+          if (!d.lat || !d.lng) return;
+          var color = CAUSE_COLORS[d.cause_type] || '#9aa0a6';
+          var icon = L.divIcon({
+            className: '',
+            html: '<div class="airport-map-pin" style="background:' + color + '"><i class="fas fa-plane" style="font-size:11px;"></i></div>',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          });
+          var popup = '<b>' + escHtml(d.airport_name) + (d.iata ? ' (' + escHtml(d.iata) + ')' : '') + '</b>'
+            + '<br>' + escHtml((d.ai_summary || '').slice(0, 160))
+            + '<br><small>⏱ ' + escHtml(d.duration_estimate || 'Unknown') + '</small>';
+          L.marker([d.lat, d.lng], { icon: icon }).bindPopup(popup).addTo(airportMarkerLayer);
+        });
+      }
+
+      /* Disruption cards */
+      var listEl = document.getElementById('airport-disruptions-list');
+      if (listEl) {
+        if (filtered.length === 0) {
+          listEl.innerHTML = '<div class="airport-empty">No disruptions match the current filters.<br><small>Try changing the Type or Severity filter above.</small></div>';
+        } else {
+          listEl.innerHTML = filtered.map(renderDisruptionCard).join('');
+        }
+      }
+
+      /* SIGMET mini list */
+      renderSigmetMini(sigmets);
+
+      /* Updated timestamp */
+      var tsEl = document.getElementById('airport-updated-at');
+      if (tsEl && AIRPORT_DATA.updated_at) {
+        tsEl.textContent = 'Updated ' + timeAgoShort(new Date(AIRPORT_DATA.updated_at));
+      }
+    }
+
+    /* ── Card renderer ──────────────────────────────────────────────────── */
+    function renderDisruptionCard(d) {
+      var color    = CAUSE_COLORS[d.cause_type] || '#9aa0a6';
+      var sevCls   = SEV_CLASS[d.severity] || 'ftag-info';
+      var causeLabel = CAUSE_LABELS[d.cause_type] || (d.cause_type || 'Other');
+      var link     = d.link || '#';
+      return [
+        '<div class="airport-card" data-link="' + escHtml(link) + '" role="article" tabindex="0">',
+          '<div class="airport-card-bar" style="background:' + color + '"></div>',
+          '<div class="airport-card-body">',
+            '<div class="airport-card-header">',
+              '<span class="airport-iata-badge">' + escHtml(d.iata || '✈') + '</span>',
+              '<span class="airport-name">' + escHtml(d.airport_name || 'Unknown Airport') + '</span>',
+              '<span class="ftag ' + sevCls + '">' + escHtml(d.severity || 'LOW') + '</span>',
+              '<span class="airport-cause-badge cause-' + escHtml(d.cause_type || 'OTHER') + '">' + escHtml(causeLabel) + '</span>',
+            '</div>',
+            '<div class="airport-ai-text">' + escHtml(d.ai_summary || 'No summary available.') + '</div>',
+            '<div class="airport-card-meta">',
+              '<span><i class="fas fa-plane-departure" aria-hidden="true"></i> ' + escHtml(d.affected_routes || 'Unknown routes') + '</span>',
+              '<span><i class="fas fa-clock" aria-hidden="true"></i> ' + escHtml(d.duration_estimate || 'Unknown') + '</span>',
+              '<span class="airport-card-time">' + timeAgoShort(new Date(d.time || Date.now())) + '</span>',
+            '</div>',
+          '</div>',
+        '</div>',
+      ].join('');
+    }
+
+    /* ── SIGMET mini renderer ───────────────────────────────────────────── */
+    function renderSigmetMini(sigmets) {
+      var el = document.getElementById('sigmet-mini-list');
+      if (!el) return;
+      if (!sigmets || sigmets.length === 0) {
+        el.innerHTML = '<div class="sigmet-none">No active SIGMETs</div>';
+        return;
+      }
+      el.innerHTML = sigmets.slice(0, 8).map(function (s) {
+        return '<div class="sigmet-mini-item">'
+          + escHtml(s.hazard + (s.qualifier ? '/' + s.qualifier : '') + ' — ' + (s.area || 'Unknown region'))
+          + '</div>';
+      }).join('');
+    }
+
+    /* ── Helpers ─────────────────────────────────────────────────────────── */
+    function escHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function timeAgoShort(date) {
+      if (!(date instanceof Date) || isNaN(date)) return '';
+      var diff = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (diff < 60)   return diff + 's ago';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    /* ── Event listeners ─────────────────────────────────────────────────── */
+    document.addEventListener('click', function (e) {
+      /* View tab clicks */
+      var tab = e.target.closest('.view-tab');
+      if (tab && tab.dataset.view) { switchView(tab.dataset.view); return; }
+
+      /* Airport card clicks → open link */
+      var card = e.target.closest('.airport-card[data-link]');
+      if (card && card.dataset.link && card.dataset.link !== '#') {
+        window.open(card.dataset.link, '_blank', 'noopener');
+      }
+    });
+
+    var typeSelect = document.getElementById('airport-filter-type');
+    if (typeSelect) {
+      typeSelect.addEventListener('change', function () {
+        activeType = this.value;
+        if (AIRPORT_DATA) renderAirportTab();
+      });
+    }
+
+    var sevSelect = document.getElementById('airport-filter-severity');
+    if (sevSelect) {
+      sevSelect.addEventListener('change', function () {
+        activeSev = this.value;
+        if (AIRPORT_DATA) renderAirportTab();
+      });
+    }
+
+    var refreshBtn = document.getElementById('airport-refresh-btn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function () { loadAirportData(true); });
+    }
+
   })();
   </script>
 
