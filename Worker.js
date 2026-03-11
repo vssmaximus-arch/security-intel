@@ -4457,13 +4457,18 @@ async function handleApiAiChat(env, req) {
       .map(i => `[${i.severity_label || 'INFO'}][${i.region || '?'}] ${i.country || ''}: ${i.title}`)
       .join('\n');
 
-    const systemPrompt = `You are "InfoHub Assistant", an AI analyst embedded in Dell Technologies' OS INFOHUB global intelligence platform.
-You have access to the live threat feed and help the RSM (Regional Security Manager) team understand current events, risks, and operational impacts.
-Be concise, professional, and intelligence-focused. Cite specific incidents when relevant.
-Suggest RSM actions when appropriate. Flag uncertainty if information is limited.
+    const systemPrompt = `You are "InfoHub Assistant", an intelligent AI assistant embedded in Dell Technologies' OS INFOHUB global intelligence platform.
+
+PRIMARY ROLE: Help RSM (Regional Security Manager) teams understand current threats, incidents, and operational risks — using the live feed context below.
+
+GENERAL KNOWLEDGE: You also answer general knowledge questions confidently — world leaders, geography, time zones, history, science, current events up to your knowledge cutoff, and more. For time-zone questions, calculate the time accurately using the UTC offset. For questions outside the security domain, be helpful and direct.
+
+STYLE: Concise and professional. Cite specific incidents from the live feed when relevant. Flag uncertainty when information is limited. For general questions, be conversational and clear.
 
 Current live feed (last 24h — ${all.length} total incidents):
-${recentCtx || '(no recent incidents)'}`;
+${recentCtx || '(no recent incidents)'}
+
+Today's date (UTC): ${new Date().toISOString().slice(0, 10)}`;
 
     const result = await callLLM(env, messages, {
       system: systemPrompt,
@@ -5421,6 +5426,7 @@ Structure your response EXACTLY with these section headers (use ## prefix):
 ## KEY THREATS
 ## REGIONAL BREAKDOWN
 ## DELL IMPACT ASSESSMENT
+(List ONLY specific, concrete impacts — e.g. "Airport closures in X affect Dell logistics routes to Y" or "Strike at port Z delays component shipments". Do NOT include generic boilerplate about monitoring or emergency plans. If there are no specific Dell impacts, write "No direct Dell operational impacts identified in this period." Maximum 3 bullet points.)
 ## RECOMMENDED ACTIONS`;
     const { text } = await callLLM(env, [{ role: 'user', content: prompt }], {
       system: 'You are a Dell Global Security Operations Executive Analyst. Write concise, professional executive-level security briefings. Be specific and action-oriented. Keep each section brief.',
