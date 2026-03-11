@@ -1916,15 +1916,6 @@
       padding-bottom: 4px;
     }
 
-    /* ── Stream widget inside GridStack — feed must scroll in cell ──── */
-    #sidebar-grid .grid-stack-item[gs-id="stream"] .stream-header    { flex-shrink: 0; }
-    #sidebar-grid .grid-stack-item[gs-id="stream"] .critical-alert-bar { flex-shrink: 0; }
-    #sidebar-grid .grid-stack-item[gs-id="stream"] #convergence-strip  { flex-shrink: 0; }
-    #sidebar-grid .grid-stack-item[gs-id="stream"] #general-news-feed  {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-    }
   </style>
 </head>
 
@@ -2115,6 +2106,44 @@
             </div>
           </div>
 
+          <!-- ── Real-time Intelligence Stream (under map) ────────────── -->
+          <div class="stream-section">
+            <div class="stream-section-inner">
+              <div class="stream-header">
+                <div class="stream-label">
+                  <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
+                  <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
+                </div>
+                <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
+                  VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+                </div>
+              </div>
+              <div class="critical-alert-bar" role="alert">
+                <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
+                <div class="alert-content-main" id="headline-alert">Loading headline…</div>
+                <div class="alert-tags" id="headline-tags">
+                  <span class="tag" id="headline-sev">SEV?</span>
+                  <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
+                  <span class="tag tag-reg" id="headline-reg">REGION</span>
+                </div>
+              </div>
+              <!-- PHASE 4: Signal Convergence Alert Strip -->
+              <div id="convergence-strip" aria-live="polite" aria-label="Signal Convergence Alerts" style="display:none;">
+                <div class="conv-header">
+                  <span class="conv-title"><i class="fas fa-project-diagram"></i> Signal Convergence Detected</span>
+                  <button class="conv-collapse" id="conv-collapse-btn" aria-label="Collapse convergence alerts" title="Collapse">
+                    <i class="fas fa-chevron-up" id="conv-chevron"></i>
+                  </button>
+                </div>
+                <div id="conv-alerts-body"></div>
+                <div class="conv-footer"><span id="conv-meta" class="conv-meta"></span></div>
+              </div>
+              <div id="general-news-feed" aria-live="polite">
+                <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
+              </div>
+            </div>
+          </div>
+
         </div>
         <!-- /Main Column -->
 
@@ -2127,54 +2156,8 @@
           <!-- GridStack container — drag/resize/close enabled widgets -->
           <div class="grid-stack" id="sidebar-grid">
 
-            <!-- ⓪ Real-time Intelligence Stream (moved from main column) -->
-            <div class="grid-stack-item" gs-id="stream" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="4" gs-min-w="4">
-              <div class="grid-stack-item-content">
-                <div class="widget-header-bar" title="Drag to reposition">
-                  <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
-                  <button class="widget-close-btn" data-widget-id="stream" aria-label="Hide Intelligence Stream widget" title="Hide widget">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                  </button>
-                </div>
-                <div class="side-card" style="padding:10px 14px;">
-                  <div class="stream-header">
-                    <div class="stream-label">
-                      <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
-                      <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
-                    </div>
-                    <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
-                      VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
-                    </div>
-                  </div>
-                  <div class="critical-alert-bar" role="alert">
-                    <i class="fas fa-exclamation-triangle alert-icon-lg"></i>
-                    <div class="alert-content-main" id="headline-alert">Loading headline…</div>
-                    <div class="alert-tags" id="headline-tags">
-                      <span class="tag" id="headline-sev">SEV?</span>
-                      <span class="tag tag-cat" id="headline-cat">CATEGORY</span>
-                      <span class="tag tag-reg" id="headline-reg">REGION</span>
-                    </div>
-                  </div>
-                  <!-- PHASE 4: Signal Convergence Alert Strip -->
-                  <div id="convergence-strip" aria-live="polite" aria-label="Signal Convergence Alerts" style="display:none;">
-                    <div class="conv-header">
-                      <span class="conv-title"><i class="fas fa-project-diagram"></i> Signal Convergence Detected</span>
-                      <button class="conv-collapse" id="conv-collapse-btn" aria-label="Collapse convergence alerts" title="Collapse">
-                        <i class="fas fa-chevron-up" id="conv-chevron"></i>
-                      </button>
-                    </div>
-                    <div id="conv-alerts-body"></div>
-                    <div class="conv-footer"><span id="conv-meta" class="conv-meta"></span></div>
-                  </div>
-                  <div id="general-news-feed" aria-live="polite">
-                    <div style="padding:30px;text-align:center;color:#999;">Connecting to Secure Worker…</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="10" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="2" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2200,7 +2183,7 @@
             </div>
 
             <!-- ② History Search -->
-            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="8" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="0" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2220,7 +2203,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="15" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="7" gs-w="12" gs-h="8" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2256,7 +2239,7 @@
             </div>
 
             <!-- ⑤ Country Instability Index -->
-            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="23" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="15" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2292,7 +2275,7 @@
             </div>
 
             <!-- ⑦ Intel Signals -->
-            <div class="grid-stack-item" gs-id="intel-signals" gs-x="0" gs-y="30" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="intel-signals" gs-x="0" gs-y="22" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2316,7 +2299,7 @@
             </div>
 
             <!-- ⑧ Sentiment Drift -->
-            <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="35" gs-w="12" gs-h="6" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="27" gs-w="12" gs-h="6" gs-min-h="3" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2913,7 +2896,6 @@
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {
-      stream:           { label: 'Intelligence Stream',  icon: 'fa-rss'            },
       markets:          { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
       history:          { label: 'History Search',        icon: 'fa-history'       },
       proximity:        { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
@@ -2924,13 +2906,12 @@
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'stream',         x: 0, y: 0,  w: 12, h: 8 },
-      { id: 'history',        x: 0, y: 8,  w: 12, h: 2 },
-      { id: 'markets',        x: 0, y: 10, w: 12, h: 5 },
-      { id: 'proximity',      x: 0, y: 15, w: 12, h: 8 },
-      { id: 'cii',            x: 0, y: 23, w: 12, h: 7 },
-      { id: 'intel-signals',  x: 0, y: 30, w: 12, h: 5 },
-      { id: 'sentiment',      x: 0, y: 35, w: 12, h: 6 },
+      { id: 'history',        x: 0, y: 0,  w: 12, h: 2 },
+      { id: 'markets',        x: 0, y: 2,  w: 12, h: 5 },
+      { id: 'proximity',      x: 0, y: 7,  w: 12, h: 8 },
+      { id: 'cii',            x: 0, y: 15, w: 12, h: 7 },
+      { id: 'intel-signals',  x: 0, y: 22, w: 12, h: 5 },
+      { id: 'sentiment',      x: 0, y: 27, w: 12, h: 6 },
     ];
 
     var grid;
