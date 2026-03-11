@@ -5036,10 +5036,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           const res = await fetchWithTimeout(url, { headers: { 'X-User-Id': OSINFO_USER_ID } });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json().catch(() => ({}));
-          // Worker returns { states: [...], not_in_range, fetched_at }
+          // Worker returns { states: [...], source, fetched_at }
           const count = Array.isArray(data.states) ? data.states.length : 0;
           const cached = data._cached ? ' <em style="color:#5f6368;">(cached)</em>' : '';
-          if (el) el.innerHTML = `<span style="color:#81c995;">${count} aircraft in airspace${cached}</span>`;
+          const unavail = data.source === 'unavailable';
+          if (el) el.innerHTML = unavail
+            ? `<span style="color:#f9ab00;">No live coverage for this region — <a href="https://globe.adsbexchange.com/?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&zoom=9" target="_blank" rel="noopener" style="color:#8ab4f8;">Open ADSB Exchange ↗</a></span>`
+            : `<span style="color:#81c995;">${count} aircraft in airspace${cached}</span>`;
         } catch (e) {
           if (el) el.textContent = `Error: ${escapeHtml(e.message)}`;
         }

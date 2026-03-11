@@ -3303,6 +3303,15 @@ async function runIngestion(env, options = {}, ctx = null) {
           if (distanceKm > (typeof PROXIMITY_MAX_DISTANCE_KM !== 'undefined' ? PROXIMITY_MAX_DISTANCE_KM : OPERATIONAL_MAX_DIST_KM)) {
             return { include: false, reason: 'distance_exceeded', distanceKm };
           }
+          // Operational impact gate: if AI explicitly marked operational_impact=false
+          // AND severity is low (< 3 MEDIUM), skip — reduces noisy non-Dell events
+          if (incident.operational_impact === false && Number(incident.severity || 0) < 3) {
+            return { include: false, reason: 'no_operational_impact', distanceKm };
+          }
+          // Minimum severity gate: only severity >= 2 (LOW) events qualify at all
+          if (Number(incident.severity || 0) < 2) {
+            return { include: false, reason: 'severity_too_low', distanceKm };
+          }
           // Noise / blacklist
           const title = String(incident.title || incident.summary || '').toLowerCase();
           if (isNoise(title) || (Array.isArray(BLACKLIST_TERMS) && BLACKLIST_TERMS.some(tok => title.indexOf(tok) !== -1))) {
@@ -3325,9 +3334,15 @@ async function runIngestion(env, options = {}, ctx = null) {
             // For natural, if magnitude/severity ok, accept (still subject to distance/recency above)
             return { include: true, reason: 'natural_ok', distanceKm };
           }
-          // AI-security categories accept (still require distance & recency)
+          // AI-security categories accept — but require operational_impact or MEDIUM+ severity
+          // to cut down on low-severity/irrelevant events near Dell sites
           if (typeof AI_SECURITY_CATEGORIES !== 'undefined' && AI_SECURITY_CATEGORIES.has(cat)) {
-            return { include: true, reason: 'ai_security', distanceKm };
+            const sev = Number(incident.severity || 0);
+            const hasOpImpact = incident.operational_impact === true;
+            if (hasOpImpact || sev >= 3) {
+              return { include: true, reason: 'ai_security', distanceKm };
+            }
+            return { include: false, reason: 'ai_security_low_impact', distanceKm };
           }
           // Security focus keyword or operational keywords
           const hasSecurityFocus = (typeof SECURITY_FOCUS_REGEX !== 'undefined' && SECURITY_FOCUS_REGEX.test(title))
@@ -3554,22 +3569,51 @@ async function handleApiLogisticsTrack(env, req) {
       }};
     }
 
-    // ── BBOX branch (hub radar): no schedule fallback, return aircraft count ───
+    // ── BBOX branch (hub radar): try adsb.fi geographic bounds first, OpenSky as fallback ──
     if (isBbox) {
       const bboxKey = `logistics_bbox_${lamin}_${lamax}_${lomin}_${lomax}`;
       try {
         const cached = await kvGetJson(env, bboxKey, null);
         if (cached) return { ok: true, status: 200, body: { ...cached, _cached: true } };
       } catch(e) {}
+
+      // Primary: adsb.fi geo bounds (no auth required, faster than OpenSky)
+      try {
+        const adsbBboxUrl = `https://opendata.adsb.fi/api/v2/lat/${lamin}/${lamax}/lon/${lomin}/${lomax}/dist/500`;
+        const adsbBboxRes = await fetchWithTimeout(adsbBboxUrl, {}, 6000);
+        if (adsbBboxRes.ok) {
+          const adsbBboxData = await adsbBboxRes.json().catch(() => ({}));
+          const acList = Array.isArray(adsbBboxData.ac) ? adsbBboxData.ac : [];
+          if (acList.length > 0 || adsbBboxData.total === 0) {
+            const bboxStates = acList.map(a => ({
+              icao24: (a.hex || '').toLowerCase(),
+              callsign: (a.flight || '').trim(),
+              latitude: a.lat, longitude: a.lon,
+            }));
+            const bboxResult = { states: bboxStates, source: 'adsb.fi', fetched_at: new Date().toISOString() };
+            if (bboxStates.length > 0) await kvPut(env, bboxKey, bboxResult, { expirationTtl: 60 }).catch(() => {});
+            typeof debug === 'function' && debug('logistics:track:bbox-adsb', bboxStates.length);
+            return { ok: true, status: 200, body: bboxResult };
+          }
+        }
+      } catch (adsbBboxErr) {
+        typeof debug === 'function' && debug('logistics:bbox:adsb-fail', adsbBboxErr?.message);
+      }
+
+      // Fallback: OpenSky (may require auth)
       const token = await getOpenSkyToken(env);
       const hdr = token ? { 'Authorization': `Bearer ${token}` } : {};
       const bboxRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?lamin=${lamin}&lamax=${lamax}&lomin=${lomin}&lomax=${lomax}`, { headers: hdr }, 10000);
-      if (!bboxRes.ok) return { ok: false, status: bboxRes.status, body: { ok: false, error: `OpenSky upstream error (${bboxRes.status})` } };
+      if (!bboxRes.ok) {
+        // OpenSky auth required or rate-limited — return empty gracefully
+        typeof debug === 'function' && debug('logistics:bbox:opensky-fail', bboxRes.status);
+        return { ok: true, status: 200, body: { states: [], source: 'unavailable', note: `OpenSky error ${bboxRes.status} — adsb.fi returned no results for this region`, fetched_at: new Date().toISOString() } };
+      }
       const bboxData = await bboxRes.json();
       const bboxStates = (bboxData.states || []).map(s => ({ icao24: s[0], callsign: (s[1] || '').trim(), latitude: s[6], longitude: s[5] }));
-      const bboxResult = { states: bboxStates, fetched_at: new Date().toISOString() };
+      const bboxResult = { states: bboxStates, source: 'opensky', fetched_at: new Date().toISOString() };
       if (bboxStates.length > 0) await kvPut(env, bboxKey, bboxResult, { expirationTtl: 60 });
-      typeof debug === 'function' && debug('logistics:track:bbox', bboxStates.length);
+      typeof debug === 'function' && debug('logistics:track:bbox-opensky', bboxStates.length);
       return { ok: true, status: 200, body: bboxResult };
     }
 
@@ -4610,6 +4654,70 @@ async function handleApiWeatherAviation(env, req) {
   }
 }
 
+/* ── AVIATION CANCELLATIONS ENDPOINT ────────────────────────────────────────
+ * GET /api/aviation/cancellations
+ * Proxies AviationStack /flights?flight_status=cancelled to return a per-airline
+ * cancellation table.  Requires AVIATIONSTACK_KEY env var (free-tier HTTP key).
+ * Returns { ok, airlines[{airline,iata,cancelled}], total_cancelled, updated_at }
+ * Falls back gracefully with { ok:false, fallback_url } if no key configured.
+ * ─────────────────────────────────────────────────────────────────────────── */
+async function handleApiAviationCancellations(env) {
+  const apiKey = env && env.AVIATIONSTACK_KEY;
+  const FALLBACK = 'https://www.flightaware.com/live/cancelled';
+
+  if (!apiKey) {
+    return new Response(JSON.stringify({ ok: false, reason: 'no_api_key', fallback_url: FALLBACK }), {
+      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const CACHE_KEY = 'aviation_cancellations_v1';
+  const CACHE_TTL_MS = 15 * 60 * 1000; // 15 min
+
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached._ts && (Date.now() - cached._ts) < CACHE_TTL_MS) {
+      return new Response(JSON.stringify(cached), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+  } catch (_) {}
+
+  try {
+    // AviationStack free tier is HTTP-only
+    const url = `http://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_status=cancelled&limit=100`;
+    const resp = await fetchWithTimeout(url, {}, 10000);
+    if (!resp.ok) throw new Error(`AviationStack HTTP ${resp.status}`);
+    const data = await resp.json();
+    const flights = Array.isArray(data.data) ? data.data : [];
+
+    // Group by airline
+    const byAirline = {};
+    for (const f of flights) {
+      const name = (f.airline && (f.airline.name || f.airline.iata)) || 'Unknown Airline';
+      const iata = (f.airline && f.airline.iata) || '';
+      if (!byAirline[name]) byAirline[name] = { airline: name, iata, cancelled: 0 };
+      byAirline[name].cancelled++;
+    }
+    const airlines = Object.values(byAirline).sort((a, b) => b.cancelled - a.cancelled);
+
+    const result = {
+      ok: true, airlines,
+      total_cancelled: flights.length,
+      updated_at: new Date().toISOString(), _ts: Date.now(),
+    };
+    try { await kvPut(env, CACHE_KEY, result); } catch (_) {}
+    return new Response(JSON.stringify(result), {
+      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiAviationCancellations error', e?.message || e);
+    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), fallback_url: FALLBACK }), {
+      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 /* ── AVIATION DISRUPTIONS ENDPOINT ──────────────────────────────────────────
  * GET /api/aviation/disruptions
  * Scans stored incidents for aviation keywords, fetches live SIGMETs, runs a
@@ -5625,6 +5733,8 @@ async function handleRequest(req, env, ctx) {
     } else if (p.startsWith('/api/acknowledge')) {
       const r = await handleApiAcknowledge(env, req);
       return _responseFromResult(r);
+    } else if (p.startsWith('/api/aviation/cancellations')) {
+      return handleApiAviationCancellations(env);
     } else if (p.startsWith('/api/aviation/disruptions')) {
       return handleApiAviationDisruptions(env, req);
     } else if (p.startsWith('/api/weather/disasters')) {
