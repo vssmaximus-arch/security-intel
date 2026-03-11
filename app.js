@@ -1960,7 +1960,7 @@ async function adminTriggerIngest() {
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
   adminSetFeedback('Triggering ingestion…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/admin/ingest`, { method:'POST', headers:{ 'secret': sec } });
+    const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
     const txt = await res.text().catch(()=>'');
     if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
     adminSetFeedback(txt || 'Ingestion triggered.');
@@ -1977,30 +1977,6 @@ async function adminUnlock() {
     if (!res.ok) { adminSetFeedback(`Unblock failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
     adminSetFeedback(txt || 'Unblock requested.');
   } catch(e) { adminSetFeedback('Unblock failed (network).', true); console.error(e); }
-}
-
-async function adminResetAICircuit() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Resetting AI circuit breaker…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/admin/reset-ai`, { method:'POST', headers:{ 'secret': sec } });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Reset failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-    adminSetFeedback(txt || 'AI circuit breaker reset. AI enrichment will resume on next ingest.');
-  } catch(e) { adminSetFeedback('Reset failed (network).', true); console.error(e); }
-}
-
-async function adminSeedStatic() {
-  const sec = adminGetSecret();
-  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
-  adminSetFeedback('Seeding KV from news.json…');
-  try {
-    const res = await fetch(`${WORKER_URL}/api/admin/seed-from-static`, { method:'POST', headers:{ 'secret': sec } });
-    const txt = await res.text().catch(()=>'');
-    if (!res.ok) { adminSetFeedback(`Seed failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
-    adminSetFeedback(txt || 'KV seeded from news.json successfully. Refresh the dashboard.');
-  } catch(e) { adminSetFeedback('Seed failed (network).', true); console.error(e); }
 }
 
 async function adminThumbsStatus() {
@@ -5106,8 +5082,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-save-secret') { adminSaveSecret(); return; }
       if (action === 'admin-clear-secret') { adminClearSecret(); return; }
       if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
-      if (action === 'admin-reset-ai') { adminResetAICircuit(); return; }
-      if (action === 'admin-seed-static') { adminSeedStatic(); return; }
       if (action === 'admin-unlock') { adminUnlock(); return; }
       if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
       if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
@@ -5944,7 +5918,7 @@ async function loadCorrelationSignals(force = false) {
 
   if (!panel) return;
   if (bodyEl) bodyEl.innerHTML = '<div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>';
-  panel.style.display = ''; /* clear any inline override — let CSS flex rule apply */
+  panel.style.display = 'block';
 
   try {
     const url = `${WORKER_URL}/api/ai/correlate${force ? '?force=1' : ''}`;
@@ -6199,14 +6173,14 @@ async function loadSentimentDrift() {
 
     if (data.regions) {
       renderSentimentDrift(data.regions);
-      panel.style.display = ''; /* clear any inline override — let CSS flex rule apply */
+      panel.style.display = 'block';
       if (updatedEl) updatedEl.textContent = data.generated_at ? new Date(data.generated_at).toLocaleTimeString() : '—';
       console.log('[SENTIMENT] Drift data loaded');
     }
   } catch(e) {
     console.warn('[SENTIMENT] load failed:', e.message);
     if (bodyEl) bodyEl.innerHTML = `<div class="text-center text-secondary py-2" style="font-size:0.76rem;">Unavailable</div>`;
-    if (panel) panel.style.display = ''; /* clear any inline override — let CSS flex rule apply */
+    if (panel) panel.style.display = 'block'; // Still show panel, just with error state
   }
 }
 
