@@ -780,19 +780,6 @@ async function loadFromWorker(silent=false) {
       list = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident);
     }
 
-    // Fallback: if Worker KV is empty, load from static news.json
-    if (list.filter(Boolean).length === 0) {
-      try {
-        const fbRes = await fetchWithTimeout('public/data/news.json', {}, 10000);
-        if (fbRes.ok) {
-          const fbRaw = await fbRes.json();
-          const fbItems = Array.isArray(fbRaw) ? fbRaw : [];
-          list = fbItems.map(item => normaliseWorkerIncident({ ...item, summary: item.snippet || '' }));
-          console.info('[feed] Worker KV empty — using static fallback (news.json)');
-        }
-      } catch (fbErr) { console.warn('[feed] Fallback news.json failed:', fbErr); }
-    }
-
     INCIDENTS = list
       .filter(Boolean)
       .filter(i => {
@@ -2585,10 +2572,8 @@ function connectSSE() {
   es.addEventListener('incidents', (ev) => {
     try {
       const raw = JSON.parse(ev.data);
-      // Don't overwrite fallback data with an empty Worker KV response
-      if (!Array.isArray(raw) || raw.length === 0) return;
       const cutoffMs = Date.now() - 72 * 3600 * 1000;
-      INCIDENTS = raw
+      INCIDENTS = (Array.isArray(raw) ? raw : [])
         .map(normaliseWorkerIncident).filter(Boolean)
         .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
         .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
