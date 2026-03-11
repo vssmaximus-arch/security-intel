@@ -2855,14 +2855,17 @@ async function runIngestion(env, options = {}, ctx = null) {
     let existing = Array.isArray(incidentsExistingRaw) ? incidentsExistingRaw : [];
     let fresh = [];
     const proximityList = [];
-    const toFetch = [...DETERMINISTIC_SOURCES, ...ROTATING_SOURCES];
-    for (const src of toFetch) {
+
+    // ── Per-feed async processor (used in parallel batches below) ────────────
+    async function processFeed(src) {
+      const localItems = [];
+      const localProx = [];
       try {
-        const res = await fetchWithTimeout(src, {}, 15000);
-        if (!res || !res.ok) continue;
+        const res = await fetchWithTimeout(src, {}, 8000);
+        if (!res || !res.ok) return { items: [], prox: [] };
         const text = await res.text();
-        const items = parseRssAtom(text).slice(0, 6);
-        for (const itm of items) {
+        const feedItems = parseRssAtom(text).slice(0, 6);
+        for (const itm of feedItems) {
           if (!itm.title) continue;
           const combined = `${itm.title} — ${itm.summary || ""}`.trim();
           if (isNoise(combined)) continue;
@@ -2885,72 +2888,59 @@ async function runIngestion(env, options = {}, ctx = null) {
           };
           if (_validCoords(incBase.lat, incBase.lng)) {
             const n = nearestDell(incBase.lat, incBase.lng);
-            if (n) {
-              incBase.nearest_site_name = n.name;
-              incBase.nearest_site_key = n.name.toLowerCase();
-              incBase.distance_km = Math.round(n.dist);
-            }
+            if (n) { incBase.nearest_site_name = n.name; incBase.nearest_site_key = n.name.toLowerCase(); incBase.distance_km = Math.round(n.dist); }
           }
-          // ── GDACS / USGS natural-hazard proximity gate (200 km) ──────────────
-          // Only events within NATURAL_MAX_DIST_KM of a Dell site reach the feed.
-          // Thumbs-up overrides: checked below, so gate runs only for neutral items.
           if (NATURAL_HAZARD_SOURCES.has(src)) {
-            // Coords missing — attempt country-text fallback before gating
             if (!_validCoords(incBase.lat, incBase.lng)) {
               const ck = extractCountryFromText(combined);
               if (ck && COUNTRY_COORDS[ck]) {
-                incBase.lat = COUNTRY_COORDS[ck].lat;
-                incBase.lng = COUNTRY_COORDS[ck].lng;
+                incBase.lat = COUNTRY_COORDS[ck].lat; incBase.lng = COUNTRY_COORDS[ck].lng;
                 const nf = nearestDell(incBase.lat, incBase.lng);
-                if (nf) {
-                  incBase.nearest_site_name = nf.name;
-                  incBase.nearest_site_key = nf.name.toLowerCase();
-                  incBase.distance_km = Math.round(nf.dist);
-                }
+                if (nf) { incBase.nearest_site_name = nf.name; incBase.nearest_site_key = nf.name.toLowerCase(); incBase.distance_km = Math.round(nf.dist); }
               }
             }
-            // Gate: no valid coords or too far → drop
-            const thumbsEarly = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
+            const thumbsEarly = THUMBS_PREF_CACHE?.byId?.[incBase.id];
             if (thumbsEarly !== "up") {
-              if (!_validCoords(incBase.lat, incBase.lng) ||
-                  typeof incBase.distance_km !== 'number' ||
-                  incBase.distance_km > NATURAL_MAX_DIST_KM) {
+              if (!_validCoords(incBase.lat, incBase.lng) || typeof incBase.distance_km !== 'number' || incBase.distance_km > NATURAL_MAX_DIST_KM) {
                 debug("gdacs_prox_gate rejected", { title: incBase.title.slice(0, 100), distKm: incBase.distance_km });
                 continue;
               }
             }
           }
-          // ─────────────────────────────────────────────────────────────────────
-          const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
-          if (thumbs === "down") { debug("skipping due to thumbs.down", incBase.id); continue; }
-          if (thumbs === "up") { fresh.push(incBase); if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase); continue; }
+          const thumbs = THUMBS_PREF_CACHE?.byId?.[incBase.id];
+          if (thumbs === "down") continue;
+          if (thumbs === "up") { localItems.push(incBase); if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) localProx.push(incBase); continue; }
           let allowedByFilter = true;
           if (!isDeterministic) allowedByFilter = await isRelevantIncident(env, combined, src, null, incBase.severity, {lat: incBase.lat, lng: incBase.lng}, incBase);
-          if (!allowedByFilter) { debug("filtered (pre-AI) item", { title: incBase.title, src }); continue; }
+          if (!allowedByFilter) continue;
           if (!_validCoords(incBase.lat, incBase.lng)) {
-            const countryKey = extractCountryFromText(combined);
-            if (countryKey && COUNTRY_COORDS[countryKey]) {
-              incBase.lat = COUNTRY_COORDS[countryKey].lat;
-              incBase.lng = COUNTRY_COORDS[countryKey].lng;
+            const ck = extractCountryFromText(combined);
+            if (ck && COUNTRY_COORDS[ck]) {
+              incBase.lat = COUNTRY_COORDS[ck].lat; incBase.lng = COUNTRY_COORDS[ck].lng;
               const n = nearestDell(incBase.lat, incBase.lng);
-              if (n) {
-                incBase.nearest_site_name = n.name;
-                incBase.nearest_site_key = n.name.toLowerCase();
-                incBase.distance_km = Math.round(n.dist);
-              }
+              if (n) { incBase.nearest_site_name = n.name; incBase.nearest_site_key = n.name.toLowerCase(); incBase.distance_km = Math.round(n.dist); }
             }
           }
-          fresh.push(incBase);
-          if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase);
-          
-          // === NEW EMAIL LOGIC (RESTORED) ===
+          localItems.push(incBase);
+          if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) localProx.push(incBase);
           if (incBase.severity >= 4 || (incBase.distance_km !== null && incBase.distance_km <= 100)) {
-            // We await here safely as runIngestion runs inside waitUntil context
             await sendAlertEmail(env, incBase);
           }
-          // ==================================
         }
       } catch (e) { debug("fetch src err", src, e?.message || e); }
+      return { items: localItems, prox: localProx };
+    }
+
+    // ── Parallel fetch: all feeds simultaneously, 8-second cap each ──────────
+    // Cloudflare Workers handles concurrent I/O efficiently; total wall-clock
+    // time equals the slowest feed (~8s) not the sum (was >100s sequentially).
+    const toFetch = [...DETERMINISTIC_SOURCES, ...ROTATING_SOURCES];
+    const feedResults = await Promise.allSettled(toFetch.map(src => processFeed(src)));
+    for (const r of feedResults) {
+      if (r.status === 'fulfilled' && r.value) {
+        fresh.push(...r.value.items);
+        proximityList.push(...r.value.prox);
+      }
     }
 
     // Optional AI enrichment — capped at MAX_GROQ_CALLS per run to avoid rate-limit exhaustion.
