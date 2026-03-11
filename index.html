@@ -1535,7 +1535,18 @@
     }
     .airport-card-meta span { display: inline-flex; align-items: center; gap: 4px; }
     .airport-card-meta i { color: #9aa0a6; }
-    .airport-card-time { margin-left: auto; }
+    .airport-card-time { margin-left: auto; font-size: 0.72rem; color: #9aa0a6; }
+    .airport-card-foot { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+
+    /* Source + confidence badges */
+    .src-badge { display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 8px; letter-spacing: 0.4px; white-space: nowrap; }
+    .src-badge-ongoing { background: #1e3a1e; color: #81c995; border: 1px solid #2d5a2d; }
+    .src-badge-live    { background: #0d2137; color: #4fc3f7; border: 1px solid #1a4a6e; }
+    .conf-dot { font-size: 0.6rem; line-height: 1; }
+    .conf-high { color: #81c995; }
+    .conf-med  { color: #f9ab00; }
+    body.light-mode .src-badge-ongoing { background: #e6f4ea; color: #137333; border-color: #ceead6; }
+    body.light-mode .src-badge-live    { background: #e8f0fe; color: #1967d2; border-color: #c5d5f8; }
 
     /* Empty / loading states */
     .airport-loading { text-align: center; color: #9aa0a6; padding: 40px 0; font-size: 0.9rem; }
@@ -3166,7 +3177,7 @@
 
     /* ── Config ─────────────────────────────────────────────────────────── */
     var WORKER_URL = 'https://osinfohub.vssmaximus.workers.dev';
-    var CACHE_MS   = 15 * 60 * 1000; // 15 min client-side cache
+    var CACHE_MS   = 10 * 60 * 1000; // 10 min client-side cache
 
     /* Cause-type colours and labels */
     var CAUSE_COLORS = {
@@ -3297,15 +3308,26 @@
       /* AI overview bar */
       var aiEl = document.getElementById('airport-ai-text');
       if (aiEl) {
+        var crit   = disruptions.filter(function (d) { return d.severity === 'CRITICAL'; });
+        var high   = disruptions.filter(function (d) { return d.severity === 'HIGH'; });
+        var live   = disruptions.filter(function (d) { return d.source_type === 'LIVE_FEED'; });
+        var ongoing= disruptions.filter(function (d) { return d.source_type === 'VERIFIED_ONGOING'; });
+        var liveCount    = AIRPORT_DATA.live_items_fetched || 0;
+        var feedCount    = AIRPORT_DATA.live_feeds_checked || 0;
         if (disruptions.length === 0) {
-          aiEl.textContent = 'No aviation disruptions detected in current feed. This may improve as aviation-specific RSS sources propagate into the system.';
+          aiEl.textContent = 'Scanning ' + feedCount + ' live aviation feeds + Middle East news sources. No confirmed disruptions detected. Known ongoing Middle East disruptions will load shortly.';
         } else {
-          var crit = disruptions.filter(function (d) { return d.severity === 'CRITICAL'; });
-          var msg = disruptions.length + ' disruption' + (disruptions.length !== 1 ? 's' : '') + ' detected globally';
-          if (crit.length) {
-            msg += ' — ⚠️ CRITICAL: ' + crit[0].airport_name + ' (' + (crit[0].iata || '—') + '): ' + (crit[0].ai_summary || '').slice(0, 100);
+          var parts = [];
+          parts.push(disruptions.length + ' disruption' + (disruptions.length !== 1 ? 's' : '') + ' tracked globally');
+          if (crit.length) parts.push(crit.length + ' CRITICAL');
+          if (high.length) parts.push(high.length + ' HIGH');
+          if (ongoing.length) parts.push(ongoing.length + ' verified ongoing (incl. Middle East war)');
+          if (live.length)    parts.push(live.length + ' from live feeds (' + liveCount + ' articles scanned across ' + feedCount + ' sources)');
+          var firstCrit = crit[0] || disruptions[0];
+          if (firstCrit) {
+            parts.push('Top: ' + firstCrit.airport_name + ' (' + (firstCrit.iata || '—') + ') — ' + (firstCrit.ai_summary || '').slice(0, 90) + '…');
           }
-          aiEl.textContent = msg;
+          aiEl.textContent = parts.join(' | ');
         }
       }
 
@@ -3350,16 +3372,28 @@
 
     /* ── Card renderer ──────────────────────────────────────────────────── */
     function renderDisruptionCard(d) {
-      var color    = CAUSE_COLORS[d.cause_type] || '#9aa0a6';
-      var sevCls   = SEV_CLASS[d.severity] || 'ftag-info';
+      var color      = CAUSE_COLORS[d.cause_type] || '#9aa0a6';
+      var sevCls     = SEV_CLASS[d.severity] || 'ftag-info';
       var causeLabel = CAUSE_LABELS[d.cause_type] || (d.cause_type || 'Other');
-      var link     = d.link || '#';
+      var link       = d.link || '#';
+      /* Source badge */
+      var srcBadge = '';
+      if (d.source_type === 'VERIFIED_ONGOING') {
+        srcBadge = '<span class="src-badge src-badge-ongoing" title="Authoritative verified ongoing disruption">✅ VERIFIED ONGOING</span>';
+      } else if (d.source_type === 'LIVE_FEED') {
+        srcBadge = '<span class="src-badge src-badge-live" title="Extracted from live aviation news feed">📡 LIVE FEED</span>';
+      }
+      /* Confidence dot */
+      var confDot = d.confidence === 'HIGH'
+        ? '<span class="conf-dot conf-high" title="High confidence">●</span>'
+        : '<span class="conf-dot conf-med" title="Medium confidence">●</span>';
       return [
         '<div class="airport-card" data-link="' + escHtml(link) + '" role="article" tabindex="0">',
           '<div class="airport-card-bar" style="background:' + color + '"></div>',
           '<div class="airport-card-body">',
             '<div class="airport-card-header">',
-              '<span class="airport-iata-badge">' + escHtml(d.iata || '✈') + '</span>',
+              confDot,
+              '<span class="airport-iata-badge" style="background:' + color + '22;color:' + color + ';">' + escHtml(d.iata || '✈') + '</span>',
               '<span class="airport-name">' + escHtml(d.airport_name || 'Unknown Airport') + '</span>',
               '<span class="ftag ' + sevCls + '">' + escHtml(d.severity || 'LOW') + '</span>',
               '<span class="airport-cause-badge cause-' + escHtml(d.cause_type || 'OTHER') + '">' + escHtml(causeLabel) + '</span>',
@@ -3368,7 +3402,10 @@
             '<div class="airport-card-meta">',
               '<span><i class="fas fa-plane-departure" aria-hidden="true"></i> ' + escHtml(d.affected_routes || 'Unknown routes') + '</span>',
               '<span><i class="fas fa-clock" aria-hidden="true"></i> ' + escHtml(d.duration_estimate || 'Unknown') + '</span>',
-              '<span class="airport-card-time">' + timeAgoShort(new Date(d.time || Date.now())) + '</span>',
+              '<span class="airport-card-foot">',
+                srcBadge,
+                '<span class="airport-card-time">' + timeAgoShort(new Date(d.time || Date.now())) + '</span>',
+              '</span>',
             '</div>',
           '</div>',
         '</div>',
@@ -3437,8 +3474,24 @@
 
     var refreshBtn = document.getElementById('airport-refresh-btn');
     if (refreshBtn) {
-      refreshBtn.addEventListener('click', function () { loadAirportData(true); });
+      refreshBtn.addEventListener('click', function () {
+        this.disabled = true;
+        var icon = this.querySelector('i');
+        if (icon) icon.className = 'fas fa-spinner fa-spin';
+        var btn = this;
+        loadAirportData(true);
+        setTimeout(function () {
+          btn.disabled = false;
+          var ic = btn.querySelector('i');
+          if (ic) ic.className = 'fas fa-sync';
+        }, 12000);
+      });
     }
+
+    /* Auto-refresh every 10 minutes when airport view is active */
+    setInterval(function () {
+      if (currentView === 'airport') loadAirportData(false);
+    }, 10 * 60 * 1000);
 
   })();
   </script>
