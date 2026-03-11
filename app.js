@@ -1591,7 +1591,7 @@ async function filterTravel() {
     if (cont) cont.innerHTML = `
       <div class="advisory-box" style="background:${bgColor}; border-color:${badgeColor};">
         <div class="advisory-header">
-          <div class="advisory-label">OFFICIAL ADVISORY</div>
+          <div class="advisory-label">OFFICIAL US/AU GOVT ADVISORY</div>
           <div class="advisory-level-badge" style="background:${badgeColor};">LEVEL ${escapeHtml(String(level))}</div>
         </div>
         <div class="advisory-text">${escapeHtml(adv.text || adv.advice || adv.summary || 'No major advisory.')}</div>
@@ -1619,7 +1619,7 @@ async function filterTravel() {
     if (cont) cont.innerHTML = `
       <div class="advisory-box" style="background:${fBg}; border-color:${fBadge};">
         <div class="advisory-header">
-          <div class="advisory-label">OFFICIAL ADVISORY${fallbackAdv ? ' (CACHED)' : ' — SERVICE DEGRADED'}</div>
+          <div class="advisory-label">OFFICIAL US/AU GOVT ADVISORY${fallbackAdv ? ' (CACHED)' : ' — SERVICE DEGRADED'}</div>
           <div class="advisory-level-badge" style="background:${fBadge};">LEVEL ${fLvl}</div>
         </div>
         <div class="advisory-text">${escapeHtml((fallbackAdv && fallbackAdv.text) || 'Advisory service temporarily unreachable. Exercise normal precautions and check official government sources.')}</div>

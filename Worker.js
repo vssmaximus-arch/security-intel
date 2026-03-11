@@ -173,9 +173,8 @@ const AUTO_48H_MS = 48 * 3600 * 1000;
 const MAX_INCIDENTS_STORED = 300;
 
 const DETERMINISTIC_SOURCES = [
+  // M4.5+ weekly feed only — all_hour/all_day removed (too noisy, captures M1-4 micro-quakes)
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
-  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
-  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
@@ -186,8 +185,6 @@ const DETERMINISTIC_SOURCES = [
 // Dell site is silently dropped — prevents global earthquake/flood noise.
 const NATURAL_HAZARD_SOURCES = new Set([
   "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
-  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.atom",
-  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
@@ -1370,6 +1367,32 @@ function isNoise(text = "") {
   const ANNUAL_REPORT_NOISE = /\b(annual (report|review|results)|year in review|\d{4} (annual|year.in.review)|quarterly (report|earnings?|results?)|q[1-4] (results?|earnings?|report|revenue)|fiscal (year|quarter) (results?|ended?|summary)|earnings per share|investor (relations?|day|presentation|briefing)|earnings (call|beat|miss|guidance)|revenue (grew?|increased?|declined?|forecast|outlook)|market cap|gartner (predicts?|report|magic quadrant)|forrester (report|wave)|idc (report|forecast)|shareholder (letter|meeting|value)|return on (equity|investment)|ebitda|operating (margin|income|profit))\b/i;
   if (ANNUAL_REPORT_NOISE.test(t)) return true;
 
+  // --- Tier-8: non-critical retail/consumer data breaches ---
+  // Only data breaches involving Dell, critical infrastructure, financial systems,
+  // government, healthcare, or confirmed active ransomware on enterprise systems are relevant.
+  // Retail loyalty card breaches, supermarket investigations, consumer apps are noise.
+  const DATA_BREACH_GENERIC = /\b(data breach|data leak|hack(ed)?|cyber(attack)?|investigation|compromised)\b/i;
+  if (DATA_BREACH_GENERIC.test(t)) {
+    const CRITICAL_BREACH_SCOPE = /\b(dell|hospital|healthcare|power grid|water treatment|airport|seaport|port authority|government|federal|ministry|military|defense|nuclear|pipeline|telecom|bank|financial institution|stock exchange|critical infrastructure|supply chain attack|nation.?state|apt group|ransomware (attack|group|gang))\b/i;
+    const DELL_DIRECT = /\bdell(\s+(technologies|emc|secureworks|boomi))?|poweredge|powerstore|isilon|avamar\b/i;
+    if (!CRITICAL_BREACH_SCOPE.test(t) && !DELL_DIRECT.test(t)) return true; // noise
+  }
+
+  // --- Tier-9: commodity/fuel price movements without physical disruption ---
+  // Price records, market benchmarks, and trading gains are financial noise unless
+  // they describe actual physical supply chain disruptions (closures, blockades, shortages).
+  const COMMODITY_PRICE_NOISE = /\b(diesel|crude oil|gasoline|fuel|commodity|benchmark|brent|wti)\b.{0,80}\b(record (gain|high|price|rise)|sets a record|benchmark (sets|hits|reaches)|price (surge|soar|rally|spike)|all.time high)\b/i;
+  const PHYSICAL_DISRUPTION_CARVEOUT = /\b(port (closed|blocked|seized|disrupted)|shipping (disrupted|halted|suspended)|strait (blocked|closed|mined)|sanctions (imposed|enacted)|export (ban|embargo)|supply (shortage|disruption)|refinery (fire|closure|attack)|pipeline (attack|closure|outage))\b/i;
+  if (COMMODITY_PRICE_NOISE.test(t) && !PHYSICAL_DISRUPTION_CARVEOUT.test(t)) return true;
+
+  // --- Tier-10: routine war casualty updates (not new threat events) ---
+  // Single-digit or low-number casualties in established conflict zones are routine
+  // war-of-attrition updates, not actionable intelligence for Dell RSMs.
+  // Carve-out: Mass casualty events, new major attacks, or previously-unknown escalation.
+  const ROUTINE_WAR_CASUALTY = /\b(kills?\s+(one|two|three|four|five|six|seven|eight|nine|\d person)|(\d+|one|two|three|four|five) (people |civilians? )?(killed|dead|died)|priest|monk|clergy|pastor|civilian|soldier) (killed|shot|struck|died)\b/i;
+  const MAJOR_ESCALATION = /\b(mass casualt|dozens (killed|dead|wounded)|hundreds (killed|dead)|major (attack|offensive|strike|bombing)|car bomb|suicide bomb(er|ing)|multiple explosion|coordinated attack|new front|military offensive|ground invasion)\b/i;
+  if (ROUTINE_WAR_CASUALTY.test(t) && !MAJOR_ESCALATION.test(t)) return true;
+
   return false;
 }
 
@@ -2546,7 +2569,7 @@ async function callGroq(env, apiKey, text, retries = 2) {
     temperature: 0,
     max_tokens: 350,
     messages: [
-      { role: "system", content: "Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. CRITICAL RULE for CYBERSECURITY category: only assign it for ACTUAL attacks, confirmed breaches, active ransomware campaigns, major service outages caused by cyber incidents, or nation-state/APT intrusions with real operational impact on organisations. Do NOT use CYBERSECURITY for: patch releases, CVE disclosures, vulnerability research, vendor security advisories, bug bounties, penetration test findings, or theoretical vulnerabilities — those must get operational_impact=false and impact_score below 15." },
+      { role: "system", content: "You are a Dell Technologies GSOC analyst. Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. SEVERITY SCALE (Dell-specific): severity=5 CRITICAL: direct attack on/near Dell facility, confirmed disruption to Dell supply chain, earthquake M7+, active ransomware on critical infrastructure; severity=4 HIGH: earthquake M5.5-7.0 near Dell sites, major civil unrest/attack within 50km of Dell office, port/airport closure disrupting Dell supply chain, active military conflict in a country where Dell operates; severity=3 MEDIUM: regional security event that may affect Dell employee travel, natural disaster in a Dell-operating country, general supply chain risk; severity=2 LOW: distant events, routine conflict updates, single-casualty incidents, commodity price movements, non-critical data breaches. CRITICAL RULES: (1) operational_impact=true ONLY when directly affecting Dell staff safety, Dell facility, or Dell supply chain logistics. (2) Retailer/supermarket/consumer data breaches (e.g. Loblaw, Target, retail stores) = severity 2, operational_impact false. (3) Single civilian casualties in existing conflict zones = severity 2, operational_impact false. (4) Commodity price records without physical supply disruption = severity 2, operational_impact false. (5) Routine war casualty updates ('X killed in Y') without major new attack = severity 2. (6) CYBERSECURITY category: only for ACTUAL attacks, confirmed breaches, active ransomware, major outages, or nation-state/APT intrusions — NOT for patch releases, CVE disclosures, or theoretical vulnerabilities." },
       { role: "user", content: String(text).slice(0, 1200) }
     ],
     response_format: { type: "json_object" }
@@ -3052,13 +3075,21 @@ async function runIngestion(env, options = {}, ctx = null) {
           const combined = `${itm.title} — ${itm.summary || ""}`.trim();
           if (isNoise(combined)) continue;
           const isDeterministic = DETERMINISTIC_SOURCES.includes(src);
+          // For earthquake/natural feeds, compute magnitude-based severity
+          const _titleForMag = itm.title || "";
+          const _detMag = isDeterministic ? extractMagnitudeFromText(_titleForMag) : null;
+          let _detSev = isDeterministic ? 4 : 3; // default HIGH for deterministic
+          if (_detMag !== null) {
+            // Magnitude-based severity: M7+ = CRITICAL(5), M6-7 = HIGH(4), M5-6 = MEDIUM(3), <5 = LOW(2)
+            _detSev = _detMag >= 7.0 ? 5 : _detMag >= 6.0 ? 4 : _detMag >= 5.0 ? 3 : 2;
+          }
           const incBase = {
             id: stableId(itm.link || itm.title),
             title: itm.title,
             summary: itm.summary || "",
             category: "UNKNOWN",
-            severity: isDeterministic ? 4 : 3,
-            severity_label: isDeterministic ? "HIGH" : "MEDIUM",
+            severity: _detSev,
+            severity_label: _detSev >= 5 ? "CRITICAL" : _detSev >= 4 ? "HIGH" : _detSev === 3 ? "MEDIUM" : "LOW",
             region: "Global",
             country: "GLOBAL",
             location: "UNKNOWN",
@@ -3102,6 +3133,15 @@ async function runIngestion(env, options = {}, ctx = null) {
                   incBase.distance_km > NATURAL_MAX_DIST_KM) {
                 debug("gdacs_prox_gate rejected", { title: incBase.title.slice(0, 100), distKm: incBase.distance_km });
                 continue;
+              }
+              // Additional magnitude gate for seismic sources — reject sub-threshold earthquakes
+              // even if they happen to be near a Dell site (M<5 = felt locally but not operationally significant)
+              if (src.includes('usgs.gov') || src.includes('emsc-csem.org') || src.includes('jma.go.jp')) {
+                const _mag = extractMagnitudeFromText(incBase.title || '');
+                if (_mag !== null && _mag < NATURAL_MIN_MAGNITUDE) {
+                  debug("seismic_mag_gate rejected", { title: incBase.title.slice(0, 80), mag: _mag });
+                  continue;
+                }
               }
             }
           }
@@ -4578,7 +4618,7 @@ async function handleApiWeatherAviation(env, req) {
  * Returns: { disruptions[], sigmets[], total, updated_at }
  * ─────────────────────────────────────────────────────────────────────────── */
 async function handleApiAviationDisruptions(env, req) {
-  const CACHE_KEY = 'aviation_disruptions_v5';
+  const CACHE_KEY = 'aviation_disruptions_v6';
   const CACHE_TTL = 5 * 60; // 5 min — near-real-time operational data
 
   try {
