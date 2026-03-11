@@ -3624,7 +3624,10 @@ async function isSecretOk(req, env) {
     const secret = req.headers.get('secret') || "";
     if (!secret && req.method === 'POST') return false;
     const s = env && env.INGEST_SECRET ? String(env.INGEST_SECRET) : "";
-    return s && secret && s === secret;
+    if (s && secret && s === secret) return true;
+    // Also accept GROQ_API_KEY so GitHub Actions can trigger ingest without a separate secret
+    const gk = env && env.GROQ_API_KEY ? String(env.GROQ_API_KEY) : "";
+    return gk && secret && gk === secret;
   } catch (e) { return false; }
 }
 
@@ -3654,6 +3657,34 @@ async function handleAdminAction(env, req, ctx) {
     } else if (action === 'reset-ai') {
       await clearGroqFailures(env);
       return { ok:true, status:200, body: "circuit_reset" };
+    } else if (action === 'seed-from-static') {
+      // Fast seed: read news.json from GitHub Pages and write directly to KV.
+      // Bypasses the slow RSS loop — works as long as news.json has content.
+      try {
+        const staticUrl = 'https://vssmaximus-arch.github.io/security-intel/public/data/news.json';
+        const sr = await fetchWithTimeout(staticUrl, {}, 10000);
+        if (!sr || !sr.ok) return { ok:false, status:502, body: 'static_fetch_failed' };
+        const newsItems = await sr.json();
+        if (!Array.isArray(newsItems) || newsItems.length === 0) return { ok:false, status:204, body: 'static_empty' };
+        // Convert news.json format to KV incident format
+        const converted = newsItems.map((item, i) => ({
+          id: stableId(item.url || item.title || `static-${i}`),
+          title: item.title || 'Untitled',
+          summary: item.snippet || '',
+          category: (item.type || 'PHYSICAL SECURITY').toUpperCase().replace('/', '_'),
+          severity: Math.min(5, Math.max(1, Number(item.severity) || 2)),
+          severity_label: Number(item.severity) >= 4 ? 'HIGH' : Number(item.severity) >= 3 ? 'MEDIUM' : 'LOW',
+          region: item.region || 'Global',
+          country: 'GLOBAL',
+          location: 'UNKNOWN',
+          link: item.url || '#',
+          source: item.source || staticUrl,
+          time: item.time || new Date().toISOString(),
+          lat: 0, lng: 0,
+        }));
+        await kvPut(env, INCIDENTS_KV_KEY, converted);
+        return { ok:true, status:200, body: `seeded_${converted.length}` };
+      } catch(e) { return { ok:false, status:500, body: `seed_error: ${e?.message || e}` }; }
     }
     return { ok:false, status:400, body: "unknown_action" };
   } catch (e) {

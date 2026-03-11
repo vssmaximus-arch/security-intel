@@ -1991,6 +1991,18 @@ async function adminResetAICircuit() {
   } catch(e) { adminSetFeedback('Reset failed (network).', true); console.error(e); }
 }
 
+async function adminSeedStatic() {
+  const sec = adminGetSecret();
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  adminSetFeedback('Seeding KV from news.json…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/seed-from-static`, { method:'POST', headers:{ 'secret': sec } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Seed failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
+    adminSetFeedback(txt || 'KV seeded from news.json successfully. Refresh the dashboard.');
+  } catch(e) { adminSetFeedback('Seed failed (network).', true); console.error(e); }
+}
+
 async function adminThumbsStatus() {
   const sec = adminGetSecret();
   adminSetFeedback('Loading thumbs status…');
@@ -5095,6 +5107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-clear-secret') { adminClearSecret(); return; }
       if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
       if (action === 'admin-reset-ai') { adminResetAICircuit(); return; }
+      if (action === 'admin-seed-static') { adminSeedStatic(); return; }
       if (action === 'admin-unlock') { adminUnlock(); return; }
       if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
       if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }

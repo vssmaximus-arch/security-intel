@@ -89,16 +89,47 @@ def init_groq():
         return None
     return api_key
 
+def keyword_classify(title, body):
+    """Fast keyword-based classifier used when Groq API is unavailable."""
+    text = (title + " " + body).lower()
+    # Cyber
+    if re.search(r"\b(ransomware|breach|hack|malware|cyber|cisa|vulnerability|exploit|phishing|intrusion|ddos|data.?leak)\b", text):
+        sev = "HIGH" if re.search(r"\b(critical|breach|ransomware|nation.state|confirmed)\b", text) else "MEDIUM"
+        return {"category": "CYBER_SECURITY_MAJOR", "likelihood_relevant": 80, "severity": sev,
+                "primary_reason": "Cybersecurity incident detected via keyword matching.",
+                "geo_relevance": {"mentioned_countries_or_cities": []}}
+    # Supply chain
+    if re.search(r"\b(port|shipping|cargo|freight|strike|container|vessel|supply.chain|disruption|airport.clos|airspace)\b", text):
+        return {"category": "SUPPLY_CHAIN_SECURITY", "likelihood_relevant": 75, "severity": "MEDIUM",
+                "primary_reason": "Supply chain or logistics disruption detected.",
+                "geo_relevance": {"mentioned_countries_or_cities": []}}
+    # Crisis / weather
+    if re.search(r"\b(earthquake|flood|hurricane|typhoon|tsunami|wildfire|volcanic|eruption|disaster|emergency|evacuation)\b", text):
+        sev = "HIGH" if re.search(r"\b(major|severe|deadly|magnitude [6-9]|category [3-5])\b", text) else "MEDIUM"
+        return {"category": "CRISIS_WEATHER", "likelihood_relevant": 80, "severity": sev,
+                "primary_reason": "Natural disaster or emergency detected.",
+                "geo_relevance": {"mentioned_countries_or_cities": []}}
+    # Health / safety
+    if re.search(r"\b(epidemic|pandemic|outbreak|pathogen|health.advisory|travel.ban|quarantine|disease)\b", text):
+        return {"category": "HEALTH_SAFETY", "likelihood_relevant": 75, "severity": "MEDIUM",
+                "primary_reason": "Health or safety advisory detected.",
+                "geo_relevance": {"mentioned_countries_or_cities": []}}
+    # Physical security
+    if re.search(r"\b(protest|riot|terror|attack|bomb|shooting|war|conflict|coup|unrest|killed|troops|military|armed)\b", text):
+        sev = "HIGH" if re.search(r"\b(terror|bomb|killed|troops|war|coup)\b", text) else "MEDIUM"
+        return {"category": "PHYSICAL_SECURITY", "likelihood_relevant": 72, "severity": sev,
+                "primary_reason": "Physical security event detected via keyword matching.",
+                "geo_relevance": {"mentioned_countries_or_cities": []}}
+    # Default — low-relevance catch-all for sources that likely have security content
+    return {"category": "PHYSICAL_SECURITY", "likelihood_relevant": 45, "severity": "LOW",
+            "primary_reason": "Classified by keyword heuristic; review recommended.",
+            "geo_relevance": {"mentioned_countries_or_cities": []}}
+
+
 def ai_analyze_article(api_key, title, body, source, feedback_text):
     """Call Groq to classify and enrich an article. Returns structured dict."""
     if not api_key:
-        return {
-            "category": "PHYSICAL_SECURITY",
-            "likelihood_relevant": 70,
-            "severity": "MEDIUM",
-            "primary_reason": "AI unavailable – default relevance.",
-            "geo_relevance": {"mentioned_countries_or_cities": []},
-        }
+        return keyword_classify(title, body)
 
     system_msg = (
         "You are a security news classifier for Dell Technologies SRO. "
@@ -159,22 +190,10 @@ Return JSON:
         print(f"Groq HTTP {e.code}: {body_txt[:200]}")
         if e.code in (429, 503):
             time.sleep(5)  # brief back-off on rate limit
-        return {
-            "category": "PHYSICAL_SECURITY",
-            "likelihood_relevant": 70,
-            "severity": "MEDIUM",
-            "primary_reason": "AI unavailable – default relevance.",
-            "geo_relevance": {"mentioned_countries_or_cities": []},
-        }
+        return keyword_classify(title, body)
     except Exception as ex:
         print(f"Groq call error: {ex}")
-        return {
-            "category": "PHYSICAL_SECURITY",
-            "likelihood_relevant": 70,
-            "severity": "MEDIUM",
-            "primary_reason": "AI unavailable – default relevance.",
-            "geo_relevance": {"mentioned_countries_or_cities": []},
-        }
+        return keyword_classify(title, body)
 
 # ---------- UTILS ----------
 def clean_html(html: str) -> str:
@@ -271,10 +290,7 @@ def main():
 
     api_key = init_groq()
     if not api_key:
-        print("WARNING: GROQ_API_KEY not set — writing empty news.json")
-        with open(NEWS_PATH, "w", encoding="utf-8") as f:
-            json.dump([], f)
-        return
+        print("WARNING: GROQ_API_KEY not set — running keyword-only classification (no AI)")
 
     block_keys, boost_keys, pos_examples, neg_examples = load_feedback()
     feedback_text = build_feedback_prompt_section(pos_examples, neg_examples)
