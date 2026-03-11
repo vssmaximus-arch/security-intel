@@ -3053,9 +3053,9 @@ const STATIC_FEED_URL = "https://vssmaximus-arch.github.io/security-intel/public
 async function ingestFromStaticFeed(env) {
   try {
     const res = await fetchWithTimeout(STATIC_FEED_URL, {}, 10000);
-    if (!res || !res.ok) { warn('ingestFromStaticFeed: fetch failed', res && res.status); return; }
+    if (!res || !res.ok) { warn('ingestFromStaticFeed: fetch failed', res && res.status); return null; }
     const items = await res.json();
-    if (!Array.isArray(items) || !items.length) { warn('ingestFromStaticFeed: empty feed'); return; }
+    if (!Array.isArray(items) || !items.length) { warn('ingestFromStaticFeed: empty feed'); return null; }
     const now = new Date().toISOString();
     const incidents = items.map(item => ({
       id: stableId(item.url || item.title || ''),
@@ -3075,8 +3075,10 @@ async function ingestFromStaticFeed(env) {
     })).filter(i => i.title);
     await kvPut(env, INCIDENTS_KV_KEY, incidents);
     info('ingestFromStaticFeed: stored', incidents.length, 'incidents');
+    return incidents; // Return directly to avoid KV eventual-consistency read delay
   } catch(e) {
     warn('ingestFromStaticFeed error', e?.message || e);
+    return null;
   }
 }
 
@@ -3848,7 +3850,12 @@ async function handleApiStream(env, req) {
   (async () => {
     let hbTimer;
     try {
-      const incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+      let incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+      // If KV is empty, ingest fresh data and use it directly (avoid KV consistency delay)
+      if (!Array.isArray(incidents) || incidents.length === 0) {
+        const fresh = await ingestFromStaticFeed(env);
+        if (Array.isArray(fresh) && fresh.length > 0) incidents = fresh;
+      }
       const proxRaw   = await kvGetJson(env, PROXIMITY_KV_KEY, { incidents: [] });
       await writeEvent('incidents', incidents);
       await writeEvent('proximity', proxRaw);
@@ -3879,10 +3886,11 @@ async function handleApiStream(env, req) {
 
 async function handleApiIncidents(env, req) {
   let inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
-  // Server-side fallback: if KV is empty, sync from static feed and return that
+  // Server-side fallback: if KV is empty, sync from static feed and use returned data directly
+  // (avoids KV eventual-consistency delay where an immediate re-read may still return stale empty value)
   if (!Array.isArray(inc) || inc.length === 0) {
-    await ingestFromStaticFeed(env);
-    inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const fresh = await ingestFromStaticFeed(env);
+    if (Array.isArray(fresh) && fresh.length > 0) inc = fresh;
   }
   let list = Array.isArray(inc) ? inc : [];
   // Filter out incidents disliked by this user
