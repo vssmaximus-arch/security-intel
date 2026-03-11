@@ -4698,8 +4698,10 @@ async function handleApiAviationCancellations(env) {
     });
   }
 
-  const CACHE_KEY = 'aviation_cancellations_v2';
-  const CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours — protects 500 req/month quota (~360/mo)
+  // Airlabs /schedules requires dep_iata or arr_iata — query 4 major hubs in parallel.
+  // Rate limit: 4 airports × 4 refreshes/day × 30 days = 480 calls/month (within 500/month free quota).
+  const CACHE_KEY = 'aviation_cancellations_v3';
+  const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
   try {
     const cached = await kvGetJson(env, CACHE_KEY, null);
@@ -4732,30 +4734,46 @@ async function handleApiAviationCancellations(env) {
     FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
   };
 
+  // 4 major hub airports covering AMER / EMEA / MENA — queried in parallel
+  const HUB_AIRPORTS = ['ATL', 'LHR', 'CDG', 'DXB'];
+
   try {
-    // Airlabs /schedules endpoint — cancelled flights
-    const url = `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&status=cancelled&limit=100`;
-    const resp = await fetchWithTimeout(url, {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' },
-    }, 12000);
-    if (!resp.ok) throw new Error(`Airlabs HTTP ${resp.status}`);
-    const data = await resp.json();
+    const responses = await Promise.allSettled(
+      HUB_AIRPORTS.map(iata =>
+        fetchWithTimeout(
+          `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&dep_iata=${iata}&status=cancelled&limit=100`,
+          { headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' } },
+          12000
+        ).then(async r => {
+          if (!r.ok) throw new Error(`Airlabs HTTP ${r.status}`);
+          const d = await r.json();
+          if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+          return Array.isArray(d.response) ? d.response : [];
+        })
+      )
+    );
 
-    // Airlabs wraps results in data.response array
-    const flights = Array.isArray(data.response) ? data.response : [];
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    // Deduplicate by flight_iata across all hub results, then group by airline
+    const seen = new Set();
+    const allFlights = [];
+    for (const res of responses) {
+      if (res.status !== 'fulfilled') continue;
+      for (const f of res.value) {
+        const key = f.flight_iata || f.flight_icao || `${f.airline_iata}${f.dep_iata}${f.dep_time}`;
+        if (!seen.has(key)) { seen.add(key); allFlights.push(f); }
+      }
+    }
 
-    // Group by airline IATA code
     const byAirline = {};
-    for (const f of flights) {
+    for (const f of allFlights) {
       const iata = f.airline_iata || f.airline_icao || '';
       const name = AIRLINE_NAMES[iata] || (iata ? `${iata}` : 'Unknown Airline');
       const hub  = f.dep_iata || '';
       if (!byAirline[iata || name]) byAirline[iata || name] = { airline: name, iata, hub_airport: hub, cancelled: 0, delayed: 0 };
-      if (f.status === 'cancelled') byAirline[iata || name].cancelled++;
-      else if (f.status === 'delayed')  byAirline[iata || name].delayed++;
-      else byAirline[iata || name].cancelled++; // default bucket
+      if (f.status === 'delayed') byAirline[iata || name].delayed++;
+      else byAirline[iata || name].cancelled++; // status=cancelled or default
     }
+
     const airlines = Object.values(byAirline)
       .filter(a => a.cancelled > 0)
       .sort((a, b) => b.cancelled - a.cancelled)
@@ -4763,7 +4781,8 @@ async function handleApiAviationCancellations(env) {
 
     const result = {
       ok: true, airlines,
-      total_cancelled: flights.filter(f => !f.status || f.status === 'cancelled').length,
+      total_cancelled: allFlights.length,
+      airports_sampled: HUB_AIRPORTS,
       updated_at: new Date().toISOString(), _ts: Date.now(),
     };
     try { await kvPut(env, CACHE_KEY, result); } catch (_) {}
