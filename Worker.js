@@ -3048,6 +3048,38 @@ async function aggregateVotesFromLog(env) {
 /* ===========================
    INGESTION RUNNER (enrichment + proximity rules)
    =========================== */
+const STATIC_FEED_URL = "https://vssmaximus-arch.github.io/security-intel/public/data/news.json";
+
+async function ingestFromStaticFeed(env) {
+  try {
+    const res = await fetchWithTimeout(STATIC_FEED_URL, {}, 10000);
+    if (!res || !res.ok) { warn('ingestFromStaticFeed: fetch failed', res && res.status); return; }
+    const items = await res.json();
+    if (!Array.isArray(items) || !items.length) { warn('ingestFromStaticFeed: empty feed'); return; }
+    const now = new Date().toISOString();
+    const incidents = items.map(item => ({
+      id: stableId(item.url || item.title || ''),
+      title: String(item.title || '').trim(),
+      summary: String(item.snippet || item.summary || ''),
+      category: String(item.type || item.category || 'UNKNOWN').toUpperCase(),
+      severity: Number(item.severity) || 2,
+      severity_label: Number(item.severity) >= 5 ? 'CRITICAL' : Number(item.severity) >= 4 ? 'HIGH' : Number(item.severity) === 3 ? 'MEDIUM' : 'LOW',
+      region: item.region || 'Global',
+      country: item.country || 'GLOBAL',
+      location: item.location || '',
+      link: item.url || item.link || '#',
+      source: item.source || '',
+      time: item.time || now,
+      lat: Number(item.lat) || 0,
+      lng: Number(item.lng) || 0
+    })).filter(i => i.title);
+    await kvPut(env, INCIDENTS_KV_KEY, incidents);
+    info('ingestFromStaticFeed: stored', incidents.length, 'incidents');
+  } catch(e) {
+    warn('ingestFromStaticFeed error', e?.message || e);
+  }
+}
+
 async function runIngestion(env, options = {}, ctx = null) {
   const force = !!options.force;
   const got = await acquireLock(env, INGEST_LOCK_KEY, INGEST_LOCK_TTL_SEC, INGEST_LOCK_STALE_SEC, force);
@@ -3846,7 +3878,12 @@ async function handleApiStream(env, req) {
 }
 
 async function handleApiIncidents(env, req) {
-  const inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+  let inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+  // Server-side fallback: if KV is empty, sync from static feed and return that
+  if (!Array.isArray(inc) || inc.length === 0) {
+    await ingestFromStaticFeed(env);
+    inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+  }
   let list = Array.isArray(inc) ? inc : [];
   // Filter out incidents disliked by this user
   try {
@@ -3927,8 +3964,8 @@ async function handleAdminAction(env, req, ctx) {
   try {
     // FIX: Using ctx.waitUntil to prevent background tasks from being killed
     if (action === 'trigger-ingest' || action === 'ingest') {
-      if (ctx) ctx.waitUntil(runIngestion(env, { force: true }, ctx).catch(e => debug("ingest trigger failed", e?.message || e)));
-      else runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed no-ctx", e?.message || e));
+      if (ctx) ctx.waitUntil(ingestFromStaticFeed(env).catch(e => debug("ingest trigger failed", e?.message || e)));
+      else ingestFromStaticFeed(env).catch(e => debug("ingest trigger failed no-ctx", e?.message || e));
       return { ok:true, status:200, body: "ingest_started" };
     } else if (action === 'aggregate-thumbs') {
       if (ctx) ctx.waitUntil(aggregateThumbs(env, { force: true }));
@@ -6159,13 +6196,13 @@ async function moduleScheduled(evt, env, ctx) {
     if (ctx && ctx.waitUntil) {
       ctx.waitUntil((async () => {
         try {
-          await runIngestion(env, {}, ctx);
+          await ingestFromStaticFeed(env);
           await refreshTravelData(env, {});
           await aggregateThumbs(env, {});
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
     } else {
-      await runIngestion(env, {});
+      await ingestFromStaticFeed(env);
       await refreshTravelData(env, {});
       await aggregateThumbs(env, {});
     }
