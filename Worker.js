@@ -193,6 +193,33 @@ const SOURCE_META = [
   // ── Emergency Management / Natural Hazards ────────────────────────────────────
   { match: 'copernicus.eu',            key: 'copernicus',   label: 'Copernicus EMS',   category: 'hazards' },
   { match: 'fema.gov',                 key: 'fema',         label: 'FEMA',             category: 'hazards' },
+  // ── OSINT / Cyber Threat Intelligence ────────────────────────────────────────
+  { match: 'ransomware.live',          key: 'rwlive',       label: 'Ransomware.live',  category: 'cyber'     },
+  { match: 'schneier.com',             key: 'schneier',     label: 'Schneier Security',category: 'cyber'     },
+  { match: 'bellingcat.com',           key: 'bellingcat',   label: 'Bellingcat',       category: 'security'  },
+  { match: 'zdnet.com',               key: 'zdnet',        label: 'ZDNet',            category: 'cyber'     },
+  // ── Government / Security (additional) ───────────────────────────────────────
+  { match: 'ministry-of-defence',      key: 'ukmod',        label: 'UK MOD',           category: 'security'  },
+  { match: 'iaea.org',                 key: 'iaea',         label: 'IAEA',             category: 'security'  },
+  // ── Security Think Tanks (additional) ────────────────────────────────────────
+  { match: 'nti.org',                  key: 'nti',          label: 'NTI',              category: 'security'  },
+  { match: 'jamestown.org',            key: 'jamestown',    label: 'Jamestown Fdn',    category: 'security'  },
+  { match: 'carnegieendowment.org',    key: 'carnegie',     label: 'Carnegie Endow.',  category: 'security'  },
+  { match: 'stimson.org',              key: 'stimson',      label: 'Stimson Center',   category: 'security'  },
+  { match: 'brookings.edu',            key: 'brookings',    label: 'Brookings',        category: 'news'      },
+  { match: 'fpri.org',                 key: 'fpri',         label: 'FPRI',             category: 'security'  },
+  { match: 'responsiblestatecraft.org',key: 'rsc',          label: 'Resp. Statecraft', category: 'news'      },
+  // ── Regional News (coverage gaps) ────────────────────────────────────────────
+  { match: 'meduza.io',               key: 'meduza',       label: 'Meduza',           category: 'news'      },
+  { match: 'themoscowtimes.com',       key: 'moscowtimes',  label: 'Moscow Times',     category: 'news'      },
+  { match: 'novayagazeta.eu',          key: 'novaya',       label: 'Novaya Gazeta EU', category: 'news'      },
+  { match: 'asahi.com',               key: 'asahi',        label: 'Asahi Shimbun',    category: 'news'      },
+  { match: 'japantoday.com',           key: 'japantoday',   label: 'Japan Today',      category: 'news'      },
+  { match: 'bangkokpost.com',          key: 'bangkokpost',  label: 'Bangkok Post',     category: 'news'      },
+  { match: 'vnexpress.net',            key: 'vnexpress',    label: 'VNExpress',        category: 'news'      },
+  { match: 'dailytrust.com',           key: 'dailytrust',   label: 'Daily Trust NG',   category: 'news'      },
+  { match: 'channelstv.com',           key: 'channelstv',   label: 'Channels TV NG',   category: 'news'      },
+  { match: 'spiegel.de',              key: 'spiegel',      label: 'Der Spiegel',      category: 'news'      },
 ];
 function _getSourceMeta(src) {
   if (!src) return { key: 'other', label: 'Other', category: 'news' };
@@ -322,6 +349,34 @@ const ROTATING_SOURCES = [
   // ── Natural Hazards / Emergency Management ──────────────────────────────────
   "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
   "https://www.fema.gov/rss/disaster_declarations.rss",
+  // ── OSINT / Cyber Threat Intelligence ───────────────────────────────────────
+  "https://www.ransomware.live/rss.xml",
+  "https://www.schneier.com/feed/",
+  "https://www.bellingcat.com/feed/",
+  "https://www.zdnet.com/news/rss.xml",
+  // ── Government / Security (additional) ──────────────────────────────────────
+  "https://www.gov.uk/government/organisations/ministry-of-defence.atom",
+  "https://www.iaea.org/feeds/topnews",
+  // ── Security Think Tanks (additional) ───────────────────────────────────────
+  "https://www.nti.org/rss/",
+  "https://jamestown.org/feed/",
+  "https://carnegieendowment.org/rss/",
+  "https://www.stimson.org/feed/",
+  "https://www.brookings.edu/feed/",
+  "https://www.fpri.org/feed/",
+  "https://responsiblestatecraft.org/feed/",
+  // ── Regional News (coverage gaps) ───────────────────────────────────────────
+  "https://meduza.io/rss/all",
+  "https://www.themoscowtimes.com/rss/news",
+  "https://novayagazeta.eu/feed/rss",
+  "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+  "https://japantoday.com/feed/atom",
+  "https://www.bangkokpost.com/rss",
+  "https://vnexpress.net/rss",
+  "https://www.theguardian.com/australia-news/rss",
+  "https://dailytrust.com/feed/",
+  "https://www.channelstv.com/feed/",
+  "https://www.spiegel.de/schlagzeilen/tops/index.rss",
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";

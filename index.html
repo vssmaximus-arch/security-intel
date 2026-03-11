@@ -10,7 +10,7 @@
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com https://api.frankfurter.app;
     media-src blob: https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com;
     worker-src blob:;
     frame-src https://www.vesselfinder.com https://www.youtube-nocookie.com https://www.youtube.com;
@@ -47,6 +47,9 @@
   <!-- GridStack: draggable/resizable/closeable widget grid (jsdelivr — in CSP allowlist) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/gridstack@10.3.1/dist/gridstack-all.js"></script>
+
+  <!-- Chart.js: lightweight canvas charting for the Currency Rates widget (jsdelivr — in CSP allowlist) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
   <!-- Google Fonts: loaded via <link> to avoid CSP @import restriction -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1499,6 +1502,62 @@
     }
 
     /* ================================================================
+       HORIZONTAL RESIZE HANDLE — drag between main and sidebar
+       ================================================================ */
+    #dash-resize-handle {
+      width: 6px;
+      flex-shrink: 0;
+      cursor: col-resize;
+      background: linear-gradient(to bottom, transparent 15%, rgba(255,255,255,.06) 40%, rgba(255,255,255,.06) 60%, transparent 85%);
+      border-radius: 3px;
+      position: relative;
+      z-index: 10;
+      transition: background .2s;
+      align-self: stretch;
+    }
+    #dash-resize-handle:hover,
+    #dash-resize-handle.dragging {
+      background: linear-gradient(to bottom, transparent 10%, rgba(79,195,247,.35) 30%, rgba(79,195,247,.35) 70%, transparent 90%);
+    }
+    #dash-resize-handle::after {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 48px;
+      background: rgba(255,255,255,.22);
+      border-radius: 2px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    /* Hide handle on mobile/tablet where layout stacks vertically */
+    @media (max-width: 991px) {
+      #dash-resize-handle { display: none; }
+    }
+
+    /* ================================================================
+       CURRENCY RATES WIDGET
+       ================================================================ */
+    #currencies-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .currency-chart-wrap {
+      flex: 1;
+      min-height: 110px;
+      padding: 2px 8px 8px;
+      position: relative;
+    }
+    .currency-chart-wrap canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* ================================================================
        GRIDSTACK SIDEBAR OVERRIDES
        ================================================================ */
     #sidebar-grid {
@@ -1918,6 +1977,9 @@
         </div>
         <!-- /Main Column -->
 
+        <!-- ── Horizontal resize handle: drag left/right to resize sidebar ── -->
+        <div id="dash-resize-handle" title="Drag to resize sidebar" role="separator" aria-label="Drag to resize sidebar" aria-orientation="vertical"></div>
+
         <!-- ── Sidebar Column: GridStack widgets ─────────────────────── -->
         <div class="dashboard-sidebar">
 
@@ -2059,6 +2121,30 @@
                     <span class="cii-legend-dot" style="color:#c62828;">●</span> Critical (81-100)&nbsp;
                     <span class="cii-legend-dot" style="color:#e65100;">●</span> High (66-80)&nbsp;
                     <span class="cii-legend-dot" style="color:#f9a825;">●</span> Elevated (51-65)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⑥ Currency Rates Chart -->
+            <div class="grid-stack-item" gs-id="currencies" gs-x="0" gs-y="25" gs-w="12" gs-h="6" gs-min-h="4">
+              <div class="grid-stack-item-content">
+                <div class="widget-header-bar" title="Drag to reposition">
+                  <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
+                  <button class="widget-close-btn" data-widget-id="currencies" aria-label="Hide Currency Rates widget" title="Hide widget">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="side-card" id="currencies-card">
+                  <div class="card-label" style="margin-bottom:6px;">
+                    <i class="fas fa-exchange-alt"></i> Currency Rates
+                    <span style="font-size:.7rem;font-weight:400;color:#888;margin-left:8px;">vs USD · 7-day</span>
+                  </div>
+                  <div class="currency-chart-wrap">
+                    <canvas id="currency-chart" aria-label="7-day currency exchange rates chart" role="img"></canvas>
+                  </div>
+                  <div class="markets-footer" style="padding:4px 10px;">
+                    <span id="currency-updated" style="color:#aaa;font-size:.7rem;"></span>
                   </div>
                 </div>
               </div>
@@ -2490,20 +2576,22 @@
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {
-      markets:   { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
-      history:   { label: 'History Search',        icon: 'fa-history'       },
-      travel:    { label: 'Travel Safety Check',   icon: 'fa-plane'         },
-      proximity: { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
-      cii:       { label: 'Country Instability',   icon: 'fa-globe-americas'},
+      markets:    { label: 'Markets & Commodities', icon: 'fa-chart-line'    },
+      history:    { label: 'History Search',        icon: 'fa-history'       },
+      travel:     { label: 'Travel Safety Check',   icon: 'fa-plane'         },
+      proximity:  { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
+      cii:        { label: 'Country Instability',   icon: 'fa-globe-americas'},
+      currencies: { label: 'Currency Rates',        icon: 'fa-exchange-alt'  },
     };
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'markets',   x: 0, y: 0,  w: 12, h: 5 },
-      { id: 'history',   x: 0, y: 5,  w: 12, h: 2 },
-      { id: 'travel',    x: 0, y: 7,  w: 12, h: 3 },
-      { id: 'proximity', x: 0, y: 10, w: 12, h: 8 },
-      { id: 'cii',       x: 0, y: 18, w: 12, h: 7 },
+      { id: 'markets',    x: 0, y: 0,  w: 12, h: 5 },
+      { id: 'history',    x: 0, y: 5,  w: 12, h: 2 },
+      { id: 'travel',     x: 0, y: 7,  w: 12, h: 3 },
+      { id: 'proximity',  x: 0, y: 10, w: 12, h: 8 },
+      { id: 'cii',        x: 0, y: 18, w: 12, h: 7 },
+      { id: 'currencies', x: 0, y: 25, w: 12, h: 6 },
     ];
 
     var grid;
@@ -2668,5 +2756,192 @@
 
   })();
   </script>
+
+  <!-- ================================================================
+       SIDEBAR RESIZE HANDLE — horizontal drag to adjust main/sidebar split
+       ================================================================ -->
+  <script>
+  (function () {
+    'use strict';
+    var SIDEBAR_W_KEY = 'infohub_sidebar_width_v1';
+    var handle  = document.getElementById('dash-resize-handle');
+    var sidebar = document.querySelector('.dashboard-sidebar');
+    if (!handle || !sidebar) return;
+
+    var MIN_W = 280, MAX_W = 600;
+
+    /* Restore saved width */
+    var saved = parseInt(localStorage.getItem(SIDEBAR_W_KEY), 10);
+    if (saved && saved >= MIN_W && saved <= MAX_W) {
+      sidebar.style.width = saved + 'px';
+    }
+
+    var dragging = false, startX = 0, startW = 0;
+
+    handle.addEventListener('mousedown', function (e) {
+      dragging = true;
+      startX   = e.clientX;
+      startW   = sidebar.offsetWidth;
+      handle.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor     = 'col-resize';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      /* Drag left → sidebar grows; drag right → sidebar shrinks */
+      var delta = startX - e.clientX;
+      var newW  = Math.min(MAX_W, Math.max(MIN_W, startW + delta));
+      sidebar.style.width = newW + 'px';
+    });
+
+    document.addEventListener('mouseup', function () {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove('dragging');
+      document.body.style.userSelect = '';
+      document.body.style.cursor     = '';
+      localStorage.setItem(SIDEBAR_W_KEY, String(sidebar.offsetWidth));
+    });
+
+    /* Touch support */
+    handle.addEventListener('touchstart', function (e) {
+      var t = e.touches[0];
+      dragging = true;
+      startX   = t.clientX;
+      startW   = sidebar.offsetWidth;
+      handle.classList.add('dragging');
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
+      var t     = e.touches[0];
+      var delta = startX - t.clientX;
+      var newW  = Math.min(MAX_W, Math.max(MIN_W, startW + delta));
+      sidebar.style.width = newW + 'px';
+    }, { passive: true });
+
+    document.addEventListener('touchend', function () {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove('dragging');
+      localStorage.setItem(SIDEBAR_W_KEY, String(sidebar.offsetWidth));
+    });
+  })();
+  </script>
+
+  <!-- ================================================================
+       CURRENCY RATES CHART — 7-day multi-line chart via api.frankfurter.app
+       ================================================================ -->
+  <script>
+  (function () {
+    'use strict';
+    if (typeof Chart === 'undefined') return; /* Chart.js not loaded yet */
+
+    var CURRENCIES = ['EUR', 'GBP', 'JPY', 'AUD'];
+    var LABELS     = { EUR: 'EUR/USD', GBP: 'GBP/USD', JPY: 'USD/JPY', AUD: 'AUD/USD' };
+    var COLORS     = { EUR: '#4fc3f7', GBP: '#81c995', JPY: '#f6c026', AUD: '#ff8a65' };
+    var chartInstance = null;
+
+    function isoDate(d) { return d.toISOString().slice(0, 10); }
+
+    async function fetchRates() {
+      var today = new Date();
+      var week  = new Date(today.getTime() - 8 * 86400000);
+      var url   = 'https://api.frankfurter.app/' + isoDate(week) + '..' + isoDate(today) +
+                  '?from=USD&to=EUR,GBP,JPY,AUD';
+      var r = await fetch(url);
+      if (!r.ok) throw new Error('Frankfurter API ' + r.status);
+      return r.json();
+    }
+
+    function renderChart(data) {
+      var canvas = document.getElementById('currency-chart');
+      if (!canvas) return;
+      var dates    = Object.keys(data.rates).sort();
+      var labels   = dates.map(function (d) { return d.slice(5); }); /* MM-DD */
+      var datasets = CURRENCIES.map(function (sym) {
+        return {
+          label:           LABELS[sym],
+          data:            dates.map(function (d) { return data.rates[d] ? (data.rates[d][sym] || null) : null; }),
+          borderColor:     COLORS[sym],
+          backgroundColor: 'transparent',
+          borderWidth:     1.8,
+          pointRadius:     2,
+          pointHoverRadius:4,
+          tension:         0.35
+        };
+      });
+
+      if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+      chartInstance = new Chart(canvas, {
+        type: 'line',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          animation:           { duration: 600 },
+          interaction:         { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels:   { color: '#ccc', boxWidth: 10, font: { size: 10 }, padding: 8 }
+            },
+            tooltip: { bodyFont: { size: 10 }, titleFont: { size: 10 } }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#888', font: { size: 9 }, maxRotation: 0 },
+              grid:  { color: 'rgba(255,255,255,.04)' }
+            },
+            y: {
+              ticks: { color: '#888', font: { size: 9 } },
+              grid:  { color: 'rgba(255,255,255,.04)' }
+            }
+          }
+        }
+      });
+
+      var el = document.getElementById('currency-updated');
+      if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showError(msg) {
+      var canvas = document.getElementById('currency-chart');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#888';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
+    }
+
+    async function loadCurrencies() {
+      try {
+        var data = await fetchRates();
+        renderChart(data);
+      } catch (e) {
+        console.warn('[Currencies]', e.message);
+        showError('Data unavailable');
+      }
+    }
+
+    /* Wait for DOM, then load */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadCurrencies);
+    } else {
+      loadCurrencies();
+    }
+
+    /* Refresh every 10 minutes */
+    setInterval(loadCurrencies, 600000);
+  })();
+  </script>
+
 </body>
 </html>
