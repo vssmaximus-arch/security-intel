@@ -1,11 +1,21 @@
 [
   {
-    "title": "Iran War Live Updates: Israeli Airstrikes Shake Beirut and Drone Attacks Hit Tehran on 12th Day of Fighting",
+    "title": "Iran War Live Updates: Israeli Airstrikes Shake Beirut and Drone Attacks Hit Tehran",
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event detected via keyword matching.",
     "source": "nytimes.com",
-    "time": "2026-03-11T21:06:20+00:00",
+    "time": "2026-03-11T22:01:37+00:00",
     "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Why does Iran war pose more dilemmas for Europe?",
+    "url": "https://www.aljazeera.com/video/inside-story/2026/3/11/why-does-the-iran-war-pose-more-dilemmas-for-europe?traffic_source=rss",
+    "snippet": "Physical security event detected via keyword matching.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T20:41:48+00:00",
+    "region": "APJC",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -36,16 +46,6 @@
     "source": "aljazeera.com",
     "time": "2026-03-11T19:34:22+00:00",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "The hidden battlefield: Censorship in the Israel–Iran war",
-    "url": "https://www.aljazeera.com/video/the-take-2/2026/3/11/aje-onl-isr_mediacensorship_av_v2_1-110326?traffic_source=rss",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T18:45:20+00:00",
-    "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -170,22 +170,32 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Aid worker killed in drone strike on building used by Congo relief staff",
-    "url": "https://www.washingtonpost.com/world/2026/03/11/congo-drc-drone-strike-french-aid-worker-unicef/",
+    "title": "Iranian school was on U.S. target list, may have been mistaken as military site",
+    "url": "https://www.washingtonpost.com/national-security/2026/03/11/us-strike-iran-elementary-school-ai-target-list/",
     "snippet": "Supply chain or logistics disruption detected.",
     "source": "washingtonpost.com",
-    "time": "2026-03-11T20:58:37+00:00",
+    "time": "2026-03-11T21:48:20+00:00",
     "region": "Global",
     "severity": 2,
     "type": "SUPPLY CHAIN"
   },
   {
-    "title": "AI chatbots help plot attacks, study shows: ‘happy (and safe) shooting!’",
-    "url": "https://www.scmp.com/news/world/united-states-canada/article/3346276/ai-chatbots-help-plot-attacks-study-shows-happy-and-safe-shooting?utm_source=rss_feed",
+    "title": "Aid worker killed in drone strike on building used by Congo relief staff",
+    "url": "https://www.washingtonpost.com/world/2026/03/11/congo-drc-drone-strike-french-aid-worker-unicef/",
+    "snippet": "Supply chain or logistics disruption detected.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-11T21:11:25+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Ecuador prepares for attack on ‘criminal economy’ with Trump backing",
+    "url": "https://www.aljazeera.com/news/2026/3/11/ecuador-prepares-for-attack-on-criminal-economy-with-trump-backing?traffic_source=rss",
     "snippet": "Physical security event detected via keyword matching.",
-    "source": "scmp.com",
-    "time": "2026-03-11T20:25:47+00:00",
-    "region": "EMEA",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T21:10:20+00:00",
+    "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
@@ -300,6 +310,36 @@
     "type": "SUPPLY CHAIN"
   },
   {
+    "title": "New US ambassador to South Africa summoned over 'undiplomatic remarks'",
+    "url": "https://www.bbc.com/news/articles/c14m1vzmxz3o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "bbc.com",
+    "time": "2026-03-11T21:30:16+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "UN Security Council adopts Gulf countries’ draft resolution",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/11/un-security-council-adopts-gulf-countries-draft-resolution-2?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T21:11:05+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Displaced Lebanese families seek refuge in school shelter",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/11/displaced-lebanese-families-seek-refuge-in-school-shelter?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T20:54:36+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "UN’s failure to stop Iranian attacks sending ‘dangerous signal’: Qatar",
     "url": "https://www.aljazeera.com/news/2026/3/11/uns-failure-to-stop-iranian-attacks-sending-dangerous-signal-qatar?traffic_source=rss",
     "snippet": "Classified by keyword heuristic; review recommended.",
@@ -370,32 +410,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "What’s left in Iran ‘could be taken out in an hour’, says Trump",
-    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/11/whats-left-in-iran-could-be-taken-out-in-an-hour-says-trump?traffic_source=rss",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T18:13:06+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Consumer prices stayed subdued in February.",
     "url": "https://www.nytimes.com/live/2026/03/11/business/inflation-report-cpi/consumer-prices-stayed-subdued-in-february",
     "snippet": "Classified by keyword heuristic; review recommended.",
     "source": "nytimes.com",
     "time": "2026-03-11T17:54:40+00:00",
     "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "UK court rejects bid to reinstate ‘terrorism’ charge against Kneecap rapper",
-    "url": "https://www.aljazeera.com/news/2026/3/11/uk-court-rejects-bid-to-reinstate-terrorism-charge-against-kneecap-rapper?traffic_source=rss",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T17:33:03+00:00",
-    "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -565,26 +585,6 @@
     "snippet": "Classified by keyword heuristic; review recommended.",
     "source": "washingtonpost.com",
     "time": "2026-03-10T20:35:12+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Democrats argue Trump’s China policy risks ‘strategic failure’",
-    "url": "https://www.washingtonpost.com/national-security/2026/03/10/trump-china-democrats/",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-10T14:22:28+00:00",
-    "region": "APJC",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Live Nation reaches surprise settlement with justice department in antitrust case",
-    "url": "https://www.theguardian.com/business/2026/mar/09/live-nation-settlement-antitrust-case",
-    "snippet": "Classified by keyword heuristic; review recommended.",
-    "source": "theguardian.com",
-    "time": "2026-03-09T15:01:58+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
