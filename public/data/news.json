@@ -4,7 +4,7 @@
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event detected via keyword matching.",
     "source": "nytimes.com",
-    "time": "2026-03-11T19:53:05+00:00",
+    "time": "2026-03-11T20:07:44+00:00",
     "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
@@ -36,16 +36,6 @@
     "source": "washingtonpost.com",
     "time": "2026-03-11T17:55:26+00:00",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Trump says Iran war to end ‘soon’ as Israel claims no time limit",
-    "url": "https://www.aljazeera.com/news/2026/3/11/trump-says-iran-war-to-end-soon-as-israel-claims-no-time-limit?traffic_source=rss",
-    "snippet": "Physical security event detected via keyword matching.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T17:18:19+00:00",
-    "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -278,6 +268,16 @@
     "region": "EMEA",
     "severity": 2,
     "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "UN’s failure to stop Iranian attacks sending ‘dangerous signal’: Qatar",
+    "url": "https://www.aljazeera.com/news/2026/3/11/uns-failure-to-stop-iranian-attacks-sending-dangerous-signal-qatar?traffic_source=rss",
+    "snippet": "Classified by keyword heuristic; review recommended.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T20:01:42+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
   },
   {
     "title": "World Leaders Will Release 400 Million Barrels of Oil to Stabilize Prices",
