@@ -129,17 +129,14 @@ def init_gemini():
         return None
 
     try:
-        # Common pattern: genai.configure(api_key=...)
+        # Configure API key first
         if hasattr(genai, "configure"):
             genai.configure(api_key=api_key)
-        # Try to obtain a model object; the exact call differs across versions
-        if hasattr(genai, "get_model"):
-            # newer API pattern
-            model = genai.get_model(GEMINI_MODEL)
-            return model
+        # Use GenerativeModel — the correct way to get a model that has generate_content()
+        # Note: get_model() returns metadata only and does NOT have generate_content()
         if hasattr(genai, "GenerativeModel"):
             return genai.GenerativeModel(GEMINI_MODEL)
-        # If none of the above, return genai (we'll attempt calls directly)
+        # Fallback: return module-level genai and attempt calls directly
         return genai
     except Exception as ex:
         print(f"Error initializing Gemini client: {ex}")
