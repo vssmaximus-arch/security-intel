@@ -801,6 +801,7 @@ async function loadFromWorker(silent=false) {
     FEED_IS_LIVE = true;
     refreshHeatLayerIfEnabled();
     if (label) label.textContent = `${AI_ENABLED ? 'AI \u2022' : 'LIVE \u2022'} ${INCIDENTS.length} ITEMS`;
+    if (window._tickerUpdateAlerts) window._tickerUpdateAlerts();
   } catch (e) {
     console.error("Worker fetch failed:", e);
     FEED_IS_LIVE = false;
@@ -4784,6 +4785,31 @@ async function sendTestAlert() {
       addInput.addEventListener('keydown', ev => { if (ev.key === 'Enter') doAdd(); });
     }
 
+    // Tab switching
+    const tabBar = document.getElementById('markets-tab-bar');
+    if (tabBar) {
+      const TAB_SYMS = {
+        global:      { comms: ['^GSPC', '^DJI', '^IXIC', '^FTSE'], stocks: [] },
+        dell:        { comms: [], stocks: ['DELL', 'MSFT', 'NVDA', 'HPE', 'ORCL'] },
+        currencies:  { comms: ['AUDUSD=X', 'SGDUSD=X', 'EURUSD=X', 'GBPUSD=X'], stocks: [] },
+        commodities: { comms: ['GC=F', 'CL=F', 'NG=F', 'SI=F'], stocks: [] },
+      };
+      tabBar.addEventListener('click', e => {
+        const btn = e.target.closest('.mkt-tab');
+        if (!btn) return;
+        tabBar.querySelectorAll('.mkt-tab').forEach(b => {
+          b.style.background = 'transparent'; b.style.color = '#9aa0a6'; b.style.border = '1px solid #3a3d45';
+        });
+        btn.style.background = '#1a73e8'; btn.style.color = '#fff'; btn.style.border = 'none';
+        const tab = btn.dataset.mtab;
+        if (TAB_SYMS[tab]) {
+          _comms  = [...(TAB_SYMS[tab].comms.length  ? TAB_SYMS[tab].comms  : _comms)];
+          _stocks = [...(TAB_SYMS[tab].stocks.length ? TAB_SYMS[tab].stocks : _stocks)];
+          _data = []; _render(); _fetch();
+        }
+      });
+    }
+
     // Initial render (placeholders) then fetch
     _render();
     _fetch();
@@ -5096,14 +5122,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       /* --- /Tier-2 actions --- */
 
       /* --- Tier-3 actions --- */
-      if (action === 'toggle-supply-chain')  { toggleSupplyChainLayer(); return; }
       if (action === 'generate-exec-report') { generateExecReport(); return; }
       if (action === 'download-exec-pdf')    { downloadExecReportPDF(); return; }
-      if (action === 'open-threat-intel')    { openThreatIntelPanel(); return; }
       if (action === 'close-threat-intel')   { closeThreatIntelPanel(); return; }
       if (action === 'refresh-correlate')    { loadCorrelationSignals(true); return; }
-      if (action === 'tl-refresh')           { loadThreatsLeaks(true); return; }
-      if (action === 'tl-filter')            { if (THREATS_LEAKS_DATA) renderThreatsLeaks(THREATS_LEAKS_DATA); return; }
       /* --- /Tier-3 actions --- */
 
       if (action === 'toggle-heatmap') {
@@ -5229,6 +5251,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         const vesselBtn = document.getElementById('watch-type-vessel');
         const type = (vesselBtn && vesselBtn.getAttribute('aria-pressed') === 'true') ? 'vessel' : 'flight';
         await addToWatchlist(id, type);
+        return;
+      }
+      if (action === 'airport-add-watch') {
+        const input = document.getElementById('airport-watch-input');
+        const val = (input?.value || '').trim();
+        if (!val) return;
+        const listEl = document.getElementById('airport-watchlist-list');
+        const resultId = 'awl-result-' + Date.now();
+        const row = document.createElement('div');
+        row.className = 'watchlist-row';
+        row.style.cssText = 'padding:6px 0;border-bottom:1px solid #2a2d35;font-size:.82rem;';
+        row.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <span style="font-family:monospace;font-weight:700;color:#4fc3f7;">${escapeHtml(val.toUpperCase())}</span>
+          <button style="background:transparent;border:none;color:#f28b82;cursor:pointer;font-size:.75rem;" data-remove-row="true">&#x2715;</button>
+        </div>
+        <div id="${escapeAttr(resultId)}" style="margin-top:4px;color:#9aa0a6;">Fetching...</div>`;
+        row.querySelector('[data-remove-row]')?.addEventListener('click', () => row.remove());
+        const emptyEl = listEl?.querySelector('.drawer-empty');
+        if (emptyEl) emptyEl.remove();
+        if (listEl) listEl.prepend(row);
+        if (input) input.value = '';
+        trackFlight(val.toLowerCase(), resultId, 'flight');
+        return;
+      }
+      if (action === 'port-add-vessel') {
+        const input = document.getElementById('port-vessel-input');
+        const val = (input?.value || '').trim();
+        if (!val) return;
+        const listEl = document.getElementById('port-vessel-watchlist-list');
+        const resultId = 'pvl-result-' + Date.now();
+        const row = document.createElement('div');
+        row.className = 'watchlist-row';
+        row.style.cssText = 'padding:6px 0;border-bottom:1px solid #2a2d35;font-size:.82rem;';
+        row.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <span style="font-family:monospace;font-weight:700;color:#4fc3f7;">${escapeHtml(val.toUpperCase())}</span>
+          <button style="background:transparent;border:none;color:#f28b82;cursor:pointer;font-size:.75rem;" data-remove-row="true">&#x2715;</button>
+        </div>
+        <div id="${escapeAttr(resultId)}" style="margin-top:4px;color:#9aa0a6;">Fetching...</div>`;
+        row.querySelector('[data-remove-row]')?.addEventListener('click', () => row.remove());
+        const emptyEl = listEl?.querySelector('.drawer-empty');
+        if (emptyEl) emptyEl.remove();
+        if (listEl) listEl.prepend(row);
+        if (input) input.value = '';
+        trackFlight(val, resultId, 'vessel');
         return;
       }
       if (action === 'logistics-remove-watch') {
@@ -6294,217 +6360,6 @@ function startSentimentRefresh() {
    CISA KEV + CVE CIRCL + optional OTX (if Worker has OTX_API_KEY).
    ---------------------------------------------------------- */
 
-
-let THREATS_LEAKS_DATA = null;
-let THREATS_LEAKS_INIT_DONE = false;
-
-function _tlFmtAge(ts) {
-  try {
-    const d = new Date(ts);
-    if (isNaN(d)) return '';
-    const diff = Math.max(0, Date.now() - d.getTime());
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    return `${Math.floor(hrs / 24)}d ago`;
-  } catch (_) { return ''; }
-}
-
-function _tlWindowMs(v) {
-  if (v === '24h') return 24 * 3600 * 1000;
-  if (v === '7d') return 7 * 24 * 3600 * 1000;
-  return 30 * 24 * 3600 * 1000;
-}
-
-function _tlInit() {
-  if (THREATS_LEAKS_INIT_DONE) return;
-  THREATS_LEAKS_INIT_DONE = true;
-  const ids = ['tl-filter-category','tl-filter-severity','tl-filter-target','tl-filter-confidence','tl-filter-window'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', () => renderThreatsLeaks(THREATS_LEAKS_DATA));
-  });
-}
-
-// Keywords that signal a Dell-relevant T&L article
-// _TL_DELL_RX must match (Dell context required — prevents generic geopolitics from showing)
-const _TL_DELL_RX = /\bdell\b|michael\s+dell|jeff\s+clarke|dell\s+technologies|thelayoff\.com/i;
-const _TL_SIGNAL_RX = /layoff|laid.?off|restructur|reorg|job.?cut|workforce|redundan|breach|leak|confidential|insider|whistleblower|boycott|backlash|hack|malware|fired|termination|separation|headcount|morale|toxic|corrupt|fraud/i;
-
-/** Convert a news INCIDENT to a synthetic T&L case card */
-function _incidentToTLCase(inc) {
-  const text = `${inc.title || ''} ${inc.summary || inc.snippet || ''}`;
-  const cat = /layoff|laid off|job cut|workforce|reorg|redundan|headcount|separation/i.test(text) ? 'Insider'
-            : /leak|confidential|breach|hack|malware|whistleblower|insider/i.test(text) ? 'Leak'
-            : /threat|attack|terror|violence|assassination/i.test(text) ? 'Threat'
-            : /boycott|protest|backlash|outrage/i.test(text) ? 'Sentiment'
-            : 'Insider';
-  const sev = inc.severity >= 3 ? 'High' : 'Medium';
-  return {
-    id: inc.id,
-    title: inc.title || 'Untitled',
-    category: cat,
-    severity: sev,
-    confidence: 'Medium',
-    target: 'Dell',
-    related_mentions: 1,
-    first_seen: inc.time,
-    last_seen: inc.time,
-    sources: [inc.source || 'news'],
-    source_links: inc.url ? [inc.url] : [],
-    summary: inc.summary || inc.snippet || inc.title || '',
-    _synthetic: true,
-  };
-}
-
-async function loadThreatsLeaks(force = false) {
-  const feed = document.getElementById('tl-feed');
-  if (feed && (!THREATS_LEAKS_DATA || force)) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div>';
-  try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/threats-leaks${force ? '?refresh=1' : ''}`, {}, 25000);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    // If Worker returned 0 cases, build a synthetic feed from news INCIDENTS
-    // filtered for Dell + T&L signal keywords (layoff, leak, breach, etc.)
-    if ((!data.cases || data.cases.length === 0) && INCIDENTS.length) {
-      const cutoff24h = Date.now() - 7 * 24 * 3600 * 1000; // 7-day window
-      const synth = INCIDENTS
-        .filter(i => {
-          const ts = new Date(i.time || 0).getTime();
-          if (isNaN(ts) || ts < cutoff24h) return false;
-          const txt = `${i.title || ''} ${i.summary || i.snippet || ''}`;
-          return _TL_DELL_RX.test(txt) && _TL_SIGNAL_RX.test(txt);
-        })
-        .slice(0, 40)
-        .map(_incidentToTLCase);
-
-      if (synth.length) {
-        const synthData = {
-          cases: synth,
-          sources: ['news-feed'],
-          updated_at: new Date().toISOString(),
-          _source: 'synthetic',
-        };
-        THREATS_LEAKS_DATA = synthData;
-        renderThreatsLeaks(synthData);
-        return;
-      }
-    }
-
-    THREATS_LEAKS_DATA = data;
-    renderThreatsLeaks(data);
-  } catch (e) {
-    console.warn('[Threats&Leaks] load failed', e);
-    // On error, also try the synthetic fallback from INCIDENTS
-    if (INCIDENTS.length) {
-      const cutoff24h = Date.now() - 7 * 24 * 3600 * 1000; // 7-day window
-      const synth = INCIDENTS
-        .filter(i => {
-          const ts = new Date(i.time || 0).getTime();
-          if (isNaN(ts) || ts < cutoff24h) return false;
-          const txt = `${i.title || ''} ${i.summary || i.snippet || ''}`;
-          return _TL_DELL_RX.test(txt) && _TL_SIGNAL_RX.test(txt);
-        })
-        .slice(0, 40)
-        .map(_incidentToTLCase);
-
-      if (synth.length) {
-        const synthData = { cases: synth, sources: ['news-feed'], updated_at: new Date().toISOString(), _source: 'synthetic' };
-        THREATS_LEAKS_DATA = synthData;
-        renderThreatsLeaks(synthData);
-        return;
-      }
-    }
-    if (feed) feed.innerHTML = `<div class="tl-empty">Failed to load Threats &amp; Leaks.<br><small>${escapeHtml(e.message || String(e))}</small></div>`;
-  }
-}
-
-function renderThreatsLeaks(data) {
-  const feed = document.getElementById('tl-feed');
-  if (!feed) return;
-  const category = document.getElementById('tl-filter-category')?.value || 'all';
-  const severity = document.getElementById('tl-filter-severity')?.value || 'all';
-  const target = document.getElementById('tl-filter-target')?.value || 'all';
-  const confidence = document.getElementById('tl-filter-confidence')?.value || 'all';
-  const windowKey = document.getElementById('tl-filter-window')?.value || '30d';
-  const cutoff = Date.now() - _tlWindowMs(windowKey);
-
-  if (!data || !Array.isArray(data.cases)) {
-    feed.innerHTML = '<div class="tl-empty">No Threats &amp; Leaks data loaded yet.</div>';
-    return;
-  }
-
-  const filtered = data.cases.filter(c => {
-    const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
-    if (ts && ts < cutoff) return false;
-    if (category !== 'all' && c.category !== category) return false;
-    if (severity !== 'all' && c.severity !== severity) return false;
-    if (target !== 'all' && c.target !== target) return false;
-    if (confidence !== 'all' && c.confidence !== confidence) return false;
-    return true;
-  });
-
-  const stats = {
-    high: filtered.filter(c => c.severity === 'High').length,
-    leaks: filtered.filter(c => c.category === 'Leak').length,
-    elt: filtered.filter(c => c.target === 'ELT').length,
-    cases: filtered.length
-  };
-  const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val); };
-  setTxt('tl-stat-high', stats.high);
-  setTxt('tl-stat-leaks', stats.leaks);
-  setTxt('tl-stat-elt', stats.elt);
-  setTxt('tl-stat-cases', stats.cases);
-
-  const upd = document.getElementById('tl-updated-at');
-  if (upd) upd.textContent = data.updated_at ? `Updated ${new Date(data.updated_at).toLocaleString()}` : 'Updated recently';
-
-  const strip = document.getElementById('tl-source-strip');
-  if (strip) {
-    const srcs = Array.isArray(data.sources) ? data.sources : [];
-    strip.innerHTML = srcs.map(s => `<span class="tl-source-chip">${escapeHtml(s)}</span>`).join('');
-  }
-
-  if (!filtered.length) {
-    feed.innerHTML = '<div class="tl-empty">No cases match the current filters.</div>';
-    return;
-  }
-
-  feed.innerHTML = filtered.map(c => {
-    const sevCls = c.severity === 'High' ? 'sev-high' : 'sev-medium';
-    const confCls = c.confidence === 'High' ? 'conf-high' : 'conf-medium';
-    const links = Array.isArray(c.source_links) ? c.source_links.slice(0, 3) : [];
-    const primaryLink = links[0] || '';
-    const titleHtml = primaryLink
-      ? `<a class="tl-title-link" href="${escapeAttr(primaryLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(c.title || 'Untitled case')}</a>`
-      : escapeHtml(c.title || 'Untitled case');
-    return `
-      <div class="tl-case-card">
-        <div class="tl-case-head">
-          <h3 class="tl-case-title">${titleHtml}</h3>
-          <div class="tl-badge-row">
-            <span class="tl-badge category">${escapeHtml(c.category || 'Other')}</span>
-            <span class="tl-badge ${sevCls}">${escapeHtml(c.severity || 'Medium')}</span>
-            <span class="tl-badge ${confCls}">${escapeHtml(c.confidence || 'Medium')} confidence</span>
-            <span class="tl-badge target">${escapeHtml(c.target || 'Unknown')}</span>
-          </div>
-        </div>
-        <div class="tl-meta">
-          <span><i class="fas fa-layer-group me-1"></i>${Number(c.related_mentions || 1)} mention${Number(c.related_mentions || 1) === 1 ? '' : 's'}</span>
-          <span><i class="fas fa-clock me-1"></i>${escapeHtml(_tlFmtAge(c.last_seen || c.first_seen))}</span>
-          <span><i class="fas fa-rss me-1"></i>${escapeHtml((c.sources || []).join(', ') || 'Public sources')}</span>
-        </div>
-        <div class="tl-summary">${escapeHtml(c.summary || 'No summary available.')}</div>
-        <div class="tl-links">${links.map((u, idx) => `<a class="tl-link" href="${escapeAttr(u)}" target="_blank" rel="noopener noreferrer">Source ${idx + 1}</a>`).join('')}</div>
-      </div>`;
-  }).join('');
-}
-
-window._tlInit = _tlInit;
-window._tlLoad = loadThreatsLeaks;
-
 function openThreatIntelPanel() {
   const drawer = document.getElementById('threat-drawer');
   const overlay = document.getElementById('threat-overlay');
@@ -6689,8 +6544,101 @@ function renderThreatIntel(data, tab) {
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('threat-overlay');
   if (overlay) overlay.addEventListener('click', closeThreatIntelPanel);
+
+  // Airport watchlist — Enter key
+  const airportWatchInput = document.getElementById('airport-watch-input');
+  if (airportWatchInput) {
+    airportWatchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.querySelector('[data-action="airport-add-watch"]')?.click();
+      }
+    });
+  }
+  // Port vessel watchlist — Enter key
+  const portVesselInput = document.getElementById('port-vessel-input');
+  if (portVesselInput) {
+    portVesselInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.querySelector('[data-action="port-add-vessel"]')?.click();
+      }
+    });
+  }
 });
 
 /* ============================================================
    /TIER-3 FEATURES
    ============================================================ */
+
+/* ===========================
+   TICKER STRIP
+   Rotates: critical alerts -> market prices -> currencies
+=========================== */
+(function initTickerStrip() {
+  const TICKER_SYMBOLS = ['DELL', 'MSFT', 'NVDA', 'BTC-USD', 'AUDUSD=X', 'SGDUSD=X', 'DX-Y.NYB'];
+  const TICKER_LABELS  = { 'DELL':'DELL', 'MSFT':'MSFT', 'NVDA':'NVDA', 'BTC-USD':'BTC', 'AUDUSD=X':'AUD/USD', 'SGDUSD=X':'SGD/USD', 'DX-Y.NYB':'DXY' };
+  let _tickerData = [];
+  let _tickerAlerts = [];
+
+  function _buildTickerHtml() {
+    const items = [];
+    // Critical alerts first
+    for (const a of _tickerAlerts.slice(0, 5)) {
+      items.push(`<span class="ticker-item ticker-alert">${escapeHtml((a.title || '').slice(0, 80))}</span>`);
+    }
+    // Market items
+    for (const d of _tickerData) {
+      const lbl = TICKER_LABELS[d.symbol] || d.symbol;
+      const up = (d.changePct || 0) >= 0;
+      const cls = up ? 'ticker-up' : 'ticker-down';
+      const chg = d.changePct != null ? `<span class="ticker-chg">${up ? '\u25b2' : '\u25bc'}${Math.abs(d.changePct).toFixed(2)}%</span>` : '';
+      const price = d.price != null ? d.price.toLocaleString('en-US', { maximumFractionDigits: d.symbol.includes('USD=X') ? 4 : 2 }) : '\u2014';
+      items.push(`<span class="ticker-item ticker-stock ${cls}">${escapeHtml(lbl)} <strong>${price}</strong> ${chg}</span>`);
+    }
+    if (!items.length) return '<span class="ticker-item ticker-loading">No live data</span>';
+    // Duplicate for seamless loop
+    const all = items.join('') + items.join('');
+    return all;
+  }
+
+  async function _fetchTickerMarkets() {
+    try {
+      const enc = TICKER_SYMBOLS.map(encodeURIComponent).join(',');
+      const res = await fetchWithTimeout(`${WORKER_URL}/api/markets?symbols=${enc}`, {}, 12000);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.ok && Array.isArray(json.data)) {
+        _tickerData = json.data.filter(d => d.price != null);
+        _updateTickerDom();
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  function _updateTickerAlerts() {
+    // Pull top critical incidents from INCIDENTS array
+    _tickerAlerts = (typeof INCIDENTS !== 'undefined' ? INCIDENTS : [])
+      .filter(i => Number(i.severity || 0) >= 4)
+      .sort((a, b) => new Date(b.time||0) - new Date(a.time||0))
+      .slice(0, 5);
+    _updateTickerDom();
+  }
+
+  function _updateTickerDom() {
+    const track = document.getElementById('ticker-track');
+    if (!track) return;
+    const html = _buildTickerHtml();
+    track.innerHTML = html;
+    // Reset animation
+    track.style.animation = 'none';
+    void track.offsetHeight; // force reflow
+    const totalItems = (_tickerAlerts.slice(0,5).length + _tickerData.length);
+    const duration = Math.max(30, totalItems * 8);
+    track.style.animation = `ticker-scroll ${duration}s linear infinite`;
+  }
+
+  // Init
+  _fetchTickerMarkets();
+  setInterval(_fetchTickerMarkets, 5 * 60 * 1000);
+  window._tickerUpdateAlerts = _updateTickerAlerts;
+})();

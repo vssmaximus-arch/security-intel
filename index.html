@@ -1957,18 +1957,6 @@
           <i class="fas fa-shield-alt" aria-hidden="true"></i> OSINT Intel
         </button>
 
-        <!-- Tier-3: Supply Chain disruption map layer -->
-        <button class="btn-toggle ms-1" id="supply-chain-toggle" data-action="toggle-supply-chain"
-          aria-pressed="false" aria-label="Toggle supply chain disruption layer" tabindex="0">
-          <i class="fas fa-boxes-stacked" aria-hidden="true"></i> Supply
-        </button>
-
-        <!-- Tier-3: Cyber Threat Intel panel -->
-        <button class="btn-toggle ms-1" id="threat-intel-btn" data-action="open-threat-intel"
-          aria-label="Open Cyber Threat Intelligence panel" tabindex="0"
-          style="background:#2a1a1a;color:#ef9a9a;">
-          <i class="fas fa-shield-virus" aria-hidden="true"></i> Threats
-        </button>
 
         <!-- Dark / Light mode toggle -->
         <button id="btn-theme-toggle" class="ms-1" aria-label="Toggle dark/light mode" tabindex="0">
@@ -2009,6 +1997,53 @@
         </button>
       </div>
     </div>
+
+  <!-- ═══ CRITICAL ALERT + MARKET TICKER STRIP ═══════════════════════════════ -->
+  <div id="ticker-strip" class="ticker-strip" aria-label="Live alerts and market data" role="marquee">
+    <span class="ticker-label"><i class="fas fa-broadcast-tower"></i> LIVE</span>
+    <div class="ticker-track-wrap">
+      <div class="ticker-track" id="ticker-track">
+        <span class="ticker-item ticker-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading live feed...</span>
+      </div>
+    </div>
+  </div>
+  <style>
+    .ticker-strip {
+      display:flex; align-items:center; background:#0a1628; border-bottom:1px solid #1e3a5c;
+      overflow:hidden; height:30px; padding:0; user-select:none; position:relative; z-index:10;
+    }
+    body.light-mode .ticker-strip { background:#e8f0fe; border-color:#c5d8f7; }
+    .ticker-label {
+      flex-shrink:0; background:#00b341; color:#fff; font-size:.68rem; font-weight:800;
+      letter-spacing:.8px; padding:0 10px; height:100%; display:flex; align-items:center; gap:5px; text-transform:uppercase;
+    }
+    .ticker-track-wrap { flex:1; overflow:hidden; position:relative; }
+    .ticker-track {
+      display:flex; gap:0; white-space:nowrap;
+      animation: ticker-scroll 60s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state:paused; }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:0 18px; font-size:.72rem; color:#9aa0a6; border-right:1px solid #1e3a5c; height:30px;
+      text-decoration:none; white-space:nowrap;
+    }
+    body.light-mode .ticker-item { color:#5f6368; border-color:#c5d8f7; }
+    .ticker-item.ticker-alert { color:#f28b82; font-weight:700; }
+    .ticker-item.ticker-alert::before { content:'\26A0 '; }
+    .ticker-item.ticker-stock { color:#e8eaed; }
+    body.light-mode .ticker-item.ticker-stock { color:#202124; }
+    .ticker-item.ticker-up .ticker-chg { color:#81c995; }
+    .ticker-item.ticker-down .ticker-chg { color:#f28b82; }
+    .ticker-item.ticker-flat .ticker-chg { color:#9aa0a6; }
+    .ticker-chg { font-size:.68rem; }
+    .ticker-loading { color:#9aa0a6; }
+    .ticker-sep { color:#3a3d45; padding:0 4px; }
+  </style>
 
     <!-- APJC Sub-region Nav — shown only when APJC region is active -->
     <div class="apjc-subnav" id="apjc-subnav" style="display:none;" role="group" aria-label="APJC sub-region filter">
@@ -2062,7 +2097,7 @@
       </button>
     </div>
 
-    <!-- ✈ View Switcher — Intelligence / Airport Disruptions / Live News -->
+    <!-- ✈ View Switcher — Intelligence / Airport Disruptions / Port Disruptions / Live News -->
     <div class="view-switcher" role="tablist" aria-label="Dashboard view">
       <button class="view-tab active" data-view="intelligence" role="tab" aria-selected="true" tabindex="0">
         <i class="fas fa-shield-alt" aria-hidden="true"></i> Intelligence
@@ -2070,14 +2105,11 @@
       <button class="view-tab" data-view="airport" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-plane-departure" aria-hidden="true"></i> Airport Disruptions
       </button>
-      <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
-        <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
-      </button>
-      <button class="view-tab" data-view="threats-leaks" role="tab" aria-selected="false" tabindex="0">
-        <i class="fas fa-user-shield" aria-hidden="true"></i> Threats &amp; Leaks
-      </button>
       <button class="view-tab" data-view="port" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-ship" aria-hidden="true"></i> Port Disruptions
+      </button>
+      <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
+        <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
       </button>
     </div>
 
@@ -2163,7 +2195,7 @@
           <div class="grid-stack" id="sidebar-grid">
 
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="9" gs-w="12" gs-h="4" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="9" gs-w="12" gs-h="5" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2171,19 +2203,28 @@
                     <i class="fas fa-times" aria-hidden="true"></i>
                   </button>
                 </div>
-                <div class="side-card" id="markets-card">
-                  <div class="card-label" style="display:flex;align-items:center;">
-                    <i class="fas fa-chart-line" aria-hidden="true"></i>&nbsp;Markets &amp; Commodities
-                    <button id="markets-settings-btn" title="Edit symbols" aria-label="Edit market symbols">&#9881;</button>
-                  </div>
-                  <div id="markets-commodities" class="markets-grid" aria-live="polite">
-                    <div style="grid-column:1/-1;text-align:center;padding:10px;color:#9aa0a6;font-size:.78rem;">
-                      <i class="fas fa-spinner fa-spin"></i> Loading&hellip;
+                <div class="side-card" id="markets-card" style="padding:10px 12px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                    <span style="font-size:.8rem;font-weight:700;color:#9aa0a6;text-transform:uppercase;letter-spacing:.5px;"><i class="fas fa-chart-line" aria-hidden="true"></i> Markets</span>
+                    <div class="markets-tab-bar" id="markets-tab-bar" role="tablist" style="display:flex;gap:4px;">
+                      <button class="mkt-tab active" data-mtab="global" style="background:#1a73e8;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">Global</button>
+                      <button class="mkt-tab" data-mtab="dell" style="background:transparent;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">Dell</button>
+                      <button class="mkt-tab" data-mtab="currencies" style="background:transparent;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">FX</button>
+                      <button class="mkt-tab" data-mtab="commodities" style="background:transparent;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">Commodities</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <span id="markets-updated" style="font-size:.68rem;color:#9aa0a6;"></span>
+                      <button id="markets-settings-btn" title="Edit symbols" aria-label="Edit market symbols" style="background:transparent;border:none;color:#9aa0a6;cursor:pointer;font-size:.82rem;padding:0 4px;">&#9881;</button>
                     </div>
                   </div>
-                  <div class="markets-section-label">STOCKS</div>
-                  <div id="markets-stocks" aria-live="polite"></div>
-                  <div class="markets-footer"><span id="markets-updated"></span></div>
+                  <div id="markets-tab-content">
+                    <div id="markets-commodities" class="markets-grid" aria-live="polite">
+                      <div style="grid-column:1/-1;text-align:center;padding:10px;color:#9aa0a6;font-size:.78rem;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading&hellip;
+                      </div>
+                    </div>
+                    <div id="markets-stocks" class="markets-stocks-list" style="margin-top:6px;"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2508,6 +2549,32 @@
       </div>
     </div>
 
+    <!-- ✈ FLIGHT WATCHLIST (moved from Logistics drawer) -->
+    <div class="airport-flight-watch" id="airport-flight-watch-section">
+      <div class="airport-watch-header">
+        <i class="fas fa-binoculars"></i> Flight Watchlist
+        <span class="airport-watch-hint">Enter callsign (e.g. EJM618) or ICAO24 hex (e.g. a0001e)</span>
+      </div>
+      <div class="watch-type-toggle" role="group" aria-label="Item type" style="margin-bottom:8px;">
+        <button class="watch-type-btn active" id="airport-watch-type-flight" data-action="airport-watch-type" data-type="flight" aria-pressed="true">
+          <i class="fas fa-plane me-1"></i>Flight
+        </button>
+        <button class="watch-type-btn" id="airport-watch-type-vessel" data-action="airport-watch-type" data-type="vessel" aria-pressed="false" style="display:none;">
+          <i class="fas fa-ship me-1"></i>Vessel
+        </button>
+      </div>
+      <div class="drawer-add-row" style="display:flex;gap:8px;margin-bottom:10px;">
+        <input class="drawer-input" id="airport-watch-input" name="airport-watch-input" type="text"
+          placeholder="Callsign (e.g. EJM618) or ICAO24 hex (e.g. a0001e)"
+          maxlength="12" autocomplete="off"
+          style="flex:1;background:#1e2029;border:1px solid #3a3d45;border-radius:6px;padding:6px 10px;color:#e8eaed;font-size:0.82rem;" />
+        <button class="drawer-btn" data-action="airport-add-watch" aria-label="Add to flight watchlist"
+          style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
+      </div>
+      <div id="airport-watchlist-list">
+        <div class="drawer-empty" style="color:#9aa0a6;font-size:0.82rem;padding:8px 0;">No flights being tracked. Add a callsign above.</div>
+      </div>
+    </div>
   </div><!-- /view-airport -->
   <div id="airport-conflict-section" style="display:none;"></div>
 
@@ -2563,62 +2630,6 @@
 
   </div><!-- /view-live-news -->
 
-  <!-- 🛡 THREATS & LEAKS VIEW ─────────────────────────────────────────────── -->
-  <div id="view-threats-leaks" style="display:none;" role="tabpanel" aria-label="Threats and Leaks">
-    <div class="tl-topbar">
-      <div class="tl-title-wrap">
-        <div class="tl-title"><i class="fas fa-user-shield me-2"></i>Threats &amp; Leaks</div>
-        <div class="tl-subtitle">Public-source monitoring for Dell brand, leadership targeting, leak indicators, harassment, and insider-risk style chatter. Sources include The Layoff, GDELT, and public social media.</div>
-      </div>
-      <div class="tl-actions">
-        <div class="tl-updated" id="tl-updated-at">Waiting for first load…</div>
-        <button class="btn btn-sm btn-outline-primary" data-action="tl-refresh"><i class="fas fa-rotate-right me-1"></i>Refresh</button>
-      </div>
-    </div>
-
-    <div class="tl-stats-grid">
-      <div class="tl-stat-card"><div class="tl-stat-label">High Severity</div><div class="tl-stat-value" id="tl-stat-high">0</div></div>
-      <div class="tl-stat-card"><div class="tl-stat-label">Possible Leaks</div><div class="tl-stat-value" id="tl-stat-leaks">0</div></div>
-      <div class="tl-stat-card"><div class="tl-stat-label">ELT Mentions</div><div class="tl-stat-value" id="tl-stat-elt">0</div></div>
-      <div class="tl-stat-card"><div class="tl-stat-label">Grouped Cases</div><div class="tl-stat-value" id="tl-stat-cases">0</div></div>
-    </div>
-
-    <div class="tl-filter-bar">
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-category" data-action="tl-filter">
-        <option value="all">All categories</option>
-        <option value="Threat">Threat</option>
-        <option value="Leak">Leak</option>
-        <option value="Sentiment">Sentiment</option>
-        <option value="Harassment">Harassment</option>
-        <option value="Insider Risk">Insider Risk</option>
-        <option value="Other">Other</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-severity" data-action="tl-filter">
-        <option value="all">All severity</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-target" data-action="tl-filter">
-        <option value="all">All targets</option>
-        <option value="Dell">Dell</option>
-        <option value="ELT">ELT</option>
-        <option value="Unknown">Unknown</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-confidence" data-action="tl-filter">
-        <option value="all">All confidence</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-window" data-action="tl-filter">
-        <option value="30d">Last 30 days</option>
-        <option value="7d">Last 7 days</option>
-        <option value="24h">Last 24 hours</option>
-      </select>
-    </div>
-
-    <div id="tl-source-strip" class="tl-source-strip"></div>
-    <div id="tl-feed" class="tl-feed"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div></div>
-  </div><!-- /view-threats-leaks -->
 
   <!-- 🚢 PORT DISRUPTIONS VIEW ─────────────────────────────────────────────── -->
   <div id="view-port" class="airport-panel" style="display:none;" role="tabpanel" aria-label="Port Disruptions">
@@ -2690,6 +2701,24 @@
 
     </div><!-- /port-main-view -->
 
+    <!-- ⚓ VESSEL WATCHLIST (moved from Logistics drawer) -->
+    <div class="airport-flight-watch" id="port-vessel-watch-section">
+      <div class="airport-watch-header">
+        <i class="fas fa-binoculars"></i> Vessel Watchlist
+        <span class="airport-watch-hint">Enter vessel MMSI (9 digits) or name</span>
+      </div>
+      <div class="drawer-add-row" style="display:flex;gap:8px;margin-bottom:10px;">
+        <input class="drawer-input" id="port-vessel-input" name="port-vessel-input" type="text"
+          placeholder="MMSI (e.g. 538007789) or vessel name"
+          maxlength="20" autocomplete="off"
+          style="flex:1;background:#1e2029;border:1px solid #3a3d45;border-radius:6px;padding:6px 10px;color:#e8eaed;font-size:0.82rem;" />
+        <button class="drawer-btn" data-action="port-add-vessel" aria-label="Add vessel to watchlist"
+          style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
+      </div>
+      <div id="port-vessel-watchlist-list">
+        <div class="drawer-empty" style="color:#9aa0a6;font-size:0.82rem;padding:8px 0;">No vessels being tracked. Add an MMSI or name above.</div>
+      </div>
+    </div>
   </div><!-- /view-port -->
 
   </div>
@@ -3016,56 +3045,14 @@
   <div class="chat-overlay" id="chat-overlay" aria-hidden="true"></div>
   <!-- /ASK THE HUB -->
 
-  <style id="threats-leaks-style">
-    #view-threats-leaks { padding: 14px 0 4px; }
-    .tl-topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
-    .tl-title { font-size:1.15rem; font-weight:800; color:#e8eaed; letter-spacing:.2px; }
-    body.light-mode .tl-title { color:#202124; }
-    .tl-subtitle { font-size:.82rem; color:#9aa0a6; max-width:920px; line-height:1.4; }
-    body.light-mode .tl-subtitle { color:#5f6368; }
-    .tl-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .tl-updated { font-size:.75rem; color:#9aa0a6; }
-    body.light-mode .tl-updated { color:#5f6368; }
-    .tl-stats-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
-    .tl-stat-card { background:#1e2029; border:1px solid #2a2d35; border-radius:12px; padding:14px 16px; }
-    body.light-mode .tl-stat-card { background:#fff; border-color:#e0e3e7; }
-    .tl-stat-label { font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#9aa0a6; margin-bottom:8px; }
-    .tl-stat-value { font-size:1.7rem; font-weight:800; color:#e8eaed; line-height:1; }
-    body.light-mode .tl-stat-value { color:#202124; }
-    .tl-filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-    .tl-filter-select { max-width:190px; min-width:145px; }
-    .tl-source-strip { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
-    .tl-source-chip { border:1px solid #3a3d45; border-radius:999px; padding:5px 10px; font-size:.72rem; font-weight:700; color:#cfd8dc; background:#1e2029; }
-    body.light-mode .tl-source-chip { background:#fff; border-color:#d2d7de; color:#37474f; }
-    .tl-feed { display:flex; flex-direction:column; gap:10px; min-height:220px; }
-    .tl-loading, .tl-empty { background:#1e2029; border:1px solid #2a2d35; border-radius:12px; padding:26px 20px; text-align:center; color:#9aa0a6; }
-    body.light-mode .tl-loading, body.light-mode .tl-empty { background:#fff; border-color:#e0e3e7; color:#5f6368; }
-    .tl-case-card { background:#1e2029; border:1px solid #2a2d35; border-radius:14px; padding:14px 16px; }
-    body.light-mode .tl-case-card { background:#fff; border-color:#e0e3e7; }
-    .tl-case-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px; flex-wrap:wrap; }
-    .tl-case-title { font-size:.98rem; font-weight:700; line-height:1.35; color:#e8eaed; margin:0; }
-    body.light-mode .tl-case-title { color:#202124; }
-    .tl-title-link { color:inherit; text-decoration:none; }
-    .tl-title-link:hover { color:#4fc3f7; text-decoration:underline; }
-    .tl-badge-row { display:flex; flex-wrap:wrap; gap:6px; }
-    .tl-badge { border-radius:999px; padding:3px 9px; font-size:.67rem; font-weight:800; letter-spacing:.3px; text-transform:uppercase; }
-    .tl-badge.category { background:#1a3a5c; color:#9fd2ff; }
-    .tl-badge.target { background:#2d2a1d; color:#ffd54f; }
-    .tl-badge.sev-high { background:#4a1616; color:#ffb3b3; }
-    .tl-badge.sev-medium { background:#4a3700; color:#ffe082; }
-    .tl-badge.conf-high { background:#14321a; color:#9be7a7; }
-    .tl-badge.conf-medium { background:#263238; color:#b0bec5; }
-    .tl-summary { color:#cfd8dc; font-size:.84rem; line-height:1.52; margin:8px 0 10px; }
-    body.light-mode .tl-summary { color:#37474f; }
-    .tl-meta { display:flex; flex-wrap:wrap; gap:10px 14px; font-size:.74rem; color:#9aa0a6; margin-bottom:8px; }
-    body.light-mode .tl-meta { color:#5f6368; }
-    .tl-links { display:flex; flex-wrap:wrap; gap:8px; }
-    .tl-link { font-size:.74rem; font-weight:700; text-decoration:none; }
-    .tl-link:hover { text-decoration:underline; }
-    @media (max-width: 960px) { .tl-stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media (max-width: 620px) { .tl-stats-grid { grid-template-columns:1fr; } .tl-filter-select { max-width:none; width:100%; } }
-  </style>
 
+  <style id="watchlist-section-style">
+    .airport-flight-watch { padding:14px 0 8px; border-top:1px solid #2a2d35; margin-top:16px; }
+    body.light-mode .airport-flight-watch { border-color:#e0e3e7; }
+    .airport-watch-header { font-size:.88rem; font-weight:700; color:#e8eaed; margin-bottom:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    body.light-mode .airport-watch-header { color:#202124; }
+    .airport-watch-hint { font-size:.72rem; color:#9aa0a6; font-weight:400; }
+  </style>
   <!-- Canonical external application script -->
   <script src="app.js"></script>
 
@@ -3781,7 +3768,6 @@
       var intel    = document.getElementById('view-intelligence');
       var airport  = document.getElementById('view-airport');
       var liveNews = document.getElementById('view-live-news');
-      var tlView   = document.getElementById('view-threats-leaks');
       var portView = document.getElementById('view-port');
       var catBar   = document.getElementById('cat-filter-bar');
       var apjcBar  = document.getElementById('apjc-subnav');
@@ -3790,7 +3776,6 @@
       if (intel)    intel.style.display    = 'none';
       if (airport)  airport.style.display  = 'none';
       if (liveNews) liveNews.style.display = 'none';
-      if (tlView)   tlView.style.display   = 'none';
       if (portView) portView.style.display = 'none';
       if (catBar)   catBar.style.display   = 'none';
       if (apjcBar)  apjcBar.style.display  = 'none';
@@ -3818,10 +3803,6 @@
         _lnTabRefreshInterval = setInterval(function () {
           if (currentView === 'live-news' && typeof _lnTabFetch === 'function') _lnTabFetch();
         }, 5 * 60 * 1000);
-      } else if (view === 'threats-leaks') {
-        if (tlView) tlView.style.display = '';
-        if (typeof window._tlInit === 'function') window._tlInit();
-        if (typeof window._tlLoad === 'function') window._tlLoad(false);
       } else if (view === 'port') {
         if (portView) portView.style.display = '';
         if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
