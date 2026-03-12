@@ -756,7 +756,8 @@ async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing\u2026";
   try {
-    const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
+    const cutoffMs72h = Date.now() - (72 * 3600 * 1000);
+    const cutoffMs7d  = Date.now() - (7 * 24 * 3600 * 1000);
     let list;
 
     if (AI_ENABLED) {
@@ -790,12 +791,20 @@ async function loadFromWorker(silent=false) {
       list = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident);
     }
 
-    INCIDENTS = list
-      .filter(Boolean)
-      .filter(i => {
-        try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
-      })
-      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
+    const cleanList = list.filter(Boolean).filter(i => !DISLIKED_IDS.has(String(i.id)));
+
+    // Try 72h window first; if that yields 0 items fall back to 7-day window
+    // (prevents empty stream when ingestion hasn't run recently)
+    let freshList = cleanList.filter(i => {
+      try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs72h; } catch { return false; }
+    });
+    if (freshList.length === 0 && cleanList.length > 0) {
+      freshList = cleanList.filter(i => {
+        try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs7d; } catch { return false; }
+      });
+      if (freshList.length === 0) freshList = cleanList; // last resort: show all
+    }
+    INCIDENTS = freshList;
 
     if (!AI_ENABLED) INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
     FEED_IS_LIVE = true;
@@ -2621,11 +2630,17 @@ function connectSSE() {
   es.addEventListener('incidents', (ev) => {
     try {
       const raw = JSON.parse(ev.data);
-      const cutoffMs = Date.now() - 72 * 3600 * 1000;
-      INCIDENTS = (Array.isArray(raw) ? raw : [])
+      const cutoff72h = Date.now() - 72 * 3600 * 1000;
+      const cutoff7d  = Date.now() - 7 * 24 * 3600 * 1000;
+      const cleanRaw = (Array.isArray(raw) ? raw : [])
         .map(normaliseWorkerIncident).filter(Boolean)
-        .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
-        .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
+        .filter(i => !DISLIKED_IDS.has(String(i.id)));
+      let fresh = cleanRaw.filter(i => { try { return new Date(i.time).getTime() >= cutoff72h; } catch { return false; } });
+      if (fresh.length === 0 && cleanRaw.length > 0) {
+        fresh = cleanRaw.filter(i => { try { return new Date(i.time).getTime() >= cutoff7d; } catch { return false; } });
+        if (fresh.length === 0) fresh = cleanRaw;
+      }
+      INCIDENTS = fresh;
       INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
       FEED_IS_LIVE = true;
       refreshHeatLayerIfEnabled();
