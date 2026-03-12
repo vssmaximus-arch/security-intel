@@ -6560,11 +6560,6 @@ function renderThreatIntel(data, tab) {
 document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('threat-overlay');
   if (overlay) overlay.addEventListener('click', closeThreatIntelPanel);
-
-  // Threats & Leaks is embedded in the Intelligence view — init listeners and
-  // load on page start so data is ready when the user scrolls down.
-  _tlInit();
-  loadThreatsLeaks(false);
 });
 
 /* ============================================================
