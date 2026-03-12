@@ -2073,9 +2073,6 @@
       <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
       </button>
-      <button class="view-tab" data-view="threats-leaks" role="tab" aria-selected="false" tabindex="0">
-        <i class="fas fa-user-shield" aria-hidden="true"></i> Threats &amp; Leaks
-      </button>
     </div>
 
     <!-- Critical Security Alerts Ticker Strip -->
@@ -2385,6 +2382,64 @@
       </div>
     </div>
 
+    <!-- ── Threats & Leaks — inline section on Intelligence page ─────────── -->
+    <div id="view-threats-leaks" style="margin-top:28px;">
+      <div class="tl-topbar">
+        <div class="tl-title-wrap">
+          <div class="tl-title"><i class="fas fa-user-shield me-2"></i>Threats &amp; Leaks</div>
+          <div class="tl-subtitle">Public-source monitoring for Dell brand, leadership targeting, leak indicators, harassment, and insider-risk style chatter.</div>
+        </div>
+        <div class="tl-actions">
+          <div class="tl-updated" id="tl-updated-at">Waiting for first load…</div>
+          <button class="btn btn-sm btn-outline-primary" data-action="tl-refresh"><i class="fas fa-rotate-right me-1"></i>Refresh</button>
+        </div>
+      </div>
+
+      <div class="tl-stats-grid">
+        <div class="tl-stat-card"><div class="tl-stat-label">High Severity</div><div class="tl-stat-value" id="tl-stat-high">0</div></div>
+        <div class="tl-stat-card"><div class="tl-stat-label">Possible Leaks</div><div class="tl-stat-value" id="tl-stat-leaks">0</div></div>
+        <div class="tl-stat-card"><div class="tl-stat-label">ELT Mentions</div><div class="tl-stat-value" id="tl-stat-elt">0</div></div>
+        <div class="tl-stat-card"><div class="tl-stat-label">Grouped Cases</div><div class="tl-stat-value" id="tl-stat-cases">0</div></div>
+      </div>
+
+      <div class="tl-filter-bar">
+        <select class="form-select form-select-sm tl-filter-select" id="tl-filter-category" data-action="tl-filter">
+          <option value="all">All categories</option>
+          <option value="Threat">Threat</option>
+          <option value="Leak">Leak</option>
+          <option value="Sentiment">Sentiment</option>
+          <option value="Harassment">Harassment</option>
+          <option value="Insider Risk">Insider Risk</option>
+          <option value="Other">Other</option>
+        </select>
+        <select class="form-select form-select-sm tl-filter-select" id="tl-filter-severity" data-action="tl-filter">
+          <option value="all">All severity</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+        </select>
+        <select class="form-select form-select-sm tl-filter-select" id="tl-filter-target" data-action="tl-filter">
+          <option value="all">All targets</option>
+          <option value="Dell">Dell</option>
+          <option value="ELT">ELT</option>
+          <option value="Unknown">Unknown</option>
+        </select>
+        <select class="form-select form-select-sm tl-filter-select" id="tl-filter-confidence" data-action="tl-filter">
+          <option value="all">All confidence</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+        </select>
+        <select class="form-select form-select-sm tl-filter-select" id="tl-filter-window" data-action="tl-filter">
+          <option value="30d">Last 30 days</option>
+          <option value="7d">Last 7 days</option>
+          <option value="24h">Last 24 hours</option>
+        </select>
+      </div>
+
+      <div id="tl-source-strip" class="tl-source-strip"></div>
+      <div id="tl-feed" class="tl-feed"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div></div>
+    </div>
+    <!-- /Threats & Leaks ──────────────────────────────────────────────────── -->
+
   <!-- ✈ AIRPORT DISRUPTIONS VIEW ──────────────────────────────────────────── -->
   <div id="view-airport" class="airport-panel" style="display:none;" role="tabpanel" aria-label="Airport Disruptions">
 
@@ -2564,62 +2619,6 @@
 
   <!-- REPORT MODAL -->
 
-
-  <div id="view-threats-leaks" style="display:none;" role="tabpanel" aria-label="Threats and Leaks">
-    <div class="tl-topbar">
-      <div class="tl-title-wrap">
-        <div class="tl-title"><i class="fas fa-user-shield me-2"></i>Threats &amp; Leaks</div>
-        <div class="tl-subtitle">Public-source monitoring for Dell brand, leadership targeting, leak indicators, harassment, and insider-risk style chatter.</div>
-      </div>
-      <div class="tl-actions">
-        <div class="tl-updated" id="tl-updated-at">Waiting for first load…</div>
-        <button class="btn btn-sm btn-outline-primary" data-action="tl-refresh"><i class="fas fa-rotate-right me-1"></i>Refresh</button>
-      </div>
-    </div>
-
-    <div class="tl-stats-grid">
-      <div class="tl-stat-card"><div class="tl-stat-label">High Severity</div><div class="tl-stat-value" id="tl-stat-high">0</div></div>
-      <div class="tl-stat-card"><div class="tl-stat-label">Possible Leaks</div><div class="tl-stat-value" id="tl-stat-leaks">0</div></div>
-      <div class="tl-stat-card"><div class="tl-stat-label">ELT Mentions</div><div class="tl-stat-value" id="tl-stat-elt">0</div></div>
-      <div class="tl-stat-card"><div class="tl-stat-label">Grouped Cases</div><div class="tl-stat-value" id="tl-stat-cases">0</div></div>
-    </div>
-
-    <div class="tl-filter-bar">
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-category" data-action="tl-filter">
-        <option value="all">All categories</option>
-        <option value="Threat">Threat</option>
-        <option value="Leak">Leak</option>
-        <option value="Sentiment">Sentiment</option>
-        <option value="Harassment">Harassment</option>
-        <option value="Insider Risk">Insider Risk</option>
-        <option value="Other">Other</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-severity" data-action="tl-filter">
-        <option value="all">All severity</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-target" data-action="tl-filter">
-        <option value="all">All targets</option>
-        <option value="Dell">Dell</option>
-        <option value="ELT">ELT</option>
-        <option value="Unknown">Unknown</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-confidence" data-action="tl-filter">
-        <option value="all">All confidence</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-      </select>
-      <select class="form-select form-select-sm tl-filter-select" id="tl-filter-window" data-action="tl-filter">
-        <option value="30d">Last 30 days</option>
-        <option value="7d">Last 7 days</option>
-        <option value="24h">Last 24 hours</option>
-      </select>
-    </div>
-
-    <div id="tl-source-strip" class="tl-source-strip"></div>
-    <div id="tl-feed" class="tl-feed"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div></div>
-  </div>
   <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
     <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content sitrep-modal-content">
@@ -3647,7 +3646,6 @@
       var intel    = document.getElementById('view-intelligence');
       var airport  = document.getElementById('view-airport');
       var liveNews = document.getElementById('view-live-news');
-      var tlView   = document.getElementById('view-threats-leaks');
       var catBar   = document.getElementById('cat-filter-bar');
       var apjcBar  = document.getElementById('apjc-subnav');
       var sigmet   = document.getElementById('sigmet-ticker-strip');
@@ -3655,7 +3653,6 @@
       if (intel)    intel.style.display    = 'none';
       if (airport)  airport.style.display  = 'none';
       if (liveNews) liveNews.style.display = 'none';
-      if (tlView)   tlView.style.display   = 'none';
       if (catBar)   catBar.style.display   = 'none';
       if (apjcBar)  apjcBar.style.display  = 'none';
       if (sigmet)   sigmet.style.display   = 'none';
@@ -3682,12 +3679,8 @@
         _lnTabRefreshInterval = setInterval(function () {
           if (currentView === 'live-news' && typeof _lnTabFetch === 'function') _lnTabFetch();
         }, 5 * 60 * 1000);
-      } else if (view === 'threats-leaks') {
-        if (tlView) tlView.style.display = '';
-        if (typeof window._tlInit === 'function') window._tlInit();
-        if (typeof window._tlLoad === 'function') window._tlLoad(false);
       } else {
-        /* intelligence (default) */
+        /* intelligence (default) — Threats & Leaks is embedded here, always visible */
         if (intel)   intel.style.display  = '';
         if (catBar)  catBar.style.display = '';
       }
