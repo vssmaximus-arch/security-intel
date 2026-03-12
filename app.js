@@ -5430,13 +5430,15 @@ const WEATHER_ICONS = {
 
 async function loadWeatherDisasters() {
   try {
-    const res = await fetch(`${WORKER_URL}/api/weather/disasters`);
+    // Use fetchWithTimeout (15 s) — bare fetch() hangs forever if USGS/GDACS is slow
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/weather/disasters`, {}, 15000);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     WEATHER_EVENTS = Array.isArray(data.events) ? data.events : [];
     return WEATHER_EVENTS;
   } catch(e) {
-    console.warn('[Weather] load failed:', e.message);
+    console.warn('[Weather] load failed:', e?.message || e);
+    WEATHER_EVENTS = [];
     return [];
   }
 }
@@ -5488,10 +5490,15 @@ async function toggleWeatherOverlay() {
 
   if (weatherEnabled) {
     if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Nature Events';
-    await loadWeatherDisasters();
-    renderWeatherLayer();
-    const visibleCount = WEATHER_EVENTS.filter(ev => _eventInRegion(Number(ev.lat), Number(ev.lng), currentRegion)).length;
-    if (btn) btn.innerHTML = `<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;">(${visibleCount})</span>`;
+    try {
+      await loadWeatherDisasters();
+      renderWeatherLayer();
+      const visibleCount = WEATHER_EVENTS.filter(ev => _eventInRegion(Number(ev.lat), Number(ev.lng), currentRegion)).length;
+      if (btn) btn.innerHTML = `<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;">(${visibleCount})</span>`;
+    } catch(e) {
+      console.warn('[Weather] toggleWeatherOverlay error:', e?.message || e);
+      if (btn) btn.innerHTML = '<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;color:#f44;">(err)</span>';
+    }
   } else {
     if (weatherLayerGroup) { try { map.removeLayer(weatherLayerGroup); } catch(e){} weatherLayerGroup = null; }
     if (btn) btn.innerHTML = '<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events';
