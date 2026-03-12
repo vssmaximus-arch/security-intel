@@ -2641,10 +2641,18 @@ function connectSSE() {
     try {
       const json = JSON.parse(ev.data);
       const cutoffMs = Date.now() - 72 * 3600 * 1000;
-      PROXIMITY_INCIDENTS = (Array.isArray(json.incidents) ? json.incidents : [])
+      const incoming = (Array.isArray(json.incidents) ? json.incidents : [])
         .map(normaliseWorkerIncident).filter(Boolean)
         .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
-        .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
+        .filter(i => !DISLIKED_IDS.has(String(i.id)));
+      // Only replace proximity data if Worker KV actually has results.
+      // When KV is empty the SSE sends [] — that must NOT wipe out the
+      // static-fallback data already loaded by loadProximityFromWorker().
+      if (incoming.length > 0) {
+        PROXIMITY_INCIDENTS = incoming;
+        const active = document.querySelector('.nav-item-custom.active');
+        renderProximityAlerts(active ? active.textContent.trim() : 'Global');
+      }
     } catch (e) { console.error('SSE proximity parse error', e); }
   });
 
@@ -5471,7 +5479,7 @@ const WEATHER_ICONS = {
 async function loadWeatherDisasters() {
   try {
     // Use fetchWithTimeout (15 s) — bare fetch() hangs forever if USGS/GDACS is slow
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/weather/disasters`, {}, 15000);
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/weather/disasters`, {}, 30000);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     WEATHER_EVENTS = Array.isArray(data.events) ? data.events : [];
@@ -6319,6 +6327,36 @@ function _tlInit() {
   });
 }
 
+// Keywords that signal a Dell-relevant T&L article
+const _TL_DELL_RX = /dell|michael dell|jeff clarke|dell technologies|dell layoff|dell restructur|dell reorg|dell breach|dell hack|dell leak|dell insider|dell executive|dell leadership|dell ceo|dell cto|dell employee/i;
+const _TL_SIGNAL_RX = /layoff|laid off|restructur|reorg|job cut|workforce|redundan|breach|leak|confidential|insider|whistleblower|boycott|threat|hack|malware|fired|separation|headcount|morale|toxic|corrupt|fraud/i;
+
+/** Convert a news INCIDENT to a synthetic T&L case card */
+function _incidentToTLCase(inc) {
+  const text = `${inc.title || ''} ${inc.summary || inc.snippet || ''}`;
+  const cat = /layoff|laid off|job cut|workforce|reorg|redundan|headcount|separation/i.test(text) ? 'Insider'
+            : /leak|confidential|breach|hack|malware|whistleblower|insider/i.test(text) ? 'Leak'
+            : /threat|attack|terror|violence|assassination/i.test(text) ? 'Threat'
+            : /boycott|protest|backlash|outrage/i.test(text) ? 'Sentiment'
+            : 'Insider';
+  const sev = inc.severity >= 3 ? 'High' : 'Medium';
+  return {
+    id: inc.id,
+    title: inc.title || 'Untitled',
+    category: cat,
+    severity: sev,
+    confidence: 'Medium',
+    target: 'Dell',
+    related_mentions: 1,
+    first_seen: inc.time,
+    last_seen: inc.time,
+    sources: [inc.source || 'news'],
+    source_links: inc.url ? [inc.url] : [],
+    summary: inc.summary || inc.snippet || inc.title || '',
+    _synthetic: true,
+  };
+}
+
 async function loadThreatsLeaks(force = false) {
   const feed = document.getElementById('tl-feed');
   if (feed && (!THREATS_LEAKS_DATA || force)) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div>';
@@ -6326,10 +6364,58 @@ async function loadThreatsLeaks(force = false) {
     const res = await fetchWithTimeout(`${WORKER_URL}/api/threats-leaks${force ? '?refresh=1' : ''}`, {}, 25000);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+
+    // If Worker returned 0 cases, build a synthetic feed from news INCIDENTS
+    // filtered for Dell + T&L signal keywords (layoff, leak, breach, etc.)
+    if ((!data.cases || data.cases.length === 0) && INCIDENTS.length) {
+      const cutoff24h = Date.now() - 24 * 3600 * 1000;
+      const synth = INCIDENTS
+        .filter(i => {
+          const ts = new Date(i.time || 0).getTime();
+          if (isNaN(ts) || ts < cutoff24h) return false;
+          const txt = `${i.title || ''} ${i.summary || i.snippet || ''}`;
+          return _TL_DELL_RX.test(txt) || _TL_SIGNAL_RX.test(txt);
+        })
+        .slice(0, 40)
+        .map(_incidentToTLCase);
+
+      if (synth.length) {
+        const synthData = {
+          cases: synth,
+          sources: ['news-feed'],
+          updated_at: new Date().toISOString(),
+          _source: 'synthetic',
+        };
+        THREATS_LEAKS_DATA = synthData;
+        renderThreatsLeaks(synthData);
+        return;
+      }
+    }
+
     THREATS_LEAKS_DATA = data;
     renderThreatsLeaks(data);
   } catch (e) {
     console.warn('[Threats&Leaks] load failed', e);
+    // On error, also try the synthetic fallback from INCIDENTS
+    if (INCIDENTS.length) {
+      const cutoff24h = Date.now() - 24 * 3600 * 1000;
+      const synth = INCIDENTS
+        .filter(i => {
+          const ts = new Date(i.time || 0).getTime();
+          if (isNaN(ts) || ts < cutoff24h) return false;
+          const txt = `${i.title || ''} ${i.summary || i.snippet || ''}`;
+          return _TL_DELL_RX.test(txt) || _TL_SIGNAL_RX.test(txt);
+        })
+        .slice(0, 40)
+        .map(_incidentToTLCase);
+
+      if (synth.length) {
+        const synthData = { cases: synth, sources: ['news-feed'], updated_at: new Date().toISOString(), _source: 'synthetic' };
+        THREATS_LEAKS_DATA = synthData;
+        renderThreatsLeaks(synthData);
+        return;
+      }
+    }
     if (feed) feed.innerHTML = `<div class="tl-empty">Failed to load Threats &amp; Leaks.<br><small>${escapeHtml(e.message || String(e))}</small></div>`;
   }
 }
