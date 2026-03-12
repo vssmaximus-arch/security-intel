@@ -2076,6 +2076,9 @@
       <button class="view-tab" data-view="threats-leaks" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-user-shield" aria-hidden="true"></i> Threats &amp; Leaks
       </button>
+      <button class="view-tab" data-view="port" role="tab" aria-selected="false" tabindex="0">
+        <i class="fas fa-ship" aria-hidden="true"></i> Port Disruptions
+      </button>
     </div>
 
     <!-- Critical Security Alerts Ticker Strip -->
@@ -2617,6 +2620,78 @@
     <div id="tl-feed" class="tl-feed"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div></div>
   </div><!-- /view-threats-leaks -->
 
+  <!-- 🚢 PORT DISRUPTIONS VIEW ─────────────────────────────────────────────── -->
+  <div id="view-port" class="airport-panel" style="display:none;" role="tabpanel" aria-label="Port Disruptions">
+
+    <!-- AI Overview Bar -->
+    <div class="airport-ai-bar" id="port-ai-bar">
+      <i class="fas fa-brain" aria-hidden="true"></i>
+      <span id="port-ai-text">Switch to this tab to load live port disruption intelligence…</span>
+    </div>
+
+    <!-- Filter + Sort Controls -->
+    <div class="airport-controls">
+      <span class="airport-ctrl-label">Type</span>
+      <select id="port-filter-type" class="airport-select" aria-label="Filter by disruption type">
+        <option value="ALL">All Types</option>
+        <option value="SECURITY">⚔️ Security / Attack</option>
+        <option value="STRIKE">🪧 Strike / Protest</option>
+        <option value="WEATHER">🌪️ Weather / Disaster</option>
+        <option value="NATURAL">🌊 Natural Disaster</option>
+        <option value="OTHER">Other</option>
+      </select>
+      <span class="airport-ctrl-label">Severity</span>
+      <select id="port-filter-severity" class="airport-select" aria-label="Filter by severity">
+        <option value="ALL">All Status</option>
+        <option value="HIGH">Disrupted</option>
+        <option value="MEDIUM">Affected</option>
+        <option value="LOW">Watch</option>
+      </select>
+      <span class="airport-ctrl-label">Sort</span>
+      <select id="port-sort-by" class="airport-select" aria-label="Sort disruptions">
+        <option value="SEVERITY">Severity</option>
+        <option value="RECENT">Most Recent</option>
+        <option value="NAME">Name A–Z</option>
+      </select>
+      <button id="port-refresh-btn" class="airport-refresh-btn" aria-label="Refresh port disruption data">
+        <i class="fas fa-sync" aria-hidden="true"></i> Refresh
+      </button>
+      <span id="port-updated-at" class="airport-ts"></span>
+    </div>
+
+    <!-- Two-column: left = map + table; right = chokepoint traffic sidebar -->
+    <div class="airport-two-col" id="port-main-view">
+
+      <!-- Left column: map + disruption table -->
+      <div class="airport-left-col">
+        <div class="airport-map-wrap">
+          <div id="port-map" aria-label="Port disruptions world map" role="application"></div>
+        </div>
+
+        <!-- Disruption table -->
+        <div class="airport-table-section" id="port-disruptions-list" aria-live="polite">
+          <div class="airport-loading">
+            <i class="fas fa-ship fa-bounce" aria-hidden="true"></i><br>
+            Click "🚢 Port Disruptions" tab to load data
+          </div>
+        </div>
+      </div>
+
+      <!-- Right sidebar: Chokepoint Traffic Index -->
+      <div class="airport-right-sidebar">
+        <div class="side-card airport-tsc-card">
+          <div class="card-label"><i class="fas fa-water"></i> Chokepoint Traffic Index</div>
+          <p class="tsc-subtitle">Vessel traffic vs 7-day baseline (IMF PortWatch AIS data)</p>
+          <div id="port-chokepoint-list" class="mt-2">
+            <div class="airport-loading" style="padding:12px;font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /port-main-view -->
+
+  </div><!-- /view-port -->
+
   </div>
 
   <!-- REPORT MODAL -->
@@ -2970,6 +3045,8 @@
     .tl-case-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px; flex-wrap:wrap; }
     .tl-case-title { font-size:.98rem; font-weight:700; line-height:1.35; color:#e8eaed; margin:0; }
     body.light-mode .tl-case-title { color:#202124; }
+    .tl-title-link { color:inherit; text-decoration:none; }
+    .tl-title-link:hover { color:#4fc3f7; text-decoration:underline; }
     .tl-badge-row { display:flex; flex-wrap:wrap; gap:6px; }
     .tl-badge { border-radius:999px; padding:3px 9px; font-size:.67rem; font-weight:800; letter-spacing:.3px; text-transform:uppercase; }
     .tl-badge.category { background:#1a3a5c; color:#9fd2ff; }
@@ -3439,6 +3516,51 @@
     #view-airport { padding-bottom: 40px; }
     #airport-conflict-section { display: none !important; }
 
+    /* Port Disruptions view */
+    #view-port { padding-bottom: 40px; }
+    #port-map { height: 350px; width: 100%; border-radius: 8px; background: #0d1117; }
+    .port-row { display:flex; align-items:flex-start; gap:14px; padding:12px 14px; border-bottom:1px solid #2a2d35; transition:background .15s; cursor:default; }
+    .port-row:last-child { border-bottom:none; }
+    .port-row:hover { background:rgba(255,255,255,.04); }
+    body.light-mode .port-row { border-bottom-color:#e8eaed; }
+    body.light-mode .port-row:hover { background:rgba(0,0,0,.03); }
+    .port-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; }
+    .port-icon.sev-high   { background:#3e1a1a; color:#f28b82; }
+    .port-icon.sev-medium { background:#1e2a1e; color:#81c995; }
+    .port-icon.sev-low    { background:#1a2033; color:#8ab4f8; }
+    .port-info { flex:1; min-width:0; }
+    .port-name { font-weight:700; font-size:.9rem; color:#e8eaed; margin-bottom:2px; }
+    body.light-mode .port-name { color:#202124; }
+    .port-summary { font-size:.8rem; color:#9aa0a6; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px; }
+    body.light-mode .port-summary { color:#5f6368; }
+    .port-meta { font-size:.74rem; color:#5f6368; margin-top:3px; }
+    .port-badges { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+    .port-badge { border-radius:999px; padding:3px 8px; font-size:.66rem; font-weight:800; letter-spacing:.3px; text-transform:uppercase; white-space:nowrap; }
+    .port-badge.sev-high   { background:#3e1a1a; color:#f28b82; }
+    .port-badge.sev-medium { background:#1e2a1e; color:#81c995; }
+    .port-badge.type-security { background:#3e2800; color:#fbbc04; }
+    .port-badge.type-strike   { background:#1a2033; color:#8ab4f8; }
+    .port-badge.type-weather  { background:#1e2a1e; color:#81c995; }
+    .port-badge.type-natural  { background:#1e2a2a; color:#4fc3f7; }
+    .port-badge.type-other    { background:#2a2d35; color:#9aa0a6; }
+    .port-source-link { font-size:.72rem; color:#8ab4f8; text-decoration:none; }
+    .port-source-link:hover { text-decoration:underline; }
+    /* Chokepoint traffic list */
+    .choke-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #2a2d35; }
+    .choke-row:last-child { border-bottom:none; }
+    body.light-mode .choke-row { border-bottom-color:#e8eaed; }
+    .choke-name { flex:1; font-size:.82rem; font-weight:600; color:#e8eaed; }
+    body.light-mode .choke-name { color:#202124; }
+    .choke-trend { font-size:.78rem; font-weight:700; }
+    .choke-trend.up   { color:#81c995; }
+    .choke-trend.down { color:#f28b82; }
+    .choke-trend.flat { color:#9aa0a6; }
+    .choke-status { font-size:.7rem; padding:2px 7px; border-radius:999px; font-weight:700; }
+    .choke-status.disrupted { background:#3e1a1a; color:#f28b82; }
+    .choke-status.reduced   { background:#3e2800; color:#fbbc04; }
+    .choke-status.normal    { background:#1e2a1e; color:#81c995; }
+    .choke-vessels { font-size:.74rem; color:#9aa0a6; }
+
     /* ── Live News tab panel layout ─────────────────────────────────────── */
     #view-live-news {
       display: flex; flex-direction: column;
@@ -3589,6 +3711,17 @@
     var currentView        = 'intelligence';
     var activeType         = 'ALL';
     var activeSev          = 'ALL';
+
+    /* Port Disruptions state */
+    var PORT_DATA          = null;
+    var portLastFetchTs    = 0;
+    var portMap            = null;
+    var portMarkerLayer    = null;
+    var portMapInitialized = false;
+    var portActiveType     = 'ALL';
+    var portActiveSev      = 'ALL';
+    var portActiveSort     = 'SEVERITY';
+    var PORT_CACHE_MS      = 10 * 60 * 1000; // 10 min
     var activeSort         = 'SCORE';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
@@ -3649,6 +3782,7 @@
       var airport  = document.getElementById('view-airport');
       var liveNews = document.getElementById('view-live-news');
       var tlView   = document.getElementById('view-threats-leaks');
+      var portView = document.getElementById('view-port');
       var catBar   = document.getElementById('cat-filter-bar');
       var apjcBar  = document.getElementById('apjc-subnav');
       var sigmet   = document.getElementById('sigmet-ticker-strip');
@@ -3657,6 +3791,7 @@
       if (airport)  airport.style.display  = 'none';
       if (liveNews) liveNews.style.display = 'none';
       if (tlView)   tlView.style.display   = 'none';
+      if (portView) portView.style.display = 'none';
       if (catBar)   catBar.style.display   = 'none';
       if (apjcBar)  apjcBar.style.display  = 'none';
       if (sigmet)   sigmet.style.display   = 'none';
@@ -3687,6 +3822,10 @@
         if (tlView) tlView.style.display = '';
         if (typeof window._tlInit === 'function') window._tlInit();
         if (typeof window._tlLoad === 'function') window._tlLoad(false);
+      } else if (view === 'port') {
+        if (portView) portView.style.display = '';
+        if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
+        loadPortData(false);
       } else {
         /* intelligence (default) */
         if (intel)   intel.style.display  = '';
@@ -4078,6 +4217,182 @@
         + '<tbody>' + rows + '</tbody>'
         + '</table>';
     }
+
+    /* ══════════════════════════════════════════════════════════════════
+       PORT DISRUPTIONS — map, data, render
+       ══════════════════════════════════════════════════════════════════ */
+
+    function initPortMap() {
+      if (typeof L === 'undefined') return;
+      var isLight = document.body.classList.contains('light-mode');
+      portMap = L.map('port-map', { center: [20, 20], zoom: 2, scrollWheelZoom: true, zoomControl: true, attributionControl: false });
+      var tileUrl = isLight
+        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19 }).addTo(portMap);
+      portMarkerLayer = L.layerGroup().addTo(portMap);
+    }
+
+    function loadPortData(force) {
+      if (!force && PORT_DATA && (Date.now() - portLastFetchTs) < PORT_CACHE_MS) {
+        renderPortTab(); return;
+      }
+      var listEl = document.getElementById('port-disruptions-list');
+      if (listEl) listEl.innerHTML = '<div class="airport-loading"><i class="fas fa-spinner fa-spin"></i> Fetching live maritime disruption intelligence\u2026</div>';
+      var aiEl = document.getElementById('port-ai-text');
+      if (aiEl) aiEl.textContent = 'Loading port disruption data\u2026';
+
+      fetch(WORKER_URL + '/api/port-disruptions', { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (data) {
+          PORT_DATA = data;
+          portLastFetchTs = Date.now();
+          renderPortTab();
+        })
+        .catch(function (err) {
+          var listEl2 = document.getElementById('port-disruptions-list');
+          if (listEl2) listEl2.innerHTML = '<div class="airport-loading" style="color:#f28b82;"><i class="fas fa-exclamation-circle"></i> Could not load port data: ' + escHtml(err.message) + '</div>';
+          var aiEl2 = document.getElementById('port-ai-text');
+          if (aiEl2) aiEl2.textContent = 'Disruption data unavailable — check console for details.';
+        });
+    }
+
+    function renderPortTab() {
+      if (!PORT_DATA) return;
+      var disruptions = PORT_DATA.disruptions || [];
+      var chokepoints  = PORT_DATA.chokepoints  || [];
+
+      /* Apply filters */
+      var filtered = disruptions.filter(function (d) {
+        if (portActiveType !== 'ALL' && d.cause_type !== portActiveType) return false;
+        if (portActiveSev  !== 'ALL' && d.severity   !== portActiveSev)  return false;
+        return true;
+      });
+
+      /* Apply sort */
+      filtered = filtered.slice().sort(function (a, b) {
+        if (portActiveSort === 'RECENT') {
+          return new Date(b.date || 0) - new Date(a.date || 0);
+        }
+        if (portActiveSort === 'NAME') {
+          var na = (a.port_name || '').toLowerCase(), nb = (b.port_name || '').toLowerCase();
+          return na < nb ? -1 : na > nb ? 1 : 0;
+        }
+        /* SEVERITY */
+        var sv = { HIGH: 2, MEDIUM: 1, LOW: 0 };
+        return (sv[b.severity] || 0) - (sv[a.severity] || 0);
+      });
+
+      /* AI overview bar */
+      var aiEl = document.getElementById('port-ai-text');
+      if (aiEl) {
+        var highCount = disruptions.filter(function (d) { return d.severity === 'HIGH'; }).length;
+        var choke = PORT_DATA.stats ? PORT_DATA.stats.total : disruptions.length;
+        aiEl.textContent = choke + ' maritime disruption event' + (choke !== 1 ? 's' : '')
+          + ' detected in the last 7 days'
+          + (highCount ? ' — ' + highCount + ' HIGH severity' : '')
+          + '. Data: GDELT news + IMF PortWatch AIS vessel traffic.';
+      }
+
+      /* Updated-at */
+      var tsEl = document.getElementById('port-updated-at');
+      if (tsEl && PORT_DATA.updated_at) tsEl.textContent = 'Updated ' + timeAgoShort(new Date(PORT_DATA.updated_at));
+
+      /* Update map markers */
+      if (portMarkerLayer) {
+        portMarkerLayer.clearLayers();
+        disruptions.forEach(function (d) {
+          if (!d.lat || !d.lng) return;
+          var color = d.severity === 'HIGH' ? '#f28b82' : '#fbbc04';
+          var marker = L.circleMarker([d.lat, d.lng], { radius: 8, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.85 });
+          marker.bindPopup('<b>' + escHtml(d.port_name) + '</b><br>' + escHtml(d.summary || '') + (d.source_url ? '<br><a href="' + escHtml(d.source_url) + '" target="_blank" rel="noopener" style="color:#8ab4f8;">Source</a>' : ''));
+          portMarkerLayer.addLayer(marker);
+        });
+      }
+
+      /* Render disruption rows */
+      var listEl = document.getElementById('port-disruptions-list');
+      if (listEl) {
+        if (filtered.length === 0) {
+          listEl.innerHTML = '<div class="airport-loading">No disruptions match the current filters.</div>';
+        } else {
+          var TYPE_ICON = { SECURITY: 'fas fa-shield-alt', STRIKE: 'fas fa-fist-raised', WEATHER: 'fas fa-cloud-showers-heavy', NATURAL: 'fas fa-water', OTHER: 'fas fa-exclamation-circle' };
+          var TYPE_LABEL = { SECURITY: 'Security', STRIKE: 'Strike/Protest', WEATHER: 'Weather', NATURAL: 'Natural', OTHER: 'Other' };
+          listEl.innerHTML = filtered.map(function (d) {
+            var sevClass  = d.severity === 'HIGH' ? 'sev-high' : 'sev-medium';
+            var typeClass = 'type-' + (d.cause_type || 'other').toLowerCase();
+            var typeLabel = TYPE_LABEL[d.cause_type] || d.cause_type || 'Other';
+            var iconClass = TYPE_ICON[d.cause_type] || 'fas fa-exclamation-circle';
+            var age = d.date ? timeAgoShort(new Date(d.date)) : '';
+            var srcLink = d.source_url ? '<a class="port-source-link" href="' + escHtml(d.source_url) + '" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> ' + escHtml(d.source || 'Source') + '</a>' : '';
+            return '<div class="port-row">'
+              + '<div class="port-icon ' + sevClass + '"><i class="' + iconClass + '"></i></div>'
+              + '<div class="port-info">'
+              +   '<div class="port-name">' + escHtml(d.port_name || 'Maritime Route') + '</div>'
+              +   '<div class="port-summary">' + escHtml(d.summary || '') + '</div>'
+              +   '<div class="port-meta">' + (age ? age + ' &nbsp;&bull;&nbsp; ' : '') + srcLink + '</div>'
+              + '</div>'
+              + '<div class="port-badges">'
+              +   '<span class="port-badge ' + sevClass + '">' + escHtml(d.severity || 'MEDIUM') + '</span>'
+              +   '<span class="port-badge ' + typeClass + '">' + escHtml(typeLabel) + '</span>'
+              + '</div>'
+              + '</div>';
+          }).join('');
+        }
+      }
+
+      /* Render chokepoint traffic sidebar */
+      var chokeEl = document.getElementById('port-chokepoint-list');
+      if (chokeEl) {
+        if (chokepoints.length === 0) {
+          chokeEl.innerHTML = '<div style="color:#9aa0a6;font-size:.8rem;padding:8px 0;">No chokepoint data available.</div>';
+        } else {
+          chokeEl.innerHTML = chokepoints.slice(0, 12).map(function (c) {
+            var trendStr = (c.trend_pct > 0 ? '+' : '') + c.trend_pct + '%';
+            var trendClass = c.trend_pct >= -5 ? 'up' : (c.trend_pct <= -25 ? 'down' : 'flat');
+            var statusClass = c.status === 'Normal' ? 'normal' : (c.status.includes('Severe') ? 'disrupted' : 'reduced');
+            return '<div class="choke-row">'
+              + '<span class="choke-name">' + escHtml(c.name) + '</span>'
+              + '<span class="choke-trend ' + trendClass + '">' + escHtml(trendStr) + '</span>'
+              + '<span class="choke-status ' + statusClass + '">' + escHtml(c.status) + '</span>'
+              + '</div>';
+          }).join('');
+          var pwLink = '<div style="margin-top:8px;font-size:.72rem;"><a href="https://portwatch.imf.org" target="_blank" rel="noopener" style="color:#8ab4f8;">IMF PortWatch ↗</a></div>';
+          chokeEl.innerHTML += pwLink;
+        }
+      }
+    }
+
+    /* ── Port event listeners ──────────────────────────────────────────── */
+    var portTypeSelect = document.getElementById('port-filter-type');
+    if (portTypeSelect) portTypeSelect.addEventListener('change', function () { portActiveType = this.value; if (PORT_DATA) renderPortTab(); });
+
+    var portSevSelect = document.getElementById('port-filter-severity');
+    if (portSevSelect) portSevSelect.addEventListener('change', function () { portActiveSev = this.value; if (PORT_DATA) renderPortTab(); });
+
+    var portSortSelect = document.getElementById('port-sort-by');
+    if (portSortSelect) portSortSelect.addEventListener('change', function () { portActiveSort = this.value; if (PORT_DATA) renderPortTab(); });
+
+    var portRefreshBtn = document.getElementById('port-refresh-btn');
+    if (portRefreshBtn) {
+      portRefreshBtn.addEventListener('click', function () {
+        this.disabled = true;
+        var icon = this.querySelector('i');
+        if (icon) icon.className = 'fas fa-spinner fa-spin';
+        var btn = this;
+        portLastFetchTs = 0;
+        loadPortData(true);
+        setTimeout(function () {
+          btn.disabled = false;
+          var ic = btn.querySelector('i');
+          if (ic) ic.className = 'fas fa-sync';
+        }, 15000);
+      });
+    }
+
+    setInterval(function () {
+      if (currentView === 'port') loadPortData(false);
+    }, 10 * 60 * 1000);
 
   })();
   </script>

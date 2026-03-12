@@ -6369,7 +6369,7 @@ async function loadThreatsLeaks(force = false) {
     // If Worker returned 0 cases, build a synthetic feed from news INCIDENTS
     // filtered for Dell + T&L signal keywords (layoff, leak, breach, etc.)
     if ((!data.cases || data.cases.length === 0) && INCIDENTS.length) {
-      const cutoff24h = Date.now() - 24 * 3600 * 1000;
+      const cutoff24h = Date.now() - 7 * 24 * 3600 * 1000; // 7-day window
       const synth = INCIDENTS
         .filter(i => {
           const ts = new Date(i.time || 0).getTime();
@@ -6399,7 +6399,7 @@ async function loadThreatsLeaks(force = false) {
     console.warn('[Threats&Leaks] load failed', e);
     // On error, also try the synthetic fallback from INCIDENTS
     if (INCIDENTS.length) {
-      const cutoff24h = Date.now() - 24 * 3600 * 1000;
+      const cutoff24h = Date.now() - 7 * 24 * 3600 * 1000; // 7-day window
       const synth = INCIDENTS
         .filter(i => {
           const ts = new Date(i.time || 0).getTime();
@@ -6476,10 +6476,14 @@ function renderThreatsLeaks(data) {
     const sevCls = c.severity === 'High' ? 'sev-high' : 'sev-medium';
     const confCls = c.confidence === 'High' ? 'conf-high' : 'conf-medium';
     const links = Array.isArray(c.source_links) ? c.source_links.slice(0, 3) : [];
+    const primaryLink = links[0] || '';
+    const titleHtml = primaryLink
+      ? `<a class="tl-title-link" href="${escapeAttr(primaryLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(c.title || 'Untitled case')}</a>`
+      : escapeHtml(c.title || 'Untitled case');
     return `
       <div class="tl-case-card">
         <div class="tl-case-head">
-          <h3 class="tl-case-title">${escapeHtml(c.title || 'Untitled case')}</h3>
+          <h3 class="tl-case-title">${titleHtml}</h3>
           <div class="tl-badge-row">
             <span class="tl-badge category">${escapeHtml(c.category || 'Other')}</span>
             <span class="tl-badge ${sevCls}">${escapeHtml(c.severity || 'Medium')}</span>
