@@ -2682,7 +2682,7 @@
         </div>
       </div>
 
-      <!-- Right sidebar: Chokepoint Traffic Index -->
+      <!-- Right sidebar: Chokepoint Traffic Index + Vessel Watchlist -->
       <div class="airport-right-sidebar">
         <div class="side-card airport-tsc-card">
           <div class="card-label"><i class="fas fa-water"></i> Chokepoint Traffic Index</div>
@@ -2691,28 +2691,26 @@
             <div class="airport-loading" style="padding:12px;font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
           </div>
         </div>
+
+        <!-- ⚓ VESSEL WATCHLIST — directly under Chokepoint Traffic -->
+        <div class="side-card airport-tsc-card" id="port-vessel-watch-section" style="margin-top:10px;">
+          <div class="card-label"><i class="fas fa-binoculars"></i> Vessel Watchlist</div>
+          <p class="tsc-subtitle">Track live vessels by MMSI (9 digits) or name</p>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input class="drawer-input" id="port-vessel-input" name="port-vessel-input" type="text"
+              placeholder="MMSI (e.g. 538007789) or vessel name"
+              maxlength="20" autocomplete="off"
+              style="flex:1;background:#1e2029;border:1px solid #3a3d45;border-radius:6px;padding:6px 10px;color:#e8eaed;font-size:0.82rem;" />
+            <button class="drawer-btn" data-action="port-add-vessel" aria-label="Add vessel to watchlist"
+              style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
+          </div>
+          <div id="port-vessel-watchlist-list">
+            <div class="drawer-empty" style="color:#9aa0a6;font-size:0.82rem;padding:8px 0;">No vessels being tracked. Add an MMSI or name above.</div>
+          </div>
+        </div>
       </div>
 
     </div><!-- /port-main-view -->
-
-    <!-- ⚓ VESSEL WATCHLIST (moved from Logistics drawer) -->
-    <div class="airport-flight-watch" id="port-vessel-watch-section">
-      <div class="airport-watch-header">
-        <i class="fas fa-binoculars"></i> Vessel Watchlist
-        <span class="airport-watch-hint">Enter vessel MMSI (9 digits) or name</span>
-      </div>
-      <div class="drawer-add-row" style="display:flex;gap:8px;margin-bottom:10px;">
-        <input class="drawer-input" id="port-vessel-input" name="port-vessel-input" type="text"
-          placeholder="MMSI (e.g. 538007789) or vessel name"
-          maxlength="20" autocomplete="off"
-          style="flex:1;background:#1e2029;border:1px solid #3a3d45;border-radius:6px;padding:6px 10px;color:#e8eaed;font-size:0.82rem;" />
-        <button class="drawer-btn" data-action="port-add-vessel" aria-label="Add vessel to watchlist"
-          style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
-      </div>
-      <div id="port-vessel-watchlist-list">
-        <div class="drawer-empty" style="color:#9aa0a6;font-size:0.82rem;padding:8px 0;">No vessels being tracked. Add an MMSI or name above.</div>
-      </div>
-    </div>
   </div><!-- /view-port -->
 
   <!-- 🛡 THREATS & LEAKS VIEW ─────────────────────────────────────────────── -->
@@ -3887,18 +3885,18 @@
       if (view === 'airport') {
         if (airport) airport.style.display = '';
         if (!mapInitialized) { initAirportMap(); mapInitialized = true; }
+        setTimeout(function(){ if(airportMap) airportMap.invalidateSize(); }, 120);
         loadAirportData(false);
       } else if (view === 'live-news') {
         if (liveNews) liveNews.style.display = '';
         /* Init tab (CSS + channel buttons) — only runs once */
         if (typeof _lnTabInit === 'function') _lnTabInit();
-        /* Switch to Headlines and fetch data if not already loaded */
-        if (typeof _lnTabSwitchTab  === 'function') _lnTabSwitchTab('headlines');
-        if (typeof _lnTabFetch      === 'function' &&
-            typeof _lnmItems        !== 'undefined' && !_lnmItems.length) {
+        /* Switch to Headlines and always fetch fresh data */
+        if (typeof _lnTabSwitchTab === 'function') _lnTabSwitchTab('headlines');
+        if (typeof _lnTabFetch === 'function') {
           _lnTabFetch();
         } else if (typeof _lnTabRender === 'function') {
-          _lnTabRender(); /* re-render cached items into tab panel */
+          _lnTabRender();
         }
         /* Auto-refresh every 5 min while on this tab */
         _lnTabRefreshInterval = setInterval(function () {
@@ -3907,6 +3905,7 @@
       } else if (view === 'port') {
         if (portView) portView.style.display = '';
         if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
+        setTimeout(function(){ if(portMap) portMap.invalidateSize(); }, 120);
         loadPortData(false);
       } else if (view === 'threats-leaks') {
         if (tlView) tlView.style.display = '';

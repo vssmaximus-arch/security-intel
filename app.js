@@ -3883,7 +3883,7 @@ function _lnTabRender() {
     : items.filter(i => (i.category || i.source_category || 'news') === _lnTabFilter);
   if (!filtered.length) {
     feed.innerHTML = '<div class="lnm-empty">' +
-      (items.length ? 'No items for this filter.' : 'Loading global intelligence feed…') + '</div>';
+      (items.length ? 'No items for this filter.' : 'No intelligence data yet — trigger an ingestion via Admin Controls (⚙) or wait for the hourly Worker update.') + '</div>';
     return;
   }
   feed.innerHTML = filtered.map(function(item) {
