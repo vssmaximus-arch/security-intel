@@ -157,10 +157,14 @@ def haversine_km(lat1, lon1, lat2, lon2) -> float:
     c = 2 * asin(sqrt(a))
     return 6371 * c
 
-def _is_security_relevant(article: Dict[str, Any]) -> bool:
+def _article_text(article: Dict[str, Any]) -> str:
+    """Return combined searchable text from an article (handles both 'snippet' and 'summary' field names)."""
     title = article.get("title", "") or ""
-    summary = article.get("summary", "") or ""
-    text = f"{title} {summary}".lower()
+    body = article.get("snippet") or article.get("summary") or ""
+    return f"{title} {body}".lower()
+
+def _is_security_relevant(article: Dict[str, Any]) -> bool:
+    text = _article_text(article)
     if int(article.get("severity", 1)) >= 3:
         return True
     for kw in ALL_SECURITY_TERMS:
@@ -168,14 +172,78 @@ def _is_security_relevant(article: Dict[str, Any]) -> bool:
             return True
     return False
 
+# Country code → common name mapping for text matching
+COUNTRY_NAMES = {
+    "US": ["united states", "usa", "u.s.", "america"],
+    "CA": ["canada", "canadian"],
+    "MX": ["mexico", "mexican"],
+    "BR": ["brazil", "brazil", "são paulo", "sao paulo", "porto alegre"],
+    "CO": ["colombia", "colombian", "bogota", "bogotá"],
+    "CL": ["chile", "chilean", "santiago"],
+    "AR": ["argentina", "buenos aires"],
+    "PA": ["panama"],
+    "IE": ["ireland", "irish", "dublin", "cork", "limerick"],
+    "GB": ["uk", "britain", "england", "scotland", "wales", "london", "glasgow", "bracknell", "brentford"],
+    "FR": ["france", "french", "paris", "montpellier", "bezons"],
+    "DE": ["germany", "german", "frankfurt", "munich", "münchen", "halle"],
+    "NL": ["netherlands", "dutch", "amsterdam"],
+    "PL": ["poland", "polish", "lodz", "łódź"],
+    "DK": ["denmark", "danish", "copenhagen"],
+    "SE": ["sweden", "swedish", "stockholm"],
+    "ES": ["spain", "spanish", "madrid"],
+    "IT": ["italy", "italian", "milan"],
+    "CH": ["switzerland", "swiss", "zurich"],
+    "IL": ["israel", "israeli", "tel aviv", "herzliya", "haifa", "beer sheva", "beer-sheva"],
+    "MA": ["morocco", "moroccan", "casablanca"],
+    "EG": ["egypt", "egyptian", "cairo"],
+    "AE": ["uae", "emirates", "dubai", "abu dhabi"],
+    "IN": ["india", "indian", "bangalore", "bengaluru", "hyderabad", "gurugram", "gurgaon", "sriperumbudur", "chennai"],
+    "SG": ["singapore"],
+    "MY": ["malaysia", "malaysian", "penang", "cyberjaya", "kuala lumpur"],
+    "CN": ["china", "chinese", "xiamen", "chengdu", "shanghai", "beijing"],
+    "TW": ["taiwan", "taipei"],
+    "JP": ["japan", "japanese", "tokyo", "kawasaki", "osaka"],
+    "AU": ["australia", "australian", "sydney", "melbourne"],
+    "KR": ["korea", "korean", "seoul"],
+}
+
+def _location_search_terms(loc: Location) -> List[str]:
+    """Extract city + country terms from a Location for text matching."""
+    terms = []
+    # Extract city from name like "Dell Round Rock HQ (US)" → "round rock"
+    # Strip "Dell " prefix and " (XX)" suffix
+    stripped = re.sub(r'^Dell\s+', '', loc.name, flags=re.IGNORECASE)
+    stripped = re.sub(r'\s*\([A-Z]{2}\)\s*$', '', stripped).strip()
+    # Handle slash-separated cities: "Paris / Bezons" → ["paris", "bezons"]
+    city_parts = [p.strip().lower() for p in re.split(r'[/,]', stripped) if p.strip()]
+    # Remove generic suffixes (HQ, Campus, Hub, Mfg, etc.)
+    for part in city_parts:
+        clean = re.sub(r'\b(hq|campus|hub|mfg|manufacturing|parmer)\b', '', part).strip()
+        if clean and len(clean) > 2:
+            terms.append(clean)
+    # Add country-level terms
+    country_code = loc.country.upper() if loc.country else ""
+    for code, names in COUNTRY_NAMES.items():
+        if code == country_code:
+            terms.extend(names)
+            break
+    return list(set(terms))
+
 def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
     alerts = []
+    seen = set()  # deduplicate on (article_url, site_name)
+
     for article in articles:
-        if int(article.get("severity", 1)) < 2: continue
-        if not _is_security_relevant(article): continue
+        if int(article.get("severity", 1)) < 2:
+            continue
+        if not _is_security_relevant(article):
+            continue
 
         alat, alon = article.get("lat"), article.get("lon")
-        
+        art_time = article.get("time") or article.get("timestamp", "")
+        art_url = article.get("url") or article.get("link", "")
+        art_snippet = article.get("snippet") or article.get("summary", "")
+
         # Exact coordinate match
         if alat is not None and alon is not None:
             try:
@@ -183,13 +251,17 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                 for loc in locations:
                     dist = haversine_km(alat, alon, loc.lat, loc.lon)
                     if dist <= RADIUS_KM:
+                        key = (art_url, loc.name)
+                        if key in seen:
+                            continue
+                        seen.add(key)
                         alerts.append({
                             "article_title": article.get("title"),
                             "article_source": article.get("source"),
-                            "article_timestamp": article.get("timestamp"),
-                            "article_link": article.get("url") or article.get("link"),
+                            "article_timestamp": art_time,
+                            "article_link": art_url,
                             "severity": int(article.get("severity", 1)),
-                            "summary": article.get("summary") or article.get("snippet", ""),
+                            "summary": art_snippet,
                             "site_name": loc.name,
                             "site_country": loc.country,
                             "site_region": loc.region,
@@ -199,19 +271,24 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                         })
             except ValueError:
                 pass
-        
-        # Fallback text match if no coords
+
+        # Fallback: text-based country/city match
         else:
-            text = (article.get("title", "") + " " + article.get("summary", "")).lower()
+            text = _article_text(article)
             for loc in locations:
-                if loc.name.lower() in text:
+                terms = _location_search_terms(loc)
+                if any(term in text for term in terms if len(term) > 2):
+                    key = (art_url, loc.name)
+                    if key in seen:
+                        continue
+                    seen.add(key)
                     alerts.append({
                         "article_title": article.get("title"),
                         "article_source": article.get("source"),
-                        "article_timestamp": article.get("timestamp"),
-                        "article_link": article.get("url") or article.get("link"),
+                        "article_timestamp": art_time,
+                        "article_link": art_url,
                         "severity": int(article.get("severity", 1)),
-                        "summary": article.get("summary") or article.get("snippet", ""),
+                        "summary": art_snippet,
                         "site_name": loc.name,
                         "site_country": loc.country,
                         "site_region": loc.region,
@@ -247,7 +324,13 @@ def simple_text_summary(profile_label, articles):
     if not articles: return f"No major incidents for {profile_label}."
     lines = [f"Daily Briefing: {profile_label}", "-"*30]
     for a in articles[:40]:
-        lines.append(f"[{a.get('severity')}] {a.get('title')} ({a.get('source')})")
+        sev = a.get("severity", 1)
+        title = a.get("title", "")
+        source = a.get("source", "")
+        snippet = a.get("snippet") or a.get("summary", "")
+        lines.append(f"[sev={sev}] {title} ({source})")
+        if snippet:
+            lines.append(f"  {snippet[:120]}")
     return "\n".join(lines)
 
 def render_html_report(label, body, date_obj):
@@ -284,8 +367,13 @@ def main():
     now = datetime.now(timezone.utc)
     
     # We filter only recent articles for reports
+    # news_agent.py writes field "time" (not "timestamp")
     cutoff = now - timedelta(hours=24)
-    recent_articles = [a for a in articles if a.get("timestamp") and a.get("timestamp") > cutoff.isoformat()]
+    cutoff_iso = cutoff.isoformat()
+    recent_articles = [
+        a for a in articles
+        if (a.get("time") or a.get("timestamp", "")) > cutoff_iso
+    ]
 
     for key, cfg in REPORT_PROFILES.items():
         # simple region filter

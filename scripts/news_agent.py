@@ -31,54 +31,168 @@ FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.1-8b-instant"
 GROQ_MAX_TOKENS = 350
-GROQ_CALLS_PER_RUN = 60  # free-tier safe limit
+GROQ_CALLS_PER_RUN = 90  # free-tier safe limit (138 feeds × 8 items each; Groq free tier: ~100 req/min)
 
 # ---------- RSS FEEDS ----------
+# Full 110-source feed list mirrored from Worker.js DETERMINISTIC + ROTATING sources
 FEEDS = [
-    # Global news wires
+    # ── Natural Hazards (deterministic — always fetched) ──────────────────────
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
+    "https://www.gdacs.org/xml/rss.xml",
+    "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
+    "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+    # ── Global Tier-1 News ────────────────────────────────────────────────────
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
-    "https://feeds.reuters.com/reuters/marketsNews",
     "https://feeds.reuters.com/reuters/politicsNews",
-    "https://feeds.reuters.com/reuters/lawNews",
+    "https://feeds.reuters.com/reuters/topNews",
+    "https://apnews.com/apf-worldnews?format=xml",
     "https://apnews.com/apf-news?format=xml",
-    "https://apnews.com/hub/world-news?format=xml",
-    "https://apnews.com/hub/politics?format=xml",
-    "https://www.bbc.co.uk/news/world/rss.xml",
-    "https://www.bbc.co.uk/news/business/rss.xml",
+    "https://www.afp.com/en/news-hub/rss",
+    "https://feeds.bbci.co.uk/news/rss.xml",
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "http://rss.cnn.com/rss/edition.rss",
+    "http://rss.cnn.com/rss/edition_world.rss",
+    "https://www.aljazeera.com/xml/rss/all.xml",
+    "https://www.dw.com/en/top-stories/world/s-1429/rss",
+    "https://www.dw.com/en/top-stories/business/s-1431/rss",
+    "https://www.theguardian.com/world/rss",
+    "https://www.theguardian.com/business/rss",
     "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
     "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
     "https://feeds.washingtonpost.com/rss/world",
-    "https://www.aljazeera.com/xml/rss/all.xml",
-    "https://www.theguardian.com/world/rss",
-    "https://www.theguardian.com/business/rss",
-    "https://www.dw.com/en/top-stories/world/s-1429/rss",
+    "https://feeds.washingtonpost.com/rss/business",
     "https://www.scmp.com/rss/91/feed",
-    # Crisis / conflict
-    "https://www.crisisgroup.org/rss.xml",
-    "https://reliefweb.int/updates/rss.xml",
-    "https://www.globalsecurity.org/military/world/rss.xml",
-    # Supply chain / logistics
+    "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+    # ── Regional Coverage ─────────────────────────────────────────────────────
+    "https://www.france24.com/en/rss",
+    "https://www.euronews.com/rss?level=world",
+    "https://www.arabnews.com/taxonomy/term/1/feed",
+    "https://www.channelnewsasia.com/api/v1/rss-outbound-feed",
+    "https://www.thehindu.com/news/feeder/default.rss",
+    "https://www.hindustantimes.com/rss/topnews/rssfeed.xml",
+    "https://www.japantimes.co.jp/news/feed/",
+    "https://www.koreatimes.co.kr/www/rss/rss.xml",
+    "https://www.africanews.com/feed/xml",
+    "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
+    "https://www.latinnews.com/index.php?format=feed",
+    "https://www.batimes.com.ar/rss-feed",
+    "https://www.abc.net.au/news/feed/51120/rss.xml",
+    "https://www.abc.net.au/news/feed/48480/rss.xml",
+    # ── Supply Chain / Logistics ──────────────────────────────────────────────
     "https://www.freightwaves.com/feed",
+    "https://www.joc.com/rss.xml",
     "https://www.supplychaindive.com/feeds/news/",
     "https://gcaptain.com/feed/",
     "https://theloadstar.com/feed/",
+    "https://splash247.com/feed/",
+    "https://www.porttechnology.org/feed/",
     "https://www.maritime-executive.com/rss",
-    # Natural hazards / emergency
-    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.atom",
-    "https://www.gdacs.org/xml/rss.xml",
-    # Travel advisories
+    "https://www.maritimebulletin.net/feed/",
+    "https://www.portoflosangeles.org/rss/news",
+    "https://www.portofantwerpbruges.com/en/news/rss",
+    "https://www.mpa.gov.sg/web/rss/rss.xml",
+    "https://www.iata.org/en/pressroom/news-releases/rss/",
+    "https://www.aircargonews.net/feed/",
+    # ── Government / Employee Safety / Travel ─────────────────────────────────
     "https://travel.state.gov/_res/rss/TAs.xml",
     "https://www.gov.uk/foreign-travel-advice.rss",
-    # Cyber security
-    "https://www.cisa.gov/cybersecurity-advisories/all.xml",
+    "https://www.fbi.gov/feeds/fbi-top-stories/rss.xml",
+    "https://www.fbi.gov/feeds/national-press-releases/rss.xml",
+    "https://www.europol.europa.eu/media-press/rss.xml",
+    "https://www.abf.gov.au/_layouts/15/AppPages/Rss.aspx?site=newsroom",
+    "https://www.publicsafety.gc.ca/cnt/ntnl-scrt/rss-en.aspx",
+    "https://www.civildefence.govt.nz/rss-feed",
+    # ── CISA / Cybersecurity Gov ──────────────────────────────────────────────
+    "https://www.cisa.gov/news.xml",
+    "https://www.cisa.gov/ics/xml",
+    "https://www.cisa.gov/cybersecurity-advisories.xml",
+    # ── Cybersecurity Industry ────────────────────────────────────────────────
+    "https://www.darkreading.com/rss_simple.asp",
     "https://feeds.feedburner.com/TheHackersNews",
     "https://www.bleepingcomputer.com/feed/",
-    # Regional
-    "https://www.abc.net.au/news/feed/51120/rss.xml",
-    "https://www.channelnewsasia.com/rss-feeds/8395838",
-    "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms",
-    "https://www.japantimes.co.jp/feed/",
+    "https://www.csoonline.com/index.rss",
+    "https://www.scmagazine.com/home/feed/",
+    "https://msrc.microsoft.com/blog/feed",
+    "https://www.crowdstrike.com/blog/feed/",
+    "https://www.cloudflare.com/rss/",
+    "https://www.mandiant.com/resources/rss.xml",
+    "https://www.okta.com/blog/index.xml",
+    "https://blog.talosintelligence.com/feed/",
+    # ── Humanitarian / Crisis / OSINT ─────────────────────────────────────────
+    "https://reliefweb.int/updates/rss.xml",
+    "https://www.ifrc.org/feeds/all.xml",
+    "https://www.globalsecurity.org/military/world/rss.xml",
+    "https://www.crisisgroup.org/rss.xml",
+    # ── UN & International Organizations ─────────────────────────────────────
+    "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
+    "https://www.nato.int/cps/en/natolive/news.rss",
+    "https://www.who.int/rss-feeds/news-english.xml",
+    "https://www.icrc.org/en/rss-feed",
+    "https://www.unicef.org/press-releases/rss",
+    # ── Additional Regional / International ───────────────────────────────────
+    "https://www3.nhk.or.jp/nhkworld/en/news/feeds/",
+    "https://www.middleeasteye.net/rss",
+    "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+    "https://tass.com/rss/v2.xml",
+    "https://en.mercopress.com/rss",
+    # ── Security / Intelligence Think Tanks ───────────────────────────────────
+    "https://www.cfr.org/rss.xml",
+    "https://www.chathamhouse.org/rss-feeds/all",
+    "https://www.sipri.org/rss.xml",
+    "https://www.rand.org/tools/rss.xml",
+    "https://acleddata.com/feed/",
+    # ── US Government Security & Alerts ──────────────────────────────────────
+    "https://www.state.gov/press-releases/rss/",
+    "https://www.dhs.gov/news-releases.xml",
+    "https://www.cbp.gov/newsroom/rss/",
+    # ── Additional Cybersecurity ──────────────────────────────────────────────
+    "https://krebsonsecurity.com/feed/",
+    "https://feeds.feedburner.com/securityweek",
+    "https://www.infosecurity-magazine.com/rss/news/",
+    "https://isc.sans.edu/rssfeed.xml",
+    "https://unit42.paloaltonetworks.com/feed/",
+    "https://www.welivesecurity.com/feed/",
+    "https://securelist.com/feed/",
+    "https://nakedsecurity.sophos.com/feed/",
+    "https://blog.rapid7.com/rss/",
+    # ── Natural Hazards / Emergency Management ────────────────────────────────
+    "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
+    "https://www.fema.gov/rss/disaster_declarations.rss",
+    # ── OSINT / Cyber Threat Intelligence ────────────────────────────────────
+    "https://www.ransomware.live/rss.xml",
+    "https://www.schneier.com/feed/",
+    "https://www.bellingcat.com/feed/",
+    "https://www.zdnet.com/news/rss.xml",
+    # ── Government / Security (additional) ───────────────────────────────────
+    "https://www.gov.uk/government/organisations/ministry-of-defence.atom",
+    "https://www.iaea.org/feeds/topnews",
+    # ── Security Think Tanks (additional) ────────────────────────────────────
+    "https://www.nti.org/rss/",
+    "https://jamestown.org/feed/",
+    "https://carnegieendowment.org/rss/",
+    "https://www.stimson.org/feed/",
+    "https://www.brookings.edu/feed/",
+    "https://www.fpri.org/feed/",
+    "https://responsiblestatecraft.org/feed/",
+    # ── Regional News (coverage gaps) ────────────────────────────────────────
+    "https://meduza.io/rss/all",
+    "https://www.themoscowtimes.com/rss/news",
+    "https://novayagazeta.eu/feed/rss",
+    "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+    "https://japantoday.com/feed/atom",
+    "https://www.bangkokpost.com/rss",
+    "https://vnexpress.net/rss",
+    "https://www.theguardian.com/australia-news/rss",
+    "https://dailytrust.com/feed/",
+    "https://www.channelstv.com/feed/",
+    "https://www.spiegel.de/schlagzeilen/tops/index.rss",
+    # ── Aviation ─────────────────────────────────────────────────────────────
+    "https://avherald.com/h?subscribe=rss",
+    "https://simpleflying.com/feed/",
+    "https://www.aerotelegraph.com/feed",
+    "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
 ]
 
 # ---------- BLOCKLIST ----------
