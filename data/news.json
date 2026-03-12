@@ -4,8 +4,38 @@
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event.",
     "source": "nytimes.com",
-    "time": "2026-03-11T23:55:40+00:00",
+    "time": "2026-03-12T01:32:09+00:00",
     "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Pentagon Bars Photographers From Briefings on Iran War",
+    "url": "https://www.nytimes.com/2026/03/11/business/media/pentagon-bars-photographers-from-briefings-on-iran-war.html",
+    "snippet": "Physical security event.",
+    "source": "nytimes.com",
+    "time": "2026-03-12T00:38:29+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Qatar PM urges resilience and unity amid Iran strikes",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/12/qatar-pm-urges-resilience-and-unity-amid-iran-strikes?traffic_source=rss",
+    "snippet": "Physical security event.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T00:35:43+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Iran war live: Oil tankers hit in Iraq, Tehran sets 3 conditions for peace",
+    "url": "https://www.aljazeera.com/news/liveblog/2026/3/12/iran-war-live-oil-tankers-hit-in-iraq-tehran-sets-3-conditions-for-peace?traffic_source=rss",
+    "snippet": "Physical security event.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T00:00:00+00:00",
+    "region": "Global",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -20,32 +50,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Nations agree to release oil reserves as war in Iran hits global economy",
-    "url": "https://www.washingtonpost.com/world/2026/03/11/strait-hormuz-cargo-ships-iran/",
-    "snippet": "Physical security event.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-11T17:55:26+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "'Even under missiles we carry on living' - how young Iranians are coping with war",
     "url": "https://www.bbc.com/news/articles/c1mj1pyrzryo?at_medium=RSS&at_campaign=rss",
     "snippet": "Physical security event.",
     "source": "bbc.com",
     "time": "2026-03-11T16:00:34+00:00",
     "region": "EMEA",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "French aid worker among three killed in drone strikes in rebel-held DR Congo city",
-    "url": "https://www.bbc.com/news/articles/cvgj8veg0gno?at_medium=RSS&at_campaign=rss",
-    "snippet": "Physical security event.",
-    "source": "bbc.com",
-    "time": "2026-03-11T15:24:57+00:00",
-    "region": "Global",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -110,41 +120,21 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "After Iran assault, Russians say U.S. can’t be trusted in Ukraine talks",
-    "url": "https://www.washingtonpost.com/world/2026/03/11/russia-ukraine-iran-trump-negotiations-trust/",
+    "title": "Video shows moment of deadly explosion at cafe in Russia",
+    "url": "https://www.cnn.com/videos/world/2023/04/02/russian-military-blogger-vladlen-tatarsky-killed-cafe-explosion-chance-vpx.cnn",
     "snippet": "Physical security event.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-11T10:00:22+00:00",
+    "source": "cnn.com",
+    "time": "2023-04-04T01:08:44+00:00",
     "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "UAE, an oasis for business and partying, faces war",
-    "url": "https://www.washingtonpost.com/world/2026/03/10/dubai-gulf-iran-war-strikes/",
-    "snippet": "Physical security event.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-11T02:23:01+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Pentagon says about 140 troops wounded, 8 severely, in war with Iran",
-    "url": "https://www.washingtonpost.com/national-security/2026/03/10/us-troops-wounded-iran-war/",
-    "snippet": "Physical security event.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-10T22:50:11+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Noma Faces Los Angeles Protest Over Allegations of Past Abuse by Its Chef",
+    "title": "Noma Faces Los Angeles Protest Over Allegations of Past Abuse by Its Founder",
     "url": "https://www.nytimes.com/2026/03/11/dining/noma-protests.html",
     "snippet": "Physical security event.",
     "source": "nytimes.com",
-    "time": "2026-03-11T23:59:24+00:00",
+    "time": "2026-03-12T01:26:21+00:00",
     "region": "Global",
     "severity": 2,
     "type": "PHYSICAL SECURITY"
@@ -154,10 +144,20 @@
     "url": "https://www.nytimes.com/2026/03/11/world/middleeast/oil-ships-lebanon-iran-israel.html",
     "snippet": "Supply chain or logistics disruption.",
     "source": "nytimes.com",
-    "time": "2026-03-11T23:31:57+00:00",
+    "time": "2026-03-12T00:54:04+00:00",
     "region": "Global",
     "severity": 2,
     "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "What role has cyber warfare played in Iran?",
+    "url": "https://www.bbc.com/news/articles/c5yr0576ygvo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Cybersecurity incident detected.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:02:46+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY"
   },
   {
     "title": "China’s Military Has Quietly Cut Flying Near Taiwan",
@@ -190,52 +190,12 @@
     "type": "SUPPLY CHAIN"
   },
   {
-    "title": "How Trump has addressed the deadly Iran school bombing",
-    "url": "https://www.aljazeera.com/news/2026/3/11/how-trump-has-addressed-the-deadly-iran-school-bombing?traffic_source=rss",
-    "snippet": "Supply chain or logistics disruption.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T21:55:51+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "SUPPLY CHAIN"
-  },
-  {
-    "title": "Iranian school was on U.S. target list, may have been mistaken as military site",
-    "url": "https://www.washingtonpost.com/national-security/2026/03/11/us-strike-iran-elementary-school-ai-target-list/",
-    "snippet": "Supply chain or logistics disruption.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-11T21:48:20+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "SUPPLY CHAIN"
-  },
-  {
-    "title": "Aid worker killed in drone strike on building used by Congo relief staff",
-    "url": "https://www.washingtonpost.com/world/2026/03/11/congo-drc-drone-strike-french-aid-worker-unicef/",
-    "snippet": "Supply chain or logistics disruption.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-11T21:11:25+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "SUPPLY CHAIN"
-  },
-  {
     "title": "At least 17 killed after drone strikes school in Sudan",
     "url": "https://www.theguardian.com/world/2026/mar/11/at-least-17-killed-after-drone-strikes-school-in-sudan",
     "snippet": "Supply chain or logistics disruption.",
     "source": "theguardian.com",
     "time": "2026-03-11T19:08:31+00:00",
     "region": "EMEA",
-    "severity": 2,
-    "type": "SUPPLY CHAIN"
-  },
-  {
-    "title": "At Least 3 Ships Are Struck Around Strait of Hormuz, and Iran Claims One",
-    "url": "https://www.nytimes.com/2026/03/11/world/middleeast/ships-attack-strait-hormuz-iran.html",
-    "snippet": "Supply chain or logistics disruption.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T17:03:49+00:00",
-    "region": "Global",
     "severity": 2,
     "type": "SUPPLY CHAIN"
   },
@@ -280,24 +240,24 @@
     "type": "SUPPLY CHAIN"
   },
   {
-    "title": "Iran war cost will be passed to consumers, shipping giant boss tells BBC",
-    "url": "https://www.bbc.com/news/articles/c5ykzyd0rkyo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Supply chain or logistics disruption.",
-    "source": "bbc.com",
-    "time": "2026-03-11T08:38:27+00:00",
-    "region": "EMEA",
+    "title": "Green earthquake (Magnitude 5.5M, Depth:10km) in South Of Kermadec Islands 11/03/2026 07:40 UTC, [unknown].",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528465",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-11T07:59:32+00:00",
+    "region": "Global",
     "severity": 2,
-    "type": "SUPPLY CHAIN"
+    "type": "CRISIS / WEATHER"
   },
   {
-    "title": "As Israel targets Iran, Gaza’s nascent recovery stalls and Hamas gains strength",
-    "url": "https://www.washingtonpost.com/world/2026/03/11/gaza-iran-war-israel-trump/",
-    "snippet": "Physical security event.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-11T08:30:55+00:00",
-    "region": "EMEA",
+    "title": "Green notification for tropical cyclone NURI-26. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (9761 in Tropical Storm).",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001263",
+    "snippet": "Cybersecurity incident detected.",
+    "source": "gdacs.org",
+    "time": "2026-03-11T02:35:33+00:00",
+    "region": "Global",
     "severity": 2,
-    "type": "PHYSICAL SECURITY"
+    "type": "CYBER SECURITY"
   },
   {
     "title": "Aramco warns of oil market ‘catastrophe’ unless strait of Hormuz reopens soon",
@@ -310,21 +270,211 @@
     "type": "SUPPLY CHAIN"
   },
   {
-    "title": "New files show British PM warned of ‘reputational risks’ with Mandelson",
-    "url": "https://www.aljazeera.com/news/2026/3/11/new-files-show-british-pm-warned-of-reputational-risks-with-mandelson?traffic_source=rss",
+    "title": "Green earthquake (Magnitude 6M, Depth:381.687km) in Italy 09/03/2026 23:03 UTC, 1.7 million in MMI III.",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528284",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-09T23:22:32+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.9M, Depth:140.617km) in Japan 09/03/2026 15:45 UTC, 2.7 million in MMI IV.",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528231",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-09T16:04:18+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.9M, Depth:16km) in Russia 08/03/2026 17:08 UTC, 250 thousand in MMI>=III.",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528058",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-08T17:30:13+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.7M, Depth:16km) in Japan 08/03/2026 13:17 UTC, 10 thousand in MMI IV.",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528022",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-08T13:32:12+00:00",
+    "region": "APJC",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.9M, Depth:134km) in Tonga 08/03/2026 09:28 UTC, 2 thousand in MMI>=III.",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1527996",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-08T09:36:19+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Green earthquake (Magnitude 5.5M, Depth:10km) in Greece 08/03/2026 03:32 UTC, 2 thousand (in MMI>=VII).",
+    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1527959",
+    "snippet": "Natural disaster or emergency.",
+    "source": "gdacs.org",
+    "time": "2026-03-08T03:51:39+00:00",
+    "region": "AMER",
+    "severity": 2,
+    "type": "CRISIS / WEATHER"
+  },
+  {
+    "title": "Suspected Chinese spy balloon was able to transmit information back to Beijing",
+    "url": "https://www.cnn.com/2023/04/03/politics/chinese-spy-balloon/index.html",
+    "snippet": "Physical security event.",
+    "source": "cnn.com",
+    "time": "2023-04-03T13:38:22+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Russian authorities detain suspect over St. Petersburg cafe blast",
+    "url": "https://edition.cnn.com/webview/europe/live-news/russia-ukraine-war-news-04-03-23/index.html",
     "snippet": "Keyword heuristic — low confidence.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T23:14:25+00:00",
+    "source": "edition.cnn.com",
+    "time": "2026-03-12T01:39:48.769270+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "READ: Trump indictment related to hush money payment",
+    "url": "https://cnn.it/411KYN7",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.it",
+    "time": "2026-03-12T01:39:48.695113+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "World Leaders Will Release 400 Million Barrels of Oil to Stabilize Prices",
-    "url": "https://www.nytimes.com/2026/03/11/business/energy-environment/iran-oil-reserves-release.html",
+    "title": "Trump pleads not guilty to 34 felony counts",
+    "url": "https://edition.cnn.com/webview/politics/live-news/trump-indictment-stormy-daniels-news-04-03-23/index.html",
     "snippet": "Keyword heuristic — low confidence.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T23:14:21+00:00",
+    "source": "edition.cnn.com",
+    "time": "2026-03-12T01:39:48.478760+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 5.0 - 106 km ESE of Hihifo, Tonga",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3mn",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:38.161172+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 4.8 - 5 km SSW of Moyogalpa, Nicaragua",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3n2",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:38.086178+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 5.2 - south of the Kermadec Islands",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3qe",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:38.020232+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 5.1 - south of the Kermadec Islands",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfnu",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:37.940819+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 5.0 - south of the Kermadec Islands",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfpd",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:37.858815+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 4.6 - Fiji region",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfpg",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:37.792915+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 4.5 - 167 km E of Petropavlovsk-Kamchatsky, Russia",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfps",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:37.733963+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 4.9 - 38 km ENE of Aras-asan, Philippines",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfq8",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T01:39:37.670570+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "US launches probe into trading partners including EU, China and India",
+    "url": "https://www.bbc.com/news/articles/c15x1dxp3wpo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T01:14:31+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Wind warnings issued as colder weather and mountain snow head south",
+    "url": "https://www.bbc.com/weather/articles/cz9q7y44ep4o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:41:04+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Kanye West ordered to pay $140K in Malibu mansion renovation lawsuit",
+    "url": "https://www.bbc.com/news/articles/c62g90w8dkko?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:27:10+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -334,8 +484,98 @@
     "url": "https://www.nytimes.com/2026/03/11/business/economy/trump-trade-investigations-tariffs.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "nytimes.com",
-    "time": "2026-03-11T23:14:10+00:00",
+    "time": "2026-03-12T00:21:50+00:00",
     "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Epstein used modelling agent to recruit girls, Brazilian women tell BBC",
+    "url": "https://www.bbc.com/news/articles/cr4576v66kno?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:05:52+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Eight Arab, Islamic countries condemn Israeli closure of Al-Aqsa Mosque",
+    "url": "https://www.aljazeera.com/news/2026/3/12/eight-arab-islamic-countries-condemn-israeli-closure-of-al-aqsa-mosque?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T00:04:37+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Inquiry into student loans launched by MPs",
+    "url": "https://www.bbc.com/news/articles/cdxg70rr2geo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:03:21+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "A small US grocer is calling out the lower prices at big chains",
+    "url": "https://www.bbc.com/news/articles/cr57g1ddqmdo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:02:54+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Hundreds of GPs tell BBC they have never refused a sick note over mental health concerns",
+    "url": "https://www.bbc.com/news/articles/c20lew24kngo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:01:53+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Social media firms asked to toughen up age checks for under-13s",
+    "url": "https://www.bbc.com/news/articles/cn48n18pg1eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T00:01:42+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "‘Proud as a Qatari’: Country’s PM salutes resilience amid Iranian attacks",
+    "url": "https://www.aljazeera.com/news/2026/3/11/proud-as-a-qatari-countrys-pm-salutes-resilience-amid-iranian-attacks?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T23:56:57+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Chris Mason: Some nuggets but no huge revelations in first batch of Mandelson files",
+    "url": "https://www.bbc.com/news/articles/c627x7g2l4vo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-11T23:54:45+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "New files show British PM warned of ‘reputational risks’ with Mandelson",
+    "url": "https://www.aljazeera.com/news/2026/3/11/new-files-show-british-pm-warned-of-reputational-risks-with-mandelson?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "aljazeera.com",
+    "time": "2026-03-11T23:14:25+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -370,36 +610,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Iran-linked hackers hit medical giant Stryker in retaliatory cyberattack",
-    "url": "https://www.aljazeera.com/news/2026/3/11/iran-linked-hackers-hit-medical-giant-stryker-in-retaliatory-cyberattack?traffic_source=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T22:32:40+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "New US ambassador to South Africa summoned over 'undiplomatic remarks'",
-    "url": "https://www.bbc.com/news/articles/c14m1vzmxz3o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T21:30:16+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "UN Security Council adopts Gulf countries’ draft resolution",
-    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/11/un-security-council-adopts-gulf-countries-draft-resolution-2?traffic_source=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T21:11:05+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Starmer Was Warned About Risk of Appointing Friend of Epstein As Ambassador",
     "url": "https://www.nytimes.com/live/2026/03/11/world/mandelson-files-epstein-uk",
     "snippet": "Keyword heuristic — low confidence.",
@@ -424,7 +634,17 @@
     "url": "https://www.nytimes.com/2026/03/11/world/americas/us-alex-saab-extradition-maduro-ally.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "nytimes.com",
-    "time": "2026-03-11T18:35:07+00:00",
+    "time": "2026-03-11T18:35:08+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Starmer was warned of 'reputational risk' over Mandelson's links with Epstein, files show",
+    "url": "https://www.bbc.com/news/articles/cd70lgywgqqo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-11T18:30:20+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -435,16 +655,6 @@
     "snippet": "Keyword heuristic — low confidence.",
     "source": "bbc.com",
     "time": "2026-03-11T18:28:46+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Consumer prices stayed subdued in February.",
-    "url": "https://www.nytimes.com/live/2026/03/11/business/inflation-report-cpi/consumer-prices-stayed-subdued-in-february",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T17:54:40+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -520,26 +730,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "The Aldi-style disruptors who could be about to shake up the vets market",
-    "url": "https://www.bbc.com/news/articles/cj6dw3r09x0o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T10:49:39+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Wildlife to replace historical figures on banknotes - and you get a say",
-    "url": "https://www.bbc.com/news/articles/c4geyyg9en6o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T10:36:33+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "José Antonio Kast, the Pinochet fan about to swerve Chile to the far right",
     "url": "https://www.theguardian.com/world/2026/mar/11/jose-antonio-kast-pinochet-fan-chile-far-right",
     "snippet": "Keyword heuristic — low confidence.",
@@ -580,21 +770,131 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "'Icky and heartbreaking': The $2 per hour worker behind the OnlyFans boom",
-    "url": "https://www.bbc.com/news/articles/cq571g9gd4lo?at_medium=RSS&at_campaign=rss",
+    "title": "Live Nation reaches surprise settlement with justice department in antitrust case",
+    "url": "https://www.theguardian.com/business/2026/mar/09/live-nation-settlement-antitrust-case",
     "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T00:00:50+00:00",
-    "region": "APJC",
+    "source": "theguardian.com",
+    "time": "2026-03-09T15:01:58+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Two men fire gun toward U.S. Consulate in Toronto, police say",
-    "url": "https://www.washingtonpost.com/world/2026/03/10/canada-shots-consulate-american-us-embassy/",
+    "title": "Top US banks weigh suing federal regulator over crypto banking rules",
+    "url": "https://www.theguardian.com/business/2026/mar/09/bank-policy-institute-regulator-lawsuit",
     "snippet": "Keyword heuristic — low confidence.",
-    "source": "washingtonpost.com",
-    "time": "2026-03-10T20:35:12+00:00",
+    "source": "theguardian.com",
+    "time": "2026-03-09T11:00:47+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Still haven't filed your taxes? Here's what you need to know",
+    "url": "https://www.cnn.com/2023/04/13/success/tax-filing-tips/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-14T20:07:40+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Markets digest bank earnings after recent turmoil",
+    "url": "https://www.cnn.com/business/live-news/stock-market-bank-earnings/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-14T20:00:28+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Retail spending fell in March as consumers pull back",
+    "url": "https://www.cnn.com/2023/04/14/economy/march-retail-sales/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-14T14:29:52+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Analysis: Fox News is about to enter the true No Spin Zone",
+    "url": "https://www.cnn.com/2023/04/14/media/fox-news-dominion-hnk-intl/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-14T06:41:00+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Silicon Valley Bank collapse renews calls to address disparities impacting entrepreneurs of color",
+    "url": "https://www.cnn.com/2023/04/13/business/silicon-valley-bank-entrepreneurs-of-color-reaj/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-13T21:13:04+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "What to know about the Trump indictment on the eve of his court appearance",
+    "url": "https://www.cnn.com/collections/intl-trump-040223/",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-05T22:50:06+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Haberman reveals why Trump attacked judge and his family in speech",
+    "url": "https://www.cnn.com/videos/politics/2023/04/05/maggie-haberman-donald-trump-speech-indictment-reaction-sot-cnntm-vpx.cnn",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-05T13:30:09+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Wall Street Journal reporter Evan Gershkovich appeals against arrest, Russian state media says",
+    "url": "https://www.cnn.com/collections/intl-ukraine-030423/",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2023-04-03T13:58:58+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "These were the best and worst places for air quality in 2021, new report shows",
+    "url": "https://www.cnn.com/2022/03/22/world/air-pollution-2021-iqair-report-climate/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2022-03-22T16:43:47+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Not only is Lake Powell's water level plummeting because of drought, its total capacity is shrinking, too",
+    "url": "https://www.cnn.com/2022/03/21/us/lake-powell-capacity-shrinking-drought-climate/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2022-03-21T19:54:24+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Big-box stores could help slash emissions and save millions by putting solar panels on roofs. Why aren't more of them doing it?",
+    "url": "https://www.cnn.com/2022/03/20/us/solar-power-on-big-box-store-rooftops-climate/index.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "cnn.com",
+    "time": "2022-03-20T07:01:50+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
