@@ -797,7 +797,7 @@ async function loadFromWorker(silent=false) {
     // If Worker KV is empty, fall back to news.json (real classified news from GitHub Actions)
     if (freshList.length === 0) {
       try {
-        const newsRes = await fetch('/public/data/news.json');
+        const newsRes = await fetch('public/data/news.json');
         const newsJson = await newsRes.json();
         if (Array.isArray(newsJson) && newsJson.length > 0) {
           freshList = newsJson
@@ -2630,7 +2630,7 @@ function connectSSE() {
       }
       // If Worker stream delivers empty, fall back to news.json
       if (fresh.length === 0) {
-        fetch('/public/data/news.json').then(r => r.json()).then(newsJson => {
+        fetch('public/data/news.json').then(r => r.json()).then(newsJson => {
           if (!Array.isArray(newsJson) || newsJson.length === 0) return;
           INCIDENTS = newsJson.filter(item => item && item.title).map(item => {
             const rawType = String(item.type || item.category || 'UNKNOWN').toUpperCase();
