@@ -882,6 +882,12 @@ async function loadProximityFromWorker(silent=false) {
       if (label) label.textContent = 'LIVE \u2022 ' + INCIDENTS.length + ' ITEMS';
       refreshHeatLayerIfEnabled();
       if (window._tickerUpdateAlerts) window._tickerUpdateAlerts();
+      // Re-render the incident list so "No incidents" message is replaced
+      try {
+        const active = document.querySelector('.nav-item-custom.active');
+        const region = active ? active.textContent.trim() : 'Global';
+        if (typeof filterNews === 'function') filterNews(region);
+      } catch(_) {}
       console.warn('[FEED] Stream backfilled with', INCIDENTS.length, 'proximity items (Worker KV empty)');
     }
   } catch(e) {
