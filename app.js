@@ -793,7 +793,7 @@ async function loadFromWorker(silent=false) {
 
     const cleanList = list.filter(Boolean).filter(i => !DISLIKED_IDS.has(String(i.id)));
 
-    // Try 72h window first; fall back to 7d, then all, then proximity data
+    // Try 72h window; fall back to 7d if empty (prevents blackout when ingestion lagged)
     let freshList = cleanList.filter(i => {
       try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs72h; } catch { return false; }
     });
@@ -802,11 +802,6 @@ async function loadFromWorker(silent=false) {
         try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs7d; } catch { return false; }
       });
       if (freshList.length === 0) freshList = cleanList;
-    }
-    // Last resort: if Worker KV is truly empty, show proximity incidents so stream is never blank
-    if (freshList.length === 0 && Array.isArray(PROXIMITY_INCIDENTS) && PROXIMITY_INCIDENTS.length > 0) {
-      freshList = PROXIMITY_INCIDENTS.slice();
-      console.warn('[FEED] Worker KV empty — stream using proximity data as fallback');
     }
     INCIDENTS = freshList;
 
@@ -873,23 +868,6 @@ async function loadProximityFromWorker(silent=false) {
       } catch(fe) { if (!silent) console.warn('[Proximity] static fallback failed:', fe?.message); }
     }
     if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
-    // If main incidents feed is empty (Worker KV empty), backfill stream with proximity data
-    if (INCIDENTS.length === 0 && PROXIMITY_INCIDENTS.length > 0) {
-      INCIDENTS = PROXIMITY_INCIDENTS.slice();
-      INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
-      FEED_IS_LIVE = true;
-      const label = document.getElementById('feed-status-label');
-      if (label) label.textContent = 'LIVE \u2022 ' + INCIDENTS.length + ' ITEMS';
-      refreshHeatLayerIfEnabled();
-      if (window._tickerUpdateAlerts) window._tickerUpdateAlerts();
-      // Re-render the incident list so "No incidents" message is replaced
-      try {
-        const active = document.querySelector('.nav-item-custom.active');
-        const region = active ? active.textContent.trim() : 'Global';
-        if (typeof filterNews === 'function') filterNews(region);
-      } catch(_) {}
-      console.warn('[FEED] Stream backfilled with', INCIDENTS.length, 'proximity items (Worker KV empty)');
-    }
   } catch(e) {
     console.error('loadProximityFromWorker failed', e);
     PROXIMITY_INCIDENTS = [];
@@ -2661,14 +2639,8 @@ function connectSSE() {
         fresh = cleanRaw.filter(i => { try { return new Date(i.time).getTime() >= cutoff7d; } catch { return false; } });
         if (fresh.length === 0) fresh = cleanRaw;
       }
-      // If Worker KV is empty, keep existing data (proximity fallback) rather than wiping to 0
-      if (fresh.length > 0) {
-        INCIDENTS = fresh;
-        INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
-      } else if (INCIDENTS.length === 0 && Array.isArray(PROXIMITY_INCIDENTS) && PROXIMITY_INCIDENTS.length > 0) {
-        INCIDENTS = PROXIMITY_INCIDENTS.slice();
-        INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
-      }
+      INCIDENTS = fresh;
+      INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
       FEED_IS_LIVE = true;
       refreshHeatLayerIfEnabled();
       _lastSSEDataMs = Date.now(); // record last successful data receipt
