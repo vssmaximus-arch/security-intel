@@ -2010,7 +2010,7 @@ async function adminTriggerIngest() {
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
   adminSetFeedback('Triggering ingestion…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
+    const res = await fetch(`${WORKER_URL}/api/admin/ingest`, { method:'POST', headers:{ 'secret': sec } });
     const txt = await res.text().catch(()=>'');
     if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
     adminSetFeedback(txt || 'Ingestion triggered.');
