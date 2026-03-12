@@ -756,7 +756,8 @@ async function loadFromWorker(silent=false) {
   const label = document.getElementById("feed-status-label");
   if (label && !silent) label.textContent = "Refreshing\u2026";
   try {
-    const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
+    const cutoffMs72h = Date.now() - (72 * 3600 * 1000);
+    const cutoffMs7d  = Date.now() - (7 * 24 * 3600 * 1000);
     let list;
 
     if (AI_ENABLED) {
@@ -780,17 +781,62 @@ async function loadFromWorker(silent=false) {
       list = (Array.isArray(raw) ? raw : []).map(normaliseWorkerIncident);
     }
 
-    INCIDENTS = list
-      .filter(Boolean)
-      .filter(i => {
-        try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
-      })
-      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
+    const cleanList = list.filter(Boolean).filter(i => !DISLIKED_IDS.has(String(i.id)));
 
+    // Cascading time window: 72h → 7d → all (handles stale but valid KV data)
+    let freshList = cleanList.filter(i => {
+      try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs72h; } catch { return false; }
+    });
+    if (freshList.length === 0 && cleanList.length > 0) {
+      freshList = cleanList.filter(i => {
+        try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs7d; } catch { return false; }
+      });
+      if (freshList.length === 0) freshList = cleanList;
+    }
+
+    // If Worker KV is empty, fall back to news.json (real classified news from GitHub Actions)
+    if (freshList.length === 0) {
+      try {
+        const newsRes = await fetch('/public/data/news.json');
+        const newsJson = await newsRes.json();
+        if (Array.isArray(newsJson) && newsJson.length > 0) {
+          freshList = newsJson
+            .filter(item => item && item.title)
+            .map(item => {
+              const rawType = String(item.type || item.category || 'UNKNOWN').toUpperCase();
+              let cat = 'SECURITY';
+              if (rawType.includes('CYBER')) cat = 'CYBER';
+              else if (rawType.includes('NATURAL') || rawType.includes('ENVIRON')) cat = 'NATURAL';
+              else if (rawType.includes('SUPPLY') || rawType.includes('LOGISTIC') || rawType.includes('TRANSPORT')) cat = 'TRANSPORT';
+              else if (rawType.includes('HEALTH') || rawType.includes('PANDEMIC')) cat = 'HEALTH';
+              const sev = Math.min(5, Math.max(1, Number(item.severity) || 3));
+              return {
+                id: item.url || item.title,
+                title: String(item.title).trim(),
+                summary: String(item.snippet || item.body || '').slice(0, 300),
+                category: cat,
+                severity: sev,
+                severity_label: sev >= 5 ? 'CRITICAL' : sev >= 4 ? 'HIGH' : sev === 3 ? 'MEDIUM' : 'LOW',
+                region: item.region || 'Global',
+                country: 'GLOBAL',
+                location: 'UNKNOWN',
+                link: item.url || '#',
+                source: item.source || '',
+                time: item.time || new Date().toISOString(),
+                lat: 0, lng: 0,
+              };
+            })
+            .filter(i => !DISLIKED_IDS.has(String(i.id)));
+          console.log('[Fallback] Loaded', freshList.length, 'items from news.json');
+        }
+      } catch (_) {}
+    }
+
+    INCIDENTS = freshList;
     if (!AI_ENABLED) INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
     FEED_IS_LIVE = true;
     refreshHeatLayerIfEnabled();
-    if (label) label.textContent = `${AI_ENABLED ? 'AI \u2022' : 'LIVE \u2022'} ${INCIDENTS.length} ITEMS`;
+    if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
   } catch (e) {
     console.error("Worker fetch failed:", e);
     FEED_IS_LIVE = false;
@@ -2572,11 +2618,46 @@ function connectSSE() {
   es.addEventListener('incidents', (ev) => {
     try {
       const raw = JSON.parse(ev.data);
-      const cutoffMs = Date.now() - 72 * 3600 * 1000;
-      INCIDENTS = (Array.isArray(raw) ? raw : [])
+      const cutoff72h = Date.now() - 72 * 3600 * 1000;
+      const cutoff7d  = Date.now() - 7 * 24 * 3600 * 1000;
+      const cleanRaw = (Array.isArray(raw) ? raw : [])
         .map(normaliseWorkerIncident).filter(Boolean)
-        .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
-        .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
+        .filter(i => !DISLIKED_IDS.has(String(i.id)));
+      let fresh = cleanRaw.filter(i => { try { return new Date(i.time).getTime() >= cutoff72h; } catch { return false; } });
+      if (fresh.length === 0 && cleanRaw.length > 0) {
+        fresh = cleanRaw.filter(i => { try { return new Date(i.time).getTime() >= cutoff7d; } catch { return false; } });
+        if (fresh.length === 0) fresh = cleanRaw;
+      }
+      // If Worker stream delivers empty, fall back to news.json
+      if (fresh.length === 0) {
+        fetch('/public/data/news.json').then(r => r.json()).then(newsJson => {
+          if (!Array.isArray(newsJson) || newsJson.length === 0) return;
+          INCIDENTS = newsJson.filter(item => item && item.title).map(item => {
+            const rawType = String(item.type || item.category || 'UNKNOWN').toUpperCase();
+            let cat = 'SECURITY';
+            if (rawType.includes('CYBER')) cat = 'CYBER';
+            else if (rawType.includes('NATURAL') || rawType.includes('ENVIRON')) cat = 'NATURAL';
+            else if (rawType.includes('SUPPLY') || rawType.includes('TRANSPORT')) cat = 'TRANSPORT';
+            else if (rawType.includes('HEALTH')) cat = 'HEALTH';
+            const sev = Math.min(5, Math.max(1, Number(item.severity) || 3));
+            return { id: item.url || item.title, title: String(item.title).trim(),
+              summary: String(item.snippet || item.body || '').slice(0, 300), category: cat,
+              severity: sev, severity_label: sev >= 5 ? 'CRITICAL' : sev >= 4 ? 'HIGH' : sev === 3 ? 'MEDIUM' : 'LOW',
+              region: item.region || 'Global', country: 'GLOBAL', location: 'UNKNOWN',
+              link: item.url || '#', source: item.source || '', time: item.time || new Date().toISOString(),
+              lat: 0, lng: 0 };
+          }).filter(i => !DISLIKED_IDS.has(String(i.id)));
+          INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
+          FEED_IS_LIVE = true;
+          refreshHeatLayerIfEnabled();
+          const label = document.getElementById('feed-status-label');
+          if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
+          const active = document.querySelector('.nav-item-custom.active');
+          filterNews(active ? active.textContent.trim() : 'Global');
+        }).catch(() => {});
+        return;
+      }
+      INCIDENTS = fresh;
       INCIDENTS.sort((a, b) => new Date(b.time) - new Date(a.time));
       FEED_IS_LIVE = true;
       refreshHeatLayerIfEnabled();
