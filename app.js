@@ -815,18 +815,49 @@ async function loadProximityFromWorker(silent=false) {
     if (!res.ok) {
       if (!silent) console.warn('Proximity endpoint returned not-ok:', res.status);
       PROXIMITY_INCIDENTS = [];
-      return;
+    } else {
+      const json = await res.json();
+      const list = Array.isArray(json.incidents) ? json.incidents : [];
+      const cutoffMs = Date.now() - (72 * 3600 * 1000);
+      PROXIMITY_INCIDENTS = list
+        .map(normaliseWorkerIncident)
+        .filter(Boolean)
+        .filter(i => { try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; } })
+        .filter(i => !DISLIKED_IDS.has(String(i.id)));
     }
-    const json = await res.json();
-    const list = Array.isArray(json.incidents) ? json.incidents : [];
-    const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
-    PROXIMITY_INCIDENTS = list
-      .map(normaliseWorkerIncident)
-      .filter(Boolean)
-      .filter(i => {
-        try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
-      })
-      .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
+    // Fallback: if Worker KV is empty (no lat/lng on RSS items), load static
+    // proximity.json written by generate_reports.py via GitHub Actions
+    if (PROXIMITY_INCIDENTS.length === 0) {
+      try {
+        const staticRes = await fetchWithTimeout(
+          `https://vssmaximus-arch.github.io/security-intel/data/proximity.json`, {}, 10000);
+        if (staticRes.ok) {
+          const staticJson = await staticRes.json();
+          const alerts = Array.isArray(staticJson.alerts) ? staticJson.alerts : [];
+          const cutoffMs = Date.now() - (72 * 3600 * 1000);
+          PROXIMITY_INCIDENTS = alerts
+            .filter(a => a.article_title && a.site_name)
+            .map((a, idx) => ({
+              id:               `prox_static_${idx}`,
+              title:            a.article_title || '',
+              summary:          a.summary || '',
+              time:             a.article_timestamp || new Date().toISOString(),
+              url:              a.article_link || '',
+              lat:              a.lat != null ? Number(a.lat) : null,
+              lng:              a.lon != null ? Number(a.lon) : null,
+              severity:         Number(a.severity) || 2,
+              region:           a.site_region || 'Global',
+              nearest_site_name: a.site_name || '',
+              distance_km:      Number(a.distance_km) || 0,
+              source:           a.article_source || 'News',
+              category:         a.type || 'GENERAL',
+            }))
+            .filter(i => { try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; } })
+            .filter(i => !DISLIKED_IDS.has(String(i.id)));
+          if (!silent) console.log('[Proximity] Loaded', PROXIMITY_INCIDENTS.length, 'from static fallback');
+        }
+      } catch(fe) { if (!silent) console.warn('[Proximity] static fallback failed:', fe?.message); }
+    }
     if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
   } catch(e) {
     console.error('loadProximityFromWorker failed', e);
@@ -2524,6 +2555,13 @@ function _refreshMapOverlays() {
   }
   if (weatherEnabled) {
     renderWeatherLayer();
+    // Update button count so it reflects the current region (not the stale toggle-time value)
+    const wxBtn = document.getElementById('weather-toggle');
+    if (wxBtn) {
+      const visibleCount = WEATHER_EVENTS.filter(ev =>
+        _eventInRegion(Number(ev.lat), Number(ev.lng), currentRegion)).length;
+      wxBtn.innerHTML = `<i class="fas fa-earth-americas" aria-hidden="true"></i> Nature Events <span style="font-size:0.65em;opacity:0.8;">(${visibleCount})</span>`;
+    }
   }
 }
 
