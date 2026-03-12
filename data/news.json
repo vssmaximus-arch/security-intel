@@ -1,10 +1,20 @@
 [
   {
-    "title": "Iran War Live Updates: First 6 Days Cost U.S. $11.3 Billion, Pentagon Says",
+    "title": "First 6 Days of Iran War Cost U.S. $11.3 Billion, Pentagon Says",
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event.",
     "source": "nytimes.com",
-    "time": "2026-03-12T03:02:35+00:00",
+    "time": "2026-03-12T04:25:51+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How is feminism being used to justify war in Iran?",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/12/how-is-feminism-being-used-to-justify-war-in-iran?traffic_source=rss",
+    "snippet": "Physical security event.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T03:43:40+00:00",
     "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
@@ -15,26 +25,6 @@
     "snippet": "Physical security event.",
     "source": "nytimes.com",
     "time": "2026-03-12T00:38:29+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Qatar PM urges resilience and unity amid Iran strikes",
-    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/12/qatar-pm-urges-resilience-and-unity-amid-iran-strikes?traffic_source=rss",
-    "snippet": "Physical security event.",
-    "source": "aljazeera.com",
-    "time": "2026-03-12T00:35:43+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Iran war live: Oil tankers hit in Iraq, Tehran sets 3 conditions for peace",
-    "url": "https://www.aljazeera.com/news/liveblog/2026/3/12/iran-war-live-oil-tankers-hit-in-iraq-tehran-sets-3-conditions-for-peace?traffic_source=rss",
-    "snippet": "Physical security event.",
-    "source": "aljazeera.com",
-    "time": "2026-03-12T00:00:00+00:00",
     "region": "Global",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
@@ -127,6 +117,26 @@
     "time": "2023-04-04T01:08:44+00:00",
     "region": "EMEA",
     "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Fire erupts at Gaza camp after Israeli attack hits tents",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/12/fire-erupts-at-gaza-camp-after-israeli-attack-hits-tents?traffic_source=rss",
+    "snippet": "Supply chain or logistics disruption.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T03:25:41+00:00",
+    "region": "EMEA",
+    "severity": 2,
+    "type": "SUPPLY CHAIN"
+  },
+  {
+    "title": "Fuel tank fire rages in Bahrain after Iranian attack",
+    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/12/fuel-tank-fire-rages-in-bahrain-after-iranian-attack?traffic_source=rss",
+    "snippet": "Physical security event.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T03:15:15+00:00",
+    "region": "Global",
+    "severity": 2,
     "type": "PHYSICAL SECURITY"
   },
   {
@@ -334,7 +344,7 @@
     "url": "https://edition.cnn.com/webview/europe/live-news/russia-ukraine-war-news-04-03-23/index.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "edition.cnn.com",
-    "time": "2026-03-12T03:04:28.593743+00:00",
+    "time": "2026-03-12T04:38:35.114682+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -344,7 +354,7 @@
     "url": "https://cnn.it/411KYN7",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "cnn.it",
-    "time": "2026-03-12T03:04:28.558916+00:00",
+    "time": "2026-03-12T04:38:35.053300+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -354,7 +364,7 @@
     "url": "https://edition.cnn.com/webview/politics/live-news/trump-indictment-stormy-daniels-news-04-03-23/index.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "edition.cnn.com",
-    "time": "2026-03-12T03:04:28.454150+00:00",
+    "time": "2026-03-12T04:38:34.871082+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -364,7 +374,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3mn",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.575714+00:00",
+    "time": "2026-03-12T04:38:23.944665+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -374,7 +384,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3n2",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.539186+00:00",
+    "time": "2026-03-12T04:38:23.880889+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -384,7 +394,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3qe",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.504454+00:00",
+    "time": "2026-03-12T04:38:23.817046+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -394,7 +404,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfnu",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.470619+00:00",
+    "time": "2026-03-12T04:38:23.753849+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -404,7 +414,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfpd",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.434031+00:00",
+    "time": "2026-03-12T04:38:23.692313+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -414,7 +424,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfpg",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.400742+00:00",
+    "time": "2026-03-12T04:38:23.624236+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -424,7 +434,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfps",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.364113+00:00",
+    "time": "2026-03-12T04:38:23.564024+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -434,8 +444,98 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfq8",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T03:04:19.328746+00:00",
+    "time": "2026-03-12T04:38:23.501294+00:00",
     "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Liza Tarbuck leaves Radio 2 Saturday show after 14 years",
+    "url": "https://www.bbc.com/news/articles/c2lrq2n7l9eo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T04:14:37+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Noma head chef resigns from restaurant amid abuse allegations",
+    "url": "https://www.bbc.com/news/articles/c07jr2pe5j9o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T04:09:16+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "A Third of Americans Have Cut Spending or Borrowed Money for Health Care",
+    "url": "https://www.nytimes.com/2026/03/12/health/health-costs-cutting-back.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "nytimes.com",
+    "time": "2026-03-12T04:01:04+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "How to Afford Housing in London: Multiple Roommates, No Living Room",
+    "url": "https://www.nytimes.com/2026/03/12/business/london-house-prices-rent-roommates.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "nytimes.com",
+    "time": "2026-03-12T04:00:08+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Five vessels attacked amid reports of Iranian drone boats, sea mines",
+    "url": "https://www.aljazeera.com/news/2026/3/12/five-vessels-attacked-amid-reports-of-iranian-drone-boats-sea-mines?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T03:45:14+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Oil Keeps Pushing Higher Despite Global Release of Reserves",
+    "url": "https://www.nytimes.com/2026/03/11/business/gas-oil-stocks-prices-iran.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "nytimes.com",
+    "time": "2026-03-12T03:24:01+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Starmer Was Warned About Risk of Appointing Friend of Epstein As Ambassador",
+    "url": "https://www.nytimes.com/live/2026/03/11/world/mandelson-files-epstein-uk",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "nytimes.com",
+    "time": "2026-03-12T03:23:36+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Oil hits $100 a barrel despite deal to release record amount of reserves",
+    "url": "https://www.bbc.com/news/articles/c1w5141vx53o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T03:04:24+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Quit fossil fuels to stem deadly floods in Brazil’s coffee heartland, say scientists",
+    "url": "https://www.theguardian.com/world/2026/mar/12/quit-fossil-fuels-to-stem-deadly-floods-in-brazils-coffee-heartland-say-scientists",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "theguardian.com",
+    "time": "2026-03-12T03:01:06+00:00",
+    "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -445,16 +545,6 @@
     "snippet": "Keyword heuristic — low confidence.",
     "source": "aljazeera.com",
     "time": "2026-03-12T02:44:48+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Oil prices rise despite deal to release record amount of reserves",
-    "url": "https://www.bbc.com/news/articles/c1w5141vx53o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-12T02:29:27+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -490,42 +580,12 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Wind warnings issued as colder weather and mountain snow head south",
-    "url": "https://www.bbc.com/weather/articles/cz9q7y44ep4o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-12T00:41:04+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Kanye West ordered to pay $140K in Malibu mansion renovation lawsuit",
-    "url": "https://www.bbc.com/news/articles/c62g90w8dkko?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-12T00:27:10+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Epstein used modelling agent to recruit girls, Brazilian women tell BBC",
     "url": "https://www.bbc.com/news/articles/cr4576v66kno?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "bbc.com",
     "time": "2026-03-12T00:05:52+00:00",
     "region": "AMER",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Eight Arab, Islamic countries condemn Israeli closure of Al-Aqsa Mosque",
-    "url": "https://www.aljazeera.com/news/2026/3/12/eight-arab-islamic-countries-condemn-israeli-closure-of-al-aqsa-mosque?traffic_source=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "aljazeera.com",
-    "time": "2026-03-12T00:04:37+00:00",
-    "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -570,16 +630,6 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "‘Proud as a Qatari’: Country’s PM salutes resilience amid Iranian attacks",
-    "url": "https://www.aljazeera.com/news/2026/3/11/proud-as-a-qatari-countrys-pm-salutes-resilience-amid-iranian-attacks?traffic_source=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "aljazeera.com",
-    "time": "2026-03-11T23:56:57+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Chris Mason: Some nuggets but no huge revelations in first batch of Mandelson files",
     "url": "https://www.bbc.com/news/articles/c627x7g2l4vo?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
@@ -610,21 +660,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Starmer Was Warned About Risk of Appointing Friend of Epstein As Ambassador",
-    "url": "https://www.nytimes.com/live/2026/03/11/world/mandelson-files-epstein-uk",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T19:02:42+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Why Did the UK Police Repeatedly Decline to Investigate Claims About Epstein and Prince Andrew?",
     "url": "https://www.nytimes.com/2026/03/11/world/europe/uk-police-epstein-giuffre-maxwell-prince-andrew.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "nytimes.com",
-    "time": "2026-03-11T19:02:06+00:00",
+    "time": "2026-03-11T19:02:07+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -650,31 +690,11 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Three brothers arrested after explosion at US embassy in Oslo",
-    "url": "https://www.bbc.com/news/articles/cx2grl7lrrmo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T18:28:46+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
     "title": "Bowen: Trump has called for an Iran uprising but the lessons from Iraq in 1991 loom large",
     "url": "https://www.bbc.com/news/articles/cn0znx4xrl9o?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "bbc.com",
     "time": "2026-03-11T16:45:28+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "What’s Better Than One Top Oscar Nominee? How About Two?",
-    "url": "https://www.nytimes.com/2026/03/11/business/media/sinners-one-battle-warner-oscars.html",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "nytimes.com",
-    "time": "2026-03-11T15:36:44+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -686,16 +706,6 @@
     "source": "theguardian.com",
     "time": "2026-03-11T15:00:44+00:00",
     "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Fuel tax hike plan to be kept under review over Iran, says PM",
-    "url": "https://www.bbc.com/news/articles/cvg593l3yd5o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T13:40:51+00:00",
-    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -726,16 +736,6 @@
     "source": "theguardian.com",
     "time": "2026-03-11T11:00:01+00:00",
     "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "José Antonio Kast, the Pinochet fan about to swerve Chile to the far right",
-    "url": "https://www.theguardian.com/world/2026/mar/11/jose-antonio-kast-pinochet-fan-chile-far-right",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "theguardian.com",
-    "time": "2026-03-11T08:00:12+00:00",
-    "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
