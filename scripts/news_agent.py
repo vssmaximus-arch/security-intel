@@ -421,12 +421,17 @@ def main():
                     ts_iso = pt.isoformat(); sort_time = ts_iso
             except Exception: pass
 
+            geo = analysis.get("geo_relevance") or {}
+            geo_locations = geo.get("mentioned_countries_or_cities") or []
+
             all_items.append({
                 "title": title, "url": link,
                 "snippet": analysis.get("primary_reason") or raw_summary[:160],
+                "body": raw_summary[:600],
                 "source": source_host, "time": ts_iso,
                 "region": map_region(full_text), "severity": severity,
                 "type": dash_type, "_sort_time": sort_time,
+                "locations": geo_locations,
             })
             print(f"  [KEEP] {dash_type}|sev={severity}|{map_region(full_text)}| {title[:70]}")
 

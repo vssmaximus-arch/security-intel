@@ -160,8 +160,11 @@ def haversine_km(lat1, lon1, lat2, lon2) -> float:
 def _article_text(article: Dict[str, Any]) -> str:
     """Return combined searchable text from an article (handles both 'snippet' and 'summary' field names)."""
     title = article.get("title", "") or ""
-    body = article.get("snippet") or article.get("summary") or ""
-    return f"{title} {body}".lower()
+    body = article.get("body") or article.get("snippet") or article.get("summary") or ""
+    # Also include AI-extracted geo locations list for text matching
+    geo_locs = article.get("locations") or []
+    geo_str = " ".join(geo_locs) if isinstance(geo_locs, list) else str(geo_locs)
+    return f"{title} {body} {geo_str}".lower()
 
 def _is_security_relevant(article: Dict[str, Any]) -> bool:
     text = _article_text(article)
@@ -272,30 +275,54 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
             except ValueError:
                 pass
 
-        # Fallback: text-based country/city match
+        # Fallback: text-based country/city match (uses body + title + AI geo locations)
         else:
             text = _article_text(article)
+            # Also build a set of normalised strings from AI-extracted location list
+            geo_list = article.get("locations") or []
+            geo_norm = set(g.lower().strip() for g in geo_list if g) if isinstance(geo_list, list) else set()
+
             for loc in locations:
                 terms = _location_search_terms(loc)
-                if any(term in text for term in terms if len(term) > 2):
-                    key = (art_url, loc.name)
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    alerts.append({
-                        "article_title": article.get("title"),
-                        "article_source": article.get("source"),
-                        "article_timestamp": art_time,
-                        "article_link": art_url,
-                        "severity": int(article.get("severity", 1)),
-                        "summary": art_snippet,
-                        "site_name": loc.name,
-                        "site_country": loc.country,
-                        "site_region": loc.region,
-                        "distance_km": 0.0,
-                        "lat": loc.lat, "lon": loc.lon,
-                        "type": article.get("type", "GENERAL")
-                    })
+
+                matched = any(term in text for term in terms if len(term) > 2)
+
+                # Also check if any AI-extracted location overlaps with our search terms
+                if not matched and geo_norm:
+                    matched = any(
+                        any(term in geo_entry or geo_entry in term for geo_entry in geo_norm)
+                        for term in terms if len(term) > 2
+                    )
+
+                # Region-level fallback: match article region code to location region
+                if not matched:
+                    art_region = (article.get("region") or "").upper()
+                    if art_region and art_region != "GLOBAL" and art_region == loc.region.upper():
+                        # Only fire on severity >= 3 for region-only matches (avoid noise)
+                        if int(article.get("severity", 1)) >= 3:
+                            matched = True
+
+                if not matched:
+                    continue
+
+                key = (art_url, loc.name)
+                if key in seen:
+                    continue
+                seen.add(key)
+                alerts.append({
+                    "article_title": article.get("title"),
+                    "article_source": article.get("source"),
+                    "article_timestamp": art_time,
+                    "article_link": art_url,
+                    "severity": int(article.get("severity", 1)),
+                    "summary": art_snippet,
+                    "site_name": loc.name,
+                    "site_country": loc.country,
+                    "site_region": loc.region,
+                    "distance_km": 0.0,
+                    "lat": loc.lat, "lon": loc.lon,
+                    "type": article.get("type", "GENERAL")
+                })
     
     alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
     return alerts
