@@ -5056,6 +5056,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'open-threat-intel')    { openThreatIntelPanel(); return; }
       if (action === 'close-threat-intel')   { closeThreatIntelPanel(); return; }
       if (action === 'refresh-correlate')    { loadCorrelationSignals(true); return; }
+      if (action === 'tl-refresh')           { loadThreatsLeaks(true); return; }
+      if (action === 'tl-filter')            { if (THREATS_LEAKS_DATA) renderThreatsLeaks(THREATS_LEAKS_DATA); return; }
       /* --- /Tier-3 actions --- */
 
       if (action === 'toggle-heatmap') {
@@ -6245,6 +6247,135 @@ function startSentimentRefresh() {
    CYBER THREAT INTEL PANEL
    CISA KEV + CVE CIRCL + optional OTX (if Worker has OTX_API_KEY).
    ---------------------------------------------------------- */
+
+
+let THREATS_LEAKS_DATA = null;
+let THREATS_LEAKS_INIT_DONE = false;
+
+function _tlFmtAge(ts) {
+  try {
+    const d = new Date(ts);
+    if (isNaN(d)) return '';
+    const diff = Math.max(0, Date.now() - d.getTime());
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  } catch (_) { return ''; }
+}
+
+function _tlWindowMs(v) {
+  if (v === '24h') return 24 * 3600 * 1000;
+  if (v === '7d') return 7 * 24 * 3600 * 1000;
+  return 30 * 24 * 3600 * 1000;
+}
+
+function _tlInit() {
+  if (THREATS_LEAKS_INIT_DONE) return;
+  THREATS_LEAKS_INIT_DONE = true;
+  const ids = ['tl-filter-category','tl-filter-severity','tl-filter-target','tl-filter-confidence','tl-filter-window'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => renderThreatsLeaks(THREATS_LEAKS_DATA));
+  });
+}
+
+async function loadThreatsLeaks(force = false) {
+  const feed = document.getElementById('tl-feed');
+  if (feed && (!THREATS_LEAKS_DATA || force)) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div>';
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/threats-leaks${force ? '?refresh=1' : ''}`, {}, 25000);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    THREATS_LEAKS_DATA = data;
+    renderThreatsLeaks(data);
+  } catch (e) {
+    console.warn('[Threats&Leaks] load failed', e);
+    if (feed) feed.innerHTML = `<div class="tl-empty">Failed to load Threats &amp; Leaks.<br><small>${escapeHtml(e.message || String(e))}</small></div>`;
+  }
+}
+
+function renderThreatsLeaks(data) {
+  const feed = document.getElementById('tl-feed');
+  if (!feed) return;
+  const category = document.getElementById('tl-filter-category')?.value || 'all';
+  const severity = document.getElementById('tl-filter-severity')?.value || 'all';
+  const target = document.getElementById('tl-filter-target')?.value || 'all';
+  const confidence = document.getElementById('tl-filter-confidence')?.value || 'all';
+  const windowKey = document.getElementById('tl-filter-window')?.value || '30d';
+  const cutoff = Date.now() - _tlWindowMs(windowKey);
+
+  if (!data || !Array.isArray(data.cases)) {
+    feed.innerHTML = '<div class="tl-empty">No Threats &amp; Leaks data loaded yet.</div>';
+    return;
+  }
+
+  const filtered = data.cases.filter(c => {
+    const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
+    if (ts && ts < cutoff) return false;
+    if (category !== 'all' && c.category !== category) return false;
+    if (severity !== 'all' && c.severity !== severity) return false;
+    if (target !== 'all' && c.target !== target) return false;
+    if (confidence !== 'all' && c.confidence !== confidence) return false;
+    return true;
+  });
+
+  const stats = {
+    high: filtered.filter(c => c.severity === 'High').length,
+    leaks: filtered.filter(c => c.category === 'Leak').length,
+    elt: filtered.filter(c => c.target === 'ELT').length,
+    cases: filtered.length
+  };
+  const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val); };
+  setTxt('tl-stat-high', stats.high);
+  setTxt('tl-stat-leaks', stats.leaks);
+  setTxt('tl-stat-elt', stats.elt);
+  setTxt('tl-stat-cases', stats.cases);
+
+  const upd = document.getElementById('tl-updated-at');
+  if (upd) upd.textContent = data.updated_at ? `Updated ${new Date(data.updated_at).toLocaleString()}` : 'Updated recently';
+
+  const strip = document.getElementById('tl-source-strip');
+  if (strip) {
+    const srcs = Array.isArray(data.sources) ? data.sources : [];
+    strip.innerHTML = srcs.map(s => `<span class="tl-source-chip">${escapeHtml(s)}</span>`).join('');
+  }
+
+  if (!filtered.length) {
+    feed.innerHTML = '<div class="tl-empty">No cases match the current filters.</div>';
+    return;
+  }
+
+  feed.innerHTML = filtered.map(c => {
+    const sevCls = c.severity === 'High' ? 'sev-high' : 'sev-medium';
+    const confCls = c.confidence === 'High' ? 'conf-high' : 'conf-medium';
+    const links = Array.isArray(c.source_links) ? c.source_links.slice(0, 3) : [];
+    return `
+      <div class="tl-case-card">
+        <div class="tl-case-head">
+          <h3 class="tl-case-title">${escapeHtml(c.title || 'Untitled case')}</h3>
+          <div class="tl-badge-row">
+            <span class="tl-badge category">${escapeHtml(c.category || 'Other')}</span>
+            <span class="tl-badge ${sevCls}">${escapeHtml(c.severity || 'Medium')}</span>
+            <span class="tl-badge ${confCls}">${escapeHtml(c.confidence || 'Medium')} confidence</span>
+            <span class="tl-badge target">${escapeHtml(c.target || 'Unknown')}</span>
+          </div>
+        </div>
+        <div class="tl-meta">
+          <span><i class="fas fa-layer-group me-1"></i>${Number(c.related_mentions || 1)} mention${Number(c.related_mentions || 1) === 1 ? '' : 's'}</span>
+          <span><i class="fas fa-clock me-1"></i>${escapeHtml(_tlFmtAge(c.last_seen || c.first_seen))}</span>
+          <span><i class="fas fa-rss me-1"></i>${escapeHtml((c.sources || []).join(', ') || 'Public sources')}</span>
+        </div>
+        <div class="tl-summary">${escapeHtml(c.summary || 'No summary available.')}</div>
+        <div class="tl-links">${links.map((u, idx) => `<a class="tl-link" href="${escapeAttr(u)}" target="_blank" rel="noopener noreferrer">Source ${idx + 1}</a>`).join('')}</div>
+      </div>`;
+  }).join('');
+}
+
+window._tlInit = _tlInit;
+window._tlLoad = loadThreatsLeaks;
+
 function openThreatIntelPanel() {
   const drawer = document.getElementById('threat-drawer');
   const overlay = document.getElementById('threat-overlay');
