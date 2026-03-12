@@ -4,8 +4,18 @@
     "url": "https://www.nytimes.com/live/2026/03/11/world/iran-war-news-trump-oil-israel",
     "snippet": "Physical security event.",
     "source": "nytimes.com",
-    "time": "2026-03-12T04:25:51+00:00",
+    "time": "2026-03-12T05:15:40+00:00",
     "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "There is only one person’ who can decide to end the war on Iran",
+    "url": "https://www.aljazeera.com/video/quotable/2026/3/12/there-is-only-one-person-who-can-decide-to-end-the-war-on-iran?traffic_source=rss",
+    "snippet": "Physical security event.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T04:35:59+00:00",
+    "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -56,16 +66,6 @@
     "source": "theguardian.com",
     "time": "2026-03-11T15:06:01+00:00",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "EU and UK demand Israel stop surge in West Bank settler violence since Iran war",
-    "url": "https://www.bbc.com/news/articles/c620vwl97vyo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Physical security event.",
-    "source": "bbc.com",
-    "time": "2026-03-11T14:13:52+00:00",
-    "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY"
   },
@@ -146,26 +146,6 @@
     "source": "nytimes.com",
     "time": "2026-03-12T02:52:17+00:00",
     "region": "Global",
-    "severity": 2,
-    "type": "SUPPLY CHAIN"
-  },
-  {
-    "title": "Who bombed the Iranian girls’ school, killing more than 170? What we know",
-    "url": "https://www.aljazeera.com/news/2026/3/12/who-bombed-the-iranian-girls-school-killing-more-than-170-what-we-know?traffic_source=rss",
-    "snippet": "Physical security event.",
-    "source": "aljazeera.com",
-    "time": "2026-03-12T02:21:15+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Israeli strike hits Beirut waterfront near tents of displaced",
-    "url": "https://www.aljazeera.com/video/newsfeed/2026/3/12/israeli-strike-hits-beirut-waterfront-near-tents-of-displaced?traffic_source=rss",
-    "snippet": "Supply chain or logistics disruption.",
-    "source": "aljazeera.com",
-    "time": "2026-03-12T01:53:23+00:00",
-    "region": "EMEA",
     "severity": 2,
     "type": "SUPPLY CHAIN"
   },
@@ -344,7 +324,7 @@
     "url": "https://edition.cnn.com/webview/europe/live-news/russia-ukraine-war-news-04-03-23/index.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "edition.cnn.com",
-    "time": "2026-03-12T04:38:35.114682+00:00",
+    "time": "2026-03-12T05:27:25.260098+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -354,7 +334,7 @@
     "url": "https://cnn.it/411KYN7",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "cnn.it",
-    "time": "2026-03-12T04:38:35.053300+00:00",
+    "time": "2026-03-12T05:27:25.198046+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -364,17 +344,7 @@
     "url": "https://edition.cnn.com/webview/politics/live-news/trump-indictment-stormy-daniels-news-04-03-23/index.html",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "edition.cnn.com",
-    "time": "2026-03-12T04:38:34.871082+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "M 5.0 - 106 km ESE of Hihifo, Tonga",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3mn",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.944665+00:00",
+    "time": "2026-03-12T05:27:24.994641+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -384,7 +354,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3n2",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.880889+00:00",
+    "time": "2026-03-12T05:27:14.495517+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -394,7 +364,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000s3qe",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.817046+00:00",
+    "time": "2026-03-12T05:27:14.436591+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -404,7 +374,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfnu",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.753849+00:00",
+    "time": "2026-03-12T05:27:14.375463+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -414,7 +384,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfpd",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.692313+00:00",
+    "time": "2026-03-12T05:27:14.311673+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -424,7 +394,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfpg",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.624236+00:00",
+    "time": "2026-03-12T05:27:14.244823+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -434,7 +404,7 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfps",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.564024+00:00",
+    "time": "2026-03-12T05:27:14.187014+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
@@ -444,8 +414,38 @@
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfq8",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-12T04:38:23.501294+00:00",
+    "time": "2026-03-12T05:27:14.123922+00:00",
     "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "M 4.9 - 28 km N of Tisco, Peru",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfrl",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-12T05:27:14.063087+00:00",
+    "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "China’s key NPC meeting comes to a close as lower growth target set",
+    "url": "https://www.aljazeera.com/news/2026/3/12/chinas-key-npc-meeting-comes-to-a-close-as-lower-growth-target-set?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T04:50:06+00:00",
+    "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Why historic oil reserves release may do little to bring down rising prices",
+    "url": "https://www.aljazeera.com/economy/2026/3/12/why-historic-oil-reserves-release-may-do-little-to-bring-down-rising-prices?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "aljazeera.com",
+    "time": "2026-03-12T04:32:39+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -460,12 +460,32 @@
     "type": "PHYSICAL SECURITY"
   },
   {
+    "title": "Head chef resigns from world-famous restaurant Noma amid abuse allegations",
+    "url": "https://www.bbc.com/news/articles/c07jr2pe5j9o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T04:09:16+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
     "title": "Noma head chef resigns from restaurant amid abuse allegations",
     "url": "https://www.bbc.com/news/articles/c07jr2pe5j9o?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "bbc.com",
     "time": "2026-03-12T04:09:16+00:00",
     "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY"
+  },
+  {
+    "title": "Bodies of two Chinese backpackers found in Australian floodwaters",
+    "url": "https://www.bbc.com/news/articles/c2k872k980po?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "source": "bbc.com",
+    "time": "2026-03-12T04:03:00+00:00",
+    "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -520,7 +540,7 @@
     "type": "PHYSICAL SECURITY"
   },
   {
-    "title": "Oil hits $100 a barrel despite deal to release record amount of reserves",
+    "title": "Oil price jumps despite deal to release record amount of reserves",
     "url": "https://www.bbc.com/news/articles/c1w5141vx53o?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
     "source": "bbc.com",
@@ -556,16 +576,6 @@
     "source": "nytimes.com",
     "time": "2026-03-12T02:00:34+00:00",
     "region": "AMER",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Iran’s authorities warn against protests as Israel threatens Basij forces",
-    "url": "https://www.aljazeera.com/news/2026/3/12/irans-authorities-warn-against-protests-as-israel-threatens-basij-forces?traffic_source=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "aljazeera.com",
-    "time": "2026-03-12T01:35:06+00:00",
-    "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
   },
@@ -675,16 +685,6 @@
     "snippet": "Keyword heuristic — low confidence.",
     "source": "nytimes.com",
     "time": "2026-03-11T18:35:08+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY"
-  },
-  {
-    "title": "Starmer was warned of 'reputational risk' over Mandelson's links with Epstein, files show",
-    "url": "https://www.bbc.com/news/articles/cd70lgywgqqo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "source": "bbc.com",
-    "time": "2026-03-11T18:30:20+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY"
