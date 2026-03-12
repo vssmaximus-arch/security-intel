@@ -6328,8 +6328,9 @@ function _tlInit() {
 }
 
 // Keywords that signal a Dell-relevant T&L article
-const _TL_DELL_RX = /dell|michael dell|jeff clarke|dell technologies|dell layoff|dell restructur|dell reorg|dell breach|dell hack|dell leak|dell insider|dell executive|dell leadership|dell ceo|dell cto|dell employee/i;
-const _TL_SIGNAL_RX = /layoff|laid off|restructur|reorg|job cut|workforce|redundan|breach|leak|confidential|insider|whistleblower|boycott|threat|hack|malware|fired|separation|headcount|morale|toxic|corrupt|fraud/i;
+// _TL_DELL_RX must match (Dell context required — prevents generic geopolitics from showing)
+const _TL_DELL_RX = /\bdell\b|michael\s+dell|jeff\s+clarke|dell\s+technologies|thelayoff\.com/i;
+const _TL_SIGNAL_RX = /layoff|laid.?off|restructur|reorg|job.?cut|workforce|redundan|breach|leak|confidential|insider|whistleblower|boycott|backlash|hack|malware|fired|termination|separation|headcount|morale|toxic|corrupt|fraud/i;
 
 /** Convert a news INCIDENT to a synthetic T&L case card */
 function _incidentToTLCase(inc) {
@@ -6374,7 +6375,7 @@ async function loadThreatsLeaks(force = false) {
           const ts = new Date(i.time || 0).getTime();
           if (isNaN(ts) || ts < cutoff24h) return false;
           const txt = `${i.title || ''} ${i.summary || i.snippet || ''}`;
-          return _TL_DELL_RX.test(txt) || _TL_SIGNAL_RX.test(txt);
+          return _TL_DELL_RX.test(txt) && _TL_SIGNAL_RX.test(txt);
         })
         .slice(0, 40)
         .map(_incidentToTLCase);
@@ -6404,7 +6405,7 @@ async function loadThreatsLeaks(force = false) {
           const ts = new Date(i.time || 0).getTime();
           if (isNaN(ts) || ts < cutoff24h) return false;
           const txt = `${i.title || ''} ${i.summary || i.snippet || ''}`;
-          return _TL_DELL_RX.test(txt) || _TL_SIGNAL_RX.test(txt);
+          return _TL_DELL_RX.test(txt) && _TL_SIGNAL_RX.test(txt);
         })
         .slice(0, 40)
         .map(_incidentToTLCase);
