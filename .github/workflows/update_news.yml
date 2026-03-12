@@ -85,6 +85,8 @@ jobs:
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
             -H "secret: ${INGEST_SECRET}" \
+            -H "Content-Type: application/json" \
+            --data "@public/data/news.json" \
             "https://osinfohub.vssmaximus.workers.dev/api/admin/ingest")
           echo "Worker ingest trigger status: $STATUS"
           if [ "$STATUS" != "200" ]; then
