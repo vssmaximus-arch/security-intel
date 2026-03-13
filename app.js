@@ -6498,3 +6498,116 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ============================================================
    /TIER-3 FEATURES
    ============================================================ */
+
+/* ============================================================
+   THREATS & LEAKS — loadThreatsLeaks / renderThreatsLeaks
+   ============================================================ */
+let THREATS_LEAKS_DATA = null;
+let _tlInitDone = false;
+
+function _tlInit() {
+  if (_tlInitDone) return;
+  _tlInitDone = true;
+  // Filter change listeners
+  document.querySelectorAll('[data-action="tl-filter"]').forEach(function(el) {
+    el.addEventListener('change', function() { if (THREATS_LEAKS_DATA) _tlRender(THREATS_LEAKS_DATA); });
+  });
+  // Refresh button
+  const btn = document.querySelector('[data-action="tl-refresh"]');
+  if (btn) btn.addEventListener('click', function() { loadThreatsLeaks(true); });
+}
+
+async function loadThreatsLeaks(force) {
+  const feed = document.getElementById('tl-feed');
+  if (feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div>';
+  try {
+    const url = WORKER_URL + '/api/threats-leaks' + (force ? '?refresh=1&bust=' + Date.now() : '');
+    const res = await fetchWithTimeout(url, {}, 25000);
+    const data = await res.json();
+    THREATS_LEAKS_DATA = data;
+    _tlRender(data);
+  } catch (e) {
+    if (feed) feed.innerHTML = '<div class="tl-loading" style="color:#e57373;">Failed to load — check Worker connection. <button onclick="loadThreatsLeaks(true)" style="margin-left:8px;padding:2px 10px;border:1px solid #e57373;background:transparent;color:#e57373;border-radius:4px;cursor:pointer;">Retry</button></div>';
+  }
+}
+
+function _tlRender(data) {
+  const cases = Array.isArray(data.cases) ? data.cases : [];
+
+  // Stats
+  const eltCount = cases.filter(function(c){ return c.target === 'ELT'; }).length;
+  const el = function(id, v){ const e = document.getElementById(id); if(e) e.textContent = v; };
+  el('tl-stat-high',  (data.stats && data.stats.high  != null) ? data.stats.high  : cases.filter(function(c){ return c.severity === 'High'; }).length);
+  el('tl-stat-leaks', (data.stats && data.stats.leaks != null) ? data.stats.leaks : cases.filter(function(c){ return c.category === 'Leak'; }).length);
+  el('tl-stat-elt',   eltCount);
+  el('tl-stat-cases', cases.length);
+
+  // Updated timestamp
+  const upd = document.getElementById('tl-updated-at');
+  if (upd && data.updated_at) upd.textContent = 'Updated ' + new Date(data.updated_at).toLocaleString();
+
+  // Source strip
+  const strip = document.getElementById('tl-source-strip');
+  if (strip) {
+    const srcs = Array.isArray(data.sources) ? data.sources : [];
+    strip.innerHTML = srcs.length ? srcs.map(function(s){ return '<span class="tl-source-badge">' + escapeHtml(s) + '</span>'; }).join('') : '';
+  }
+
+  // Apply filters
+  const cat  = (document.getElementById('tl-filter-category')   || {}).value || 'all';
+  const sev  = (document.getElementById('tl-filter-severity')   || {}).value || 'all';
+  const tgt  = (document.getElementById('tl-filter-target')     || {}).value || 'all';
+  const conf = (document.getElementById('tl-filter-confidence') || {}).value || 'all';
+  const win  = (document.getElementById('tl-filter-window')     || {}).value || '30d';
+
+  const winMs = win === '24h' ? 86400000 : win === '7d' ? 604800000 : 2592000000;
+  const cutoff = Date.now() - winMs;
+
+  let filtered = cases.filter(function(c) {
+    if (cat  !== 'all' && c.category   !== cat)  return false;
+    if (sev  !== 'all' && c.severity   !== sev)  return false;
+    if (tgt  !== 'all' && c.target     !== tgt)  return false;
+    if (conf !== 'all' && c.confidence !== conf) return false;
+    const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
+    if (ts && ts < cutoff) return false;
+    return true;
+  });
+
+  const feed = document.getElementById('tl-feed');
+  if (!feed) return;
+
+  if (!filtered.length) {
+    feed.innerHTML = '<div style="padding:32px;text-align:center;color:#6c757d;font-size:0.9rem;">No cases match the current filters.</div>';
+    return;
+  }
+
+  const catColors = { 'Layoff / Reorg': '#e67e22', 'Leadership Risk': '#9b59b6', 'Leak': '#e74c3c', 'Threat': '#c0392b', 'Other': '#607d8b' };
+  const sevColors = { 'High': '#e74c3c', 'Medium': '#f39c12', 'Low': '#27ae60' };
+
+  feed.innerHTML = filtered.map(function(c) {
+    const catColor = catColors[c.category] || '#607d8b';
+    const sevColor = sevColors[c.severity] || '#607d8b';
+    const dateStr  = c.last_seen ? new Date(c.last_seen).toLocaleDateString() : '';
+    const links    = Array.isArray(c.source_links) ? c.source_links : [];
+    const firstLink = links[0] || '';
+    const title    = c.title ? escapeHtml(c.title) : '(no title)';
+
+    return '<div class="tl-case-card">' +
+      '<div class="tl-case-header">' +
+        '<span class="tl-cat-badge" style="background:' + catColor + '">' + escapeHtml(c.category || 'Other') + '</span>' +
+        '<span class="tl-sev-badge" style="background:' + sevColor + '">' + escapeHtml(c.severity || 'Medium') + '</span>' +
+        (c.confidence === 'High' ? '<span class="tl-conf-badge">CONFIRMED</span>' : '') +
+        '<span class="tl-case-date">' + escapeHtml(dateStr) + '</span>' +
+      '</div>' +
+      '<div class="tl-case-title">' +
+        (firstLink ? '<a href="' + escapeHtml(firstLink) + '" target="_blank" rel="noopener">' + title + '</a>' : title) +
+      '</div>' +
+      (c.summary ? '<div class="tl-case-summary">' + escapeHtml(c.summary.slice(0, 200)) + '</div>' : '') +
+      '<div class="tl-case-meta">' +
+        (c.related_mentions > 1 ? '<span class="tl-mentions"><i class="fas fa-link"></i> ' + c.related_mentions + ' mentions</span>' : '') +
+        (c.target ? '<span class="tl-target">Target: ' + escapeHtml(c.target) + '</span>' : '') +
+        (links.length > 1 ? '<span class="tl-src-count">' + links.length + ' sources</span>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
