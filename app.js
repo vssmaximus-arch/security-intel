@@ -6560,7 +6560,7 @@ function _tlRender(data) {
   const conf = (document.getElementById('tl-filter-confidence') || {}).value || 'all';
   const win  = (document.getElementById('tl-filter-window')     || {}).value || 'all';
 
-  const winMsMap = { '7d': 604800000, '30d': 2592000000, '90d': 7776000000, '365d': 31536000000 };
+  const winMsMap = { '7d': 604800000, '14d': 1209600000, '30d': 2592000000, '90d': 7776000000, '365d': 31536000000 };
   const winMs  = winMsMap[win] || null;
   const cutoff = winMs ? Date.now() - winMs : 0;
 
