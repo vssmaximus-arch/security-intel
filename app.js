@@ -6558,18 +6558,21 @@ function _tlRender(data) {
   const sev  = (document.getElementById('tl-filter-severity')   || {}).value || 'all';
   const tgt  = (document.getElementById('tl-filter-target')     || {}).value || 'all';
   const conf = (document.getElementById('tl-filter-confidence') || {}).value || 'all';
-  const win  = (document.getElementById('tl-filter-window')     || {}).value || '30d';
+  const win  = (document.getElementById('tl-filter-window')     || {}).value || 'all';
 
-  const winMs = win === '24h' ? 86400000 : win === '7d' ? 604800000 : 2592000000;
-  const cutoff = Date.now() - winMs;
+  const winMsMap = { '7d': 604800000, '30d': 2592000000, '90d': 7776000000, '365d': 31536000000 };
+  const winMs  = winMsMap[win] || null;
+  const cutoff = winMs ? Date.now() - winMs : 0;
 
   let filtered = cases.filter(function(c) {
     if (cat  !== 'all' && c.category   !== cat)  return false;
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
     if (conf !== 'all' && c.confidence !== conf) return false;
-    const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
-    if (ts && ts < cutoff) return false;
+    if (cutoff) {
+      const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
+      if (ts && ts < cutoff) return false;
+    }
     return true;
   });
 
