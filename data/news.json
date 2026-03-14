@@ -1,12 +1,36 @@
 [
   {
-    "title": "Israel-Iran Conflict: Iran War Live Updates: Oil Prices Settle at 4-Year High Despite Measures to Ease Pressure on Supply",
+    "title": "Israel-Iran Conflict: Iran War Live Updates: U.S. Military Attacks Iran’s Oil Export Hub, Trump Says",
     "url": "https://www.nytimes.com/live/2026/03/13/world/iran-war-trump-oil-israel",
     "snippet": "Physical security event.",
-    "body": "The price settled at more than $103 a barrel, an increase of over 40 percent since the start of the war on Feb. 28. U.S. officials said another 2,500 Marines and as many as three more warships were heading to the Middle East.",
+    "body": "The strikes on Kharg Island hit military sites, including those storing missiles and mines, a U.S. military official said, adding that economic infrastructure was not targeted. Oil prices have risen by more than 40 percent since the start of the war.",
     "source": "nytimes.com",
-    "time": "2026-03-13T23:08:47+00:00",
+    "time": "2026-03-14T00:33:01+00:00",
     "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Iran war live: US bombs Iran’s Kharg Island, warns oil facilities next",
+    "url": "https://www.aljazeera.com/news/liveblog/2026/3/14/iran-war-live-pentagon-vows-to-ramp-up-us-military-campaign-against-iran?traffic_source=rss",
+    "snippet": "Physical security event.",
+    "body": "Intense strikes target central Tehran as US president says 'powerful' bombing raid hit Iranian forces on Kharg Island.",
+    "source": "aljazeera.com",
+    "time": "2026-03-14T00:00:00+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Family of Michigan synagogue suspect killed in Lebanon airstrike, officials say",
+    "url": "https://www.bbc.com/news/articles/cdxz0jpzk4do?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event.",
+    "body": "The FBI said the suspect had large quantities of fireworks and petrol in his vehicle when it caught fire after ramming a synagogue on Thursday.",
+    "source": "bbc.com",
+    "time": "2026-03-13T23:36:41+00:00",
+    "region": "Global",
     "severity": 3,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -19,18 +43,6 @@
     "source": "aljazeera.com",
     "time": "2026-03-13T20:50:49+00:00",
     "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Qatar’s interior minister says security situation ‘stable’ amid Iran war",
-    "url": "https://www.aljazeera.com/news/2026/3/13/qatars-interior-minister-says-security-situation-stable-amid-iran-war?traffic_source=rss",
-    "snippet": "Physical security event.",
-    "body": "Sheikh Khalifa bin Hamad says Qatar will 'not hesitate' to ensure its stability as US-Israeli war on Iran continues.",
-    "source": "aljazeera.com",
-    "time": "2026-03-13T19:18:20+00:00",
-    "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -96,6 +108,30 @@
     "locations": []
   },
   {
+    "title": "6 dead after U.S. Air Force refueler crashes in Iraq while supporting Iran war",
+    "url": "https://www.washingtonpost.com/national-security/2026/03/12/kc-135-crash-iraq-iran/",
+    "snippet": "Physical security event.",
+    "body": "The KC-135 tanker was involved in an apparent accident with another KC-135. The other aircraft landed safely, officials said.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-13T14:50:38+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Trump administration allows for Russian oil sales as energy prices soar",
+    "url": "https://www.washingtonpost.com/business/2026/03/12/russian-oil-sanctions-lifted-iran/",
+    "snippet": "Physical security event.",
+    "body": "The move is likely to be a boon to Russia as the United States tries to stem the economic fallout from its war on Iran as the price of crude has soared.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-13T14:36:32+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "All six crew members killed after US refuelling plane crashes in Iraq",
     "url": "https://www.bbc.com/news/articles/cy0dz5ql17vo?at_medium=RSS&at_campaign=rss",
     "snippet": "Physical security event.",
@@ -105,18 +141,6 @@
     "region": "Global",
     "severity": 3,
     "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Green earthquake (Magnitude 6.3M, Depth:10km) in Chile 13/03/2026 13:39 UTC, 10 thousand in MMI>=V.",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528843",
-    "snippet": "Natural disaster or emergency.",
-    "body": "On 3/13/2026 1:39:18 PM, an earthquake occurred in Chile potentially affecting 10 thousand in MMI>=V. The earthquake had Magnitude 6.3M, Depth:10km.",
-    "source": "gdacs.org",
-    "time": "2026-03-13T13:53:38+00:00",
-    "region": "AMER",
-    "severity": 3,
-    "type": "CRISIS / WEATHER",
     "locations": []
   },
   {
@@ -144,6 +168,18 @@
     "locations": []
   },
   {
+    "title": "Unpopular war makes friendship with Trump a liability for European leaders",
+    "url": "https://www.washingtonpost.com/world/2026/03/13/trump-meloni-unpopular-war-europe/",
+    "snippet": "Physical security event.",
+    "body": "Italian Prime Minister Giorgia Meloni and a constellation of other conservative leaders are the defensive over their ties to President Trump because of his war against Iran.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-13T08:37:43+00:00",
+    "region": "EMEA",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "How the War in Iran Could Help China and Change Asia",
     "url": "https://www.nytimes.com/2026/03/13/world/asia/iran-war-china-asia.html",
     "snippet": "Physical security event.",
@@ -151,6 +187,18 @@
     "source": "nytimes.com",
     "time": "2026-03-13T04:00:37+00:00",
     "region": "APJC",
+    "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Lebanon appeals to Israel’s allies to intervene and says hundreds are killed",
+    "url": "https://www.washingtonpost.com/world/2026/03/12/israel-hezbollah-lebanon-war/",
+    "snippet": "Physical security event.",
+    "body": "The war is expanding into Lebanon, as an Israeli offensive to dismantle Hezbollah has displaced 800,000 people there, with more than 680 people killed.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-12T22:01:50+00:00",
+    "region": "EMEA",
     "severity": 3,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -164,6 +212,18 @@
     "time": "2023-04-04T01:08:44+00:00",
     "region": "EMEA",
     "severity": 3,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Xi's anti-corruption drive began 14 years ago. Why are the purges still going?",
+    "url": "https://www.bbc.com/news/articles/c78xxyyqwe7o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Physical security event.",
+    "body": "Critics say Xi's purges reveal a ruthless drive for absolute loyalty and total control of the military.",
+    "source": "bbc.com",
+    "time": "2026-03-13T23:08:36+00:00",
+    "region": "Global",
+    "severity": 2,
     "type": "PHYSICAL SECURITY",
     "locations": []
   },
@@ -216,15 +276,15 @@
     "locations": []
   },
   {
-    "title": "Michigan synagogue attack was 'hate, plain and simple', says governor",
-    "url": "https://www.bbc.com/news/articles/cdxz0jpzk4do?at_medium=RSS&at_campaign=rss",
-    "snippet": "Physical security event.",
-    "body": "The FBI says it is investigating the incident as a \"targeted act of violence against the Jewish community\", but a motive for the crime remains unclear.",
-    "source": "bbc.com",
-    "time": "2026-03-13T16:57:30+00:00",
+    "title": "Hegseth vows thorough probe of school strike that Trump blamed on Iran",
+    "url": "https://www.washingtonpost.com/national-security/2026/03/13/hegseth-iran-school-strike/",
+    "snippet": "Supply chain or logistics disruption.",
+    "body": "The announcement appeared to tacitly acknowledge a growing body of evidence that U.S. forces, not Iran, were responsible for the deadly attack.",
+    "source": "washingtonpost.com",
+    "time": "2026-03-13T19:02:16+00:00",
     "region": "Global",
     "severity": 2,
-    "type": "PHYSICAL SECURITY",
+    "type": "SUPPLY CHAIN",
     "locations": []
   },
   {
@@ -249,18 +309,6 @@
     "region": "EMEA",
     "severity": 2,
     "type": "SUPPLY CHAIN",
-    "locations": []
-  },
-  {
-    "title": "Green flood alert in Ethiopia",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103798",
-    "snippet": "Natural disaster or emergency.",
-    "body": "On 09/03/2026, a flood started in Ethiopia, lasting until 11/03/2026 (last update). The flood caused 70 deaths and 3480 displaced .",
-    "source": "gdacs.org",
-    "time": "2026-03-13T08:58:47+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
     "locations": []
   },
   {
@@ -300,18 +348,6 @@
     "locations": []
   },
   {
-    "title": "Green flood alert in Tanzania",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103796",
-    "snippet": "Natural disaster or emergency.",
-    "body": "On 10/03/2026, a flood started in Tanzania, lasting until 12/03/2026 (last update). The flood caused 1 deaths and 0 displaced .",
-    "source": "gdacs.org",
-    "time": "2026-03-12T07:39:07+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "locations": []
-  },
-  {
     "title": "At least 17 killed after drone strikes school in Sudan",
     "url": "https://www.theguardian.com/world/2026/mar/11/at-least-17-killed-after-drone-strikes-school-in-sudan",
     "snippet": "Supply chain or logistics disruption.",
@@ -336,30 +372,6 @@
     "locations": []
   },
   {
-    "title": "Green earthquake (Magnitude 5.5M, Depth:10km) in South Of Kermadec Islands 11/03/2026 07:40 UTC, [unknown].",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=EQ&eventid=1528465",
-    "snippet": "Natural disaster or emergency.",
-    "body": "On 3/11/2026 7:40:13 AM, an earthquake occurred in South Of Kermadec Islands potentially affecting [unknown]. The earthquake had Magnitude 5.5M, Depth:10km.",
-    "source": "gdacs.org",
-    "time": "2026-03-11T07:59:32+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
-    "locations": []
-  },
-  {
-    "title": "Green notification for tropical cyclone NURI-26. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (9761 in Tropical Storm).",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001263",
-    "snippet": "Cybersecurity incident detected.",
-    "body": "From 11/03/2026 to 12/03/2026, a Tropical Depression (maximum wind speed of 56 km/h) NURI-26 was active in NWPacific. The cyclone affects these countries: [unknown] (vulnerability [unknown]). Estimated population affected by category 1 (120 km/h) wind speeds or higher is 0  (9761 in tropical storm).",
-    "source": "gdacs.org",
-    "time": "2026-03-11T02:35:33+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CYBER SECURITY",
-    "locations": []
-  },
-  {
     "title": "Suspected Chinese spy balloon was able to transmit information back to Beijing",
     "url": "https://www.cnn.com/2023/04/03/politics/chinese-spy-balloon/index.html",
     "snippet": "Physical security event.",
@@ -377,7 +389,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "",
     "source": "edition.cnn.com",
-    "time": "2026-03-13T23:10:16.171037+00:00",
+    "time": "2026-03-14T00:35:48.319183+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -389,7 +401,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "",
     "source": "cnn.it",
-    "time": "2026-03-13T23:10:16.086678+00:00",
+    "time": "2026-03-14T00:35:48.279858+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -401,31 +413,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "",
     "source": "edition.cnn.com",
-    "time": "2026-03-13T23:10:15.829288+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "M 5.3 - 16 km E of Erbaa, Turkey",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfyj",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "DYFI? - VI Time 2026-03-13 00:35:14 UTC 2026-03-13 00:35:14 UTC at epicenter Location 40.693°N 36.764°E Depth 10.00 km (6.21 mi)",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:04.256182+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "M 4.7 - 222 km ESE of Attu Station, Alaska",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sfz6",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "ShakeMap - III Time 2026-03-13 03:30:32 UTC 2026-03-13 03:30:32 UTC at epicenter Location 52.221°N 176.307°E Depth 10.00 km (6.21 mi)",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:04.172779+00:00",
+    "time": "2026-03-14T00:35:48.162996+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -437,7 +425,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-13 04:54:31 UTC 2026-03-13 04:54:31 UTC at epicenter Location 28.262°S 176.660°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:04.088026+00:00",
+    "time": "2026-03-14T00:33:27.893105+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -449,7 +437,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-13 07:00:25 UTC 2026-03-13 07:00:25 UTC at epicenter Location 35.799°S 103.098°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:03.998570+00:00",
+    "time": "2026-03-14T00:33:27.854840+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -461,7 +449,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "PAGER - GREEN ShakeMap - VI DYFI? - VI Time 2026-03-13 13:39:18 UTC 2026-03-13 13:39:18 UTC at epicenter Location 28.684°S 71.627°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:03.912002+00:00",
+    "time": "2026-03-14T00:33:27.813926+00:00",
     "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -473,7 +461,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-13 16:15:43 UTC 2026-03-13 16:15:43 UTC at epicenter Location 34.474°S 179.434°E Depth 344.04 km (213.78 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:03.824077+00:00",
+    "time": "2026-03-14T00:33:27.777468+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -485,7 +473,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-13 19:55:21 UTC 2026-03-13 19:55:21 UTC at epicenter Location 39.444°N 143.288°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:03.739550+00:00",
+    "time": "2026-03-14T00:33:27.721949+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -497,7 +485,67 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-13 21:09:02 UTC 2026-03-13 21:09:02 UTC at epicenter Location 24.247°S 46.177°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-13T23:10:03.652746+00:00",
+    "time": "2026-03-14T00:33:27.684329+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "M 5.0 - south of the Kermadec Islands",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sg6t",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Time 2026-03-13 22:54:36 UTC 2026-03-13 22:54:36 UTC at epicenter Location 33.245°S 177.930°W Depth 10.00 km (6.21 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-14T00:33:27.634750+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "M 4.7 - 162 km SSE of Vilyuchinsk, Russia",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sg6u",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Time 2026-03-13 22:56:38 UTC 2026-03-13 22:56:38 UTC at epicenter Location 51.622°N 159.467°E Depth 35.00 km (21.75 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-14T00:33:27.596450+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Republic of Congo election: Who is running and what’s at stake?",
+    "url": "https://www.aljazeera.com/news/2026/3/14/republic-of-congo-election-who-is-running-and-whats-at-stake?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Analysts say Congo Brazzaville's election are a mere formality as President Sassou Nguesso is set to extend his rule.",
+    "source": "aljazeera.com",
+    "time": "2026-03-14T00:21:09+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Chemical Smell at Control Center Halts Traffic at Washington and Baltimore Airports",
+    "url": "https://www.nytimes.com/2026/03/13/us/airports-ground-stop-dc-baltimore.html",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Ronald Reagan Washington National Airport was among the airports where the F.A.A. halted flights on Friday afternoon.",
+    "source": "nytimes.com",
+    "time": "2026-03-14T00:19:20+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Analysts say US threat of ‘no quarter’ for Iran violates international law",
+    "url": "https://www.aljazeera.com/news/2026/3/14/analysts-say-us-threat-of-no-quarter-for-iran-violates-international-law?traffic_source=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Defense Secretary Pete Hegseth said there would be 'no quarter, no mercy' as US continues to pummel Iran.",
+    "source": "aljazeera.com",
+    "time": "2026-03-14T00:17:50+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -540,18 +588,6 @@
     "locations": []
   },
   {
-    "title": "Chemical Smell at Control Center Halts Traffic at Washington and Baltimore Airports",
-    "url": "https://www.nytimes.com/2026/03/13/us/airports-ground-stop-dc-baltimore.html",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Ronald Reagan Washington National Airport was among the airports where the F.A.A. halted flights on Friday afternoon.",
-    "source": "nytimes.com",
-    "time": "2026-03-13T22:36:53+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "U.S. Vows to Block Iran’s Attempt to Shut Down Strait of Hormuz",
     "url": "https://www.nytimes.com/2026/03/13/world/middleeast/iran-strait-of-hormuz-us-war.html",
     "snippet": "Keyword heuristic — low confidence.",
@@ -588,12 +624,12 @@
     "locations": []
   },
   {
-    "title": "Cuba confirms negotiations with US as country faces effects of oil blockade",
-    "url": "https://www.bbc.com/news/articles/cwy8zv9gp0go?at_medium=RSS&at_campaign=rss",
+    "title": "Judge Quashes Justice Dept.’s Subpoenas of Fed, Crippling Its Pursuit of Trump’s Rivals",
+    "url": "https://www.nytimes.com/2026/03/13/us/politics/jerome-powell-trump-subpoenas.html",
     "snippet": "Keyword heuristic — low confidence.",
-    "body": "Cuba's president confirmed the talks in a national broadcast as the country also said it would release 51 prisoners in \"goodwill\" gesture.",
-    "source": "bbc.com",
-    "time": "2026-03-13T22:00:38+00:00",
+    "body": "“The government has offered no evidence whatsoever that Jerome H. Powell, the Federal Reserve chair, committed any crime other than displeasing the president,” Judge James E. Boasberg wrote.",
+    "source": "nytimes.com",
+    "time": "2026-03-13T22:02:38+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -684,18 +720,6 @@
     "locations": []
   },
   {
-    "title": "Green forest fire notification in China",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1027797",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "On 12/03/2026, a forest fire started in China,  until 13/03/2026.",
-    "source": "gdacs.org",
-    "time": "2026-03-13T20:00:22+00:00",
-    "region": "APJC",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Are You Using A.I. at Work? We Want to Hear From You.",
     "url": "https://www.nytimes.com/2026/03/13/business/how-you-use-ai-at-work.html",
     "snippet": "Keyword heuristic — low confidence.",
@@ -720,18 +744,6 @@
     "locations": []
   },
   {
-    "title": "Austrian glaciers disintegrating due to climate change, say scientists",
-    "url": "https://www.bbc.com/news/articles/cd038pgrr1yo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Scientists say nearly all of the significant glaciers in the Austrian Alps have shrunk.",
-    "source": "bbc.com",
-    "time": "2026-03-13T19:09:48+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Two more horses die on final day of Cheltenham",
     "url": "https://www.bbc.com/news/articles/cd709jel19xo?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
@@ -744,12 +756,12 @@
     "locations": []
   },
   {
-    "title": "Bolivian authorities capture drug kingpin Sebastian Marset in police raid",
-    "url": "https://www.aljazeera.com/news/2026/3/13/bolivian-authorities-capture-drug-kingpin-sebastian-marset-in-police-raid?traffic_source=rss",
+    "title": "Trump’s Move to Seize Oil Tankers Costs the U.S. Tens of Millions of Dollars",
+    "url": "https://www.nytimes.com/2026/03/13/us/politics/trump-seized-oil-tankers-cost.html",
     "snippet": "Keyword heuristic — low confidence.",
-    "body": "Marset was transferred into the custody of the United States, which has pushed for more aggressive antidrug tactics.",
-    "source": "aljazeera.com",
-    "time": "2026-03-13T18:52:46+00:00",
+    "body": "The oil tanker Skipper, seized by the United States, seen off the coast of Texas near Galveston in December.",
+    "source": "nytimes.com",
+    "time": "2026-03-13T18:43:54+00:00",
     "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -780,18 +792,6 @@
     "locations": []
   },
   {
-    "title": "What is Israel’s endgame in Lebanon?",
-    "url": "https://www.aljazeera.com/video/inside-story/2026/3/13/what-is-israels-endgame-in-lebanon?traffic_source=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Israel seizes more territory in southern Lebanon and threatens to keep holding it.",
-    "source": "aljazeera.com",
-    "time": "2026-03-13T18:21:25+00:00",
-    "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "First image emerges of Andrew, Mandelson and Epstein together",
     "url": "https://www.bbc.com/news/articles/clyxezdv335o?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
@@ -811,6 +811,18 @@
     "source": "bbc.com",
     "time": "2026-03-13T17:42:49+00:00",
     "region": "AMER",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Cuba acknowledges secret meetings with U.S. as Trump dials up threats",
+    "url": "https://www.washingtonpost.com/national-security/2026/03/13/cuba-us-secret-talks-trump-pressure/",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Trump has warned that Cuba is next in line after Venezuela and Iran, saying that the Havana regime is in its “last moments of life.”",
+    "source": "washingtonpost.com",
+    "time": "2026-03-13T17:36:31+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -883,18 +895,6 @@
     "source": "bbc.com",
     "time": "2026-03-13T16:07:39+00:00",
     "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Green forest fire notification in United States",
-    "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1027796",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "On 13/03/2026, a forest fire started in United States,  until 13/03/2026.",
-    "source": "gdacs.org",
-    "time": "2026-03-13T12:00:11+00:00",
-    "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
