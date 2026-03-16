@@ -3242,6 +3242,59 @@ async function runIngestion(env, options = {}, ctx = null) {
       }
     }
 
+    // ── Railway relay: thelayoff.com/dell ─────────────────────────────────────
+    // Fetches Dell-specific forum posts via the Railway egress relay
+    // (Cloudflare Worker IPs are blocked by thelayoff.com directly).
+    // Requires RELAY_URL env var set to the Railway service public domain.
+    const relayBase = env.RELAY_URL ? env.RELAY_URL.replace(/\/$/, '') : '';
+    if (relayBase) {
+      try {
+        const relayHeaders = { 'Accept': 'application/json' };
+        if (env.RELAY_SECRET) relayHeaders['x-relay-key'] = env.RELAY_SECRET;
+        const relayRes = await fetchWithTimeout(`${relayBase}/relay/thelayoff`, { headers: relayHeaders }, 20000);
+        if (relayRes && relayRes.ok) {
+          const relayData = await relayRes.json();
+          const relayPosts = Array.isArray(relayData.posts) ? relayData.posts : [];
+          debug('relay_thelayoff', { count: relayPosts.length });
+          for (const post of relayPosts) {
+            if (!post.title || post.title.length < 8) continue;
+            const combined = `${post.title} — ${post.snippet || ''}`.trim();
+            if (isNoise(combined)) continue;
+            const inc = {
+              id:             stableId(post.url || post.title),
+              title:          post.title,
+              summary:        post.snippet || '',
+              category:       'WORKFORCE',
+              severity:       3,
+              severity_label: 'MEDIUM',
+              region:         'AMER',
+              country:        'US',
+              location:       'Round Rock, TX',
+              link:           post.url || '#',
+              source:         'thelayoff.com',
+              source_type:    'forum',
+              time:           post.published_at || new Date().toISOString(),
+              lat:            30.5083,
+              lng:            -97.6789,
+            };
+            // Nearest Dell site (Round Rock HQ)
+            const nDell = nearestDell(inc.lat, inc.lng);
+            if (nDell) {
+              inc.nearest_site_name = nDell.name;
+              inc.nearest_site_key  = nDell.name.toLowerCase();
+              inc.distance_km       = Math.round(nDell.dist);
+            }
+            const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[inc.id] : null;
+            if (thumbs === 'down') continue;
+            fresh.push(inc);
+          }
+        } else {
+          debug('relay_thelayoff_err', { status: relayRes ? relayRes.status : 'no_response' });
+        }
+      } catch (e) { debug('relay_thelayoff_exception', e?.message || e); }
+    }
+    // ──────────────────────────────────────────────────────────────────────────
+
     // Dedupe fresh
     try {
       const freshMap = new Map();
