@@ -46,6 +46,11 @@ FEEDS = [
     "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
     "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
     "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
+    # The Layoff is Cloudflare-blocked — use Reddit/HN as insider chatter alternatives
+    "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
+    "https://www.reddit.com/r/technology/search.rss?q=Dell+Technologies&sort=new&restrict_sr=1",
+    "https://hnrss.org/newest?q=Dell+Technologies",
+    "https://hnrss.org/newest?q=Dell+layoff+OR+Dell+breach+OR+Dell+hack",
     # ── Global Tier-1 News ────────────────────────────────────────────────────
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
