@@ -63,7 +63,7 @@ app.get('/health', (req, res) => {
  * GET /relay/thelayoff
  * Scrapes thelayoff.com/dell + /t/dell-technologies and returns structured posts
  */
-app.get('/relay/thelayoff', checkSecret, async (req, res) => {
+app.get('/relay/thelayoff', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
 
