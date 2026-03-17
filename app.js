@@ -6527,6 +6527,7 @@ async function loadThreatsLeaks(force) {
     THREATS_LEAKS_DATA = data;
     _tlRender(data);
   } catch (e) {
+    console.error('[TL] loadThreatsLeaks failed:', e);
     if (feed) feed.innerHTML = '<div class="tl-loading" style="color:#e57373;">Failed to load — check Worker connection. <button onclick="loadThreatsLeaks(true)" style="margin-left:8px;padding:2px 10px;border:1px solid #e57373;background:transparent;color:#e57373;border-radius:4px;cursor:pointer;">Retry</button></div>';
   }
 }
@@ -6550,7 +6551,7 @@ function _tlRender(data) {
   const strip = document.getElementById('tl-source-strip');
   if (strip) {
     const srcs = Array.isArray(data.sources) ? data.sources : [];
-    strip.innerHTML = srcs.length ? srcs.map(function(s){ return '<span class="tl-source-badge">' + escapeHtml(s) + '</span>'; }).join('') : '';
+    strip.innerHTML = srcs.length ? srcs.map(function(s){ var d; try { d = new URL(s.indexOf('://') < 0 ? 'https://'+s : s).hostname.replace(/^www\./,''); } catch(_) { d = s; } return '<span class="tl-source-badge">' + escapeHtml(d) + '</span>'; }).join('') : '';
   }
 
   // Apply filters
@@ -6605,7 +6606,7 @@ function _tlRender(data) {
       '<div class="tl-case-title">' +
         (firstLink ? '<a href="' + escapeHtml(firstLink) + '" target="_blank" rel="noopener">' + title + '</a>' : title) +
       '</div>' +
-      (c.summary ? '<div class="tl-case-summary">' + escapeHtml(c.summary.slice(0, 200)) + '</div>' : '') +
+      (c.summary ? '<div class="tl-case-summary">' + escapeHtml((function(s){ var d=document.createElement('div'); d.innerHTML=s; return d.textContent||d.innerText||''; })(c.summary).slice(0,200)) + '</div>' : '') +
       '<div class="tl-case-meta">' +
         (c.related_mentions > 1 ? '<span class="tl-mentions"><i class="fas fa-link"></i> ' + c.related_mentions + ' mentions</span>' : '') +
         (c.target ? '<span class="tl-target">Target: ' + escapeHtml(c.target) + '</span>' : '') +
