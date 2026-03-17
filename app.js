@@ -6606,7 +6606,7 @@ function _tlRender(data) {
       '<div class="tl-case-title">' +
         (firstLink ? '<a href="' + escapeHtml(firstLink) + '" target="_blank" rel="noopener">' + title + '</a>' : title) +
       '</div>' +
-      (c.summary ? '<div class="tl-case-summary">' + escapeHtml((function(s){ var d=document.createElement('div'); d.innerHTML=s; return d.textContent||d.innerText||''; })(c.summary).slice(0,200)) + '</div>' : '') +
+      (c.summary ? '<div class="tl-case-summary">' + escapeHtml((function(s){ var d=document.createElement('div'); d.innerHTML=s; var t=d.textContent||d.innerText||''; d.innerHTML=t; return (d.textContent||d.innerText||'').slice(0,200); })(c.summary)) + '</div>' : '') +
       '<div class="tl-case-meta">' +
         (c.related_mentions > 1 ? '<span class="tl-mentions"><i class="fas fa-link"></i> ' + c.related_mentions + ' mentions</span>' : '') +
         (c.target ? '<span class="tl-target">Target: ' + escapeHtml(c.target) + '</span>' : '') +
