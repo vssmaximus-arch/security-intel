@@ -6520,15 +6520,21 @@ function _tlInit() {
 async function loadThreatsLeaks(force) {
   const feed = document.getElementById('tl-feed');
   if (feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div>';
-  try {
-    const url = WORKER_URL + '/api/threats-leaks' + (force ? '?refresh=1&bust=' + Date.now() : '');
-    const res = await fetchWithTimeout(url, {}, 25000);
-    const data = await res.json();
-    THREATS_LEAKS_DATA = data;
-    _tlRender(data);
-  } catch (e) {
-    console.error('[TL] loadThreatsLeaks failed:', e);
-    if (feed) feed.innerHTML = '<div class="tl-loading" style="color:#e57373;">Failed to load — check Worker connection. <button onclick="loadThreatsLeaks(true)" style="margin-left:8px;padding:2px 10px;border:1px solid #e57373;background:transparent;color:#e57373;border-radius:4px;cursor:pointer;">Retry</button></div>';
+  const url = WORKER_URL + '/api/threats-leaks' + (force ? '?refresh=1&bust=' + Date.now() : '');
+  // Worker endpoint is slow (~20s) — use 50s timeout with one auto-retry
+  for (var _attempt = 0; _attempt < 2; _attempt++) {
+    try {
+      if (_attempt > 0 && feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Retrying Threats &amp; Leaks…</div>';
+      const res = await fetchWithTimeout(url, {}, 50000);
+      const data = await res.json();
+      THREATS_LEAKS_DATA = data;
+      _tlRender(data);
+      return;
+    } catch (e) {
+      console.error('[TL] loadThreatsLeaks attempt ' + (_attempt+1) + ' failed:', e);
+      if (_attempt < 1) continue;
+      if (feed) feed.innerHTML = '<div class="tl-loading" style="color:#e57373;">Failed to load — check Worker connection. <button onclick="loadThreatsLeaks(true)" style="margin-left:8px;padding:2px 10px;border:1px solid #e57373;background:transparent;color:#e57373;border-radius:4px;cursor:pointer;">Retry</button></div>';
+    }
   }
 }
 
