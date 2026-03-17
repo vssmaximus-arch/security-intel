@@ -41,6 +41,11 @@ FEEDS = [
     "https://www.gdacs.org/xml/rss.xml",
     "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
     "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+    # ── Dell Brand Monitoring (PRIORITY — must be before Groq cap is hit) ────
+    "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
     # ── Global Tier-1 News ────────────────────────────────────────────────────
     "https://feeds.reuters.com/reuters/worldNews",
     "https://feeds.reuters.com/reuters/businessNews",
@@ -193,11 +198,6 @@ FEEDS = [
     "https://simpleflying.com/feed/",
     "https://www.aerotelegraph.com/feed",
     "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
-    # ── Dell Brand Monitoring (always fetched) ───────────────────────────────
-    "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
 ]
 
 # ---------- BLOCKLIST ----------
