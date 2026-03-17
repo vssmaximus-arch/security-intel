@@ -193,6 +193,11 @@ FEEDS = [
     "https://simpleflying.com/feed/",
     "https://www.aerotelegraph.com/feed",
     "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
+    # ── Dell Brand Monitoring (always fetched) ───────────────────────────────
+    "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
 ]
 
 # ---------- BLOCKLIST ----------
@@ -257,6 +262,7 @@ CATEGORIES:
 - CYBER_SECURITY_MAJOR: Confirmed breaches, ransomware, major outages, nation-state intrusions.
 - CRISIS_WEATHER: Earthquakes, typhoons, floods, wildfires, grid failure, states of emergency.
 - HEALTH_SAFETY: Epidemics, pandemics, travel bans, major health advisories.
+- BRAND_MONITORING: Dell Technologies layoffs, restructuring, data breaches, leadership changes, executive departures, insider leaks, employee/chatter threats, harassment, reputational risk, Dell-specific vulnerabilities or incidents.
 - NOT_RELEVANT: General politics, sports, entertainment, opinion, patch notes without confirmed impact.
 
 FEEDBACK: {feedback_text}
@@ -496,7 +502,7 @@ def main():
             cat = analysis.get("category", "NOT_RELEVANT")
             score = int(analysis.get("likelihood_relevant", 0) or 0)
 
-            if cat == "NOT_RELEVANT" or score < 45:
+            if cat == "NOT_RELEVANT" or (score < 45 and cat != "BRAND_MONITORING"):
                 continue
 
             sev_str = (analysis.get("severity") or "LOW").upper()
@@ -506,7 +512,7 @@ def main():
 
             dash_type = {"PHYSICAL_SECURITY": "PHYSICAL SECURITY", "SUPPLY_CHAIN_SECURITY": "SUPPLY CHAIN",
                          "CYBER_SECURITY_MAJOR": "CYBER SECURITY", "CRISIS_WEATHER": "CRISIS / WEATHER",
-                         "HEALTH_SAFETY": "HEALTH / SAFETY"}.get(cat, "GENERAL")
+                         "HEALTH_SAFETY": "HEALTH / SAFETY", "BRAND_MONITORING": "INSIDER / LEAKS"}.get(cat, "GENERAL")
 
             ts_iso = datetime.now(timezone.utc).isoformat()
             sort_time = ts_iso
