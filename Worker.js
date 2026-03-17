@@ -59,6 +59,11 @@ const DETERMINISTIC_SOURCES = [
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+  // Dell brand monitoring — always fetched every cron run
+  "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
 ];
 
 // Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
