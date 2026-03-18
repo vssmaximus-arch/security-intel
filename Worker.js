@@ -4940,108 +4940,78 @@ async function handleApiMarkets(env, req) {
    =========================== */
 async function handleApiThreatsLeaks(env, req) {
   try {
-    const CACHE_KEY = 'threats_leaks_v3';
-    const CACHE_TTL = 60; // 1 min cache
+    // Use handleApiIncidents — proven working, same data path
+    const incResult = await handleApiIncidents(env, req);
+    const incidents = Array.isArray(incResult.body) ? incResult.body : [];
 
-    // Try cache first
-    const cached = await kvGetJson(env, CACHE_KEY, null);
-    if (cached && cached.updated_at) {
-      const age = (Date.now() - new Date(cached.updated_at).getTime()) / 1000;
-      if (age < CACHE_TTL) {
-        return new Response(JSON.stringify(cached), {
-          status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }
-        });
-      }
-    }
-
-    const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
-    const incidents = Array.isArray(raw) ? raw : [];
-
-    // Simple Dell company filter — check title, exclude pure consumer hardware posts
-    const CONSUMER_HW_ONLY = /(inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge)/i;
-    const CORP_OVERRIDE = /(breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|CVE)/i;
-    const DELL_SIMPLE = /dell/i;
-
-    // Category classifiers
-    const CAT = {
-      'Leak':          /(data leak|leaked|credential|confidential|exposed|thelayoff|insider|anonymous|whistleblow|internal memo|company secret)/i,
-      'Breach':        /(breach|breached|hacked|hack|ransomware|malware|CVE-|zero.?day|vulnerability|exploit|intrusion|threat actor|extortion)/i,
-      'Layoff / Reorg':/(layoff|laid.?off|let go|job cuts?|workforce reduction|reorg|restructur|headcount|redundanc|RIF|position eliminated)/i,
-      'Leadership':    /(CEO|CFO|CTO|CISO|CRO|resign|departure|steps down|appointed|promoted|new chief|new VP|executive change)/i,
-      'SLT Mention':   /(Michael Dell|Jeff Clarke|Bill Scannell|Yvonne McGill|Chuck Whitten|Sam Burd|John Roese|Dell executive|Dell leadership)/i,
-    };
-
-    const SEV_MAP = { 5: 'Critical', 4: 'High', 3: 'Medium', 2: 'Low', 1: 'Low' };
-    const CONF_MAP = { 4: 'High', 3: 'Medium', 2: 'Low', 1: 'Low' };
+    const CONSUMER_HW = /(inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge)/i;
+    const CORP_SIG    = /(breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|CVE|insider|resign|fired)/i;
+    const CAT_RULES   = [
+      ['Leak',          /(data leak|leaked|credential|confidential|exposed|insider|anonymous|whistleblow|internal memo)/i],
+      ['Breach',        /(breach|breached|hacked|hack|ransomware|malware|CVE-|zero.?day|vulnerability|exploit|intrusion|extortion)/i],
+      ['Layoff / Reorg',/(layoff|laid.?off|let go|job cut|workforce reduction|reorg|restructur|headcount|RIF|workforce drop|workforce shrink)/i],
+      ['Leadership',    /(CEO|CFO|CTO|CISO|resign|departure|steps down|appointed|promoted|new chief|new VP|executive change|stock sale|share sale)/i],
+      ['SLT Mention',   /(Michael Dell|Jeff Clarke|Bill Scannell|Yvonne McGill|Chuck Whitten|Sam Burd|John Roese)/i],
+    ];
+    const SEV_MAP = { 5:'Critical', 4:'High', 3:'Medium', 2:'Low', 1:'Low' };
 
     const seen = new Set();
     const cases = [];
 
     for (const inc of incidents) {
-      const text = `${inc.title || ''} ${inc.summary || ''}`;
-      if (!DELL_SIMPLE.test(inc.title || "")) continue;
-      // Skip pure consumer hardware support posts unless also corp-relevant
-      if (CONSUMER_HW_ONLY.test(inc.title) && !CORP_OVERRIDE.test(inc.title + " " + (inc.summary||""))) continue;
+      const title = String(inc.title || '');
+      if (!/dell/i.test(title)) continue;
+      // Skip pure consumer hardware posts
+      if (CONSUMER_HW.test(title) && !CORP_SIG.test(title + ' ' + String(inc.summary || ''))) continue;
+      const key = title.toLowerCase().slice(0, 60);
+      if (seen.has(key)) continue;
+      seen.add(key);
 
-      const titleKey = (inc.title || '').toLowerCase().slice(0, 60);
-      if (seen.has(titleKey)) continue;
-      seen.add(titleKey);
-
+      const text = title + ' ' + String(inc.summary || '');
       let category = 'General';
-      for (const [cat, rx] of Object.entries(CAT)) {
-        if (rx.test(text)) { category = cat; break; }
-      }
+      for (const [cat, rx] of CAT_RULES) { if (rx.test(text)) { category = cat; break; } }
 
       const sev = Math.min(5, Math.max(1, Number(inc.severity) || 3));
-      const sourceHost = (() => { try { return new URL(inc.link || inc.source || 'https://x').hostname.replace(/^www./, ''); } catch { return inc.source || 'unknown'; } })();
+      const host = (() => { try { return new URL(String(inc.link || inc.source || 'https://x')).hostname.replace(/^www\./,''); } catch { return 'unknown'; } })();
 
       cases.push({
-        id: `case_${inc.id || stableId(inc.title || '')}`,
-        title: inc.title || '',
-        category,
+        id: 'case_' + String(inc.id || Math.random()),
+        title, category,
         severity: SEV_MAP[sev] || 'Medium',
-        confidence: CONF_MAP[Math.max(1, sev - 1)] || 'Medium',
+        confidence: 'Medium',
         target: 'Dell',
         related_mentions: 1,
         first_seen: inc.time || new Date().toISOString(),
         last_seen:  inc.time || new Date().toISOString(),
         source_links: [inc.link || '#'],
-        sources: [sourceHost],
-        summary: inc.summary || inc.title || '',
+        sources: [host],
+        summary: String(inc.summary || title),
       });
-
       if (cases.length >= 50) break;
     }
 
-    // Sort: High → Medium → Low, then newest first
-    const sevOrder = { Critical: 0, High: 1, Medium: 2, Low: 3, General: 4 };
-    cases.sort((a, b) => (sevOrder[a.severity] ?? 5) - (sevOrder[b.severity] ?? 5) || new Date(b.first_seen).getTime() - new Date(a.first_seen).getTime());
+    const sevOrd = { Critical:0, High:1, Medium:2, Low:3, General:4 };
+    cases.sort((a,b) => (sevOrd[a.severity]??5)-(sevOrd[b.severity]??5) || new Date(b.first_seen).getTime()-new Date(a.first_seen).getTime());
 
-    const allSources = [...new Set(cases.flatMap(c => c.sources))].slice(0, 15);
     const result = {
       updated_at: new Date().toISOString(),
       cases,
-      sources: allSources,
-      stats: {
-        total: cases.length,
-        high:  cases.filter(c => c.severity === 'High' || c.severity === 'Critical').length,
-        leaks: cases.filter(c => c.category === 'Leak' || c.category === 'Breach').length,
-      }
+      sources: [...new Set(cases.flatMap(c=>c.sources))],
+      stats: { total: cases.length, high: cases.filter(c=>c.severity==='High'||c.severity==='Critical').length, leaks: cases.filter(c=>c.category==='Leak'||c.category==='Breach').length },
+      _debug: { incidents_read: incidents.length }
     };
 
-    // Cache result
-    try { await env.INTEL_KV.put(CACHE_KEY, JSON.stringify(result), { expirationTtl: CACHE_TTL * 2 }); } catch {}
-
     return new Response(JSON.stringify(result), {
-      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }
+      status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' }
     });
   } catch (e) {
     debug('handleApiThreatsLeaks error', e?.message || e);
-    return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: { total: 0, high: 0, leaks: 0 } }), {
+    return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: {total:0,high:0,leaks:0}, _error: String(e?.message||e) }), {
       status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
     });
   }
 }
+
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
   const url = new URL(req.url);
