@@ -31,10 +31,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Playwright + Chromium
+      - name: Install Playwright + stealth plugin + Chromium
         run: |
           npm init -y --silent
-          npm install playwright --silent
+          npm install playwright-extra puppeteer-extra-plugin-stealth --silent
           npx playwright install chromium --with-deps
 
       - name: Scrape thelayoff.com Dell posts
