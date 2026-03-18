@@ -4957,8 +4957,9 @@ async function handleApiThreatsLeaks(env, req) {
     const raw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
     const incidents = Array.isArray(raw) ? raw : [];
 
-    // Dell keyword matcher — company-specific, avoids false positives
-    const DELL_RX = /(dell technologies|dell inc|dell(?!.*(?:model|inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge|idrac|ome|openmanage|isilon|powerstore|powerflex|apex))|NYSE:s*DELL|ticker.*DELL|DELL.*ticker)/i;
+    // Simple Dell company filter — check title, exclude pure consumer hardware posts
+    const CONSUMER_HW_ONLY = /(inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge)/i;
+    const CORP_OVERRIDE = /(breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|CVE)/i;
     const DELL_SIMPLE = /dell/i;
 
     // Category classifiers
@@ -4978,8 +4979,9 @@ async function handleApiThreatsLeaks(env, req) {
 
     for (const inc of incidents) {
       const text = `${inc.title || ''} ${inc.summary || ''}`;
-      if (!DELL_SIMPLE.test(text)) continue;
-      if (!DELL_RX.test(text) && !/(thelayoff|reddit.*dell|dell.*reddit)/i.test(inc.source || '')) continue;
+      if (!DELL_SIMPLE.test(inc.title || "")) continue;
+      // Skip pure consumer hardware support posts unless also corp-relevant
+      if (CONSUMER_HW_ONLY.test(inc.title) && !CORP_OVERRIDE.test(inc.title + " " + (inc.summary||""))) continue;
 
       const titleKey = (inc.title || '').toLowerCase().slice(0, 60);
       if (seen.has(titleKey)) continue;
@@ -5013,7 +5015,7 @@ async function handleApiThreatsLeaks(env, req) {
 
     // Sort: High → Medium → Low, then newest first
     const sevOrder = { Critical: 0, High: 1, Medium: 2, Low: 3, General: 4 };
-    cases.sort((a, b) => (sevOrder[a.severity] ?? 5) - (sevOrder[b.severity] ?? 5) || new Date(b.first_seen) - new Date(a.first_seen));
+    cases.sort((a, b) => (sevOrder[a.severity] ?? 5) - (sevOrder[b.severity] ?? 5) || new Date(b.first_seen).getTime() - new Date(a.first_seen).getTime());
 
     const allSources = [...new Set(cases.flatMap(c => c.sources))].slice(0, 15);
     const result = {
