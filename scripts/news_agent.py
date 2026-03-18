@@ -42,6 +42,8 @@ FEEDS = [
     "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
     "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
     # ── Dell Brand Monitoring (PRIORITY — must be before Groq cap is hit) ────
+    # Google News mirrors thelayoff.com - Google fetches it, bypassing Cloudflare
+    "https://news.google.com/rss/search?q=site:thelayoff.com+%22Dell%22&hl=en-US&gl=US&ceid=US:en",
     "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
     "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
     "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
@@ -366,101 +368,6 @@ def build_feedback_prompt_section(pos_ex, neg_ex):
 
 
 # ---------- THELAYOFF.COM SCRAPER ----------
-def scrape_thelayoff_dell(seen_titles: set) -> list:
-    """
-    Directly scrape thelayoff.com/dell for the latest 24-hour posts.
-    Returns a list of article dicts in the same format as all_items.
-    """
-    url = "https://www.thelayoff.com/dell"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.thelayoff.com/",
-    }
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            html = resp.read().decode("utf-8", errors="replace")
-    except Exception as e:
-        print(f"  thelayoff.com fetch error: {e}")
-        return []
-
-    soup = BeautifulSoup(html, "html.parser")
-    posts = []
-    now_utc = datetime.now(timezone.utc)
-    cutoff = now_utc.timestamp() - 24 * 3600  # last 24 hours
-
-    # thelayoff.com post structure: <li class="list-group-item"> with nested <a> for title
-    # and data-id / data-date attributes, plus a paragraph for the snippet
-    for item in soup.select("li.list-group-item, div.post-item, article.post, .chat-post"):
-        # Title link
-        link_el = item.select_one("a.post-title, a[href*='/dell/'], h3 a, h4 a, .subject a, a.title")
-        if not link_el:
-            link_el = item.select_one("a")
-        if not link_el:
-            continue
-
-        title = link_el.get_text(" ", strip=True)
-        if not title or len(title) < 10:
-            continue
-        if title in seen_titles:
-            continue
-
-        href = link_el.get("href", "")
-        if href and not href.startswith("http"):
-            href = "https://www.thelayoff.com" + href
-
-        # Snippet / body text
-        snippet_el = item.select_one("p, .post-body, .content, .text-muted, .post-snippet")
-        snippet = snippet_el.get_text(" ", strip=True)[:400] if snippet_el else ""
-
-        # Timestamp — try data attributes or text
-        ts_iso = now_utc.isoformat()
-        for attr in ["data-date", "data-time", "datetime"]:
-            val = item.get(attr) or (item.select_one("time") or {}).get(attr, "")
-            if val:
-                try:
-                    from datetime import datetime as _dt
-                    parsed_ts = _dt.fromisoformat(val.replace("Z", "+00:00"))
-                    if parsed_ts.timestamp() < cutoff:
-                        ts_iso = None  # too old, skip
-                    else:
-                        ts_iso = parsed_ts.isoformat()
-                    break
-                except Exception:
-                    pass
-
-        if ts_iso is None:
-            continue  # older than 24h
-
-        # Classify keyword-only (no Groq call for these — they're always Dell-relevant)
-        sev = 2  # default MEDIUM for layoff/insider chatter
-        full_text = f"{title} {snippet}".lower()
-        if re.search(r"\b(confirmed|massive|thousands|entire|shutdown|bankruptcy|scandal|fraud|criminal)\b", full_text):
-            sev = 3
-        if re.search(r"\b(data.?breach|credentials|hack|ransomware|leaked|confidential|internal.?memo)\b", full_text):
-            sev = 3
-
-        seen_titles.add(title)
-        posts.append({
-            "title": title,
-            "url": href,
-            "snippet": snippet[:160] or "Dell insider discussion from thelayoff.com",
-            "body": snippet[:600],
-            "source": "thelayoff.com",
-            "time": ts_iso,
-            "region": "Global",
-            "severity": sev,
-            "type": "INSIDER / LEAKS",
-            "_sort_time": ts_iso,
-            "locations": ["United States"],
-        })
-
-    return posts
-
-
-# ---------- MAIN ----------
 def main():
     print(f"SRO Ingest starting — {len(FEEDS)} feeds")
     api_key = init_groq()
@@ -540,11 +447,6 @@ def main():
                 "locations": geo_locations,
             })
             print(f"  [KEEP] {dash_type}|sev={severity}|{map_region(full_text)}| {title[:70]}")
-
-    # ── thelayoff.com/dell direct scrape ─────────────────────────────────────
-    layoff_items = scrape_thelayoff_dell(seen_titles)
-    print(f"  thelayoff.com/dell → {len(layoff_items)} posts")
-    all_items.extend(layoff_items)
 
     all_items.sort(key=lambda x: (x.get("severity", 1), x.get("_sort_time", "")), reverse=True)
     for it in all_items:
