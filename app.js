@@ -5013,6 +5013,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (icon)  { icon.className  = dark ? 'fas fa-sun' : 'fas fa-moon'; }
         if (label) { label.textContent = dark ? 'Light' : 'Dark'; }
         if (btn)   { btn.setAttribute('aria-pressed', String(dark)); btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode'; }
+        /* Notify other modules (e.g. VW map tile swap) */
+        document.dispatchEvent(new CustomEvent('themechange', { detail: { dark } }));
       }
 
       // Restore saved preference (default = dark)
@@ -6631,6 +6633,7 @@ function _tlRender(data) {
 
 var _vwInitDone   = false;
 var _vwMap        = null;
+var _vwTileLayer  = null;
 var _vwMarkers    = [];
 var _vwZoneLayers = [];
 var _vwData       = null;
@@ -6677,8 +6680,8 @@ function _vwRender(data) {
   /* _vwRenderChokepoints and _vwLoadIncidents now handled by port disruption section */
   /* _vwRenderChokepoints(vessels); */
   /* _vwLoadIncidents(vessels); */
-  var countEl = document.getElementById('vw-monitored-count');
-  if (countEl) countEl.textContent = vessels.length;
+  var countEl = document.getElementById('vw-fleet-count');
+  if (countEl) countEl.textContent = vessels.length ? vessels.length + ' vessel' + (vessels.length !== 1 ? 's' : '') : '';
 }
 
 function _vwRenderPosture(posture) {
@@ -6735,9 +6738,18 @@ function _vwRenderMap(vessels, riskZones) {
     var bounds = L.latLngBounds(L.latLng(-85,-180), L.latLng(85,180));
     _vwMap = L.map('vw-map', { center:[15,60], zoom:2, zoomControl:true, attributionControl:false, maxBounds:bounds, maxBoundsViscosity:1.0, worldCopyJump:false });
     window.vwMap = _vwMap; /* expose globally so initVwGrid GridStack script can call invalidateSize() */
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      subdomains:'abcd', maxZoom:18, noWrap:true, bounds:bounds,
-    }).addTo(_vwMap);
+    var _vwIsLight = document.body.classList.contains('light-mode');
+    var _vwTileUrl = _vwIsLight
+      ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    _vwTileLayer = L.tileLayer(_vwTileUrl, { subdomains:'abcd', maxZoom:18, noWrap:true, bounds:bounds }).addTo(_vwMap);
+    /* Swap tiles when theme toggle fires */
+    document.addEventListener('themechange', function() {
+      var light = document.body.classList.contains('light-mode');
+      var url   = light ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+                        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      if (_vwTileLayer) { _vwTileLayer.setUrl(url); }
+    });
   }
   _vwMarkers.forEach(function(m){ m.remove(); }); _vwMarkers = [];
   _vwZoneLayers.forEach(function(l){ l.remove(); }); _vwZoneLayers = [];
