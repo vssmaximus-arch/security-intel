@@ -152,7 +152,9 @@ const THUMBS_KV_KEY = "thumbs_prefs_v1";
 const THUMBS_FEEDBACK_LOG = "thumbs_feedback_log_v1";
 const LEARNING_RULES_KEY = "learning_rules_v1";
 const DISLIKES_KV_PREFIX = "DISLIKES:";
-const LAYOFF_KV_KEY = "layoff_posts"; // written by GitHub Actions Playwright scraper
+const LAYOFF_KV_KEY          = "layoff_posts";       // written by GitHub Actions Playwright scraper
+const MONITORED_VESSELS_KEY  = "monitored_vessels";   // sanitized vessel watch registry
+const DATALASTIC_BASE        = "https://api.datalastic.com/api/v0"; // vessel tracking (free tier 100/day)
 const ACK_KV_PREFIX = "ack:";
 const ACK_TTL_SEC = 7 * 24 * 3600; // 7 days
 
@@ -4135,6 +4137,292 @@ async function handleApiPortDisruptions(env, req) {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   MARITIME EXPOSURE LAYER
+   Four-layer architecture:
+     Layer 1 — Public intelligence  (news/disruption feed — existing incidents KV)
+     Layer 2 — Public vessel tracking (Datalastic free API → mock fallback)
+     Layer 3 — Geospatial risk engine (point-in-polygon, nearest chokepoint, AIS stale)
+     Layer 4 — Sanitized monitored-vessel registry (KV, no cargo/customer/SKU data)
+
+   Endpoints:
+     GET /api/vessel/lookup?imo=|mmsi=|name=    → VesselPosition + VesselRiskAssessment
+     GET /api/vessel/monitored                  → all watched vessels with live risk
+     GET /api/vessel/posture                    → overall executive exposure posture
+
+   CONSTRAINT: No Dell cargo, customer, SKU, shipment, supplier, or financial data.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+// ── Default monitored vessel registry ────────────────────────────────────────
+// 10 real publicly-tracked container vessels on Asia-AMER / Asia-EMEA trade lanes.
+// Fields are SANITIZED — no cargo, customer, order, SKU, or shipment details.
+// businessRelevance reflects lane criticality for Dell supply chain corridors.
+const DEFAULT_MONITORED_VESSELS = [
+  { imo:'9839697', mmsi:'255806361', vesselName:'MSC GÜLSÜN',              businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-Europe via Suez / Cape detour (Red Sea disruption)',  lastReviewed:'2026-03-18' },
+  { imo:'9786030', mmsi:'477213800', vesselName:'COSCO SHIPPING ARIES',    businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Transpacific TPEB — China to US West Coast',               lastReviewed:'2026-03-18' },
+  { imo:'9776171', mmsi:'228367900', vesselName:'CMA CGM SAINT EXUPERY',   businessRelevance:'High',   monitoringStatus:'Elevated', watchEnabled:true, notesSanitized:'Asia-Europe — Cape of Good Hope re-route (cost impact)',    lastReviewed:'2026-03-18' },
+  { imo:'9893890', mmsi:'477625800', vesselName:'EVER ALOT',               businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-Europe — Cape route due to Red Sea closure',          lastReviewed:'2026-03-18' },
+  { imo:'9806079', mmsi:'538008583', vesselName:'ONE APUS',                businessRelevance:'Medium', monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Transpacific TPEB — Japan/Korea to US West Coast',         lastReviewed:'2026-03-18' },
+  { imo:'9863297', mmsi:'440349000', vesselName:'HMM ALGECIRAS',           businessRelevance:'High',   monitoringStatus:'Watch',    watchEnabled:true, notesSanitized:'Asia-Europe — monitoring lane disruption impact',          lastReviewed:'2026-03-18' },
+  { imo:'9700938', mmsi:'477012000', vesselName:'YANG MING WARRANTY',      businessRelevance:'Medium', monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Transpacific TPNW — North Asia to US Pacific Northwest',   lastReviewed:'2026-03-18' },
+  { imo:'9525628', mmsi:'219627000', vesselName:'MAERSK ESSEX',            businessRelevance:'Medium', monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-Europe feeder — Singapore hub to Rotterdam',          lastReviewed:'2026-03-18' },
+  { imo:'9811000', mmsi:'357171000', vesselName:'EVER ACE',                businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Transpacific — Taiwan/China to Los Angeles',               lastReviewed:'2026-03-18' },
+  { imo:'9703291', mmsi:'255801960', vesselName:'MSC OSCAR',               businessRelevance:'Medium', monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-Europe — Cape of Good Hope due to Houthi risk',       lastReviewed:'2026-03-18' },
+];
+
+// ── Maritime risk zone polygons ───────────────────────────────────────────────
+// Simple convex polygons [lng, lat] — ray-casting point-in-polygon, no Turf needed.
+const MARITIME_RISK_ZONES = [
+  { id:'red_sea_south',   name:'Southern Red Sea / Bab-el-Mandeb',  severity:'CRITICAL', chokepointId:'bab_el_mandeb', threat:'Active Houthi drone and missile attacks on commercial shipping',
+    polygon:[[41,11],[43,11],[45,12],[47,13],[45,15],[43,15],[41,14],[40,13]] },
+  { id:'red_sea_north',   name:'Northern Red Sea / Suez Approaches', severity:'HIGH',     chokepointId:'suez',          threat:'Houthi missile range covers northern Red Sea corridor',
+    polygon:[[32,27],[34,27],[37,24],[38,22],[36,21],[33,22],[31,25]] },
+  { id:'hormuz',          name:'Strait of Hormuz',                   severity:'ELEVATED', chokepointId:'hormuz',        threat:'Iranian naval activity — potential closure risk during escalation',
+    polygon:[[55,24],[57,24],[57.5,25.5],[56.5,26],[55,25.5],[54,25]] },
+  { id:'taiwan_strait',   name:'Taiwan Strait',                      severity:'ELEVATED', chokepointId:'taiwan_strait', threat:'PLA military exercises and increased patrol activity',
+    polygon:[[119,21],[121,21],[121.5,22],[122,24],[121,25.5],[120,25],[119,24],[118.5,22.5]] },
+  { id:'spratly_islands', name:'South China Sea (Spratlys)',          severity:'ELEVATED', chokepointId:'south_china_sea',threat:'Territorial disputes — naval interdiction and patrol risk',
+    polygon:[[110,8],[116,8],[117,11],[116,14],[114,12],[111,11],[109,10]] },
+  { id:'black_sea',       name:'Black Sea',                           severity:'HIGH',     chokepointId:'bosphorus',     threat:'Ukraine-Russia conflict — naval mining and drone attacks on commercial vessels',
+    polygon:[[28,41],[34,41],[38,43],[37,46],[33,46],[30,45],[28,43]] },
+];
+
+// ── Chokepoint centers for nearest-CP distance calc ──────────────────────────
+const CHOKEPOINT_CENTERS = {
+  bab_el_mandeb:  { lat:12.6,  lon:43.4,   name:'Bab-el-Mandeb'    },
+  suez:           { lat:30.0,  lon:32.5,   name:'Suez Canal'       },
+  hormuz:         { lat:26.6,  lon:56.3,   name:'Strait of Hormuz' },
+  malacca:        { lat:2.5,   lon:101.5,  name:'Strait of Malacca'},
+  taiwan_strait:  { lat:24.0,  lon:120.5,  name:'Taiwan Strait'    },
+  south_china_sea:{ lat:15.0,  lon:115.0,  name:'South China Sea'  },
+  panama:         { lat:9.0,   lon:-79.5,  name:'Panama Canal'     },
+  bosphorus:      { lat:41.0,  lon:29.0,   name:'Bosphorus Strait' },
+};
+
+// ── Ray-casting point-in-polygon ──────────────────────────────────────────────
+function _pointInPolygon(lat, lon, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i][0], yi = polygon[i][1];
+    const xj = polygon[j][0], yj = polygon[j][1];
+    if (((yi > lat) !== (yj > lat)) && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+
+// ── Haversine distance in nautical miles ──────────────────────────────────────
+function _distNm(lat1, lon1, lat2, lon2) {
+  const R = 3440.065;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.asin(Math.sqrt(a));
+}
+
+// ── Risk classification engine ────────────────────────────────────────────────
+function classifyVesselRisk(vessel, monEntry, aisStaleHours) {
+  const lat = Number(vessel.latitude || vessel.lat || 0);
+  const lon = Number(vessel.longitude || vessel.lon || 0);
+  let status = 'Normal';
+  const reasons = [];
+  let riskZone = null;
+  let nearestCp = null;
+  let nearestCpDist = Infinity;
+
+  // Zone check
+  for (const zone of MARITIME_RISK_ZONES) {
+    if (_pointInPolygon(lat, lon, zone.polygon)) {
+      riskZone = zone.name;
+      if (zone.severity === 'CRITICAL') { status = 'Review Required'; reasons.push('Inside ' + zone.name + ' — ' + zone.threat); break; }
+      if (zone.severity === 'HIGH'     && status !== 'Review Required') { status = 'Elevated'; reasons.push('Inside ' + zone.name + ' — ' + zone.threat); }
+      if (zone.severity === 'ELEVATED' && status === 'Normal')          { status = 'Watch';    reasons.push('Inside ' + zone.name); }
+    }
+  }
+
+  // Nearest chokepoint
+  for (const [id, cp] of Object.entries(CHOKEPOINT_CENTERS)) {
+    const d = _distNm(lat, lon, cp.lat, cp.lon);
+    if (d < nearestCpDist) { nearestCpDist = d; nearestCp = cp.name; }
+    if (d < 150 && status === 'Normal') { status = 'Watch'; reasons.push('Within 150nm of ' + cp.name); }
+  }
+
+  // AIS staleness
+  const stale = (aisStaleHours || 0) > 12;
+  if (stale) {
+    reasons.push('AIS position stale >' + Math.round(aisStaleHours) + 'h');
+    if (status === 'Normal')    status = 'Watch';
+    if (status === 'Elevated')  status = 'Review Required';
+  }
+
+  // Business relevance escalation
+  if (monEntry && monEntry.businessRelevance === 'High' && status === 'Watch') {
+    status = 'Elevated';
+    reasons.push('High business relevance lane');
+  }
+
+  const ACTION = { 'Normal':'None', 'Watch':'Monitor', 'Elevated':'Review', 'Review Required':'Escalate' };
+  return {
+    imo:              String(vessel.imo  || (monEntry && monEntry.imo)  || ''),
+    mmsi:             String(vessel.mmsi || (monEntry && monEntry.mmsi) || ''),
+    vesselName:       vessel.name || vessel.vesselName || (monEntry && monEntry.vesselName) || 'Unknown',
+    flag:             vessel.flag || vessel.country_iso || '',
+    vesselType:       vessel.type || 'Container Ship',
+    lat, lon,
+    speed:            Number(vessel.speed || vessel.sog || 0),
+    heading:          Number(vessel.course || vessel.heading || 0),
+    destination:      vessel.destination || '',
+    eta:              vessel.eta || '',
+    navStatus:        vessel.navigational_status || vessel.nav_status || '',
+    lastReported:     vessel.position_received_at || vessel.last_reported || '',
+    riskZone:         riskZone || 'Open Waters',
+    nearestChokepoint:nearestCp || '',
+    nearestCpDistNm:  Math.round(nearestCpDist),
+    aisStale:         stale,
+    status,
+    reason:           reasons.join('; ') || 'No active risk indicators',
+    recommendedAction:ACTION[status] || 'None',
+    businessRelevance:(monEntry && monEntry.businessRelevance) || 'Low',
+    notesSanitized:   (monEntry && monEntry.notesSanitized)    || '',
+    _mock:            !!(vessel._mock),
+  };
+}
+
+// ── Realistic mock positions by trade lane (used when no API key or live data) ──
+function _mockPositionForVessel(mv) {
+  const LANES = {
+    '9839697':{ lat:3.2,   lon:103.8,  dest:'ROTTERDAM',   speed:18.5, hdg:295 }, // MSC GÜLSÜN  — off Malacca
+    '9786030':{ lat:21.0,  lon:155.0,  dest:'LOS ANGELES', speed:19.2, hdg:68  }, // COSCO ARIES — transpacific
+    '9776171':{ lat:-15.0, lon:15.0,   dest:'ROTTERDAM',   speed:17.8, hdg:335 }, // CMA CGM     — off Angola (Cape route)
+    '9893890':{ lat:-34.0, lon:18.5,   dest:'HAMBURG',     speed:18.0, hdg:340 }, // EVER ALOT   — Cape Town
+    '9806079':{ lat:30.0,  lon:145.0,  dest:'LONG BEACH',  speed:19.0, hdg:65  }, // ONE APUS    — NW Pacific
+    '9863297':{ lat:5.0,   lon:100.5,  dest:'HAMBURG',     speed:18.5, hdg:290 }, // HMM ALGE    — near Malacca
+    '9700938':{ lat:35.0,  lon:170.0,  dest:'SEATTLE',     speed:18.0, hdg:75  }, // YANG MING   — N Pacific
+    '9525628':{ lat:51.5,  lon:3.5,    dest:'ROTTERDAM',   speed:12.0, hdg:90  }, // MAERSK ESS  — North Sea
+    '9811000':{ lat:22.0,  lon:145.0,  dest:'LOS ANGELES', speed:19.5, hdg:65  }, // EVER ACE    — Pacific
+    '9703291':{ lat:-28.0, lon:32.0,   dest:'ROTTERDAM',   speed:17.5, hdg:350 }, // MSC OSCAR   — Indian Ocean
+  };
+  const p = LANES[mv.imo] || { lat:0, lon:0, dest:'UNKNOWN', speed:0, hdg:0 };
+  return {
+    name: mv.vesselName, imo: mv.imo, mmsi: mv.mmsi,
+    latitude: p.lat, longitude: p.lon,
+    speed: p.speed, course: p.hdg, heading: p.hdg,
+    destination: p.dest,
+    eta: new Date(Date.now() + 12 * 86400000).toISOString(),
+    navigational_status: 'Under way using engine',
+    position_received_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+    type: 'Container Ship', flag: 'PA', _mock: true,
+  };
+}
+
+// ── Overall posture calculator ────────────────────────────────────────────────
+function _calcPosture(assessments) {
+  const c = { 'Review Required':0, 'Elevated':0, 'Watch':0, 'Normal':0 };
+  for (const v of assessments) c[v.status] = (c[v.status] || 0) + 1;
+  let level, colorKey, summary;
+  if (c['Review Required'] >= 2)                       { level='Action Required'; colorKey='CRITICAL'; summary=`${c['Review Required']} vessels require immediate review. Critical maritime exposure detected.`; }
+  else if (c['Review Required']===1||c['Elevated']>=2) { level='Elevated';        colorKey='HIGH';     summary=`Maritime exposure elevated. ${c['Elevated']} vessel(s) in risk zones, ${c['Review Required']} requiring review.`; }
+  else if (c['Elevated']===1||c['Watch']>=3)           { level='Watch';           colorKey='MEDIUM';   summary=`${c['Watch']} monitored vessel(s) under watch. Situational awareness recommended.`; }
+  else                                                 { level='Stable';          colorKey='LOW';      summary='No critical maritime exposure detected. Monitored fleet operating on primary trade lanes.'; }
+  summary += ' No detailed internal shipment data is displayed on this dashboard.';
+  return { level, colorKey, summary, counts:c, total:assessments.length };
+}
+
+/* ── GET /api/vessel/lookup?imo=|mmsi=|name=  ──────────────────────────────── */
+async function handleApiVesselLookup(env, req) {
+  const url  = new URL(req.url);
+  const imo  = (url.searchParams.get('imo')  || '').trim();
+  const mmsi = (url.searchParams.get('mmsi') || '').trim();
+  const name = (url.searchParams.get('name') || url.searchParams.get('q') || '').trim();
+  if (!imo && !mmsi && !name) {
+    return new Response(JSON.stringify({ ok:false, error:'Provide imo, mmsi, or name' }), { status:400, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json'}) });
+  }
+  const apiKey = env.DATALASTIC_API_KEY || '';
+  let vessel = null;
+  if (apiKey) {
+    try {
+      let apiUrl;
+      if (imo)   apiUrl = `${DATALASTIC_BASE}/vessel?api-key=${apiKey}&uuid=IMO:${encodeURIComponent(imo)}`;
+      else if (mmsi) apiUrl = `${DATALASTIC_BASE}/vessel?api-key=${apiKey}&mmsi=${encodeURIComponent(mmsi)}`;
+      else           apiUrl = `${DATALASTIC_BASE}/vessel?api-key=${apiKey}&name=${encodeURIComponent(name)}`;
+      const r = await fetchWithTimeout(apiUrl, {}, 12000);
+      if (r.ok) { const d = await r.json(); vessel = d.data || (Array.isArray(d.data)?d.data[0]:null) || d; }
+    } catch(e) { typeof debug==='function'&&debug('vesselLookup_api_err',e?.message||e); }
+  }
+  // Fallback: find in monitored list mock data
+  if (!vessel) {
+    const monitored = await kvGetJson(env, MONITORED_VESSELS_KEY, DEFAULT_MONITORED_VESSELS);
+    const mv = (Array.isArray(monitored)?monitored:DEFAULT_MONITORED_VESSELS).find(m =>
+      (imo  && m.imo===imo) || (mmsi && m.mmsi===mmsi) ||
+      (name && m.vesselName.toLowerCase().includes(name.toLowerCase())));
+    vessel = mv ? _mockPositionForVessel(mv) : {
+      name:name||'VESSEL NOT FOUND', imo:imo||'', mmsi:mmsi||'',
+      latitude:0, longitude:0, speed:0, course:0, heading:0, destination:'UNKNOWN',
+      eta:'', navigational_status:'Unknown', position_received_at:new Date().toISOString(),
+      type:'Unknown', flag:'', _mock:true, _notFound:true,
+    };
+  }
+  const monitored = await kvGetJson(env, MONITORED_VESSELS_KEY, DEFAULT_MONITORED_VESSELS);
+  const monEntry = (Array.isArray(monitored)?monitored:DEFAULT_MONITORED_VESSELS).find(m => m.imo===String(vessel.imo||'') || m.mmsi===String(vessel.mmsi||''));
+  const lastRep = vessel.position_received_at ? new Date(vessel.position_received_at) : null;
+  const aisStaleHours = lastRep ? (Date.now()-lastRep.getTime())/3600000 : 99;
+  const risk = classifyVesselRisk(vessel, monEntry||null, aisStaleHours);
+  return new Response(JSON.stringify({ ok:true, vessel, risk, isMonitored:!!monEntry }), {
+    status:200, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json','Cache-Control':'public, max-age=120'}),
+  });
+}
+
+/* ── GET /api/vessel/monitored  ─────────────────────────────────────────────── */
+async function handleApiMonitoredVessels(env) {
+  try {
+    let vessels = await kvGetJson(env, MONITORED_VESSELS_KEY, null);
+    if (!vessels || !Array.isArray(vessels) || vessels.length===0) vessels = DEFAULT_MONITORED_VESSELS;
+    const apiKey = env.DATALASTIC_API_KEY || '';
+    const results = [];
+    for (const mv of vessels) {
+      if (!mv.watchEnabled) continue;
+      let livePos = null; let aisStaleHours = 99;
+      if (apiKey && mv.imo) {
+        try {
+          const r = await fetchWithTimeout(`${DATALASTIC_BASE}/vessel?api-key=${apiKey}&uuid=IMO:${mv.imo}`,{},8000);
+          if (r.ok) { const d=await r.json(); livePos=d.data||(Array.isArray(d.data)?d.data[0]:null)||d;
+            if (livePos && livePos.position_received_at) aisStaleHours=(Date.now()-new Date(livePos.position_received_at).getTime())/3600000; }
+        } catch(e) { typeof debug==='function'&&debug('monVessel_api_err',e?.message||e); }
+      }
+      if (!livePos) { livePos=_mockPositionForVessel(mv); aisStaleHours=2; }
+      results.push(classifyVesselRisk(livePos, mv, aisStaleHours));
+    }
+    const posture = _calcPosture(results);
+    // Attach risk zone metadata so frontend can draw overlays
+    const zones = MARITIME_RISK_ZONES.map(z=>({id:z.id,name:z.name,severity:z.severity,threat:z.threat,polygon:z.polygon,chokepointId:z.chokepointId}));
+    return new Response(JSON.stringify({ ok:true, vessels:results, posture, riskZones:zones, updated_at:new Date().toISOString() }), {
+      status:200, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json','Cache-Control':'public, max-age=180'}),
+    });
+  } catch(e) {
+    typeof debug==='function'&&debug('handleApiMonitoredVessels error',e?.message||e);
+    return new Response(JSON.stringify({ ok:false, error:String(e?.message||e), vessels:[], posture:{level:'Unknown',summary:'Data unavailable'} }), {
+      status:200, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json'}),
+    });
+  }
+}
+
+/* ── GET /api/vessel/posture  ───────────────────────────────────────────────── */
+async function handleApiMaritimePosture(env) {
+  try {
+    let vessels = await kvGetJson(env, MONITORED_VESSELS_KEY, DEFAULT_MONITORED_VESSELS);
+    if (!Array.isArray(vessels)) vessels = DEFAULT_MONITORED_VESSELS;
+    const assessments = vessels.filter(v=>v.watchEnabled).map(mv=>classifyVesselRisk(_mockPositionForVessel(mv),mv,2));
+    const posture = _calcPosture(assessments);
+    return new Response(JSON.stringify({ ok:true, posture, updated_at:new Date().toISOString() }), {
+      status:200, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json','Cache-Control':'public, max-age=300'}),
+    });
+  } catch(e) {
+    return new Response(JSON.stringify({ ok:false, posture:{level:'Unknown',colorKey:'LOW',summary:'Posture data unavailable'} }), {
+      status:200, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json'}),
+    });
+  }
+}
+/* ── END MARITIME EXPOSURE LAYER ──────────────────────────────────────────── */
+
 async function handleApiTravel(env, urlParams) {
   // support /api/traveladvisories and /api/traveladvisories/live
   if (urlParams && urlParams.get('country')) {
@@ -6248,6 +6536,12 @@ async function handleRequest(req, env, ctx) {
       return handleApiMarkets(env, req);
     } else if (p.startsWith('/api/port-disruptions')) {
       return handleApiPortDisruptions(env, req);
+    } else if (p.startsWith('/api/vessel/lookup')) {
+      return handleApiVesselLookup(env, req);
+    } else if (p.startsWith('/api/vessel/monitored')) {
+      return handleApiMonitoredVessels(env);
+    } else if (p.startsWith('/api/vessel/posture')) {
+      return handleApiMaritimePosture(env);
     } else if (p.startsWith("/api/threats-leaks")) {
       return handleApiThreatsLeaks(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
