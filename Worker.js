@@ -3020,6 +3020,62 @@ async function runIngestion(env, options = {}, ctx = null) {
       }
     }
 
+    // ── Railway relay: thelayoff.com/dell ─────────────────────────────────────
+    // Fetches Dell-specific forum posts via the Railway egress relay.
+    // Cloudflare Worker IPs are blocked by thelayoff.com directly, so the relay
+    // server (non-Cloudflare IP) scrapes thelayoff and serves structured JSON.
+    // Requires RELAY_URL env var set in Cloudflare Worker settings.
+    try {
+      const relayBase = env.RELAY_URL ? String(env.RELAY_URL).replace(/\/$/, '') : '';
+      if (relayBase) {
+        const relayHeaders = { 'Accept': 'application/json' };
+        if (env.RELAY_SECRET) relayHeaders['x-relay-key'] = String(env.RELAY_SECRET);
+        const relayRes = await fetchWithTimeout(relayBase + '/relay/thelayoff', { headers: relayHeaders }, 20000);
+        if (relayRes && relayRes.ok) {
+          const relayData = await relayRes.json();
+          const relayPosts = Array.isArray(relayData.posts) ? relayData.posts : [];
+          debug('relay_thelayoff', { count: relayPosts.length });
+          for (let rp = 0; rp < relayPosts.length; rp++) {
+            const post = relayPosts[rp];
+            if (!post.title || post.title.length < 8) continue;
+            const combined = post.title + ' — ' + (post.snippet || '');
+            if (typeof isNoise === 'function' && isNoise(combined)) continue;
+            const inc = {
+              id:             typeof stableId === 'function' ? stableId(post.url || post.title) : ('tl_' + rp),
+              title:          post.title,
+              summary:        post.snippet || '',
+              category:       'WORKFORCE',
+              severity:       4,
+              severity_label: 'HIGH',
+              region:         'AMER',
+              country:        'US',
+              location:       'Round Rock, TX',
+              link:           post.url || '#',
+              source:         'thelayoff.com',
+              source_type:    'forum',
+              time:           post.published_at || new Date().toISOString(),
+              lat:            30.5083,
+              lng:            -97.6789,
+            };
+            const nDell = typeof nearestDell === 'function' ? nearestDell(inc.lat, inc.lng) : null;
+            if (nDell) {
+              inc.nearest_site_name = nDell.name;
+              inc.nearest_site_key  = nDell.name.toLowerCase();
+              inc.distance_km       = Math.round(nDell.dist);
+            }
+            const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[inc.id] : null;
+            if (thumbs === 'down') continue;
+            fresh.push(inc);
+          }
+        } else {
+          debug('relay_thelayoff_err', { status: relayRes ? relayRes.status : 'no_response' });
+        }
+      } else {
+        debug('relay_thelayoff_skip', 'RELAY_URL not configured');
+      }
+    } catch (e) { debug('relay_thelayoff_exception', e && e.message ? e.message : String(e)); }
+    // ──────────────────────────────────────────────────────────────────────────
+
     // Dedupe fresh
     try {
       const freshMap = new Map();
