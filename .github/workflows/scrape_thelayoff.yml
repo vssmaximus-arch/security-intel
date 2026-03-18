@@ -1,0 +1,46 @@
+name: Scrape thelayoff.com — Dell Intelligence
+
+# Runs every 4 hours + on-demand.
+# Uses real Chromium via Playwright to bypass Cloudflare JS challenge.
+# Extracted posts are stored in Cloudflare Worker KV (layoff_posts key, 8-hour TTL).
+# The Threats & Leaks tab reads from this KV key and shows them at the top of the feed.
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'   # 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+  workflow_dispatch:         # manual trigger from GitHub Actions UI
+
+permissions:
+  contents: read
+
+jobs:
+  scrape-thelayoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      WORKER_URL:     https://osinfohub.vssmaximus.workers.dev
+      INGEST_SECRET:  ${{ secrets.INGEST_SECRET }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright + Chromium
+        run: |
+          npm init -y --silent
+          npm install playwright --silent
+          npx playwright install chromium --with-deps
+
+      - name: Scrape thelayoff.com Dell posts
+        run: node scripts/scrape_thelayoff.js
+
+      - name: Confirm ingest
+        run: |
+          echo "Scrape complete. Posts are stored in Cloudflare Worker KV (layoff_posts, 8h TTL)."
+          echo "Threats & Leaks tab will show thelayoff.com posts at the top of the feed."
