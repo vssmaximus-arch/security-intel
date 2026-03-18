@@ -4326,11 +4326,12 @@
     function initPortMap() {
       if (typeof L === 'undefined') return;
       var isLight = document.body.classList.contains('light-mode');
-      portMap = L.map('port-map', { center: [20, 20], zoom: 2, scrollWheelZoom: true, zoomControl: true, attributionControl: false });
+      var portBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+      portMap = L.map('port-map', { center: [20, 20], zoom: 2, scrollWheelZoom: true, zoomControl: true, attributionControl: false, maxBounds: portBounds, maxBoundsViscosity: 1.0, worldCopyJump: false });
       var tileUrl = isLight
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19 }).addTo(portMap);
+      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19, noWrap: true, bounds: portBounds }).addTo(portMap);
       portMarkerLayer = L.layerGroup().addTo(portMap);
     }
 
