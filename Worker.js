@@ -152,6 +152,7 @@ const THUMBS_KV_KEY = "thumbs_prefs_v1";
 const THUMBS_FEEDBACK_LOG = "thumbs_feedback_log_v1";
 const LEARNING_RULES_KEY = "learning_rules_v1";
 const DISLIKES_KV_PREFIX = "DISLIKES:";
+const LAYOFF_KV_KEY = "layoff_posts"; // written by GitHub Actions Playwright scraper
 const ACK_KV_PREFIX = "ack:";
 const ACK_TTL_SEC = 7 * 24 * 3600; // 7 days
 
@@ -178,6 +179,24 @@ const DETERMINISTIC_SOURCES = [
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+  // ── Dell brand monitoring (DETERMINISTIC — always fetched, bypass relevance gate) ──
+  // Google News: Dell corporate intelligence
+  "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+layoffs+OR+%22Dell+workforce%22+OR+%22Dell+headcount%22&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+breach+OR+Dell+hack+OR+Dell+ransomware+OR+Dell+CVE&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+%22Dell+executive%22&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=%22Dell%22+layoff+site%3Abusinessinsider.com+OR+site%3Afortune.com+OR+site%3Abloomberg.com&hl=en-US&gl=US&ceid=US:en",
+  // Reddit — layoff/insider chatter (thelayoff.com alternative)
+  "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/dell/new.rss",
+  "https://www.reddit.com/r/cscareerquestions/search.rss?q=dell+layoff+OR+dell+fired&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/jobs/search.rss?q=dell+layoff&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/technology/search.rss?q=Dell+Technologies&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/antiwork/search.rss?q=dell&sort=new&restrict_sr=1",
+  // Hacker News — Dell mentions
+  "https://hnrss.org/newest?q=Dell+Technologies",
+  "https://hnrss.org/newest?q=Dell+layoff+OR+Dell+breach+OR+Dell+hack",
 ];
 
 // Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
@@ -3242,56 +3261,59 @@ async function runIngestion(env, options = {}, ctx = null) {
       }
     }
 
-    // ── Railway relay: thelayoff.com/dell ─────────────────────────────────────
-    // Fetches Dell-specific forum posts via the Railway egress relay
-    // (Cloudflare Worker IPs are blocked by thelayoff.com directly).
-    // Requires RELAY_URL env var set to the Railway service public domain.
-    const relayBase = env.RELAY_URL ? env.RELAY_URL.replace(/\/$/, '') : '';
-    if (relayBase) {
-      try {
-        const relayHeaders = { 'Accept': 'application/json' };
-        if (env.RELAY_SECRET) relayHeaders['x-relay-key'] = env.RELAY_SECRET;
-        const relayRes = await fetchWithTimeout(`${relayBase}/relay/thelayoff`, { headers: relayHeaders }, 20000);
-        if (relayRes && relayRes.ok) {
-          const relayData = await relayRes.json();
-          const relayPosts = Array.isArray(relayData.posts) ? relayData.posts : [];
-          debug('relay_thelayoff', { count: relayPosts.length });
-          for (const post of relayPosts) {
-            if (!post.title || post.title.length < 8) continue;
-            const combined = `${post.title} — ${post.snippet || ''}`.trim();
-            if (isNoise(combined)) continue;
-            const inc = {
-              id:             stableId(post.url || post.title),
-              title:          post.title,
-              summary:        post.snippet || '',
-              category:       'WORKFORCE',
-              severity:       3,
-              severity_label: 'MEDIUM',
-              region:         'AMER',
-              country:        'US',
-              location:       'Round Rock, TX',
-              link:           post.url || '#',
-              source:         'thelayoff.com',
-              source_type:    'forum',
-              time:           post.published_at || new Date().toISOString(),
-              lat:            30.5083,
-              lng:            -97.6789,
-            };
-            // Nearest Dell site (Round Rock HQ)
-            const nDell = nearestDell(inc.lat, inc.lng);
-            if (nDell) {
-              inc.nearest_site_name = nDell.name;
-              inc.nearest_site_key  = nDell.name.toLowerCase();
-              inc.distance_km       = Math.round(nDell.dist);
-            }
-            const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[inc.id] : null;
-            if (thumbs === 'down') continue;
-            fresh.push(inc);
+    // ── thelayoff.com ingestion: direct scrape → relay fallback ───────────────
+    var layoffPosts = [];
+    // 1) Try direct Worker fetch (CF-to-CF sometimes bypasses bot protection)
+    try {
+      layoffPosts = await scrapeThelayoffDell();
+      debug('thelayoff_direct_total', { count: layoffPosts.length });
+    } catch (e) { debug('thelayoff_direct_exception', e && e.message ? e.message : String(e)); }
+    // 2) If direct got nothing, try Railway relay as fallback
+    if (layoffPosts.length === 0) {
+      const relayBase = env.RELAY_URL ? String(env.RELAY_URL).replace(/\/$/, '') : '';
+      if (relayBase) {
+        try {
+          const relayHeaders = { 'Accept': 'application/json' };
+          if (env.RELAY_SECRET) relayHeaders['x-relay-key'] = String(env.RELAY_SECRET);
+          const relayRes = await fetchWithTimeout(relayBase + '/relay/thelayoff', { headers: relayHeaders }, 20000);
+          if (relayRes && relayRes.ok) {
+            const rd = await relayRes.json();
+            layoffPosts = Array.isArray(rd.posts) ? rd.posts : [];
+            debug('relay_thelayoff_fallback', { count: layoffPosts.length });
+          } else {
+            debug('relay_thelayoff_err', { status: relayRes ? relayRes.status : 'no_response' });
           }
-        } else {
-          debug('relay_thelayoff_err', { status: relayRes ? relayRes.status : 'no_response' });
-        }
-      } catch (e) { debug('relay_thelayoff_exception', e?.message || e); }
+        } catch (e) { debug('relay_thelayoff_exception', e && e.message ? e.message : String(e)); }
+      }
+    }
+    // 3) Convert posts → incidents and push into fresh[]
+    for (var lp = 0; lp < layoffPosts.length; lp++) {
+      var post = layoffPosts[lp];
+      if (!post.title || post.title.length < 8) continue;
+      var combined = post.title + ' \u2014 ' + (post.snippet || '');
+      if (typeof isNoise === 'function' && isNoise(combined)) continue;
+      var lInc = {
+        id:             typeof stableId === 'function' ? stableId(post.url || post.title) : ('tl_' + lp),
+        title:          post.title,
+        summary:        post.snippet || '',
+        category:       'WORKFORCE',
+        severity:       4,
+        severity_label: 'HIGH',
+        region:         'AMER',
+        country:        'US',
+        location:       'Round Rock, TX',
+        link:           post.url || '#',
+        source:         'thelayoff.com',
+        source_type:    'forum',
+        time:           post.published_at || new Date().toISOString(),
+        lat:            30.5083,
+        lng:            -97.6789,
+      };
+      var nDell = typeof nearestDell === 'function' ? nearestDell(lInc.lat, lInc.lng) : null;
+      if (nDell) { lInc.nearest_site_name = nDell.name; lInc.nearest_site_key = nDell.name.toLowerCase(); lInc.distance_km = Math.round(nDell.dist); }
+      var lThumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[lInc.id] : null;
+      if (lThumbs === 'down') continue;
+      fresh.push(lInc);
     }
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -3470,6 +3492,12 @@ async function runIngestion(env, options = {}, ctx = null) {
       // persist incidents and proximity — throttled to avoid redundant KV writes
       await kvPutWithThrottle(env, INCIDENTS_KV_KEY, merged);
       await kvPutWithThrottle(env, PROXIMITY_KV_KEY, { incidents: proxOut, updated_at: new Date().toISOString() });
+      // Bust CF edge cache so fresh incidents are served immediately after ingest
+      try {
+        const cache = caches.default;
+        await cache.delete(new Request('https://osinfohub-cache.internal/incidents-v1', { method: 'GET' }));
+        await cache.delete(new Request('https://osinfohub-cache.internal/proximity-v1', { method: 'GET' }));
+      } catch (_ce) { /* cache API not available in this context */ }
 
       // archive older ones
       try { await archiveIncidents(env, merged); } catch (e) { typeof debug === 'function' && debug("archiveIncidents error", e?.message || e); }
@@ -3867,23 +3895,18 @@ async function handleApiStream(env, req) {
     writer.write(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 
   (async () => {
-    let hbTimer;
     try {
+      // Tell clients to wait 5 minutes before reconnecting — critical for scale.
+      // 300 users × reconnect every 5 min = 60 req/min vs 60 req/sec without this.
+      await writer.write(enc.encode('retry: 300000\n\n'));
       const incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
       const proxRaw   = await kvGetJson(env, PROXIMITY_KV_KEY, { incidents: [] });
       await writeEvent('incidents', incidents);
       await writeEvent('proximity', proxRaw);
       await writeEvent('heartbeat', { ts: new Date().toISOString() });
-
-      // SSE comment keepalives — prevents CF idle-close before client reconnects
-      hbTimer = setInterval(async () => {
-        try { await writer.write(enc.encode(`: heartbeat\n\n`)); }
-        catch { clearInterval(hbTimer); }
-      }, 25_000);
     } catch (e) {
       debug('handleApiStream error', e?.message || e);
     } finally {
-      clearInterval(hbTimer);
       try { await writer.close(); } catch {}
     }
   })();
@@ -3897,6 +3920,64 @@ async function handleApiStream(env, req) {
     }
   });
 }
+
+// ── Scale wrappers: CF Cache API + proper Cache-Control ───────────────────────
+// These sit in front of the core handlers and serve from Cloudflare's edge cache.
+// With 300 concurrent users: only 1 Worker invocation per 120s per data-center
+// instead of 300 invocations — stays well within the free-tier 100k/day limit.
+const _TL_HDRS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+
+async function handleApiIncidentsCached(env, req, ctx) {
+  const userId = req && req.headers ? req.headers.get('X-User-Id') : null;
+  // User-specific (dislike-filtered) responses must NOT be shared — skip cache
+  if (!userId) {
+    try {
+      const cache    = caches.default;
+      const cacheKey = new Request('https://osinfohub-cache.internal/incidents-v1', { method: 'GET' });
+      const hit      = await cache.match(cacheKey);
+      if (hit) {
+        const h = new Response(hit.body, hit);
+        h.headers.set('X-Cache', 'HIT');
+        return h;
+      }
+      const r    = await handleApiIncidents(env, req);
+      const body = JSON.stringify(Array.isArray(r.body) ? r.body : []);
+      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=120', 'X-Cache': 'MISS' }) });
+      if (ctx) ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+      else cache.put(cacheKey, resp.clone());
+      return resp;
+    } catch (_ce) { /* CF cache unavailable — fall through to direct */ }
+  }
+  const r    = await handleApiIncidents(env, req);
+  const body = JSON.stringify(Array.isArray(r.body) ? r.body : []);
+  return new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'private, no-store' }) });
+}
+
+async function handleApiProximityCached(env, req, ctx) {
+  const userId = req && req.headers ? req.headers.get('X-User-Id') : null;
+  if (!userId) {
+    try {
+      const cache    = caches.default;
+      const cacheKey = new Request('https://osinfohub-cache.internal/proximity-v1', { method: 'GET' });
+      const hit      = await cache.match(cacheKey);
+      if (hit) {
+        const h = new Response(hit.body, hit);
+        h.headers.set('X-Cache', 'HIT');
+        return h;
+      }
+      const r    = await handleApiProximity(env, req);
+      const body = JSON.stringify(r.body || {});
+      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=300', 'X-Cache': 'MISS' }) });
+      if (ctx) ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+      else cache.put(cacheKey, resp.clone());
+      return resp;
+    } catch (_ce) { /* fall through */ }
+  }
+  const r    = await handleApiProximity(env, req);
+  const body = JSON.stringify(r.body || {});
+  return new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'private, no-store' }) });
+}
+// ──────────────────────────────────────────────────────────────────────────────
 
 async function handleApiIncidents(env, req) {
   const inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
@@ -3933,6 +4014,125 @@ async function handleApiProximity(env, req) {
     }
   } catch (e) { typeof debug === 'function' && debug('handleApiProximity dislike filter error', e?.message || e); }
   return { ok: true, status: 200, body: prox };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GET /api/port-disruptions
+   Filters ingested incidents for maritime/port/shipping content and returns
+   structured disruption list + static chokepoint traffic sidebar data.
+   Shape: { disruptions:[{port_name,lat,lng,severity,cause_type,summary,date,source_url,source}],
+            chokepoints:[{name,trend_pct,status}], stats:{total}, updated_at }
+   ───────────────────────────────────────────────────────────────────────── */
+async function handleApiPortDisruptions(env) {
+  try {
+    const raw  = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const list = Array.isArray(raw) ? raw : [];
+
+    const PORT_RE = /\b(port|seaport|harbour|harbor|shipping lane|vessel|maritime|cargo ship|container ship|tanker|suez|strait|canal|chokepoint|dock|terminal|longshoremen|dockwork|seafarer|coast guard|piracy|pirate|red sea|bab.?el.?mandeb|hormuz|malacca|panama|bosphorus|taiwan strait|south china sea|aden|gulf of oman|indian ocean route)\b/i;
+
+    const CAUSE_MAP = [
+      { re: /\b(piracy|pirate|attack|security|threat|hijack|armed|houthi|drone|missile)\b/i, type: 'SECURITY' },
+      { re: /\b(strike|protest|worker|union|longshoremen|dockwork)\b/i,                       type: 'STRIKE'   },
+      { re: /\b(storm|typhoon|hurricane|cyclone|fog|weather|flood|wind|monsoon)\b/i,          type: 'WEATHER'  },
+      { re: /\b(earthquake|tsunami|eruption|volcano|natural disaster)\b/i,                    type: 'NATURAL'  },
+    ];
+
+    const PORT_FALLBACK_COORDS = {
+      'suez':          { lat: 30.0,  lng:  32.5  },
+      'red sea':       { lat: 20.0,  lng:  38.0  },
+      'hormuz':        { lat: 26.5,  lng:  56.5  },
+      'malacca':       { lat:  2.5,  lng: 101.5  },
+      'panama':        { lat:  9.0,  lng: -79.5  },
+      'bosphorus':     { lat: 41.1,  lng:  29.0  },
+      'taiwan strait': { lat: 24.0,  lng: 120.5  },
+      'south china sea':{ lat:15.0,  lng: 115.0  },
+      'singapore':     { lat:  1.35, lng: 103.82 },
+      'shanghai':      { lat: 31.23, lng: 121.47 },
+      'rotterdam':     { lat: 51.92, lng:   4.48 },
+      'hamburg':       { lat: 53.55, lng:   9.99 },
+      'los angeles':   { lat: 33.74, lng:-118.27 },
+      'long beach':    { lat: 33.77, lng:-118.19 },
+      'aden':          { lat: 12.8,  lng:  45.0  },
+      'gulf of oman':  { lat: 23.5,  lng:  58.5  },
+    };
+
+    const now = Date.now();
+    const SEVEN_DAYS = 7 * 24 * 3600 * 1000;
+    const disruptions = [];
+
+    for (const inc of list) {
+      const text = `${inc.title || ''} ${inc.summary || ''}`;
+      if (!PORT_RE.test(text)) continue;
+      const age = inc.time ? now - new Date(inc.time).getTime() : 0;
+      if (age > SEVEN_DAYS) continue;
+
+      let cause_type = 'OTHER';
+      for (const m of CAUSE_MAP) { if (m.re.test(text)) { cause_type = m.type; break; } }
+
+      const sevLabel = String(inc.severity_label || '').toUpperCase();
+      const sevNum   = Number(inc.severity) || 0;
+      const severity = (sevLabel === 'HIGH' || sevNum >= 4) ? 'HIGH' :
+                       (sevLabel === 'LOW'  || sevNum <= 2) ? 'LOW'  : 'MEDIUM';
+
+      let lat = Number(inc.lat) || 0;
+      let lng = Number(inc.lng) || 0;
+      if (!lat || !lng) {
+        const tl = text.toLowerCase();
+        for (const [kw, coords] of Object.entries(PORT_FALLBACK_COORDS)) {
+          if (tl.includes(kw)) { lat = coords.lat; lng = coords.lng; break; }
+        }
+      }
+
+      const port_name = (inc.location && inc.location !== 'UNKNOWN')
+        ? inc.location
+        : (inc.country && inc.country !== 'GLOBAL' ? inc.country : (inc.title || '').slice(0, 60));
+
+      const srcHost = inc.source ? String(inc.source).replace(/^https?:\/\//, '').split('/')[0] : 'intel-feed';
+
+      disruptions.push({
+        port_name:  String(port_name).slice(0, 80),
+        lat:        lat || null,
+        lng:        lng || null,
+        severity,
+        cause_type,
+        summary:    String(inc.summary || inc.title || '').slice(0, 200),
+        date:       inc.time || new Date().toISOString(),
+        source_url: inc.link  || null,
+        source:     srcHost,
+      });
+      if (disruptions.length >= 40) break;
+    }
+
+    // Static chokepoint traffic sidebar (status reflects current global situation)
+    const chokepoints = [
+      { name: 'Suez Canal',              trend_pct: -45, status: 'Severely Disrupted' },
+      { name: 'Red Sea (Bab-el-Mandeb)', trend_pct: -52, status: 'Severely Disrupted' },
+      { name: 'Strait of Hormuz',        trend_pct:  -8, status: 'Reduced'            },
+      { name: 'Strait of Malacca',       trend_pct:   2, status: 'Normal'             },
+      { name: 'Panama Canal',            trend_pct: -18, status: 'Reduced'            },
+      { name: 'Bosphorus Strait',        trend_pct: -12, status: 'Reduced'            },
+      { name: 'Taiwan Strait',           trend_pct:  -5, status: 'Reduced'            },
+      { name: 'South China Sea',         trend_pct:  -3, status: 'Normal'             },
+      { name: 'Port of Singapore',       trend_pct:   1, status: 'Normal'             },
+      { name: 'Port of Shanghai',        trend_pct:  -2, status: 'Normal'             },
+    ];
+
+    return new Response(JSON.stringify({
+      disruptions,
+      chokepoints,
+      stats:      { total: disruptions.length },
+      updated_at: new Date().toISOString(),
+    }), {
+      status:  200,
+      headers: Object.assign({}, CORS_HEADERS, { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }),
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiPortDisruptions error', e?.message || e);
+    return new Response(JSON.stringify({ disruptions: [], chokepoints: [], stats: { total: 0 }, updated_at: new Date().toISOString() }), {
+      status:  200,
+      headers: Object.assign({}, CORS_HEADERS, { 'Content-Type': 'application/json' }),
+    });
+  }
 }
 
 async function handleApiTravel(env, urlParams) {
@@ -3983,6 +4183,19 @@ async function handleAdminAction(env, req, ctx) {
       if (ctx) ctx.waitUntil(runIngestion(env, { force: true }, ctx).catch(e => debug("ingest trigger failed", e?.message || e)));
       else runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed no-ctx", e?.message || e));
       return { ok:true, status:200, body: "ingest_started" };
+    } else if (action === 'ingest-layoff') {
+      // Receives thelayoff.com posts from GitHub Actions Playwright scraper
+      try {
+        const body = await req.json().catch(function() { return {}; });
+        const posts = Array.isArray(body.posts) ? body.posts : [];
+        if (posts.length === 0) return { ok: true, status: 200, body: JSON.stringify({ ok: true, stored: 0 }) };
+        const payload = { posts: posts, updated_at: new Date().toISOString() };
+        await env.INTEL_KV.put(LAYOFF_KV_KEY, JSON.stringify(payload), { expirationTtl: 8 * 3600 });
+        debug('ingest-layoff', { stored: posts.length });
+        return { ok: true, status: 200, body: JSON.stringify({ ok: true, stored: posts.length }) };
+      } catch (e) {
+        return { ok: false, status: 500, body: JSON.stringify({ ok: false, error: e && e.message ? e.message : String(e) }) };
+      }
     } else if (action === 'aggregate-thumbs') {
       if (ctx) ctx.waitUntil(aggregateThumbs(env, { force: true }));
       else aggregateThumbs(env, { force: true }).catch(e=>debug("aggregate-thumbs failed no-ctx", e?.message || e));
@@ -5805,7 +6018,155 @@ async function handleApiMarkets(env, req) {
   }
 }
 
+// ── thelayoff.com direct scraper ──────────────────────────────────────────────
+// Cloudflare Worker fetch() exits through CF edge — sometimes bypasses CF bot
+// protection on other CF-hosted sites. Falls back gracefully on 403.
+async function scrapeThelayoffDell() {
+  var TLOFF_URLS = [
+    'https://www.thelayoff.com/dell',
+    'https://www.thelayoff.com/t/dell-technologies',
+  ];
+  var TL_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Cache-Control': 'no-cache',
+    'Referer': 'https://www.google.com/',
+  };
+  var posts = [];
+  var seenTitles = new Set();
+  for (var u = 0; u < TLOFF_URLS.length; u++) {
+    var tlUrl = TLOFF_URLS[u];
+    try {
+      var tlRes = await fetchWithTimeout(tlUrl, { headers: TL_HEADERS }, 15000);
+      if (!tlRes || !tlRes.ok) {
+        debug('thelayoff_direct', { url: tlUrl, status: tlRes ? tlRes.status : 'no_response' });
+        continue;
+      }
+      var html = await tlRes.text();
+      var itemRe = /<li[^>]*class="[^"]*list-group-item[^"]*"[^>]*>([\s\S]*?)<\/li>/gi;
+      var m;
+      while ((m = itemRe.exec(html)) !== null) {
+        var block = m[1];
+        var lm = /<a[^>]+href="(\/[^"#]+)"[^>]*>([^<]{5,200})<\/a>/i.exec(block);
+        if (!lm) lm = /<a[^>]+href="(\/[^"#]+)"[^>]*>\s*<[^>]+>([^<]{5,200})<\/[^>]+>/i.exec(block);
+        if (!lm) continue;
+        var postPath = lm[1];
+        var postTitle = lm[2].replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+        if (postTitle.length < 8) continue;
+        if (seenTitles.has(postTitle)) continue;
+        seenTitles.add(postTitle);
+        var sm = /<p[^>]*>([\s\S]{15,300}?)<\/p>/i.exec(block);
+        var snippet = sm ? sm[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,250) : '';
+        var dm = /datetime="([^"]+)"/i.exec(block) || /<time[^>]*>([^<]+)<\/time>/i.exec(block);
+        var pub = dm ? new Date(dm[1]).toISOString() : new Date().toISOString();
+        posts.push({ url: 'https://www.thelayoff.com' + postPath, title: postTitle, snippet: snippet, published_at: pub });
+      }
+      if (posts.length > 0) { debug('thelayoff_direct_ok', { url: tlUrl, count: posts.length }); break; }
+    } catch (e) { debug('thelayoff_direct_err', e && e.message ? e.message : String(e)); }
+  }
+  return posts;
+}
+// ──────────────────────────────────────────────────────────────────────────────
+
 /* Root request router */
+
+/* ===========================
+   /api/threats-leaks — Dell Brand Monitoring & Insider Intelligence
+   Scans incidents KV for Dell-relevant content and returns categorised cases.
+   WORKFORCE / BRAND_MONITORING items bypass proximity gating (global relevance).
+   =========================== */
+async function handleApiThreatsLeaks(env, req) {
+  var CORS_TL = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+  try {
+    var seen = new Set();
+    var cases = [];
+
+    // ── TIER 1: thelayoff.com posts (scraped by GitHub Actions Playwright, stored in KV) ──
+    var layoffCount = 0;
+    try {
+      var layoffRaw = await kvGetJson(env, LAYOFF_KV_KEY, null);
+      if (layoffRaw && Array.isArray(layoffRaw.posts)) {
+        var lPosts = layoffRaw.posts;
+        for (var lp = 0; lp < lPosts.length; lp++) {
+          var lpost = lPosts[lp];
+          if (!lpost.title || lpost.title.length < 8) continue;
+          var ltitleLow = lpost.title.toLowerCase();
+          if (seen.has(ltitleLow.slice(0, 60))) continue;
+          seen.add(ltitleLow.slice(0, 60));
+          var ltext = (lpost.title + ' ' + (lpost.snippet || '')).toLowerCase();
+          var lcat = 'Layoff / Reorg';
+          if (/data leak|leaked|credential|confidential|exposed|insider|anonymous|whistleblow/.test(ltext)) lcat = 'Leak';
+          else if (/breach|hacked|ransomware|malware|exploit|vulnerability/.test(ltext)) lcat = 'Breach';
+          else if (/ceo|cfo|cto|resign|departure|steps down/.test(ltext)) lcat = 'Leadership';
+          cases.push({ id: 'tl_' + lp, title: lpost.title, category: lcat, severity: 'High', confidence: 'High', target: 'Dell', related_mentions: 1, first_seen: lpost.published_at || new Date().toISOString(), last_seen: lpost.published_at || new Date().toISOString(), source_links: [lpost.url || '#'], sources: ['thelayoff.com'], summary: lpost.snippet || lpost.title, _pri: 0 });
+          layoffCount++;
+        }
+      }
+    } catch (le) { debug('tl_layoff_read_err', le && le.message ? le.message : String(le)); }
+
+    // ── TIER 2: General incidents KV — filtered for Dell relevance ──
+    var cutoff = Date.now() - (90 * 24 * 3600 * 1000);
+    var incResult = await handleApiIncidents(env, req);
+    var incidents = Array.isArray(incResult.body) ? incResult.body : [];
+    var generalCount = 0;
+    for (var i = 0; i < incidents.length; i++) {
+      var inc = incidents[i];
+      var title = String(inc.title || '');
+      if (title.toLowerCase().indexOf('dell') === -1) continue;
+      var incTime = inc.time ? new Date(inc.time).getTime() : 0;
+      if (incTime > 0 && incTime < cutoff) continue;
+      var titleLow = title.toLowerCase();
+      var isHW = /inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge/.test(titleLow);
+      var hasCorp = /breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|cve|insider|resign|fired/.test(titleLow + ' ' + String(inc.summary || '').toLowerCase());
+      if (isHW && !hasCorp) continue;
+      var ikey = titleLow.slice(0, 60);
+      if (seen.has(ikey)) continue;
+      seen.add(ikey);
+      var text = (title + ' ' + String(inc.summary || '')).toLowerCase();
+      var category = 'General';
+      if (/data leak|leaked|credential|confidential|exposed|insider|anonymous|whistleblow|internal memo/.test(text)) category = 'Leak';
+      else if (/breach|hacked|hack|ransomware|malware|zero.day|vulnerability|exploit|intrusion|extortion/.test(text)) category = 'Breach';
+      else if (/layoff|laid.off|let go|job cut|workforce reduction|reorg|restructur|headcount|rif/.test(text)) category = 'Layoff / Reorg';
+      else if (/ceo|cfo|cto|ciso|resign|departure|steps down|appointed|promoted|new chief|stock sale/.test(text)) category = 'Leadership';
+      else if (/michael dell|jeff clarke|bill scannell|yvonne mcgill|chuck whitten|sam burd|john roese/.test(text)) category = 'SLT Mention';
+      var sev = Math.min(5, Math.max(1, Number(inc.severity) || 3));
+      var sevLabel = sev >= 5 ? 'Critical' : sev >= 4 ? 'High' : sev >= 3 ? 'Medium' : 'Low';
+      var host = 'unknown';
+      try { host = new URL(String(inc.link || inc.source || 'https://x')).hostname.replace(/^www\./, ''); } catch (_x) {}
+      var isReddit = host.indexOf('reddit') !== -1 || host.indexOf('hnrss') !== -1;
+      cases.push({ id: 'case_' + String(inc.id || i), title: title, category: category, severity: sevLabel, confidence: 'Medium', target: 'Dell', related_mentions: 1, first_seen: String(inc.time || new Date().toISOString()), last_seen: String(inc.time || new Date().toISOString()), source_links: [String(inc.link || '#')], sources: [host], summary: String(inc.summary || title), _pri: isReddit ? 1 : 2 });
+      generalCount++;
+      if (cases.length >= 120) break;
+    }
+
+    // ── Sort: thelayoff first → reddit/HN → rest, then by severity, then recency ──
+    var sevOrd = { Critical: 0, High: 1, Medium: 2, Low: 3, General: 4 };
+    cases.sort(function(a, b) {
+      if (a._pri !== b._pri) return a._pri - b._pri;
+      var sd = (sevOrd[a.severity] || 5) - (sevOrd[b.severity] || 5);
+      if (sd !== 0) return sd;
+      return new Date(b.first_seen).getTime() - new Date(a.first_seen).getTime();
+    });
+    for (var k = 0; k < cases.length; k++) { delete cases[k]._pri; }
+    var finalCases = cases.slice(0, 50);
+
+    var srcSet = {};
+    for (var j = 0; j < finalCases.length; j++) { srcSet[finalCases[j].sources[0]] = 1; }
+    var result = {
+      updated_at: new Date().toISOString(),
+      cases: finalCases,
+      sources: Object.keys(srcSet),
+      stats: { total: finalCases.length, high: finalCases.filter(function(c) { return c.severity === 'High' || c.severity === 'Critical'; }).length, leaks: finalCases.filter(function(c) { return c.category === 'Leak' || c.category === 'Breach'; }).length },
+      _debug: { incidents_read: incidents.length, layoff_posts: layoffCount, general_cases: generalCount }
+    };
+    return new Response(JSON.stringify(result), { status: 200, headers: Object.assign({}, CORS_TL, { 'Cache-Control': 'public, max-age=300' }) });
+  } catch (e) {
+    var msg = e && e.message ? e.message : String(e);
+    return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: { total: 0, high: 0, leaks: 0 }, _error: msg }), { status: 200, headers: CORS_TL });
+  }
+}
+
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
   const url = new URL(req.url);
@@ -5827,11 +6188,9 @@ async function handleRequest(req, env, ctx) {
       const r = await handleApiLogisticsWatch(env, req);
       return _responseFromResult(r);
     } else if (p.startsWith('/api/incidents')) {
-      const r = await handleApiIncidents(env, req);
-      return _responseFromResult(r);
+      return handleApiIncidentsCached(env, req, ctx);
     } else if (p.startsWith('/api/proximity')) {
-      const r = await handleApiProximity(env, req);
-      return _responseFromResult(r);
+      return handleApiProximityCached(env, req, ctx);
     } else if (p.startsWith('/api/traveladvisories')) {
       const r = await handleApiTravel(env, url.searchParams);
       return _responseFromResult(r);
@@ -5887,6 +6246,10 @@ async function handleRequest(req, env, ctx) {
       return handleApiThreatIntel(env, req);
     } else if (p.startsWith('/api/markets')) {
       return handleApiMarkets(env, req);
+    } else if (p.startsWith('/api/port-disruptions')) {
+      return handleApiPortDisruptions(env, req);
+    } else if (p.startsWith("/api/threats-leaks")) {
+      return handleApiThreatsLeaks(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
