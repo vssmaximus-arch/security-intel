@@ -59,11 +59,18 @@ const DETERMINISTIC_SOURCES = [
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+  // Google News mirrors thelayoff.com — Google fetches the blocked site for us
+  "https://news.google.com/rss/search?q=site:thelayoff.com+%22Dell%22&hl=en-US&gl=US&ceid=US:en",
   // Dell brand monitoring — always fetched every cron run
   "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
   "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
   "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
   "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
+  // Dell brand monitoring via Reddit & HN (The Layoff is Cloudflare-blocked)
+  "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/technology/search.rss?q=Dell+Technologies&sort=new&restrict_sr=1",
+  "https://hnrss.org/newest?q=Dell+Technologies",
+  "https://hnrss.org/newest?q=Dell+layoff+OR+Dell+breach+OR+Dell+hack",
 ];
 
 // Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
