@@ -154,7 +154,8 @@ const LEARNING_RULES_KEY = "learning_rules_v1";
 const DISLIKES_KV_PREFIX = "DISLIKES:";
 const LAYOFF_KV_KEY          = "layoff_posts";       // written by GitHub Actions Playwright scraper
 const MONITORED_VESSELS_KEY  = "monitored_vessels";   // sanitized vessel watch registry
-const DATALASTIC_BASE        = "https://api.datalastic.com/api/v0"; // vessel tracking (free tier 100/day)
+// Vessel tracking uses aisstream.io — FREE WebSocket AIS feed (sign up at aisstream.io)
+// Add API key to Cloudflare Worker secrets as: AISSTREAM_API_KEY
 const ACK_KV_PREFIX = "ack:";
 const ACK_TTL_SEC = 7 * 24 * 3600; // 7 days
 
@@ -4327,6 +4328,111 @@ function _calcPosture(assessments) {
   return { level, colorKey, summary, counts:c, total:assessments.length };
 }
 
+// ── aisstream.io WebSocket helpers ────────────────────────────────────────────
+// aisstream.io is FREE — sign up at https://aisstream.io → get API key → add as
+// Cloudflare Worker secret AISSTREAM_API_KEY.  Without key, realistic mock is used.
+
+// Single-vessel live lookup by MMSI via aisstream.io WebSocket.
+// Opens WS, subscribes to that MMSI, waits up to 8s for a PositionReport, closes.
+async function _aisLookupByMmsi(env, mmsi) {
+  const apiKey = env.AISSTREAM_API_KEY || '';
+  if (!apiKey || !mmsi) return null;
+  try {
+    const ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
+    await new Promise(function(resolve, reject) {
+      ws.onopen  = resolve;
+      ws.onerror = reject;
+      setTimeout(reject, 5000);
+    });
+    ws.send(JSON.stringify({
+      APIKey: apiKey,
+      BoundingBoxes: [[[-90,-180],[90,180]]],
+      FilterMessageTypes: ['PositionReport','ShipStaticData'],
+      FiltersShipMMSI: [String(mmsi)],
+    }));
+    return await new Promise(function(resolve) {
+      const t = setTimeout(function(){ ws.close(); resolve(null); }, 8000);
+      ws.onmessage = function(evt) {
+        try {
+          const msg  = JSON.parse(evt.data);
+          const pr   = msg.Message && msg.Message.PositionReport;
+          const sd   = msg.Message && msg.Message.ShipStaticData;
+          if ((pr || sd) && String(msg.MetaData && msg.MetaData.MMSI) === String(mmsi)) {
+            clearTimeout(t); ws.close();
+            resolve({
+              mmsi:     String(mmsi),
+              name:     ((msg.MetaData && msg.MetaData.ShipName) || '').trim(),
+              latitude:  pr ? pr.Latitude  : 0,
+              longitude: pr ? pr.Longitude : 0,
+              speed:     pr ? pr.Sog       : 0,
+              course:    pr ? pr.Cog       : 0,
+              heading:   pr ? (pr.TrueHeading || pr.Cog) : 0,
+              navigational_status: pr ? String(pr.NavigationalStatus) : '',
+              position_received_at: new Date().toISOString(),
+              destination: sd ? (sd.Destination || '') : '',
+              eta:         sd ? (sd.Eta || '')         : '',
+              type:        sd ? String(sd.TypeOfShipAndCargo || '') : '',
+              flag: (msg.MetaData && msg.MetaData.flag) || '',
+            });
+          }
+        } catch(e) {}
+      };
+      ws.onerror = function(){ clearTimeout(t); resolve(null); };
+      ws.onclose = function(){ clearTimeout(t); resolve(null); };
+    });
+  } catch(e) {
+    typeof debug==='function'&&debug('aisstream_single_err',e&&e.message?e.message:String(e));
+    return null;
+  }
+}
+
+// Batch lookup — opens ONE WebSocket, subscribes to all MMSIs, collects for 6 s.
+// Returns { mmsi: positionObject } map for vessels that reported.
+async function _aisLookupBatch(env, mmsiList) {
+  const apiKey = env.AISSTREAM_API_KEY || '';
+  if (!apiKey || !mmsiList.length) return {};
+  const results = {};
+  try {
+    const ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
+    await new Promise(function(resolve, reject) {
+      ws.onopen  = resolve;
+      ws.onerror = reject;
+      setTimeout(reject, 5000);
+    });
+    ws.send(JSON.stringify({
+      APIKey: apiKey,
+      BoundingBoxes: [[[-90,-180],[90,180]]],
+      FilterMessageTypes: ['PositionReport'],
+      FiltersShipMMSI: mmsiList.map(String),
+    }));
+    await new Promise(function(resolve) {
+      const t = setTimeout(function(){ ws.close(); resolve(); }, 6000);
+      ws.onmessage = function(evt) {
+        try {
+          const msg  = JSON.parse(evt.data);
+          const pr   = msg.Message && msg.Message.PositionReport;
+          const mmsi = String((msg.MetaData && msg.MetaData.MMSI) || '');
+          if (pr && mmsi && !results[mmsi]) {
+            results[mmsi] = {
+              mmsi, name: ((msg.MetaData && msg.MetaData.ShipName)||'').trim(),
+              latitude:  pr.Latitude,   longitude: pr.Longitude,
+              speed:     pr.Sog,        course: pr.Cog,
+              heading:   pr.TrueHeading || pr.Cog,
+              navigational_status: String(pr.NavigationalStatus||''),
+              position_received_at: new Date().toISOString(),
+              destination:'', eta:'', type:'', flag:(msg.MetaData&&msg.MetaData.flag)||'',
+            };
+            if (Object.keys(results).length === mmsiList.length) { clearTimeout(t); ws.close(); resolve(); }
+          }
+        } catch(e) {}
+      };
+      ws.onerror = function(){ clearTimeout(t); resolve(); };
+      ws.onclose = function(){ clearTimeout(t); resolve(); };
+    });
+  } catch(e) { typeof debug==='function'&&debug('aisstream_batch_err',e&&e.message?e.message:String(e)); }
+  return results;
+}
+
 /* ── GET /api/vessel/lookup?imo=|mmsi=|name=  ──────────────────────────────── */
 async function handleApiVesselLookup(env, req) {
   const url  = new URL(req.url);
@@ -4336,17 +4442,20 @@ async function handleApiVesselLookup(env, req) {
   if (!imo && !mmsi && !name) {
     return new Response(JSON.stringify({ ok:false, error:'Provide imo, mmsi, or name' }), { status:400, headers:Object.assign({},CORS_HEADERS,{'Content-Type':'application/json'}) });
   }
-  const apiKey = env.DATALASTIC_API_KEY || '';
+  // Resolve MMSI: direct if provided; look up from monitored registry if IMO/name given
+  let targetMmsi = mmsi;
+  const allMonitored = await kvGetJson(env, MONITORED_VESSELS_KEY, DEFAULT_MONITORED_VESSELS);
+  const monList = Array.isArray(allMonitored) ? allMonitored : DEFAULT_MONITORED_VESSELS;
+  if (!targetMmsi) {
+    const mv = monList.find(function(m){
+      return (imo && m.imo===imo) || (name && m.vesselName.toLowerCase().includes(name.toLowerCase()));
+    });
+    if (mv) targetMmsi = mv.mmsi;
+  }
+  // Try live AIS lookup
   let vessel = null;
-  if (apiKey) {
-    try {
-      let apiUrl;
-      if (imo)   apiUrl = `${DATALASTIC_BASE}/vessel?api-key=${apiKey}&uuid=IMO:${encodeURIComponent(imo)}`;
-      else if (mmsi) apiUrl = `${DATALASTIC_BASE}/vessel?api-key=${apiKey}&mmsi=${encodeURIComponent(mmsi)}`;
-      else           apiUrl = `${DATALASTIC_BASE}/vessel?api-key=${apiKey}&name=${encodeURIComponent(name)}`;
-      const r = await fetchWithTimeout(apiUrl, {}, 12000);
-      if (r.ok) { const d = await r.json(); vessel = d.data || (Array.isArray(d.data)?d.data[0]:null) || d; }
-    } catch(e) { typeof debug==='function'&&debug('vesselLookup_api_err',e?.message||e); }
+  if (targetMmsi && env.AISSTREAM_API_KEY) {
+    vessel = await _aisLookupByMmsi(env, targetMmsi);
   }
   // Fallback: find in monitored list mock data
   if (!vessel) {
@@ -4376,20 +4485,15 @@ async function handleApiMonitoredVessels(env) {
   try {
     let vessels = await kvGetJson(env, MONITORED_VESSELS_KEY, null);
     if (!vessels || !Array.isArray(vessels) || vessels.length===0) vessels = DEFAULT_MONITORED_VESSELS;
-    const apiKey = env.DATALASTIC_API_KEY || '';
-    const results = [];
-    for (const mv of vessels) {
-      if (!mv.watchEnabled) continue;
-      let livePos = null; let aisStaleHours = 99;
-      if (apiKey && mv.imo) {
-        try {
-          const r = await fetchWithTimeout(`${DATALASTIC_BASE}/vessel?api-key=${apiKey}&uuid=IMO:${mv.imo}`,{},8000);
-          if (r.ok) { const d=await r.json(); livePos=d.data||(Array.isArray(d.data)?d.data[0]:null)||d;
-            if (livePos && livePos.position_received_at) aisStaleHours=(Date.now()-new Date(livePos.position_received_at).getTime())/3600000; }
-        } catch(e) { typeof debug==='function'&&debug('monVessel_api_err',e?.message||e); }
-      }
-      if (!livePos) { livePos=_mockPositionForVessel(mv); aisStaleHours=2; }
-      results.push(classifyVesselRisk(livePos, mv, aisStaleHours));
+    const watchList = vessels.filter(function(v){ return v.watchEnabled; });
+    // Batch AIS lookup — one WebSocket, all MMSIs, 6s window
+    const mmsiList = watchList.map(function(v){ return v.mmsi; }).filter(Boolean);
+    const liveMap  = await _aisLookupBatch(env, mmsiList); // {} if no API key
+    const results  = [];
+    for (const mv of watchList) {
+      const livePos = liveMap[mv.mmsi] || null;
+      const aisStaleHours = livePos ? 0 : 2; // mock treated as fresh
+      results.push(classifyVesselRisk(livePos || _mockPositionForVessel(mv), mv, aisStaleHours));
     }
     const posture = _calcPosture(results);
     // Attach risk zone metadata so frontend can draw overlays
