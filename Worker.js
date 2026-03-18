@@ -4332,18 +4332,44 @@ function _calcPosture(assessments) {
 // aisstream.io is FREE — sign up at https://aisstream.io → get API key → add as
 // Cloudflare Worker secret AISSTREAM_API_KEY.  Without key, realistic mock is used.
 
-// Single-vessel live lookup by MMSI via aisstream.io WebSocket.
-// Opens WS, subscribes to that MMSI, waits up to 8s for a PositionReport, closes.
+// CF Workers WebSocket client pattern:
+//   fetch(url, { headers:{ Upgrade:'websocket' } }) → resp.webSocket → ws.accept()
+//   Use ws.addEventListener() — NOT ws.onopen / ws.onmessage / ws.onerror
+
+function _parseAisMsg(msg, targetMmsi) {
+  const pr  = msg.Message && msg.Message.PositionReport;
+  const sd  = msg.Message && msg.Message.ShipStaticData;
+  const meta= msg.MetaData || {};
+  if (!pr && !sd) return null;
+  if (targetMmsi && String(meta.MMSI) !== String(targetMmsi)) return null;
+  return {
+    mmsi:     String(meta.MMSI || targetMmsi || ''),
+    name:     (meta.ShipName || '').trim(),
+    latitude:  pr ? pr.Latitude  : 0,
+    longitude: pr ? pr.Longitude : 0,
+    speed:     pr ? pr.Sog       : 0,
+    course:    pr ? pr.Cog       : 0,
+    heading:   pr ? (pr.TrueHeading || pr.Cog) : 0,
+    navigational_status: pr ? String(pr.NavigationalStatus || '') : '',
+    position_received_at: new Date().toISOString(),
+    destination: sd ? (sd.Destination || '') : '',
+    eta:         sd ? (sd.Eta || '')         : '',
+    type:        sd ? String(sd.TypeOfShipAndCargo || '') : '',
+    flag:        meta.flag || '',
+  };
+}
+
+// Single-vessel live lookup by MMSI — CF Workers WebSocket client API
 async function _aisLookupByMmsi(env, mmsi) {
   const apiKey = env.AISSTREAM_API_KEY || '';
   if (!apiKey || !mmsi) return null;
   try {
-    const ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
-    await new Promise(function(resolve, reject) {
-      ws.onopen  = resolve;
-      ws.onerror = reject;
-      setTimeout(reject, 5000);
+    const resp = await fetch('https://stream.aisstream.io/v0/stream', {
+      headers: { Upgrade: 'websocket' },
     });
+    if (resp.status !== 101) { typeof debug==='function'&&debug('aisstream_upgrade_fail',resp.status); return null; }
+    const ws = resp.webSocket;
+    ws.accept();
     ws.send(JSON.stringify({
       APIKey: apiKey,
       BoundingBoxes: [[[-90,-180],[90,180]]],
@@ -4351,34 +4377,15 @@ async function _aisLookupByMmsi(env, mmsi) {
       FiltersShipMMSI: [String(mmsi)],
     }));
     return await new Promise(function(resolve) {
-      const t = setTimeout(function(){ ws.close(); resolve(null); }, 8000);
-      ws.onmessage = function(evt) {
+      const t = setTimeout(function(){ ws.close(1000,'timeout'); resolve(null); }, 8000);
+      ws.addEventListener('message', function(evt) {
         try {
-          const msg  = JSON.parse(evt.data);
-          const pr   = msg.Message && msg.Message.PositionReport;
-          const sd   = msg.Message && msg.Message.ShipStaticData;
-          if ((pr || sd) && String(msg.MetaData && msg.MetaData.MMSI) === String(mmsi)) {
-            clearTimeout(t); ws.close();
-            resolve({
-              mmsi:     String(mmsi),
-              name:     ((msg.MetaData && msg.MetaData.ShipName) || '').trim(),
-              latitude:  pr ? pr.Latitude  : 0,
-              longitude: pr ? pr.Longitude : 0,
-              speed:     pr ? pr.Sog       : 0,
-              course:    pr ? pr.Cog       : 0,
-              heading:   pr ? (pr.TrueHeading || pr.Cog) : 0,
-              navigational_status: pr ? String(pr.NavigationalStatus) : '',
-              position_received_at: new Date().toISOString(),
-              destination: sd ? (sd.Destination || '') : '',
-              eta:         sd ? (sd.Eta || '')         : '',
-              type:        sd ? String(sd.TypeOfShipAndCargo || '') : '',
-              flag: (msg.MetaData && msg.MetaData.flag) || '',
-            });
-          }
+          const pos = _parseAisMsg(JSON.parse(evt.data), mmsi);
+          if (pos) { clearTimeout(t); ws.close(1000,'done'); resolve(pos); }
         } catch(e) {}
-      };
-      ws.onerror = function(){ clearTimeout(t); resolve(null); };
-      ws.onclose = function(){ clearTimeout(t); resolve(null); };
+      });
+      ws.addEventListener('error', function(){ clearTimeout(t); resolve(null); });
+      ws.addEventListener('close', function(){ clearTimeout(t); resolve(null); });
     });
   } catch(e) {
     typeof debug==='function'&&debug('aisstream_single_err',e&&e.message?e.message:String(e));
@@ -4386,19 +4393,18 @@ async function _aisLookupByMmsi(env, mmsi) {
   }
 }
 
-// Batch lookup — opens ONE WebSocket, subscribes to all MMSIs, collects for 6 s.
-// Returns { mmsi: positionObject } map for vessels that reported.
+// Batch lookup — ONE WebSocket, all MMSIs, collects for 6 s, returns {mmsi: posObj}
 async function _aisLookupBatch(env, mmsiList) {
   const apiKey = env.AISSTREAM_API_KEY || '';
   if (!apiKey || !mmsiList.length) return {};
   const results = {};
   try {
-    const ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
-    await new Promise(function(resolve, reject) {
-      ws.onopen  = resolve;
-      ws.onerror = reject;
-      setTimeout(reject, 5000);
+    const resp = await fetch('https://stream.aisstream.io/v0/stream', {
+      headers: { Upgrade: 'websocket' },
     });
+    if (resp.status !== 101) return {};
+    const ws = resp.webSocket;
+    ws.accept();
     ws.send(JSON.stringify({
       APIKey: apiKey,
       BoundingBoxes: [[[-90,-180],[90,180]]],
@@ -4406,8 +4412,8 @@ async function _aisLookupBatch(env, mmsiList) {
       FiltersShipMMSI: mmsiList.map(String),
     }));
     await new Promise(function(resolve) {
-      const t = setTimeout(function(){ ws.close(); resolve(); }, 6000);
-      ws.onmessage = function(evt) {
+      const t = setTimeout(function(){ ws.close(1000,'timeout'); resolve(); }, 6000);
+      ws.addEventListener('message', function(evt) {
         try {
           const msg  = JSON.parse(evt.data);
           const pr   = msg.Message && msg.Message.PositionReport;
@@ -4425,9 +4431,9 @@ async function _aisLookupBatch(env, mmsiList) {
             if (Object.keys(results).length === mmsiList.length) { clearTimeout(t); ws.close(); resolve(); }
           }
         } catch(e) {}
-      };
-      ws.onerror = function(){ clearTimeout(t); resolve(); };
-      ws.onclose = function(){ clearTimeout(t); resolve(); };
+      });
+      ws.addEventListener('error', function(){ clearTimeout(t); resolve(); });
+      ws.addEventListener('close', function(){ clearTimeout(t); resolve(); });
     });
   } catch(e) { typeof debug==='function'&&debug('aisstream_batch_err',e&&e.message?e.message:String(e)); }
   return results;
