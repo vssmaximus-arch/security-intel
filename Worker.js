@@ -3020,60 +3020,60 @@ async function runIngestion(env, options = {}, ctx = null) {
       }
     }
 
-    // ── Railway relay: thelayoff.com/dell ─────────────────────────────────────
-    // Fetches Dell-specific forum posts via the Railway egress relay.
-    // Cloudflare Worker IPs are blocked by thelayoff.com directly, so the relay
-    // server (non-Cloudflare IP) scrapes thelayoff and serves structured JSON.
-    // Requires RELAY_URL env var set in Cloudflare Worker settings.
+    // ── thelayoff.com ingestion: direct scrape → relay fallback ───────────────
+    var layoffPosts = [];
+    // 1) Try direct Worker fetch (CF-to-CF sometimes bypasses bot protection)
     try {
+      layoffPosts = await scrapeThelayoffDell();
+      debug('thelayoff_direct_total', { count: layoffPosts.length });
+    } catch (e) { debug('thelayoff_direct_exception', e && e.message ? e.message : String(e)); }
+    // 2) If direct got nothing, try Railway relay as fallback
+    if (layoffPosts.length === 0) {
       const relayBase = env.RELAY_URL ? String(env.RELAY_URL).replace(/\/$/, '') : '';
       if (relayBase) {
-        const relayHeaders = { 'Accept': 'application/json' };
-        if (env.RELAY_SECRET) relayHeaders['x-relay-key'] = String(env.RELAY_SECRET);
-        const relayRes = await fetchWithTimeout(relayBase + '/relay/thelayoff', { headers: relayHeaders }, 20000);
-        if (relayRes && relayRes.ok) {
-          const relayData = await relayRes.json();
-          const relayPosts = Array.isArray(relayData.posts) ? relayData.posts : [];
-          debug('relay_thelayoff', { count: relayPosts.length });
-          for (let rp = 0; rp < relayPosts.length; rp++) {
-            const post = relayPosts[rp];
-            if (!post.title || post.title.length < 8) continue;
-            const combined = post.title + ' — ' + (post.snippet || '');
-            if (typeof isNoise === 'function' && isNoise(combined)) continue;
-            const inc = {
-              id:             typeof stableId === 'function' ? stableId(post.url || post.title) : ('tl_' + rp),
-              title:          post.title,
-              summary:        post.snippet || '',
-              category:       'WORKFORCE',
-              severity:       4,
-              severity_label: 'HIGH',
-              region:         'AMER',
-              country:        'US',
-              location:       'Round Rock, TX',
-              link:           post.url || '#',
-              source:         'thelayoff.com',
-              source_type:    'forum',
-              time:           post.published_at || new Date().toISOString(),
-              lat:            30.5083,
-              lng:            -97.6789,
-            };
-            const nDell = typeof nearestDell === 'function' ? nearestDell(inc.lat, inc.lng) : null;
-            if (nDell) {
-              inc.nearest_site_name = nDell.name;
-              inc.nearest_site_key  = nDell.name.toLowerCase();
-              inc.distance_km       = Math.round(nDell.dist);
-            }
-            const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[inc.id] : null;
-            if (thumbs === 'down') continue;
-            fresh.push(inc);
+        try {
+          const relayHeaders = { 'Accept': 'application/json' };
+          if (env.RELAY_SECRET) relayHeaders['x-relay-key'] = String(env.RELAY_SECRET);
+          const relayRes = await fetchWithTimeout(relayBase + '/relay/thelayoff', { headers: relayHeaders }, 20000);
+          if (relayRes && relayRes.ok) {
+            const rd = await relayRes.json();
+            layoffPosts = Array.isArray(rd.posts) ? rd.posts : [];
+            debug('relay_thelayoff_fallback', { count: layoffPosts.length });
+          } else {
+            debug('relay_thelayoff_err', { status: relayRes ? relayRes.status : 'no_response' });
           }
-        } else {
-          debug('relay_thelayoff_err', { status: relayRes ? relayRes.status : 'no_response' });
-        }
-      } else {
-        debug('relay_thelayoff_skip', 'RELAY_URL not configured');
+        } catch (e) { debug('relay_thelayoff_exception', e && e.message ? e.message : String(e)); }
       }
-    } catch (e) { debug('relay_thelayoff_exception', e && e.message ? e.message : String(e)); }
+    }
+    // 3) Convert posts → incidents and push into fresh[]
+    for (var lp = 0; lp < layoffPosts.length; lp++) {
+      var post = layoffPosts[lp];
+      if (!post.title || post.title.length < 8) continue;
+      var combined = post.title + ' \u2014 ' + (post.snippet || '');
+      if (typeof isNoise === 'function' && isNoise(combined)) continue;
+      var lInc = {
+        id:             typeof stableId === 'function' ? stableId(post.url || post.title) : ('tl_' + lp),
+        title:          post.title,
+        summary:        post.snippet || '',
+        category:       'WORKFORCE',
+        severity:       4,
+        severity_label: 'HIGH',
+        region:         'AMER',
+        country:        'US',
+        location:       'Round Rock, TX',
+        link:           post.url || '#',
+        source:         'thelayoff.com',
+        source_type:    'forum',
+        time:           post.published_at || new Date().toISOString(),
+        lat:            30.5083,
+        lng:            -97.6789,
+      };
+      var nDell = typeof nearestDell === 'function' ? nearestDell(lInc.lat, lInc.lng) : null;
+      if (nDell) { lInc.nearest_site_name = nDell.name; lInc.nearest_site_key = nDell.name.toLowerCase(); lInc.distance_km = Math.round(nDell.dist); }
+      var lThumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[lInc.id] : null;
+      if (lThumbs === 'down') continue;
+      fresh.push(lInc);
+    }
     // ──────────────────────────────────────────────────────────────────────────
 
     // Dedupe fresh
@@ -4986,6 +4986,57 @@ async function handleApiMarkets(env, req) {
     });
   }
 }
+
+// ── thelayoff.com direct scraper ──────────────────────────────────────────────
+// Cloudflare Worker fetch() exits through CF edge — sometimes bypasses CF bot
+// protection on other CF-hosted sites. Falls back gracefully on 403.
+async function scrapeThelayoffDell() {
+  var TLOFF_URLS = [
+    'https://www.thelayoff.com/dell',
+    'https://www.thelayoff.com/t/dell-technologies',
+  ];
+  var TL_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Cache-Control': 'no-cache',
+    'Referer': 'https://www.google.com/',
+  };
+  var posts = [];
+  var seenTitles = new Set();
+  for (var u = 0; u < TLOFF_URLS.length; u++) {
+    var tlUrl = TLOFF_URLS[u];
+    try {
+      var tlRes = await fetchWithTimeout(tlUrl, { headers: TL_HEADERS }, 15000);
+      if (!tlRes || !tlRes.ok) {
+        debug('thelayoff_direct', { url: tlUrl, status: tlRes ? tlRes.status : 'no_response' });
+        continue;
+      }
+      var html = await tlRes.text();
+      var itemRe = /<li[^>]*class="[^"]*list-group-item[^"]*"[^>]*>([\s\S]*?)<\/li>/gi;
+      var m;
+      while ((m = itemRe.exec(html)) !== null) {
+        var block = m[1];
+        var lm = /<a[^>]+href="(\/[^"#]+)"[^>]*>([^<]{5,200})<\/a>/i.exec(block);
+        if (!lm) lm = /<a[^>]+href="(\/[^"#]+)"[^>]*>\s*<[^>]+>([^<]{5,200})<\/[^>]+>/i.exec(block);
+        if (!lm) continue;
+        var postPath = lm[1];
+        var postTitle = lm[2].replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+        if (postTitle.length < 8) continue;
+        if (seenTitles.has(postTitle)) continue;
+        seenTitles.add(postTitle);
+        var sm = /<p[^>]*>([\s\S]{15,300}?)<\/p>/i.exec(block);
+        var snippet = sm ? sm[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,250) : '';
+        var dm = /datetime="([^"]+)"/i.exec(block) || /<time[^>]*>([^<]+)<\/time>/i.exec(block);
+        var pub = dm ? new Date(dm[1]).toISOString() : new Date().toISOString();
+        posts.push({ url: 'https://www.thelayoff.com' + postPath, title: postTitle, snippet: snippet, published_at: pub });
+      }
+      if (posts.length > 0) { debug('thelayoff_direct_ok', { url: tlUrl, count: posts.length }); break; }
+    } catch (e) { debug('thelayoff_direct_err', e && e.message ? e.message : String(e)); }
+  }
+  return posts;
+}
+// ──────────────────────────────────────────────────────────────────────────────
 
 /* Root request router */
 
