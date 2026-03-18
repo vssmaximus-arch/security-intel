@@ -32,6 +32,7 @@ const THUMBS_KV_KEY = "thumbs_prefs_v1";
 const THUMBS_FEEDBACK_LOG = "thumbs_feedback_log_v1";
 const LEARNING_RULES_KEY = "learning_rules_v1";
 const DISLIKES_KV_PREFIX = "DISLIKES:";
+const LAYOFF_KV_KEY = "layoff_posts"; // written by GitHub Actions Playwright scraper
 const ACK_KV_PREFIX = "ack:";
 const ACK_TTL_SEC = 7 * 24 * 3600; // 7 days
 
@@ -3705,6 +3706,19 @@ async function handleAdminAction(env, req, ctx) {
       if (ctx) ctx.waitUntil(runIngestion(env, { force: true }, ctx).catch(e => debug("ingest trigger failed", e?.message || e)));
       else runIngestion(env, { force: true }).catch(e => debug("ingest trigger failed no-ctx", e?.message || e));
       return { ok:true, status:200, body: "ingest_started" };
+    } else if (action === 'ingest-layoff') {
+      // Receives thelayoff.com posts from GitHub Actions Playwright scraper
+      try {
+        const body = await req.json().catch(function() { return {}; });
+        const posts = Array.isArray(body.posts) ? body.posts : [];
+        if (posts.length === 0) return { ok: true, status: 200, body: JSON.stringify({ ok: true, stored: 0 }) };
+        const payload = { posts: posts, updated_at: new Date().toISOString() };
+        await env.INTEL_KV.put(LAYOFF_KV_KEY, JSON.stringify(payload), { expirationTtl: 8 * 3600 });
+        debug('ingest-layoff', { stored: posts.length });
+        return { ok: true, status: 200, body: JSON.stringify({ ok: true, stored: posts.length }) };
+      } catch (e) {
+        return { ok: false, status: 500, body: JSON.stringify({ ok: false, error: e && e.message ? e.message : String(e) }) };
+      }
     } else if (action === 'aggregate-thumbs') {
       if (ctx) ctx.waitUntil(aggregateThumbs(env, { force: true }));
       else aggregateThumbs(env, { force: true }).catch(e=>debug("aggregate-thumbs failed no-ctx", e?.message || e));
@@ -5052,110 +5066,93 @@ async function scrapeThelayoffDell() {
    WORKFORCE / BRAND_MONITORING items bypass proximity gating (global relevance).
    =========================== */
 async function handleApiThreatsLeaks(env, req) {
+  var CORS_TL = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
   try {
-    const incResult = await handleApiIncidents(env, req);
-    const incidents = Array.isArray(incResult.body) ? incResult.body : [];
+    var seen = new Set();
+    var cases = [];
 
-    // 90-day recency cutoff — kills stale pre-2025 junk
-    const cutoff = Date.now() - (90 * 24 * 3600 * 1000);
+    // ── TIER 1: thelayoff.com posts (scraped by GitHub Actions Playwright, stored in KV) ──
+    var layoffCount = 0;
+    try {
+      var layoffRaw = await kvGetJson(env, LAYOFF_KV_KEY, null);
+      if (layoffRaw && Array.isArray(layoffRaw.posts)) {
+        var lPosts = layoffRaw.posts;
+        for (var lp = 0; lp < lPosts.length; lp++) {
+          var lpost = lPosts[lp];
+          if (!lpost.title || lpost.title.length < 8) continue;
+          var ltitleLow = lpost.title.toLowerCase();
+          if (seen.has(ltitleLow.slice(0, 60))) continue;
+          seen.add(ltitleLow.slice(0, 60));
+          var ltext = (lpost.title + ' ' + (lpost.snippet || '')).toLowerCase();
+          var lcat = 'Layoff / Reorg';
+          if (/data leak|leaked|credential|confidential|exposed|insider|anonymous|whistleblow/.test(ltext)) lcat = 'Leak';
+          else if (/breach|hacked|ransomware|malware|exploit|vulnerability/.test(ltext)) lcat = 'Breach';
+          else if (/ceo|cfo|cto|resign|departure|steps down/.test(ltext)) lcat = 'Leadership';
+          cases.push({ id: 'tl_' + lp, title: lpost.title, category: lcat, severity: 'High', confidence: 'High', target: 'Dell', related_mentions: 1, first_seen: lpost.published_at || new Date().toISOString(), last_seen: lpost.published_at || new Date().toISOString(), source_links: [lpost.url || '#'], sources: ['thelayoff.com'], summary: lpost.snippet || lpost.title, _pri: 0 });
+          layoffCount++;
+        }
+      }
+    } catch (le) { debug('tl_layoff_read_err', le && le.message ? le.message : String(le)); }
 
-    const seen = new Set();
-    const cases = [];
-
-    for (let i = 0; i < incidents.length; i++) {
-      const inc = incidents[i];
-      const title = String(inc.title || '');
+    // ── TIER 2: General incidents KV — filtered for Dell relevance ──
+    var cutoff = Date.now() - (90 * 24 * 3600 * 1000);
+    var incResult = await handleApiIncidents(env, req);
+    var incidents = Array.isArray(incResult.body) ? incResult.body : [];
+    var generalCount = 0;
+    for (var i = 0; i < incidents.length; i++) {
+      var inc = incidents[i];
+      var title = String(inc.title || '');
       if (title.toLowerCase().indexOf('dell') === -1) continue;
-
-      // Recency filter: skip articles older than 90 days (pass-through if no date)
-      const incTime = inc.time ? new Date(inc.time).getTime() : 0;
+      var incTime = inc.time ? new Date(inc.time).getTime() : 0;
       if (incTime > 0 && incTime < cutoff) continue;
-
-      // Skip pure consumer hardware posts without corporate signals
-      const titleLow = title.toLowerCase();
-      const isHW = /inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge/.test(titleLow);
-      const hasCorp = /breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|cve|insider|resign|fired/.test(titleLow + ' ' + String(inc.summary || '').toLowerCase());
+      var titleLow = title.toLowerCase();
+      var isHW = /inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge/.test(titleLow);
+      var hasCorp = /breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|cve|insider|resign|fired/.test(titleLow + ' ' + String(inc.summary || '').toLowerCase());
       if (isHW && !hasCorp) continue;
-
-      const key = titleLow.slice(0, 60);
-      if (seen.has(key)) continue;
-      seen.add(key);
-
-      const text = (title + ' ' + String(inc.summary || '')).toLowerCase();
-      let category = 'General';
+      var ikey = titleLow.slice(0, 60);
+      if (seen.has(ikey)) continue;
+      seen.add(ikey);
+      var text = (title + ' ' + String(inc.summary || '')).toLowerCase();
+      var category = 'General';
       if (/data leak|leaked|credential|confidential|exposed|insider|anonymous|whistleblow|internal memo/.test(text)) category = 'Leak';
       else if (/breach|hacked|hack|ransomware|malware|zero.day|vulnerability|exploit|intrusion|extortion/.test(text)) category = 'Breach';
-      else if (/layoff|laid.off|let go|job cut|workforce reduction|reorg|restructur|headcount|rif|workforce drop|workforce shrink/.test(text)) category = 'Layoff / Reorg';
-      else if (/ceo|cfo|cto|ciso|resign|departure|steps down|appointed|promoted|new chief|new vp|stock sale|share sale/.test(text)) category = 'Leadership';
+      else if (/layoff|laid.off|let go|job cut|workforce reduction|reorg|restructur|headcount|rif/.test(text)) category = 'Layoff / Reorg';
+      else if (/ceo|cfo|cto|ciso|resign|departure|steps down|appointed|promoted|new chief|stock sale/.test(text)) category = 'Leadership';
       else if (/michael dell|jeff clarke|bill scannell|yvonne mcgill|chuck whitten|sam burd|john roese/.test(text)) category = 'SLT Mention';
-
-      const sev = Math.min(5, Math.max(1, Number(inc.severity) || 3));
-      const sevLabel = sev >= 5 ? 'Critical' : sev >= 4 ? 'High' : sev >= 3 ? 'Medium' : 'Low';
-
-      let host = 'unknown';
-      try { host = new URL(String(inc.link || inc.source || 'https://x')).hostname.replace(/^www\./, ''); } catch (_) {}
-
-      // Priority tier: thelayoff + reddit + HN float to top
-      var isPriority = host.indexOf('thelayoff') !== -1 || host.indexOf('reddit') !== -1 || host.indexOf('hnrss') !== -1 || host.indexOf('news.ycombinator') !== -1;
-
-      cases.push({
-        id: 'case_' + String(inc.id || i),
-        title: title,
-        category: category,
-        severity: sevLabel,
-        confidence: 'Medium',
-        target: 'Dell',
-        related_mentions: 1,
-        first_seen: String(inc.time || new Date().toISOString()),
-        last_seen: String(inc.time || new Date().toISOString()),
-        source_links: [String(inc.link || '#')],
-        sources: [host],
-        summary: String(inc.summary || title),
-        _pri: isPriority ? 0 : 1,
-      });
-      if (cases.length >= 100) break;
+      var sev = Math.min(5, Math.max(1, Number(inc.severity) || 3));
+      var sevLabel = sev >= 5 ? 'Critical' : sev >= 4 ? 'High' : sev >= 3 ? 'Medium' : 'Low';
+      var host = 'unknown';
+      try { host = new URL(String(inc.link || inc.source || 'https://x')).hostname.replace(/^www\./, ''); } catch (_x) {}
+      var isReddit = host.indexOf('reddit') !== -1 || host.indexOf('hnrss') !== -1;
+      cases.push({ id: 'case_' + String(inc.id || i), title: title, category: category, severity: sevLabel, confidence: 'Medium', target: 'Dell', related_mentions: 1, first_seen: String(inc.time || new Date().toISOString()), last_seen: String(inc.time || new Date().toISOString()), source_links: [String(inc.link || '#')], sources: [host], summary: String(inc.summary || title), _pri: isReddit ? 1 : 2 });
+      generalCount++;
+      if (cases.length >= 120) break;
     }
 
-    const sevOrd = { Critical: 0, High: 1, Medium: 2, Low: 3, General: 4 };
+    // ── Sort: thelayoff first → reddit/HN → rest, then by severity, then recency ──
+    var sevOrd = { Critical: 0, High: 1, Medium: 2, Low: 3, General: 4 };
     cases.sort(function(a, b) {
-      // thelayoff / reddit always first
       if (a._pri !== b._pri) return a._pri - b._pri;
-      const sd = (sevOrd[a.severity] || 5) - (sevOrd[b.severity] || 5);
+      var sd = (sevOrd[a.severity] || 5) - (sevOrd[b.severity] || 5);
       if (sd !== 0) return sd;
       return new Date(b.first_seen).getTime() - new Date(a.first_seen).getTime();
     });
-
-    // Strip internal sort field
     for (var k = 0; k < cases.length; k++) { delete cases[k]._pri; }
-
     var finalCases = cases.slice(0, 50);
 
-    const srcSet = {};
-    for (let j = 0; j < finalCases.length; j++) { srcSet[finalCases[j].sources[0]] = 1; }
-    const allSources = Object.keys(srcSet);
-
-    const result = {
+    var srcSet = {};
+    for (var j = 0; j < finalCases.length; j++) { srcSet[finalCases[j].sources[0]] = 1; }
+    var result = {
       updated_at: new Date().toISOString(),
       cases: finalCases,
-      sources: allSources,
-      stats: {
-        total: finalCases.length,
-        high: finalCases.filter(function(c) { return c.severity === 'High' || c.severity === 'Critical'; }).length,
-        leaks: finalCases.filter(function(c) { return c.category === 'Leak' || c.category === 'Breach'; }).length,
-      },
-      _debug: { incidents_read: incidents.length, after_recency_filter: cases.length }
+      sources: Object.keys(srcSet),
+      stats: { total: finalCases.length, high: finalCases.filter(function(c) { return c.severity === 'High' || c.severity === 'Critical'; }).length, leaks: finalCases.filter(function(c) { return c.category === 'Leak' || c.category === 'Breach'; }).length },
+      _debug: { incidents_read: incidents.length, layoff_posts: layoffCount, general_cases: generalCount }
     };
-
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' }
-    });
+    return new Response(JSON.stringify(result), { status: 200, headers: Object.assign({}, CORS_TL, { 'Cache-Control': 'public, max-age=300' }) });
   } catch (e) {
-    const msg = e && e.message ? e.message : String(e);
-    return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: { total: 0, high: 0, leaks: 0 }, _error: msg }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' }
-    });
+    var msg = e && e.message ? e.message : String(e);
+    return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: { total: 0, high: 0, leaks: 0 }, _error: msg }), { status: 200, headers: CORS_TL });
   }
 }
 
