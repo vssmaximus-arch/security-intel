@@ -4940,8 +4940,8 @@ async function handleApiMarkets(env, req) {
    =========================== */
 async function handleApiThreatsLeaks(env, req) {
   try {
-    const CACHE_KEY = 'threats_leaks_v2';
-    const CACHE_TTL = 300; // 5 min cache
+    const CACHE_KEY = 'threats_leaks_v3';
+    const CACHE_TTL = 60; // 1 min cache
 
     // Try cache first
     const cached = await kvGetJson(env, CACHE_KEY, null);
