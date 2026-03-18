@@ -2629,131 +2629,148 @@
   <!-- ⚓ VESSEL WATCH VIEW ──────────────────────────────────────────────────── -->
   <div id="view-vessel-watch" style="display:none;" role="tabpanel" aria-label="Vessel Watch — Executive Maritime Exposure Layer">
 
-    <!-- Exposure Posture Banner -->
-    <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable">
-      <div class="vw-posture-left">
-        <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
-        <div>
-          <div class="vw-posture-label">MARITIME EXPOSURE POSTURE</div>
-          <div id="vw-posture-level" class="vw-posture-level">Loading…</div>
-        </div>
-      </div>
-      <div id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</div>
-      <div class="vw-posture-right">
-        <span id="vw-posture-counts" class="vw-posture-counts"></span>
-        <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-      </div>
-    </div>
+    <!-- GridStack dashboard — all widgets draggable + resizable -->
+    <div class="grid-stack" id="vw-grid">
 
-    <!-- Port Disruption Intelligence Bar -->
-    <div class="airport-ai-bar" id="port-ai-bar">
-      <i class="fas fa-brain" aria-hidden="true"></i>
-      <span id="port-ai-text">Loading maritime disruption intelligence…</span>
-    </div>
-
-    <!-- Port Disruption Filter Controls -->
-    <div class="airport-controls">
-      <span class="airport-ctrl-label">Type</span>
-      <select id="port-filter-type" class="airport-select" aria-label="Filter by disruption type">
-        <option value="ALL">All Types</option>
-        <option value="SECURITY">⚔️ Security / Attack</option>
-        <option value="STRIKE">🪧 Strike / Protest</option>
-        <option value="WEATHER">🌪️ Weather / Disaster</option>
-        <option value="NATURAL">🌊 Natural Disaster</option>
-        <option value="OTHER">Other</option>
-      </select>
-      <span class="airport-ctrl-label">Severity</span>
-      <select id="port-filter-severity" class="airport-select" aria-label="Filter by severity">
-        <option value="ALL">All Status</option>
-        <option value="HIGH">Disrupted</option>
-        <option value="MEDIUM">Affected</option>
-        <option value="LOW">Watch</option>
-      </select>
-      <span class="airport-ctrl-label">Sort</span>
-      <select id="port-sort-by" class="airport-select" aria-label="Sort disruptions">
-        <option value="SEVERITY">Severity</option>
-        <option value="RECENT">Most Recent</option>
-        <option value="NAME">Name A–Z</option>
-      </select>
-      <button id="port-refresh-btn" class="airport-refresh-btn" aria-label="Refresh port disruption data">
-        <i class="fas fa-sync" aria-hidden="true"></i> Refresh
-      </button>
-      <span id="port-updated-at" class="airport-ts"></span>
-    </div>
-
-    <!-- Two-column: disruption list (left) + Chokepoint Traffic Index (right) -->
-    <div class="airport-two-col" id="vw-port-section">
-
-      <!-- Left column: disruption table -->
-      <div class="airport-left-col">
-        <div class="airport-table-section" id="port-disruptions-list" aria-live="polite">
-          <div class="airport-loading">
-            <i class="fas fa-ship fa-bounce" aria-hidden="true"></i><br>
-            Loading maritime disruption data…
+      <!-- ── MAP WIDGET (top, full width) ───────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-map-widget" gs-x="0" gs-y="0" gs-w="12" gs-h="7" gs-min-h="4">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-map-marked-alt" style="margin-right:6px;"></i>Maritime Operations Map</span>
+            <div class="vw-map-legend-inline">
+              <span class="vwl-dot vwl-review"></span>Review &nbsp;
+              <span class="vwl-dot vwl-elevated"></span>Elevated &nbsp;
+              <span class="vwl-dot vwl-watch"></span>Watch &nbsp;
+              <span class="vwl-dot vwl-normal"></span>Normal &nbsp;
+              <span class="vwl-zone-box"></span>Risk Zone &nbsp;
+              <span style="width:8px;height:8px;border-radius:50%;background:#ff5722;opacity:.85;display:inline-block;vertical-align:middle;"></span>&nbsp;Disruption
+            </div>
+          </div>
+          <div class="vw-gs-map-body">
+            <div id="vw-map" style="width:100%;height:100%;"></div>
           </div>
         </div>
       </div>
 
-      <!-- Right sidebar: Real Chokepoint Traffic Index (IMF PortWatch) -->
-      <div class="airport-right-sidebar">
-        <div class="side-card airport-tsc-card">
-          <div class="card-label"><i class="fas fa-water"></i> Chokepoint Traffic Index</div>
-          <p class="tsc-subtitle">Vessel traffic vs 7-day baseline (IMF PortWatch AIS data)</p>
-          <div id="port-chokepoint-list" class="mt-2">
-            <div class="airport-loading" style="padding:12px;font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+      <!-- ── POSTURE BANNER WIDGET ───────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-posture-widget" gs-x="0" gs-y="7" gs-w="12" gs-h="2" gs-min-h="2">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable" style="height:100%;margin:0;border-radius:0;">
+            <div class="vw-posture-left" style="cursor:grab;" title="Drag to reposition">
+              <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
+              <div>
+                <div class="vw-posture-label">MARITIME EXPOSURE POSTURE</div>
+                <div id="vw-posture-level" class="vw-posture-level">Loading…</div>
+              </div>
+            </div>
+            <div id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</div>
+            <div class="vw-posture-right">
+              <span id="vw-posture-counts" class="vw-posture-counts"></span>
+              <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh fleet data"><i class="fas fa-sync-alt"></i></button>
+            </div>
           </div>
         </div>
       </div>
 
-    </div><!-- /vw-port-section -->
-
-    <!-- Track Vessel + Monitored Vessels row -->
-    <div class="vw-top-row">
-
-      <!-- Track Vessel Search Panel -->
-      <div class="vw-panel vw-search-panel">
-        <div class="vw-panel-header"><i class="fas fa-search me-2"></i>Track Vessel</div>
-        <div class="vw-search-row">
-          <input id="vw-search-input" class="vw-search-input" type="text" placeholder="IMO number, MMSI, or vessel name…" autocomplete="off" spellcheck="false"/>
-          <button id="vw-search-btn" class="vw-search-btn"><i class="fas fa-search"></i> Lookup</button>
-        </div>
-        <div class="vw-search-hints">e.g. <code>9839697</code> &nbsp;·&nbsp; <code>255806361</code> &nbsp;·&nbsp; <code>MSC GÜLSÜN</code></div>
-        <div id="vw-search-result" class="vw-search-result">
-          <div class="vw-empty-state"><i class="fas fa-ship" style="font-size:2rem;opacity:.3;"></i><br>Enter an IMO, MMSI, or name to look up a vessel</div>
+      <!-- ── MARITIME DISRUPTIONS WIDGET ────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="9" gs-w="8" gs-h="9" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-ship" style="margin-right:6px;"></i>Maritime Disruptions</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select id="port-filter-type" class="vw-gs-select" aria-label="Filter by type">
+                <option value="ALL">All Types</option>
+                <option value="SECURITY">⚔ Security</option>
+                <option value="STRIKE">🪧 Strike</option>
+                <option value="WEATHER">🌪 Weather</option>
+                <option value="NATURAL">🌊 Natural</option>
+                <option value="OTHER">Other</option>
+              </select>
+              <select id="port-filter-severity" class="vw-gs-select" aria-label="Filter by severity">
+                <option value="ALL">All Severity</option>
+                <option value="HIGH">Disrupted</option>
+                <option value="MEDIUM">Affected</option>
+                <option value="LOW">Watch</option>
+              </select>
+              <select id="port-sort-by" class="vw-gs-select" aria-label="Sort">
+                <option value="SEVERITY">Severity</option>
+                <option value="RECENT">Recent</option>
+                <option value="NAME">A–Z</option>
+              </select>
+              <button id="port-refresh-btn" class="vw-gs-icon-btn" aria-label="Refresh" title="Refresh disruption data"><i class="fas fa-sync"></i></button>
+              <span id="port-updated-at" style="font-size:.65rem;color:#5f6368;white-space:nowrap;"></span>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <div class="airport-ai-bar" id="port-ai-bar" style="margin:0 0 6px;border-radius:4px;">
+              <i class="fas fa-brain" aria-hidden="true"></i>
+              <span id="port-ai-text">Loading maritime disruption intelligence…</span>
+            </div>
+            <div id="port-disruptions-list" aria-live="polite">
+              <div class="airport-loading">
+                <i class="fas fa-ship fa-bounce" aria-hidden="true"></i><br>Loading…
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Monitored Vessels Panel -->
-      <div class="vw-panel">
-        <div class="vw-panel-header">
-          <span><i class="fas fa-binoculars me-2"></i>Monitored Vessels</span>
-          <span id="vw-fleet-count" class="vw-badge-count"></span>
-        </div>
-        <div id="vw-monitored-table" class="vw-monitored-table">
-          <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading fleet status…</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Vessel Watch Map (full-width, shows vessels + risk zones + port disruption markers) -->
-    <div class="vw-map-row" style="grid-template-columns:1fr;">
-      <div class="vw-map-wrap">
-        <div id="vw-map" class="vw-map"></div>
-        <div class="vw-map-legend">
-          <span class="vwl-dot vwl-review"></span>Review Required &nbsp;
-          <span class="vwl-dot vwl-elevated"></span>Elevated &nbsp;
-          <span class="vwl-dot vwl-watch"></span>Watch &nbsp;
-          <span class="vwl-dot vwl-normal"></span>Normal &nbsp;
-          <span class="vwl-zone-box"></span>Risk Zone &nbsp;
-          <span style="width:9px;height:9px;border-radius:50%;background:#ff5722;opacity:.8;display:inline-block;"></span>Port Disruption
+      <!-- ── CHOKEPOINT TRAFFIC WIDGET ──────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-chokepoint-widget" gs-x="8" gs-y="9" gs-w="4" gs-h="9" gs-min-h="4">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-water" style="margin-right:6px;"></i>Chokepoint Traffic</span>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <p style="font-size:.68rem;color:#5f6368;margin:0 0 8px;">Traffic vs 7-day baseline · IMF PortWatch AIS</p>
+            <div id="port-chokepoint-list">
+              <div class="airport-loading" style="padding:12px;font-size:.8rem;"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="vw-disclaimer">
+      <!-- ── TRACK VESSEL WIDGET ────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="0" gs-y="18" gs-w="4" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-search" style="margin-right:6px;"></i>Track Vessel</span>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <div class="vw-search-row">
+              <input id="vw-search-input" class="vw-search-input" type="text" placeholder="IMO, MMSI, or vessel name…" autocomplete="off" spellcheck="false"/>
+              <button id="vw-search-btn" class="vw-search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="vw-search-hints">e.g. <code>9839697</code> · <code>255806361</code> · <code>MSC GÜLSÜN</code></div>
+            <div id="vw-search-result" class="vw-search-result">
+              <div class="vw-empty-state"><i class="fas fa-ship" style="font-size:1.8rem;opacity:.3;"></i><br>Enter an IMO, MMSI, or name</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MONITORED FLEET WIDGET ─────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-monitored-widget" gs-x="4" gs-y="18" gs-w="8" gs-h="8" gs-min-h="4">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-binoculars" style="margin-right:6px;"></i>Monitored Fleet</span>
+            <span id="vw-fleet-count" class="vw-badge-count" style="margin-left:6px;"></span>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <div id="vw-monitored-table" class="vw-monitored-table">
+              <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading fleet status…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /vw-grid -->
+
+    <div class="vw-disclaimer" style="margin-top:4px;">
       <i class="fas fa-lock" style="margin-right:6px;"></i>
-      This layer uses public intelligence only. No internal Dell cargo, customer, shipment, supplier, SKU, or financial data is displayed here.
-      &nbsp;·&nbsp; Vessel positions may be from AIS feed or illustrative placeholders until AIS API key is active.
+      Public intelligence only — no internal Dell cargo, customer, shipment, supplier, SKU, or financial data.
+      &nbsp;·&nbsp; Vessel positions via AIS feed or illustrative placeholders.
+      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="localStorage.removeItem('vw_grid_layout_v1');location.reload();" title="Reset widget positions">Reset layout</span>
     </div>
   </div><!-- /view-vessel-watch -->
 
@@ -3289,6 +3306,46 @@
     body.light-mode .vw-disclaimer { color:#9aa0a6; border-color:#e0e0e0; }
     body.light-mode #vw-port-section .airport-left-col,
     body.light-mode #vw-port-section .airport-right-sidebar { background:transparent; }
+
+    /* ── VW GridStack widget shells ──────────────────────────────────── */
+    #vw-grid { padding: 4px 0; }
+    #vw-grid .grid-stack-item > .grid-stack-item-content { border-radius: 8px; overflow: hidden; border: 1px solid #2a2d35; }
+    body.light-mode #vw-grid .grid-stack-item > .grid-stack-item-content { border-color: #e0e0e0; }
+
+    .vw-gs-content { display: flex; flex-direction: column; height: 100%; background: #1c1f26; }
+    body.light-mode .vw-gs-content { background: #f8f9fa; }
+
+    /* map widget: map fills remaining height after header */
+    .vw-gs-map-body { flex: 1; min-height: 0; position: relative; }
+    .vw-gs-map-body #vw-map { position: absolute; inset: 0; }
+
+    /* standard widget body: scrollable content area */
+    .vw-gs-body { flex: 1; min-height: 0; padding: 10px 12px; }
+    .vw-gs-scroll { overflow-y: auto; }
+
+    /* inline controls in widget headers */
+    .vw-gs-select {
+      background: #0d1117; border: 1px solid #3c4043; color: #bdc1c6;
+      border-radius: 4px; padding: 2px 6px; font-size: .68rem; height: 22px;
+    }
+    body.light-mode .vw-gs-select { background: #fff; border-color: #dadce0; color: #3c4043; }
+    .vw-gs-icon-btn {
+      background: transparent; border: 1px solid #3c4043; color: #9aa0a6;
+      border-radius: 4px; width: 22px; height: 22px; font-size: .68rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .vw-gs-icon-btn:hover { border-color: #8ab4f8; color: #8ab4f8; }
+    body.light-mode .vw-gs-icon-btn { border-color: #dadce0; color: #5f6368; }
+
+    /* map legend inline in header */
+    .vw-map-legend-inline {
+      margin-left: auto; display: flex; align-items: center; gap: 4px;
+      font-size: .65rem; color: #9aa0a6; flex-wrap: wrap;
+    }
+    body.light-mode .vw-map-legend-inline { color: #5f6368; }
+
+    /* posture banner inside grid */
+    #vw-posture-banner.vw-posture-banner { border-radius: 0; border-left: none; border-right: none; border-top: none; }
   </style>
 
   <style id="threats-leaks-style">
@@ -4115,8 +4172,8 @@
         }, 5 * 60 * 1000);
       } else if (view === 'vessel-watch') {
         if (vwView) vwView.style.display = '';
-        if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
         loadPortData(false);
+        if (typeof initVwGrid      === 'function') initVwGrid();
         if (typeof initVesselWatch === 'function') initVesselWatch();
       } else if (view === 'threats-leaks') {
         if (tlView) tlView.style.display = '';
@@ -4677,6 +4734,86 @@
       if (currentView === 'vessel-watch') loadPortData(false);
     }, 10 * 60 * 1000);
 
+  })();
+  </script>
+
+  <script>
+  /* ── Vessel Watch GridStack ────────────────────────────────────────────────
+     Initialised lazily on first VW tab activation via initVwGrid().
+     Layout persisted in localStorage 'vw_grid_layout_v1'.
+  ─────────────────────────────────────────────────────────────────────────── */
+  (function () {
+    'use strict';
+
+    var VW_LAYOUT_KEY = 'vw_grid_layout_v1';
+    var vwGrid        = null;
+    var vwGridReady   = false;
+
+    var VW_DEFAULT_LAYOUT = [
+      { id: 'vw-map-widget',        x: 0, y: 0,  w: 12, h: 7  },
+      { id: 'vw-posture-widget',    x: 0, y: 7,  w: 12, h: 2  },
+      { id: 'vw-disruptions-widget',x: 0, y: 9,  w: 8,  h: 9  },
+      { id: 'vw-chokepoint-widget', x: 8, y: 9,  w: 4,  h: 9  },
+      { id: 'vw-track-widget',      x: 0, y: 18, w: 4,  h: 8  },
+      { id: 'vw-monitored-widget',  x: 4, y: 18, w: 8,  h: 8  },
+    ];
+
+    function saveLayout() {
+      try { localStorage.setItem(VW_LAYOUT_KEY, JSON.stringify(vwGrid.save(false))); } catch(e) {}
+    }
+
+    function invalidateVwMap() {
+      setTimeout(function () {
+        if (window.vwMap && typeof window.vwMap.invalidateSize === 'function') {
+          window.vwMap.invalidateSize();
+        }
+      }, 80);
+    }
+
+    window.initVwGrid = function () {
+      if (vwGridReady) { invalidateVwMap(); return; }
+      vwGridReady = true;
+
+      vwGrid = GridStack.init({
+        column:                 12,
+        cellHeight:             60,
+        margin:                 8,
+        float:                  false,
+        animate:                true,
+        alwaysShowResizeHandle: true,
+        resizable: { handles: 'se, s, sw, e, w' },
+        draggable: { handle: '.widget-header-bar' },
+        minRow:                 1,
+      }, '#vw-grid');
+
+      /* Restore saved layout */
+      var raw = localStorage.getItem(VW_LAYOUT_KEY);
+      if (raw) {
+        try {
+          var saved = JSON.parse(raw);
+          var visIds = Array.from(
+            document.querySelectorAll('#vw-grid .grid-stack-item[gs-id]')
+          ).map(function(el){ return el.getAttribute('gs-id'); });
+          var filtered = saved.filter(function(s){ return visIds.indexOf(s.id) !== -1; });
+          if (filtered.length) vwGrid.load(filtered);
+        } catch(e) {}
+      }
+
+      /* Save on every change */
+      vwGrid.on('change', saveLayout);
+
+      /* Invalidate Leaflet map on resize of map widget */
+      vwGrid.on('resizestop', function(e, el) {
+        if (el && el.getAttribute && el.getAttribute('gs-id') === 'vw-map-widget') {
+          invalidateVwMap();
+        }
+      });
+
+      /* Also invalidate on drag stop (widget might overlap map) */
+      vwGrid.on('dragstop', invalidateVwMap);
+
+      invalidateVwMap();
+    };
   })();
   </script>
 
