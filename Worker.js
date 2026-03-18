@@ -3229,6 +3229,12 @@ async function runIngestion(env, options = {}, ctx = null) {
       // persist incidents and proximity — throttled to avoid redundant KV writes
       await kvPutWithThrottle(env, INCIDENTS_KV_KEY, merged);
       await kvPutWithThrottle(env, PROXIMITY_KV_KEY, { incidents: proxOut, updated_at: new Date().toISOString() });
+      // Bust CF edge cache so fresh incidents are served immediately after ingest
+      try {
+        const cache = caches.default;
+        await cache.delete(new Request('https://osinfohub-cache.internal/incidents-v1', { method: 'GET' }));
+        await cache.delete(new Request('https://osinfohub-cache.internal/proximity-v1', { method: 'GET' }));
+      } catch (_ce) { /* cache API not available in this context */ }
 
       // archive older ones
       try { await archiveIncidents(env, merged); } catch (e) { typeof debug === 'function' && debug("archiveIncidents error", e?.message || e); }
@@ -3590,23 +3596,18 @@ async function handleApiStream(env, req) {
     writer.write(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 
   (async () => {
-    let hbTimer;
     try {
+      // Tell clients to wait 5 minutes before reconnecting — critical for scale.
+      // 300 users × reconnect every 5 min = 60 req/min vs 60 req/sec without this.
+      await writer.write(enc.encode('retry: 300000\n\n'));
       const incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
       const proxRaw   = await kvGetJson(env, PROXIMITY_KV_KEY, { incidents: [] });
       await writeEvent('incidents', incidents);
       await writeEvent('proximity', proxRaw);
       await writeEvent('heartbeat', { ts: new Date().toISOString() });
-
-      // SSE comment keepalives — prevents CF idle-close before client reconnects
-      hbTimer = setInterval(async () => {
-        try { await writer.write(enc.encode(`: heartbeat\n\n`)); }
-        catch { clearInterval(hbTimer); }
-      }, 25_000);
     } catch (e) {
       debug('handleApiStream error', e?.message || e);
     } finally {
-      clearInterval(hbTimer);
       try { await writer.close(); } catch {}
     }
   })();
@@ -3620,6 +3621,64 @@ async function handleApiStream(env, req) {
     }
   });
 }
+
+// ── Scale wrappers: CF Cache API + proper Cache-Control ───────────────────────
+// These sit in front of the core handlers and serve from Cloudflare's edge cache.
+// With 300 concurrent users: only 1 Worker invocation per 120s per data-center
+// instead of 300 invocations — stays well within the free-tier 100k/day limit.
+const _TL_HDRS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+
+async function handleApiIncidentsCached(env, req, ctx) {
+  const userId = req && req.headers ? req.headers.get('X-User-Id') : null;
+  // User-specific (dislike-filtered) responses must NOT be shared — skip cache
+  if (!userId) {
+    try {
+      const cache    = caches.default;
+      const cacheKey = new Request('https://osinfohub-cache.internal/incidents-v1', { method: 'GET' });
+      const hit      = await cache.match(cacheKey);
+      if (hit) {
+        const h = new Response(hit.body, hit);
+        h.headers.set('X-Cache', 'HIT');
+        return h;
+      }
+      const r    = await handleApiIncidents(env, req);
+      const body = JSON.stringify(Array.isArray(r.body) ? r.body : []);
+      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=120', 'X-Cache': 'MISS' }) });
+      if (ctx) ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+      else cache.put(cacheKey, resp.clone());
+      return resp;
+    } catch (_ce) { /* CF cache unavailable — fall through to direct */ }
+  }
+  const r    = await handleApiIncidents(env, req);
+  const body = JSON.stringify(Array.isArray(r.body) ? r.body : []);
+  return new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'private, no-store' }) });
+}
+
+async function handleApiProximityCached(env, req, ctx) {
+  const userId = req && req.headers ? req.headers.get('X-User-Id') : null;
+  if (!userId) {
+    try {
+      const cache    = caches.default;
+      const cacheKey = new Request('https://osinfohub-cache.internal/proximity-v1', { method: 'GET' });
+      const hit      = await cache.match(cacheKey);
+      if (hit) {
+        const h = new Response(hit.body, hit);
+        h.headers.set('X-Cache', 'HIT');
+        return h;
+      }
+      const r    = await handleApiProximity(env, req);
+      const body = JSON.stringify(r.body || {});
+      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=300', 'X-Cache': 'MISS' }) });
+      if (ctx) ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+      else cache.put(cacheKey, resp.clone());
+      return resp;
+    } catch (_ce) { /* fall through */ }
+  }
+  const r    = await handleApiProximity(env, req);
+  const body = JSON.stringify(r.body || {});
+  return new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'private, no-store' }) });
+}
+// ──────────────────────────────────────────────────────────────────────────────
 
 async function handleApiIncidents(env, req) {
   const inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
@@ -5177,11 +5236,9 @@ async function handleRequest(req, env, ctx) {
       const r = await handleApiLogisticsWatch(env, req);
       return _responseFromResult(r);
     } else if (p.startsWith('/api/incidents')) {
-      const r = await handleApiIncidents(env, req);
-      return _responseFromResult(r);
+      return handleApiIncidentsCached(env, req, ctx);
     } else if (p.startsWith('/api/proximity')) {
-      const r = await handleApiProximity(env, req);
-      return _responseFromResult(r);
+      return handleApiProximityCached(env, req, ctx);
     } else if (p.startsWith('/api/traveladvisories')) {
       const r = await handleApiTravel(env, url.searchParams);
       return _responseFromResult(r);
