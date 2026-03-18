@@ -6674,8 +6674,9 @@ function _vwRender(data) {
   _vwRenderPosture(data.posture || {});
   _vwRenderMonitoredTable(vessels);
   _vwRenderMap(vessels, data.riskZones || []);
-  _vwRenderChokepoints(vessels);
-  _vwLoadIncidents(vessels);
+  /* _vwRenderChokepoints and _vwLoadIncidents now handled by port disruption section */
+  /* _vwRenderChokepoints(vessels); */
+  /* _vwLoadIncidents(vessels); */
   var countEl = document.getElementById('vw-monitored-count');
   if (countEl) countEl.textContent = vessels.length;
 }
@@ -6769,6 +6770,27 @@ function _vwRenderMap(vessels, riskZones) {
     _vwMarkers.push(marker);
   });
   setTimeout(function(){ if (_vwMap) _vwMap.invalidateSize(); }, 120);
+
+  /* Expose port disruption marker helper for renderPortTab() in index.html */
+  window._vwAddPortMarkers = function(disruptions) {
+    if (!_vwMap) return;
+    if (window._vwPortMarkerLayer) { window._vwPortMarkerLayer.clearLayers(); }
+    else { window._vwPortMarkerLayer = L.layerGroup().addTo(_vwMap); }
+    (disruptions || []).forEach(function(d) {
+      if (!d.lat || !d.lng) return;
+      var color = d.severity === 'HIGH' ? '#f44336' : d.severity === 'MEDIUM' ? '#ff9800' : '#ffc107';
+      var marker = L.circleMarker([d.lat, d.lng], {
+        radius: 7, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.75,
+        className: 'vw-port-disruption-marker',
+      });
+      marker.bindPopup(
+        '<b style="color:' + color + ';">' + (d.port_name || 'Maritime Disruption') + '</b>' +
+        '<br><span style="font-size:.78rem;">' + (d.summary || d.cause_type || '') + '</span>' +
+        (d.source_url ? '<br><a href="' + d.source_url + '" target="_blank" rel="noopener" style="color:#8ab4f8;font-size:.75rem;">Source ↗</a>' : '')
+      );
+      window._vwPortMarkerLayer.addLayer(marker);
+    });
+  };
 }
 
 var VW_CHOKEPOINTS_STATIC = [
@@ -6875,7 +6897,7 @@ function _vwBuildVesselCard(vessel, risk, isMonitored) {
   var sc    = VW_STATUS_CLASS[risk.status] || 'vw-badge-normal';
   var ac    = VW_ACTION_CLASS[risk.recommendedAction] || 'vw-action-none';
   var color = VW_DOT_COLOR[risk.status] || '#81c995';
-  var mockNote  = vessel._mock ? ' <span class="vw-badge vw-badge-mock" title="Illustrative \u2014 configure DATALASTIC_API_KEY for live data">MOCK POSITION</span>' : '';
+  var mockNote  = vessel._mock ? ' <span class="vw-badge vw-badge-mock" title="Illustrative position \u2014 live AIS feed via aisstream.io">MOCK POSITION</span>' : '';
   var monBadge  = isMonitored ? ' <span class="vw-badge" style="background:#1c2a18;color:#81c995;">MONITORED</span>' : '';
   var lat = risk.lat != null ? risk.lat.toFixed(3) : '\u2014';
   var lon = risk.lon != null ? risk.lon.toFixed(3) : '\u2014';

@@ -2105,9 +2105,6 @@
       <button class="view-tab" data-view="airport" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-plane-departure" aria-hidden="true"></i> Airport Disruptions
       </button>
-      <button class="view-tab" data-view="port" role="tab" aria-selected="false" tabindex="0">
-        <i class="fas fa-ship" aria-hidden="true"></i> Port Disruptions
-      </button>
       <button class="view-tab" data-view="vessel-watch" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-anchor" aria-hidden="true"></i> Vessel Watch
       </button>
@@ -2628,16 +2625,33 @@
   </div><!-- /view-live-news -->
 
 
-  <!-- 🚢 PORT DISRUPTIONS VIEW ─────────────────────────────────────────────── -->
-  <div id="view-port" class="airport-panel" style="display:none;" role="tabpanel" aria-label="Port Disruptions">
 
-    <!-- AI Overview Bar -->
-    <div class="airport-ai-bar" id="port-ai-bar">
-      <i class="fas fa-brain" aria-hidden="true"></i>
-      <span id="port-ai-text">Switch to this tab to load live port disruption intelligence…</span>
+  <!-- ⚓ VESSEL WATCH VIEW ──────────────────────────────────────────────────── -->
+  <div id="view-vessel-watch" style="display:none;" role="tabpanel" aria-label="Vessel Watch — Executive Maritime Exposure Layer">
+
+    <!-- Exposure Posture Banner -->
+    <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable">
+      <div class="vw-posture-left">
+        <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
+        <div>
+          <div class="vw-posture-label">MARITIME EXPOSURE POSTURE</div>
+          <div id="vw-posture-level" class="vw-posture-level">Loading…</div>
+        </div>
+      </div>
+      <div id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</div>
+      <div class="vw-posture-right">
+        <span id="vw-posture-counts" class="vw-posture-counts"></span>
+        <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      </div>
     </div>
 
-    <!-- Filter + Sort Controls -->
+    <!-- Port Disruption Intelligence Bar -->
+    <div class="airport-ai-bar" id="port-ai-bar">
+      <i class="fas fa-brain" aria-hidden="true"></i>
+      <span id="port-ai-text">Loading maritime disruption intelligence…</span>
+    </div>
+
+    <!-- Port Disruption Filter Controls -->
     <div class="airport-controls">
       <span class="airport-ctrl-label">Type</span>
       <select id="port-filter-type" class="airport-select" aria-label="Filter by disruption type">
@@ -2667,25 +2681,20 @@
       <span id="port-updated-at" class="airport-ts"></span>
     </div>
 
-    <!-- Two-column: left = map + table; right = chokepoint traffic sidebar -->
-    <div class="airport-two-col" id="port-main-view">
+    <!-- Two-column: disruption list (left) + Chokepoint Traffic Index (right) -->
+    <div class="airport-two-col" id="vw-port-section">
 
-      <!-- Left column: map + disruption table -->
+      <!-- Left column: disruption table -->
       <div class="airport-left-col">
-        <div class="airport-map-wrap">
-          <div id="port-map" aria-label="Port disruptions world map" role="application"></div>
-        </div>
-
-        <!-- Disruption table -->
         <div class="airport-table-section" id="port-disruptions-list" aria-live="polite">
           <div class="airport-loading">
             <i class="fas fa-ship fa-bounce" aria-hidden="true"></i><br>
-            Click "🚢 Port Disruptions" tab to load data
+            Loading maritime disruption data…
           </div>
         </div>
       </div>
 
-      <!-- Right sidebar: Chokepoint Traffic Index + Vessel Watchlist -->
+      <!-- Right sidebar: Real Chokepoint Traffic Index (IMF PortWatch) -->
       <div class="airport-right-sidebar">
         <div class="side-card airport-tsc-card">
           <div class="card-label"><i class="fas fa-water"></i> Chokepoint Traffic Index</div>
@@ -2694,48 +2703,11 @@
             <div class="airport-loading" style="padding:12px;font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
           </div>
         </div>
-
-        <!-- ⚓ VESSEL WATCHLIST — directly under Chokepoint Traffic -->
-        <div class="side-card airport-tsc-card" id="port-vessel-watch-section" style="margin-top:10px;">
-          <div class="card-label"><i class="fas fa-binoculars"></i> Vessel Watchlist</div>
-          <p class="tsc-subtitle">Track live vessels by MMSI (9 digits) or name</p>
-          <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <input class="drawer-input" id="port-vessel-input" name="port-vessel-input" type="text"
-              placeholder="MMSI (e.g. 538007789) or vessel name"
-              maxlength="20" autocomplete="off"
-              style="flex:1;background:#1e2029;border:1px solid #3a3d45;border-radius:6px;padding:6px 10px;color:#e8eaed;font-size:0.82rem;" />
-            <button class="drawer-btn" data-action="port-add-vessel" aria-label="Add vessel to watchlist"
-              style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
-          </div>
-          <div id="port-vessel-watchlist-list">
-            <div class="drawer-empty" style="color:#9aa0a6;font-size:0.82rem;padding:8px 0;">No vessels being tracked. Add an MMSI or name above.</div>
-          </div>
-        </div>
       </div>
 
-    </div><!-- /port-main-view -->
-  </div><!-- /view-port -->
+    </div><!-- /vw-port-section -->
 
-  <!-- ⚓ VESSEL WATCH VIEW ──────────────────────────────────────────────────── -->
-  <div id="view-vessel-watch" style="display:none;" role="tabpanel" aria-label="Vessel Watch — Executive Maritime Exposure Layer">
-
-    <!-- Exposure Posture Banner -->
-    <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable">
-      <div class="vw-posture-left">
-        <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
-        <div>
-          <div class="vw-posture-label">MARITIME EXPOSURE POSTURE</div>
-          <div id="vw-posture-level" class="vw-posture-level">Loading…</div>
-        </div>
-      </div>
-      <div id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</div>
-      <div class="vw-posture-right">
-        <span id="vw-posture-counts" class="vw-posture-counts"></span>
-        <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-      </div>
-    </div>
-
-    <!-- Top row: Track Vessel search + Monitored Vessels table -->
+    <!-- Track Vessel + Monitored Vessels row -->
     <div class="vw-top-row">
 
       <!-- Track Vessel Search Panel -->
@@ -2751,11 +2723,11 @@
         </div>
       </div>
 
-      <!-- Monitored Vessels at Risk Table -->
-      <div class="vw-panel vw-monitored-panel">
+      <!-- Monitored Vessels Panel -->
+      <div class="vw-panel">
         <div class="vw-panel-header">
-          <span><i class="fas fa-list-ul me-2"></i>Monitored Vessels</span>
-          <span id="vw-monitored-count" class="vw-badge-count">—</span>
+          <span><i class="fas fa-binoculars me-2"></i>Monitored Vessels</span>
+          <span id="vw-fleet-count" class="vw-badge-count"></span>
         </div>
         <div id="vw-monitored-table" class="vw-monitored-table">
           <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading fleet status…</div>
@@ -2763,10 +2735,8 @@
       </div>
     </div>
 
-    <!-- Map + Chokepoints row -->
-    <div class="vw-map-row">
-
-      <!-- Vessel Watch Map -->
+    <!-- Vessel Watch Map (full-width, shows vessels + risk zones + port disruption markers) -->
+    <div class="vw-map-row" style="grid-template-columns:1fr;">
       <div class="vw-map-wrap">
         <div id="vw-map" class="vw-map"></div>
         <div class="vw-map-legend">
@@ -2774,27 +2744,8 @@
           <span class="vwl-dot vwl-elevated"></span>Elevated &nbsp;
           <span class="vwl-dot vwl-watch"></span>Watch &nbsp;
           <span class="vwl-dot vwl-normal"></span>Normal &nbsp;
-          <span class="vwl-zone-box"></span>Risk Zone
-        </div>
-      </div>
-
-      <!-- Chokepoint Exposure Panel -->
-      <div class="vw-panel vw-chokepoint-panel">
-        <div class="vw-panel-header"><i class="fas fa-water me-2"></i>Chokepoint Exposure</div>
-        <div id="vw-chokepoint-list" class="vw-chokepoint-list">
-          <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Incident linkage row -->
-    <div class="vw-incident-row">
-      <div class="vw-panel vw-incident-panel">
-        <div class="vw-panel-header"><i class="fas fa-exclamation-triangle me-2"></i>Related Maritime Incidents
-          <span style="font-size:.72rem;font-weight:400;color:#9aa0a6;margin-left:8px;">Click incident to see nearby monitored vessels</span>
-        </div>
-        <div id="vw-incident-list" class="vw-incident-list">
-          <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading incidents…</div>
+          <span class="vwl-zone-box"></span>Risk Zone &nbsp;
+          <span style="width:9px;height:9px;border-radius:50%;background:#ff5722;opacity:.8;display:inline-block;"></span>Port Disruption
         </div>
       </div>
     </div>
@@ -2802,7 +2753,7 @@
     <div class="vw-disclaimer">
       <i class="fas fa-lock" style="margin-right:6px;"></i>
       This layer uses public intelligence only. No internal Dell cargo, customer, shipment, supplier, SKU, or financial data is displayed here.
-      &nbsp;·&nbsp; Vessel positions may be from AIS feed or illustrative placeholders until Datalastic API key is configured.
+      &nbsp;·&nbsp; Vessel positions may be from AIS feed or illustrative placeholders until AIS API key is active.
     </div>
   </div><!-- /view-vessel-watch -->
 
@@ -3301,6 +3252,43 @@
     /* Loading / disclaimer */
     .vw-loading    { color:#5f6368; font-size:.8rem; padding:16px 0; text-align:center; }
     .vw-disclaimer { font-size:.68rem; color:#3c4043; text-align:center; padding:6px 0 0; border-top:1px solid #1a1d23; margin-top:4px; }
+
+    /* ── Light-mode overrides ──────────────────────────────────────────── */
+    body.light-mode .vw-panel { background:#f8f9fa; border-color:#e0e0e0; }
+    body.light-mode .vw-panel-header { color:#5f6368; }
+    body.light-mode .vw-posture-stable   { background:#e8f0fe; border-color:#4285f4; }
+    body.light-mode .vw-posture-watch    { background:#fef9e7; border-color:#f9ab00; }
+    body.light-mode .vw-posture-elevated { background:#fef3e2; border-color:#e8710a; }
+    body.light-mode .vw-posture-critical { background:#fce8e6; border-color:#d93025; }
+    body.light-mode .vw-posture-label { color:#5f6368; }
+    body.light-mode .vw-posture-stable   .vw-posture-level { color:#1a73e8; }
+    body.light-mode .vw-posture-watch    .vw-posture-level { color:#e37400; }
+    body.light-mode .vw-posture-elevated .vw-posture-level { color:#e8710a; }
+    body.light-mode .vw-posture-critical .vw-posture-level { color:#d93025; }
+    body.light-mode .vw-posture-summary { color:#3c4043; }
+    body.light-mode .vw-posture-counts { color:#5f6368; }
+    body.light-mode .vw-btn-refresh { border-color:#dadce0; color:#5f6368; }
+    body.light-mode .vw-search-input { background:#fff; border-color:#dadce0; color:#202124; }
+    body.light-mode .vw-search-hints { color:#9aa0a6; }
+    body.light-mode .vw-empty-state { color:#9aa0a6; }
+    body.light-mode .vw-vessel-card { background:#fff; border-color:#e0e0e0; }
+    body.light-mode .vw-vessel-name { color:#202124; }
+    body.light-mode .vw-vessel-meta { color:#5f6368; }
+    body.light-mode .vw-vessel-field span { color:#3c4043; }
+    body.light-mode .vw-vessel-field label { color:#9aa0a6; }
+    body.light-mode .vw-mv-table th { color:#9aa0a6; border-color:#e0e0e0; }
+    body.light-mode .vw-mv-table td { color:#3c4043; border-color:#f1f3f4; }
+    body.light-mode .vw-mv-table tr:hover td { background:#f8f9fa; }
+    body.light-mode .vw-map { background:#e8eaf0; }
+    body.light-mode .vw-choke-name { color:#202124; }
+    body.light-mode .vw-choke-row { border-color:#f1f3f4; }
+    body.light-mode .vw-incident-item { background:#fff; border-color:#e0e0e0; }
+    body.light-mode .vw-incident-title { color:#202124; }
+    body.light-mode .vw-incident-meta { color:#9aa0a6; }
+    body.light-mode .vw-loading { color:#9aa0a6; }
+    body.light-mode .vw-disclaimer { color:#9aa0a6; border-color:#e0e0e0; }
+    body.light-mode #vw-port-section .airport-left-col,
+    body.light-mode #vw-port-section .airport-right-sidebar { background:transparent; }
   </style>
 
   <style id="threats-leaks-style">
@@ -3824,8 +3812,7 @@
     #view-airport { padding-bottom: 40px; }
     #airport-conflict-section { display: none !important; }
 
-    /* Port Disruptions view */
-    #view-port { padding-bottom: 40px; }
+    /* Port Disruptions view (merged into Vessel Watch) */
     #port-map { height: 350px; width: 100%; border-radius: 8px; background: #0d1117; }
     .port-row { display:flex; align-items:flex-start; gap:14px; padding:12px 14px; border-bottom:1px solid #2a2d35; transition:background .15s; cursor:default; }
     .port-row:last-child { border-bottom:none; }
@@ -4089,7 +4076,6 @@
       var intel    = document.getElementById('view-intelligence');
       var airport  = document.getElementById('view-airport');
       var liveNews = document.getElementById('view-live-news');
-      var portView = document.getElementById('view-port');
       var tlView   = document.getElementById('view-threats-leaks');
       var vwView   = document.getElementById('view-vessel-watch');
       var catBar   = document.getElementById('cat-filter-bar');
@@ -4099,7 +4085,6 @@
       if (intel)    intel.style.display    = 'none';
       if (airport)  airport.style.display  = 'none';
       if (liveNews) liveNews.style.display = 'none';
-      if (portView) portView.style.display = 'none';
       if (tlView)   tlView.style.display   = 'none';
       if (vwView)   vwView.style.display   = 'none';
       if (catBar)   catBar.style.display   = 'none';
@@ -4128,13 +4113,10 @@
         _lnTabRefreshInterval = setInterval(function () {
           if (currentView === 'live-news' && typeof _lnTabFetch === 'function') _lnTabFetch();
         }, 5 * 60 * 1000);
-      } else if (view === 'port') {
-        if (portView) portView.style.display = '';
-        if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
-        setTimeout(function(){ if(portMap) portMap.invalidateSize(); }, 120);
-        loadPortData(false);
       } else if (view === 'vessel-watch') {
         if (vwView) vwView.style.display = '';
+        if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
+        loadPortData(false);
         if (typeof initVesselWatch === 'function') initVesselWatch();
       } else if (view === 'threats-leaks') {
         if (tlView) tlView.style.display = '';
@@ -4537,15 +4519,8 @@
        ══════════════════════════════════════════════════════════════════ */
 
     function initPortMap() {
-      if (typeof L === 'undefined') return;
-      var isLight = document.body.classList.contains('light-mode');
-      var portBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
-      portMap = L.map('port-map', { center: [20, 20], zoom: 2, scrollWheelZoom: true, zoomControl: true, attributionControl: false, maxBounds: portBounds, maxBoundsViscosity: 1.0, worldCopyJump: false });
-      var tileUrl = isLight
-        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19, noWrap: true, bounds: portBounds }).addTo(portMap);
-      portMarkerLayer = L.layerGroup().addTo(portMap);
+      /* Port disruption markers are added to the shared vw-map via _vwAddPortMarkers */
+      /* initPortMap is kept for compatibility but map init is handled by initVesselWatch */
     }
 
     function loadPortData(force) {
@@ -4613,16 +4588,9 @@
       var tsEl = document.getElementById('port-updated-at');
       if (tsEl && PORT_DATA.updated_at) tsEl.textContent = 'Updated ' + timeAgoShort(new Date(PORT_DATA.updated_at));
 
-      /* Update map markers */
-      if (portMarkerLayer) {
-        portMarkerLayer.clearLayers();
-        disruptions.forEach(function (d) {
-          if (!d.lat || !d.lng) return;
-          var color = d.severity === 'HIGH' ? '#f28b82' : '#fbbc04';
-          var marker = L.circleMarker([d.lat, d.lng], { radius: 8, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.85 });
-          marker.bindPopup('<b>' + escHtml(d.port_name) + '</b><br>' + escHtml(d.summary || '') + (d.source_url ? '<br><a href="' + escHtml(d.source_url) + '" target="_blank" rel="noopener" style="color:#8ab4f8;">Source</a>' : ''));
-          portMarkerLayer.addLayer(marker);
-        });
+      /* Update map markers on vw-map via global helper set by initVesselWatch */
+      if (typeof window._vwAddPortMarkers === 'function') {
+        window._vwAddPortMarkers(disruptions);
       }
 
       /* Render disruption rows */
@@ -4706,7 +4674,7 @@
     }
 
     setInterval(function () {
-      if (currentView === 'port') loadPortData(false);
+      if (currentView === 'vessel-watch') loadPortData(false);
     }, 10 * 60 * 1000);
 
   })();
