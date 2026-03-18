@@ -6734,6 +6734,7 @@ function _vwRenderMap(vessels, riskZones) {
   if (!_vwMap) {
     var bounds = L.latLngBounds(L.latLng(-85,-180), L.latLng(85,180));
     _vwMap = L.map('vw-map', { center:[15,60], zoom:2, zoomControl:true, attributionControl:false, maxBounds:bounds, maxBoundsViscosity:1.0, worldCopyJump:false });
+    window.vwMap = _vwMap; /* expose globally so initVwGrid GridStack script can call invalidateSize() */
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains:'abcd', maxZoom:18, noWrap:true, bounds:bounds,
     }).addTo(_vwMap);
