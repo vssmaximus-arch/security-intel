@@ -187,4 +187,15 @@ app.get('/relay/rss', checkSecret, async (req, res) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`OSInfoHub relay listening on port ${PORT}`);
+
+  // Self-ping every 4 minutes to prevent Railway free-tier sleep
+  const selfUrl = process.env.RELAY_SELF_URL || `http://localhost:${PORT}`;
+  setInterval(async () => {
+    try {
+      await fetch(`${selfUrl}/health`);
+      console.log(`[keepalive] ping ok ${new Date().toISOString()}`);
+    } catch (e) {
+      console.warn('[keepalive] ping failed:', e.message);
+    }
+  }, 4 * 60 * 1000);
 });
