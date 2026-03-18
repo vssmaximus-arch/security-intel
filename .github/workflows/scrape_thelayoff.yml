@@ -34,7 +34,7 @@ jobs:
       - name: Install Playwright + stealth plugin + Chromium
         run: |
           npm init -y --silent
-          npm install playwright-extra puppeteer-extra-plugin-stealth --silent
+          npm install playwright playwright-extra puppeteer-extra-plugin-stealth --silent
           npx playwright install chromium --with-deps
 
       - name: Scrape thelayoff.com Dell posts
