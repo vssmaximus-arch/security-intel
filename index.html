@@ -1578,59 +1578,47 @@
       #airport-map { height: 280px; }
     }
 
-    /* ── MARKETS & COMMODITIES WIDGET ─────────────────────────────── */
-    #markets-settings-btn { margin-left:auto; background:none; border:1px solid #dadce0; border-radius:6px; padding:2px 7px; font-size:0.75rem; cursor:pointer; color:#5f6368; line-height:1.4; transition:background .15s; }
-    #markets-settings-btn:hover { background:#f1f3f4; }
-    .markets-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:8px; }
-    .market-tile { background:#f8f9fa; border:1px solid #e8eaed; border-radius:8px; padding:7px 9px; display:flex; flex-direction:column; gap:2px; min-width:0; }
-    .market-tile-sym { font-size:0.62rem; font-weight:800; color:#9aa0a6; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .market-tile-price { font-size:0.9rem; font-weight:700; color:#202124; line-height:1.1; white-space:nowrap; }
-    .market-tile-change { font-size:0.7rem; font-weight:700; line-height:1; }
-    .market-tile-change.positive { color:#1e8e3e; }
-    .market-tile-change.negative { color:#d93025; }
-    .market-tile-change.neutral  { color:#9aa0a6; }
-    .market-sparkline { margin-top:3px; width:100%; height:22px; display:block; overflow:visible; }
-    .market-sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
-    .spark-positive { stroke:#1e8e3e; } .spark-negative { stroke:#d93025; } .spark-neutral { stroke:#9aa0a6; }
-    .markets-section-label { font-size:0.62rem; font-weight:800; color:#9aa0a6; letter-spacing:1px; text-transform:uppercase; margin:6px 0 5px; }
-    #markets-stocks .market-tile { flex-direction:row; align-items:center; gap:6px; margin-bottom:5px; }
-    #markets-stocks .market-tile-info { flex:1; min-width:0; }
-    #markets-stocks .market-tile-name { font-size:0.68rem; color:#5f6368; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    #markets-stocks .market-sparkline { width:54px; flex-shrink:0; margin-top:0; }
-    #markets-stocks .market-tile-price { font-size:0.8rem; text-align:right; flex-shrink:0; min-width:44px; }
-    #markets-stocks .market-tile-change { font-size:0.68rem; text-align:right; flex-shrink:0; min-width:40px; }
-    .markets-footer { font-size:0.65rem; color:#9aa0a6; text-align:right; margin-top:5px; padding-top:5px; border-top:1px solid #f1f3f4; }
-    /* dark mode */
-    body.dark-mode .market-tile { background:#252830 !important; border-color:#3a3d45 !important; }
-    body.dark-mode .market-tile-price { color:#e8eaed !important; }
-    body.dark-mode .market-tile-sym, body.dark-mode .markets-section-label { color:#6c7280 !important; }
-    body.dark-mode .market-tile-name { color:#9aa0a6 !important; }
-    body.dark-mode #markets-settings-btn { border-color:#3a3d45 !important; color:#9aa0a6 !important; }
-    body.dark-mode #markets-settings-btn:hover { background:#2a2d35 !important; }
-    body.dark-mode .markets-footer { color:#6c7280 !important; border-top-color:#2a2d35 !important; }
-    /* settings modal */
-    #markets-modal { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; }
-    #markets-modal-box { background:#fff; border-radius:12px; padding:22px; width:330px; max-width:95vw; box-shadow:0 8px 32px rgba(0,0,0,.3); }
-    #markets-modal-title { font-size:.95rem; font-weight:700; color:#202124; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
-    #markets-modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:#9aa0a6; padding:0 4px; line-height:1; }
-    .markets-modal-sec { font-size:.65rem; font-weight:800; color:#9aa0a6; text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
-    .markets-sym-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
-    .markets-sym-tag { background:#f1f3f4; border:1px solid #e0e0e0; border-radius:6px; padding:4px 10px; font-size:.8rem; font-weight:700; color:#202124; flex:1; }
-    .markets-rm-btn { background:none; border:none; color:#d93025; cursor:pointer; font-size:.85rem; padding:2px 6px; border-radius:4px; }
-    .markets-rm-btn:hover { background:#fce8e6; }
-    #markets-add-row { display:flex; gap:7px; margin-top:10px; }
-    #markets-add-input { flex:1; padding:7px 9px; border:1px solid #dadce0; border-radius:6px; font-size:.82rem; text-transform:uppercase; }
-    #markets-add-type { padding:7px 6px; border:1px solid #dadce0; border-radius:6px; font-size:.8rem; background:#fff; }
-    #markets-add-btn { background:#0076CE; color:#fff; border:none; border-radius:6px; padding:7px 13px; font-size:.82rem; font-weight:700; cursor:pointer; }
-    #markets-add-btn:hover { background:#005fa3; }
-    #markets-modal-save-row { margin-top:14px; display:flex; justify-content:flex-end; gap:7px; }
-    #markets-modal-cancel { background:#f1f3f4; border:none; border-radius:6px; padding:7px 14px; font-size:.82rem; font-weight:600; cursor:pointer; color:#5f6368; }
-    #markets-modal-save { background:#0076CE; color:#fff; border:none; border-radius:6px; padding:7px 14px; font-size:.82rem; font-weight:700; cursor:pointer; }
-    body.dark-mode #markets-modal-box { background:#1e2029 !important; border:1px solid #2a2d35; }
-    body.dark-mode #markets-modal-title { color:#e8eaed !important; }
-    body.dark-mode .markets-sym-tag { background:#2a2d35 !important; border-color:#3a3d45 !important; color:#e8eaed !important; }
-    body.dark-mode #markets-add-input, body.dark-mode #markets-add-type { background:#2a2d35 !important; border-color:#3a3d45 !important; color:#e8eaed !important; }
-    body.dark-mode #markets-modal-cancel { background:#2a2d35 !important; color:#9aa0a6 !important; }
+    /* ── MARKETS WIDGET — Google Finance style ──────────────────────── */
+    #markets-card { overflow:hidden; }
+    .mkt-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; flex-wrap:wrap; gap:4px; }
+    .mkt-hdr-label { font-size:.75rem; font-weight:700; color:#9aa0a6; text-transform:uppercase; letter-spacing:.5px; }
+    #mkt-updated { font-size:.62rem; color:#9aa0a6; }
+    /* Tab pills */
+    .mkt-tabs { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px; }
+    .mkt-tab-pill { background:transparent; border:1px solid #3a3d45; border-radius:14px; padding:3px 11px; font-size:.68rem; font-weight:600; cursor:pointer; color:#9aa0a6; transition:all .15s; white-space:nowrap; line-height:1.6; }
+    .mkt-tab-pill:hover { border-color:#1a73e8; color:#1a73e8; }
+    .mkt-tab-pill.active { background:#1a73e8; color:#fff; border-color:#1a73e8; }
+    /* Tiles row */
+    .mkt-tiles-row { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid #2a2d35; padding-bottom:6px; margin-bottom:4px; }
+    .mkt-tiles-row::-webkit-scrollbar { display:none; }
+    .mkt-tile { min-width:90px; flex:1; padding:5px 8px; border-right:1px solid #2a2d35; cursor:pointer; border-radius:6px; transition:background .12s; }
+    .mkt-tile:last-child { border-right:none; }
+    .mkt-tile:hover { background:#252830; }
+    .mkt-tile.sel { background:#1a2744; }
+    .mkt-tile-name { font-size:.6rem; font-weight:600; color:#6c7280; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; }
+    .mkt-tile-price { font-size:.85rem; font-weight:700; color:#e8eaed; line-height:1.15; white-space:nowrap; }
+    .mkt-tile-chg { font-size:.63rem; font-weight:600; white-space:nowrap; margin-top:1px; }
+    .mkt-tile-chg.pos { color:#34a853; }
+    .mkt-tile-chg.neg { color:#ea4335; }
+    .mkt-tile-chg.neu { color:#9aa0a6; }
+    /* Intraday chart */
+    .mkt-chart-wrap { height:88px; position:relative; margin:2px 0 3px; }
+    .mkt-chart-svg { width:100%; height:100%; display:block; overflow:visible; }
+    .mkt-chart-labels { display:flex; justify-content:space-between; font-size:.58rem; color:#6c7280; padding:0 2px 2px; }
+    .mkt-chart-title { font-size:.62rem; color:#9aa0a6; margin-bottom:2px; min-height:14px; }
+    /* Footer */
+    .mkt-footer { font-size:.6rem; color:#6c7280; text-align:right; margin-top:3px; padding-top:4px; border-top:1px solid #2a2d35; }
+    /* Light mode overrides */
+    body:not(.dark-mode) .mkt-tab-pill { border-color:#dadce0; color:#5f6368; }
+    body:not(.dark-mode) .mkt-tab-pill.active { background:#1a73e8; color:#fff; border-color:#1a73e8; }
+    body:not(.dark-mode) .mkt-tiles-row { border-bottom-color:#e8eaed; }
+    body:not(.dark-mode) .mkt-tile { border-right-color:#e8eaed; }
+    body:not(.dark-mode) .mkt-tile:hover { background:#f8f9fa; }
+    body:not(.dark-mode) .mkt-tile.sel { background:#e8f0fe; }
+    body:not(.dark-mode) .mkt-tile-name { color:#5f6368; }
+    body:not(.dark-mode) .mkt-tile-price { color:#202124; }
+    body:not(.dark-mode) .mkt-chart-labels { color:#9aa0a6; }
+    body:not(.dark-mode) .mkt-footer { color:#9aa0a6; border-top-color:#e8eaed; }
     /* ── END MARKETS WIDGET ────────────────────────────────────────── */
 
     /* ================================================================
@@ -2206,28 +2194,26 @@
                     <i class="fas fa-times" aria-hidden="true"></i>
                   </button>
                 </div>
-                <div class="side-card" id="markets-card" style="padding:10px 12px;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
-                    <span style="font-size:.8rem;font-weight:700;color:#9aa0a6;text-transform:uppercase;letter-spacing:.5px;"><i class="fas fa-chart-line" aria-hidden="true"></i> Markets</span>
-                    <div class="markets-tab-bar" id="markets-tab-bar" role="tablist" style="display:flex;gap:4px;">
-                      <button class="mkt-tab active" data-mtab="global" style="background:#1a73e8;color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">Global</button>
-                      <button class="mkt-tab" data-mtab="dell" style="background:transparent;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">Dell</button>
-                      <button class="mkt-tab" data-mtab="currencies" style="background:transparent;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">FX</button>
-                      <button class="mkt-tab" data-mtab="commodities" style="background:transparent;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;padding:3px 9px;font-size:.7rem;font-weight:700;cursor:pointer;">Commodities</button>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <span id="markets-updated" style="font-size:.68rem;color:#9aa0a6;"></span>
-                      <button id="markets-settings-btn" title="Edit symbols" aria-label="Edit market symbols" style="background:transparent;border:none;color:#9aa0a6;cursor:pointer;font-size:.82rem;padding:0 4px;">&#9881;</button>
-                    </div>
+                <div class="side-card" id="markets-card" style="padding:9px 11px;">
+                  <div class="mkt-hdr">
+                    <span class="mkt-hdr-label"><i class="fas fa-chart-line" aria-hidden="true"></i> Markets</span>
+                    <span id="mkt-updated"></span>
                   </div>
-                  <div id="markets-tab-content">
-                    <div id="markets-commodities" class="markets-grid" aria-live="polite">
-                      <div style="grid-column:1/-1;text-align:center;padding:10px;color:#9aa0a6;font-size:.78rem;">
-                        <i class="fas fa-spinner fa-spin"></i> Loading&hellip;
-                      </div>
-                    </div>
-                    <div id="markets-stocks" class="markets-stocks-list" style="margin-top:6px;"></div>
+                  <div class="mkt-tabs" id="mkt-tabs" role="tablist">
+                    <button class="mkt-tab-pill active" data-mcat="global"      role="tab" aria-selected="true">Global</button>
+                    <button class="mkt-tab-pill"        data-mcat="australia"   role="tab" aria-selected="false">Australia</button>
+                    <button class="mkt-tab-pill"        data-mcat="currencies"  role="tab" aria-selected="false">Currencies</button>
+                    <button class="mkt-tab-pill"        data-mcat="commodities" role="tab" aria-selected="false">Commodities</button>
                   </div>
+                  <div class="mkt-tiles-row" id="mkt-tiles-row" aria-live="polite">
+                    <div style="padding:10px;color:#9aa0a6;font-size:.75rem;"><i class="fas fa-spinner fa-spin"></i> Loading&hellip;</div>
+                  </div>
+                  <div class="mkt-chart-title" id="mkt-chart-title"></div>
+                  <div class="mkt-chart-wrap" id="mkt-chart-wrap">
+                    <svg class="mkt-chart-svg" id="mkt-chart-svg" viewBox="0 0 400 88" preserveAspectRatio="none" aria-hidden="true"></svg>
+                  </div>
+                  <div class="mkt-chart-labels" id="mkt-chart-labels"></div>
+                  <div class="mkt-footer">Market data delayed ~15 min &middot; Yahoo Finance</div>
                 </div>
               </div>
             </div>
@@ -2374,32 +2360,6 @@
 
           <!-- Hidden widgets store: DOM preserved, visually invisible, no layout impact -->
           <div id="hidden-widgets-container" style="visibility:hidden;height:0;overflow:hidden;pointer-events:none;" aria-hidden="true"></div>
-
-          <!-- Markets Settings Modal (position:fixed, DOM location irrelevant) -->
-          <div id="markets-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="mkm-title">
-            <div id="markets-modal-box">
-              <div id="markets-modal-title">
-                <span id="mkm-title">Edit Market Symbols</span>
-                <button id="markets-modal-close" aria-label="Close">&times;</button>
-              </div>
-              <div class="markets-modal-sec">Commodities (2&times;2 grid)</div>
-              <div id="markets-modal-comm-list"></div>
-              <div class="markets-modal-sec" style="margin-top:10px;">Stocks</div>
-              <div id="markets-modal-stock-list"></div>
-              <div id="markets-add-row">
-                <input id="markets-add-input" type="text" placeholder="Symbol e.g. AAPL" maxlength="12" aria-label="Add symbol" />
-                <select id="markets-add-type" aria-label="Symbol type">
-                  <option value="stock">Stock</option>
-                  <option value="commodity">Commodity</option>
-                </select>
-                <button id="markets-add-btn">Add</button>
-              </div>
-              <div id="markets-modal-save-row">
-                <button id="markets-modal-cancel">Cancel</button>
-                <button id="markets-modal-save">Save</button>
-              </div>
-            </div>
-          </div>
 
           <!-- Conditional panels — shown/hidden by JS, not part of GridStack -->
           <div id="sidebar-conditional-panels">

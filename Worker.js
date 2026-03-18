@@ -6345,71 +6345,85 @@ async function handleApiThreatIntel(env, req) {
 }
 
 /* ===========================
-   /api/markets — Yahoo Finance proxy for Markets & Commodities widget
-   ?symbols=DELL,%5EVIX,GC%3DF,CL%3DF,NG%3DF
-   Returns: { ok, data:[{ symbol, name, price, change, changePct, sparkline, currency }] }
-   Cloudflare caches each symbol 5 minutes.
+   /api/markets — Yahoo Finance proxy for Markets widget
+   ?cat=global|australia|currencies|commodities
+   Returns: { ok, cat, updated, tiles:[{ symbol, name, price, change, changePct, prev, currency, points:[{t,v}] }] }
+   Cloudflare caches 5 minutes.
 =========================== */
+var MARKET_CATS = {
+  global:      ['^DJI','^IXIC','^FTSE','^NZ50','^N225'],
+  australia:   ['^AXJO','BHP.AX','CBA.AX','RIO.AX','WBC.AX'],
+  currencies:  ['AUDUSD=X','EURUSD=X','GBPUSD=X','USDJPY=X','USDCNH=X'],
+  commodities: ['GC=F','CL=F','SI=F','NG=F','^VIX'],
+};
+var MARKET_NAMES = {
+  '^DJI':'DOW','^IXIC':'NASDAQ','^FTSE':'FTSE 100','^NZ50':'NZSE 50','^N225':'Nikkei 225',
+  '^AXJO':'ASX 200','BHP.AX':'BHP','CBA.AX':'Comm Bank','RIO.AX':'Rio Tinto','WBC.AX':'Westpac',
+  'AUDUSD=X':'AUD / USD','EURUSD=X':'EUR / USD','GBPUSD=X':'GBP / USD','USDJPY=X':'USD / JPY','USDCNH=X':'USD / CNH',
+  'GC=F':'Gold','CL=F':'US Oil WTI','SI=F':'Silver','NG=F':'Natural Gas','^VIX':'VIX',
+};
+
 async function handleApiMarkets(env, req) {
   try {
-    const url     = new URL(req.url);
-    const raw     = url.searchParams.get('symbols') || '';
-    const symbols = raw.split(',').map(s => s.trim()).filter(Boolean).slice(0, 12);
+    const url = new URL(req.url);
+    var cat = (url.searchParams.get('cat') || 'global').toLowerCase();
+    if (!MARKET_CATS[cat]) cat = 'global';
+    var symbols = MARKET_CATS[cat];
 
-    if (!symbols.length) {
-      return new Response(JSON.stringify({ ok: false, error: 'No symbols', data: [] }), {
-        status: 400,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const fetches = symbols.map(sym => {
-      const enc = encodeURIComponent(sym);
-      return fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=1d&range=7d`, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OSInfoHub/1.0)', Accept: 'application/json' },
+    var fetches = symbols.map(function(sym) {
+      var enc = encodeURIComponent(sym);
+      return fetch('https://query2.finance.yahoo.com/v8/finance/chart/' + enc + '?interval=5m&range=1d', {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; OSInfoHub/1.0)', 'Accept': 'application/json' },
         cf: { cacheEverything: true, cacheTtl: 300 },
       });
     });
 
-    const settled = await Promise.allSettled(fetches);
-    const data    = [];
+    var settled = await Promise.allSettled(fetches);
+    var tiles   = [];
 
-    for (let i = 0; i < symbols.length; i++) {
-      const sym    = symbols[i];
-      const result = settled[i];
+    for (var i = 0; i < symbols.length; i++) {
+      var sym    = symbols[i];
+      var result = settled[i];
       if (result.status !== 'fulfilled' || !result.value.ok) {
-        data.push({ symbol: sym, name: sym, price: null, change: null, changePct: null, sparkline: [], currency: 'USD', error: 'fetch_failed' });
+        tiles.push({ symbol: sym, name: MARKET_NAMES[sym] || sym, price: null, change: null, changePct: null, prev: null, currency: 'USD', points: [], error: 'fetch_failed' });
         continue;
       }
       try {
-        const json    = await result.value.json();
-        const meta    = json?.chart?.result?.[0]?.meta;
-        const quote   = json?.chart?.result?.[0]?.indicators?.quote?.[0];
-        const closes  = (quote?.close || []).map(v => (v == null ? null : Number(v)));
-        const price   = meta?.regularMarketPrice ?? null;
-        const prev    = meta?.previousClose ?? null;
-        const change  = (price !== null && prev !== null) ? +((price - prev).toFixed(4)) : null;
-        const pct     = (change !== null && prev)        ? +((change / prev * 100).toFixed(2)) : null;
-        data.push({
+        var json   = await result.value.json();
+        var meta   = json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta;
+        var quote  = json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].indicators && json.chart.result[0].indicators.quote && json.chart.result[0].indicators.quote[0];
+        var tsList = (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].timestamp) || [];
+        var closes = (quote && quote.close) ? quote.close : [];
+        var price  = meta ? (meta.regularMarketPrice || null) : null;
+        var prev   = meta ? (meta.previousClose || meta.chartPreviousClose || null) : null;
+        var change = (price !== null && prev !== null) ? +((price - prev).toFixed(4)) : null;
+        var pct    = (change !== null && prev)         ? +((change / prev * 100).toFixed(2)) : null;
+        // Build intraday points array [{t, v}] filtering nulls
+        var points = [];
+        for (var j = 0; j < tsList.length; j++) {
+          if (closes[j] != null) points.push({ t: tsList[j], v: +closes[j].toFixed(4) });
+        }
+        tiles.push({
           symbol:    sym,
-          name:      meta?.shortName || meta?.longName || sym,
-          price,
-          change,
+          name:      MARKET_NAMES[sym] || (meta && (meta.shortName || meta.longName)) || sym,
+          price:     price,
+          change:    change,
           changePct: pct,
-          sparkline: closes.filter(v => v !== null),
-          currency:  meta?.currency || 'USD',
+          prev:      prev,
+          currency:  meta ? (meta.currency || 'USD') : 'USD',
+          points:    points,
         });
-      } catch {
-        data.push({ symbol: sym, name: sym, price: null, change: null, changePct: null, sparkline: [], currency: 'USD', error: 'parse_failed' });
+      } catch(e2) {
+        tiles.push({ symbol: sym, name: MARKET_NAMES[sym] || sym, price: null, change: null, changePct: null, prev: null, currency: 'USD', points: [], error: 'parse_failed' });
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, data }), {
+    return new Response(JSON.stringify({ ok: true, cat: cat, updated: new Date().toISOString(), tiles: tiles }), {
       status: 200,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e), data: [] }), {
+    return new Response(JSON.stringify({ ok: false, error: String(e && e.message ? e.message : e), tiles: [] }), {
       status: 500,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });

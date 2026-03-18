@@ -4607,210 +4607,189 @@ async function sendTestAlert() {
 })();
 
 /* ===========================
-   MARKETS & COMMODITIES WIDGET
-   Fetches /api/markets, renders 2×2 commodity grid + stock rows with sparklines.
-   Settings persisted in localStorage 'osinfohub_market_symbols'.
+   MARKETS WIDGET — Google Finance style
+   Fetches /api/markets?cat=global|australia|currencies|commodities
+   Renders tile row + intraday SVG area chart.
 =========================== */
 (function () {
   'use strict';
 
-  const COMM_DEFAULT  = ['^VIX', 'GC=F', 'CL=F', 'NG=F'];
-  const STOCK_DEFAULT = ['DELL'];
-  const LS_KEY        = 'osinfohub_market_symbols';
-  const REFRESH_MS    = 5 * 60 * 1000;
+  var REFRESH_MS   = 5 * 60 * 1000;
+  var _timer       = null;
+  var _cat         = 'global';
+  var _tiles       = [];
+  var _selIdx      = 0;
 
-  let _timer   = null;
-  let _data    = [];
-  let _comms   = [...COMM_DEFAULT];
-  let _stocks  = [...STOCK_DEFAULT];
-
-  const COMM_LABELS = { '^VIX':'VIX', 'GC=F':'Gold', 'CL=F':'WTI Oil', 'NG=F':'Nat Gas',
-                        'SI=F':'Silver', 'HG=F':'Copper', 'ZW=F':'Wheat', 'ZC=F':'Corn' };
-
-  function _loadPrefs() {
-    try {
-      const p = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-      if (p) {
-        if (Array.isArray(p.commodities) && p.commodities.length) _comms  = p.commodities.slice(0, 8);
-        if (Array.isArray(p.stocks)      && p.stocks.length)      _stocks = p.stocks.slice(0, 8);
-      }
-    } catch (e) {}
-  }
-  function _savePrefs() {
-    try { localStorage.setItem(LS_KEY, JSON.stringify({ commodities: _comms, stocks: _stocks })); } catch (e) {}
-  }
-
-  function _sparkSvg(values, cls) {
-    if (!values || values.length < 2) return `<svg class="market-sparkline" viewBox="0 0 60 22"></svg>`;
-    const W = 60, H = 22, P = 1;
-    const mn = Math.min(...values), mx = Math.max(...values), rng = mx - mn || 1;
-    const pts = values.map((v, i) => {
-      const x = P + (i / (values.length - 1)) * (W - P * 2);
-      const y = H - P - ((v - mn) / rng) * (H - P * 2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    return `<svg class="market-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline class="${cls}" points="${pts}"/></svg>`;
-  }
-
+  /* ── Formatting helpers ────────────────────────────────────── */
   function _fmtPrice(price, sym) {
     if (price == null) return '—';
-    if (sym === '^VIX') return price.toFixed(2);
-    return price >= 100
-      ? price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : price.toFixed(3);
+    // Currencies: 4 decimal places; indices/commodities: localised 2dp
+    if (sym && (sym.indexOf('=X') !== -1)) return price.toFixed(4);
+    if (price < 10)  return price.toFixed(3);
+    if (price < 100) return price.toFixed(2);
+    return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  function _fmtPct(pct) {
-    if (pct == null) return '';
-    return (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+  function _fmtChg(chg, pct) {
+    if (chg == null || pct == null) return '';
+    var sign = chg >= 0 ? '+' : '';
+    return sign + chg.toFixed(2) + ' (' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)';
   }
-  function _cls(pct) { return pct == null ? 'neutral' : pct > 0 ? 'positive' : pct < 0 ? 'negative' : 'neutral'; }
+  function _cls(pct) { return pct == null ? 'neu' : pct > 0 ? 'pos' : pct < 0 ? 'neg' : 'neu'; }
 
-  function _commTile(item) {
-    if (!item) return `<div class="market-tile"><span class="market-tile-sym">—</span></div>`;
-    const c = _cls(item.changePct), sc = 'spark-' + c;
-    return `<div class="market-tile" title="${escapeHtml(item.name)}">
-      <span class="market-tile-sym">${escapeHtml(COMM_LABELS[item.symbol] || item.symbol)}</span>
-      <span class="market-tile-price">${_fmtPrice(item.price, item.symbol)}</span>
-      <span class="market-tile-change ${c}">${_fmtPct(item.changePct)}</span>
-      ${_sparkSvg(item.sparkline, sc)}
-    </div>`;
-  }
-
-  function _stockRow(item) {
-    if (!item) return `<div class="market-tile" style="margin-bottom:5px"><div class="market-tile-info"><div class="market-tile-sym">—</div></div></div>`;
-    const c = _cls(item.changePct), sc = 'spark-' + c;
-    const name = (item.name || item.symbol).slice(0, 20);
-    return `<div class="market-tile">
-      <div class="market-tile-info">
-        <div class="market-tile-sym">${escapeHtml(item.symbol)}</div>
-        <div class="market-tile-name" title="${escapeHtml(item.name)}">${escapeHtml(name)}</div>
-      </div>
-      ${_sparkSvg(item.sparkline, sc)}
-      <div>
-        <div class="market-tile-price">${_fmtPrice(item.price, item.symbol)}</div>
-        <div class="market-tile-change ${c}">${_fmtPct(item.changePct)}</div>
-      </div>
-    </div>`;
-  }
-
-  function _render() {
-    const commEl   = document.getElementById('markets-commodities');
-    const stocksEl = document.getElementById('markets-stocks');
-    if (!commEl || !stocksEl) return;
-
-    const lookup = {};
-    for (const d of _data) lookup[d.symbol] = d;
-
-    const commHtml = _comms.slice(0, 4).map(sym => {
-      const item = lookup[sym];
-      if (!item) return `<div class="market-tile"><span class="market-tile-sym">${escapeHtml(COMM_LABELS[sym] || sym)}</span><span class="market-tile-price" style="color:#9aa0a6">—</span></div>`;
-      return _commTile(item);
+  /* ── Render tile row ───────────────────────────────────────── */
+  function _renderTiles() {
+    var el = document.getElementById('mkt-tiles-row');
+    if (!el) return;
+    if (!_tiles.length) {
+      el.innerHTML = '<div style="padding:10px;color:#9aa0a6;font-size:.75rem;">No data — Worker not deployed or Yahoo unavailable</div>';
+      return;
+    }
+    el.innerHTML = _tiles.map(function(t, i) {
+      var price = _fmtPrice(t.price, t.symbol);
+      var chg   = _fmtChg(t.change, t.changePct);
+      var cc    = _cls(t.changePct);
+      return '<div class="mkt-tile' + (i === _selIdx ? ' sel' : '') + '" data-idx="' + i + '">' +
+        '<div class="mkt-tile-name">' + escapeHtml(t.name) + '</div>' +
+        '<div class="mkt-tile-price">' + price + '</div>' +
+        '<div class="mkt-tile-chg ' + cc + '">' + escapeHtml(chg) + '</div>' +
+        '</div>';
     }).join('');
-    commEl.innerHTML = commHtml || `<div style="grid-column:1/-1;text-align:center;color:#9aa0a6;font-size:.78rem">No data</div>`;
-
-    stocksEl.innerHTML = _stocks.map(sym => {
-      const item = lookup[sym];
-      return item ? _stockRow(item)
-        : `<div class="market-tile" style="margin-bottom:5px"><div class="market-tile-info"><div class="market-tile-sym">${escapeHtml(sym)}</div></div><div class="market-tile-price" style="color:#9aa0a6">—</div></div>`;
-    }).join('') || `<div style="color:#9aa0a6;font-size:.78rem;padding:4px 0">No stocks configured</div>`;
-  }
-
-  async function _fetch() {
-    const syms = [..._comms, ..._stocks];
-    if (!syms.length) return;
-    try {
-      const encoded = syms.map(encodeURIComponent).join(',');
-      const res = await fetchWithTimeout(`${WORKER_URL}/api/markets?symbols=${encoded}`, {}, 15000);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      if (json.ok && Array.isArray(json.data)) {
-        _data = json.data;
-        _render();
-        const el = document.getElementById('markets-updated');
-        if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      }
-    } catch (e) { console.warn('[Markets] fetch error', e); }
-  }
-
-  function _renderModalLists() {
-    const ce = document.getElementById('markets-modal-comm-list');
-    const se = document.getElementById('markets-modal-stock-list');
-    if (!ce || !se) return;
-    const mkRow = (sym, type, i) =>
-      `<div class="markets-sym-row"><span class="markets-sym-tag">${escapeHtml(sym)}</span>
-       <button class="markets-rm-btn" data-t="${type}" data-i="${i}" aria-label="Remove ${escapeAttr(sym)}">&#10005;</button></div>`;
-    ce.innerHTML = _comms.map((s, i) => mkRow(s, 'c', i)).join('') || '<div style="color:#9aa0a6;font-size:.78rem;margin-bottom:5px">None</div>';
-    se.innerHTML = _stocks.map((s, i) => mkRow(s, 's', i)).join('') || '<div style="color:#9aa0a6;font-size:.78rem;margin-bottom:5px">None</div>';
-  }
-
-  function _openModal() {
-    const m = document.getElementById('markets-modal');
-    if (m) { _renderModalLists(); m.style.display = 'flex'; }
-  }
-  function _closeModal() {
-    const m = document.getElementById('markets-modal');
-    if (m) m.style.display = 'none';
-  }
-  function _saveModal() {
-    _savePrefs(); _closeModal(); _data = []; _render(); _fetch();
-  }
-
-  function _init() {
-    _loadPrefs();
-
-    // Settings gear
-    const gear = document.getElementById('markets-settings-btn');
-    if (gear) gear.addEventListener('click', _openModal);
-
-    // Modal controls
-    const closeBtn  = document.getElementById('markets-modal-close');
-    const cancelBtn = document.getElementById('markets-modal-cancel');
-    const saveBtn   = document.getElementById('markets-modal-save');
-    if (closeBtn)  closeBtn.addEventListener('click', _closeModal);
-    if (cancelBtn) cancelBtn.addEventListener('click', _closeModal);
-    if (saveBtn)   saveBtn.addEventListener('click', _saveModal);
-
-    // Backdrop click
-    const modal = document.getElementById('markets-modal');
-    if (modal) modal.addEventListener('click', ev => { if (ev.target === modal) _closeModal(); });
-
-    // Escape key
-    document.addEventListener('keydown', ev => {
-      if (ev.key === 'Escape') { const m = document.getElementById('markets-modal'); if (m && m.style.display !== 'none') _closeModal(); }
+    // Bind tile clicks
+    el.querySelectorAll('.mkt-tile').forEach(function(tile) {
+      tile.addEventListener('click', function() {
+        _selIdx = parseInt(tile.getAttribute('data-idx'), 10);
+        el.querySelectorAll('.mkt-tile').forEach(function(t2){ t2.classList.remove('sel'); });
+        tile.classList.add('sel');
+        _renderChart();
+      });
     });
+  }
 
-    // Remove buttons (delegated)
-    const box = document.getElementById('markets-modal-box');
-    if (box) {
-      box.addEventListener('click', ev => {
-        const btn = ev.target.closest('.markets-rm-btn');
+  /* ── Render intraday SVG area chart ─────────────────────────── */
+  function _renderChart() {
+    var svgEl  = document.getElementById('mkt-chart-svg');
+    var labEl  = document.getElementById('mkt-chart-labels');
+    var titEl  = document.getElementById('mkt-chart-title');
+    if (!svgEl) return;
+
+    var tile = _tiles[_selIdx];
+    if (!tile || !tile.points || tile.points.length < 2) {
+      svgEl.innerHTML = '';
+      if (labEl)  labEl.innerHTML = '';
+      if (titEl)  titEl.textContent = '';
+      return;
+    }
+
+    var pts    = tile.points.filter(function(p){ return p.v != null; });
+    if (pts.length < 2) { svgEl.innerHTML = ''; return; }
+
+    var W = 400, H = 88, PX = 2, PY = 5;
+    var times  = pts.map(function(p){ return p.t; });
+    var vals   = pts.map(function(p){ return p.v; });
+    var tMin   = Math.min.apply(null, times);
+    var tMax   = Math.max.apply(null, times);
+    var vMin   = Math.min.apply(null, tile.prev != null ? vals.concat([tile.prev]) : vals);
+    var vMax   = Math.max.apply(null, tile.prev != null ? vals.concat([tile.prev]) : vals);
+    var vPad   = (vMax - vMin) * 0.05 || 0.0001;
+    vMin -= vPad; vMax += vPad;
+    var vRng   = vMax - vMin;
+    var tRng   = tMax - tMin || 1;
+
+    function toX(t) { return PX + ((t - tMin) / tRng) * (W - PX * 2); }
+    function toY(v) { return H - PY - ((v - vMin) / vRng) * (H - PY * 2); }
+
+    var isNeg   = tile.changePct != null ? tile.changePct < 0 : false;
+    var lineClr = isNeg ? '#ea4335' : '#34a853';
+    var fillId  = 'mktg' + Date.now();
+
+    var linePoints = pts.map(function(p){ return toX(p.t).toFixed(1) + ',' + toY(p.v).toFixed(1); }).join(' ');
+    var firstX = toX(pts[0].t), lastX = toX(pts[pts.length-1].t);
+    var areaPath = 'M ' + firstX.toFixed(1) + ',' + toY(pts[0].v).toFixed(1) + ' ' +
+      pts.slice(1).map(function(p){ return 'L ' + toX(p.t).toFixed(1) + ',' + toY(p.v).toFixed(1); }).join(' ') +
+      ' L ' + lastX.toFixed(1) + ',' + H + ' L ' + firstX.toFixed(1) + ',' + H + ' Z';
+
+    var prevLine = '';
+    if (tile.prev != null) {
+      var py = toY(tile.prev).toFixed(1);
+      prevLine = '<line x1="' + PX + '" y1="' + py + '" x2="' + (W-PX) + '" y2="' + py +
+        '" stroke="#6c7280" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.7"/>';
+    }
+
+    svgEl.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svgEl.innerHTML = '<defs><linearGradient id="' + fillId + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="' + lineClr + '" stop-opacity="0.28"/>' +
+      '<stop offset="100%" stop-color="' + lineClr + '" stop-opacity="0"/></linearGradient></defs>' +
+      prevLine +
+      '<path d="' + areaPath + '" fill="url(#' + fillId + ')" stroke="none"/>' +
+      '<polyline points="' + linePoints + '" fill="none" stroke="' + lineClr + '" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
+
+    // Time labels
+    if (labEl) {
+      var labelCount = 5;
+      var labels = [];
+      for (var i = 0; i < labelCount; i++) {
+        var t = tMin + (tRng * i / (labelCount - 1));
+        var d = new Date(t * 1000);
+        var h = d.getHours(), m = d.getMinutes();
+        var ampm = h >= 12 ? 'pm' : 'am';
+        var h12  = h === 0 ? 12 : h > 12 ? h - 12 : h;
+        labels.push('<span>' + h12 + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ampm + '</span>');
+      }
+      labEl.innerHTML = labels.join('');
+    }
+
+    // Chart title
+    if (titEl) {
+      var chgTxt = tile.changePct != null ? ' ' + (tile.changePct >= 0 ? '▲' : '▼') + ' ' + Math.abs(tile.changePct).toFixed(2) + '%' : '';
+      titEl.textContent = tile.name + chgTxt + ' — Today';
+    }
+  }
+
+  /* ── Fetch from Worker ─────────────────────────────────────── */
+  async function _fetch() {
+    try {
+      var res = await fetchWithTimeout(WORKER_URL + '/api/markets?cat=' + _cat, {}, 14000);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var json = await res.json();
+      if (json.ok && Array.isArray(json.tiles)) {
+        _tiles = json.tiles;
+        if (_selIdx >= _tiles.length) _selIdx = 0;
+        _renderTiles();
+        _renderChart();
+        var upEl = document.getElementById('mkt-updated');
+        if (upEl) upEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+      }
+    } catch (e) {
+      console.warn('[Markets] fetch error', e);
+      var el = document.getElementById('mkt-tiles-row');
+      if (el) el.innerHTML = '<div style="padding:8px;color:#ea4335;font-size:.72rem;"><i class="fas fa-exclamation-triangle"></i> ' + escapeHtml(String(e.message || e)) + '</div>';
+    }
+  }
+
+  /* ── Initialise ────────────────────────────────────────────── */
+  function _init() {
+    // Tab pill clicks
+    var tabsEl = document.getElementById('mkt-tabs');
+    if (tabsEl) {
+      tabsEl.addEventListener('click', function(ev) {
+        var btn = ev.target.closest('.mkt-tab-pill');
         if (!btn) return;
-        const t = btn.dataset.t, idx = Number(btn.dataset.i);
-        if (t === 'c') _comms.splice(idx, 1);
-        else _stocks.splice(idx, 1);
-        _renderModalLists();
+        tabsEl.querySelectorAll('.mkt-tab-pill').forEach(function(b){
+          b.classList.remove('active'); b.setAttribute('aria-selected','false');
+        });
+        btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+        _cat    = btn.getAttribute('data-mcat') || 'global';
+        _selIdx = 0;
+        _tiles  = [];
+        var tr = document.getElementById('mkt-tiles-row');
+        if (tr) tr.innerHTML = '<div style="padding:10px;color:#9aa0a6;font-size:.75rem;"><i class="fas fa-spinner fa-spin"></i> Loading&hellip;</div>';
+        var sv = document.getElementById('mkt-chart-svg');
+        if (sv) sv.innerHTML = '';
+        _fetch();
       });
     }
 
-    // Add button
-    const addBtn   = document.getElementById('markets-add-btn');
-    const addInput = document.getElementById('markets-add-input');
-    const addType  = document.getElementById('markets-add-type');
-    if (addBtn && addInput && addType) {
-      const doAdd = () => {
-        const sym = addInput.value.trim().toUpperCase();
-        if (!sym) return;
-        if (addType.value === 'commodity') { if (!_comms.includes(sym) && _comms.length < 8) _comms.push(sym); }
-        else                              { if (!_stocks.includes(sym) && _stocks.length < 8) _stocks.push(sym); }
-        addInput.value = '';
-        _renderModalLists();
-      };
-      addBtn.addEventListener('click', doAdd);
-      addInput.addEventListener('keydown', ev => { if (ev.key === 'Enter') doAdd(); });
-    }
-
-    // Initial render (placeholders) then fetch
-    _render();
+    // Initial fetch + auto-refresh
     _fetch();
     if (_timer) clearInterval(_timer);
     _timer = setInterval(_fetch, REFRESH_MS);
