@@ -4023,7 +4023,7 @@ async function handleApiProximity(env, req) {
    Shape: { disruptions:[{port_name,lat,lng,severity,cause_type,summary,date,source_url,source}],
             chokepoints:[{name,trend_pct,status}], stats:{total}, updated_at }
    ───────────────────────────────────────────────────────────────────────── */
-async function handleApiPortDisruptions(env) {
+async function handleApiPortDisruptions(env, req) {
   try {
     const raw  = await kvGetJson(env, INCIDENTS_KV_KEY, []);
     const list = Array.isArray(raw) ? raw : [];
