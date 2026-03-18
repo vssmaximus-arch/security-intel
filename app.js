@@ -6621,3 +6621,283 @@ function _tlRender(data) {
     '</div>';
   }).join('');
 }
+
+/* ============================================================
+   VESSEL WATCH — Executive Maritime Exposure Layer
+   Layer 1: public intel  Layer 2: vessel tracking (Datalastic free / mock)
+   Layer 3: geospatial risk engine  Layer 4: sanitized monitored-vessel registry
+   CONSTRAINT: No Dell cargo/customer/SKU/shipment/financial data displayed.
+   ============================================================ */
+
+var _vwInitDone   = false;
+var _vwMap        = null;
+var _vwMarkers    = [];
+var _vwZoneLayers = [];
+var _vwData       = null;
+
+var VW_STATUS_CLASS = { 'Review Required':'vw-badge-review', 'Elevated':'vw-badge-elevated', 'Watch':'vw-badge-watch', 'Normal':'vw-badge-normal' };
+var VW_ACTION_CLASS = { 'Escalate':'vw-action-escalate', 'Review':'vw-action-review', 'Monitor':'vw-action-monitor', 'None':'vw-action-none' };
+var VW_DOT_COLOR    = { 'Review Required':'#f28b82', 'Elevated':'#f4a742', 'Watch':'#fbbc04', 'Normal':'#81c995' };
+var VW_POSTURE_CLS  = { 'Action Required':'vw-posture-critical', 'Elevated':'vw-posture-elevated', 'Watch':'vw-posture-watch', 'Stable':'vw-posture-stable', 'Unknown':'vw-posture-stable' };
+
+function initVesselWatch() {
+  if (!_vwInitDone) {
+    _vwInitDone = true;
+    _vwBindSearch();
+    _vwBindRefresh();
+  }
+  loadVesselWatch(false);
+}
+
+function loadVesselWatch(force) {
+  if (!force && _vwData && _vwData._ts && (Date.now() - _vwData._ts) < 3 * 60 * 1000) {
+    _vwRender(_vwData); return;
+  }
+  var monEl = document.getElementById('vw-monitored-table');
+  if (monEl) monEl.innerHTML = '<div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading fleet status\u2026</div>';
+  fetchWithTimeout(WORKER_URL + '/api/vessel/monitored', {}, 30000)
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      data._ts = Date.now();
+      _vwData  = data;
+      _vwRender(data);
+    })
+    .catch(function(e) {
+      console.error('[VW] loadVesselWatch failed:', e);
+      var el = document.getElementById('vw-monitored-table');
+      if (el) el.innerHTML = '<div class="vw-loading" style="color:#f28b82;"><i class="fas fa-exclamation-circle"></i> Failed to load \u2014 check Worker connection. <button onclick="loadVesselWatch(true)" style="margin-left:8px;padding:2px 10px;border:1px solid #e57373;background:transparent;color:#e57373;border-radius:4px;cursor:pointer;">Retry</button></div>';
+    });
+}
+
+function _vwRender(data) {
+  var vessels = Array.isArray(data.vessels) ? data.vessels : [];
+  _vwRenderPosture(data.posture || {});
+  _vwRenderMonitoredTable(vessels);
+  _vwRenderMap(vessels, data.riskZones || []);
+  _vwRenderChokepoints(vessels);
+  _vwLoadIncidents(vessels);
+  var countEl = document.getElementById('vw-monitored-count');
+  if (countEl) countEl.textContent = vessels.length;
+}
+
+function _vwRenderPosture(posture) {
+  var banner = document.getElementById('vw-posture-banner');
+  var levelEl = document.getElementById('vw-posture-level');
+  var sumEl   = document.getElementById('vw-posture-summary');
+  var cntEl   = document.getElementById('vw-posture-counts');
+  if (!banner) return;
+  ['vw-posture-stable','vw-posture-watch','vw-posture-elevated','vw-posture-critical'].forEach(function(c){ banner.classList.remove(c); });
+  banner.classList.add(VW_POSTURE_CLS[posture.level] || 'vw-posture-stable');
+  if (levelEl) levelEl.textContent = posture.level || 'Unknown';
+  if (sumEl)   sumEl.textContent   = posture.summary || '';
+  if (cntEl && posture.counts) {
+    var c = posture.counts;
+    cntEl.textContent = (c['Review Required']||0) + ' Review \u00b7 ' + (c['Elevated']||0) + ' Elevated \u00b7 ' + (c['Watch']||0) + ' Watch \u00b7 ' + (c['Normal']||0) + ' Normal';
+  }
+}
+
+function _vwRenderMonitoredTable(vessels) {
+  var el = document.getElementById('vw-monitored-table');
+  if (!el) return;
+  if (!vessels.length) { el.innerHTML = '<div class="vw-loading">No monitored vessels found.</div>'; return; }
+  var sorted = vessels.slice().sort(function(a,b){
+    var ord = {'Review Required':0,'Elevated':1,'Watch':2,'Normal':3};
+    return (ord[a.status]||9) - (ord[b.status]||9);
+  });
+  var rows = sorted.map(function(v) {
+    var sc  = VW_STATUS_CLASS[v.status]  || 'vw-badge-normal';
+    var ac  = VW_ACTION_CLASS[v.recommendedAction] || 'vw-action-none';
+    var lat = v.lat != null ? v.lat.toFixed(2) : '\u2014';
+    var lon = v.lon != null ? v.lon.toFixed(2) : '\u2014';
+    var mockTag = v._mock ? ' <span class="vw-badge vw-badge-mock" title="Illustrative position">MOCK</span>' : '';
+    return '<tr title="' + escapeHtml(v.reason||'') + '">' +
+      '<td><strong style="color:#e8eaed;">' + escapeHtml(v.vesselName) + '</strong>' + mockTag +
+        '<div style="font-size:.65rem;color:#5f6368;">IMO ' + escapeHtml(v.imo||'\u2014') + '</div></td>' +
+      '<td style="font-size:.68rem;color:#9aa0a6;">' + lat + '\u00b0, ' + lon + '\u00b0<br>' +
+        '<span style="color:#5f6368;">' + escapeHtml(v.nearestChokepoint||'') + (v.nearestCpDistNm?' '+v.nearestCpDistNm+'nm':'') + '</span></td>' +
+      '<td style="font-size:.72rem;">' + escapeHtml(v.destination||'\u2014') + '</td>' +
+      '<td style="font-size:.72rem;">' + escapeHtml(v.riskZone||'Open Waters') + '</td>' +
+      '<td><span class="vw-badge ' + sc + '">' + escapeHtml(v.status) + '</span></td>' +
+      '<td><span class="vw-badge ' + ac + '">' + escapeHtml(v.recommendedAction) + '</span></td>' +
+      '</tr>';
+  }).join('');
+  el.innerHTML = '<table class="vw-mv-table"><thead><tr>' +
+    '<th>Vessel</th><th>Position</th><th>Destination</th><th>Risk Zone</th><th>Status</th><th>Action</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function _vwRenderMap(vessels, riskZones) {
+  if (typeof L === 'undefined') return;
+  var mapEl = document.getElementById('vw-map');
+  if (!mapEl) return;
+  if (!_vwMap) {
+    var bounds = L.latLngBounds(L.latLng(-85,-180), L.latLng(85,180));
+    _vwMap = L.map('vw-map', { center:[15,60], zoom:2, zoomControl:true, attributionControl:false, maxBounds:bounds, maxBoundsViscosity:1.0, worldCopyJump:false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      subdomains:'abcd', maxZoom:18, noWrap:true, bounds:bounds,
+    }).addTo(_vwMap);
+  }
+  _vwMarkers.forEach(function(m){ m.remove(); }); _vwMarkers = [];
+  _vwZoneLayers.forEach(function(l){ l.remove(); }); _vwZoneLayers = [];
+
+  riskZones.forEach(function(zone) {
+    if (!zone.polygon || !zone.polygon.length) return;
+    var latLngs = zone.polygon.map(function(p){ return [p[1], p[0]]; });
+    var sev = zone.severity;
+    var fillColor = sev==='CRITICAL'?'#f28b82':sev==='HIGH'?'#f4a742':'#fbbc04';
+    var poly = L.polygon(latLngs, { color:fillColor, fillColor:fillColor, fillOpacity:0.12, weight:1.5, dashArray:'6,4' });
+    poly.bindTooltip('<strong>' + zone.name + '</strong><br><span style="font-size:.75rem">' + (zone.threat||'') + '</span>', { sticky:true });
+    poly.addTo(_vwMap);
+    _vwZoneLayers.push(poly);
+  });
+
+  vessels.forEach(function(v) {
+    if (!v.lat || !v.lon || (v.lat===0 && v.lon===0)) return;
+    var color = VW_DOT_COLOR[v.status] || '#81c995';
+    var marker = L.circleMarker([v.lat, v.lon], { radius:7, fillColor:color, color:'#fff', weight:1.5, fillOpacity:0.9 });
+    var mockNote = v._mock ? '<br><em style="color:#5f6368;font-size:.68rem;">Illustrative position</em>' : '';
+    marker.bindPopup(
+      '<strong>' + escapeHtml(v.vesselName) + '</strong><br>' +
+      'IMO: ' + escapeHtml(v.imo||'\u2014') + ' \u00b7 MMSI: ' + escapeHtml(v.mmsi||'\u2014') + '<br>' +
+      'Speed: ' + (v.speed||0) + 'kn \u00b7 Hdg: ' + (v.heading||0) + '\u00b0<br>' +
+      'Dest: <strong>' + escapeHtml(v.destination||'\u2014') + '</strong><br>' +
+      'Zone: ' + escapeHtml(v.riskZone) + '<br>' +
+      'Status: <strong style="color:' + color + '">' + escapeHtml(v.status) + '</strong><br>' +
+      '<em style="font-size:.72rem">' + escapeHtml(v.reason||'') + '</em>' + mockNote
+    );
+    marker.addTo(_vwMap);
+    _vwMarkers.push(marker);
+  });
+  setTimeout(function(){ if (_vwMap) _vwMap.invalidateSize(); }, 120);
+}
+
+var VW_CHOKEPOINTS_STATIC = [
+  { id:'bab_el_mandeb',   name:'Bab-el-Mandeb',     trend:-52, status:'Severely Disrupted', severity:'CRITICAL' },
+  { id:'red_sea',         name:'Red Sea Corridor',   trend:-45, status:'Severely Disrupted', severity:'CRITICAL' },
+  { id:'suez',            name:'Suez Canal',         trend:-38, status:'Severely Disrupted', severity:'HIGH'     },
+  { id:'hormuz',          name:'Strait of Hormuz',   trend:-8,  status:'Reduced',            severity:'ELEVATED' },
+  { id:'taiwan_strait',   name:'Taiwan Strait',      trend:-5,  status:'Reduced',            severity:'ELEVATED' },
+  { id:'malacca',         name:'Strait of Malacca',  trend:2,   status:'Normal',             severity:'NORMAL'   },
+  { id:'panama',          name:'Panama Canal',       trend:-18, status:'Reduced',            severity:'ELEVATED' },
+  { id:'bosphorus',       name:'Bosphorus Strait',   trend:-12, status:'Reduced',            severity:'ELEVATED' },
+  { id:'south_china_sea', name:'South China Sea',    trend:-3,  status:'Normal',             severity:'NORMAL'   },
+  { id:'singapore',       name:'Port of Singapore',  trend:1,   status:'Normal',             severity:'NORMAL'   },
+];
+
+function _vwRenderChokepoints(vessels) {
+  var el = document.getElementById('vw-chokepoint-list');
+  if (!el) return;
+  var nearby = {};
+  vessels.forEach(function(v){ if (v.nearestChokepoint) nearby[v.nearestChokepoint] = (nearby[v.nearestChokepoint]||0)+1; });
+  el.innerHTML = VW_CHOKEPOINTS_STATIC.map(function(cp) {
+    var trendStr = (cp.trend > 0 ? '+' : '') + cp.trend + '%';
+    var cls = cp.trend <= -25 ? 'down' : (cp.trend < 0 ? 'flat' : 'up');
+    var sevColor = cp.severity==='CRITICAL'?'#f28b82':cp.severity==='HIGH'?'#f4a742':cp.severity==='ELEVATED'?'#fbbc04':'#81c995';
+    var nearbyCount = nearby[cp.name] || 0;
+    return '<div class="vw-choke-row">' +
+      '<div><div class="vw-choke-name">' + escapeHtml(cp.name) + '</div>' +
+      '<div style="font-size:.65rem;color:' + sevColor + ';">' + escapeHtml(cp.status) + '</div></div>' +
+      '<div style="text-align:right"><div class="vw-choke-trend ' + cls + '">' + trendStr + '</div>' +
+      (nearbyCount ? '<div class="vw-choke-vessels">' + nearbyCount + ' vessel' + (nearbyCount>1?'s':'') + ' nearby</div>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+function _vwLoadIncidents(vessels) {
+  var el = document.getElementById('vw-incident-list');
+  if (!el) return;
+  fetchWithTimeout(WORKER_URL + '/api/port-disruptions', {}, 20000)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var disrs = Array.isArray(data.disruptions) ? data.disruptions : [];
+      if (!disrs.length) { el.innerHTML = '<div class="vw-loading">No maritime incidents in current feed.</div>'; return; }
+      el.innerHTML = disrs.slice(0,12).map(function(d, i) {
+        var sevColor = d.severity==='HIGH'?'#f28b82':d.severity==='MEDIUM'?'#fbbc04':'#81c995';
+        var nearVessels = vessels.filter(function(v) {
+          if (!v.lat||!v.lon||!d.lat||!d.lng) return false;
+          var dLat = (v.lat-d.lat)*Math.PI/180;
+          var dLon = (v.lon-d.lng)*Math.PI/180;
+          var a = Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(v.lat*Math.PI/180)*Math.cos(d.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+          return 6371*2*Math.asin(Math.sqrt(a)) < 1500;
+        });
+        var vesselStr = nearVessels.length ? nearVessels.map(function(v){ return '<strong>'+escapeHtml(v.vesselName)+'</strong>'; }).join(', ') : 'No monitored vessels in vicinity';
+        var sc = d.severity==='HIGH'?'vw-badge-review':d.severity==='MEDIUM'?'vw-badge-watch':'vw-badge-normal';
+        return '<div class="vw-incident-item" id="vw-inc-'+i+'" onclick="_vwToggleIncident('+i+')">' +
+          '<div class="vw-incident-sev" style="background:'+sevColor+';"></div>' +
+          '<div class="vw-incident-body">' +
+            '<div class="vw-incident-title">'+escapeHtml(d.port_name||'Maritime Incident')+' \u2014 '+escapeHtml(d.summary||d.cause_type||'')+'</div>' +
+            '<div class="vw-incident-meta">'+(d.date?new Date(d.date).toLocaleDateString():'')+' \u00b7 '+escapeHtml(d.source||'')+' \u00b7 <span class="vw-badge '+sc+'">'+escapeHtml(d.severity||'')+'</span></div>' +
+            '<div class="vw-incident-vessels" id="vw-inc-v-'+i+'">Nearby monitored vessels: '+vesselStr+'</div>' +
+          '</div></div>';
+      }).join('');
+    })
+    .catch(function(){ el.innerHTML = '<div class="vw-loading" style="color:#9aa0a6;">Incidents unavailable</div>'; });
+}
+
+function _vwToggleIncident(i) {
+  var item = document.getElementById('vw-inc-' + i);
+  if (item) item.classList.toggle('expanded');
+}
+
+function _vwBindSearch() {
+  var btn   = document.getElementById('vw-search-btn');
+  var input = document.getElementById('vw-search-input');
+  if (btn)   btn.addEventListener('click', _vwDoSearch);
+  if (input) input.addEventListener('keydown', function(e){ if (e.key==='Enter') _vwDoSearch(); });
+}
+
+function _vwBindRefresh() {
+  var btn = document.getElementById('vw-refresh-btn');
+  if (btn) btn.addEventListener('click', function(){ loadVesselWatch(true); });
+}
+
+function _vwDoSearch() {
+  var input = document.getElementById('vw-search-input');
+  var res   = document.getElementById('vw-search-result');
+  if (!input || !res) return;
+  var q = input.value.trim();
+  if (!q) return;
+  res.innerHTML = '<div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Looking up vessel\u2026</div>';
+  var isImo  = /^\d{7}$/.test(q);
+  var isMmsi = /^\d{9}$/.test(q);
+  var param  = isImo ? 'imo='+encodeURIComponent(q) : isMmsi ? 'mmsi='+encodeURIComponent(q) : 'name='+encodeURIComponent(q);
+  fetchWithTimeout(WORKER_URL + '/api/vessel/lookup?' + param, {}, 15000)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.ok || !d.vessel) { res.innerHTML = '<div class="vw-loading" style="color:#f28b82;">Vessel not found. Try exact IMO (7 digits), MMSI (9 digits), or vessel name.</div>'; return; }
+      res.innerHTML = _vwBuildVesselCard(d.vessel, d.risk, d.isMonitored);
+    })
+    .catch(function(){ res.innerHTML = '<div class="vw-loading" style="color:#f28b82;">Lookup failed \u2014 check Worker connection.</div>'; });
+}
+
+function _vwBuildVesselCard(vessel, risk, isMonitored) {
+  if (!vessel || vessel._notFound) return '<div class="vw-loading" style="color:#f28b82;">Vessel not found in AIS feed.</div>';
+  var sc    = VW_STATUS_CLASS[risk.status] || 'vw-badge-normal';
+  var ac    = VW_ACTION_CLASS[risk.recommendedAction] || 'vw-action-none';
+  var color = VW_DOT_COLOR[risk.status] || '#81c995';
+  var mockNote  = vessel._mock ? ' <span class="vw-badge vw-badge-mock" title="Illustrative \u2014 configure DATALASTIC_API_KEY for live data">MOCK POSITION</span>' : '';
+  var monBadge  = isMonitored ? ' <span class="vw-badge" style="background:#1c2a18;color:#81c995;">MONITORED</span>' : '';
+  var lat = risk.lat != null ? risk.lat.toFixed(3) : '\u2014';
+  var lon = risk.lon != null ? risk.lon.toFixed(3) : '\u2014';
+  return '<div class="vw-vessel-card">' +
+    '<div class="vw-vessel-name">'+escapeHtml(vessel.name||risk.vesselName)+mockNote+monBadge+'</div>' +
+    '<div class="vw-vessel-meta">IMO: '+escapeHtml(risk.imo||'\u2014')+' \u00b7 MMSI: '+escapeHtml(risk.mmsi||'\u2014')+' \u00b7 Flag: '+escapeHtml(vessel.flag||risk.flag||'\u2014')+' \u00b7 '+escapeHtml(vessel.type||risk.vesselType||'')+'</div>' +
+    '<div class="vw-vessel-grid">' +
+      '<div class="vw-vessel-field"><label>Position</label><span>'+lat+'\u00b0, '+lon+'\u00b0</span></div>' +
+      '<div class="vw-vessel-field"><label>Speed</label><span>'+(risk.speed||0)+' kn</span></div>' +
+      '<div class="vw-vessel-field"><label>Heading</label><span>'+(risk.heading||0)+'\u00b0</span></div>' +
+      '<div class="vw-vessel-field"><label>Nav Status</label><span>'+escapeHtml(risk.navStatus||'\u2014')+'</span></div>' +
+      '<div class="vw-vessel-field"><label>Destination</label><span>'+escapeHtml(risk.destination||'\u2014')+'</span></div>' +
+      '<div class="vw-vessel-field"><label>ETA</label><span>'+(risk.eta?new Date(risk.eta).toLocaleDateString():'\u2014')+'</span></div>' +
+      '<div class="vw-vessel-field"><label>Nearest Chokepoint</label><span>'+escapeHtml(risk.nearestChokepoint||'\u2014')+(risk.nearestCpDistNm?' ('+risk.nearestCpDistNm+'nm)':'')+'</span></div>' +
+      '<div class="vw-vessel-field"><label>Last AIS Report</label><span style="'+(risk.aisStale?'color:#f28b82;':'')+'">'+(risk.lastReported?new Date(risk.lastReported).toLocaleString():'\u2014')+(risk.aisStale?' \u26a0 STALE':'')+'</span></div>' +
+    '</div>' +
+    '<div class="vw-risk-row"><span style="font-size:.72rem;color:#9aa0a6;">Risk Zone:</span>'+
+      '<span style="font-size:.78rem;color:'+color+';">'+escapeHtml(risk.riskZone)+'</span>'+
+      '<span class="vw-badge '+sc+'">'+escapeHtml(risk.status)+'</span>'+
+      '<span class="vw-badge '+ac+'">Action: '+escapeHtml(risk.recommendedAction)+'</span></div>'+
+    (risk.reason?'<div style="font-size:.72rem;color:#9aa0a6;margin-top:6px;"><i class="fas fa-info-circle" style="margin-right:4px;"></i>'+escapeHtml(risk.reason)+'</div>':'')+
+    (risk.notesSanitized?'<div style="font-size:.72rem;color:#5f6368;margin-top:4px;border-top:1px solid #1a1d23;padding-top:4px;">'+escapeHtml(risk.notesSanitized)+'</div>':'')+
+  '</div>';
+}
+/* ── END VESSEL WATCH ────────────────────────────────────────────────────── */

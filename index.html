@@ -2108,6 +2108,9 @@
       <button class="view-tab" data-view="port" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-ship" aria-hidden="true"></i> Port Disruptions
       </button>
+      <button class="view-tab" data-view="vessel-watch" role="tab" aria-selected="false" tabindex="0">
+        <i class="fas fa-anchor" aria-hidden="true"></i> Vessel Watch
+      </button>
       <button class="view-tab" data-view="threats-leaks" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-user-secret" aria-hidden="true"></i> Insider &amp; Leaks
       </button>
@@ -2713,6 +2716,96 @@
     </div><!-- /port-main-view -->
   </div><!-- /view-port -->
 
+  <!-- ⚓ VESSEL WATCH VIEW ──────────────────────────────────────────────────── -->
+  <div id="view-vessel-watch" style="display:none;" role="tabpanel" aria-label="Vessel Watch — Executive Maritime Exposure Layer">
+
+    <!-- Exposure Posture Banner -->
+    <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable">
+      <div class="vw-posture-left">
+        <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
+        <div>
+          <div class="vw-posture-label">MARITIME EXPOSURE POSTURE</div>
+          <div id="vw-posture-level" class="vw-posture-level">Loading…</div>
+        </div>
+      </div>
+      <div id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</div>
+      <div class="vw-posture-right">
+        <span id="vw-posture-counts" class="vw-posture-counts"></span>
+        <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      </div>
+    </div>
+
+    <!-- Top row: Track Vessel search + Monitored Vessels table -->
+    <div class="vw-top-row">
+
+      <!-- Track Vessel Search Panel -->
+      <div class="vw-panel vw-search-panel">
+        <div class="vw-panel-header"><i class="fas fa-search me-2"></i>Track Vessel</div>
+        <div class="vw-search-row">
+          <input id="vw-search-input" class="vw-search-input" type="text" placeholder="IMO number, MMSI, or vessel name…" autocomplete="off" spellcheck="false"/>
+          <button id="vw-search-btn" class="vw-search-btn"><i class="fas fa-search"></i> Lookup</button>
+        </div>
+        <div class="vw-search-hints">e.g. <code>9839697</code> &nbsp;·&nbsp; <code>255806361</code> &nbsp;·&nbsp; <code>MSC GÜLSÜN</code></div>
+        <div id="vw-search-result" class="vw-search-result">
+          <div class="vw-empty-state"><i class="fas fa-ship" style="font-size:2rem;opacity:.3;"></i><br>Enter an IMO, MMSI, or name to look up a vessel</div>
+        </div>
+      </div>
+
+      <!-- Monitored Vessels at Risk Table -->
+      <div class="vw-panel vw-monitored-panel">
+        <div class="vw-panel-header">
+          <span><i class="fas fa-list-ul me-2"></i>Monitored Vessels</span>
+          <span id="vw-monitored-count" class="vw-badge-count">—</span>
+        </div>
+        <div id="vw-monitored-table" class="vw-monitored-table">
+          <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading fleet status…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map + Chokepoints row -->
+    <div class="vw-map-row">
+
+      <!-- Vessel Watch Map -->
+      <div class="vw-map-wrap">
+        <div id="vw-map" class="vw-map"></div>
+        <div class="vw-map-legend">
+          <span class="vwl-dot vwl-review"></span>Review Required &nbsp;
+          <span class="vwl-dot vwl-elevated"></span>Elevated &nbsp;
+          <span class="vwl-dot vwl-watch"></span>Watch &nbsp;
+          <span class="vwl-dot vwl-normal"></span>Normal &nbsp;
+          <span class="vwl-zone-box"></span>Risk Zone
+        </div>
+      </div>
+
+      <!-- Chokepoint Exposure Panel -->
+      <div class="vw-panel vw-chokepoint-panel">
+        <div class="vw-panel-header"><i class="fas fa-water me-2"></i>Chokepoint Exposure</div>
+        <div id="vw-chokepoint-list" class="vw-chokepoint-list">
+          <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incident linkage row -->
+    <div class="vw-incident-row">
+      <div class="vw-panel vw-incident-panel">
+        <div class="vw-panel-header"><i class="fas fa-exclamation-triangle me-2"></i>Related Maritime Incidents
+          <span style="font-size:.72rem;font-weight:400;color:#9aa0a6;margin-left:8px;">Click incident to see nearby monitored vessels</span>
+        </div>
+        <div id="vw-incident-list" class="vw-incident-list">
+          <div class="vw-loading"><i class="fas fa-spinner fa-spin"></i> Loading incidents…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vw-disclaimer">
+      <i class="fas fa-lock" style="margin-right:6px;"></i>
+      This layer uses public intelligence only. No internal Dell cargo, customer, shipment, supplier, SKU, or financial data is displayed here.
+      &nbsp;·&nbsp; Vessel positions may be from AIS feed or illustrative placeholders until Datalastic API key is configured.
+    </div>
+  </div><!-- /view-vessel-watch -->
+
   <!-- 🕵 INSIDER & LEAKS VIEW ─────────────────────────────────────────────── -->
   <div id="view-threats-leaks" style="display:none;" role="tabpanel" aria-label="Insider and Leaks">
     <div class="tl-topbar">
@@ -3094,6 +3187,121 @@
   <div class="chat-overlay" id="chat-overlay" aria-hidden="true"></div>
   <!-- /ASK THE HUB -->
 
+
+  <style id="vessel-watch-style">
+    /* ── Vessel Watch Layout ───────────────────────────────────────── */
+    #view-vessel-watch { padding: 10px 0 20px; }
+    .vw-panel { background:#1c1f26; border:1px solid #2a2d35; border-radius:8px; padding:14px 16px; }
+    .vw-panel-header { font-size:.78rem; font-weight:700; color:#9aa0a6; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+
+    /* Posture Banner */
+    .vw-posture-banner { display:flex; align-items:center; gap:16px; padding:14px 18px; border-radius:8px; margin-bottom:14px; border:1px solid transparent; transition:background .3s,border-color .3s; }
+    .vw-posture-stable   { background:#1a2433; border-color:#2a5298; }
+    .vw-posture-watch    { background:#2a2300; border-color:#fbbc04; }
+    .vw-posture-elevated { background:#2e1a00; border-color:#f4a742; }
+    .vw-posture-critical { background:#3e1010; border-color:#f28b82; }
+    .vw-posture-icon { font-size:1.6rem; opacity:.8; min-width:36px; }
+    .vw-posture-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#9aa0a6; }
+    .vw-posture-level { font-size:1.1rem; font-weight:700; margin-top:2px; }
+    .vw-posture-stable   .vw-posture-level { color:#8ab4f8; }
+    .vw-posture-watch    .vw-posture-level { color:#fbbc04; }
+    .vw-posture-elevated .vw-posture-level { color:#f4a742; }
+    .vw-posture-critical .vw-posture-level { color:#f28b82; }
+    .vw-posture-summary { flex:1; font-size:.8rem; color:#bdc1c6; line-height:1.5; }
+    .vw-posture-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
+    .vw-posture-counts { font-size:.72rem; color:#9aa0a6; white-space:nowrap; }
+    .vw-btn-refresh { background:transparent; border:1px solid #3c4043; color:#9aa0a6; border-radius:6px; padding:5px 10px; cursor:pointer; font-size:.78rem; }
+    .vw-btn-refresh:hover { border-color:#8ab4f8; color:#8ab4f8; }
+
+    /* Top row */
+    .vw-top-row { display:grid; grid-template-columns:360px 1fr; gap:14px; margin-bottom:14px; }
+    @media(max-width:900px){ .vw-top-row { grid-template-columns:1fr; } }
+
+    /* Search panel */
+    .vw-search-row { display:flex; gap:8px; margin-bottom:6px; }
+    .vw-search-input { flex:1; background:#0d1117; border:1px solid #3c4043; color:#e8eaed; border-radius:6px; padding:8px 12px; font-size:.82rem; outline:none; }
+    .vw-search-input:focus { border-color:#8ab4f8; }
+    .vw-search-btn { background:#1a73e8; border:none; color:#fff; border-radius:6px; padding:8px 14px; font-size:.78rem; cursor:pointer; white-space:nowrap; }
+    .vw-search-btn:hover { background:#1557b0; }
+    .vw-search-hints { font-size:.68rem; color:#5f6368; margin-bottom:10px; }
+    .vw-search-result { min-height:120px; }
+    .vw-empty-state { color:#5f6368; font-size:.8rem; text-align:center; padding:24px 0; }
+
+    /* Vessel result card */
+    .vw-vessel-card { background:#0d1117; border:1px solid #2a2d35; border-radius:8px; padding:14px; }
+    .vw-vessel-name { font-size:.95rem; font-weight:700; color:#e8eaed; margin-bottom:2px; }
+    .vw-vessel-meta { font-size:.72rem; color:#9aa0a6; margin-bottom:10px; }
+    .vw-vessel-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; margin-bottom:10px; }
+    .vw-vessel-field label { font-size:.65rem; color:#5f6368; text-transform:uppercase; letter-spacing:.06em; display:block; }
+    .vw-vessel-field span  { font-size:.78rem; color:#bdc1c6; }
+    .vw-risk-row { display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+
+    /* Monitored vessels table */
+    .vw-monitored-table { overflow-x:auto; }
+    .vw-mv-table { width:100%; border-collapse:collapse; font-size:.75rem; }
+    .vw-mv-table th { color:#5f6368; font-weight:600; text-transform:uppercase; font-size:.65rem; letter-spacing:.05em; padding:6px 8px; border-bottom:1px solid #2a2d35; text-align:left; white-space:nowrap; }
+    .vw-mv-table td { padding:7px 8px; border-bottom:1px solid #1a1d23; color:#bdc1c6; vertical-align:middle; }
+    .vw-mv-table tr:hover td { background:#1e2128; }
+    .vw-mv-table tr:last-child td { border-bottom:none; }
+
+    /* Map */
+    .vw-map-row { display:grid; grid-template-columns:1fr 260px; gap:14px; margin-bottom:14px; }
+    @media(max-width:900px){ .vw-map-row { grid-template-columns:1fr; } }
+    .vw-map-wrap { position:relative; border-radius:8px; overflow:hidden; border:1px solid #2a2d35; }
+    .vw-map { height:340px; background:#0d1117; }
+    .vw-map-legend { position:absolute; bottom:8px; left:10px; background:rgba(13,17,23,.85); border:1px solid #2a2d35; border-radius:6px; padding:5px 10px; font-size:.65rem; color:#9aa0a6; display:flex; align-items:center; gap:8px; flex-wrap:wrap; z-index:1000; }
+    .vwl-dot  { width:9px; height:9px; border-radius:50%; display:inline-block; }
+    .vwl-review   { background:#f28b82; }
+    .vwl-elevated { background:#f4a742; }
+    .vwl-watch    { background:#fbbc04; }
+    .vwl-normal   { background:#81c995; }
+    .vwl-zone-box { width:16px; height:9px; background:rgba(244,67,54,.18); border:1px solid rgba(244,67,54,.6); display:inline-block; border-radius:2px; }
+
+    /* Chokepoint panel */
+    .vw-chokepoint-panel { overflow-y:auto; max-height:360px; }
+    .vw-choke-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid #1a1d23; gap:8px; }
+    .vw-choke-row:last-child { border-bottom:none; }
+    .vw-choke-name { font-size:.78rem; color:#e8eaed; flex:1; }
+    .vw-choke-vessels { font-size:.68rem; color:#8ab4f8; white-space:nowrap; }
+    .vw-choke-trend { font-size:.72rem; font-weight:600; white-space:nowrap; }
+    .vw-choke-trend.down { color:#f28b82; }
+    .vw-choke-trend.flat { color:#fbbc04; }
+    .vw-choke-trend.up   { color:#81c995; }
+
+    /* Incident row */
+    .vw-incident-row { margin-bottom:14px; }
+    .vw-incident-list { display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto; }
+    .vw-incident-item { display:flex; gap:10px; align-items:flex-start; padding:9px 10px; background:#0d1117; border:1px solid #2a2d35; border-radius:6px; cursor:pointer; transition:border-color .15s; }
+    .vw-incident-item:hover { border-color:#8ab4f8; }
+    .vw-incident-sev { width:4px; border-radius:2px; align-self:stretch; flex-shrink:0; }
+    .vw-incident-body { flex:1; }
+    .vw-incident-title { font-size:.78rem; color:#e8eaed; line-height:1.4; margin-bottom:3px; }
+    .vw-incident-meta  { font-size:.68rem; color:#5f6368; }
+    .vw-incident-vessels { font-size:.68rem; color:#8ab4f8; margin-top:3px; display:none; }
+    .vw-incident-item.expanded .vw-incident-vessels { display:block; }
+
+    /* Badges */
+    .vw-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:.65rem; font-weight:700; white-space:nowrap; }
+    .vw-badge-review   { background:#3e1010; color:#f28b82; }
+    .vw-badge-elevated { background:#2e1a00; color:#f4a742; }
+    .vw-badge-watch    { background:#2a2300; color:#fbbc04; }
+    .vw-badge-normal   { background:#0f2318; color:#81c995; }
+    .vw-badge-count    { background:#2a2d35; color:#9aa0a6; padding:2px 8px; border-radius:10px; font-size:.68rem; }
+    .vw-badge-high     { background:#1c2a18; color:#81c995; }
+    .vw-badge-medium   { background:#1a2033; color:#8ab4f8; }
+    .vw-badge-low      { background:#2a2d35; color:#9aa0a6; }
+    .vw-badge-mock     { background:#1e2633; color:#5f6368; font-size:.6rem; }
+
+    /* Action badges */
+    .vw-action-escalate { background:#3e1010; color:#f28b82; }
+    .vw-action-review   { background:#2e1a00; color:#f4a742; }
+    .vw-action-monitor  { background:#2a2300; color:#fbbc04; }
+    .vw-action-none     { background:#1a1d23; color:#5f6368; }
+
+    /* Loading / disclaimer */
+    .vw-loading    { color:#5f6368; font-size:.8rem; padding:16px 0; text-align:center; }
+    .vw-disclaimer { font-size:.68rem; color:#3c4043; text-align:center; padding:6px 0 0; border-top:1px solid #1a1d23; margin-top:4px; }
+  </style>
 
   <style id="threats-leaks-style">
     #view-threats-leaks { padding: 14px 0 4px; }
@@ -3883,6 +4091,7 @@
       var liveNews = document.getElementById('view-live-news');
       var portView = document.getElementById('view-port');
       var tlView   = document.getElementById('view-threats-leaks');
+      var vwView   = document.getElementById('view-vessel-watch');
       var catBar   = document.getElementById('cat-filter-bar');
       var apjcBar  = document.getElementById('apjc-subnav');
       var sigmet   = document.getElementById('sigmet-ticker-strip');
@@ -3892,6 +4101,7 @@
       if (liveNews) liveNews.style.display = 'none';
       if (portView) portView.style.display = 'none';
       if (tlView)   tlView.style.display   = 'none';
+      if (vwView)   vwView.style.display   = 'none';
       if (catBar)   catBar.style.display   = 'none';
       if (apjcBar)  apjcBar.style.display  = 'none';
       if (sigmet)   sigmet.style.display   = 'none';
@@ -3923,6 +4133,9 @@
         if (!portMapInitialized) { initPortMap(); portMapInitialized = true; }
         setTimeout(function(){ if(portMap) portMap.invalidateSize(); }, 120);
         loadPortData(false);
+      } else if (view === 'vessel-watch') {
+        if (vwView) vwView.style.display = '';
+        if (typeof initVesselWatch === 'function') initVesselWatch();
       } else if (view === 'threats-leaks') {
         if (tlView) tlView.style.display = '';
         if (typeof _tlInit === 'function') _tlInit();
