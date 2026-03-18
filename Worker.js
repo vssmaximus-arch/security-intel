@@ -4943,6 +4943,9 @@ async function handleApiThreatsLeaks(env, req) {
     const incResult = await handleApiIncidents(env, req);
     const incidents = Array.isArray(incResult.body) ? incResult.body : [];
 
+    // 90-day recency cutoff — kills stale pre-2025 junk
+    const cutoff = Date.now() - (90 * 24 * 3600 * 1000);
+
     const seen = new Set();
     const cases = [];
 
@@ -4950,6 +4953,10 @@ async function handleApiThreatsLeaks(env, req) {
       const inc = incidents[i];
       const title = String(inc.title || '');
       if (title.toLowerCase().indexOf('dell') === -1) continue;
+
+      // Recency filter: skip articles older than 90 days (pass-through if no date)
+      const incTime = inc.time ? new Date(inc.time).getTime() : 0;
+      if (incTime > 0 && incTime < cutoff) continue;
 
       // Skip pure consumer hardware posts without corporate signals
       const titleLow = title.toLowerCase();
@@ -4975,6 +4982,9 @@ async function handleApiThreatsLeaks(env, req) {
       let host = 'unknown';
       try { host = new URL(String(inc.link || inc.source || 'https://x')).hostname.replace(/^www\./, ''); } catch (_) {}
 
+      // Priority tier: thelayoff + reddit + HN float to top
+      var isPriority = host.indexOf('thelayoff') !== -1 || host.indexOf('reddit') !== -1 || host.indexOf('hnrss') !== -1 || host.indexOf('news.ycombinator') !== -1;
+
       cases.push({
         id: 'case_' + String(inc.id || i),
         title: title,
@@ -4988,31 +4998,39 @@ async function handleApiThreatsLeaks(env, req) {
         source_links: [String(inc.link || '#')],
         sources: [host],
         summary: String(inc.summary || title),
+        _pri: isPriority ? 0 : 1,
       });
-      if (cases.length >= 50) break;
+      if (cases.length >= 100) break;
     }
 
     const sevOrd = { Critical: 0, High: 1, Medium: 2, Low: 3, General: 4 };
     cases.sort(function(a, b) {
+      // thelayoff / reddit always first
+      if (a._pri !== b._pri) return a._pri - b._pri;
       const sd = (sevOrd[a.severity] || 5) - (sevOrd[b.severity] || 5);
       if (sd !== 0) return sd;
       return new Date(b.first_seen).getTime() - new Date(a.first_seen).getTime();
     });
 
+    // Strip internal sort field
+    for (var k = 0; k < cases.length; k++) { delete cases[k]._pri; }
+
+    var finalCases = cases.slice(0, 50);
+
     const srcSet = {};
-    for (let j = 0; j < cases.length; j++) { srcSet[cases[j].sources[0]] = 1; }
+    for (let j = 0; j < finalCases.length; j++) { srcSet[finalCases[j].sources[0]] = 1; }
     const allSources = Object.keys(srcSet);
 
     const result = {
       updated_at: new Date().toISOString(),
-      cases: cases,
+      cases: finalCases,
       sources: allSources,
       stats: {
-        total: cases.length,
-        high: cases.filter(function(c) { return c.severity === 'High' || c.severity === 'Critical'; }).length,
-        leaks: cases.filter(function(c) { return c.category === 'Leak' || c.category === 'Breach'; }).length,
+        total: finalCases.length,
+        high: finalCases.filter(function(c) { return c.severity === 'High' || c.severity === 'Critical'; }).length,
+        leaks: finalCases.filter(function(c) { return c.category === 'Leak' || c.category === 'Breach'; }).length,
       },
-      _debug: { incidents_read: incidents.length }
+      _debug: { incidents_read: incidents.length, after_recency_filter: cases.length }
     };
 
     return new Response(JSON.stringify(result), {
@@ -5021,7 +5039,6 @@ async function handleApiThreatsLeaks(env, req) {
     });
   } catch (e) {
     const msg = e && e.message ? e.message : String(e);
-    debug('handleApiThreatsLeaks error', msg);
     return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: { total: 0, high: 0, leaks: 0 }, _error: msg }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type,secret,X-User-Id', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' }
