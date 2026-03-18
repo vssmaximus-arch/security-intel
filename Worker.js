@@ -3717,6 +3717,125 @@ async function handleApiProximity(env, req) {
   return { ok: true, status: 200, body: prox };
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   GET /api/port-disruptions
+   Filters ingested incidents for maritime/port/shipping content and returns
+   structured disruption list + static chokepoint traffic sidebar data.
+   Shape: { disruptions:[{port_name,lat,lng,severity,cause_type,summary,date,source_url,source}],
+            chokepoints:[{name,trend_pct,status}], stats:{total}, updated_at }
+   ───────────────────────────────────────────────────────────────────────── */
+async function handleApiPortDisruptions(env) {
+  try {
+    const raw  = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    const list = Array.isArray(raw) ? raw : [];
+
+    const PORT_RE = /\b(port|seaport|harbour|harbor|shipping lane|vessel|maritime|cargo ship|container ship|tanker|suez|strait|canal|chokepoint|dock|terminal|longshoremen|dockwork|seafarer|coast guard|piracy|pirate|red sea|bab.?el.?mandeb|hormuz|malacca|panama|bosphorus|taiwan strait|south china sea|aden|gulf of oman|indian ocean route)\b/i;
+
+    const CAUSE_MAP = [
+      { re: /\b(piracy|pirate|attack|security|threat|hijack|armed|houthi|drone|missile)\b/i, type: 'SECURITY' },
+      { re: /\b(strike|protest|worker|union|longshoremen|dockwork)\b/i,                       type: 'STRIKE'   },
+      { re: /\b(storm|typhoon|hurricane|cyclone|fog|weather|flood|wind|monsoon)\b/i,          type: 'WEATHER'  },
+      { re: /\b(earthquake|tsunami|eruption|volcano|natural disaster)\b/i,                    type: 'NATURAL'  },
+    ];
+
+    const PORT_FALLBACK_COORDS = {
+      'suez':          { lat: 30.0,  lng:  32.5  },
+      'red sea':       { lat: 20.0,  lng:  38.0  },
+      'hormuz':        { lat: 26.5,  lng:  56.5  },
+      'malacca':       { lat:  2.5,  lng: 101.5  },
+      'panama':        { lat:  9.0,  lng: -79.5  },
+      'bosphorus':     { lat: 41.1,  lng:  29.0  },
+      'taiwan strait': { lat: 24.0,  lng: 120.5  },
+      'south china sea':{ lat:15.0,  lng: 115.0  },
+      'singapore':     { lat:  1.35, lng: 103.82 },
+      'shanghai':      { lat: 31.23, lng: 121.47 },
+      'rotterdam':     { lat: 51.92, lng:   4.48 },
+      'hamburg':       { lat: 53.55, lng:   9.99 },
+      'los angeles':   { lat: 33.74, lng:-118.27 },
+      'long beach':    { lat: 33.77, lng:-118.19 },
+      'aden':          { lat: 12.8,  lng:  45.0  },
+      'gulf of oman':  { lat: 23.5,  lng:  58.5  },
+    };
+
+    const now = Date.now();
+    const SEVEN_DAYS = 7 * 24 * 3600 * 1000;
+    const disruptions = [];
+
+    for (const inc of list) {
+      const text = `${inc.title || ''} ${inc.summary || ''}`;
+      if (!PORT_RE.test(text)) continue;
+      const age = inc.time ? now - new Date(inc.time).getTime() : 0;
+      if (age > SEVEN_DAYS) continue;
+
+      let cause_type = 'OTHER';
+      for (const m of CAUSE_MAP) { if (m.re.test(text)) { cause_type = m.type; break; } }
+
+      const sevLabel = String(inc.severity_label || '').toUpperCase();
+      const sevNum   = Number(inc.severity) || 0;
+      const severity = (sevLabel === 'HIGH' || sevNum >= 4) ? 'HIGH' :
+                       (sevLabel === 'LOW'  || sevNum <= 2) ? 'LOW'  : 'MEDIUM';
+
+      let lat = Number(inc.lat) || 0;
+      let lng = Number(inc.lng) || 0;
+      if (!lat || !lng) {
+        const tl = text.toLowerCase();
+        for (const [kw, coords] of Object.entries(PORT_FALLBACK_COORDS)) {
+          if (tl.includes(kw)) { lat = coords.lat; lng = coords.lng; break; }
+        }
+      }
+
+      const port_name = (inc.location && inc.location !== 'UNKNOWN')
+        ? inc.location
+        : (inc.country && inc.country !== 'GLOBAL' ? inc.country : (inc.title || '').slice(0, 60));
+
+      const srcHost = inc.source ? String(inc.source).replace(/^https?:\/\//, '').split('/')[0] : 'intel-feed';
+
+      disruptions.push({
+        port_name:  String(port_name).slice(0, 80),
+        lat:        lat || null,
+        lng:        lng || null,
+        severity,
+        cause_type,
+        summary:    String(inc.summary || inc.title || '').slice(0, 200),
+        date:       inc.time || new Date().toISOString(),
+        source_url: inc.link  || null,
+        source:     srcHost,
+      });
+      if (disruptions.length >= 40) break;
+    }
+
+    // Static chokepoint traffic sidebar (status reflects current global situation)
+    const chokepoints = [
+      { name: 'Suez Canal',              trend_pct: -45, status: 'Severely Disrupted' },
+      { name: 'Red Sea (Bab-el-Mandeb)', trend_pct: -52, status: 'Severely Disrupted' },
+      { name: 'Strait of Hormuz',        trend_pct:  -8, status: 'Reduced'            },
+      { name: 'Strait of Malacca',       trend_pct:   2, status: 'Normal'             },
+      { name: 'Panama Canal',            trend_pct: -18, status: 'Reduced'            },
+      { name: 'Bosphorus Strait',        trend_pct: -12, status: 'Reduced'            },
+      { name: 'Taiwan Strait',           trend_pct:  -5, status: 'Reduced'            },
+      { name: 'South China Sea',         trend_pct:  -3, status: 'Normal'             },
+      { name: 'Port of Singapore',       trend_pct:   1, status: 'Normal'             },
+      { name: 'Port of Shanghai',        trend_pct:  -2, status: 'Normal'             },
+    ];
+
+    return new Response(JSON.stringify({
+      disruptions,
+      chokepoints,
+      stats:      { total: disruptions.length },
+      updated_at: new Date().toISOString(),
+    }), {
+      status:  200,
+      headers: Object.assign({}, CORS_HEADERS, { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' }),
+    });
+  } catch (e) {
+    typeof debug === 'function' && debug('handleApiPortDisruptions error', e?.message || e);
+    return new Response(JSON.stringify({ disruptions: [], chokepoints: [], stats: { total: 0 }, updated_at: new Date().toISOString() }), {
+      status:  200,
+      headers: Object.assign({}, CORS_HEADERS, { 'Content-Type': 'application/json' }),
+    });
+  }
+}
+
 async function handleApiTravel(env, urlParams) {
   // support /api/traveladvisories and /api/traveladvisories/live
   if (urlParams && urlParams.get('country')) {
@@ -5290,6 +5409,8 @@ async function handleRequest(req, env, ctx) {
       return handleApiThreatIntel(env, req);
     } else if (p.startsWith('/api/markets')) {
       return handleApiMarkets(env, req);
+    } else if (p.startsWith('/api/port-disruptions')) {
+      return handleApiPortDisruptions(env, req);
     } else if (p.startsWith("/api/threats-leaks")) {
       return handleApiThreatsLeaks(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
