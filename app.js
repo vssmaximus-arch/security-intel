@@ -6500,7 +6500,7 @@ document.addEventListener('DOMContentLoaded', () => {
    ============================================================ */
 
 /* ============================================================
-   THREATS & LEAKS — loadThreatsLeaks / renderThreatsLeaks
+   INSIDER INTEL — loadThreatsLeaks / renderThreatsLeaks
    ============================================================ */
 let THREATS_LEAKS_DATA = null;
 let _tlInitDone = false;
@@ -6519,12 +6519,12 @@ function _tlInit() {
 
 async function loadThreatsLeaks(force) {
   const feed = document.getElementById('tl-feed');
-  if (feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Threats &amp; Leaks…</div>';
+  if (feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Insider &amp; Leaks…</div>';
   const url = WORKER_URL + '/api/threats-leaks' + (force ? '?refresh=1&bust=' + Date.now() : '');
   // Worker endpoint is slow (~20s) — use 50s timeout with one auto-retry
   for (var _attempt = 0; _attempt < 2; _attempt++) {
     try {
-      if (_attempt > 0 && feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Retrying Threats &amp; Leaks…</div>';
+      if (_attempt > 0 && feed) feed.innerHTML = '<div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Retrying Insider &amp; Leaks…</div>';
       const res = await fetchWithTimeout(url, {}, 50000);
       const data = await res.json();
       THREATS_LEAKS_DATA = data;
