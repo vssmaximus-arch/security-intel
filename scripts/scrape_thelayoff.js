@@ -11,8 +11,10 @@
  * Env:   WORKER_URL, INGEST_SECRET
  */
 
-const { chromium } = require('playwright-extra');
+const { addExtra } = require('playwright-extra');
+const { chromium: chromiumBase } = require('playwright');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const chromium = addExtra(chromiumBase);
 chromium.use(StealthPlugin());
 
 const WORKER_URL    = (process.env.WORKER_URL || 'https://osinfohub.vssmaximus.workers.dev').replace(/\/$/, '');
