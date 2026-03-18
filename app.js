@@ -2654,6 +2654,7 @@ function connectSSE() {
           if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
           const active = document.querySelector('.nav-item-custom.active');
           filterNews(active ? active.textContent.trim() : 'Global');
+          if (typeof window.updateMainTicker === 'function') window.updateMainTicker();
         }).catch(() => {});
         return;
       }
@@ -2666,6 +2667,7 @@ function connectSSE() {
       if (label) label.textContent = `LIVE \u2022 ${INCIDENTS.length} ITEMS`;
       const active = document.querySelector('.nav-item-custom.active');
       filterNews(active ? active.textContent.trim() : 'Global');
+      if (typeof window.updateMainTicker === 'function') window.updateMainTicker();
       _sseRetryCount = 0;
     } catch (e) { console.error('SSE incidents parse error', e); }
   });
@@ -4758,6 +4760,11 @@ async function sendTestAlert() {
         _renderChart();
         var upEl = document.getElementById('mkt-updated');
         if (upEl) upEl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+        // Feed market data into the main LIVE ticker
+        window._mktTickerItems = _tiles.filter(function(t){ return t.price != null; }).map(function(t) {
+          return { name: t.name, price: _fmtPrice(t.price, t.symbol), changePct: t.changePct };
+        });
+        if (typeof window.updateMainTicker === 'function') window.updateMainTicker();
       }
     } catch (e) {
       console.warn('[Markets] fetch error', e);
@@ -5553,6 +5560,64 @@ async function toggleWeatherOverlay() {
 /* ============================================================
    CRITICAL SECURITY ALERTS TICKER
    ============================================================ */
+
+/* ============================================================
+   MAIN LIVE TICKER — populates #ticker-track with market data
+   + security incidents. Called after markets load OR incidents update.
+   ============================================================ */
+function updateMainTicker() {
+  var track = document.getElementById('ticker-track');
+  if (!track) return;
+
+  var html = '';
+
+  // ── Market tiles (injected by markets module via window._mktTickerItems)
+  var mktItems = window._mktTickerItems || [];
+  if (mktItems.length) {
+    // Section separator
+    html += '<span class="ticker-item" style="color:#1a73e8;font-weight:800;letter-spacing:.5px;padding:0 14px;border-right:2px solid #1a73e8;">MARKETS</span>';
+    html += mktItems.map(function(m) {
+      var dir = m.changePct == null ? 'flat' : m.changePct > 0 ? 'up' : 'down';
+      var arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '●';
+      var chgStr = m.changePct != null ? ' ' + arrow + ' ' + Math.abs(m.changePct).toFixed(2) + '%' : '';
+      return '<span class="ticker-item ticker-stock ticker-' + dir + '">' +
+        '<strong style="margin-right:4px;">' + escapeHtml(m.name) + '</strong>' +
+        escapeHtml(m.price) +
+        '<span class="ticker-chg" style="margin-left:4px;">' + escapeHtml(chgStr) + '</span>' +
+        '</span>';
+    }).join('');
+  }
+
+  // ── Security incidents
+  var inc = (typeof INCIDENTS !== 'undefined' && Array.isArray(INCIDENTS)) ? INCIDENTS : [];
+  if (inc.length) {
+    html += '<span class="ticker-item" style="color:#ea4335;font-weight:800;letter-spacing:.5px;padding:0 14px;border-right:2px solid #ea4335;">INTEL</span>';
+    html += inc.slice(0, 40).map(function(i) {
+      var sev = Number(i.severity || 1);
+      var cls = sev >= 4 ? 'ticker-alert' : '';
+      var parts = [];
+      if (i.category) parts.push(i.category.toUpperCase());
+      var title = (i.title || '');
+      if (title.length > 90) title = title.slice(0, 87) + '…';
+      if (title) parts.push(title);
+      var loc = (i.country && i.country !== 'GLOBAL') ? i.country : (i.region && i.region !== 'Global') ? i.region : '';
+      if (loc) parts.push(loc);
+      return '<span class="ticker-item ' + cls + '">' + escapeHtml(parts.join(' · ')) + '</span>';
+    }).join('');
+  }
+
+  if (!html) {
+    track.innerHTML = '<span class="ticker-item ticker-loading"><i class="fas fa-circle-notch fa-spin"></i> Awaiting data — Worker not deployed or offline</span>';
+    return;
+  }
+
+  // Duplicate content for seamless infinite scroll
+  var totalItems = mktItems.length + Math.min(inc.length, 40);
+  var speed = Math.max(40, totalItems * 3.5);
+  track.innerHTML = html + html;
+  track.style.animationDuration = speed + 's';
+}
+window.updateMainTicker = updateMainTicker;
 
 function renderCriticalAlertsTicker() {
   const strip = document.getElementById('sigmet-ticker-strip');

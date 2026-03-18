@@ -6351,14 +6351,15 @@ async function handleApiThreatIntel(env, req) {
    Cloudflare caches 5 minutes.
 =========================== */
 var MARKET_CATS = {
-  global:      ['^DJI','^IXIC','^FTSE','^NZ50','^N225'],
-  australia:   ['^AXJO','BHP.AX','CBA.AX','RIO.AX','WBC.AX'],
+  global:      ['^GSPC','^DJI','^IXIC','^FTSE','^N225','^NZ50'],
+  shares:      ['DELL','NVDA','MSFT','AAPL','HPE','IBM','INTC','AMD','BTC-USD'],
   currencies:  ['AUDUSD=X','EURUSD=X','GBPUSD=X','USDJPY=X','USDCNH=X'],
   commodities: ['GC=F','CL=F','SI=F','NG=F','^VIX'],
 };
 var MARKET_NAMES = {
-  '^DJI':'DOW','^IXIC':'NASDAQ','^FTSE':'FTSE 100','^NZ50':'NZSE 50','^N225':'Nikkei 225',
-  '^AXJO':'ASX 200','BHP.AX':'BHP','CBA.AX':'Comm Bank','RIO.AX':'Rio Tinto','WBC.AX':'Westpac',
+  '^GSPC':'S&P 500','^DJI':'DOW','^IXIC':'NASDAQ','^FTSE':'FTSE 100','^N225':'Nikkei 225','^NZ50':'NZSE 50',
+  'DELL':'Dell Tech','NVDA':'NVIDIA','MSFT':'Microsoft','AAPL':'Apple','HPE':'HP Enterprise',
+  'IBM':'IBM','INTC':'Intel','AMD':'AMD','BTC-USD':'Bitcoin',
   'AUDUSD=X':'AUD / USD','EURUSD=X':'EUR / USD','GBPUSD=X':'GBP / USD','USDJPY=X':'USD / JPY','USDCNH=X':'USD / CNH',
   'GC=F':'Gold','CL=F':'US Oil WTI','SI=F':'Silver','NG=F':'Natural Gas','^VIX':'VIX',
 };
