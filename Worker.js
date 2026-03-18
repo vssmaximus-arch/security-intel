@@ -59,16 +59,22 @@ const DETERMINISTIC_SOURCES = [
   "https://www.gdacs.org/xml/rss.xml",
   "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
   "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
-  // Google News mirrors thelayoff.com — Google fetches the blocked site for us
-  "https://news.google.com/rss/search?q=site:thelayoff.com+%22Dell%22&hl=en-US&gl=US&ceid=US:en",
-  // Dell brand monitoring — always fetched every cron run
+  // ── Dell brand monitoring (DETERMINISTIC — always fetched, bypass relevance gate) ──
+  // Google News: Dell corporate intelligence
   "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
-  "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
-  "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+layoffs+OR+%22Dell+workforce%22+OR+%22Dell+headcount%22&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+breach+OR+Dell+hack+OR+Dell+ransomware+OR+Dell+CVE&hl=en-US&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+%22Dell+executive%22&hl=en-US&gl=US&ceid=US:en",
   "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
-  // Dell brand monitoring via Reddit & HN (The Layoff is Cloudflare-blocked)
+  "https://news.google.com/rss/search?q=%22Dell%22+layoff+site%3Abusinessinsider.com+OR+site%3Afortune.com+OR+site%3Abloomberg.com&hl=en-US&gl=US&ceid=US:en",
+  // Reddit — layoff/insider chatter (thelayoff.com alternative)
   "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/dell/new.rss",
+  "https://www.reddit.com/r/cscareerquestions/search.rss?q=dell+layoff+OR+dell+fired&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/jobs/search.rss?q=dell+layoff&sort=new&restrict_sr=1",
   "https://www.reddit.com/r/technology/search.rss?q=Dell+Technologies&sort=new&restrict_sr=1",
+  "https://www.reddit.com/r/antiwork/search.rss?q=dell&sort=new&restrict_sr=1",
+  // Hacker News — Dell mentions
   "https://hnrss.org/newest?q=Dell+Technologies",
   "https://hnrss.org/newest?q=Dell+layoff+OR+Dell+breach+OR+Dell+hack",
 ];
