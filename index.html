@@ -2263,10 +2263,21 @@
                       <option value="25">25 KM</option>
                       <option value="50" selected>50 KM</option>
                       <option value="100">100 KM</option>
+                      <option value="200">200 KM</option>
                       <option value="500">500 KM</option>
                     </select>
                   </div>
                   <div id="proximity-alerts-container" aria-live="polite"></div>
+
+                  <!-- Global Disruptions Panel -->
+                  <div style="margin-top:14px;padding-top:12px;border-top:2px solid rgba(100,100,100,0.15);">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                      <span style="font-size:0.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5f6368;">🌐 Global Disruptions</span>
+                      <span style="font-size:0.6rem;color:#9aa0a6;margin-left:auto;">48h rolling</span>
+                    </div>
+                    <div id="global-disruptions-container" aria-live="polite"></div>
+                  </div>
+
                   <div style="text-align: center; padding-top: 10px; border-top: 1px solid #f1f1f1; flex-shrink: 0;">
                     <a href="#" data-action="refresh" style="font-size: 0.75rem; font-weight: 700; color: #1a73e8; text-decoration: none;" role="button" tabindex="0">REFRESH ALERTS</a>
                   </div>

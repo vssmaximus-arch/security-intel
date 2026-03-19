@@ -20,6 +20,7 @@ const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || 
 =========================== */
 let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
+let GLOBAL_DISRUPTIONS = [];
 let FEED_IS_LIVE = false;
 let currentRadius = 50;
 let DISMISSED_ALERT_IDS = new Set();
@@ -338,7 +339,8 @@ const DELL_SITES = [
   { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
   { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
+  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
+  { name: "Dell Brisbane", country: "AU", region: "APJC", lat: -27.4698, lon: 153.0251 }
 ];
 
 const ASSETS = {};
@@ -863,7 +865,11 @@ async function loadProximityFromWorker(silent=false) {
         try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
       })
       .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
-    if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length);
+    // Global Disruptions (always show — not filtered by radius)
+    if (Array.isArray(json.global_disruptions)) {
+      GLOBAL_DISRUPTIONS = json.global_disruptions;
+    }
+    if (!silent) console.log('Loaded proximity items:', PROXIMITY_INCIDENTS.length, '| global disruptions:', GLOBAL_DISRUPTIONS.length);
   } catch(e) {
     console.error('loadProximityFromWorker failed', e);
     PROXIMITY_INCIDENTS = [];
@@ -1595,6 +1601,71 @@ function renderProximityAlerts(region) {
           </div>
         </div>
       </div>`;
+  }).join('');
+
+  // Always render global disruptions panel below proximity alerts
+  renderGlobalDisruptions();
+}
+
+/* ===========================
+   GLOBAL DISRUPTIONS PANEL
+   Shows critical world-impact events from Worker's runGlobalDisruptionScan():
+   - Major earthquakes ≥ M6.0 (anywhere — supply chain / personnel risk)
+   - Cat 3+ cyclones / super typhoons
+   - Strategic strait / chokepoint blockades
+   - Tech supply chain escalations (Taiwan, Malaysia, Korea)
+=========================== */
+function renderGlobalDisruptions() {
+  const el = document.getElementById('global-disruptions-container');
+  if (!el) return;
+
+  const dark = document.body.classList.contains('dark-mode');
+  const bodyBg = dark ? '#1e2029' : '#ffffff';
+  const bodyTxt = dark ? '#c9d1d9' : '#3c4043';
+  const divClr = dark ? '#2a2d35' : '#eceef2';
+  const lblClr = dark ? '#e8eaed' : '#202124';
+  const metaTxt = dark ? '#9aa0a6' : '#5f6368';
+  const hdrBg = dark ? '#1a1d27' : '#f1f3f4';
+  const borderClr = dark ? '#3a3d45' : '#dadce0';
+
+  if (!GLOBAL_DISRUPTIONS || GLOBAL_DISRUPTIONS.length === 0) {
+    el.innerHTML = `<div style="padding:10px 0 4px;font-size:0.74rem;color:${metaTxt};text-align:center;">No critical global disruptions detected in the last 48h.</div>`;
+    return;
+  }
+
+  const TYPE_CONFIG = {
+    MAJOR_EARTHQUAKE:       { color: '#b05e00', bg: 'rgba(176,94,0,0.12)', icon: '🌍', label: 'Major Earthquake' },
+    MAJOR_CYCLONE:          { color: '#1565c0', bg: 'rgba(21,101,192,0.12)', icon: '🌀', label: 'Major Cyclone / Hurricane' },
+    SUPPLY_CHAIN_CHOKEPOINT:{ color: '#6a1b9a', bg: 'rgba(106,27,154,0.12)', icon: '⚓', label: 'Chokepoint / Strait Alert' },
+    TECH_SUPPLY_RISK:       { color: '#c62828', bg: 'rgba(198,40,40,0.12)', icon: '💾', label: 'Tech Supply Chain Risk' },
+  };
+
+  el.innerHTML = GLOBAL_DISRUPTIONS.slice(0, 8).map(d => {
+    const cfg = TYPE_CONFIG[d.type] || { color: '#5f6368', bg: 'rgba(95,99,104,0.1)', icon: '⚠', label: d.type || 'Alert' };
+    const sev = Number(d.severity || 3);
+    const sevWord = sev >= 5 ? 'CRITICAL' : sev >= 4 ? 'HIGH' : 'MEDIUM';
+    const sevColor = sev >= 5 ? '#d93025' : sev >= 4 ? '#e37400' : '#5f6368';
+    const magStr = d.magnitude ? ` M${Number(d.magnitude).toFixed(1)}` : '';
+    const timeAgo = _proxTimeAgo(d.time);
+    const firstLink = (d.link && d.link !== '#') ? (d.link.split(/\s+/).find(u => /^https?:\/\//.test(u)) || '') : '';
+
+    return `
+    <div style="border:1px solid ${borderClr};border-left:3px solid ${cfg.color};border-radius:5px;margin-bottom:8px;overflow:hidden;background:${bodyBg};">
+      <div style="background:${cfg.bg};padding:7px 11px;display:flex;align-items:center;gap:7px;">
+        <span style="font-size:1rem;">${cfg.icon}</span>
+        <span style="font-size:0.72rem;font-weight:700;color:${cfg.color};text-transform:uppercase;letter-spacing:.04em;">${escapeHtml(cfg.label)}${magStr}</span>
+        <span style="margin-left:auto;font-size:0.68rem;font-weight:700;color:${sevColor};background:rgba(0,0,0,0.06);padding:1px 6px;border-radius:3px;">${sevWord}</span>
+      </div>
+      <div style="padding:8px 11px;font-size:0.77rem;color:${bodyTxt};line-height:1.5;">
+        <div style="font-weight:600;color:${lblClr};margin-bottom:3px;">${escapeHtml(d.title || '')}</div>
+        ${d.summary ? `<div style="color:${metaTxt};font-size:0.73rem;margin-bottom:5px;">${escapeHtml(String(d.summary).slice(0, 160))}${d.summary.length > 160 ? '…' : ''}</div>` : ''}
+        <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.7rem;color:${metaTxt};">
+          ${d.location ? `<span>📍 ${escapeHtml(d.location)}</span>` : ''}
+          ${timeAgo ? `<span>🕐 ${timeAgo}</span>` : ''}
+          ${firstLink ? `<a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8;text-decoration:none;">🔗 Source</a>` : ''}
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -2703,6 +2774,9 @@ function connectSSE() {
         .map(normaliseWorkerIncident).filter(Boolean)
         .filter(i => { try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; } })
         .filter(i => !DISLIKED_IDS.has(String(i.id))); // suppress previously-disliked items
+      if (Array.isArray(json.global_disruptions)) {
+        GLOBAL_DISRUPTIONS = json.global_disruptions;
+      }
     } catch (e) { console.error('SSE proximity parse error', e); }
   });
 
