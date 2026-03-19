@@ -1330,7 +1330,8 @@ function renderGeneralFeed(region) {
       if (!key || _seen.has(key)) return false;
       _seen.add(key);
       return true;
-    });
+    })
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()); // newest first
   if (!data || data.length === 0) {
     const msg = ACTIVE_CATEGORIES.size > 0
       ? `No incidents match the selected categories for this region.`
@@ -6791,8 +6792,9 @@ function _tlRender(data) {
   const conf = (document.getElementById('tl-filter-confidence') || {}).value || 'all';
   const win  = (document.getElementById('tl-filter-window')     || {}).value || 'all';
 
-  const winMsMap = { '7d': 604800000, '14d': 1209600000, '30d': 2592000000, '90d': 7776000000, '365d': 31536000000 };
-  const winMs  = winMsMap[win] || null;
+  const winMsMap = { '72h': 259200000, '7d': 604800000, '14d': 1209600000, '30d': 2592000000, '90d': 7776000000, '365d': 31536000000 };
+  // Default: 72h — only recent intel on the dashboard, older stored but hidden
+  const winMs  = winMsMap[win] != null ? winMsMap[win] : 259200000;
   const cutoff = winMs ? Date.now() - winMs : 0;
 
   let filtered = cases.filter(function(c) {
@@ -6800,11 +6802,16 @@ function _tlRender(data) {
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
     if (conf !== 'all' && c.confidence !== conf) return false;
+    // Always enforce time cutoff — default 72h, override via dropdown
     if (cutoff) {
       const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
-      if (ts && ts < cutoff) return false;
+      if (!ts || ts < cutoff) return false;
     }
     return true;
+  });
+  // Sort newest first
+  filtered.sort(function(a, b) {
+    return new Date(b.last_seen || b.first_seen || 0).getTime() - new Date(a.last_seen || a.first_seen || 0).getTime();
   });
 
   const feed = document.getElementById('tl-feed');
