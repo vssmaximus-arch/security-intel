@@ -1241,7 +1241,7 @@ const INSIDER_SOURCES = [
 const INSIDER_CATEGORIES = ['INSIDER','LEAK','WORKFORCE','BRAND_MONITORING','LAYOFF'];
 // Workforce/insider keywords — ANY article matching these goes to Insider & Leaks only
 // NOTE: \b at end intentionally omitted so plurals (layoffs, reorgs) are caught too
-const INSIDER_TITLE_RE = /\b(layoffs?|lay[\s\-]?offs?|laid[\s\-]?off|reorg|headcount|workforce reduction|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders?.*say|whistle.?blow|volunteer.*layoff|plunging.*sales|private cloud portfolio|dell.*cuts|dell.*job|dell.*workforce|dell.*headcount|dell.*layoff|dell.*reorg)\b/i;
+const INSIDER_TITLE_RE = /\b(layoffs?|lay[\s\-]?offs?|laid[\s\-]?off|reorg|headcount|workforce reduction|employees.*volunteer|getting leaner|shrink its|cuts.*jobs?|job cuts?|slash.*jobs?|jobs?.*cut|position.*eliminat|insiders?.*say|whistle.?blow|volunteer.*layoff|plunging.*sales|private cloud portfolio|dell.*cuts|dell.*jobs?|dell.*workforce|dell.*headcount|dell.*layoff|dell.*reorg|dell.*shrink|quietly shrink|shrink.*workforce|10,?000 workers|6,?650 jobs?|13,?000 workers?|latest tech company to slash)\b/i;
 // Keywords that qualify as TRULY breaking security/geopolitical news for the breaking bar
 const BREAKING_NEWS_RE = /\b(killed|dead|deaths?|casualties|wounded|explosion|bomb(?:ing)?|terror(?:ist|ism)?|attacks?|war|invasion|invad|missile|airstrike|coup|earthquake|tsunami|hurricane|tropical storm|state of emergency|emergency declared|evacuated?|crash(?:ed)?|hijack|shooting|hostage|kidnap|cyber.?attack|data breach|ransomware|critical infrastructure|nuclear|chemical weapon|biological|sanctions|troops|military|warship|fighter.?jet|conflict|blockade|seized|maritime|sabotage|pipeline|cable|port closed|no-fly zone|airspace closed|assassination|assassinat|diplomatic|expelled|detained|arrested|strait|disruption|threat|imminent|escalat|intercept|deployed|naval|submarine|chaos|crisis|alert|shutdown|strikes?|riot|clashes?|gunfire|shelling|drone|intelligence|spy|espionage|hack(?:ed|ers?)?)\b/i;
 
@@ -1271,6 +1271,12 @@ function _feedIncidentFilter(inc) {
   // ANY workforce/layoff headline → Insider & Leaks only (not just Dell-specific)
   // Covers: "Dell Says Job Cuts Will Continue", "Dell staff not surprised about layoffs", etc.
   if (INSIDER_TITLE_RE.test(title) || INSIDER_TITLE_RE.test(summary)) return false;
+
+  // ── Dell PR / marketing filter — partnership announcements belong in Insider, not Intel feed ──
+  // Catches: "Dell joins forces with X", "Dell partners with Y", "Dell unveils new product", etc.
+  // EXCEPTION: kept if title also contains a genuine security threat keyword
+  const hasThreatKeyword = /\b(breach|hack|attack|ransom|vuln|exploit|threat|crisis|outage|disrupt|leak|sanction|shutdown|critical|incident|fraud|espionage|intrusion|zero.?day)\b/i.test(title);
+  if (!hasThreatKeyword && /\bdell\b/i.test(title) && /\b(joins?\s+forces|partnership|partners?\s+with|collaborat|unveils?|launches?|announces?|new\s+(product|service|solution|offering|partner)|expands?\s+(into|its|presence)|strengthens?|strategic\s+alliance|concludes?|innovate|pioneer|leverag)\b/i.test(title)) return false;
 
   // ── CISA strict gate ────────────────────────────────────────────────────────
   // CISA content is only relevant when it directly names Dell (the company or its
@@ -6821,11 +6827,22 @@ function _tlRender(data) {
   const winMs  = winMsMap[win] != null ? winMsMap[win] : 259200000;
   const cutoff = winMs ? Date.now() - winMs : 0;
 
+  const _tlTitleSeen = new Set();
   let filtered = cases.filter(function(c) {
     if (cat  !== 'all' && c.category   !== cat)  return false;
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
     if (conf !== 'all' && c.confidence !== conf) return false;
+    // Block Google News redirect URLs — their timestamps are unreliable (always "today")
+    // and they surface historical articles (2013, 2023 layoffs) as if current
+    const firstLink = String((c.source_links || [])[0] || '');
+    if (/news\.google\.com/.test(firstLink)) return false;
+    // Block Reddit / HN
+    if (/reddit\.com|redd\.it|hnrss\.org|news\.ycombinator/.test(firstLink)) return false;
+    // Deduplicate by title
+    const tKey = String(c.title || '').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60);
+    if (tKey && _tlTitleSeen.has(tKey)) return false;
+    if (tKey) _tlTitleSeen.add(tKey);
     // Always enforce time cutoff — default 72h, override via dropdown
     if (cutoff) {
       const ts = new Date(c.last_seen || c.first_seen || 0).getTime();
