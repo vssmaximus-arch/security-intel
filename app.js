@@ -1217,11 +1217,26 @@ function renderIncidentsOnMap(region, list) {
  *  • CISA generic advisories (no Dell / direct-impact relevance)
  *  • Minor natural disasters (severity < 3, no major impact keywords)
  */
+// Sources that belong exclusively to the Insider & Leaks tab — exclude from Intelligence feed
+const INSIDER_SOURCES = ['thelayoff.com','glassdoor.com','blind','theladders','levels.fyi','teamblind'];
+// Categories assigned by Worker to insider/workforce intel
+const INSIDER_CATEGORIES = ['INSIDER','LEAK','WORKFORCE','BRAND_MONITORING','LAYOFF'];
+// Titles mentioning Dell specifically in workforce/insider context
+const INSIDER_TITLE_RE = /\b(layoff|lay.off|laid.off|reorg|headcount|workforce|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders.*say|whistle.?blow)\b/i;
+
 function _feedIncidentFilter(inc) {
   const title = String(inc.title || '');
   const t     = title.toLowerCase();
   const summary = String(inc.summary || '').toLowerCase();
   const srcUrl  = String(inc.source || inc.link || '').toLowerCase();
+
+  // ── Insider & Leaks exclusion gate — keep these items only in the Insider & Leaks tab ──
+  const isInsiderSource = INSIDER_SOURCES.some(s => srcUrl.includes(s));
+  if (isInsiderSource) return false;
+  const cat = String(inc.category || '').toUpperCase();
+  if (INSIDER_CATEGORIES.includes(cat)) return false;
+  // Dell-specific workforce/insider headlines → Insider & Leaks tab only
+  if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE.test(title)) return false;
 
   // ── CISA strict gate ────────────────────────────────────────────────────────
   // CISA content is only relevant when it directly names Dell (the company or its
@@ -5565,17 +5580,19 @@ async function toggleWeatherOverlay() {
    MAIN LIVE TICKER — populates #ticker-track with market data
    + security incidents. Called after markets load OR incidents update.
    ============================================================ */
+// Keywords that identify financial/market-relevant news for the LIVE ticker
+var FINANCIAL_TICKER_RE = /\b(layoff|lay.off|job cuts|earnings|quarterly|revenue|profit|loss|stock|shares|ipo|acquisition|merger|acquisition|valuation|market cap|billion|million|dell|nvidia|intel|amd|microsoft|apple|s&p|nasdaq|dow|ftse|nikkei|bitcoin|crypto|rate hike|rate cut|fed|inflation|gdp|interest rate|oil price|gold price|bond yield|dividend|buyback|guidance|forecast|analyst|upgrade|downgrade|beats estimates|misses estimates|fiscal)\b/i;
+
 function updateMainTicker() {
   var track = document.getElementById('ticker-track');
   if (!track) return;
 
   var html = '';
 
-  // ── Market tiles (injected by markets module via window._mktTickerItems)
+  // ── Section 1: Market prices (from markets widget fetch)
   var mktItems = window._mktTickerItems || [];
   if (mktItems.length) {
-    // Section separator
-    html += '<span class="ticker-item" style="color:#1a73e8;font-weight:800;letter-spacing:.5px;padding:0 14px;border-right:2px solid #1a73e8;">MARKETS</span>';
+    html += '<span class="ticker-item" style="color:#1a73e8;font-weight:800;letter-spacing:.5px;padding:0 14px;border-right:2px solid #1a73e8;flex-shrink:0;">MARKETS</span>';
     html += mktItems.map(function(m) {
       var dir = m.changePct == null ? 'flat' : m.changePct > 0 ? 'up' : 'down';
       var arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '●';
@@ -5588,34 +5605,35 @@ function updateMainTicker() {
     }).join('');
   }
 
-  // ── Security incidents
+  // ── Section 2: Key financial/market news only — no security intel, no insider/leaks
   var inc = (typeof INCIDENTS !== 'undefined' && Array.isArray(INCIDENTS)) ? INCIDENTS : [];
-  if (inc.length) {
-    html += '<span class="ticker-item" style="color:#ea4335;font-weight:800;letter-spacing:.5px;padding:0 14px;border-right:2px solid #ea4335;">INTEL</span>';
-    html += inc.slice(0, 40).map(function(i) {
-      var sev = Number(i.severity || 1);
-      var cls = sev >= 4 ? 'ticker-alert' : '';
-      var parts = [];
-      if (i.category) parts.push(i.category.toUpperCase());
-      var title = (i.title || '');
-      if (title.length > 90) title = title.slice(0, 87) + '…';
-      if (title) parts.push(title);
-      var loc = (i.country && i.country !== 'GLOBAL') ? i.country : (i.region && i.region !== 'Global') ? i.region : '';
-      if (loc) parts.push(loc);
-      return '<span class="ticker-item ' + cls + '">' + escapeHtml(parts.join(' · ')) + '</span>';
+  var finNews = inc.filter(function(i) {
+    var src = String(i.source || i.link || '').toLowerCase();
+    // Exclude Insider & Leaks sources
+    if (INSIDER_SOURCES && INSIDER_SOURCES.some(function(s){ return src.includes(s); })) return false;
+    // Only include if title matches financial keywords
+    return FINANCIAL_TICKER_RE.test(String(i.title || ''));
+  }).slice(0, 20);
+
+  if (finNews.length) {
+    html += '<span class="ticker-item" style="color:#fbbc04;font-weight:800;letter-spacing:.5px;padding:0 14px;border-right:2px solid #fbbc04;flex-shrink:0;">FINANCIAL NEWS</span>';
+    html += finNews.map(function(i) {
+      var title = String(i.title || '');
+      if (title.length > 100) title = title.slice(0, 97) + '…';
+      var src = i.source ? ' · ' + String(i.source).replace(/^https?:\/\/(www\.)?/, '').split('/')[0] : '';
+      return '<span class="ticker-item ticker-stock">' + escapeHtml(title + src) + '</span>';
     }).join('');
   }
 
   if (!html) {
-    track.innerHTML = '<span class="ticker-item ticker-loading"><i class="fas fa-circle-notch fa-spin"></i> Awaiting data — Worker not deployed or offline</span>';
+    track.innerHTML = '<span class="ticker-item ticker-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading market data — deploy Worker to activate</span>';
     return;
   }
 
-  // Duplicate content for seamless infinite scroll
-  var totalItems = mktItems.length + Math.min(inc.length, 40);
-  var speed = Math.max(40, totalItems * 3.5);
+  // Duplicate for seamless infinite scroll
+  var totalItems = mktItems.length + finNews.length + 2;
   track.innerHTML = html + html;
-  track.style.animationDuration = speed + 's';
+  track.style.animationDuration = Math.max(35, totalItems * 4) + 's';
 }
 window.updateMainTicker = updateMainTicker;
 
@@ -5624,18 +5642,26 @@ function renderCriticalAlertsTicker() {
   const inner = document.getElementById('sigmet-inner');
   if (!strip || !inner) return;
 
-  // Only show CRITICAL events (severity >= 4) — no fallback to lower severity
-  const alerts = INCIDENTS.filter(i => Number(i.severity || 1) >= 4);
+  // Only HIGH (4) or CRITICAL (5) — never MEDIUM or LOW
+  // Also exclude Insider & Leaks sources — those have their own tab
+  const alerts = INCIDENTS.filter(i => {
+    if (Number(i.severity || 1) < 4) return false;
+    const src = String(i.source || i.link || '').toLowerCase();
+    if (INSIDER_SOURCES && INSIDER_SOURCES.some(s => src.includes(s))) return false;
+    const cat = String(i.category || '').toUpperCase();
+    if (INSIDER_CATEGORIES && INSIDER_CATEGORIES.includes(cat)) return false;
+    return true;
+  });
 
   if (!alerts.length) { strip.style.display = 'none'; return; }
 
-  const items = alerts.slice(0, 20).map(i => {
+  const items = alerts.slice(0, 25).map(i => {
     const parts = [];
     if (i.category) parts.push(i.category.toUpperCase());
-    const title = (i.title || '').length > 80 ? i.title.slice(0, 77) + '…' : i.title;
+    const title = (i.title || '').length > 90 ? i.title.slice(0, 87) + '…' : i.title;
     if (title) parts.push(title);
     const loc = i.country || i.region || '';
-    if (loc && loc !== 'Global') parts.push(loc);
+    if (loc && loc !== 'Global' && loc !== 'GLOBAL') parts.push(loc);
     return parts.join(' · ');
   }).filter(Boolean);
 
