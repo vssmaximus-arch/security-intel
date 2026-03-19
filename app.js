@@ -1283,6 +1283,11 @@ function _feedIncidentFilter(inc) {
     if (!dellHit && !activeHit) return false;
   }
   // ── /CISA strict gate ───────────────────────────────────────────────────────
+  // ── Financial/market-only articles — belong in Markets widget, NOT Intel feed ──
+  // Catches: stock price analysis, earnings reports, memory price articles, analyst ratings
+  const isFinancialOnly = /\b(soaring (memory |chip |nand |dram |stock )?prices?|how the stocks? (can |will )?(handle|fare|react)|stock(s)? (outlook|analysis|forecast|rally|drop)|earnings (beat|miss|report|guidance|preview)|share price (rise|fall|surge|drop|climb)|analyst (target|rating|upgrade|downgrade|price target)|wall street (expects?|sees?|says?)|trading at \$|P\/E ratio|market cap|quarterly (results|earnings|revenue)|memory (chip )?shortage|DRAM prices?|NAND prices?)\b/i.test(title);
+  if (isFinancialOnly) return false;
+
   // Minor natural / weather events — skip unless severity ≥ 3 or major casualties/impact
   const isNat = /\b(earthquake|tremor|flood|hurricane|typhoon|cyclone|tornado|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|drought|fire notification|blizzard|mudslide)\b/i.test(title);
   if (isNat && Number(inc.severity || 1) < 3 &&
@@ -1309,7 +1314,17 @@ function renderGeneralFeed(region) {
     rawData = rawData.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
   }
   // Apply quality gate then category filter (if any categories are selected)
-  const data = rawData.filter(_feedIncidentFilter).filter(filterByCategoryAllowed);
+  // Then deduplicate by normalised title (same story from multiple RSS sources = show once)
+  const _seen = new Set();
+  const data = rawData
+    .filter(_feedIncidentFilter)
+    .filter(filterByCategoryAllowed)
+    .filter(inc => {
+      const key = String(inc.title || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60);
+      if (!key || _seen.has(key)) return false;
+      _seen.add(key);
+      return true;
+    });
   if (!data || data.length === 0) {
     const msg = ACTIVE_CATEGORIES.size > 0
       ? `No incidents match the selected categories for this region.`
