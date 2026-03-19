@@ -1245,6 +1245,10 @@ const INSIDER_TITLE_RE = /\b(layoffs?|lay[\s\-]?offs?|laid[\s\-]?off|reorg|headc
 // Keywords that qualify as TRULY breaking security/geopolitical news for the breaking bar
 const BREAKING_NEWS_RE = /\b(killed|dead|deaths?|casualties|wounded|explosion|bomb(?:ing)?|terror(?:ist|ism)?|attacks?|war|invasion|invad|missile|airstrike|coup|earthquake|tsunami|hurricane|tropical storm|state of emergency|emergency declared|evacuated?|crash(?:ed)?|hijack|shooting|hostage|kidnap|cyber.?attack|data breach|ransomware|critical infrastructure|nuclear|chemical weapon|biological|sanctions|troops|military|warship|fighter.?jet|conflict|blockade|seized|maritime|sabotage|pipeline|cable|port closed|no-fly zone|airspace closed|assassination|assassinat|diplomatic|expelled|detained|arrested|strait|disruption|threat|imminent|escalat|intercept|deployed|naval|submarine|chaos|crisis|alert|shutdown|strikes?|riot|clashes?|gunfire|shelling|drone|intelligence|spy|espionage|hack(?:ed|ers?)?)\b/i;
 
+// Shared financial-article detector used by both the Intel feed and the Breaking ticker
+const _FINANCIAL_ONLY_RE = /\b(soaring (memory |chip |nand |dram |stock )?prices?|how the stocks? (can |will )?(handle|fare|react)|stock(s)? (outlook|analysis|forecast|rally|drop)|earnings (beat|miss|report|guidance|preview)|share price (rise|fall|surge|drop|climb)|analyst (target|rating|upgrade|downgrade|price target)|wall street (expects?|sees?|says?)|trading at \$|P\/E ratio|market cap|quarterly (results|earnings|revenue)|memory (chip )?shortage|DRAM prices?|NAND prices?|soaring.*prices?.*stocks?|stocks?.*handle.*threat)\b/i;
+function isFinancialOnlyTitle(title) { return _FINANCIAL_ONLY_RE.test(String(title || '')); }
+
 function _feedIncidentFilter(inc) {
   const title = String(inc.title || '');
   const t     = title.toLowerCase();
@@ -1286,8 +1290,7 @@ function _feedIncidentFilter(inc) {
   // ── /CISA strict gate ───────────────────────────────────────────────────────
   // ── Financial/market-only articles — belong in Markets widget, NOT Intel feed ──
   // Catches: stock price analysis, earnings reports, memory price articles, analyst ratings
-  const isFinancialOnly = /\b(soaring (memory |chip |nand |dram |stock )?prices?|how the stocks? (can |will )?(handle|fare|react)|stock(s)? (outlook|analysis|forecast|rally|drop)|earnings (beat|miss|report|guidance|preview)|share price (rise|fall|surge|drop|climb)|analyst (target|rating|upgrade|downgrade|price target)|wall street (expects?|sees?|says?)|trading at \$|P\/E ratio|market cap|quarterly (results|earnings|revenue)|memory (chip )?shortage|DRAM prices?|NAND prices?)\b/i.test(title);
-  if (isFinancialOnly) return false;
+  if (isFinancialOnlyTitle(title)) return false;
 
   // Minor natural / weather events — skip unless severity ≥ 3 or major casualties/impact
   const isNat = /\b(earthquake|tremor|flood|hurricane|typhoon|cyclone|tornado|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|drought|fire notification|blizzard|mudslide)\b/i.test(title);
@@ -5793,6 +5796,7 @@ function renderCriticalAlertsTicker() {
   //   severity 1-2 → never
   //   Insider & Leaks sources/categories → never
   //   Dell workforce/insider headlines → never
+  const _tickerSeen = new Set();
   const alerts = INCIDENTS.filter(i => {
     const sev   = Number(i.severity || 1);
     if (sev < 3) return false;
@@ -5802,8 +5806,14 @@ function renderCriticalAlertsTicker() {
     if (INSIDER_SOURCES && INSIDER_SOURCES.some(s => src.includes(s))) return false;
     if (INSIDER_CATEGORIES && INSIDER_CATEGORIES.includes(cat)) return false;
     if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE && INSIDER_TITLE_RE.test(title)) return false;
+    // Block financial/market articles from the breaking ticker
+    if (isFinancialOnlyTitle(title)) return false;
     // CRITICAL always qualifies; MEDIUM/HIGH must match keywords
     if (sev < 5 && BREAKING_NEWS_RE && !BREAKING_NEWS_RE.test(title)) return false;
+    // Deduplicate by title
+    const tKey = title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60);
+    if (_tickerSeen.has(tKey)) return false;
+    _tickerSeen.add(tKey);
     return true;
   });
 
