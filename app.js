@@ -927,12 +927,12 @@ function initMap() {
     scrollWheelZoom: false,
     zoomControl: false,
     attributionControl: true,
-    minZoom: 3,
+    minZoom: 2,
     maxZoom: 19,
     maxBounds: bounds,
     maxBoundsViscosity: 1.0,
     worldCopyJump: false
-  }).setView([20, 0], 3);
+  }).setView([20, 0], 2);
 
   L.control.zoom({ position: "topleft" }).addTo(map);
 
@@ -1222,7 +1222,9 @@ const INSIDER_SOURCES = ['thelayoff.com','glassdoor.com','blind','theladders','l
 // Categories assigned by Worker to insider/workforce intel
 const INSIDER_CATEGORIES = ['INSIDER','LEAK','WORKFORCE','BRAND_MONITORING','LAYOFF'];
 // Titles mentioning Dell specifically in workforce/insider context
-const INSIDER_TITLE_RE = /\b(layoff|lay.off|laid.off|reorg|headcount|workforce|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders.*say|whistle.?blow)\b/i;
+const INSIDER_TITLE_RE = /\b(layoff|lay.off|laid.off|reorg|headcount|workforce|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders.*say|whistle.?blow|volunteer.*layoff|plunging.*sales|private cloud portfolio)\b/i;
+// Keywords that qualify as TRULY breaking security/geopolitical news for the breaking bar
+const BREAKING_NEWS_RE = /\b(killed|dead|deaths?|casualties|wounded|explosion|bomb(?:ing)?|terror(?:ist|ism)?|attack(?:ed)?|war|invasion|invad|missile|airstrike|coup|earthquake|tsunami|hurricane|tropical storm|state of emergency|emergency declared|evacuated|crash(?:ed)?|hijack|shooting|hostage|kidnap|cyber.?attack|data breach|ransomware|critical infrastructure|nuclear|chemical weapon|biological|sanctions|troops|military|warship|fighter.?jet|conflict|blockade|seized|maritime incident|sabotage|pipeline|cable cut|port closed|no-fly zone|airspace closed)\b/i;
 
 function _feedIncidentFilter(inc) {
   const title = String(inc.title || '');
@@ -1230,10 +1232,16 @@ function _feedIncidentFilter(inc) {
   const summary = String(inc.summary || '').toLowerCase();
   const srcUrl  = String(inc.source || inc.link || '').toLowerCase();
 
+  // ── Credibility gate — exclude items with no identifiable source or category ──
+  const hasRealSource = srcUrl && srcUrl !== 'unknown' && srcUrl.length > 4 && !/^(unknown|n\/a|none|null)$/i.test(srcUrl.trim());
+  const cat = String(inc.category || '').toUpperCase();
+  const hasRealCategory = cat && cat !== 'UNKNOWN' && cat.length > 1;
+  if (!hasRealSource && !hasRealCategory) return false; // no source AND no category = skip
+  if (!hasRealSource && hasRealCategory && cat === 'UNKNOWN') return false;
+
   // ── Insider & Leaks exclusion gate — keep these items only in the Insider & Leaks tab ──
   const isInsiderSource = INSIDER_SOURCES.some(s => srcUrl.includes(s));
   if (isInsiderSource) return false;
-  const cat = String(inc.category || '').toUpperCase();
   if (INSIDER_CATEGORIES.includes(cat)) return false;
   // Dell-specific workforce/insider headlines → Insider & Leaks tab only
   if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE.test(title)) return false;
@@ -5630,10 +5638,10 @@ function updateMainTicker() {
     return;
   }
 
-  // Duplicate for seamless infinite scroll
+  // Duplicate for seamless infinite scroll — slow enough to read comfortably
   var totalItems = mktItems.length + finNews.length + 2;
   track.innerHTML = html + html;
-  track.style.animationDuration = Math.max(35, totalItems * 4) + 's';
+  track.style.animationDuration = Math.max(120, totalItems * 9) + 's';
 }
 window.updateMainTicker = updateMainTicker;
 
@@ -5642,14 +5650,19 @@ function renderCriticalAlertsTicker() {
   const inner = document.getElementById('sigmet-inner');
   if (!strip || !inner) return;
 
-  // Only HIGH (4) or CRITICAL (5) — never MEDIUM or LOW
-  // Also exclude Insider & Leaks sources — those have their own tab
+  // BREAKING NEWS: severity ≥ 4, must match true breaking keywords, exclude insider/workforce
   const alerts = INCIDENTS.filter(i => {
     if (Number(i.severity || 1) < 4) return false;
-    const src = String(i.source || i.link || '').toLowerCase();
+    const src   = String(i.source || i.link || '').toLowerCase();
+    const title = String(i.title || '');
+    const cat   = String(i.category || '').toUpperCase();
+    // Exclude insider/workforce sources and categories
     if (INSIDER_SOURCES && INSIDER_SOURCES.some(s => src.includes(s))) return false;
-    const cat = String(i.category || '').toUpperCase();
     if (INSIDER_CATEGORIES && INSIDER_CATEGORIES.includes(cat)) return false;
+    // Exclude Dell workforce/insider headlines
+    if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE && INSIDER_TITLE_RE.test(title)) return false;
+    // Must match genuine breaking news keywords
+    if (BREAKING_NEWS_RE && !BREAKING_NEWS_RE.test(title)) return false;
     return true;
   });
 
@@ -5669,6 +5682,9 @@ function renderCriticalAlertsTicker() {
 
   const text = items.join('   ✦   ');
   inner.textContent = `${text}   ✦   ${text}`;
+  // Speed: ~9 seconds per item, minimum 120s — same comfortable pace as LIVE ticker
+  const breakingSpeed = Math.max(120, items.length * 18) + 's';
+  inner.style.animationDuration = breakingSpeed;
   strip.style.display = 'flex';
 }
 

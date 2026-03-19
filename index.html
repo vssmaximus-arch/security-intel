@@ -648,7 +648,7 @@
     }
     .sigmet-scroll-inner {
       white-space: nowrap;
-      animation: sigmet-scroll 120s linear infinite;
+      animation: sigmet-scroll 180s linear infinite;
       display: inline-block;
     }
     .sigmet-scroll-inner:hover { animation-play-state: paused; }
@@ -2008,7 +2008,7 @@
     .ticker-track-wrap { flex:1; overflow:hidden; position:relative; }
     .ticker-track {
       display:flex; gap:0; white-space:nowrap;
-      animation: ticker-scroll 60s linear infinite;
+      animation: ticker-scroll 120s linear infinite;
     }
     .ticker-track:hover { animation-play-state:paused; }
     @keyframes ticker-scroll {
@@ -4155,14 +4155,17 @@
     function initAirportMap() {
       if (typeof L === 'undefined') return;
       var isLight = document.body.classList.contains('light-mode');
+      var apBounds = L.latLngBounds(L.latLng(-85,-180), L.latLng(85,180));
       airportMap = L.map('airport-map', {
-        center: [28, 42], zoom: 3,
+        center: [20, 0], zoom: 2,
+        minZoom: 2, maxZoom: 19,
         scrollWheelZoom: true, zoomControl: true, attributionControl: false,
+        maxBounds: apBounds, maxBoundsViscosity: 1.0, worldCopyJump: false,
       });
       var tileUrl = isLight
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19 }).addTo(airportMap);
+      L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19, noWrap: true, bounds: apBounds }).addTo(airportMap);
       airportMarkerLayer = L.layerGroup().addTo(airportMap);
     }
 
