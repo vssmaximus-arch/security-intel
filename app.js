@@ -1328,7 +1328,7 @@ function renderGeneralFeed(region) {
           <div class="feed-tags">
             <span class="ftag ${sevMeta.badgeClass}">${escapeHtml(sevMeta.label)}</span>
             <span class="ftag ftag-loc" data-action="country-risk" data-country="${escapeAttr(i.country||'GLOBAL')}" title="AI Country Risk" style="cursor:pointer;" role="button" tabindex="0">${escapeHtml((i.country||"GLOBAL").toUpperCase())}</span>
-            <span class="ftag ftag-type">${escapeHtml(i.category || 'UNKNOWN')}</span>
+            ${(i.category && i.category.toUpperCase() !== 'UNKNOWN') ? `<span class="ftag ftag-type">${escapeHtml(i.category)}</span>` : ''}
             <span class="feed-region">${escapeHtml(i.region || 'Global')}</span>
             ${credBadge}
             ${aiBadge}
@@ -5670,11 +5670,18 @@ function renderCriticalAlertsTicker() {
     return true;
   });
 
-  if (!alerts.length) { strip.style.display = 'none'; return; }
+  // Bar is ALWAYS visible — show placeholder when no qualifying alerts yet
+  strip.style.display = 'flex';
+
+  if (!alerts.length) {
+    inner.textContent = '⚡ Monitoring global feeds for breaking security and geopolitical events…   ✦   No critical alerts at this time';
+    inner.style.animationDuration = '60s';
+    return;
+  }
 
   const items = alerts.slice(0, 25).map(i => {
     const parts = [];
-    if (i.category) parts.push(i.category.toUpperCase());
+    if (i.category && i.category.toUpperCase() !== 'UNKNOWN') parts.push(i.category.toUpperCase());
     const title = (i.title || '').length > 90 ? i.title.slice(0, 87) + '…' : i.title;
     if (title) parts.push(title);
     const loc = i.country || i.region || '';
@@ -5682,11 +5689,14 @@ function renderCriticalAlertsTicker() {
     return parts.join(' · ');
   }).filter(Boolean);
 
-  if (!items.length) { strip.style.display = 'none'; return; }
+  if (!items.length) {
+    inner.textContent = '⚡ Monitoring global feeds for breaking security and geopolitical events…';
+    inner.style.animationDuration = '60s';
+    return;
+  }
 
   const text = items.join('   ✦   ');
   inner.textContent = `${text}   ✦   ${text}`;
-  // Speed: ~9 seconds per item, minimum 120s — same comfortable pace as LIVE ticker
   const breakingSpeed = Math.max(120, items.length * 18) + 's';
   inner.style.animationDuration = breakingSpeed;
   strip.style.display = 'flex';
