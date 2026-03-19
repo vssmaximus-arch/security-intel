@@ -1224,7 +1224,7 @@ const INSIDER_CATEGORIES = ['INSIDER','LEAK','WORKFORCE','BRAND_MONITORING','LAY
 // Titles mentioning Dell specifically in workforce/insider context
 const INSIDER_TITLE_RE = /\b(layoff|lay.off|laid.off|reorg|headcount|workforce|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders.*say|whistle.?blow|volunteer.*layoff|plunging.*sales|private cloud portfolio)\b/i;
 // Keywords that qualify as TRULY breaking security/geopolitical news for the breaking bar
-const BREAKING_NEWS_RE = /\b(killed|dead|deaths?|casualties|wounded|explosion|bomb(?:ing)?|terror(?:ist|ism)?|attack(?:ed)?|war|invasion|invad|missile|airstrike|coup|earthquake|tsunami|hurricane|tropical storm|state of emergency|emergency declared|evacuated|crash(?:ed)?|hijack|shooting|hostage|kidnap|cyber.?attack|data breach|ransomware|critical infrastructure|nuclear|chemical weapon|biological|sanctions|troops|military|warship|fighter.?jet|conflict|blockade|seized|maritime incident|sabotage|pipeline|cable cut|port closed|no-fly zone|airspace closed)\b/i;
+const BREAKING_NEWS_RE = /\b(killed|dead|deaths?|casualties|wounded|explosion|bomb(?:ing)?|terror(?:ist|ism)?|attacks?|war|invasion|invad|missile|airstrike|coup|earthquake|tsunami|hurricane|tropical storm|state of emergency|emergency declared|evacuated?|crash(?:ed)?|hijack|shooting|hostage|kidnap|cyber.?attack|data breach|ransomware|critical infrastructure|nuclear|chemical weapon|biological|sanctions|troops|military|warship|fighter.?jet|conflict|blockade|seized|maritime|sabotage|pipeline|cable|port closed|no-fly zone|airspace closed|assassination|assassinat|diplomatic|expelled|detained|arrested|strait|disruption|threat|imminent|escalat|intercept|deployed|naval|submarine|chaos|crisis|alert|shutdown|strikes?|riot|clashes?|gunfire|shelling|drone|intelligence|spy|espionage|hack(?:ed|ers?)?)\b/i;
 
 function _feedIncidentFilter(inc) {
   const title = String(inc.title || '');
@@ -5650,19 +5650,23 @@ function renderCriticalAlertsTicker() {
   const inner = document.getElementById('sigmet-inner');
   if (!strip || !inner) return;
 
-  // BREAKING NEWS: severity ≥ 4, must match true breaking keywords, exclude insider/workforce
+  // BREAKING NEWS rules:
+  //   severity 5 (CRITICAL) → always show (no keyword check)
+  //   severity 3-4 (MEDIUM/HIGH) → only if title matches BREAKING_NEWS_RE keywords
+  //   severity 1-2 → never
+  //   Insider & Leaks sources/categories → never
+  //   Dell workforce/insider headlines → never
   const alerts = INCIDENTS.filter(i => {
-    if (Number(i.severity || 1) < 4) return false;
+    const sev   = Number(i.severity || 1);
+    if (sev < 3) return false;
     const src   = String(i.source || i.link || '').toLowerCase();
     const title = String(i.title || '');
     const cat   = String(i.category || '').toUpperCase();
-    // Exclude insider/workforce sources and categories
     if (INSIDER_SOURCES && INSIDER_SOURCES.some(s => src.includes(s))) return false;
     if (INSIDER_CATEGORIES && INSIDER_CATEGORIES.includes(cat)) return false;
-    // Exclude Dell workforce/insider headlines
     if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE && INSIDER_TITLE_RE.test(title)) return false;
-    // Must match genuine breaking news keywords
-    if (BREAKING_NEWS_RE && !BREAKING_NEWS_RE.test(title)) return false;
+    // CRITICAL always qualifies; MEDIUM/HIGH must match keywords
+    if (sev < 5 && BREAKING_NEWS_RE && !BREAKING_NEWS_RE.test(title)) return false;
     return true;
   });
 
