@@ -2137,11 +2137,24 @@ async function adminTriggerIngest() {
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
   adminSetFeedback('Triggering ingestion…');
   try {
-    const res = await fetch(`${WORKER_URL}/api/ingest`, { method:'POST', headers:{ 'secret': sec } });
+    const res = await fetch(`${WORKER_URL}/api/admin/ingest`, { method:'POST', headers:{ 'secret': sec } });
     const txt = await res.text().catch(()=>'');
     if (!res.ok) { adminSetFeedback(`Ingest failed (HTTP ${res.status}). ${txt}`.trim(), true); return; }
     adminSetFeedback(txt || 'Ingestion triggered.');
   } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
+}
+
+async function adminWipeIncidents() {
+  const sec = adminGetSecret();
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  if (!confirm('⚠️ This will clear ALL incidents from KV and reset the feed. Continue?')) return;
+  adminSetFeedback('Wiping incidents KV…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/wipe-incidents`, { method:'POST', headers:{ 'secret': sec } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Wipe failed (HTTP ${res.status}): ${txt}`.trim(), true); return; }
+    adminSetFeedback('✅ KV wiped: ' + txt + ' — Now click Trigger Ingestion to repopulate.');
+  } catch(e) { adminSetFeedback('Wipe failed (network).', true); console.error(e); }
 }
 
 async function adminUnlock() {
@@ -5285,6 +5298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-save-secret') { adminSaveSecret(); return; }
       if (action === 'admin-clear-secret') { adminClearSecret(); return; }
       if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
+      if (action === 'admin-wipe-incidents') { adminWipeIncidents(); return; }
       if (action === 'admin-unlock') { adminUnlock(); return; }
       if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
       if (action === 'admin-force-refresh-travel') { adminForceRefreshTravel(); return; }
