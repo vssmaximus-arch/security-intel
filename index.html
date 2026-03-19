@@ -2149,19 +2149,20 @@
                   <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
                   <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
                 </div>
-                <div style="display:flex;align-items:center;gap:6px;">
-                  <!-- Time window filter — default 48h -->
-                  <div id="feed-time-filter" style="display:flex;gap:2px;" role="group" aria-label="Time window">
-                    <button class="feed-time-btn" data-hours="1"   aria-pressed="false">1h</button>
-                    <button class="feed-time-btn" data-hours="6"   aria-pressed="false">6h</button>
-                    <button class="feed-time-btn" data-hours="24"  aria-pressed="false">24h</button>
-                    <button class="feed-time-btn active" data-hours="48" aria-pressed="true">48h</button>
-                    <button class="feed-time-btn" data-hours="168" aria-pressed="false">7d</button>
-                    <button class="feed-time-btn" data-hours="0"   aria-pressed="false">All</button>
-                  </div>
-                  <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
-                    VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
-                  </div>
+                <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
+                  VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+                </div>
+              </div>
+              <!-- Time window filter — dedicated row below header, always clearly visible -->
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:-6px;">
+                <span style="font-size:0.68rem;font-weight:700;color:#9aa0a6;text-transform:uppercase;letter-spacing:.05em;">SHOW:</span>
+                <div id="feed-time-filter" role="group" aria-label="Time window" style="display:flex;gap:4px;">
+                  <button class="feed-time-btn" data-hours="1"   aria-pressed="false">1h</button>
+                  <button class="feed-time-btn" data-hours="6"   aria-pressed="false">6h</button>
+                  <button class="feed-time-btn" data-hours="24"  aria-pressed="false">24h</button>
+                  <button class="feed-time-btn active" data-hours="48" aria-pressed="true">48h</button>
+                  <button class="feed-time-btn" data-hours="168" aria-pressed="false">7d</button>
+                  <button class="feed-time-btn" data-hours="0"   aria-pressed="false">All</button>
                 </div>
               </div>
               <div class="critical-alert-bar" role="alert">

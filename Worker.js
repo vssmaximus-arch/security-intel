@@ -143,6 +143,7 @@ const AIRPORT_COORDS = {
 
 const ARCHIVE_PREFIX = "archive_";
 const PROXIMITY_KV_KEY = "proximity_incidents_v1";
+const GLOBAL_DISRUPTIONS_KV_KEY = "global_disruptions_v1";
 const INCIDENTS_KV_KEY = "incidents";
 const BRIEFING_PREFIX = "briefing_";
 const TRAVEL_CACHE_KEY = "travel_cache_v1";
@@ -215,6 +216,8 @@ const NATURAL_HAZARD_SOURCES = new Set([
   "https://www.weather.gov/rss_page.php",
   "https://feeds.meteoalarm.org/RSS",
   "http://www.bom.gov.au/rss/",
+  "https://www.nhc.noaa.gov/index-at.xml",
+  "https://www.nhc.noaa.gov/index-ep.xml",
 ]);
 
 // SOURCE_META — maps feed URL fragment → { key, label, category }
@@ -615,7 +618,8 @@ const DELL_SITES = [
   { name: "Dell Tokyo", country: "JP", region: "APJC", lat: 35.6762, lon: 139.6503 },
   { name: "Dell Kawasaki", country: "JP", region: "APJC", lat: 35.5300, lon: 139.6960 },
   { name: "Dell Sydney", country: "AU", region: "APJC", lat: -33.8688, lon: 151.2093 },
-  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 }
+  { name: "Dell Melbourne", country: "AU", region: "APJC", lat: -37.8136, lon: 144.9631 },
+  { name: "Dell Brisbane", country: "AU", region: "APJC", lat: -27.4698, lon: 153.0251 }
 ];
 
 const SITE_MAP_BY_NAME = {};
@@ -3077,6 +3081,8 @@ async function runIngestion(env, options = {}, ctx = null) {
     debug("ingest locked; skipping");
     return;
   }
+  // Budget for AI geocode calls per run — capped to control Groq rate usage
+  let _aiGeocodeBudget = 15;
   try {
     globalThis.__env = env;
     THUMBS_PREF_CACHE = await loadThumbsPrefs(env);
@@ -3186,6 +3192,23 @@ async function runIngestion(env, options = {}, ctx = null) {
                 incBase.distance_km = Math.round(n.dist);
               }
             }
+            // AI geocoding fallback: city-level precision for high-priority unlocated items
+            if (!_validCoords(incBase.lat, incBase.lng) && incBase.severity >= 3 && _aiGeocodeBudget > 0) {
+              _aiGeocodeBudget--;
+              const geo = await _aiGeocode(env, incBase.title, incBase.summary).catch(() => null);
+              if (geo && _validCoords(geo.lat, geo.lng)) {
+                incBase.lat = geo.lat;
+                incBase.lng = geo.lng;
+                if (geo.place_name && (!incBase.location || incBase.location === 'UNKNOWN')) incBase.location = geo.place_name;
+                const n = nearestDell(geo.lat, geo.lng);
+                if (n) {
+                  incBase.nearest_site_name = n.name;
+                  incBase.nearest_site_key = n.name.toLowerCase();
+                  incBase.distance_km = Math.round(n.dist);
+                }
+                debug('_aiGeocode hit (pre-AI path)', { title: incBase.title.slice(0, 80), place: geo.place_name, confidence: geo.confidence });
+              }
+            }
           }
           fresh.push(incBase);
           if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase);
@@ -3241,6 +3264,17 @@ async function runIngestion(env, options = {}, ctx = null) {
                 if (txtCountry) countryKey = txtCountry;
               }
               if (countryKey && COUNTRY_COORDS[countryKey]) { inc.lat = COUNTRY_COORDS[countryKey].lat; inc.lng = COUNTRY_COORDS[countryKey].lng; }
+              // AI geocoding fallback: city-level precision for high-priority unlocated items
+              if (!_validCoords(inc.lat, inc.lng) && inc.severity >= 3 && _aiGeocodeBudget > 0) {
+                _aiGeocodeBudget--;
+                const geo = await _aiGeocode(env, inc.title, inc.summary).catch(() => null);
+                if (geo && _validCoords(geo.lat, geo.lng)) {
+                  inc.lat = geo.lat;
+                  inc.lng = geo.lng;
+                  if (geo.place_name && (!inc.location || inc.location === 'UNKNOWN')) inc.location = geo.place_name;
+                  debug('_aiGeocode hit (AI path)', { title: inc.title.slice(0, 80), place: geo.place_name, confidence: geo.confidence });
+                }
+              }
             }
             if (_validCoords(inc.lat, inc.lng)) {
               const n = nearestDell(inc.lat, inc.lng);
@@ -3365,6 +3399,46 @@ async function runIngestion(env, options = {}, ctx = null) {
       // --- Proximity: helper predicate and per-site dedupe ---
       async function shouldIncludeInProximity(env, incident, nearestSite, ctx = undefined) {
         try {
+          const _titleRaw = String(incident.title || '');
+          const _textRaw  = _titleRaw + ' ' + String(incident.summary || '');
+
+          // ── CRITICAL HAZARD OVERRIDE ──────────────────────────────────────────
+          // Cat 3+ cyclones, M6+ earthquakes and tsunamis near Dell APJC/EMEA/AMER
+          // regions ALWAYS appear in proximity even when GPS coords are missing.
+          // We match region keywords and assign the nearest Dell site as the anchor.
+          const CRIT_HAZARD_RE = /\b(tropical\s+cyclone|hurricane|typhoon|super\s+typhoon|category\s*[3-5]|cat\.?\s*[3-5]|magnitude\s*[6-9]|m\s*[6-9]\.[0-9]|major\s+earthquake|devastating\s+earthquake|severe\s+earthquake|tsunami\s+warning)\b/i;
+          if (!_validCoords(incident.lat, incident.lng) && CRIT_HAZARD_RE.test(_textRaw)) {
+            const REGIONAL_ANCHORS = [
+              { re: /\b(queensland|new south wales|victoria|western australia|south australia|northern territory|australia|darwin|brisbane|sydney|melbourne|perth|adelaide|townsville|cairns|far north)\b/i,
+                lat: -27.4698, lng: 153.0251, name: 'Dell Brisbane' },
+              { re: /\b(japan|tokyo|osaka|kyushu|hokkaido|okinawa|honshu)\b/i,
+                lat: 35.6762, lng: 139.6503, name: 'Dell Tokyo' },
+              { re: /\b(taiwan|taipei|kaohsiung|hsinchu|taichung)\b/i,
+                lat: 25.0330, lng: 121.5654, name: 'Dell Taipei' },
+              { re: /\b(malaysia|penang|kuala lumpur|johor|sabah|sarawak)\b/i,
+                lat: 5.4164, lng: 100.3327, name: 'Dell Penang' },
+              { re: /\b(india|chennai|bangalore|hyderabad|mumbai|andhra|tamil\s+nadu|odisha|gujarat)\b/i,
+                lat: 12.9716, lng: 77.5946, name: 'Dell Bangalore' },
+              { re: /\b(singapore|straits?\s+of\s+singapore)\b/i,
+                lat: 1.3521, lng: 103.8198, name: 'Dell Singapore' },
+              { re: /\b(philippines|manila|luzon|visayas|mindanao|cebu|davao)\b/i,
+                lat: 1.3521, lng: 103.8198, name: 'Dell Singapore' },
+              { re: /\b(south\s+china\s+sea|east\s+china\s+sea|bay\s+of\s+bengal|arabian\s+sea|pacific)\b/i,
+                lat: 5.4164, lng: 100.3327, name: 'Dell Penang' },
+              { re: /\b(ireland|limerick|dublin|cork)\b/i,
+                lat: 52.6638, lng: -8.6267, name: 'Dell Limerick' },
+              { re: /\b(texas|austin|round rock|oklahoma)\b/i,
+                lat: 30.5083, lng: -97.6788, name: 'Dell Round Rock HQ' },
+            ];
+            for (const anchor of REGIONAL_ANCHORS) {
+              if (anchor.re.test(_textRaw)) {
+                const dist = haversineKm(anchor.lat, anchor.lng, anchor.lat, anchor.lng); // 0 — regional
+                typeof debug === 'function' && debug('critical_hazard_regional', { title: _titleRaw.slice(0,80), anchor: anchor.name });
+                return { include: true, reason: 'critical_hazard_regional', distanceKm: 0, nearest_site_name: anchor.name };
+              }
+            }
+          }
+
           // Validate coords
           if (!_validCoords(incident.lat, incident.lng)) {
             return { include: false, reason: 'invalid_coords' };
@@ -4016,7 +4090,22 @@ async function handleApiProximity(env, req) {
       }
     }
   } catch (e) { typeof debug === 'function' && debug('handleApiProximity dislike filter error', e?.message || e); }
-  return { ok: true, status: 200, body: prox };
+
+  // Attach global disruptions (read separately — never user-filtered)
+  let globalDisruptions = [];
+  try {
+    const gd = await kvGetJson(env, GLOBAL_DISRUPTIONS_KV_KEY, { disruptions: [], updated_at: null });
+    globalDisruptions = Array.isArray(gd.disruptions) ? gd.disruptions : [];
+  } catch(e) { typeof debug === 'function' && debug('handleApiProximity global_disruptions error', e?.message || e); }
+
+  return {
+    ok: true, status: 200,
+    body: {
+      incidents: prox.incidents,
+      updated_at: prox.updated_at,
+      global_disruptions: globalDisruptions
+    }
+  };
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -6989,6 +7078,176 @@ async function moduleFetch(request, env, ctx) {
   return handleRequest(request, env, ctx);
 }
 
+/* ===========================
+   AI GEOCODING — Groq-powered city/region coordinate extraction
+   Only called during cron ingestion (NOT per user request).
+   Budget-capped to max 15 calls per run to stay under rate limits.
+   =========================== */
+async function _aiGeocode(env, title, summary) {
+  if (!env || !env.GROQ_API_KEY) return null;
+  try {
+    const prompt = `Extract the primary geographic location from this news headline and return ONLY a JSON object.
+Headline: "${String(title || '').slice(0, 200)}"
+Context: "${String(summary || '').slice(0, 300)}"
+Return format: {"lat": number, "lng": number, "place_name": "string", "confidence": "high|medium|low", "affected_radius_km": number}
+Rules:
+- lat/lng: decimal degrees of the most specific affected location (city preferred over country center)
+- place_name: most specific place name (city, district, or country)
+- confidence: high=specific city/area known, medium=region/country known, low=vague
+- affected_radius_km: estimated blast radius (10 for city incident, 50 for regional, 200 for country-wide)
+- If no clear geographic location can be determined, return: {"lat": null, "lng": null, "confidence": "none"}
+Return ONLY the JSON object, no explanation, no markdown.`;
+
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 100,
+        temperature: 0
+      })
+    });
+    if (!resp || !resp.ok) return null;
+    const data = await resp.json();
+    const text = (data?.choices?.[0]?.message?.content || '').trim();
+    const match = text.match(/\{[\s\S]*?\}/);
+    if (!match) return null;
+    const geo = JSON.parse(match[0]);
+    if (!geo || geo.confidence === 'none' || geo.lat === null || geo.lng === null) return null;
+    if (!_validCoords(geo.lat, geo.lng)) return null;
+    return {
+      lat: Number(geo.lat),
+      lng: Number(geo.lng),
+      place_name: String(geo.place_name || ''),
+      confidence: geo.confidence || 'low',
+      affected_radius_km: Number(geo.affected_radius_km) || 50
+    };
+  } catch(e) {
+    typeof debug === 'function' && debug('_aiGeocode error', e?.message || e);
+    return null;
+  }
+}
+
+/* ===========================
+   GLOBAL DISRUPTION SCAN — runs each cron cycle after ingestion
+   Scans all recent incidents for critical global-impact events:
+   - Earthquakes ≥ M6.0 (anywhere — tsunami/infrastructure risk)
+   - Cat 3+ cyclones / major hurricanes / super typhoons
+   - Strategic strait / chokepoint closures or attacks
+   - Semiconductor region conflicts (Taiwan, Malaysia, Korea supply chain)
+   Results stored in GLOBAL_DISRUPTIONS_KV_KEY for /api/proximity endpoint.
+   =========================== */
+async function runGlobalDisruptionScan(env) {
+  try {
+    const incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
+    if (!Array.isArray(incidents) || incidents.length === 0) return;
+
+    const now = Date.now();
+    const WINDOW_MS = 48 * 3600 * 1000; // 48-hour rolling window
+    const recent = incidents.filter(i => {
+      try { return now - new Date(i.time || i.timestamp || 0).getTime() < WINDOW_MS; } catch { return false; }
+    });
+
+    const disruptions = [];
+
+    const MAJOR_QUAKE_RE = /(?:magnitude|m)\s*([6-9]\d*\.?\d*|[0-9]+\.?[0-9]*)\s*(?:earthquake|quake)?|([6-9]\.[0-9])\s*(?:magnitude|m\b)/i;
+    const CYCLONE_CAT3_RE = /\b(?:category\s*[3-5]|cat\.?\s*[3-5]|super\s+typhoon|super-typhoon|major\s+(?:hurricane|cyclone|typhoon))\b/i;
+    const STRAIT_BLOCKADE_RE = /\b(?:strait\s+of|hormuz|strait\s+of\s+malacca|suez\s+canal|bosphorus|taiwan\s+strait|red\s+sea|bab.?el.?mandeb|panama\s+canal)\b[\s\S]{0,100}\b(?:clos|block|seiz|attack|mine|drone|missile|threat)/i;
+    const TECH_SUPPLY_RE = /\b(?:tsmc|hsinchu|taiwan\s+semiconductor|south\s+korea.*chip|samsung\s+fab|sk\s+hynix|penang.*semiconductor|malaysia.*chip\s+fab|johor.*data\s+cent|singapore.*wafer|chipmaker|fab\s+plant)\b/i;
+    const CONFLICT_ESCALATION_RE = /\b(?:invasion|blockade|full.scale|nuclear|sanctions.*chip|export\s+ban.*semiconductor|war\s+declaration)\b/i;
+
+    for (const inc of recent) {
+      const text = ((inc.title || '') + ' ' + (inc.summary || '')).toLowerCase();
+      const rawText = (inc.title || '') + ' ' + (inc.summary || '');
+      const cat = String(inc.category || '').toUpperCase();
+      const mag = Number(inc.magnitude || 0);
+      const sev = Number(inc.severity || 0);
+
+      // ── 1. Major earthquake ≥ M6.0 ──
+      let isMajorQuake = false;
+      if (mag >= 6.0) {
+        isMajorQuake = true;
+      } else if (cat === 'NATURAL' || /earthquake|quake/i.test(rawText)) {
+        const qm = rawText.match(/\b([6-9]\.[0-9])\s*(?:magnitude|m\b|richter)?|\bm\s*([6-9]\.[0-9])\b/i);
+        if (qm) {
+          const parsedMag = parseFloat(qm[1] || qm[2]);
+          if (parsedMag >= 6.0) { isMajorQuake = true; }
+        }
+      }
+      if (isMajorQuake) {
+        disruptions.push({
+          type: 'MAJOR_EARTHQUAKE', icon: '🌍',
+          title: inc.title, summary: inc.summary,
+          magnitude: mag || null,
+          location: inc.location && inc.location !== 'UNKNOWN' ? inc.location : (inc.country && inc.country !== 'GLOBAL' ? inc.country : 'Unknown'),
+          lat: inc.lat, lng: inc.lng, time: inc.time, source: inc.source, link: inc.link,
+          severity: mag >= 7.0 ? 5 : 4
+        });
+        continue;
+      }
+
+      // ── 2. Cat 3+ Cyclone / Major Hurricane / Super Typhoon ──
+      if (CYCLONE_CAT3_RE.test(rawText)) {
+        disruptions.push({
+          type: 'MAJOR_CYCLONE', icon: '🌀',
+          title: inc.title, summary: inc.summary,
+          location: inc.location && inc.location !== 'UNKNOWN' ? inc.location : (inc.country && inc.country !== 'GLOBAL' ? inc.country : 'Unknown'),
+          lat: inc.lat, lng: inc.lng, time: inc.time, source: inc.source, link: inc.link,
+          severity: Math.max(sev, 4)
+        });
+        continue;
+      }
+
+      // ── 3. Strategic strait / chokepoint blockade or attack ──
+      if (STRAIT_BLOCKADE_RE.test(rawText)) {
+        disruptions.push({
+          type: 'SUPPLY_CHAIN_CHOKEPOINT', icon: '⚓',
+          title: inc.title, summary: inc.summary,
+          location: inc.location && inc.location !== 'UNKNOWN' ? inc.location : 'Maritime Chokepoint',
+          lat: inc.lat, lng: inc.lng, time: inc.time, source: inc.source, link: inc.link,
+          severity: Math.max(sev, 4)
+        });
+        continue;
+      }
+
+      // ── 4. Semiconductor / tech supply-chain conflict escalation ──
+      if (TECH_SUPPLY_RE.test(rawText) && CONFLICT_ESCALATION_RE.test(rawText)) {
+        disruptions.push({
+          type: 'TECH_SUPPLY_RISK', icon: '💾',
+          title: inc.title, summary: inc.summary,
+          location: inc.location && inc.location !== 'UNKNOWN' ? inc.location : (inc.country && inc.country !== 'GLOBAL' ? inc.country : 'Unknown'),
+          lat: inc.lat, lng: inc.lng, time: inc.time, source: inc.source, link: inc.link,
+          severity: Math.max(sev, 3)
+        });
+        continue;
+      }
+    }
+
+    // Deduplicate by title prefix (first 80 chars)
+    const seen = new Set();
+    const unique = disruptions.filter(d => {
+      const key = String(d.title || '').toLowerCase().slice(0, 80);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    unique.sort((a, b) => (b.severity || 0) - (a.severity || 0));
+
+    await env.INTEL_KV.put(
+      GLOBAL_DISRUPTIONS_KV_KEY,
+      JSON.stringify({ disruptions: unique.slice(0, 20), updated_at: new Date().toISOString() }),
+      { expirationTtl: 172800 } // 48h TTL
+    );
+    typeof debug === 'function' && debug('runGlobalDisruptionScan', `stored ${unique.length} disruptions`);
+  } catch(e) {
+    typeof debug === 'function' && debug('runGlobalDisruptionScan error', e?.message || e);
+  }
+}
+
 async function moduleScheduled(evt, env, ctx) {
   try {
     if (ctx && ctx.waitUntil) {
@@ -6997,12 +7256,14 @@ async function moduleScheduled(evt, env, ctx) {
           await runIngestion(env, {}, ctx);
           await refreshTravelData(env, {});
           await aggregateThumbs(env, {});
+          await runGlobalDisruptionScan(env);
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
     } else {
       await runIngestion(env, {});
       await refreshTravelData(env, {});
       await aggregateThumbs(env, {});
+      await runGlobalDisruptionScan(env);
     }
   } catch (e) {
     debug("scheduled wrapper err", e?.message || e);
