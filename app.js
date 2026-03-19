@@ -1224,11 +1224,23 @@ function renderIncidentsOnMap(region, list) {
  *  • Minor natural disasters (severity < 3, no major impact keywords)
  */
 // Sources that belong exclusively to the Insider & Leaks tab — exclude from Intelligence feed
-const INSIDER_SOURCES = ['thelayoff.com','glassdoor.com','blind','theladders','levels.fyi','teamblind'];
+const INSIDER_SOURCES = [
+  // Direct insider/workforce sites
+  'thelayoff.com','glassdoor.com','blind','theladders','levels.fyi','teamblind',
+  // Reddit layoff/workforce subreddits — full URL fragment match
+  'reddit.com/r/layoffs','reddit.com/r/antiwork','reddit.com/r/cscareerquestions',
+  'reddit.com/r/jobs/search','reddit.com/r/dell',
+  // Google News layoff/workforce search feeds
+  'news.google.com/rss/search?q=dell+layoff','news.google.com/rss/search?q=dell+workforce',
+  'news.google.com/rss/search?q=dell+headcount','news.google.com/rss/search?q=dell+breach',
+  'news.google.com/rss/search?q=dell+hack','news.google.com/rss/search?q=dell+data+leak',
+  'news.google.com/rss/search?q=dell+insider','news.google.com/rss/search?q=%22dell%22+layoff',
+];
 // Categories assigned by Worker to insider/workforce intel
 const INSIDER_CATEGORIES = ['INSIDER','LEAK','WORKFORCE','BRAND_MONITORING','LAYOFF'];
-// Titles mentioning Dell specifically in workforce/insider context
-const INSIDER_TITLE_RE = /\b(layoff|lay.off|laid.off|reorg|headcount|workforce|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders.*say|whistle.?blow|volunteer.*layoff|plunging.*sales|private cloud portfolio)\b/i;
+// Workforce/insider keywords — ANY article matching these goes to Insider & Leaks only
+// NOTE: \b at end intentionally omitted so plurals (layoffs, reorgs) are caught too
+const INSIDER_TITLE_RE = /\b(layoffs?|lay[\s\-]?offs?|laid[\s\-]?off|reorg|headcount|workforce reduction|employees.*volunteer|getting leaner|shrink its|cuts.*jobs|job cuts|position.*eliminat|insiders?.*say|whistle.?blow|volunteer.*layoff|plunging.*sales|private cloud portfolio|dell.*cuts|dell.*job|dell.*workforce|dell.*headcount|dell.*layoff|dell.*reorg)\b/i;
 // Keywords that qualify as TRULY breaking security/geopolitical news for the breaking bar
 const BREAKING_NEWS_RE = /\b(killed|dead|deaths?|casualties|wounded|explosion|bomb(?:ing)?|terror(?:ist|ism)?|attacks?|war|invasion|invad|missile|airstrike|coup|earthquake|tsunami|hurricane|tropical storm|state of emergency|emergency declared|evacuated?|crash(?:ed)?|hijack|shooting|hostage|kidnap|cyber.?attack|data breach|ransomware|critical infrastructure|nuclear|chemical weapon|biological|sanctions|troops|military|warship|fighter.?jet|conflict|blockade|seized|maritime|sabotage|pipeline|cable|port closed|no-fly zone|airspace closed|assassination|assassinat|diplomatic|expelled|detained|arrested|strait|disruption|threat|imminent|escalat|intercept|deployed|naval|submarine|chaos|crisis|alert|shutdown|strikes?|riot|clashes?|gunfire|shelling|drone|intelligence|spy|espionage|hack(?:ed|ers?)?)\b/i;
 
@@ -1248,9 +1260,12 @@ function _feedIncidentFilter(inc) {
   // ── Insider & Leaks exclusion gate — keep these items only in the Insider & Leaks tab ──
   const isInsiderSource = INSIDER_SOURCES.some(s => srcUrl.includes(s));
   if (isInsiderSource) return false;
+  // Reddit is NEVER credible enough for the Intel feed — forum/rumour source
+  if (srcUrl.includes('reddit.com') || srcUrl.includes('redd.it')) return false;
   if (INSIDER_CATEGORIES.includes(cat)) return false;
-  // Dell-specific workforce/insider headlines → Insider & Leaks tab only
-  if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE.test(title)) return false;
+  // ANY workforce/layoff headline → Insider & Leaks only (not just Dell-specific)
+  // Covers: "Dell Says Job Cuts Will Continue", "Dell staff not surprised about layoffs", etc.
+  if (INSIDER_TITLE_RE.test(title) || INSIDER_TITLE_RE.test(summary)) return false;
 
   // ── CISA strict gate ────────────────────────────────────────────────────────
   // CISA content is only relevant when it directly names Dell (the company or its
