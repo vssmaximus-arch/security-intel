@@ -24,18 +24,6 @@
     "locations": []
   },
   {
-    "title": "How the war may affect money and bills",
-    "url": "https://www.bbc.com/news/articles/c2e4ygndjpwo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Physical security event.",
-    "body": "The conflict in the Middle East could raise the cost of petrol, household energy bills and even food.",
-    "source": "bbc.com",
-    "time": "2026-03-19T09:29:09+00:00",
-    "region": "EMEA",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Identity protection firm Aura suffers data breach exposing 900 000 records",
     "url": "https://cyberinsider.com/identity-protection-firm-aura-suffers-data-breach-exposing-900000-records/",
     "snippet": "Cybersecurity incident detected.",
@@ -45,18 +33,6 @@
     "region": "Global",
     "severity": 3,
     "type": "CYBER SECURITY",
-    "locations": []
-  },
-  {
-    "title": "US intelligence chief says Iran's regime 'intact' but 'degraded'",
-    "url": "https://www.bbc.com/news/articles/c1d6dk569w6o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Physical security event.",
-    "body": "Lawmakers pressed intelligence officials about the Iran war, and if the Islamic Republic had posed an imminent threat.",
-    "source": "bbc.com",
-    "time": "2026-03-18T22:18:19+00:00",
-    "region": "Global",
-    "severity": 3,
-    "type": "PHYSICAL SECURITY",
     "locations": []
   },
   {
@@ -93,6 +69,18 @@
     "region": "Global",
     "severity": 3,
     "type": "CYBER SECURITY",
+    "locations": []
+  },
+  {
+    "title": "What's happening to gas prices and how could it affect you?",
+    "url": "https://www.bbc.com/news/articles/cj6d66w0995o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Supply chain or logistics disruption.",
+    "body": "Analysts fear the disruption to supply could continue for longer than initially thought.",
+    "source": "bbc.com",
+    "time": "2026-03-19T13:56:20+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "SUPPLY CHAIN",
     "locations": []
   },
   {
@@ -228,24 +216,12 @@
     "locations": []
   },
   {
-    "title": "M 4.8 - Fiji region",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sh9d",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Time 2026-03-18 20:51:06 UTC 2026-03-18 20:51:06 UTC at epicenter Location 19.388°S 177.591°W Depth 572.49 km (355.73 mi)",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.916019+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "M 4.7 - 52 km NE of Misawa, Japan",
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sh9j",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-18 21:23:02 UTC 2026-03-18 21:23:02 UTC at epicenter Location 40.952°N 141.908°E Depth 64.38 km (40.00 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.858818+00:00",
+    "time": "2026-03-19T14:22:37.719526+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -257,7 +233,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-18 22:07:55 UTC 2026-03-18 22:07:55 UTC at epicenter Location 19.772°N 74.294°W Depth 10.99 km (6.83 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.808884+00:00",
+    "time": "2026-03-19T14:22:37.672640+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -269,7 +245,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-19 02:07:29 UTC 2026-03-19 02:07:29 UTC at epicenter Location 59.327°S 25.989°W Depth 35.00 km (21.75 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.763014+00:00",
+    "time": "2026-03-19T14:22:37.617877+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -281,7 +257,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-19 06:26:36 UTC 2026-03-19 06:26:36 UTC at epicenter Location 21.437°S 68.859°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.712900+00:00",
+    "time": "2026-03-19T14:22:37.566375+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -293,7 +269,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "PAGER - GREEN ShakeMap - IV Time 2026-03-19 07:43:31 UTC 2026-03-19 07:43:31 UTC at epicenter Location 49.169°N 156.080°E Depth 37.61 km (23.37 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.659863+00:00",
+    "time": "2026-03-19T14:22:37.520328+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -305,7 +281,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "PAGER - GREEN ShakeMap - III Time 2026-03-19 11:36:45 UTC 2026-03-19 11:36:45 UTC at epicenter Location 4.977°N 82.576°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.610106+00:00",
+    "time": "2026-03-19T14:22:37.462945+00:00",
     "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -317,32 +293,68 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-19 12:48:49 UTC 2026-03-19 12:48:49 UTC at epicenter Location 49.077°N 156.260°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-19T13:34:41.555396+00:00",
+    "time": "2026-03-19T14:22:37.416266+00:00",
     "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
   },
   {
-    "title": "World's longest coastal path opens in England",
+    "title": "M 4.8 - 114 km SSW of Severo-Kuril’sk, Russia",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000shf6",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Time 2026-03-19 13:43:37 UTC 2026-03-19 13:43:37 UTC at epicenter Location 49.673°N 155.737°E Depth 54.35 km (33.77 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-19T14:22:37.362866+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Stay at home advice questioned and rules too tough - key findings from Covid report",
+    "url": "https://www.bbc.com/news/articles/c87wg0lvnxjo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "An NHS close to collapse, patients failed and NHS staff put at risk - what you need to know.",
+    "source": "bbc.com",
+    "time": "2026-03-19T14:02:44+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Parents jailed after letting 'skeletal' five-stone daughter die",
+    "url": "https://www.bbc.com/news/articles/cd9g9gnkxq2o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Steffie Davies was found dead and in an \"almost skeletal\" state by paramedics who were called to her home.",
+    "source": "bbc.com",
+    "time": "2026-03-19T14:01:35+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Gas price soars 25% after strikes on Qatar hub",
+    "url": "https://www.bbc.com/news/articles/c78x83lpgngo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Energy costs jump after fresh strikes hit key infrastructure in the Middle East.",
+    "source": "bbc.com",
+    "time": "2026-03-19T13:58:09+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "King opens world's longest coastal path around England",
     "url": "https://www.bbc.com/news/articles/cy0dxexdd8xo?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "The King Charles coastal path will allow walkers right of access to the entire coast for the first time.",
     "source": "bbc.com",
     "time": "2026-03-19T13:16:08+00:00",
     "region": "EMEA",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Afroman wins legal battle over songs mocking US police",
-    "url": "https://www.bbc.com/news/articles/cq57557d6p6o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "The rapper was sued after releasing an entire album ridiculing the officers who raided his home.",
-    "source": "bbc.com",
-    "time": "2026-03-19T12:36:47+00:00",
-    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -355,6 +367,18 @@
     "source": "bbc.com",
     "time": "2026-03-19T12:13:04+00:00",
     "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Famed Texas tech company reportedly cuts another 11,000 jobs - MySA",
+    "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOQ1d1eFg2R3M0dkVvcExjZGZOT3B6SXZsa0toNWtzWnZ2UG9lUE5YaGZYMks4eUw5VG42ZlFGNGo4SGhrQ1ByeFowallyd2dQdHJ4aDVzekY1WXc1REJsX0toSFdqbkk4UFp1cVAzN1JhYnlvTDUzR2ZnN1RyeUQwLTVmREEybTRJM2RNZy13?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Famed Texas tech company reportedly cuts another 11,000 jobs MySA",
+    "source": "news.google.com",
+    "time": "2026-03-19T11:13:32+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -504,18 +528,6 @@
     "locations": []
   },
   {
-    "title": "Dell vs HP: 2 Legacy Tech Giants, 2 Very Different AI Bets - 24/7 Wall St.",
-    "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNTXVOTjdzaXFhcV9NcFRla1kySGNabzlmaVRNT1p6ak43Ym1YNTRJTVlYSUt4bi1qVEdWZi01a2dYVUZUdV8zcWJENGV1VWd1aTZ0bXp4SDJJMmhBR2o1UDVvdkctc0gxeHlRSld2X3FKSE44cHBtVmxHZGVrRm5BRllrSW96YXVjZ3FFSEdyRFpMUFZqRXd3a0JJU3pSbzdRalE?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Dell vs HP: 2 Legacy Tech Giants, 2 Very Different AI Bets 24/7 Wall St.",
-    "source": "news.google.com",
-    "time": "2026-03-17T11:45:07+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Dell Has Reduced Its Workforce By 27 Percent From FY 2023 to FY 2026 - crn.com",
     "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNMWVHLWZTd3JSV3FMUklMa1NNS1ZPbHA2SlVIN2lsYUZ6UHRsai1sa08wdXVWdlQ0OHJYRTVOdHVjNm1LU2tIT0JVQzM4b2hyZE8tck5WWnhyZnliREpuMEJPR2JGZThBZEo1ZUhoOGtlZTNTMGlBalVjMXRNMElDUk96RlpqMTVJN1JwY01IWUQtNjUwSkVldC1tLUZxU1FGTHBYNTh5djlIZ05KeGVj?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -600,18 +612,6 @@
     "locations": []
   },
   {
-    "title": "Thomson Reuters (TRI) Taps Dell Executive to Be CFO as Focus on AI Grows - TipRanks",
-    "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOeURDdlJNTTI5MUZaZmYzUkhFZEpaNVotY25PTGFBdFN0MnhRMEQwQTFtWFNSSl9vZ1dsZmo3NDg5d0ktWVRWcnBqZjc1RWFpbTRYTU5xLVJ0aVVGREI3bFROeFZ0Q3gyc0txNFdaY0hUU21ERGFvUlRzU3BkZTF6MkVEQzZHVDlDUGVUVDZVd1A2WkNwOWU5YkZpSHhZbV9OVlE?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Thomson Reuters (TRI) Taps Dell Executive to Be CFO as Focus on AI Grows TipRanks",
-    "source": "news.google.com",
-    "time": "2026-03-02T08:00:00+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "China-linked hackers exploited Dell zero-day since 2024 (CVE-2026-22769) - Help Net Security",
     "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQSzZVclIwVVpSU2xqaU9TYTAxQWh2dXJQWFRlMGN0RDVyRGNhdVBWZEs2dkxlLTgxUUhTOTJBX28tOS1zZ3p2YjhCWmVmQkVxMnhQY0lBckt2bEpqMkN6VjJYWks3SXVDR1ZWcGdGNlZod2JGeS12Y2hPb1JrWW02SUlPVmU2MmVYYnZDazlzRW5ucXhVZWRhYWRZWkZxOEZtS0ZnOA?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -660,20 +660,8 @@
     "locations": []
   },
   {
-    "title": "What Dell’s “One Dell Way” overhaul signals to IT leaders - Spiceworks",
-    "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPUzAwWElOTnNJR1k2SnNTZXNtM3h6RFdpczRGMDd0Rlgzb2pqMEMwZXliMmFyYTdXNjZRb3dlazl1Yk5NZXhxUUQ0TkRLbUN4M05EdFdkLVp5Vnp2S1RmOHJTLURUUkJGbDlWek5TcGN0dlV5blZDMWZSRWp4NGs5OHVJTFdBZlI4dlFSNlFrOGtZZjhIcFE?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "What Dell’s “One Dell Way” overhaul signals to IT leaders Spiceworks",
-    "source": "news.google.com",
-    "time": "2026-01-16T08:00:00+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Apple and Dell Face Soaring Memory Prices. How the Stocks Can Handle the Threat. - Barron's",
-    "url": "https://news.google.com/rss/articles/CBMiiANBVV95cUxQaDYwWGNPclhFb2I5ckpDYVNTbWpfVjB3a25Mdm1PT3pSR1U0RkJiTHF0ekhDRHJ1dVhacERWUUpTU05GZFh1VXJ5V1Rkdmt0U3lKYUpCT3VmSDZGdm9WSFYtRVpHczZuZ05XT05HeXF4a05RUG5IZ2ZEMWtDWnZzZ3JMRUl1dzRjYTRBLUFObG5oZG9oOTJ3a2xHNy1JbVZkYVgtSk5pbU5lcU1CUm5aWVNlTWhqN0gxZTR0TUFQNmtIdlRQdUdDVzNlOGZ1WTYwTExsQUZXT1hqbDJ3VEM5WVRILVZTS3RvNlRxRG9OT2p4c25udkxuUnZqdEpGaEIySWJuMHRoTDQ2MXlIMWxCZkV5NVJYY05sdXdkWlYxeG0talZBMlVyS3JWTmZIRXlfOXNqUUxwR1U0OEFVanZGT25jaWg1dWpiYUdtRkpmYWJWdkp0Mnc2dHN6cGFWeWVlZW9Wd3lmSmVVdElQVVpiVWhoTjB2YmptZmRhMERpSGhiWHhWcVFhMQ?oc=5",
+    "url": "https://news.google.com/rss/articles/CBMiiANBVV95cUxPWTlmSTFlbVh2OHVQVFREbEJLaUs2ay1WdEs3SlpXZWtRQ0pFazhldDVCN0RYcWxNcXY4X1Y1UFJybkNIZE1VMDJBX3F4czhRMm9xNC1yeXlKYWppTXZXSXdTTHJSRXhBbDZFaWo3TTlySHFkY2hjc3NUdkRpaFE3ejRzaExoQWtFNEUwWFBBcDVQUEpRd3pRQzF6ZzdubTJ5RXhUbEpQMWN3RWlZZUk0RnF1bjJqdjU5dUpXUjNUNUVuSTNxWDF6d2JrOVlPMTNSdURmSGxfT2VSb0ZFWlFLRGNYY2tmdWhDbWE0eUlUZkY1N3MySnB3VGNZVVVvUHo3OGJpWV90dENLZVFPRTJmN3pITjJnSzRCUlBXdWdPWUFRMEhVQzl2MEJScWFHaE5WbWFtLTZTdUxTa2hOUzd5X0llZDFhVUZCWFg5aUFySlE0c2lmd2VaTUNMNE9STElCWFZybTlELUVuajA4VVdtb25EQ1YyUmdWUzY3ZktIMm5Qa3ZTdjk2Yg?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Apple and Dell Face Soaring Memory Prices. How the Stocks Can Handle the Threat. Barron's",
     "source": "news.google.com",
@@ -703,6 +691,18 @@
     "source": "news.google.com",
     "time": "2025-10-21T07:00:00+00:00",
     "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Insider Sale: Chief Executive Officer of $DELL Sells 6,253,968 Shares - Quiver Quantitative",
+    "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPWV9nSk0weXc5WGw0eXpNWFJIdm9oeEhWbHlhUnpWaURtWVdTellWVld4RzRGWTJSS3NwdkhveDhzdzdoNldfMXlMUkpva0VWLUFUZ1lwQzJXbmFqUXg0SHFoMkhxSkF1U3dyaXVkTGxQaWlUemFsZE8teFpHd1c1QWd5WTJBZWNyRXRtNDFlOE1tSkdOejhtOHZoXzE2X0NoWDh3UGtXNUtGUjNIM3lV?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Insider Sale: Chief Executive Officer of $DELL Sells 6,253,968 Shares Quiver Quantitative",
+    "source": "news.google.com",
+    "time": "2025-10-10T07:00:00+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
