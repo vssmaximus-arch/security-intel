@@ -272,8 +272,14 @@
     .btn-dismiss:focus { outline: 2px solid #202124; outline-offset: 2px; }
 
     .stream-section { margin-top: 25px; }
-    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+    .stream-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; flex-wrap: wrap; gap: 6px; }
     .stream-label { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+    .feed-time-btn { background: transparent; border: 1px solid #dadce0; border-radius: 4px; padding: 2px 7px; font-size: 0.7rem; font-weight: 600; color: #5f6368; cursor: pointer; transition: all .15s; }
+    .feed-time-btn:hover { background: #f1f3f4; color: #202124; }
+    .feed-time-btn.active { background: #1a73e8; border-color: #1a73e8; color: #fff; }
+    body.dark-mode .feed-time-btn { border-color: #3a3d45; color: #9aa0a6; }
+    body.dark-mode .feed-time-btn:hover { background: #2a2d35; color: #e8eaed; }
+    body.dark-mode .feed-time-btn.active { background: #1a73e8; border-color: #1a73e8; color: #fff; }
     .live-dot-blue { color: #1a73e8; font-size: 0.8rem; }
     .live-box { background: #e8f0fe; color: #1a73e8; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
 
@@ -2143,8 +2149,19 @@
                   <i class="fas fa-circle live-dot-blue"></i> Real-time Intelligence Stream
                   <span class="live-box ms-2" id="feed-status-label" aria-live="polite">Connecting…</span>
                 </div>
-                <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
-                  VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <!-- Time window filter — default 48h -->
+                  <div id="feed-time-filter" style="display:flex;gap:2px;" role="group" aria-label="Time window">
+                    <button class="feed-time-btn" data-hours="1"   aria-pressed="false">1h</button>
+                    <button class="feed-time-btn" data-hours="6"   aria-pressed="false">6h</button>
+                    <button class="feed-time-btn" data-hours="24"  aria-pressed="false">24h</button>
+                    <button class="feed-time-btn active" data-hours="48" aria-pressed="true">48h</button>
+                    <button class="feed-time-btn" data-hours="168" aria-pressed="false">7d</button>
+                    <button class="feed-time-btn" data-hours="0"   aria-pressed="false">All</button>
+                  </div>
+                  <div class="stream-links" data-action="refresh" title="Refresh feed" style="cursor:pointer;color:#1a73e8;font-weight:800;font-size:0.8rem;" role="button" tabindex="0">
+                    VIEW FULL STREAM <span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
+                  </div>
                 </div>
               </div>
               <div class="critical-alert-bar" role="alert">

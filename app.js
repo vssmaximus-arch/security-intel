@@ -22,6 +22,7 @@ let INCIDENTS = [];
 let PROXIMITY_INCIDENTS = [];
 let GLOBAL_DISRUPTIONS = [];
 let FEED_IS_LIVE = false;
+let FEED_TIME_HOURS = 48; // Default: show last 48h only (0 = All)
 let currentRadius = 50;
 let DISMISSED_ALERT_IDS = new Set();
 
@@ -1313,10 +1314,15 @@ function renderGeneralFeed(region) {
   if (region === 'APJC' && activeApjcSub) {
     rawData = rawData.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
   }
-  // Apply quality gate then category filter (if any categories are selected)
-  // Then deduplicate by normalised title (same story from multiple RSS sources = show once)
+  // Apply time window filter (default 48h — blocks old KV-cached articles)
+  const _cutoffMs = FEED_TIME_HOURS > 0 ? Date.now() - FEED_TIME_HOURS * 3600 * 1000 : 0;
+  // Apply quality gate, time filter, category filter, then deduplicate by title
   const _seen = new Set();
   const data = rawData
+    .filter(inc => {
+      if (_cutoffMs === 0) return true;
+      try { return new Date(inc.time).getTime() >= _cutoffMs; } catch { return false; }
+    })
     .filter(_feedIncidentFilter)
     .filter(filterByCategoryAllowed)
     .filter(inc => {
@@ -5466,6 +5472,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     })();
     const countrySel = document.getElementById('countrySelect'); if (countrySel) countrySel.addEventListener('change', filterTravel);
     const proxRad = document.getElementById('proxRadius'); if (proxRad) proxRad.addEventListener('change', updateProximityRadius);
+
+    // Time window filter buttons for Intelligence feed
+    document.getElementById('feed-time-filter')?.addEventListener('click', e => {
+      const btn = e.target.closest('.feed-time-btn');
+      if (!btn) return;
+      document.querySelectorAll('.feed-time-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed','true');
+      FEED_TIME_HOURS = parseInt(btn.dataset.hours, 10) || 0;
+      const active = document.querySelector('.nav-item-custom.active');
+      filterNews(active ? active.textContent.trim() : 'Global');
+    });
 
     // initial load
     await loadFromWorker();
