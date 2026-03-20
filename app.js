@@ -863,12 +863,19 @@ async function loadProximityFromWorker(silent=false) {
     }
     const json = await res.json();
     const list = Array.isArray(json.incidents) ? json.incidents : [];
-    const cutoffMs = Date.now() - (72 * 3600 * 1000); // match worker PROXIMITY_WINDOW_HOURS
+    const cutoffMs = Date.now() - (48 * 3600 * 1000); // 48h max age for proximity alerts
+    // Categories allowed in Proximity: physical/geographic threats only
+    const _PROX_ALLOWED_CATS = new Set(['NATURAL_HAZARD','SECURITY','GEOPOLITICAL','SUPPLY_CHAIN','TRANSPORT','INFRASTRUCTURE','PUBLIC_SAFETY','DISRUPTION']);
     PROXIMITY_INCIDENTS = list
       .map(normaliseWorkerIncident)
       .filter(Boolean)
       .filter(i => {
-        try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= cutoffMs; } catch { return false; }
+        // 48h hard gate
+        try { const t = new Date(i.time).getTime(); if (isNaN(t) || t < cutoffMs) return false; } catch { return false; }
+        // Block non-geographic categories — cyber, workforce, unknown are not proximity threats
+        const cat = String(i.category || '').toUpperCase();
+        if (!_PROX_ALLOWED_CATS.has(cat)) return false;
+        return true;
       })
       .filter(i => !DISLIKED_IDS.has(String(i.id))); // client-side dislike guard
     // Global Disruptions (always show — not filtered by radius)
@@ -6881,8 +6888,14 @@ function _tlRender(data) {
   const winMs  = winMsMap[win] != null ? winMsMap[win] : 259200000;
   const cutoff = winMs ? Date.now() - winMs : 0;
 
+  // Blocklist for Insider & Leaks — these categories don't belong here (marketing/PR/general news)
+  const _TL_BLOCKED_CAT_RE = /^(general|geopolitical|cyber.?security|natural.?hazard|supply.?chain|transport|infrastructure|public.?safety|disruption|security|unknown)$/i;
+
   const _tlTitleSeen = new Set();
   let filtered = cases.filter(function(c) {
+    // Block non-insider categories (General, Geopolitical, Cyber, etc. belong in Intel feed)
+    const itemCat = String(c.category || '');
+    if (itemCat && _TL_BLOCKED_CAT_RE.test(itemCat)) return false;
     if (cat  !== 'all' && c.category   !== cat)  return false;
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
