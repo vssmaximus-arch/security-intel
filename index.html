@@ -2207,7 +2207,7 @@
           <div class="grid-stack" id="sidebar-grid">
 
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="13" gs-w="12" gs-h="6" gs-min-h="4" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="17" gs-w="12" gs-h="6" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2240,7 +2240,7 @@
             </div>
 
             <!-- ② History Search -->
-            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="8" gs-w="12" gs-h="5" gs-min-h="4" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="12" gs-w="12" gs-h="5" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2307,7 +2307,7 @@
             </div>
 
             <!-- ⑤ Country Instability Index -->
-            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="19" gs-w="12" gs-h="8" gs-min-h="4" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="23" gs-w="12" gs-h="8" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -3382,8 +3382,8 @@
   (function () {
     'use strict';
 
-    var LAYOUT_KEY  = 'infohub_sidebar_layout_v4'; // bumped: proximity h12, sidebar scroll
-    var HIDDEN_KEY  = 'infohub_hidden_widgets_v4';
+    var LAYOUT_KEY  = 'infohub_sidebar_layout_v5'; // bumped: fixed widget order prox→hist→mkt→cii + STI
+    var HIDDEN_KEY  = 'infohub_hidden_widgets_v5';
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {

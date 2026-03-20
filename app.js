@@ -4971,6 +4971,30 @@ async function sendTestAlert() {
     _fetch();
     if (_timer) clearInterval(_timer);
     _timer = setInterval(_fetch, REFRESH_MS);
+
+    // Fetch ALL categories once so the LIVE ticker shows Shares, Currencies & Commodities too
+    _fetchAllForTicker();
+    setInterval(_fetchAllForTicker, REFRESH_MS);
+  }
+
+  async function _fetchAllForTicker() {
+    try {
+      var allTiles = [];
+      var cats = ['global', 'shares', 'currencies', 'commodities'];
+      for (var i = 0; i < cats.length; i++) {
+        try {
+          var r = await fetch(WORKER_URL + '/api/markets?cat=' + cats[i]);
+          var j = await r.json();
+          if (j.ok && Array.isArray(j.tiles)) allTiles = allTiles.concat(j.tiles);
+        } catch(e) { /* skip failed category */ }
+      }
+      if (allTiles.length) {
+        window._mktTickerItems = allTiles.filter(function(t){ return t.price != null; }).map(function(t) {
+          return { name: t.name, price: _fmtPrice(t.price, t.symbol), changePct: t.changePct };
+        });
+        if (typeof window.updateMainTicker === 'function') window.updateMainTicker();
+      }
+    } catch(e) { /* ignore */ }
   }
 
   window._marketsInit  = _init;
