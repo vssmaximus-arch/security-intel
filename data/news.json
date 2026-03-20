@@ -39,7 +39,7 @@
     "title": "Identity protection firm Aura suffers data breach exposing 900 000 records",
     "url": "https://cyberinsider.com/identity-protection-firm-aura-suffers-data-breach-exposing-900000-records/",
     "snippet": "Cybersecurity incident detected.",
-    "body": "Article URL: https://cyberinsider.com/identity-protection-firm-aura-suffers-data-breach-exposing-900000-records/ Comments URL: https://news.ycombinator.com/item?id=47435688 Points: 8 # Comments: 2",
+    "body": "Article URL: https://cyberinsider.com/identity-protection-firm-aura-suffers-data-breach-exposing-900000-records/ Comments URL: https://news.ycombinator.com/item?id=47435688 Points: 9 # Comments: 2",
     "source": "cyberinsider.com",
     "time": "2026-03-19T06:33:11+00:00",
     "region": "Global",
@@ -60,14 +60,14 @@
     "locations": []
   },
   {
-    "title": "The way CTRL-C in Postgres CLI cancels queries is incredibly hack-y",
-    "url": "https://neon.com/blog/ctrl-c-in-psql-gives-me-the-heebie-jeebies",
+    "title": "Dell Confirms Security Breach by Extortion Group, Calls Stolen Data ‘Fake’ - eSecurity Planet",
+    "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNVU1xdU0ydHFrRUNvUFdlVEJKaHZkTmRRV0VSbnRtb1VoMTdLRU41TDB6bnRmakZYbHZJTmFhUWZpSzc5UEJhWHV3RDZPeHprZkxUOVNsRVQ2WkNRQklFMHpiUGpGZjBuQWlhYU5aOVdVNmFlUGQxRXBEZllFNXhWcEhhVHl4SnhT?oc=5",
     "snippet": "Cybersecurity incident detected.",
-    "body": "Article URL: https://neon.com/blog/ctrl-c-in-psql-gives-me-the-heebie-jeebies Comments URL: https://news.ycombinator.com/item?id=47454127 Points: 1 # Comments: 0",
-    "source": "neon.com",
-    "time": "2026-03-20T13:21:51+00:00",
+    "body": "Dell Confirms Security Breach by Extortion Group, Calls Stolen Data ‘Fake’ eSecurity Planet",
+    "source": "news.google.com",
+    "time": "2025-07-25T07:00:00+00:00",
     "region": "Global",
-    "severity": 2,
+    "severity": 3,
     "type": "CYBER SECURITY",
     "locations": []
   },
@@ -77,10 +77,22 @@
     "snippet": "Physical security event.",
     "body": "A 34-year-old man and a 31-year-old woman were arrested at HM Naval Base Clyde, which houses UK's nuclear-armed submarines, on Thursday.",
     "source": "bbc.com",
-    "time": "2026-03-20T12:52:11+00:00",
+    "time": "2026-03-20T13:44:02+00:00",
     "region": "EMEA",
     "severity": 2,
     "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "The way CTRL-C in Postgres CLI cancels queries is incredibly hack-y",
+    "url": "https://neon.com/blog/ctrl-c-in-psql-gives-me-the-heebie-jeebies",
+    "snippet": "Cybersecurity incident detected.",
+    "body": "Article URL: https://neon.com/blog/ctrl-c-in-psql-gives-me-the-heebie-jeebies Comments URL: https://news.ycombinator.com/item?id=47454127 Points: 3 # Comments: 0",
+    "source": "neon.com",
+    "time": "2026-03-20T13:21:51+00:00",
+    "region": "Global",
+    "severity": 2,
+    "type": "CYBER SECURITY",
     "locations": []
   },
   {
@@ -93,18 +105,6 @@
     "region": "EMEA",
     "severity": 2,
     "type": "SUPPLY CHAIN",
-    "locations": []
-  },
-  {
-    "title": "Sir John Curtice: Why Labour's Brexit focus has shifted from Leavers to Remainers",
-    "url": "https://www.bbc.com/news/articles/c4gjn1d74jlo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Natural disaster or emergency.",
-    "body": "Will the pursuit of a closer relationship with the EU risk courting electoral disaster by alienating Brexit-backing voters?",
-    "source": "bbc.com",
-    "time": "2026-03-20T00:01:51+00:00",
-    "region": "Global",
-    "severity": 2,
-    "type": "CRISIS / WEATHER",
     "locations": []
   },
   {
@@ -245,7 +245,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "PAGER - GREEN ShakeMap - IV Time 2026-03-20 02:30:33 UTC 2026-03-20 02:30:33 UTC at epicenter Location 19.293°S 168.360°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.826733+00:00",
+    "time": "2026-03-20T14:20:51.998039+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -257,7 +257,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 03:35:09 UTC 2026-03-20 03:35:09 UTC at epicenter Location 26.042°N 128.411°E Depth 15.15 km (9.41 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.749153+00:00",
+    "time": "2026-03-20T14:20:51.960882+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -269,7 +269,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 05:00:26 UTC 2026-03-20 05:00:26 UTC at epicenter Location 31.719°N 40.914°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.669689+00:00",
+    "time": "2026-03-20T14:20:51.916313+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -281,7 +281,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 05:30:09 UTC 2026-03-20 05:30:09 UTC at epicenter Location 15.754°S 75.639°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.592418+00:00",
+    "time": "2026-03-20T14:20:51.878542+00:00",
     "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -293,7 +293,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 07:32:31 UTC 2026-03-20 07:32:31 UTC at epicenter Location 26.192°S 69.824°W Depth 106.02 km (65.88 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.515332+00:00",
+    "time": "2026-03-20T14:20:51.838929+00:00",
     "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -305,7 +305,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 09:05:32 UTC 2026-03-20 09:05:32 UTC at epicenter Location 39.562°N 20.542°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.459491+00:00",
+    "time": "2026-03-20T14:20:51.800290+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -317,7 +317,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 09:40:45 UTC 2026-03-20 09:40:45 UTC at epicenter Location 39.699°N 20.661°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.395221+00:00",
+    "time": "2026-03-20T14:20:51.759691+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -329,8 +329,20 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-20 12:28:09 UTC 2026-03-20 12:28:09 UTC at epicenter Location 2.241°N 96.117°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-20T13:30:10.320241+00:00",
+    "time": "2026-03-20T14:20:51.723182+00:00",
     "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Ex-Met special constable jailed for raping child",
+    "url": "https://www.bbc.com/news/articles/cvgkl9zlvdvo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "James Bubb, who now identifies as a woman, is sentenced for raping a 12-year-old girl and a woman.",
+    "source": "bbc.com",
+    "time": "2026-03-20T13:53:47+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -360,24 +372,12 @@
     "locations": []
   },
   {
-    "title": "Dell Technologies stock rises as rival Super Micro tumbles - Investing.com",
-    "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPWEl2b0Rmd2VhNDViUzBITUtYTXhBWUhWMlc2S0h2RnktcVdmQXRFMFNSNGE1RU5JRDFlMmhVVjhYTHdhN1lDSkxEUGEwc3Z6WnZMcGN5VmNZLVJndG9qLWFYVXZuamZXQVBvdC1CamFvM19VWFpMRXpTUkVxNlRjMDRwdE15NjNoY1JmYm1EMERURmxEWnFNQlZCOEQyQ1hhdlVVM3IyX1hZLWgzcEFUZ2Zqc3ljRHI3UWo3bg?oc=5",
+    "title": "Lily Allen's West End Girl portrait goes on show at National Portrait Gallery",
+    "url": "https://www.bbc.com/news/articles/cew7l8nr5jeo?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
-    "body": "Dell Technologies stock rises as rival Super Micro tumbles Investing.com",
-    "source": "news.google.com",
-    "time": "2026-03-20T11:29:30+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Mexican teen dies while being held in US immigration custody",
-    "url": "https://www.bbc.com/news/articles/cp84n0kn902o?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Royer Perez-Jimenez died amid a surge of migrant deaths under Donald Trump's immigration crackdown.",
+    "body": "The painting by Spanish artist Nieves Gonzalez was used on the cover of the singer's latest album.",
     "source": "bbc.com",
-    "time": "2026-03-20T10:57:38+00:00",
+    "time": "2026-03-20T11:15:50+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -396,7 +396,7 @@
     "locations": []
   },
   {
-    "title": "Norway's crown princess breaks silence on Epstein links: 'I was manipulated and deceived'",
+    "title": "Norway's crown princess breaks silence, claiming she was 'manipulated and deceived' by Epstein",
     "url": "https://www.bbc.com/news/articles/cde5y63y3n7o?at_medium=RSS&at_campaign=rss",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Crown Princess Mette Marit tells Norwegian TV she wishes she had never met the late sex offender.",
@@ -444,18 +444,6 @@
     "locations": []
   },
   {
-    "title": "Dell trimmed global workforce by 10% last year amid AI-fueled growth - Austin American-Statesman",
-    "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNUFRTVE9PVVdjaTRUS3JMSGg2MTZZTnJVbVhPQ1h1VGkxazd0ejI2ZU1BRjJ1YjAwUGJrMkQyX3k5cHFmd3RFbFZnYVVYZHpJWGEwUTgzSzA3M0VxWC1lZmtoX0lIN3JLVzZJUDRTOEJoV2pJUUpMVDZ5YkNUVGlMWXBLXzBGSUlhMWU2cHVNSDA1ZDE2UHdHdHVpQTh4UlYybTczeWFBQ19xcVNm?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Dell trimmed global workforce by 10% last year amid AI-fueled growth Austin American-Statesman",
-    "source": "news.google.com",
-    "time": "2026-03-18T20:17:46+00:00",
-    "region": "AMER",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Dell workforce shrinks by 10% for third consecutive year - Fox Business",
     "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNRzVhZlQ2QTJPenFwQmJBOUE5bnZpeE9IS2RVSUhFaGVKcjlHRnRXWmMtRmQwb0gwWnJhY3hZSk15QTYxRUtrZEJmNHVTaEpiYWtUTjBlaXNPN1JjRy0zWjZaakZtVkJDVEdWZ0lJV3NQOXRya3lKTG5rMkVHRE84bUVTTmpNVXRreGpDYtIBkgFBVV95cUxPbm9tRms1dXBGLVI2R3Zldk1Pb1JiTU11YVAxaEZqbUZSZEdfRVhFV2haWk5leVdHVjM0b3dwWDFqQ2lVd2VKT3R1Q29mYUx5NVg4VGQydU5xdHE1MnNDcmZLMDFSSDlyNU1SX3A5MU1fQV9zVkdOX0dqSXE1WVNuakVYZmNWMjhjcjA0MjRVaE1LQQ?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -492,6 +480,18 @@
     "locations": []
   },
   {
+    "title": "Dell continues to quietly shrink its workforce - Business Insider",
+    "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQci1FZUxyZjhfMjhxQ2tZbWcwQ3REZnJCLVVaNUdQeVU2REtJT3RKY24tdk9pb01zQy1NeEctNkQ3X3VoOXk0eWNDZE9YRHNEbUpvd3ZYS0JkMVh3UVlsNW1SYUNTOW9UdTRDTnZLakxieXRheUNmMkllakt0V1dFWDNjQ3FUY2ptbHVnSkR0OEhBWlBl?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Dell continues to quietly shrink its workforce Business Insider",
+    "source": "news.google.com",
+    "time": "2026-03-17T13:50:00+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "Dell Technologies unveils massive expansion to Dell AI Factory with Nvidia at GTC 2026 - IT Pro",
     "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxQUVhrQnc2cjAxMmdrZU45bFBFcGM2b3BKenVCZEItYVU4Ym1jXzRHR2wwMm9DMnAydEJ2NGVVVWFNSXNlT3JsOHAwZkVGUUpyYzRvRjM0Skk4VFViNUQ4R2gxVnNlSVI5cDAxdFVfQUdralMyZnh0N1ExTG04MkFreTFqU2tnbmt2THdtU2I5R2JvVDlLdVRzejFkeXJ0M19VbGJ5aVlnRk9DTjRZRk9mUEJWbEM2WENOdDFoYkJ0dDI?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -511,6 +511,18 @@
     "source": "gdacs.org",
     "time": "2026-03-17T12:00:26+00:00",
     "region": "APJC",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Dell vs HP: 2 Legacy Tech Giants, 2 Very Different AI Bets - 24/7 Wall St.",
+    "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNTXVOTjdzaXFhcV9NcFRla1kySGNabzlmaVRNT1p6ak43Ym1YNTRJTVlYSUt4bi1qVEdWZi01a2dYVUZUdV8zcWJENGV1VWd1aTZ0bXp4SDJJMmhBR2o1UDVvdkctc0gxeHlRSld2X3FKSE44cHBtVmxHZGVrRm5BRllrSW96YXVjZ3FFSEdyRFpMUFZqRXd3a0JJU3pSbzdRalE?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Dell vs HP: 2 Legacy Tech Giants, 2 Very Different AI Bets 24/7 Wall St.",
+    "source": "news.google.com",
+    "time": "2026-03-17T11:45:07+00:00",
+    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -564,18 +576,6 @@
     "locations": []
   },
   {
-    "title": "Top Dell Executive Executes Eye-Catching Multimillion-Dollar Stock Move - TipRanks",
-    "url": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxPRG4wc0JEQUNJYUZ5blcxaVAzaUQtVjJGNnZYcG9sdi1naHdWNk5oZ1hzaThfSm9TR2hVMFdCWWYtRXh3VmtsWFREU1diVEJCZDRwcExtQUExVVJab3daUHF5eFNXVUtQOTZPeXZfYnpRcG1jcHdMR2ZjUzMyUGtvcFN6T2Q2djdWNHRnZnkwYllUVlF4cHhWUF9IUGhBVE1ISmpPRWVLcGh4TldZZ2EtTVVDS2lLZmszRUZmZFY4M2pYdTNnV0Q2R1R3cnlGazk1YjlPNQ?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Top Dell Executive Executes Eye-Catching Multimillion-Dollar Stock Move TipRanks",
-    "source": "news.google.com",
-    "time": "2026-03-12T03:04:31+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Thomson Reuters names former Dell executive Bischoping as CFO - Reuters",
     "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOaUVBYXRSRjJ1c0hDajFIOXFiTnVqQVJmT1hXYWpOSkFielBCaDdRbnpfa0VnQmRucEMxSng1V1JoU1h5N01EU0loaHI1aW5GYmxWM0JibUNoR0JzMEx1VXVtZElwUHN5Qnl4ZnFFMXo4bldoWmpPcHNXeTJaN2szcENiUzBPbk8tOUItbkoxWDlMNkYxRXQ3T0FJMmRjX2VHNzN4Vjl3?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -588,12 +588,12 @@
     "locations": []
   },
   {
-    "title": "Dell Technologies (DELL) Q4 2026 Earnings Call Transcript - Fortune",
-    "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5VRDRsMWk3SmRVRzZia0VSN19aSTdGZ3NTbXdyUnpHU0paVFFWeWJRc1hLSWliZVRwdHVOcGNYWW1iMzQzTUEzdVV2VGNtREx0a0ZjQ2UyNWVfY0tDOWViYUFJV2JjNXZHeHdkcG9VTFU?oc=5",
+    "title": "Thomson Reuters (TRI) Taps Dell Executive to Be CFO as Focus on AI Grows - TipRanks",
+    "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOeURDdlJNTTI5MUZaZmYzUkhFZEpaNVotY25PTGFBdFN0MnhRMEQwQTFtWFNSSl9vZ1dsZmo3NDg5d0ktWVRWcnBqZjc1RWFpbTRYTU5xLVJ0aVVGREI3bFROeFZ0Q3gyc0txNFdaY0hUU21ERGFvUlRzU3BkZTF6MkVEQzZHVDlDUGVUVDZVd1A2WkNwOWU5YkZpSHhZbV9OVlE?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
-    "body": "Dell Technologies (DELL) Q4 2026 Earnings Call Transcript Fortune",
+    "body": "Thomson Reuters (TRI) Taps Dell Executive to Be CFO as Focus on AI Grows TipRanks",
     "source": "news.google.com",
-    "time": "2026-02-27T08:00:00+00:00",
+    "time": "2026-03-02T08:00:00+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -636,30 +636,6 @@
     "locations": []
   },
   {
-    "title": "Fed agencies ordered to patch Dell bug by Saturday after exploitation warning - The Record from Recorded Future News",
-    "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQLVBwOFV3dVNoZGFBMUNYQ2JkLWlvaFIwbWMwSEFOT2tic1lRNjM2cGx2UjBwWndZaUZsemI0bmpoTW9HRnBXU1ZKVWJjczc1aVVsejBYbUt2UEZZeTJCOENDbl81bm5TRFZGaWozbWRveFpPV2p3eThZSmhTVTdMMXMwR3pSanRoYVJ1cnBya3Q1OG8?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Fed agencies ordered to patch Dell bug by Saturday after exploitation warning The Record from Recorded Future News",
-    "source": "news.google.com",
-    "time": "2026-02-18T08:00:00+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Dell RecoverPoint for VMs Zero-Day CVE-2026-22769 Exploited Since Mid-2024 - The Hacker News",
-    "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOeGZ6czdSQlNncmpRTm91ay02b1VzczFWeGtuWHdRVjhmX1ZOQmh6c253c0RrT0VzbnRiMl9IOTA1bWVVNVo3b1hraDJGcG4yZVdibTAwQldkRURMWXdhMXJFWHlzQ2pHM3hmaFR3Y05FdEZrWEFGbWs4aThUaTNtcWpESQ?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Dell RecoverPoint for VMs Zero-Day CVE-2026-22769 Exploited Since Mid-2024 The Hacker News",
-    "source": "news.google.com",
-    "time": "2026-02-18T08:00:00+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Chinese hackers exploited a Dell zero-day for 18 months before anyone noticed - CyberScoop",
     "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBlamhaS0NxZWttR0dVeWgxUDY1OURHaHdnTkpXaXBvc2t3cDZBc25ROERIMGgwckRmMlFEQVU3TXlIaVczS0pKRHlTN2tGaHNJWjByRmdpc3JjTkJaOEFMdU9rQ3hHTTlxZXEtY3pGMFE?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -684,8 +660,20 @@
     "locations": []
   },
   {
+    "title": "RTO resistance | Dell's five-day in-office push exposes growing workplace tension - HR Grapevine",
+    "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxNVndVc1RWVTFOeXF2R29DeFYtajdFNWlvdUpBWWJsTFpsdzZwOW9NMGtxQ2plSG1SSzFrbVZXX21KS29UdldFVUVRTF9OcUdpdy1HN3Y4RXBvSDJ0aFRDb1V0bF9RZEdRcjV0ZlJSWnRHMGxUUFE3S1lTRm5wbTNCNVh3eE1MOUtoa0JVSmgtOUprdHdiTm9nS2NDZXR5bHR2RC03OEVFWUtIV3p2N3Z2eEVNaEJwREtIekdWalpITmFEZlVmeVJB?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "RTO resistance | Dell's five-day in-office push exposes growing workplace tension HR Grapevine",
+    "source": "news.google.com",
+    "time": "2026-01-07T08:00:00+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "Apple and Dell Face Soaring Memory Prices. How the Stocks Can Handle the Threat. - Barron's",
-    "url": "https://news.google.com/rss/articles/CBMiiANBVV95cUxQVjlweU02MWh1aU1ISUJzaXRQWnBfUWt4QVZWZXY1bjdNOWJHZ1pYa0JCUFpCR080QlZVMjR3ZkpFcVlISzFORnhwOThMWm5IMHJJSlBQRnBxa0ExM3VNTUV5RlRSM1lpLUdWWFhNaC1qeXpwWnNUbEtzdFBETzJKak5rSjBmbDRiNTY1eEV2VzQxU0h5bjRzdS1MTXZLNldRZHZodFZ6T1RYejQzNWJFZ2p5dTZfSndVcU8zZWR5cDYxaTBlV1pPS0cwc0plMEMxcW5jT3haWWl6MEdneWxWazZSVEFlQXVTUUNRWGRpcFZneDNrN3M3QXIxWnRSSzVHV1ctRTVtUGEwdVJMNDlKU3FEenJPd2RPaHI3bWtfOE5mTnZ5dm1sUVZFODZ6WHgxSmFob1pkaU5aQzl5N2pIN2ItM2czcEJWM2M4RG5lYThWSl96dDllWmZ1ajJiS3RNb08zWGwtaE9veEo2Z3Vxa2p1a3hRdFZQU1lNSjg3eXMxLWhPcExDcw?oc=5",
+    "url": "https://news.google.com/rss/articles/CBMiiANBVV95cUxNOVBibGZ0ZHpwcDhlUnJPak1BM3FoSGl5SnFkSEptQVVHSGVTWURTeTNzenhLYUNUaUZJaEJnOWU2Tzc4bFEta185MGNfSW5nYXFUUm03cTl4MGNwbEpheUhUZUNJRnFZdWliRFluck8talhGakRBSmgtSGRpU3Vla0oybTl4Mlp4Rm1CZ1A4UjQ5SkZneFp4dFc0a2djZU1JWm1oNndOMi1GV21qY3dNNE9QQVN0Rno0VVhIQW5rNnJYd3pDdFFjWkktNnVQMnNTbWNpVTB5S3VCNjdjQllPcHpIUG5BSVNHQmdLcERHRlNnMkthX1lmUlFWd2pMVXVYekNXZkRiRkdLWmhFTEFVOU9sQTFzQ2VzeFcwd1ZTcWRBa0pMaUhGcjY0OGxWdW5OUHNBYTl5N2VQV3pzaWcyN3hnQlk4Z2VXU3o4R3NnQ215ajEzb0lqckdrOTJQRDJzbVZMLWJ3RWxadjFJcEFyUE9YUmNpMWpveEE0SWhpSmRya2FiQjZyeg?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Apple and Dell Face Soaring Memory Prices. How the Stocks Can Handle the Threat. Barron's",
     "source": "news.google.com",
@@ -744,6 +732,18 @@
     "locations": []
   },
   {
+    "title": "Dell Demo Environment Hacked, ‘Synthetic’ Information Accessed - crn.com",
+    "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNYllWbmREaG5UQ21zMjFSMjkxa1lzdHdybkdPeHpPWFVtalFpbjFPM19lVk1rVFp5c1B6bGw4TWJrN2tmOUdHYVFVWUJLMjB6UGx4OWhyWERUOVNBQXM2bl92MGhMeldHSDJQbHBpMzdzU3BYOV9ra2tMU1Zacks0ZEI2bnQ3Ry15dEZNTEtLaUNjZldEd1JJeXN3SnhjeW9pYko0?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Dell Demo Environment Hacked, ‘Synthetic’ Information Accessed crn.com",
+    "source": "news.google.com",
+    "time": "2025-07-21T07:00:00+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "Equinix teams up with Dell Technologies for private AI solution",
     "url": "https://www.datacenterdynamics.com/en/news/equinix-teams-up-with-dell-technologies-for-private-ai-solution/",
     "snippet": "Keyword heuristic — low confidence.",
@@ -762,6 +762,18 @@
     "body": "submitted by /u/Vaggab0nd [link] [comments]",
     "source": "reddit.com",
     "time": "2024-09-26T07:20:01+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Topics regarding layoffs at Dell Inc. - TheLayoff.com",
+    "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE00WVBnVFdFdzRSMGNWeThHOFFKUE5KOXd2ZEFpSU5lQzFOLTJxQ3lYeWlNXzlQWHFEdGM4SFR5VmxWeEdLa1VvbGo2ZzlhUGRZcTZfYl85dVcySTg?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Topics regarding layoffs at Dell Inc. TheLayoff.com",
+    "source": "news.google.com",
+    "time": "2024-08-08T07:00:00+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -816,18 +828,6 @@
     "locations": []
   },
   {
-    "title": "Active threads re. Hitachi Vantara Layoffs - TheLayoff.com",
-    "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBTaGJTVDBSdG5WM1ZCX29BNUZKTm56anhxYjNhZ3pWVlFCQlZoQ1hXUHR5dDBCT2o2YUFhSWNBYjdNeFUzb2hxTjNDQk53RkQ2anpkWWpnaERHUXVUSGtnTmR6OEVGZTgwRTZR?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Active threads re. Hitachi Vantara Layoffs TheLayoff.com",
-    "source": "news.google.com",
-    "time": "2024-06-08T19:58:37+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "Dell to Let Go 6,000 Employees in Cost-Cutting Spree - LayoffsTracker",
     "url": "https://www.reddit.com/r/Layoffs/comments/1bogabn/dell_to_let_go_6000_employees_in_costcutting/",
     "snippet": "Keyword heuristic — low confidence.",
@@ -864,6 +864,18 @@
     "locations": []
   },
   {
+    "title": "Posts mentioning hashtag #sales - TheLayoff.com",
+    "url": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE9vRkZfLVp3X2w3VzlUekRKU1JnRDE5YmVycnJZcWJ5aWJOemVuWFU0NDROVlF5Rklwd1BjaWRsZEstXzNsdDZvXw?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Posts mentioning hashtag #sales TheLayoff.com",
+    "source": "news.google.com",
+    "time": "2022-10-28T06:27:08+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "Dell Technologies Announces Distribution Ratio for VMware Spin-Off",
     "url": "https://investors.delltechnologies.com/news-releases/news-release-details/dell-technologies-announces-distribution-ratio-vmware-spin",
     "snippet": "Keyword heuristic — low confidence.",
@@ -882,18 +894,6 @@
     "body": "Article URL: https://news.vmware.com/releases/vmware-announces-completion-of-spin-off-from-dell-technologies Comments URL: https://news.ycombinator.com/item?id=29078579 Points: 1 # Comments: 0",
     "source": "news.vmware.com",
     "time": "2021-11-02T08:43:13+00:00",
-    "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Lenovo DCG layoffs- here we go again - TheLayoff.com",
-    "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTFB6UVNQYjcxZV9fZjl3VzRtVU9abFhxWE1DR3V4cDZjM2IxLWstRGgzMVExSkZINnNVSGZrczc4akc4eXdybERMRm1WeW9haTRs?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Lenovo DCG layoffs- here we go again TheLayoff.com",
-    "source": "news.google.com",
-    "time": "2021-05-13T18:11:35+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -1008,24 +1008,24 @@
     "locations": []
   },
   {
-    "title": "ACS Layoffs - TheLayoff.com",
-    "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE9fT2VjbGdqQ2dsV1M1SHA0QnhrQ3pYdWJmWEFScm95UDRlamtpeTlDNnBqcldfNEhRYUU0UkludjZoajJPcTB6elQ5Q1hXcXFyQXNBWGZDbXpMX285UDRfRGtSLVE?oc=5",
+    "title": "Arista Networks Inc. Layoffs - TheLayoff.com",
+    "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE1IaUJFSVJaS0w2eXlQdmdySTVlU0hfXzRPUF9WWXd5VXNuVnBUczJza1pDSWU1X2lSVy1XOFJ4Mjg1WTB0S28xUl9faDRCazNkTFVr?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
-    "body": "ACS Layoffs TheLayoff.com",
+    "body": "Arista Networks Inc. Layoffs TheLayoff.com",
     "source": "news.google.com",
-    "time": "2015-04-17T02:52:06+00:00",
+    "time": "2015-07-05T20:38:24+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
   },
   {
-    "title": "HP (Hewlett-Packard) Layoffs - TheLayoff.com",
-    "url": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE8xbWZseGxTTTFGUXptR1Q3QWhDMjRFdzhpbEZZZHVqZllfcWRYdmhVNmZSenA2UGdSWUsxNjdHMGJseEs2blBWVV95b0NZQ19yWFZz?oc=5",
+    "title": "Golden State Foods Layoffs - TheLayoff.com",
+    "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTFB5OUNvTzJYbW83cnlGU1pDOVV5TDY5Z0JwNU5tejhsblUydDRwREVfdEUxTEVaS1NhZjJsQldaRDJRYllwNTBWWVRMSjFfdmtqWlJlN19sMA?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
-    "body": "HP (Hewlett-Packard) Layoffs TheLayoff.com",
+    "body": "Golden State Foods Layoffs TheLayoff.com",
     "source": "news.google.com",
-    "time": "2015-04-13T10:10:33+00:00",
+    "time": "2015-04-16T11:02:04+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
