@@ -39,7 +39,8 @@ let TRAVEL_UPDATED_AT = null;
 
 // Map globals
 let map, assetsClusterGroup, incidentClusterGroup, criticalLayerGroup;
-let mapHighlightLayer = null; // Stores the active red circle
+let mapHighlightLayer  = null; // Stores the active red circle
+let _activeMapPopup    = null; // Stores the current open map info popup
 
 let ADMIN_SECRET = '';
 let VOTES_LOCAL = {};
@@ -1023,10 +1024,8 @@ function initMap() {
   // Click empty map → close popup + remove red circle
   map.on('click', () => {
     map.closePopup();
-    if (mapHighlightLayer) {
-      map.removeLayer(mapHighlightLayer);
-      mapHighlightLayer = null;
-    }
+    if (_activeMapPopup) { try { _activeMapPopup.remove(); } catch(_){} _activeMapPopup = null; }
+    if (mapHighlightLayer) { map.removeLayer(mapHighlightLayer); mapHighlightLayer = null; }
   });
 
   map.addLayer(incidentClusterGroup);
@@ -1179,8 +1178,10 @@ function renderIncidentsOnMap(region, list) {
         mapHighlightLayer = L.circle([lat, wrapLongitude(lng)], {
           color: '#d93025', fillColor: '#d93025', fillOpacity: 0.15, weight: 1, radius: radiusMeters
         }).addTo(map);
+        // Close any existing popup before opening new one
+        if (_activeMapPopup) { try { _activeMapPopup.remove(); } catch(_){} _activeMapPopup = null; }
         // Open standalone popup at geographic position — immune to cluster state
-        L.popup({ closeButton: true, autoClose: false, closeOnClick: false, keepInView: true, maxWidth: 320 })
+        _activeMapPopup = L.popup({ closeButton: true, autoClose: false, closeOnClick: false, keepInView: true, maxWidth: 320 })
           .setLatLng([lat, wrapLongitude(lng)])
           .setContent(popupHtml)
           .openOn(map);
