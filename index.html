@@ -2204,7 +2204,7 @@
           <div class="grid-stack" id="sidebar-grid">
 
             <!-- ① Markets & Commodities -->
-            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="9" gs-w="12" gs-h="5" gs-min-h="4" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="markets" gs-x="0" gs-y="13" gs-w="12" gs-h="6" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2237,7 +2237,7 @@
             </div>
 
             <!-- ② History Search -->
-            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="7" gs-w="12" gs-h="2" gs-min-h="2" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="history" gs-x="0" gs-y="8" gs-w="12" gs-h="5" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2257,7 +2257,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="7" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -2304,7 +2304,7 @@
             </div>
 
             <!-- ⑤ Country Instability Index -->
-            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="13" gs-w="6" gs-h="7" gs-min-h="3" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="cii" gs-x="0" gs-y="19" gs-w="12" gs-h="8" gs-min-h="4" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -3379,8 +3379,8 @@
   (function () {
     'use strict';
 
-    var LAYOUT_KEY  = 'infohub_sidebar_layout_v2';
-    var HIDDEN_KEY  = 'infohub_hidden_widgets_v2';
+    var LAYOUT_KEY  = 'infohub_sidebar_layout_v3'; // bumped: clears stale saved layouts
+    var HIDDEN_KEY  = 'infohub_hidden_widgets_v3';
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {
@@ -3392,10 +3392,10 @@
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'proximity',      x: 0,  y: 0,  w: 12, h: 7 },
-      { id: 'history',        x: 0,  y: 7,  w: 12, h: 2 },
-      { id: 'markets',        x: 0,  y: 9,  w: 12, h: 4 },
-      { id: 'cii',            x: 0,  y: 13, w: 12, h: 7 },
+      { id: 'proximity',      x: 0,  y: 0,  w: 12, h: 8  },
+      { id: 'history',        x: 0,  y: 8,  w: 12, h: 5  },
+      { id: 'markets',        x: 0,  y: 13, w: 12, h: 6  },
+      { id: 'cii',            x: 0,  y: 19, w: 12, h: 8  },
     ];
 
     var grid;
