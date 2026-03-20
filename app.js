@@ -1242,7 +1242,8 @@ function _feedIncidentFilter(inc) {
   const cat = String(inc.category || '').toUpperCase();
   const hasRealCategory = cat && cat !== 'UNKNOWN' && cat.length > 1;
   if (!hasRealSource && !hasRealCategory) return false; // no source AND no category = skip
-  if (!hasRealSource && hasRealCategory && cat === 'UNKNOWN') return false;
+  // UNKNOWN = Worker could not classify into any SRO-relevant category → never show in Intel feed
+  if (cat === 'UNKNOWN' || cat === '') return false;
 
   // ── Insider & Leaks exclusion gate — keep these items only in the Insider & Leaks tab ──
   const isInsiderSource = INSIDER_SOURCES.some(s => srcUrl.includes(s));
