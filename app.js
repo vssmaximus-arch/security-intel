@@ -7,7 +7,7 @@
    - FEATURE: Rich Map Popups & Impact Circles on click (with auto-pan/zoom)
    - HARDENING: Safe IDs, Robust Accessibility, Popup Timing Fallback
 */
-
+ 
 /* ===========================
    CONFIG
 =========================== */
