@@ -1518,6 +1518,7 @@ function _smartCategory(inc) {
 function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
+
   let regionFiltered = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
   if (region === 'APJC' && activeApjcSub) {
     regionFiltered = regionFiltered.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
@@ -1527,36 +1528,45 @@ function renderProximityAlerts(region) {
 
   data.forEach(inc => {
     try {
-      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng)))
-        ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
-      if (!coords) return;
       const key = generateId(inc);
       if (DISMISSED_ALERT_IDS.has(String(key))) return;
 
-      // Compute distance to every Dell site, sorted nearest-first
-      const siteDists = DELL_SITES.map(s => ({
+      // Resolve nearest Dell site for display
+      const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng)))
+        ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
+
+      const siteDists = coords ? DELL_SITES.map(s => ({
         name: s.name,
         dist: haversineKm(coords.lat, coords.lng, Number(s.lat), Number(s.lon))
-      })).sort((a, b) => a.dist - b.dist);
+      })).sort((a, b) => a.dist - b.dist) : [];
 
-      if (!siteDists.length) return;
-
-      // Use worker-supplied nearest if available (more accurate), else computed
       const nearest = {
-        name: (inc.nearest_site_name) || siteDists[0].name,
-        dist: (inc.distance_km != null) ? Number(inc.distance_km) : siteDists[0].dist
+        name: inc.nearest_site_name || (siteDists[0] && siteDists[0].name) || 'Unknown Site',
+        dist: (inc.distance_km != null) ? Number(inc.distance_km) : (siteDists[0] ? siteDists[0].dist : 9999)
       };
 
-      if (inc.country_wide || nearest.dist <= currentRadius) {
-        alerts.push({ inc, nearest, siteDists, key });
-      }
+      // TRUST WORKER: Worker uses tiered radii (Natural=500km, Security=100km, Supply Chain=250km).
+      // If the Worker assigned a priority, the incident already passed tiered screening — show it.
+      // For unscreened incidents (no priority), fall back to the frontend radius slider.
+      const workerApproved = !!inc.priority;
+      if (!inc.country_wide && !workerApproved && nearest.dist > currentRadius) return;
+
+      alerts.push({ inc, nearest, key });
     } catch(e) {}
   });
 
-  alerts.sort((a, b) => a.nearest.dist - b.nearest.dist);
+  // Sort by priority (P1 first), then distance
+  const _prioRank = { P1: 0, P2: 1, P3: 2, P4: 3 };
+  alerts.sort((a, b) => {
+    const pa = _prioRank[a.inc.priority] ?? 4;
+    const pb = _prioRank[b.inc.priority] ?? 4;
+    if (pa !== pb) return pa - pb;
+    return (a.nearest.dist || 0) - (b.nearest.dist || 0);
+  });
 
   if (!alerts.length) {
-    container.innerHTML = `<div style="padding:15px;text-align:center;color:#999;">No threats within ${currentRadius}km of Dell sites.</div>`;
+    container.innerHTML = `<div style="padding:18px 14px;text-align:center;color:#999;font-size:0.78rem;">No active threats within proximity of Dell sites.</div>`;
+    renderGlobalDisruptions();
     return;
   }
 
@@ -1567,77 +1577,94 @@ function renderProximityAlerts(region) {
   const lblClr  = dark ? '#e8eaed' : '#202124';
   const metaTxt = dark ? '#9aa0a6' : '#5f6368';
 
+  // Priority config — Everbridge-grade colour coding
+  const PRIORITY_CFG = {
+    P1: { color: '#d93025', bg: 'rgba(217,48,37,0.13)',  border: '#d93025', label: 'P1 CRITICAL' },
+    P2: { color: '#e37400', bg: 'rgba(227,116,0,0.13)',  border: '#e37400', label: 'P2 HIGH'     },
+    P3: { color: '#c89f00', bg: 'rgba(249,168,37,0.11)', border: '#c89f00', label: 'P3 MEDIUM'   },
+    P4: { color: '#1565c0', bg: 'rgba(21,101,192,0.10)', border: '#4285f4', label: 'P4 LOW'      },
+  };
+
+  // Threat category config
+  const CAT_CFG = {
+    NATURAL_HAZARD: { icon: '🌪️', label: 'Natural Hazard',   color: '#b05e00' },
+    SECURITY:       { icon: '⚠️',  label: 'Security',         color: '#c62828' },
+    GEOPOLITICAL:   { icon: '🌐',  label: 'Geopolitical',     color: '#6a1b9a' },
+    SUPPLY_CHAIN:   { icon: '⚓',  label: 'Supply Chain',     color: '#1565c0' },
+    CYBER_SECURITY: { icon: '💻',  label: 'Cyber Security',   color: '#00695c' },
+    WORKFORCE:      { icon: '👥',  label: 'Workforce',         color: '#4a148c' },
+    UNKNOWN:        { icon: '❓',  label: 'Intelligence Alert',color: '#5f6368' },
+  };
+
+  // RSM recommended actions by priority
+  const _rmAction = (priority) => {
+    if (priority === 'P1') return { label: '🔴 IMMEDIATE — Brief RSM now, activate BCP review, confirm personnel safety',    color: '#d93025', bg: 'rgba(217,48,37,0.07)'   };
+    if (priority === 'P2') return { label: '🟠 HIGH PRIORITY — Notify RSM, assess personnel & asset exposure within 2h',   color: '#e37400', bg: 'rgba(227,116,0,0.07)'   };
+    if (priority === 'P3') return { label: '🟡 MONITOR — Track development, brief RSM at next scheduled cycle',            color: '#c89f00', bg: 'rgba(249,168,37,0.07)'  };
+    return                        { label: '🔵 AWARENESS — Log for record, no immediate RSM action required',              color: '#1565c0', bg: 'rgba(21,101,192,0.06)'  };
+  };
+
   container.innerHTML = alerts.slice(0, 25).map(a => {
     const i       = a.inc;
     const sev     = Number(i.severity || 1);
     const isAcked = !!ACK_CACHE[a.key];
-
-    // Banner colour
-    const hdrBg = isAcked ? '#1a4a2a'
-      : (sev >= 4 ? '#8b1212' : sev === 3 ? '#7a4400' : '#1a2d4a');
-
-    const sevWord    = sev >= 4 ? 'Critical' : sev === 3 ? 'High' : sev === 2 ? 'Moderate' : 'Low';
-    const catLabel   = _smartCategory(i);
-    const location   = _smartLocation(i) || (i.region && i.region !== 'Global' ? i.region : null) || '—';
-    const timeAgo    = _proxTimeAgo(i.time);
-    const action     = _proxAction(sev, i.country_wide ? 0 : Math.round(a.nearest.dist), !!i.operational_impact);
-
-    // Nearest site — site names already include "Dell", don't prepend again
-    const nearKm  = i.country_wide ? 0 : Math.round(a.nearest.dist);
-    const nearStr = i.country_wide ? 'Country-wide' : `${nearKm} km`;
-
-    // Source link (first valid URL only — keep it clean)
-    const firstLink = (i.link && i.link !== '#')
-      ? (i.link.split(/\s+/).find(u => /^https?:\/\//.test(u)) || '')
-      : '';
-    const linkHtml = firstLink
-      ? `<a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer"
-           style="color:#1a73e8;font-size:0.73rem;word-break:break-all;">${escapeHtml(firstLink)}</a>`
-      : '';
-
-    const notifColor = isAcked ? '#4caf50' : (sev >= 4 ? '#d93025' : '#e37400');
-    const notifLabel = isAcked ? 'Acknowledged' : 'New';
+    const prio    = i.priority || (sev >= 4 ? 'P2' : sev >= 3 ? 'P3' : 'P4');
+    const pcfg    = PRIORITY_CFG[prio] || PRIORITY_CFG.P4;
+    const cat     = String(i.category || 'UNKNOWN').toUpperCase();
+    const ccfg    = CAT_CFG[cat] || CAT_CFG.UNKNOWN;
+    const action  = _rmAction(isAcked ? 'P4' : prio);
+    const timeAgo = _proxTimeAgo(i.time);
+    const nearStr = i.country_wide ? 'Country-wide' : (a.nearest.dist > 0 ? `${Math.round(a.nearest.dist)} km` : 'Regional');
+    const location = _smartLocation(i) || (i.region && i.region !== 'Global' ? i.region : '—');
+    // Dell Impact: prefer Groq AI assessment, fall back to article summary
+    const dellImpact = i.dell_impact || i.summary || '';
+    const firstLink  = (i.link && i.link !== '#') ? (i.link.split(/\s+/).find(u => /^https?:\/\//.test(u)) || '') : '';
+    const borderColor = isAcked ? '#2d6a3f' : pcfg.border;
+    const ackedBadge  = isAcked
+      ? `<span style="font-size:0.67rem;font-weight:800;color:#4caf50;letter-spacing:0.05em;background:rgba(76,175,80,0.15);border:1px solid #4caf50;border-radius:3px;padding:1px 7px;">✓ ACKNOWLEDGED</span>`
+      : `<span style="font-size:0.67rem;font-weight:800;color:${pcfg.color};letter-spacing:0.05em;background:${pcfg.bg};border:1px solid ${pcfg.color};border-radius:3px;padding:1px 7px;">${escapeHtml(pcfg.label)}</span>`;
 
     return `
-      <div class="alert-row" style="border:1px solid ${dark ? '#3a3d45' : '#ddd'};border-radius:6px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <div class="alert-row" style="border:1px solid ${borderColor};border-left:4px solid ${isAcked ? '#4caf50' : pcfg.color};border-radius:6px;margin-bottom:12px;overflow:hidden;background:${bodyBg};box-shadow:0 1px 4px rgba(0,0,0,0.10);${isAcked ? 'opacity:0.78;' : ''}">
 
-        <!-- Banner -->
-        <div style="background:${hdrBg};color:#fff;padding:9px 13px;font-weight:700;font-size:0.8rem;line-height:1.4;">
+        <!-- Priority + Category Header -->
+        <div style="padding:7px 12px;display:flex;align-items:center;gap:8px;background:${isAcked ? 'rgba(76,175,80,0.07)' : pcfg.bg};border-bottom:1px solid ${dark ? '#2a2d35' : '#e8eaed'};">
+          ${ackedBadge}
+          <span style="font-size:0.73rem;color:${ccfg.color};font-weight:600;">${ccfg.icon}&nbsp;${escapeHtml(ccfg.label)}</span>
+          ${timeAgo ? `<span style="margin-left:auto;font-size:0.68rem;color:${metaTxt};">🕐 ${escapeHtml(timeAgo)}</span>` : ''}
+        </div>
+
+        <!-- Headline -->
+        <div style="padding:9px 12px 5px;font-weight:700;font-size:0.82rem;color:${lblClr};line-height:1.4;">
           ${escapeHtml(i.title)}
         </div>
 
         <!-- Body -->
-        <div style="padding:11px 13px;font-size:0.78rem;color:${bodyTxt};background:${bodyBg};line-height:1.75;">
+        <div style="padding:0 12px 10px;font-size:0.77rem;color:${bodyTxt};line-height:1.65;">
 
-          <!-- Key facts row -->
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:0.75rem;color:${metaTxt};">
+          <!-- Location + Nearest site row -->
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:0.73rem;color:${metaTxt};padding-bottom:7px;border-bottom:1px solid ${divClr};">
             <span>📍 <strong style="color:${lblClr};">${escapeHtml(location)}</strong></span>
             <span style="color:#9aa0a6;">|</span>
-            <span>${escapeHtml(catLabel)}</span>
-            <span style="color:#9aa0a6;">|</span>
-            <span>Severity: <strong>${escapeHtml(sevWord)}</strong></span>
-            <span style="color:#9aa0a6;">|</span>
-            <span>Status: <strong style="color:${notifColor};">${notifLabel}</strong></span>
-            ${timeAgo ? `<span style="margin-left:auto;color:${metaTxt};">${escapeHtml(timeAgo)}</span>` : ''}
+            <span>📌 Nearest Dell site:&nbsp;<strong style="color:${lblClr};">${escapeHtml(a.nearest.name)}</strong>&nbsp;<strong style="color:${prio === 'P1' ? '#d93025' : prio === 'P2' ? '#e37400' : metaTxt};">${escapeHtml(nearStr)}</strong></span>
           </div>
 
-          <!-- Recommended action chip -->
-          <div style="display:inline-flex;align-items:center;gap:4px;background:${action.bg};border:1px solid ${action.color}44;border-radius:4px;padding:2px 9px;margin-bottom:8px;">
-            <span style="font-size:0.7rem;color:${action.color};font-weight:700;">${escapeHtml(action.label)}</span>
+          <!-- Dell Impact Assessment -->
+          ${dellImpact ? `
+          <div style="background:${dark ? '#161820' : '#f8f9fa'};border-left:3px solid ${isAcked ? '#4caf50' : pcfg.color};border-radius:3px;padding:6px 10px;margin-bottom:8px;font-size:0.75rem;color:${bodyTxt};line-height:1.55;">
+            <span style="font-size:0.66rem;font-weight:700;color:${isAcked ? '#4caf50' : pcfg.color};text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px;">Dell Impact Assessment</span>
+            ${escapeHtml(String(dellImpact).slice(0, 260))}${dellImpact.length > 260 ? '…' : ''}
+          </div>` : ''}
+
+          <!-- RSM Recommended Action -->
+          <div style="background:${action.bg};border:1px solid ${action.color}33;border-radius:4px;padding:4px 10px;margin-bottom:8px;font-size:0.71rem;color:${action.color};font-weight:700;">
+            ${escapeHtml(action.label)}
           </div>
 
-          <!-- Summary + link -->
-          ${i.summary ? `<div style="margin-bottom:6px;line-height:1.6;">${escapeHtml(i.summary)}</div>` : ''}
-          ${linkHtml ? `<div style="margin-bottom:8px;">${linkHtml}</div>` : ''}
-
-          <!-- Nearest asset -->
-          <div style="padding-top:8px;border-top:1px solid ${divClr};font-size:0.75rem;color:${metaTxt};">
-            📌 Nearest Dell site: <strong style="color:${lblClr};">${escapeHtml(a.nearest.name)}</strong>
-            <span style="color:${sev >= 4 ? '#d93025' : '#5f6368'};font-weight:700;margin-left:4px;">${nearStr}</span>
-          </div>
+          ${firstLink ? `<div style="margin-bottom:7px;font-size:0.71rem;"><a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8;">🔗 View Source</a></div>` : ''}
 
           <!-- ACK / Dismiss -->
-          <div style="display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid ${divClr};" data-ack-id="${escapeAttr(a.key)}">
+          <div style="display:flex;gap:8px;padding-top:6px;border-top:1px solid ${divClr};" data-ack-id="${escapeAttr(a.key)}">
             <button type="button" class="btn-ack" data-action="ack-incident"
               data-id="${escapeAttr(a.key)}" aria-label="Acknowledge this alert">
               <i class="fas fa-check" aria-hidden="true"></i> ACK
@@ -5538,7 +5565,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Tier-3: start correlation signals + sentiment drift auto-refresh
     setTimeout(() => {
-      try { startCorrelationRefresh(); } catch(e) { console.warn('[CORRELATE] init error', e); }
+      // Intel Signals widget removed — startCorrelationRefresh() disabled
     }, 2000);
     setTimeout(() => {
       try { startSentimentRefresh(); } catch(e) { console.warn('[SENTIMENT] init error', e); }

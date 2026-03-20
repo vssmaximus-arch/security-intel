@@ -2339,29 +2339,7 @@
               </div>
             </div>
 
-            <!-- ⑦ Intel Signals -->
-            <div class="grid-stack-item" gs-id="intel-signals" gs-x="6" gs-y="13" gs-w="6" gs-h="7" gs-min-h="3" gs-min-w="4">
-              <div class="grid-stack-item-content">
-                <div class="widget-header-bar" title="Drag to reposition">
-                  <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
-                  <button class="widget-close-btn" data-widget-id="intel-signals" aria-label="Hide Intel Signals widget" title="Hide widget">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                  </button>
-                </div>
-                <div class="side-card" id="correlate-panel" role="complementary" aria-label="Intel Signals">
-                  <div class="correlate-header">
-                    <span class="correlate-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Intel Signals</span>
-                    <span class="correlate-badge" id="correlate-count" aria-label="Signal count">0</span>
-                    <button class="correlate-refresh-btn" data-action="refresh-correlate" title="Refresh signals" aria-label="Refresh correlation signals">
-                      <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                  <div id="correlate-body" class="correlate-body" aria-live="polite">
-                    <div class="text-center text-secondary py-3"><i class="fas fa-spinner fa-spin"></i> Analyzing…</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Intel Signals widget removed — not providing actionable SRO intelligence -->
 
             <!-- ⑧ Sentiment Drift -->
             <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="20" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
@@ -3429,7 +3407,6 @@
       history:          { label: 'History Search',        icon: 'fa-history'       },
       proximity:        { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
       cii:              { label: 'Country Instability',   icon: 'fa-globe-americas'},
-      'intel-signals':  { label: 'Intel Signals',         icon: 'fa-project-diagram'},
       sentiment:        { label: 'Sentiment Drift',       icon: 'fa-wave-square'   },
     };
 
@@ -3438,8 +3415,7 @@
       { id: 'proximity',      x: 0,  y: 0,  w: 12, h: 7 },
       { id: 'history',        x: 0,  y: 7,  w: 12, h: 2 },
       { id: 'markets',        x: 0,  y: 9,  w: 12, h: 4 },
-      { id: 'cii',            x: 0,  y: 13, w: 6,  h: 7 },
-      { id: 'intel-signals',  x: 6,  y: 13, w: 6,  h: 7 },
+      { id: 'cii',            x: 0,  y: 13, w: 12, h: 7 },
       { id: 'sentiment',      x: 0,  y: 20, w: 12, h: 5 },
     ];
 
