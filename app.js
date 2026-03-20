@@ -1516,10 +1516,20 @@ function renderProximityAlerts(region) {
   const container = document.getElementById("proximity-alerts-container");
   if (!container) return;
 
+  // Proximity: physical/geographic threats only — block cyber/workforce/unknown categories
+  const _PROX_GEO_CATS = new Set(['NATURAL_HAZARD','SECURITY','GEOPOLITICAL','SUPPLY_CHAIN','TRANSPORT','INFRASTRUCTURE','PUBLIC_SAFETY','DISRUPTION']);
+  const _prox48hCutoff = Date.now() - (48 * 3600 * 1000);
+
   let regionFiltered = (region === "Global") ? PROXIMITY_INCIDENTS : PROXIMITY_INCIDENTS.filter(i => i.region === region);
   if (region === 'APJC' && activeApjcSub) {
     regionFiltered = regionFiltered.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
   }
+  // Hard gates: 48h age limit + geographic categories only
+  regionFiltered = regionFiltered.filter(i => {
+    const cat = String(i.category || '').toUpperCase();
+    if (!_PROX_GEO_CATS.has(cat)) return false;
+    try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= _prox48hCutoff; } catch { return false; }
+  });
   const data = regionFiltered.filter(filterByCategoryAllowed);
   const alerts = [];
 
