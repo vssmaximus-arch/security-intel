@@ -1600,12 +1600,17 @@ function renderProximityAlerts(region) {
     UNKNOWN:        { icon: '❓',  label: 'Intelligence Alert',color: '#5f6368' },
   };
 
-  // RSM recommended actions by priority
-  const _rmAction = (priority) => {
-    if (priority === 'P1') return { label: '🔴 IMMEDIATE — Brief RSM now, activate BCP review, confirm personnel safety',    color: '#d93025', bg: 'rgba(217,48,37,0.07)'   };
-    if (priority === 'P2') return { label: '🟠 HIGH PRIORITY — Notify RSM, assess personnel & asset exposure within 2h',   color: '#e37400', bg: 'rgba(227,116,0,0.07)'   };
-    if (priority === 'P3') return { label: '🟡 MONITOR — Track development, brief RSM at next scheduled cycle',            color: '#c89f00', bg: 'rgba(249,168,37,0.07)'  };
-    return                        { label: '🔵 AWARENESS — Log for record, no immediate RSM action required',              color: '#1565c0', bg: 'rgba(21,101,192,0.06)'  };
+  // RSM recommended actions by priority — category-aware
+  const _rmAction = (priority, category) => {
+    const isHazard = category === 'NATURAL_HAZARD';
+    if (priority === 'P1') return isHazard
+      ? { label: '🔴 IMMEDIATE — Notify RSM, verify personnel safety in affected region, monitor updates',  color: '#d93025', bg: 'rgba(217,48,37,0.07)'   }
+      : { label: '🔴 IMMEDIATE — Brief RSM now, activate BCP review, confirm personnel safety',             color: '#d93025', bg: 'rgba(217,48,37,0.07)'   };
+    if (priority === 'P2') return isHazard
+      ? { label: '🟠 ELEVATED — Notify RSM, check travel advisories for affected region',                  color: '#e37400', bg: 'rgba(227,116,0,0.07)'   }
+      : { label: '🟠 HIGH PRIORITY — Notify RSM, assess personnel & asset exposure within 2h',             color: '#e37400', bg: 'rgba(227,116,0,0.07)'   };
+    if (priority === 'P3') return { label: '🟡 MONITOR — Track development, brief RSM at next scheduled cycle',  color: '#c89f00', bg: 'rgba(249,168,37,0.07)'  };
+    return                        { label: '🔵 AWARENESS — Log for record, no immediate RSM action required',     color: '#1565c0', bg: 'rgba(21,101,192,0.06)'  };
   };
 
   container.innerHTML = alerts.slice(0, 25).map(a => {
@@ -1616,7 +1621,7 @@ function renderProximityAlerts(region) {
     const pcfg    = PRIORITY_CFG[prio] || PRIORITY_CFG.P4;
     const cat     = String(i.category || 'UNKNOWN').toUpperCase();
     const ccfg    = CAT_CFG[cat] || CAT_CFG.UNKNOWN;
-    const action  = _rmAction(isAcked ? 'P4' : prio);
+    const action  = _rmAction(isAcked ? 'P4' : prio, cat);
     const timeAgo = _proxTimeAgo(i.time);
     const nearStr = i.country_wide ? 'Country-wide' : (a.nearest.dist > 0 ? `${Math.round(a.nearest.dist)} km` : 'Regional');
     const location = _smartLocation(i) || (i.region && i.region !== 'Global' ? i.region : '—');
