@@ -730,6 +730,10 @@ function normaliseWorkerIncident(item) {
       distance_km: (item.distance_km != null) ? Number(item.distance_km) : null,
       nearest_site_name: item.nearest_site_name || null,
       country_wide: !!item.country_wide,
+      priority: item.priority || null,
+      dell_impact: item.dell_impact || null,
+      proximity_reason: item.proximity_reason || null,
+      prox_category: item.prox_category || null,
       category: String(item.category || item.type || '').toUpperCase()
     };
   } catch(e) {
