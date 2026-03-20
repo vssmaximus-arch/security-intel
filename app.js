@@ -11,7 +11,7 @@
 /* ===========================
    CONFIG
 =========================== */
-const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev";
+const WORKER_URL = "https://osinfohub.vssmaximus.workers.dev"; 
 const AUTO_REFRESH_MS = 300_000; // 5 min — matches SSE retry:300000; incidents ingest is hourly anyway
 const DEBUG_UI = (new URLSearchParams(location.search).get('debug') === '1') || (localStorage.getItem('osinfohub_debug') === '1');
 
