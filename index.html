@@ -2341,26 +2341,7 @@
 
             <!-- Intel Signals widget removed — not providing actionable SRO intelligence -->
 
-            <!-- ⑧ Sentiment Drift -->
-            <div class="grid-stack-item" gs-id="sentiment" gs-x="0" gs-y="20" gs-w="12" gs-h="5" gs-min-h="3" gs-min-w="4">
-              <div class="grid-stack-item-content">
-                <div class="widget-header-bar" title="Drag to reposition">
-                  <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
-                  <button class="widget-close-btn" data-widget-id="sentiment" aria-label="Hide Sentiment Drift widget" title="Hide widget">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                  </button>
-                </div>
-                <div class="side-card" id="sentiment-panel" role="complementary" aria-label="Sentiment Drift">
-                  <div class="sentiment-header">
-                    <span><i class="fas fa-wave-square" aria-hidden="true"></i> Sentiment Drift</span>
-                    <span class="sentiment-updated" id="sentiment-updated" aria-label="Last updated">—</span>
-                  </div>
-                  <div id="sentiment-body" class="sentiment-body" aria-live="polite">
-                    <!-- Rendered by JS -->
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Sentiment Drift removed — widget provided no actionable SRO intelligence -->
 
           </div>
           <!-- /sidebar-grid -->
@@ -3407,7 +3388,6 @@
       history:          { label: 'History Search',        icon: 'fa-history'       },
       proximity:        { label: 'Proximity Alerts',      icon: 'fa-map-marker-alt'},
       cii:              { label: 'Country Instability',   icon: 'fa-globe-americas'},
-      sentiment:        { label: 'Sentiment Drift',       icon: 'fa-wave-square'   },
     };
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
@@ -3416,7 +3396,6 @@
       { id: 'history',        x: 0,  y: 7,  w: 12, h: 2 },
       { id: 'markets',        x: 0,  y: 9,  w: 12, h: 4 },
       { id: 'cii',            x: 0,  y: 13, w: 12, h: 7 },
-      { id: 'sentiment',      x: 0,  y: 20, w: 12, h: 5 },
     ];
 
     var grid;

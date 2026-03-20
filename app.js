@@ -5554,9 +5554,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
       // Intel Signals widget removed — startCorrelationRefresh() disabled
     }, 2000);
-    setTimeout(() => {
-      try { startSentimentRefresh(); } catch(e) { console.warn('[SENTIMENT] init error', e); }
-    }, 3500);
+    // Sentiment Drift removed — startSentimentRefresh() disabled
 
     // Tier-2: load initial acknowledgment state for visible incidents
     setTimeout(() => {
