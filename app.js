@@ -1017,13 +1017,8 @@ function initMap() {
     map.closePopup();
   });
 
-  // --- NEW: Remove red circle when popup is closed ---
-  map.on('popupclose', () => {
-    if (mapHighlightLayer) {
-      map.removeLayer(mapHighlightLayer);
-      mapHighlightLayer = null;
-    }
-  });
+  // Red circle removed on map click only (not on popupclose — that fires during programmatic pan)
+
 
   // --- NEW: Remove red circle when clicking empty map ---
   map.on('click', () => {
@@ -1183,7 +1178,7 @@ function renderIncidentsOnMap(region, list) {
       const popupHtml = `
         <div style="font-family: 'Inter', sans-serif; min-width: 260px; max-width: 300px;">
           <div style="border-left: 4px solid ${color}; padding-left: 8px; margin-bottom: 8px;">
-            <div style="font-weight: 700; color: #333; font-size: 14px; line-height: 1.3;">${escapeHtml(i.title)}</div>
+            <div style="font-weight: 700; color: #333; font-size: 14px; line-height: 1.3;">${escapeHtml((i.title || '').replace(/\.\s*Population\s+affected\b[^.]*\.?\s*$/i, '').trim())}</div>
             <div style="color: #666; font-size: 11px; margin-top: 4px;">
               ${escapeHtml(safeTime(i.time))} • <span style="color:${color}; font-weight:600;">${escapeHtml(i.severity_label)}</span>
             </div>
@@ -1207,7 +1202,7 @@ function renderIncidentsOnMap(region, list) {
         </div>
       `;
 
-      marker.bindPopup(popupHtml, { autoPan: false }); // Disable autoPan here as we handle it manually
+      marker.bindPopup(popupHtml, { autoPan: false, autoClose: false, closeOnClick: false }); // Sticky popup — closes only via X button or map click handler
       // ------------------------------------------
 
       if (sev >= 4) criticalLayerGroup.addLayer(marker);
@@ -1645,7 +1640,7 @@ function renderProximityAlerts(region) {
 
         <!-- Headline -->
         <div style="padding:9px 12px 5px;font-weight:700;font-size:0.82rem;color:${lblClr};line-height:1.4;">
-          ${escapeHtml(i.title)}
+          ${escapeHtml((i.title || '').replace(/\.\s*Population\s+affected\b[^.]*\.?\s*$/i, '').trim())}
         </div>
 
         <!-- Body -->
