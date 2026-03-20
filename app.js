@@ -1281,6 +1281,11 @@ function _feedIncidentFilter(inc) {
   // Catches: stock price analysis, earnings reports, memory price articles, analyst ratings
   if (isFinancialOnlyTitle(title)) return false;
 
+  // ── Sports / entertainment filter — block regardless of GEOPOLITICAL tag ──
+  // Catches sports stories that slip through as GEOPOLITICAL (asylum at Asian Cup etc.)
+  const _SPORTS_RE = /\b(asian cup|women's cup|world cup|fifa|football team|soccer|cricket|rugby|tennis|golf|olympic|paralympic|nba|nfl|nhl|formula.?1|f1 race|grand prix|tour de france|wimbledon|champions league|premier league|bundesliga|serie a|la liga|transfer (window|fee)|match(day)?|hat.?trick|goal.?scorer|penalty shootout|athlete|sportsman|sportswoman|player (feted|celebrated|honored|kicked off))\b/i;
+  if (_SPORTS_RE.test(title)) return false;
+
   // Minor natural / weather events — skip unless severity ≥ 3 or major casualties/impact
   const isNat = /\b(earthquake|tremor|flood|hurricane|typhoon|cyclone|tornado|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|drought|fire notification|blizzard|mudslide)\b/i.test(title);
   if (isNat && Number(inc.severity || 1) < 3 &&
