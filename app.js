@@ -1158,9 +1158,19 @@ function renderIncidentsOnMap(region, list) {
           radius: radiusMeters
         }).addTo(map);
 
-        // 4. Open popup immediately — no fitBounds/flyTo which causes cluster
-        // recalculation and forces the popup to close during map movement.
-        try { marker.openPopup(); } catch(e) {}
+        // 4. Open popup — if marker is inside a cluster it has no _map reference
+        // and openPopup() silently fails. Use zoomToShowLayer to unspider first.
+        try {
+          if (marker._map) {
+            // Marker is directly on map (criticalLayerGroup or unclustered)
+            marker.openPopup();
+          } else {
+            // Inside a cluster — zoom until individually visible, then open
+            incidentClusterGroup.zoomToShowLayer(marker, () => {
+              setTimeout(() => { try { marker.openPopup(); } catch(_e){} }, 150);
+            });
+          }
+        } catch(_e) {}
       });
 
       // --- NEW: Rich Info Popup (The "Information Underneath") ---
