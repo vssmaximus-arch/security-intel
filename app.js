@@ -1136,72 +1136,43 @@ function renderIncidentsOnMap(region, list) {
          }
       });
 
-      // --- NEW: Interaction Logic (Click -> Red Circle + FlyTo + Open Popup) ---
-      marker.on('click', () => {
-        // 1. Remove old circle
-        if (mapHighlightLayer) map.removeLayer(mapHighlightLayer);
-
-        // 2. Determine Radius with Clamping (Min 2km, Max 500km)
-        let radiusMeters = 50000; // Default 50km
-        if (i.country_wide) radiusMeters = 500000;
-        else if (i.distance_km && i.distance_km > 0) radiusMeters = i.distance_km * 1000;
-        
-        // Clamp radius to sane limits
-        radiusMeters = Math.max(2000, Math.min(radiusMeters, 500000));
-
-        // 3. Draw Red Circle
-        mapHighlightLayer = L.circle([lat, wrapLongitude(lng)], {
-          color: '#d93025',       // Red border
-          fillColor: '#d93025',   // Red fill
-          fillOpacity: 0.15,      // Light transparency
-          weight: 1,
-          radius: radiusMeters
-        }).addTo(map);
-
-        // 4. Open popup — if marker is inside a cluster it has no _map reference
-        // and openPopup() silently fails. Use zoomToShowLayer to unspider first.
-        try {
-          if (marker._map) {
-            // Marker is directly on map (criticalLayerGroup or unclustered)
-            marker.openPopup();
-          } else {
-            // Inside a cluster — zoom until individually visible, then open
-            incidentClusterGroup.zoomToShowLayer(marker, () => {
-              setTimeout(() => { try { marker.openPopup(); } catch(_e){} }, 150);
-            });
-          }
-        } catch(_e) {}
-      });
-
-      // --- NEW: Rich Info Popup (The "Information Underneath") ---
+      // --- Interaction: click → red circle + standalone popup at coords ---
+      // Standalone popup (not bound to marker) is immune to cluster recalculation.
       const popupHtml = `
-        <div style="font-family: 'Inter', sans-serif; min-width: 260px; max-width: 300px;">
-          <div style="border-left: 4px solid ${color}; padding-left: 8px; margin-bottom: 8px;">
-            <div style="font-weight: 700; color: #333; font-size: 14px; line-height: 1.3;">${escapeHtml((i.title || '').replace(/\.\s*Population\s+affected\b[^.]*\.?\s*$/i, '').trim())}</div>
-            <div style="color: #666; font-size: 11px; margin-top: 4px;">
-              ${escapeHtml(safeTime(i.time))} • <span style="color:${color}; font-weight:600;">${escapeHtml(i.severity_label)}</span>
+        <div style="font-family:'Inter',sans-serif;min-width:260px;max-width:310px;">
+          <div style="border-left:4px solid ${color};padding-left:8px;margin-bottom:8px;">
+            <div style="font-weight:700;color:#333;font-size:14px;line-height:1.3;">${escapeHtml((i.title||'').replace(/\.\s*Population\s+affected\b[^.]*\.?\s*$/i,'').trim())}</div>
+            <div style="color:#666;font-size:11px;margin-top:4px;">
+              ${escapeHtml(safeTime(i.time))} &bull; <span style="color:${color};font-weight:600;">${escapeHtml(i.severity_label)}</span>
             </div>
           </div>
-          
-          <div style="background: #f9f9f9; padding: 8px; border-radius: 4px; font-size: 12px; color: #444; line-height: 1.4; margin-bottom: 8px;">
-            ${escapeHtml(i.summary ? i.summary.slice(0, 200) + (i.summary.length > 200 ? "..." : "") : "No details available.")}
+          <div style="background:#f9f9f9;padding:8px;border-radius:4px;font-size:12px;color:#444;line-height:1.4;margin-bottom:8px;">
+            ${escapeHtml(i.summary ? i.summary.slice(0,200)+(i.summary.length>200?'…':'') : 'No details available.')}
           </div>
-
-          ${i.nearest_site_name ? `
-            <div style="font-size: 11px; margin-bottom: 8px; color: #d93025; display: flex; align-items: center; gap: 4px;">
-              <i class="fas fa-bullseye"></i> 
-              <strong>${Math.round(i.distance_km)}km</strong> to ${escapeHtml(i.nearest_site_name)}
-            </div>` : ''}
-
-          <div style="text-align: right;">
-            <a href="${escapeAttr(safeHref(i.link))}" target="_blank" style="background: #0076ce; color: white; padding: 4px 10px; border-radius: 3px; text-decoration: none; font-size: 11px; font-weight: 500;">
+          ${i.nearest_site_name ? `<div style="font-size:11px;margin-bottom:8px;color:#d93025;"><i class="fas fa-bullseye"></i> <strong>${Math.round(i.distance_km||0)}km</strong> to ${escapeHtml(i.nearest_site_name)}</div>` : ''}
+          <div style="text-align:right;">
+            <a href="${escapeAttr(safeHref(i.link))}" target="_blank" style="background:#0076ce;color:white;padding:4px 10px;border-radius:3px;text-decoration:none;font-size:11px;font-weight:500;">
               Read Source <i class="fas fa-external-link-alt" style="margin-left:3px;"></i>
             </a>
           </div>
-        </div>
-      `;
+        </div>`;
 
-      marker.bindPopup(popupHtml, { autoPan: false, autoClose: false, closeOnClick: false }); // Sticky popup — closes only via X button or map click handler
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e); // prevent map click handler from firing
+        // Remove old highlight circle
+        if (mapHighlightLayer) { map.removeLayer(mapHighlightLayer); mapHighlightLayer = null; }
+        // Draw proximity circle
+        let radiusMeters = i.country_wide ? 500000 : (i.distance_km > 0 ? i.distance_km * 1000 : 50000);
+        radiusMeters = Math.max(2000, Math.min(radiusMeters, 500000));
+        mapHighlightLayer = L.circle([lat, wrapLongitude(lng)], {
+          color: '#d93025', fillColor: '#d93025', fillOpacity: 0.15, weight: 1, radius: radiusMeters
+        }).addTo(map);
+        // Open standalone popup at geographic position — immune to cluster state
+        L.popup({ closeButton: true, autoClose: false, closeOnClick: false, keepInView: true, maxWidth: 320 })
+          .setLatLng([lat, wrapLongitude(lng)])
+          .setContent(popupHtml)
+          .openOn(map);
+      });
       // ------------------------------------------
 
       if (sev >= 4) criticalLayerGroup.addLayer(marker);
