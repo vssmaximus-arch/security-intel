@@ -1158,20 +1158,9 @@ function renderIncidentsOnMap(region, list) {
           radius: radiusMeters
         }).addTo(map);
 
-        // 4. Fit Bounds / FlyTo & RE-OPEN POPUP after move
-        // This ensures the popup isn't closed by the map movement
-        try {
-          const bounds = mapHighlightLayer.getBounds();
-          map.fitBounds(bounds, { padding: [100, 100], maxZoom: 12 }); 
-          // Fix: Ensure popup re-opens after move completes
-          map.once('moveend', () => marker.openPopup());
-          // Fallback timer just in case moveend doesn't fire
-          setTimeout(() => { try { marker.openPopup(); } catch(e){} }, 700); 
-        } catch (e) {
-          map.flyTo([lat, lng], Math.min(11, Math.max(map.getZoom(), 8)));
-          map.once('moveend', () => marker.openPopup());
-          setTimeout(() => { try { marker.openPopup(); } catch(e){} }, 700);
-        }
+        // 4. Open popup immediately — no fitBounds/flyTo which causes cluster
+        // recalculation and forces the popup to close during map movement.
+        try { marker.openPopup(); } catch(e) {}
       });
 
       // --- NEW: Rich Info Popup (The "Information Underneath") ---
