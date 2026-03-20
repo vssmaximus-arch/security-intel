@@ -2742,17 +2742,26 @@ function _refreshMapOverlays() {
    Update headline
 =========================== */
 function updateHeadline(region) {
-  const data = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  let pool = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  // Apply same quality gate as Intel feed — never show Insider/Workforce/Unknown in headline
+  pool = pool.filter(i => {
+    const cat = String(i.category || '').toUpperCase();
+    if (cat === 'UNKNOWN' || cat === '') return false;
+    if (INSIDER_CATEGORIES && INSIDER_CATEGORIES.includes(cat)) return false;
+    const src = String(i.source || i.link || '').toLowerCase();
+    if (INSIDER_SOURCES && INSIDER_SOURCES.some(s => src.includes(s))) return false;
+    return true;
+  });
   const el = document.getElementById("headline-alert");
   const tags = document.getElementById("headline-tags");
   if (!el || !tags) return;
-  if (data.length) {
-    el.textContent = data[0].title || "Headline";
-    const sev = mapSeverityToLabel(data[0].severity);
+  if (pool.length) {
+    el.textContent = pool[0].title || "Headline";
+    const sev = mapSeverityToLabel(pool[0].severity);
     tags.innerHTML = `
-      <span class="tag tag-crit" style="background:${(Number(data[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
-      <span class="tag tag-cat">${escapeHtml(data[0].category || 'CATEGORY')}</span>
-      <span class="tag tag-reg">${escapeHtml(data[0].region || 'REGION')}</span>
+      <span class="tag tag-crit" style="background:${(Number(pool[0].severity||1) >= 4) ? '#d93025' : '#5f6368'}">${escapeHtml(sev.label)}</span>
+      <span class="tag tag-cat">${escapeHtml(pool[0].category || 'CATEGORY')}</span>
+      <span class="tag tag-reg">${escapeHtml(pool[0].region || 'REGION')}</span>
     `;
   } else {
     el.textContent = "No critical alerts.";
