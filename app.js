@@ -5855,6 +5855,7 @@ function renderCriticalAlertsTicker() {
     const cat   = String(i.category || '').toUpperCase();
     if (INSIDER_SOURCES && INSIDER_SOURCES.some(s => src.includes(s))) return false;
     if (INSIDER_CATEGORIES && INSIDER_CATEGORIES.includes(cat)) return false;
+    if (cat === 'UNKNOWN' || cat === '') return false;
     if (/\bdell\b/i.test(title) && INSIDER_TITLE_RE && INSIDER_TITLE_RE.test(title)) return false;
     // Block financial/market articles from the breaking ticker
     if (isFinancialOnlyTitle(title)) return false;
@@ -6877,8 +6878,13 @@ function _tlRender(data) {
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
     if (conf !== 'all' && c.confidence !== conf) return false;
+    // HARD YEAR GATE — never show pre-2026 content in Insider & Leaks
+    const _cTs = new Date(c.last_seen || c.first_seen || 0);
+    if (_cTs.getFullYear() > 0 && _cTs.getFullYear() < 2026) return false;
     // Block Reddit / HN from display (forum noise, unreliable timestamps)
     const firstLink = String((c.source_links || [])[0] || '');
+    const _urlYr = firstLink.match(/\/(20\d{2})[\/\-]/);
+    if (_urlYr && parseInt(_urlYr[1], 10) < 2026) return false;
     if (/reddit\.com|redd\.it|hnrss\.org|news\.ycombinator/.test(firstLink)) return false;
     // Deduplicate by title
     const tKey = String(c.title || '').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60);
