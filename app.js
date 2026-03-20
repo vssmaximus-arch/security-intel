@@ -3998,10 +3998,13 @@ function _lnmTimeAgo(isoStr) {
 function _lnmRender() {
   const feed = _ltmEl('lnm-feed');
   if (!feed) return;
+  // Block WORKFORCE/INSIDER/LAYOFF/UNKNOWN — those belong in Insider & Leaks only
+  const _LNM_BLOCKED = new Set(['WORKFORCE','INSIDER','LAYOFF','LEAK','INSIDER_THREAT','BRAND_MONITORING','DISCARD','UNKNOWN']);
+  const cleanItems = (_lnmItems || []).filter(it => !_LNM_BLOCKED.has(String(it.category || '').toUpperCase()));
   // Filter by category (matches source_category field from Worker) or exact source key
   const visible = _lnmFilter === 'all'
-    ? _lnmItems
-    : _lnmItems.filter(it => (it.source_category || 'news') === _lnmFilter || it.source_key === _lnmFilter);
+    ? cleanItems
+    : cleanItems.filter(it => (it.source_category || 'news') === _lnmFilter || it.source_key === _lnmFilter);
   if (!visible.length) {
     feed.innerHTML = `<div class="lnm-empty">No items from this source yet.</div>`;
     return;
@@ -4107,7 +4110,15 @@ function _lnTabInit() {
 function _lnTabRender() {
   const feed = document.getElementById('ln-feed');
   if (!feed) return;
-  const items    = _lnmItems || [];
+  // Block WORKFORCE/INSIDER/LAYOFF/UNKNOWN from Live News — those belong in Insider & Leaks only
+  const _LN_BLOCKED_CATS = new Set(['WORKFORCE','INSIDER','LAYOFF','LEAK','INSIDER_THREAT','BRAND_MONITORING','DISCARD','UNKNOWN']);
+  const _LN_BLOCKED_CAT_RE = /^(workforce|insider|layoff|leak|insider.?threat|brand.?monitoring|discard|unknown)$/i;
+  const items = (_lnmItems || []).filter(i => {
+    const cat = String(i.category || '').toUpperCase();
+    if (_LN_BLOCKED_CATS.has(cat)) return false;
+    if (_LN_BLOCKED_CAT_RE.test(String(i.category || ''))) return false;
+    return true;
+  });
   const filtered = (_lnTabFilter === 'all')
     ? items
     : items.filter(i => (i.category || i.source_category || 'news') === _lnTabFilter);
