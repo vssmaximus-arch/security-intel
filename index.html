@@ -252,7 +252,7 @@
     .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
     .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
 
-    #proximity-alerts-container { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+    #proximity-alerts-container { overflow-y: auto; padding-right: 5px; }
     #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
     #proximity-alerts-container::-webkit-scrollbar-track { background: #f1f3f4; border-radius: 4px; }
     #proximity-alerts-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
@@ -1642,6 +1642,13 @@
     .dashboard-sidebar {
       width: 480px;
       flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #444 transparent;
     }
     @media (max-width: 991px) {
       .dashboard-layout { flex-direction: column; }
@@ -2257,7 +2264,7 @@
               </div>
             </div>
 
-            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="8" gs-min-h="4" gs-min-w="4">
+            <div class="grid-stack-item" gs-id="proximity" gs-x="0" gs-y="0" gs-w="12" gs-h="12" gs-min-h="5" gs-min-w="4">
               <div class="grid-stack-item-content">
                 <div class="widget-header-bar" title="Drag to reposition">
                   <span class="widget-drag-dots" aria-hidden="true">⠿ ⠿ ⠿</span>
@@ -3379,8 +3386,8 @@
   (function () {
     'use strict';
 
-    var LAYOUT_KEY  = 'infohub_sidebar_layout_v3'; // bumped: clears stale saved layouts
-    var HIDDEN_KEY  = 'infohub_hidden_widgets_v3';
+    var LAYOUT_KEY  = 'infohub_sidebar_layout_v4'; // bumped: proximity h12, sidebar scroll
+    var HIDDEN_KEY  = 'infohub_hidden_widgets_v4';
 
     /* Widget metadata for the picker ---------------------------------- */
     var WIDGET_META = {
@@ -3392,10 +3399,10 @@
 
     /* Default GridStack positions (12-col, cellHeight=60) ------------- */
     var DEFAULT_LAYOUT = [
-      { id: 'proximity',      x: 0,  y: 0,  w: 12, h: 8  },
-      { id: 'history',        x: 0,  y: 8,  w: 12, h: 5  },
-      { id: 'markets',        x: 0,  y: 13, w: 12, h: 6  },
-      { id: 'cii',            x: 0,  y: 19, w: 12, h: 8  },
+      { id: 'proximity',      x: 0,  y: 0,  w: 12, h: 12 },
+      { id: 'history',        x: 0,  y: 12, w: 12, h: 5  },
+      { id: 'markets',        x: 0,  y: 17, w: 12, h: 6  },
+      { id: 'cii',            x: 0,  y: 23, w: 12, h: 8  },
     ];
 
     var grid;
