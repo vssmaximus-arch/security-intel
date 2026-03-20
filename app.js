@@ -6912,11 +6912,17 @@ function _tlRender(data) {
   // Blocklist for Insider & Leaks — these categories don't belong here (marketing/PR/general news)
   const _TL_BLOCKED_CAT_RE = /^(general|geopolitical|cyber.?security|natural.?hazard|supply.?chain|transport|infrastructure|public.?safety|disruption|security|unknown)$/i;
 
+  // Block historical retrospective articles — Google News recirculates old "past year" summaries as new
+  const _TL_RETROSPECTIVE_RE = /\b(over\s+the\s+past\s+(year|few\s+years?|months?|quarters?)|in\s+fiscal\s+(year\s+)?20(1\d|2[0-4])|fiscal\s+20(1\d|2[0-4])|third\s+year\s+in\s+a\s+row|for\s+the\s+(second|third|fourth)\s+(straight\s+)?year|since\s+20(1\d|2[0-4])|year.over.year|cut.*10%.*workforce|shrank.*workforce.*10%|shrunk.*workforce.*1[01]%|laid.off.*1[0-9],000)/i;
+
   const _tlTitleSeen = new Set();
   let filtered = cases.filter(function(c) {
     // Block non-insider categories (General, Geopolitical, Cyber, etc. belong in Intel feed)
     const itemCat = String(c.category || '');
     if (itemCat && _TL_BLOCKED_CAT_RE.test(itemCat)) return false;
+    // Block historical retrospective articles recirculated by Google News
+    const _titleStr = String(c.title || '');
+    if (_TL_RETROSPECTIVE_RE.test(_titleStr)) return false;
     if (cat  !== 'all' && c.category   !== cat)  return false;
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
