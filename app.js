@@ -1139,16 +1139,27 @@ function renderIncidentsOnMap(region, list) {
 
       // --- Interaction: click → red circle + standalone popup at coords ---
       // Standalone popup (not bound to marker) is immune to cluster recalculation.
+      // Priority label + color — matches proximity alert panel exactly
+      const _prioCfg = { P1:{ lbl:'P1 CRITICAL', clr:'#d93025' }, P2:{ lbl:'P2 HIGH', clr:'#e37400' }, P3:{ lbl:'P3 MONITOR', clr:'#c89f00' }, P4:{ lbl:'P4 AWARENESS', clr:'#1565c0' } };
+      const _pc = _prioCfg[i.priority] || null;
+      const _prioHtml = _pc
+        ? `<span style="background:${_pc.clr};color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-right:6px;">${_pc.lbl}</span>`
+        : `<span style="color:${color};font-weight:600;font-size:11px;">${escapeHtml(i.severity_label||'')}</span>`;
+      // Decode HTML entities in summary before escaping (GDACS/USGS feeds embed &deg; etc.)
+      const _decodeEntities = (s) => (s||'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&deg;/g,'°').replace(/&nbsp;/g,' ');
+      const _cleanSummary = escapeHtml(_decodeEntities(i.summary||'').slice(0,220) + ((i.summary||'').length>220?'…':'')) || 'No details available.';
+      const _cleanTitle = escapeHtml((i.title||'').replace(/\.\s*Population\s+affected\b[^.]*\.?\s*$/i,'').trim());
       const popupHtml = `
         <div style="font-family:'Inter',sans-serif;min-width:260px;max-width:310px;">
-          <div style="border-left:4px solid ${color};padding-left:8px;margin-bottom:8px;">
-            <div style="font-weight:700;color:#333;font-size:14px;line-height:1.3;">${escapeHtml((i.title||'').replace(/\.\s*Population\s+affected\b[^.]*\.?\s*$/i,'').trim())}</div>
-            <div style="color:#666;font-size:11px;margin-top:4px;">
-              ${escapeHtml(safeTime(i.time))} &bull; <span style="color:${color};font-weight:600;">${escapeHtml(i.severity_label)}</span>
+          <div style="border-left:4px solid ${_pc ? _pc.clr : color};padding-left:8px;margin-bottom:8px;">
+            <div style="font-weight:700;color:#333;font-size:14px;line-height:1.3;">${_cleanTitle}</div>
+            <div style="margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+              ${_prioHtml}
+              <span style="color:#999;font-size:10px;">${escapeHtml(safeTime(i.time))}</span>
             </div>
           </div>
           <div style="background:#f9f9f9;padding:8px;border-radius:4px;font-size:12px;color:#444;line-height:1.4;margin-bottom:8px;">
-            ${escapeHtml(i.summary ? i.summary.slice(0,200)+(i.summary.length>200?'…':'') : 'No details available.')}
+            ${_cleanSummary}
           </div>
           ${i.nearest_site_name ? `<div style="font-size:11px;margin-bottom:8px;color:#d93025;"><i class="fas fa-bullseye"></i> <strong>${Math.round(i.distance_km||0)}km</strong> to ${escapeHtml(i.nearest_site_name)}</div>` : ''}
           <div style="text-align:right;">
