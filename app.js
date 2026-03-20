@@ -1218,6 +1218,8 @@ const INSIDER_SOURCES = [
   'news.google.com/rss/search?q=dell+headcount','news.google.com/rss/search?q=dell+breach',
   'news.google.com/rss/search?q=dell+hack','news.google.com/rss/search?q=dell+data+leak',
   'news.google.com/rss/search?q=dell+insider','news.google.com/rss/search?q=%22dell%22+layoff',
+  // Google News article redirect URLs — all news.google.com/rss/articles/* links are Dell-insider sourced
+  'news.google.com/rss/articles',
 ];
 // Categories assigned by Worker to insider/workforce intel
 const INSIDER_CATEGORIES = ['INSIDER','LEAK','WORKFORCE','BRAND_MONITORING','LAYOFF'];
@@ -6875,11 +6877,8 @@ function _tlRender(data) {
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
     if (conf !== 'all' && c.confidence !== conf) return false;
-    // Block Google News redirect URLs — their timestamps are unreliable (always "today")
-    // and they surface historical articles (2013, 2023 layoffs) as if current
+    // Block Reddit / HN from display (forum noise, unreliable timestamps)
     const firstLink = String((c.source_links || [])[0] || '');
-    if (/news\.google\.com/.test(firstLink)) return false;
-    // Block Reddit / HN
     if (/reddit\.com|redd\.it|hnrss\.org|news\.ycombinator/.test(firstLink)) return false;
     // Deduplicate by title
     const tKey = String(c.title || '').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60);
