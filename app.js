@@ -1020,8 +1020,9 @@ function initMap() {
   // Red circle removed on map click only (not on popupclose — that fires during programmatic pan)
 
 
-  // --- NEW: Remove red circle when clicking empty map ---
+  // Click empty map → close popup + remove red circle
   map.on('click', () => {
+    map.closePopup();
     if (mapHighlightLayer) {
       map.removeLayer(mapHighlightLayer);
       mapHighlightLayer = null;
