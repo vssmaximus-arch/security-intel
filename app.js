@@ -6927,8 +6927,11 @@ function _tlRender(data) {
     // Block non-insider categories (General, Geopolitical, Cyber, etc. belong in Intel feed)
     const itemCat = String(c.category || '');
     if (itemCat && _TL_BLOCKED_CAT_RE.test(itemCat)) return false;
-    // Block historical retrospective articles recirculated by Google News
+    // Block external APT / CVE / zero-day Breach articles — these are cyber threat intel, not insider risk.
+    // Insider & Leaks = employee threats, internal data leaks, workforce intel, forum posts about Dell.
     const _titleStr = String(c.title || '');
+    const _summaryStr2 = String(c.summary || '');
+    if (itemCat === 'Breach' && /zero.?day|CVE-\d|nation.?state|chinese\s+hack|china.?link|cyberespionage|\bAPT\b|grimbolt|recover.?point|exploit.*month|hack.*month/i.test(_titleStr + ' ' + _summaryStr2)) return false;
     if (_TL_RETROSPECTIVE_RE.test(_titleStr)) return false;
     // Block known regional-roundup sources (Austin Inno = Austin Business Journal weekly roundup)
     if (_TL_ROUNDUP_TITLE_RE.test(_titleStr)) return false;
