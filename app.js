@@ -6932,9 +6932,16 @@ function _tlRender(data) {
     if (_TL_RETROSPECTIVE_RE.test(_titleStr)) return false;
     // Block known regional-roundup sources (Austin Inno = Austin Business Journal weekly roundup)
     if (_TL_ROUNDUP_TITLE_RE.test(_titleStr)) return false;
+    // HARD OLD-YEAR GATE on TITLE — if title contains any pre-2026 year (2000–2025) with no 2026
+    // anchor, it is old content recirculated by Google News with a fake today-timestamp.
+    // e.g. "Dell's 2013 scandal", "layoffs since 2005", "FY2024 results" → all blocked.
+    const _titleHas2026 = /\b2026\b/.test(_titleStr);
+    if (/\b(20(0\d|1\d|2[0-5])|199\d)\b/.test(_titleStr) && !_titleHas2026) return false;
     // Block articles whose summary explicitly mentions a pre-2026 date (old content surfaced by Google News)
     const _summaryStr = String(c.summary || '');
     if (_TL_OLD_YEAR_IN_SUMMARY_RE.test(_summaryStr) && !/\b2026\b/.test(_summaryStr)) return false;
+    // Extended: block if summary contains ANY standalone pre-2026 year with no 2026 reference
+    if (/\b(20(0\d|1\d|2[0-5])|199\d)\b/.test(_summaryStr) && !/\b2026\b/.test(_summaryStr) && !_titleHas2026) return false;
     if (cat  !== 'all' && c.category   !== cat)  return false;
     if (sev  !== 'all' && c.severity   !== sev)  return false;
     if (tgt  !== 'all' && c.target     !== tgt)  return false;
