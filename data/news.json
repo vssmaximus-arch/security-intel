@@ -72,6 +72,18 @@
     "locations": []
   },
   {
+    "title": "Dell scoffs at breach, says miscreants only stole ‘fake data’ - theregister.com",
+    "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE80bmlpd2N0OG9xMzVjQmtjX3MwTVBLVGRhWWVjdVgtbVhpWHBKN0g0S0t3cVREeWV2RmliYmdXUmdWV0Y4ZUdBYUs5LUhRSk9tdGNwUmZGcG5DUlcxWWsxX0RqSFJIREUtTTZqY3d3?oc=5",
+    "snippet": "Cybersecurity incident detected.",
+    "body": "Dell scoffs at breach, says miscreants only stole ‘fake data’ theregister.com",
+    "source": "news.google.com",
+    "time": "2025-07-21T07:00:00+00:00",
+    "region": "Global",
+    "severity": 3,
+    "type": "CYBER SECURITY",
+    "locations": []
+  },
+  {
     "title": "Show HN: Helios – 3 Claude agents (Red vs. Blue) hack and patch your codebase",
     "url": "https://gitlab.com/nakaiwilliams20/helios",
     "snippet": "Cybersecurity incident detected.",
@@ -81,18 +93,6 @@
     "region": "Global",
     "severity": 2,
     "type": "CYBER SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Iranian strike hits near Israeli nuclear facility after Tehran says its site targeted",
-    "url": "https://www.bbc.com/news/articles/c9qdvnv13qdo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Supply chain or logistics disruption.",
-    "body": "The chief of the International Atomic Energy Agency called for \"maximum military restraint\" following the strikes.",
-    "source": "bbc.com",
-    "time": "2026-03-21T23:01:07+00:00",
-    "region": "EMEA",
-    "severity": 2,
-    "type": "SUPPLY CHAIN",
     "locations": []
   },
   {
@@ -252,24 +252,12 @@
     "locations": []
   },
   {
-    "title": "M 5.1 - 156 km SW of Labuan, Indonesia",
-    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000si8m",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "DYFI? - II Time 2026-03-21 18:08:53 UTC 2026-03-21 18:08:53 UTC at epicenter Location 7.498°S 104.962°E Depth 10.00 km (6.21 mi)",
-    "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.339691+00:00",
-    "region": "APJC",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "M 4.5 - 63 km SW of Atocha, Bolivia",
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000si9i",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-21 19:47:09 UTC 2026-03-21 19:47:09 UTC at epicenter Location 21.327°S 66.672°W Depth 232.48 km (144.46 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.298799+00:00",
+    "time": "2026-03-22T08:12:11.851059+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -281,7 +269,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-21 20:07:25 UTC 2026-03-21 20:07:25 UTC at epicenter Location 29.272°S 179.071°W Depth 302.21 km (187.79 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.262844+00:00",
+    "time": "2026-03-22T08:12:11.771937+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -293,7 +281,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-22 00:14:49 UTC 2026-03-22 00:14:49 UTC at epicenter Location 28.072°S 62.650°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.222886+00:00",
+    "time": "2026-03-22T08:12:11.710149+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -305,7 +293,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "PAGER - GREEN ShakeMap - I Time 2026-03-22 03:03:45 UTC 2026-03-22 03:03:45 UTC at epicenter Location 8.942°S 108.333°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.187996+00:00",
+    "time": "2026-03-22T08:12:11.640735+00:00",
     "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -317,7 +305,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-22 03:51:48 UTC 2026-03-22 03:51:48 UTC at epicenter Location 6.412°S 103.868°E Depth 35.00 km (21.75 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.149156+00:00",
+    "time": "2026-03-22T08:12:11.561902+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -329,7 +317,7 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Time 2026-03-22 06:08:37 UTC 2026-03-22 06:08:37 UTC at epicenter Location 32.022°S 57.054°E Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.112018+00:00",
+    "time": "2026-03-22T08:12:11.504739+00:00",
     "region": "APJC",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
@@ -341,8 +329,44 @@
     "snippet": "Keyword heuristic — low confidence.",
     "body": "PAGER - GREEN ShakeMap - IV DYFI? - II Time 2026-03-22 06:15:36 UTC 2026-03-22 06:15:36 UTC at epicenter Location 15.382°S 173.047°W Depth 10.00 km (6.21 mi)",
     "source": "earthquake.usgs.gov",
-    "time": "2026-03-22T07:19:49.074648+00:00",
+    "time": "2026-03-22T08:12:11.428215+00:00",
     "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "M 5.1 - 180 km SE of Petropavlovsk-Kamchatsky, Russia",
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us6000sie4",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Time 2026-03-22 07:19:58 UTC 2026-03-22 07:19:58 UTC at epicenter Location 52.158°N 160.831°E Depth 10.00 km (6.21 mi)",
+    "source": "earthquake.usgs.gov",
+    "time": "2026-03-22T08:12:11.365849+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Iranian missiles injure 160 in towns near Israeli nuclear site",
+    "url": "https://www.bbc.com/news/articles/c9qdvnv13qdo?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Israel is investigating how ballistic missiles got through the country's sophisticated air defences.",
+    "source": "bbc.com",
+    "time": "2026-03-22T07:39:50+00:00",
+    "region": "EMEA",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
+    "title": "Socialists battle to hold Paris as France holds mayoral elections",
+    "url": "https://www.bbc.com/news/articles/c87wgw27201o?at_medium=RSS&at_campaign=rss",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "The capital could shift to the right after 25 years under the Socialists if Rachida Dati defeats Emmanuel Grégoire.",
+    "source": "bbc.com",
+    "time": "2026-03-22T07:08:59+00:00",
+    "region": "EMEA",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -355,18 +379,6 @@
     "source": "bbc.com",
     "time": "2026-03-22T02:42:39+00:00",
     "region": "APJC",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "National blackout hits Cuba for second time in a week",
-    "url": "https://www.bbc.com/news/articles/cvg0l44yxrvo?at_medium=RSS&at_campaign=rss",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Another total failure of its power grid underlines Cuba's hardship under a US-imposed fuel blockade.",
-    "source": "bbc.com",
-    "time": "2026-03-22T02:02:40+00:00",
-    "region": "Global",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -456,6 +468,18 @@
     "locations": []
   },
   {
+    "title": "Cramer: Dell crashed from $168 to $110 despite strong fundamentals - 24/7 Wall St.",
+    "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQUmlFREJXSlJQT1hKNllXS2RfakRpQ3J2RUE5djRnUFFpVEZoRm96aFVTNmE5bHdLdWNyV1BSZ0M4Nkt4dDJ4aEdTOEdSU1hXT1dFNXk2anVLa2FSQjRCMFUwbFg5bTJxRnBfWnpkU0gyWlVXMVMyOHFtM2JkRTVzM1NKLWZTYkN4SnlTcFE2a2FGY2FzeDFnNDB0dGVhUUFkX1hlUUlXbGVhLUE?oc=5",
+    "snippet": "Keyword heuristic — low confidence.",
+    "body": "Cramer: Dell crashed from $168 to $110 despite strong fundamentals 24/7 Wall St.",
+    "source": "news.google.com",
+    "time": "2026-03-20T13:11:36+00:00",
+    "region": "Global",
+    "severity": 1,
+    "type": "PHYSICAL SECURITY",
+    "locations": []
+  },
+  {
     "title": "Jim Cramer on Dell Technologies: “I Call It the Customer’s Most Sought-After Technology and One of the Most Undervalued Stocks in the Market” - Yahoo Finance",
     "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNZFJqN3FUMEw4TEtac1k5SzFseHVGZlhUV09xME5NLTJEVGlhNzg1ekJDZjFVYURTaXlrREpfOHZrazJFMFZFelViTzA3WnV5ZjdLY1lTOUtUTDBtYzhQdWlaU29hVmxJVEVXaTRSc2stMWR6dFBlS25KWGZHbDIxSFRmbk1zRW9BLTRUUDFnOURJYzFWa3g2aHI4YkNMYlE?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -487,18 +511,6 @@
     "source": "unplugice.org",
     "time": "2026-03-19T06:56:58+00:00",
     "region": "Global",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
-    "title": "Dell trimmed global workforce by 10% last year amid AI-fueled growth - Austin American-Statesman",
-    "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNUFRTVE9PVVdjaTRUS3JMSGg2MTZZTnJVbVhPQ1h1VGkxazd0ejI2ZU1BRjJ1YjAwUGJrMkQyX3k5cHFmd3RFbFZnYVVYZHpJWGEwUTgzSzA3M0VxWC1lZmtoX0lIN3JLVzZJUDRTOEJoV2pJUUpMVDZ5YkNUVGlMWXBLXzBGSUlhMWU2cHVNSDA1ZDE2UHdHdHVpQTh4UlYybTczeWFBQ19xcVNm?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Dell trimmed global workforce by 10% last year amid AI-fueled growth Austin American-Statesman",
-    "source": "news.google.com",
-    "time": "2026-03-18T20:17:46+00:00",
-    "region": "AMER",
     "severity": 1,
     "type": "PHYSICAL SECURITY",
     "locations": []
@@ -648,18 +660,6 @@
     "locations": []
   },
   {
-    "title": "Former Dell employees sue the company for $318 million - The American Bazaar",
-    "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPZnk5R0gwSGR6alhXTnZqUGNvanloSG1NeFJiaTd1bVh0c09hZGhiR2ZMNFczVEQ4ZXgyZmFCRUxBSGVCUzBvN1Q4QXJ3UElfMmFOaXlTX2g5Skp2Q1FJci11X2pSRjhXR3gwNHB3SGRrbTExU19sRDNYRmM5Z0s2eThlQlQ0bEVSNXdYcGtTa0YwdWFOVHhGbG1xSjNWOFdMZmVhSlgwcVg?oc=5",
-    "snippet": "Keyword heuristic — low confidence.",
-    "body": "Former Dell employees sue the company for $318 million The American Bazaar",
-    "source": "news.google.com",
-    "time": "2026-02-05T08:00:00+00:00",
-    "region": "AMER",
-    "severity": 1,
-    "type": "PHYSICAL SECURITY",
-    "locations": []
-  },
-  {
     "title": "What Dell’s “One Dell Way” overhaul signals to IT leaders - Spiceworks",
     "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPUzAwWElOTnNJR1k2SnNTZXNtM3h6RFdpczRGMDd0Rlgzb2pqMEMwZXliMmFyYTdXNjZRb3dlazl1Yk5NZXhxUUQ0TkRLbUN4M05EdFdkLVp5Vnp2S1RmOHJTLURUUkJGbDlWek5TcGN0dlV5blZDMWZSRWp4NGs5OHVJTFdBZlI4dlFSNlFrOGtZZjhIcFE?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
@@ -697,7 +697,7 @@
   },
   {
     "title": "Apple and Dell Face Soaring Memory Prices. How the Stocks Can Handle the Threat. - Barron's",
-    "url": "https://news.google.com/rss/articles/CBMiiANBVV95cUxQbjdBVHl5Wmx5QVc5Q3hMczhzd0Z1MkRDZ2VSSTR5SWlqNVVGZVRJWU9oc3ozNWpBQkhmMk9vbFhrVHdlMzJ2WEVMczFUUUt4VlpnZUZCSUpDc1V1WEs1djhhTzJjY0dCbl9iNlFNOFJYVkU4T19rUEtyVkJqYUJNWTJiZlAwU2w3SHdSemtfNjNIYW4tMjE0djdvZXlIRE4waG5TSjhrSno5THlZU1RKUTd6M3U3STV1emZiUGhaQ3BIaGQtLUI2b2NudGxDcGZ3cENwRzYtb1RZM1QtSE9WTVhvNDVqeHJLWGh4dTZ4eFd5QUYyMkVBZjg4bG1xd0hwRFRQX0MxRFJYS3p4cllzeVVlNHk0a1BPY25Nb2NibHNheHpEczE4dURqdG9LTE1TcDJFVE5ob093YndXSUdxeDFDWnFuVmZwSU5TaEs1ejVjS19GdGRPa1dxM214WlF4YVN3V1UwTlBSOWFuZ2tWaURMejZ4NXVzbUE5U25aclhjVk9XbHFiTA?oc=5",
+    "url": "https://news.google.com/rss/articles/CBMiiANBVV95cUxPSlNlUHhoa1NLb3hWb0lMNDBlaEE2cElhNDJrMDhIMDlUVEd3NkZVLUJBV2VOMy1mVmJ1ZkJlMmRSOEJTWnVFVTBSUnVObklmZDNmaG55d0xxaWc0NGpINGdiNWZoVEhqbGVOWk9pQnFhUlNzR2pXOEhjYm1DRDRTckVJSjBEazJiUW12MnZXRWJldGhuNXFGS3QwSFVRTHhPX1d4SllLdDlVY3l5VWltMDVKQkMtTXhUZkNQUTBPMGtjN3lQUHZhemlkWVo2NlFPaWVCSmEtdEljc3JXZkpyUmdfRGY0QXV3RDhQYlcyNHZ5bFJCOFRTVExncDRCTl9GTzYzdklQel9Ra2xEdkpPUVpFTF9Lc1RfaUpLYTdQVlNqTXhWLUgwNDZWX2VkRlZjLUlLN1E4Y3puMlNYSnJObEZTSmZra08tOHIxWlAzVnplVGZxZkdROUczRE5IQzFNUnlWdXF1UjlmTzdpeXpza0ktdUJYLXlwZmQ1UlpOQS1UNElwZkNIYQ?oc=5",
     "snippet": "Keyword heuristic — low confidence.",
     "body": "Apple and Dell Face Soaring Memory Prices. How the Stocks Can Handle the Threat. Barron's",
     "source": "news.google.com",
