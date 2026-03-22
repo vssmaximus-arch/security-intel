@@ -6913,7 +6913,7 @@ function _tlRender(data) {
   const _TL_BLOCKED_CAT_RE = /^(general|geopolitical|cyber.?security|natural.?hazard|supply.?chain|transport|infrastructure|public.?safety|disruption|security|unknown)$/i;
 
   // Block historical retrospective articles — Google News recirculates old "past year" summaries as new
-  const _TL_RETROSPECTIVE_RE = /\b(over\s+the\s+past\s+(year|few\s+years?|months?|quarters?)|in\s+fiscal\s+(year\s+)?20(1\d|2[0-4])|fiscal\s+20(1\d|2[0-4])|third\s+year\s+in\s+a\s+row|for\s+the\s+(second|third|fourth)\s+(straight\s+)?year|since\s+20(1\d|2[0-4])|year.over.year|cut.*10%.*workforce|shrank.*workforce.*10%|shrunk.*workforce.*1[01]%|laid.off.*1[0-9],000|job\s+cuts\s+will\s+continue.*margins|margins\s+under\s+pressure.*job\s+cuts)/i;
+  const _TL_RETROSPECTIVE_RE = /\b(over\s+the\s+past\s+(year|few\s+years?|months?|quarters?)|in\s+fiscal\s+(year\s+)?20(1\d|2[0-4])|fiscal\s+20(1\d|2[0-4])|fiscal\s+year\s+20(1\d|2[0-4])|past\s+fiscal\s+year|in\s+past\s+fiscal|third\s+year\s+in\s+a\s+row|for\s+the\s+(second|third|fourth)\s+(straight\s+)?year|since\s+20(1\d|2[0-4])|year.over.year|cut.*\d+%.*workforce|shrank.*workforce.*10%|shrunk.*workforce.*1[01]%|laid.off.*1[0-9],000|job\s+cuts\s+will\s+continue.*margins|margins\s+under\s+pressure.*job\s+cuts)/i;
 
   // Block summary/description content that explicitly references pre-2026 dates (Google News recirculation)
   // e.g. "reported in March 2024", "as of Q3 2023", "announced in 2022"
