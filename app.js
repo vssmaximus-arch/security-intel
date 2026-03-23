@@ -951,7 +951,8 @@ function initMap() {
     maxZoom: 19,
     maxBounds: bounds,
     maxBoundsViscosity: 1.0,
-    worldCopyJump: false
+    worldCopyJump: false,
+    closePopupOnClick: false   // CRITICAL: default true fires on preclick, closing popup before any guard runs
   }).setView([20, 0], 2);
 
   L.control.zoom({ position: "topleft" }).addTo(map);
@@ -1148,7 +1149,8 @@ function renderIncidentsOnMap(region, list) {
 
   // 48h hard cutoff — never show markers older than 48 hours on the map
   const _map48hCutoff = Date.now() - (48 * 3600 * 1000);
-  const data = ((region === "Global") ? list : list.filter(i => i.region === region))
+  // Region filter: show region-specific items AND GLOBAL-tagged items (global events affect all RSM regions)
+  const data = ((region === "Global") ? list : list.filter(i => i.region === region || i.region === 'GLOBAL' || i.region === 'Global'))
     .filter(i => { try { const t = new Date(i.time).getTime(); return !isNaN(t) && t >= _map48hCutoff; } catch(e) { return false; } });
   const proxIds = new Set(PROXIMITY_INCIDENTS.map(i => String(i.id)));
 
@@ -1371,7 +1373,8 @@ function mapSeverityToLabel(s) {
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region);
+  // Include GLOBAL-tagged incidents in every region view — global events affect all RSM regions
+  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region || i.region === 'GLOBAL' || i.region === 'Global');
   // APJC sub-region drill-down
   if (region === 'APJC' && activeApjcSub) {
     rawData = rawData.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));
