@@ -1009,12 +1009,14 @@ function initMap() {
                       (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
                       (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
                       (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
-      // Track hover tooltip separately — never overwrites the persistent clicked-marker popup
+      // Track hover tooltip separately — use addTo() NOT openOn() so it never replaces _activeMapPopup
+      // openOn() goes through map.openPopup() which visually replaces the existing popup
+      // addTo() adds as an independent layer, both can coexist
       if (_clusterHoverPopup) { try { _clusterHoverPopup.remove(); } catch(_){} _clusterHoverPopup = null; }
-      _clusterHoverPopup = L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip', autoClose: true })
+      _clusterHoverPopup = L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip', autoClose: false })
         .setLatLng(e.layer.getLatLng())
         .setContent(summary)
-        .openOn(map);
+        .addTo(map);
     }, 80);
   });
 
@@ -1040,7 +1042,10 @@ function initMap() {
 
 
   // Click empty map → close popup + remove red circle
+  // Guard: Leaflet fires map 'click' even after marker click despite stopPropagation (known bug).
+  // Ignore map click if a marker was clicked within the last 500ms.
   map.on('click', () => {
+    if (window._lastMarkerClickMs && (Date.now() - window._lastMarkerClickMs) < 500) return;
     map.closePopup();
     if (_activeMapPopup) { try { _activeMapPopup.remove(); } catch(_){} _activeMapPopup = null; }
     if (mapHighlightLayer) { map.removeLayer(mapHighlightLayer); mapHighlightLayer = null; }
@@ -1191,6 +1196,7 @@ function renderIncidentsOnMap(region, list) {
 
       marker.on('click', (e) => {
         L.DomEvent.stopPropagation(e); // prevent map click handler from firing
+        window._lastMarkerClickMs = Date.now(); // time-guard: suppress map click that Leaflet fires anyway
         // Remove old highlight circle
         if (mapHighlightLayer) { map.removeLayer(mapHighlightLayer); mapHighlightLayer = null; }
         // Draw proximity circle
