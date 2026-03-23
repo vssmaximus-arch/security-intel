@@ -2788,12 +2788,31 @@ function startClock() {
 =========================== */
 // Region bounding boxes [southLat, westLng, northLat, eastLng]
 const _REGION_BOUNDS = {
-  'Global': null,                              // full world view
-  'AMER':   [[-60, -170],  [75,  -30]],        // Americas
-  'EMEA':   [[-35,  -25],  [72,   65]],        // Europe, Middle East, Africa
-  'APJC':   [[-50,   60],  [55,  180]],        // Asia Pacific, Japan, China
-  'LATAM':  [[-60, -120],  [35,  -30]],        // Latin America
+  'Global': null,
+  'AMER':   [[-60, -170],  [75,  -30]],
+  'EMEA':   [[-35,  -25],  [72,   65]],
+  'APJC':   [[-50,   60],  [55,  180]],
+  'LATAM':  [[-60, -120],  [35,  -30]],
 };
+
+// Explicit center+zoom per region — tested live to confirm they work on wide screens.
+// fitBounds/flyToBounds fails on wide maps (map wider than world at zoom 2) so we use
+// setView with zoom 5 where the world (8192px) exceeds any container and panning is free.
+const _REGION_VIEW = {
+  'Global': { center: [20,   0  ], zoom: 2 },
+  'AMER':   { center: [20,  -95 ], zoom: 5 },
+  'EMEA':   { center: [40,   20 ], zoom: 5 },
+  'APJC':   { center: [15,  100 ], zoom: 5 },
+  'LATAM':  { center: [-10, -70 ], zoom: 5 },
+};
+
+function _zoomMapToRegion(region) {
+  if (!map) return;
+  const v = _REGION_VIEW[region] || _REGION_VIEW['Global'];
+  try {
+    map.setView(v.center, v.zoom, { animate: true, duration: 0.6 });
+  } catch(e) {}
+}
 
 function filterNews(region) {
   currentRegion = region || 'GLOBAL';
@@ -2805,20 +2824,8 @@ function filterNews(region) {
   renderProximityAlerts(region);
   renderCriticalAlertsTicker();
   _refreshMapOverlays();      // re-clip heatmap + nature events to the active region
-  // Zoom map to the selected region — deferred so rendering completes first
-  if (map) {
-    setTimeout(() => {
-      try {
-        map.invalidateSize();  // ensure map knows its container dimensions
-        const bounds = _REGION_BOUNDS[region];
-        if (bounds) {
-          map.flyToBounds(bounds, { animate: true, duration: 0.7, padding: [20, 20] });
-        } else {
-          map.flyTo([20, 0], 2, { animate: true, duration: 0.7 });
-        }
-      } catch(e) {}
-    }, 80);
-  }
+  // NOTE: map zoom is NOT here — it's only in _zoomMapToRegion() called by explicit tab clicks
+  // This prevents the SSE stream from moving the map every time data refreshes
 }
 
 // Re-renders heatmap and nature events overlays clipped to the current region
@@ -5352,7 +5359,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const region = t.dataset.region || t.textContent.trim();
         // Show APJC sub-nav only when APJC is selected
         _setApjcSubNav(region === 'APJC');
-        filterNews(region);  // filterNews() handles map zoom with 80ms setTimeout
+        filterNews(region);
+        // Zoom map to the clicked region — ONLY here, never in filterNews (SSE would spam it)
+        _zoomMapToRegion(region);
         return;
       }
       if (action === 'filter-apjc-sub') {
