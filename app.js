@@ -5356,14 +5356,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!action) return;
 
       if (action === 'go-home') {
-        // Switch to Intelligence tab first (switchView is defined in index.html script)
-        if (typeof switchView === 'function') {
-          // Force it even if already on intelligence by temporarily clearing currentView
-          if (typeof currentView !== 'undefined' && currentView === 'intelligence') {
-            currentView = null;
-          }
-          switchView('intelligence');
-        }
+        // Switch to Intelligence tab by clicking it directly (switchView is scoped in index.html IIFE)
+        const intTab = document.querySelector('.view-tab[data-view="intelligence"]');
+        if (intTab) intTab.click();
         // Activate Global region tab
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => {
           el.classList.toggle('active', el.dataset.region === 'Global');
