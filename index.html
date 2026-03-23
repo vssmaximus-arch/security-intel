@@ -2589,8 +2589,26 @@
     <!-- GridStack dashboard — all widgets draggable + resizable -->
     <div class="grid-stack" id="vw-grid">
 
-      <!-- ── MAP WIDGET (top, full width) ───────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-map-widget" gs-x="0" gs-y="0" gs-w="12" gs-h="7" gs-min-h="4">
+      <!-- ── POSTURE BANNER WIDGET (one-liner at top) ──────────────── -->
+      <div class="grid-stack-item" gs-id="vw-posture-widget" gs-x="0" gs-y="0" gs-w="12" gs-h="1" gs-min-h="1">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable vw-posture-oneliner">
+            <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
+            <span class="vw-posture-label">MARITIME EXPOSURE POSTURE</span>
+            <span class="vw-posture-sep">·</span>
+            <span id="vw-posture-level" class="vw-posture-level">Loading…</span>
+            <span class="vw-posture-sep">—</span>
+            <span id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</span>
+            <div class="vw-posture-right">
+              <span id="vw-posture-counts" class="vw-posture-counts"></span>
+              <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh fleet data"><i class="fas fa-sync-alt"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MAP WIDGET (left 8 cols) ───────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="vw-map-widget" gs-x="0" gs-y="1" gs-w="8" gs-h="7" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-map-marked-alt" style="margin-right:6px;"></i>Maritime Operations Map</span>
@@ -2609,28 +2627,8 @@
         </div>
       </div>
 
-      <!-- ── POSTURE BANNER WIDGET ───────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-posture-widget" gs-x="0" gs-y="7" gs-w="12" gs-h="2" gs-min-h="2">
-        <div class="grid-stack-item-content vw-gs-content">
-          <div id="vw-posture-banner" class="vw-posture-banner vw-posture-stable" style="height:100%;margin:0;border-radius:0;">
-            <div class="vw-posture-left" style="cursor:grab;" title="Drag to reposition">
-              <span class="vw-posture-icon"><i class="fas fa-anchor"></i></span>
-              <div>
-                <div class="vw-posture-label">MARITIME EXPOSURE POSTURE</div>
-                <div id="vw-posture-level" class="vw-posture-level">Loading…</div>
-              </div>
-            </div>
-            <div id="vw-posture-summary" class="vw-posture-summary">Fetching fleet status…</div>
-            <div class="vw-posture-right">
-              <span id="vw-posture-counts" class="vw-posture-counts"></span>
-              <button id="vw-refresh-btn" class="vw-btn-refresh" title="Refresh fleet data"><i class="fas fa-sync-alt"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- ── MARITIME DISRUPTIONS WIDGET ────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="9" gs-w="8" gs-h="9" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="8" gs-w="8" gs-h="9" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-ship" style="margin-right:6px;"></i>Maritime Disruptions</span>
@@ -2673,7 +2671,7 @@
       </div>
 
       <!-- ── CHOKEPOINT TRAFFIC WIDGET ──────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-chokepoint-widget" gs-x="8" gs-y="9" gs-w="4" gs-h="9" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="vw-chokepoint-widget" gs-x="8" gs-y="8" gs-w="4" gs-h="9" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-water" style="margin-right:6px;"></i>Chokepoint Traffic</span>
@@ -2688,7 +2686,7 @@
       </div>
 
       <!-- ── TRACK VESSEL WIDGET ────────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="0" gs-y="18" gs-w="4" gs-h="8" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="0" gs-y="17" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-search" style="margin-right:6px;"></i>Track Vessel</span>
@@ -2707,7 +2705,7 @@
       </div>
 
       <!-- ── MONITORED FLEET WIDGET ─────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-monitored-widget" gs-x="4" gs-y="18" gs-w="8" gs-h="8" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="vw-monitored-widget" gs-x="8" gs-y="1" gs-w="4" gs-h="7" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-binoculars" style="margin-right:6px;"></i>Monitored Fleet</span>
@@ -2727,7 +2725,7 @@
       <i class="fas fa-lock" style="margin-right:6px;"></i>
       Public intelligence only — no internal Dell cargo, customer, shipment, supplier, SKU, or financial data.
       &nbsp;·&nbsp; Vessel positions via AIS feed or illustrative placeholders.
-      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="localStorage.removeItem('vw_grid_layout_v1');location.reload();" title="Reset widget positions">Reset layout</span>
+      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="localStorage.removeItem('vw_grid_layout_v2');location.reload();" title="Reset widget positions">Reset layout</span>
     </div>
   </div><!-- /view-vessel-watch -->
 
@@ -3121,7 +3119,15 @@
     .vw-panel-header { font-size:.78rem; font-weight:700; color:#9aa0a6; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
 
     /* Posture Banner */
-    .vw-posture-banner { display:flex; align-items:center; gap:16px; padding:14px 18px; border-radius:8px; margin-bottom:14px; border:1px solid transparent; transition:background .3s,border-color .3s; }
+    .vw-posture-banner { display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:8px; margin-bottom:14px; border:1px solid transparent; transition:background .3s,border-color .3s; }
+    /* One-liner compact variant */
+    .vw-posture-oneliner { padding:0 14px; height:100%; border-radius:0; margin:0; flex-wrap:nowrap; }
+    .vw-posture-oneliner .vw-posture-icon { font-size:.85rem; min-width:auto; }
+    .vw-posture-oneliner .vw-posture-label { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; white-space:nowrap; }
+    .vw-posture-oneliner .vw-posture-level { font-size:.85rem; font-weight:700; white-space:nowrap; }
+    .vw-posture-oneliner .vw-posture-summary { font-size:.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+    .vw-posture-oneliner .vw-posture-right { margin-left:auto; flex-shrink:0; }
+    .vw-posture-sep { opacity:.35; font-size:.8rem; flex-shrink:0; }
     .vw-posture-stable   { background:#1a2433; border-color:#2a5298; }
     .vw-posture-watch    { background:#2a2300; border-color:#fbbc04; }
     .vw-posture-elevated { background:#2e1a00; border-color:#f4a742; }
@@ -4702,17 +4708,17 @@
   (function () {
     'use strict';
 
-    var VW_LAYOUT_KEY = 'vw_grid_layout_v1';
+    var VW_LAYOUT_KEY = 'vw_grid_layout_v2'; // bumped: new default layout (posture one-liner + map/fleet side-by-side)
     var vwGrid        = null;
     var vwGridReady   = false;
 
     var VW_DEFAULT_LAYOUT = [
-      { id: 'vw-map-widget',        x: 0, y: 0,  w: 12, h: 7  },
-      { id: 'vw-posture-widget',    x: 0, y: 7,  w: 12, h: 2  },
-      { id: 'vw-disruptions-widget',x: 0, y: 9,  w: 8,  h: 9  },
-      { id: 'vw-chokepoint-widget', x: 8, y: 9,  w: 4,  h: 9  },
-      { id: 'vw-track-widget',      x: 0, y: 18, w: 4,  h: 8  },
-      { id: 'vw-monitored-widget',  x: 4, y: 18, w: 8,  h: 8  },
+      { id: 'vw-posture-widget',    x: 0, y: 0,  w: 12, h: 1  }, // slim one-liner at top
+      { id: 'vw-map-widget',        x: 0, y: 1,  w: 8,  h: 7  }, // map: left 8 cols
+      { id: 'vw-monitored-widget',  x: 8, y: 1,  w: 4,  h: 7  }, // fleet: right 4 cols, same row
+      { id: 'vw-disruptions-widget',x: 0, y: 8,  w: 8,  h: 9  }, // disruptions: left below map
+      { id: 'vw-chokepoint-widget', x: 8, y: 8,  w: 4,  h: 9  }, // chokepoints: right below fleet
+      { id: 'vw-track-widget',      x: 0, y: 17, w: 4,  h: 8  }, // track vessel: bottom left
     ];
 
     function saveLayout() {
