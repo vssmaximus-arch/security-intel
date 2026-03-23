@@ -7601,9 +7601,15 @@ async function handleApiRadiationSensors(env, ctx) {
         /* Convert CPM to nSv/h (Cs-137 conversion: 1 CPM ≈ 10 nSv/h) */
         const nsvh = Math.round(valueCpm * 10);
         const severity = nsvh > 500 ? 'spike' : nsvh > 150 ? 'elevated' : 'normal';
+        /* Format location: prefer location_name, else clean lat/lon */
+        const lat = parseFloat(r.latitude  || 0);
+        const lon = parseFloat(r.longitude || 0);
+        const latStr = (Math.abs(lat).toFixed(1)) + (lat >= 0 ? '°N' : '°S');
+        const lonStr = (Math.abs(lon).toFixed(1)) + (lon >= 0 ? '°E' : '°W');
+        const locLabel = r.location_name ? r.location_name : (latStr + ', ' + lonStr);
         observations.push({
           id:         'sc-' + r.id,
-          location:   r.location_name || (r.latitude + ', ' + r.longitude),
+          location:   locLabel,
           country:    '',
           lat:        r.latitude,
           lon:        r.longitude,

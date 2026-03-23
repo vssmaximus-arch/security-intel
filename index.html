@@ -4014,7 +4014,9 @@
 
     /* map widget: map fills remaining height after header */
     .vw-gs-map-body { flex: 1; min-height: 0; position: relative; }
-    .vw-gs-map-body #vw-map { position: absolute; inset: 0; }
+    .vw-gs-map-body #vw-map,
+    .vw-gs-map-body #cw-map,
+    .vw-gs-map-body #cw-israel-map { position: absolute; inset: 0; }
 
     /* standard widget body: scrollable content area */
     .vw-gs-body { flex: 1; min-height: 0; padding: 10px 12px; }
@@ -5773,9 +5775,11 @@
       var tile = isLight
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10 });
-      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19 }).addTo(cwConflictMap);
+      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false });
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:false }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
+      /* Force size recalculation after grid renders */
+      setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
       /* Attribution */
       L.control.attribution({ prefix:false }).addTo(cwConflictMap);
     }
