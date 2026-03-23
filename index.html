@@ -3556,7 +3556,8 @@
       if (resetBtn) {
         resetBtn.addEventListener('click', function() {
           /* ── Vessel Watch tab: reset VW grid layout ── */
-          if (typeof currentView !== 'undefined' && currentView === 'vessel-watch') {
+          var activeTab = document.querySelector('.view-tab.active');
+          if (activeTab && activeTab.dataset.view === 'vessel-watch') {
             var VW_D = [
               {id:'vw-posture-widget',    x:0, y:0,  w:12, h:1},
               {id:'vw-map-widget',        x:0, y:1,  w:8,  h:7},
