@@ -1176,11 +1176,12 @@ function renderIncidentsOnMap(region, list) {
       const marker = L.marker([lat, lng], {
         severity: sev,
         incidentData: i,  // stored so cluster popup can list contents on click
+        zIndexOffset: 800, // render above Dell site markers (default zIndexOffset=0) so dots are always clickable
         icon: L.divIcon({
-          html: `<div class="incident-dot" style="background:${color}; box-shadow: 0 0 5px ${color};"></div>`,
+          html: `<div class="incident-dot" style="background:${color}; box-shadow: 0 0 6px ${color}; width:16px; height:16px; border-radius:50%; border:2px solid rgba(255,255,255,0.8); cursor:pointer;"></div>`,
           className: '',
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
         })
       });
 
