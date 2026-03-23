@@ -40,7 +40,8 @@ let TRAVEL_UPDATED_AT = null;
 // Map globals
 let map, assetsClusterGroup, incidentClusterGroup, criticalLayerGroup;
 let mapHighlightLayer  = null; // Stores the active red circle
-let _activeMapPopup    = null; // Stores the current open map info popup
+let _activeMapPopup    = null; // Stores the current open map info popup (clicked marker — stays open)
+let _clusterHoverPopup = null; // Stores the transient cluster hover tooltip (separate from clicked popup)
 
 let ADMIN_SECRET = '';
 let VOTES_LOCAL = {};
@@ -1008,7 +1009,9 @@ function initMap() {
                       (counts.high ? `<span style="color:#d93025">High: ${counts.high}</span><br/>` : '') +
                       (counts.medium ? `<span style="color:#f9ab00">Medium: ${counts.medium}</span><br/>` : '') +
                       (counts.low ? `<span style="color:#1a73e8">Low: ${counts.low}</span>` : '');
-      L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip' })
+      // Track hover tooltip separately — never overwrites the persistent clicked-marker popup
+      if (_clusterHoverPopup) { try { _clusterHoverPopup.remove(); } catch(_){} _clusterHoverPopup = null; }
+      _clusterHoverPopup = L.popup({ closeButton: false, offset: [0, -10], className: 'map-tooltip', autoClose: true })
         .setLatLng(e.layer.getLatLng())
         .setContent(summary)
         .openOn(map);
@@ -1017,12 +1020,20 @@ function initMap() {
 
   incidentClusterGroup.on('clustermouseout', (e) => {
     clearTimeout(_clusterHoverTimeout);
-    map.closePopup();
+    // Close ONLY the transient hover tooltip — do NOT call map.closePopup() which would
+    // also kill any persistent clicked-marker popup (_activeMapPopup) the user is reading
+    if (_clusterHoverPopup) { try { _clusterHoverPopup.remove(); } catch(_){} _clusterHoverPopup = null; }
   });
 
   incidentClusterGroup.on('clusterclick', (e) => {
-    if (incidentClusterGroup.options.zoomToBoundsOnClick) return;
-    map.closePopup();
+    // Close hover tooltip on click
+    clearTimeout(_clusterHoverTimeout);
+    if (_clusterHoverPopup) { try { _clusterHoverPopup.remove(); } catch(_){} _clusterHoverPopup = null; }
+    // On touch devices zoomToBoundsOnClick is disabled — manually zoom to cluster bounds
+    if (!incidentClusterGroup.options.zoomToBoundsOnClick) {
+      e.layer.zoomToBounds({ padding: [30, 30] });
+    }
+    // On desktop: built-in zoomToBoundsOnClick handles it automatically
   });
 
   // Red circle removed on map click only (not on popupclose — that fires during programmatic pan)
