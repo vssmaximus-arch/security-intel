@@ -4727,10 +4727,14 @@
 
     /* Reset to default — applies immediately without page reload */
     window.resetVwLayout = function () {
-      if (!vwGrid) { localStorage.removeItem(VW_LAYOUT_KEY); location.reload(true); return; }
       localStorage.removeItem(VW_LAYOUT_KEY);
-      vwGrid.load(VW_DEFAULT_LAYOUT);
-      saveLayout();
+      // Find grid instance via DOM (vwGrid is local, but gridstack attaches to element)
+      var el = document.querySelector('#vw-grid');
+      var gs = (el && el.gridstack) ? el.gridstack : vwGrid;
+      if (!gs) { location.reload(true); return; }
+      gs.load(VW_DEFAULT_LAYOUT);
+      // Save the default so next reload keeps it
+      try { localStorage.setItem(VW_LAYOUT_KEY, JSON.stringify(VW_DEFAULT_LAYOUT)); } catch(e) {}
       setTimeout(invalidateVwMap, 120);
     };
 
