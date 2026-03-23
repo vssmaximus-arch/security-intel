@@ -2253,6 +2253,18 @@ async function adminTriggerIngest() {
   } catch(e) { adminSetFeedback('Ingest failed (network).', true); console.error(e); }
 }
 
+async function adminResetGroq() {
+  const sec = adminGetSecret();
+  if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
+  adminSetFeedback('Resetting Groq AI circuit breaker…');
+  try {
+    const res = await fetch(`${WORKER_URL}/api/admin/reset-groq`, { method:'POST', headers:{ 'secret': sec } });
+    const txt = await res.text().catch(()=>'');
+    if (!res.ok) { adminSetFeedback(`Reset failed (HTTP ${res.status}): ${txt}`.trim(), true); return; }
+    adminSetFeedback('✅ Groq AI reset — click Trigger Ingestion now to get fully classified news.');
+  } catch(e) { adminSetFeedback('Reset failed (network).', true); console.error(e); }
+}
+
 async function adminWipeIncidents() {
   const sec = adminGetSecret();
   if (!sec) { adminSetFeedback('Set Admin Secret first.', true); return; }
@@ -5481,6 +5493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (action === 'admin-save-secret') { adminSaveSecret(); return; }
       if (action === 'admin-clear-secret') { adminClearSecret(); return; }
       if (action === 'admin-trigger-ingest') { adminTriggerIngest(); return; }
+      if (action === 'admin-reset-groq') { adminResetGroq(); return; }
       if (action === 'admin-wipe-incidents') { adminWipeIncidents(); return; }
       if (action === 'admin-unlock') { adminUnlock(); return; }
       if (action === 'admin-thumbs-status') { adminThumbsStatus(); return; }
