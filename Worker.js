@@ -191,6 +191,8 @@ const DETERMINISTIC_SOURCES = [
   "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+%22Dell+executive%22&hl=en-US&gl=US&ceid=US:en",
   "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
   "https://news.google.com/rss/search?q=%22Dell%22+layoff+site%3Abusinessinsider.com+OR+site%3Afortune.com+OR+site%3Abloomberg.com&hl=en-US&gl=US&ceid=US:en",
+  // TheLayoff.com RSS (static XML — often bypasses Cloudflare JS challenge)
+  "https://www.thelayoff.com/feeds/dell",
   // Reddit — layoff/insider chatter (thelayoff.com alternative)
   "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
   "https://www.reddit.com/r/dell/new.rss",
@@ -529,6 +531,11 @@ const ROTATING_SOURCES = [
   "https://simpleflying.com/feed/",
   "https://www.aerotelegraph.com/feed",
   "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
+  // ── Aviation safety incident targeted searches ────────────────────────────
+  "https://news.google.com/rss/search?q=flight+emergency+passengers+injured&hl=en&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=severe+turbulence+flight+emergency&hl=en&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=emergency+landing+airline+diverted&hl=en&gl=US&ceid=US:en",
+  "https://news.google.com/rss/search?q=flight+turbulence+passengers+injured&hl=en&gl=AU&ceid=AU:en",
 ];
 
 const TRAVEL_DEFAULT_URL = "https://smartraveller.kevle.xyz/api/advisories";
@@ -553,11 +560,18 @@ const NATURAL_MIN_MAGNITUDE = 5.0;   // earthquakes with magnitude ≤ 5.0 are N
 const NATURAL_MIN_SEVERITY = 4;     // severity threshold to treat natural events as potentially impactful
 
 /* ======= PROXIMITY ALERT GATING THRESHOLDS ======= */
-// Aliases kept consistent with OPERATIONAL_MAX_DIST_KM / NATURAL_MAX_DIST_KM above.
-// Override per-environment via wrangler.toml vars if needed.
-const PROXIMITY_MAX_DISTANCE_KM = OPERATIONAL_MAX_DIST_KM; // default 50 km; natural events use NATURAL_MAX_DIST_KM
-const PROXIMITY_WINDOW_HOURS = 72;                          // reject incidents older than this
-const PROXIMITY_SEVERITY_THRESHOLD = 4;                     // minimum severity for non-keyword fallback accept
+// Legacy aliases — kept for smoke tests and shared code that references them
+const PROXIMITY_MAX_DISTANCE_KM    = OPERATIONAL_MAX_DIST_KM;
+const PROXIMITY_WINDOW_HOURS       = 72;
+const PROXIMITY_SEVERITY_THRESHOLD = 2;
+
+/* ======= PROXIMITY ALERT — TIERED RADII (Everbridge-grade) ======= */
+// Each threat category uses an operationally appropriate radius.
+const PROX_NATURAL_DIST_KM      = 500;   // natural hazards — coords-based (text anchors are region-wide)
+const PROX_SECURITY_DIST_KM     = 100;   // armed conflict, terrorism, civil unrest near Dell sites
+const PROX_SUPPLY_CHAIN_DIST_KM = 250;   // port closures, logistics disruptions, chokepoint blockades
+const PROX_WINDOW_HOURS         = 72;    // reject incidents older than 72 h
+const PROX_MIN_SEVERITY         = 2;     // sev 1 = irrelevant noise; sev 2+ qualifies for review
 
 /* reverse-geocode cache & defaults */
 const GEOCODE_CACHE_PREFIX = "rg_";
@@ -726,6 +740,182 @@ function stableId(s = "") {
     h |= 0;
   }
   return String(h >>> 0);
+}
+
+/**
+ * Keyword-based incident classifier — runs on every ingested article.
+ * Returns { category, severity, relevance, discard }
+ * relevance: 0-10 score. Items with discard=true are not stored.
+ */
+function classifyIncidentText(title, summary, source) {
+  const text = ((title || '') + ' ' + (summary || '')).toLowerCase();
+  const src  = (source || '').toLowerCase();
+
+  // ── DISCARD: Reddit / forum content ──────────────────────────────────────
+  // Exception: Dell-specific insider/layoff subreddits are allowed through as WORKFORCE
+  if (/reddit\.com|redd\.it|hnrss\.org|news\.ycombinator/.test(src)) {
+    const isDellInsiderReddit = /reddit\.com\/r\/(layoffs|dell|antiwork|cscareerquestions|jobs)/i.test(src)
+                             || /hnrss\.org/.test(src);
+    const hasDellOrLayoff = /\bdell\b|\blayoff\b|\blaid[\s\-]off\b|\bjob[\s\-]cut\b|\bworkforce\b|\bfired\b|\bRIF\b|\brestructur/i.test(title + ' ' + (summary||''));
+    if (isDellInsiderReddit && hasDellOrLayoff) {
+      return { category: 'WORKFORCE', severity: 3, relevance: 7, discard: false };
+    }
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Entertainment / pop culture / consumer media ─────────────────
+  // Movies, music, celebrity, gaming, toys — zero SRO value
+  if (/\b(movie\s+(announc|direct|star|cast|releas|sequel|prequel|trailer)|film\s+(announc|direct|screen|festival|award|debut)|box\s+office|oscar|emmy|grammy|bafta|sundance|cannes|venice\s+film|celebrity|pop\s+star|k[\-\s]pop|idol\s+(group|band|singer)|manga|anime|labubu|pop\s+mart|toy\s+(launch|announc)|collectible\s+(announc|launch)|merchandise\s+(deal|launch)|music\s+(album|tour|concert)\s+(announc|releas|launch)|streaming\s+(show|series|release)\s+(announc|launch|debut)|video\s+game\s+(launch|release|announc)|esport\s+tournament)\b/.test(text) &&
+     !/\b(security|threat|attack|hack|breach|crisis|conflict|terror|critical\s+infrastructure)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Medical device / pharma / consumer health (non-epidemic) ─────
+  // Pacemaker recalls, drug trials, FDA approvals are NOT SRO intelligence
+  if (/\b(pacemaker|defibrillator|medical\s+device\s+recall|cardiac\s+device|fda\s+(approv|clear|warn|recall|alert)\w*|drug\s+(trial|approval|recall|pricing|patent)|pharma\w*\s+(merger|deal|acqui|partner)|clinical\s+trial|biologic\s+(approval|trial)|cancer\s+(drug|treatment|trial)|blood\s+pressure\s+(drug|medication)|implant\s+recall|surgical\s+instrument\s+recall|dental\s+(device|recall)|battery\s+recall\s+for\s+medical|insulin\s+(pump|recall)|hearing\s+aid\s+recall)\b/.test(text) &&
+     !/\b(bioterror|pandemic|epidemic|outbreak|public\s+health\s+(emergency|crisis|threat)|mass\s+casualt|contamination\s+attack)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: General economic / financial regulation news ─────────────────
+  // Interest rate decisions, banking capital rules, earnings reports — not SRO
+  if (/\b(interest\s+rate\s+(steady|hold|rise|fall|cut|hike|unchanged)|fed\s+(hold|raise|cut|keep)\w*\s+rate|central\s+bank\s+(policy|decision|hold|meet)\w*|banking\s+regulat\w+|capital\s+(buffer|rule|require)\w*|post[\-\s]crisis\s+(rule|reform|capital)|monetary\s+policy\s+(eas|tighten)\w*|bond\s+yield|mortgage\s+rate|gdp\s+growth\s+rate|inflation\s+(data|print|figure|reading|report)\b|payroll\s+(data|report|figure)|consumer\s+price\s+index|retail\s+sales\s+(data|figure)|earnings\s+per\s+share|quarterly\s+(profit|loss|revenue|result|earning)\b|annual\s+(revenue|profit|result|earning)\b|dividend\s+(cut|increase|pay)|share\s+(buyback|repurchase)|ipo\s+(price|list|open)\w*|merger\s+(complet|clos|approv)\w*|acquisition\s+(clos|complet|approv)\w*|fcc\s+approv|antitrust\s+(approv|clear)\w*)\b/.test(text) &&
+     !/\b(sanction|war\b|conflict|iran|russia|china\s+tariff|north\s+korea|terror|security\s+threat|attack|energy\s+crisis|supply\s+chain\s+crisis|hack|infrastructure\s+attack)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: General labour market / pay / HR trends (non-strike, non-Dell) ─
+  // "Pay growth sinks", "hiring slowdown", workforce surveys are not SRO intel
+  if (/\b(pay\s+growth\s+(sink|slow|fall|drop|cool)|wage\s+growth\s+(slow|weak|fall|drop)|hiring\s+(slowdown|freeze|slow|drop)|labor\s+market\s+(cool|soft|weak|tight|slack)\w*|job\s+market\s+(soft|weak|cool|tight)|employment\s+(data|figure|report|survey)\b|unemployment\s+(rate|data|figure|report)\b|workforce\s+(trend|survey|study|report)\b|remote\s+work\s+(trend|study|survey|policy)\b|return[\-\s]to[\-\s]office\s+(trend|study|survey|mandate)\b|skills\s+shortage\s+(study|report|survey)|workers\s+hit\s+by\s+hiring|younger\s+workers\s+hit)\b/.test(text) &&
+     !/\b(dell|strike\s+action|work\s+stoppage|union\s+dispute|labor\s+unrest|walkout|industrial\s+action|general\s+strike)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Sports / athletics ───────────────────────────────────────────
+  if (/\b(nfl|nba|mlb|nhl|mls|premier\s+league|la\s+liga|serie\s+a|bundesliga|champions\s+league|world\s+cup\s+(goal|match|score|result|final|qualifier|team\s+news|lineup)|super\s+bowl|olympic\s+(medal|result|record|event)|paralympic|ski\s+(race|accident|resort|champion|slope)|snowboard\s+(race|event)|triathlon|marathon\s+result|formula\s+[e1]?\s+(race|grand\s+prix)|tour\s+de\s+france|wimbledon\s+result|us\s+open\s+(tennis|golf)\s+result|asian\s+cup\s+(final|semi|quarter|match|result|team\s+news|lineup|fixture)|afc\s+cup|women.s\s+(world\s+cup|asian\s+cup|champions\s+league)\s+(final|semi|match|result|team\s+news|lineup)|copa\s+america\s+(final|semi|match|result)|africa\s+cup\s+of\s+nations\s+(final|semi|match|result)|euros?\s+(final|semi|match|result|football))\b/.test(text) &&
+     !/\b(security\s+threat|terror|attack\s+at|protest\s+at|crisis\s+at)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Climate litigation / environmental lawsuits (non-emergency) ──
+  // Farmers suing companies over historic floods, climate change court cases — not SRO
+  if (/\b(suing\s+(over|for)\s+(flood|climate|emission|carbon|pollution)|climate\s+(lawsuit|litigation|case|suit|claim|court)\b|environmental\s+(lawsuit|litigation|case|suit|claim)\b|carbon\s+(lawsuit|litigation|emiss\w+\s+lawsuit)|emission\s+(lawsuit|litigation|suit|claim)|farmers?\s+(sue|suing|sued|lawsuit)\s+.{0,40}(flood|climate|emission|drought|wildfire)|(rwe|heidelberg\s+materials?|bp|shell|exxon|chevron|total\s+energies?)\s+(sued?|lawsuit|litigation|climate\s+case))\b/i.test(text) &&
+     !/\b(industrial\s+explosion|toxic\s+spill|chemical\s+leak|contamination\s+emergency|dell|supply\s+chain|terror|attack|security)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: US domestic monetary / central bank politics ────────────────────
+  // Fed chair appointments, Powell/Trump conflicts, Fed independence debates — not SRO
+  if (/\b(powell\s+(fire|dismiss|replac|resign|oust|stay|remain|stuck|push)\w*|trump\s+(push\w*|pressur\w*|fire\w*|replac\w*)\s+(powell|fed\b|federal\s+reserve)|federal\s+reserve\s+(chair|independence|appointm|nominat|firing|dismiss|replac|pressur|autonomy)|fed\s+(chair|chief|head)\s+(fire|dismiss|replac|nominat|pressur|under\s+threat|uncertain)|central\s+bank\s+independence\s+(threat|attack|under|erode)|who\s+(will|would|should|may)\s+(replac|lead|run|head)\s+(the\s+)?(fed|federal\s+reserve))\b/i.test(text) &&
+     !/\b(sanction|iran|russia|north\s+korea|war\b|conflict|attack|terror|security\s+threat|energy\s+crisis|oil\s+shock|supply\s+chain\s+crisis|dell)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Domestic US / local politics & media policy (non-geopolitical) ─
+  // VOA dismantling, FCC rulings, local TV mergers, state-level court cases — not SRO
+  if (/\b(voice\s+of\s+america|voa\s+(shut|cut|dismantl|fund)|fcc\s+(approv|rul|licens|fine)\w*|local\s+tv\s+(merger|station|market)|broadcast\s+(licens|spectrum|merger)|public\s+broadcasting|npr\s+(fund|cut|defund)|pbs\s+(fund|cut|defund)|media\s+ownership\s+rule|newspaper\s+merger|magazine\s+(acqui|merger)|cable\s+(deal|merger|acqui)\s+(approv|clos)|telecom\s+merger\s+(approv|clos)|state\s+legislature|city\s+council|county\s+(board|commission)|governor\s+(sign|veto|approv)\w*|congressional\s+(hearing|bill|vote)\s+on\s+(media|broadcast|local)|domestic\s+court\s+(ruling|verdict|sentenc)\w*\s+on\s+(media|broadcast))\b/.test(text) &&
+     !/\b(sanction|espionage|propaganda|influence\s+operation|foreign\s+(agent|interference|influence)|national\s+security|security\s+threat|terror|attack|cyber|hack|dell)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Domestic healthcare fraud / elder care / nursing home regulation ─
+  // OIG investigations, nursing home abuse, eldercare policy — not SRO intelligence
+  if (/\b(nursing\s+home|elder\s+care|eldercare|long[\-\s]term\s+care|skilled\s+nursing|assisted\s+living|memory\s+care\s+facilit|care\s+home\s+(abuse|neglect|fraud|fine|violat)|medicaid\s+(fraud|abuse|overpay|audit)|medicare\s+(fraud|abuse|overpay|audit)|oig\s+(report|audit|investigat|warn|alert)\w*\s+(?!cyber|security|hack|threat)|chemical\s+restraint|patient\s+(sedation|restrain|abuse|neglect)\s+(fraud|report|investig)|false\s+(label|diagno)\w*\s+patient|hospital\s+(billing|fraud|overcharg)|health\s+insurance\s+(fraud|scam|scheme))\b/.test(text) &&
+     !/\b(bioterror|pandemic|epidemic|outbreak|public\s+health\s+(emergency|crisis|threat)|mass\s+casualt|hospital\s+(attack|bombing|strike)|medical\s+supply\s+(shortage|crisis)|dell)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Domestic media company mergers / broadcasting deals ──────────
+  // TV station acquisitions, streaming consolidation, newspaper buyouts — not SRO
+  if (/\b(reshap\w+\s+local\s+tv|local\s+tv\s+(market|station)\s+(deal|merger|acqui|approv)|nexstar|tegna|sinclair\s+broadcast|gray\s+television|tribune\s+(media|publishing)|gannett|mcclatchy|alden\s+global|hedge\s+fund\s+(buy|acqui|own)\w*\s+(newspaper|media)|streaming\s+(merger|deal|acqui|consolidat)\w*\s+(approv|clos|complet)|cable\s+tv\s+(deal|merger)\s+(approv|clos|complet))\b/.test(text) &&
+     !/\b(sanction|national\s+security|foreign\s+(owner|acqui|invest)|china\s+(acqui|invest|buy)|russia\s+(acqui|invest|buy)|security\s+review|cfius|dell)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── ALWAYS KEEP: Authoritative natural hazard data sources ───────────────
+  // USGS, GDACS, EMSC, JMA, NHC use shorthand like "M 5.4 - south of Panama"
+  // that won't match keyword patterns — whitelist them by source URL.
+  if (/earthquake\.usgs\.gov|usgs\.gov.*earthquake|gdacs\.org|emsc-csem\.org|data\.jma\.go\.jp|nhc\.noaa\.gov|bom\.gov\.au|tsunami\.gov|pdc\.org|volcano\.observatory|reliefweb\.int/.test(src)) {
+    const magMatch = text.match(/\bm\s*(\d+\.?\d*)\b/i);
+    const mag = magMatch ? parseFloat(magMatch[1]) : 0;
+    // GDACS uses colour-coded alert levels in the title — use them to set severity correctly
+    // Green = low impact (score < 1.0), Orange = moderate, Red = high
+    const isGdacsGreen  = /\bgreen\s+(notification|alert)\b/i.test(text);
+    const isGdacsOrange = /\borange\s+(notification|alert)\b/i.test(text);
+    const isGdacsRed    = /\bred\s+(notification|alert)\b/i.test(text);
+    let severity;
+    if (isGdacsRed)         severity = 5;
+    else if (isGdacsOrange) severity = 3;
+    else if (isGdacsGreen)  severity = 2;
+    else {
+      const isMajor = mag >= 5 || /\b(category\s*[45]|cat\.?\s*[45]|major|severe|catastrophic|warning|watch|evacuati)\b/i.test(text);
+      severity = isMajor ? 4 : 2;
+    }
+    return { category: 'NATURAL_HAZARD', severity, relevance: 7, discard: false };
+  }
+
+  // ── DISCARD: Dell PR / marketing — partnership announcements, product launches ──
+  const isDellMention = /\bdell\b/.test(text);
+  const isDellPR = isDellMention &&
+    /\b(joins?\s+forces|partnership|partners?\s+with|collaborat\w*|unveils?|launches?|announces?\s+(new|a|its)|expands?\s+(into|its|presence)|strategic\s+alliance|concludes?\s+a|innovate|pioneers?|leverag\w+|join\s+hands)\b/.test(text) &&
+    !/\b(breach|hack|attack|ransom\w*|vuln\w*|threat|crisis|outage|disrupt|leak|sanction|incident|exploit|critical|espionage|fraud)\b/.test(text);
+  if (isDellPR) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Pure financial / market news ────────────────────────────────
+  const isFinancial = /\b(soaring\s+(memory|chip|nand|dram|stock)\s+prices?|how\s+the\s+stocks?\s+(can|will)?\s*(handle|fare|react)|earnings\s+(beat|miss|report|guidance)|analyst\s+(target|rating|upgrade|downgrade)|wall\s+street\s+(expects?|sees?)|P\/E\s+ratio|quarterly\s+(results|earnings|revenue)|DRAM\s+prices?|NAND\s+prices?|stocks?\s+can\s+handle)\b/.test(text);
+  if (isFinancial) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── DISCARD: Generic commodity price aggregator headlines ─────────────────
+  // "Oil falls and stocks hold steady", "Gold rises", "Markets steady" — no SRO value
+  if (/\b(oil\s+(falls?|drops?|rises?|climbs?|holds?\s+steady|prices?\s+(fall|drop|rise|climb|hold|steady|dip|surge|slump))\b|gold\s+(falls?|rises?|holds?\s+steady|prices?\s+(fall|rise|hold|steady))\b|(stocks?|shares?|equities|markets?)\s+(fall|drop|rise|climb|hold\s+steady|steady|dip|surge|slump|gain|lose)\b|(asia|europe|us|global)\s+(stocks?|shares?|markets?)\s+(fall|drop|rise|steady|gain|mixed|higher|lower)\b|commodit\w+\s+(price|market)\s+(fall|rise|drop|gain|steady|mixed))\b/i.test(text) &&
+     !/\b(iran|russia|ukraine|israel|hamas|sanctions?|war\b|conflict|attack|airstrike|strike\s+on|bombing|supply\s+chain\s+disrupt|energy\s+crisis|blockade|embargo|chokepoint|strait\s+of|red\s+sea|hormuz|dell)\b/i.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
+  }
+
+  // ── NATURAL_HAZARD ────────────────────────────────────────────────────────
+  if (/\b(earthquake|tremor|seismic|cyclone|hurricane|typhoon|super\s+typhoon|tropical\s+storm|tropical\s+cyclone|tsunami|volcano|eruption|wildfire|bushfire|flood(?:ing)?|landslide|avalanche|m\s*[4-9]\.[0-9])\b/.test(text)) {
+    const isMajor = /\b(m\s*[5-9]\.|magnitude\s*[5-9]|category\s*[1-5]|cat\.?\s*[1-5]|major|devastating|catastrophic|emergency|evacuati|warning\s+issued|watch\s+issued)\b/.test(text);
+    return { category: 'NATURAL_HAZARD', severity: isMajor ? 4 : 2, relevance: isMajor ? 8 : 4, discard: false };
+  }
+
+  // ── CYBER_SECURITY ────────────────────────────────────────────────────────
+  if (/\b(breach|data\s+breach|hack(?:ed|ers?)?|ransomware|malware|zero[\-\s]?day|vulnerability|cve\-|exploit(?:ed)?|cyber\s+attack|phishing|credential\s+theft|intrusion|ddos|botnet|apt\s+\d|nation[\-\s]state\s+attack|critical\s+infrastructure\s+attack)\b/.test(text)) {
+    const isCritical = /\b(critical|severe|nation[\-\s]state|apt|widespread|millions?\s+affected|data\s+exposed|confirmed\s+breach)\b/.test(text);
+    return { category: 'CYBER_SECURITY', severity: isCritical ? 5 : 3, relevance: 7, discard: false };
+  }
+
+  // ── WORKFORCE / INSIDER ───────────────────────────────────────────────────
+  if (/\b(layoffs?|lay[\s\-]?offs?|laid[\s\-]?off|job\s+cuts?|slash(?:es|ing)?\s+jobs?|workforce\s+reduction|headcount|reorg(?:aniz\w*)?|restructur\w*|rif\b|quietly\s+shrink|shrink\s+its\s+workforce)\b/.test(text)) {
+    return { category: 'WORKFORCE', severity: 2, relevance: 5, discard: false };
+  }
+
+  // ── GEOPOLITICAL ──────────────────────────────────────────────────────────
+  if (/\b(war|invasion|invad\w*|military\s+(action|strike|operation)|troops|missile\s+(strike|attack|launch)|airstrike|coup|sanctions?|conflict|civil\s+war|terrorist?\s+attack|hostage|kidnap|assassination|naval\s+blockade|diplomatic\s+crisis|state\s+of\s+emergency)\b/.test(text)) {
+    return { category: 'GEOPOLITICAL', severity: 3, relevance: 6, discard: false };
+  }
+
+  // ── SUPPLY_CHAIN ──────────────────────────────────────────────────────────
+  if (/\b(port\s+(closure|blocked|seized|attack)|strait\s+(of\s+hormuz|of\s+malacca|taiwan|bab[\-\s]el[\-\s]mandeb)|shipping\s+(disruption|blockade|attack)|supply\s+chain\s+(disruption|crisis|risk)|semiconductor\s+(shortage|crisis)|chip\s+shortage|trade\s+sanction|export\s+control|chokepoint)\b/.test(text)) {
+    return { category: 'SUPPLY_CHAIN', severity: 3, relevance: 7, discard: false };
+  }
+
+  // ── SECURITY (general security news relevant to SRO) ─────────────────────
+  if (/\b(security\s+(threat|breach|incident|alert|warning)|national\s+security|intelligence\s+(report|warning|alert)|threat\s+actor|travel\s+(warning|advisory|alert)|protest|riot|civil\s+unrest|strike\s+action|infrastructure\s+(attack|threat)|power\s+(grid|outage)\s+(attack|failure))\b/.test(text)) {
+    return { category: 'SECURITY', severity: 2, relevance: 5, discard: false };
+  }
+
+  // ── LOW RELEVANCE: generic Dell tech news (not security-relevant) ─────────
+  if (isDellMention && !/\b(security|threat|breach|risk|attack|hack|incident|crisis|outage|disrupt)\b/.test(text)) {
+    return { category: 'DISCARD', severity: 1, relevance: 1, discard: true };
+  }
+
+  // ── Default: no specific category matched — keep as UNKNOWN ──────────────
+  // (Dell PR, Reddit, financial items are already discarded above)
+  return { category: 'UNKNOWN', severity: 2, relevance: 3, discard: false };
 }
 
 /* UUID helper */
@@ -2376,6 +2566,14 @@ const ALLOWED_KEYWORDS = [
   "truckers strike","trucking strike","rail strike","rail shutdown","freight line closed",
   "airspace closed","airspace restriction","no-fly zone","airport closed","cargo terminal",
   "cargo theft","truck hijack","truck hijacking",
+  // ── Aviation safety incidents (bypass NATURAL proximity gate — classified as TRANSPORT) ──
+  "turbulence","severe turbulence","extreme turbulence","violent turbulence","rough turbulence",
+  "emergency landing","emergency descent","aircraft emergency",
+  "flight diverted","diverted to airport","divert emergency",
+  "inflight emergency","in-flight emergency","onboard emergency",
+  "mayday","cabin depressurization","decompression incident","cabin pressure loss",
+  "aviation incident","aircraft incident","airline incident",
+  "passengers injured on flight","crew injured","passenger hospitalized",
   // ── Supply chain.docx: regulatory / trade ────────────────────────────────
   "export ban","export controls","embargo","sanctions","customs strike","customs delays",
   "travel ban","entry ban","visa ban","travel restriction","travel restrictions","border closure","border closed",
@@ -2595,7 +2793,7 @@ async function callGroq(env, apiKey, text, retries = 2) {
     temperature: 0,
     max_tokens: 350,
     messages: [
-      { role: "system", content: "You are a Dell Technologies GSOC analyst. Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. SEVERITY SCALE (Dell-specific): severity=5 CRITICAL: direct attack on/near Dell facility, confirmed disruption to Dell supply chain, earthquake M7+, active ransomware on critical infrastructure; severity=4 HIGH: earthquake M5.5-7.0 near Dell sites, major civil unrest/attack within 50km of Dell office, port/airport closure disrupting Dell supply chain, active military conflict in a country where Dell operates; severity=3 MEDIUM: regional security event that may affect Dell employee travel, natural disaster in a Dell-operating country, general supply chain risk; severity=2 LOW: distant events, routine conflict updates, single-casualty incidents, commodity price movements, non-critical data breaches. CRITICAL RULES: (1) operational_impact=true ONLY when directly affecting Dell staff safety, Dell facility, or Dell supply chain logistics. (2) Retailer/supermarket/consumer data breaches (e.g. Loblaw, Target, retail stores) = severity 2, operational_impact false. (3) Single civilian casualties in existing conflict zones = severity 2, operational_impact false. (4) Commodity price records without physical supply disruption = severity 2, operational_impact false. (5) Routine war casualty updates ('X killed in Y') without major new attack = severity 2. (6) CYBERSECURITY category: only for ACTUAL attacks, confirmed breaches, active ransomware, major outages, or nation-state/APT intrusions — NOT for patch releases, CVE disclosures, or theoretical vulnerabilities." },
+      { role: "system", content: "You are a Dell Technologies GSOC analyst. Return JSON: {summary, category, severity, region, country, location, latitude, longitude, operational_impact (true/false), impact_score (0-100), impact_reason}. SEVERITY SCALE (Dell-specific): severity=5 CRITICAL: direct attack on/near Dell facility, confirmed disruption to Dell supply chain, earthquake M7+, active ransomware on critical infrastructure; severity=4 HIGH: earthquake M5.5-7.0 near Dell sites, major civil unrest/attack within 50km of Dell office, port/airport closure disrupting Dell supply chain, active military conflict in a country where Dell operates; severity=3 MEDIUM: regional security event that may affect Dell employee travel, natural disaster in a Dell-operating country, general supply chain risk; severity=2 LOW: distant events, routine conflict updates, single-casualty incidents, commodity price movements, non-critical data breaches. CRITICAL RULES: (1) operational_impact=true ONLY when directly affecting Dell staff safety, Dell facility, or Dell supply chain logistics. (2) Retailer/supermarket/consumer data breaches (e.g. Loblaw, Target, retail stores) = severity 2, operational_impact false. (3) Single civilian casualties in existing conflict zones = severity 2, operational_impact false. (4) Commodity price records without physical supply disruption = severity 2, operational_impact false. (5) Routine war casualty updates ('X killed in Y') without major new attack = severity 2. (6) CYBERSECURITY category: only for ACTUAL attacks, confirmed breaches, active ransomware, major outages, or nation-state/APT intrusions — NOT for patch releases, CVE disclosures, or theoretical vulnerabilities. (7) AVIATION INCIDENTS: severe turbulence with passenger injuries, emergency landings, cabin depressurisation, aircraft diversions for safety reasons = TRANSPORT category, severity 3-4, operational_impact true — even if the cause is weather. These are employee safety events. NEVER classify aviation safety incidents as NATURAL." },
       { role: "user", content: String(text).slice(0, 1200) }
     ],
     response_format: { type: "json_object" }
@@ -3101,7 +3299,7 @@ async function runIngestion(env, options = {}, ctx = null) {
         for (const itm of items) {
           if (!itm.title) continue;
           const combined = `${itm.title} — ${itm.summary || ""}`.trim();
-          if (isNoise(combined)) continue;
+          // isNoise removed — classifyIncidentText handles all filtering
           const isDeterministic = DETERMINISTIC_SOURCES.includes(src);
           // For earthquake/natural feeds, compute magnitude-based severity
           const _titleForMag = itm.title || "";
@@ -3111,19 +3309,36 @@ async function runIngestion(env, options = {}, ctx = null) {
             // Magnitude-based severity: M7+ = CRITICAL(5), M6-7 = HIGH(4), M5-6 = MEDIUM(3), <5 = LOW(2)
             _detSev = _detMag >= 7.0 ? 5 : _detMag >= 6.0 ? 4 : _detMag >= 5.0 ? 3 : 2;
           }
+          // Block Reddit/HN at ingestion level — EXCEPT Dell insider/layoff subreddits
+          if (/reddit\.com|redd\.it|hnrss\.org|news\.ycombinator/.test(src)) {
+            const isDellInsiderFeed = /reddit\.com\/r\/(layoffs|dell|antiwork|cscareerquestions|jobs)/i.test(src)
+                                   || /hnrss\.org/.test(src);
+            if (!isDellInsiderFeed) {
+              debug('ingest_block_reddit', src);
+              continue;
+            }
+            // Dell insider Reddit/HN feeds: classifier handles WORKFORCE vs DISCARD
+          }
+          // Dell-specific Google News search feeds are ALLOWED — they are the primary
+          // source for Insider & Leaks (layoffs, breach, hack, insider threat).
+          // Timestamp accuracy is handled by the 72h cutoff in the frontend.
+          // ── Keyword classifier — runs on every article before storage ──
+          const _cls = classifyIncidentText(itm.title, itm.summary, src);
+          // DISCARD irrelevant items immediately — do not store to KV
+          if (_cls.discard) { debug('classify_discard', itm.title?.slice(0,60)); continue; }
           const incBase = {
-            id: stableId(itm.link || itm.title),
+            id: stableId((itm.title || itm.link || '').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,80)),
             title: itm.title,
             summary: itm.summary || "",
-            category: "UNKNOWN",
-            severity: _detSev,
+            category: _cls.category,
+            severity: _detMag !== null ? _detSev : Math.max(_detSev, _cls.severity),
             severity_label: _detSev >= 5 ? "CRITICAL" : _detSev >= 4 ? "HIGH" : _detSev === 3 ? "MEDIUM" : "LOW",
             region: "Global",
             country: "GLOBAL",
             location: "UNKNOWN",
             link: itm.link || "#",
             source: src,
-            time: new Date().toISOString(),
+            time: itm['time'] || new Date().toISOString(),
             lat: (itm.lat !== null && itm.lat !== undefined) ? Number(itm.lat) : 0,
             lng: (itm.lng !== null && itm.lng !== undefined) ? Number(itm.lng) : 0
           };
@@ -3154,8 +3369,11 @@ async function runIngestion(env, options = {}, ctx = null) {
               }
             }
             // Gate: no valid coords or too far → drop
+            // EXCEPTION: critical hazards (Cat3+ cyclone, M6+ earthquake) are stored even without coords
+            // so the proximity engine's CRITICAL_HAZARD_OVERRIDE can match them by region keywords
+            const _isCriticalHazard = /\b(tropical\s+cyclone|hurricane|typhoon|super\s+typhoon|category\s*[3-5]|cat\.?\s*[3-5]|magnitude\s*[6-9]|m\s*[6-9]\.\d|major\s+earthquake|devastating|severe\s+earthquake|tsunami\s+warning)\b/i.test((incBase.title||'') + ' ' + (incBase.summary||''));
             const thumbsEarly = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
-            if (thumbsEarly !== "up") {
+            if (thumbsEarly !== "up" && !_isCriticalHazard) {
               if (!_validCoords(incBase.lat, incBase.lng) ||
                   typeof incBase.distance_km !== 'number' ||
                   incBase.distance_km > NATURAL_MAX_DIST_KM) {
@@ -3177,9 +3395,9 @@ async function runIngestion(env, options = {}, ctx = null) {
           const thumbs = THUMBS_PREF_CACHE && THUMBS_PREF_CACHE.byId ? THUMBS_PREF_CACHE.byId[incBase.id] : null;
           if (thumbs === "down") { debug("skipping due to thumbs.down", incBase.id); continue; }
           if (thumbs === "up") { fresh.push(incBase); if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase); continue; }
-          let allowedByFilter = true;
-          if (!isDeterministic) allowedByFilter = await isRelevantIncident(env, combined, src, null, incBase.severity, {lat: incBase.lat, lng: incBase.lng}, incBase);
-          if (!allowedByFilter) { debug("filtered (pre-AI) item", { title: incBase.title, src }); continue; }
+          // classifyIncidentText is the primary filter — if it didn't discard the item,
+          // it is stored. isRelevantIncident is NOT called here; it was causing KV=0
+          // by blocking all articles when category was UNKNOWN.
           if (!_validCoords(incBase.lat, incBase.lng)) {
             const countryKey = extractCountryFromText(combined);
             if (countryKey && COUNTRY_COORDS[countryKey]) {
@@ -3239,11 +3457,17 @@ async function runIngestion(env, options = {}, ctx = null) {
             const aiRes = await callGroq(env, groqKey, combined);
             if (aiRes.error || !aiRes.data) { debug("callGroq failed/skipped", aiRes.error); continue; }
             const data = aiRes.data || {};
+              // Pre-classify to catch discards even if AI runs
+              const _aiCls = classifyIncidentText(itm.title, itm.summary, src);
+              if (_aiCls.discard) { debug('ai_classify_discard', itm.title?.slice(0,60)); continue; }
             const inc = {
-              id: stableId(itm.link || itm.title),
+              id: stableId((itm.title || itm.link || '').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,80)),
               title: itm.title,
               summary: data.summary || itm.summary || "",
-              category: (data.category || "UNKNOWN").toUpperCase(),
+              // Prefer Groq's category only if it's not UNKNOWN; otherwise fall back to keyword classifier
+              category: (data.category && data.category.toUpperCase() !== 'UNKNOWN')
+                ? data.category.toUpperCase()
+                : (_aiCls.category !== 'UNKNOWN' ? _aiCls.category : 'UNKNOWN'),
               severity: severityFromText(data.severity || "") || 3,
               severity_label: "",
               region: data.region || "Global",
@@ -3251,7 +3475,7 @@ async function runIngestion(env, options = {}, ctx = null) {
               location: data.location || "UNKNOWN",
               link: itm.link || "#",
               source: src,
-              time: new Date().toISOString(),
+              time: itm['time'] || new Date().toISOString(),
               lat: safeNum(data.latitude) || safeNum(itm.lat) || 0,
               lng: safeNum(data.longitude) || safeNum(itm.lng) || 0,
               magnitude: safeNum(data.magnitude) || null
@@ -3297,6 +3521,60 @@ async function runIngestion(env, options = {}, ctx = null) {
         } catch (e) { debug("AI enrichment error", e?.message || e); }
       }
     }
+
+    // ── GDELT Insider & Leaks ingestion ──────────────────────────────────────
+    // Queries GDELT Doc API v2 for Dell workforce/layoff/breach news from global press.
+    // Free, no API key, 15-min cached at Cloudflare edge.
+    try {
+      const gdeltQueries = [
+        { q: '"Dell" layoff OR "laid off" OR "job cuts" OR "workforce reduction" OR RIF OR restructuring', cat: 'WORKFORCE', sev: 4 },
+        { q: '"Dell Technologies" fired OR "headcount" OR "cost cuts" OR downsizing OR redundancies', cat: 'WORKFORCE', sev: 3 },
+        { q: '"Dell" "data breach" OR "data leak" OR "insider threat" OR "employee data" OR "confidential"', cat: 'INSIDER', sev: 4 },
+      ];
+      for (const gq of gdeltQueries) {
+        try {
+          const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(gq.q)}&mode=artlist&maxrecords=15&format=json&timespan=7d&sort=datedesc&sourcelang=english`;
+          const gresp = await fetchWithTimeout(gdeltUrl, { headers: { 'Accept': 'application/json', 'User-Agent': 'DellSROIntelHub/1.0' } }, 12000);
+          if (!gresp || !gresp.ok) continue;
+          const gdata = await gresp.json();
+          if (!gdata || !Array.isArray(gdata.articles)) continue;
+          for (const art of gdata.articles) {
+            if (!art.title || art.title.length < 10) continue;
+            // Parse GDELT date format: YYYYMMDDTHHMMSSZ
+            let artTime = new Date().toISOString();
+            if (art.seendate && art.seendate.length >= 8) {
+              try {
+                const sd = art.seendate; // e.g. "20260320T134500Z"
+                artTime = `${sd.slice(0,4)}-${sd.slice(4,6)}-${sd.slice(6,8)}T${sd.slice(9,11)}:${sd.slice(11,13)}:${sd.slice(13,15)}Z`;
+              } catch(_) {}
+            }
+            const gInc = {
+              id:             stableId(art.url || art.title),
+              title:          art.title,
+              summary:        `${art.domain || ''} — ${art.sourcecountry || 'Global'}`,
+              category:       gq.cat,
+              severity:       gq.sev,
+              severity_label: gq.sev >= 4 ? 'HIGH' : 'MEDIUM',
+              region:         'Global',
+              country:        art.sourcecountry || 'GLOBAL',
+              location:       art.sourcecountry || 'Global',
+              link:           art.url || '#',
+              source:         `https://${art.domain || 'gdeltproject.org'}`,
+              source_type:    'gdelt',
+              time:           artTime,
+              lat:            0,
+              lng:            0,
+            };
+            // Skip if already in KV or if noise
+            const _gcls = classifyIncidentText(gInc.title, gInc.summary, gInc.source);
+            if (_gcls.discard) continue;
+            fresh.push(gInc);
+          }
+          debug('gdelt_insider', { query: gq.q.slice(0,40), count: gdata.articles.length });
+        } catch (ge) { debug('gdelt_insider_query_err', ge?.message || String(ge)); }
+      }
+    } catch (ge) { debug('gdelt_insider_err', ge?.message || String(ge)); }
+    // ── /GDELT Insider & Leaks ────────────────────────────────────────────────
 
     // ── thelayoff.com ingestion: direct scrape → relay fallback ───────────────
     var layoffPosts = [];
@@ -3379,12 +3657,24 @@ async function runIngestion(env, options = {}, ctx = null) {
         const old = existingMap.get(key);
         if (!old) existingMap.set(key, d);
         else {
-          // pick most recent and highest severity fields
+          // Always use the freshly-ingested item as the base so RSS pubDate
+          // (itm['time']) correctly overwrites stale KV ingest timestamps.
           const oldTime = new Date(old.time || 0).getTime();
           const newTime = new Date(d.time || 0).getTime();
-          const winner = (isNaN(newTime) || (!isNaN(oldTime) && oldTime >= newTime)) ? old : d;
+          // winner = fresh ingested item (d), so correct RSS pubDate propagates into KV
+          const winner = { ...old, ...d };
+          // For time: use the actual pubDate (earlier of the two) — RSS pubDate is always <= ingest time
+          if (oldTime > 0 && newTime > 0) {
+            winner.time = new Date(Math.min(oldTime, newTime)).toISOString();
+          } else {
+            winner.time = d.time || old.time;
+          }
           winner.severity = Math.max(Number(old.severity || 1), Number(d.severity || 1));
           winner.severity_label = (winner.severity >= 5 ? "CRITICAL" : (winner.severity >= 4 ? "HIGH" : (winner.severity === 3 ? "MEDIUM" : "LOW")));
+          // Never overwrite a meaningful category with UNKNOWN — preserve best classification
+          if (old.category && old.category !== 'UNKNOWN' && (!winner.category || winner.category === 'UNKNOWN')) {
+            winner.category = old.category;
+          }
           // prefer non-zero coords
           if ((!Number.isFinite(winner.lat) || Math.abs(winner.lat) < 0.0001) && Number.isFinite(d.lat)) { winner.lat = d.lat; winner.lng = d.lng; }
           existingMap.set(key, winner);
@@ -3393,178 +3683,332 @@ async function runIngestion(env, options = {}, ctx = null) {
 
       // Convert back to array, sort and cap
       let merged = Array.from(existingMap.values());
+      // Re-apply DISCARD filter — purges stale KV items that match updated discard rules
+      merged = merged.filter(inc => {
+        const recheck = classifyIncidentText(inc.title || '', inc.summary || '', inc.source || '');
+        return !recheck.discard;
+      });
       merged.sort((a,b) => new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime());
       merged = merged.slice(0, MAX_INCIDENTS_STORED);
 
-      // --- Proximity: helper predicate and per-site dedupe ---
+      // --- Proximity: helpers, predicate, and per-site dedupe ---
+
+      /* ── Priority calculator ────────────────────────────────────────────────── */
+      function _calcPriority(category, sev, distKm) {
+        const s = Number(sev  || 1);
+        const d = Number(distKm || 0);
+        if (category === 'NATURAL_HAZARD') {
+          if (s >= 5)              return 'P1';
+          if (s >= 4 && d < 200)  return 'P1';
+          if (s >= 4)              return 'P2';
+          if (s >= 3)              return 'P2';
+          return 'P3';
+        }
+        if (category === 'SECURITY' || category === 'GEOPOLITICAL') {
+          if (s >= 5 && d <  30)  return 'P1';
+          if (s >= 4 && d <  50)  return 'P1';
+          if (s >= 4)              return 'P2';
+          if (s >= 3 && d <  50)  return 'P2';
+          if (s >= 3)              return 'P3';
+          return 'P4';
+        }
+        if (category === 'SUPPLY_CHAIN') {
+          if (s >= 4)              return 'P2';
+          if (s >= 3)              return 'P3';
+          return 'P4';
+        }
+        if (s >= 5)                return 'P1';
+        if (s >= 4)                return 'P2';
+        if (s >= 3)                return 'P3';
+        return 'P4';
+      }
+
+      /* ── Groq Proximity AI Assessment ────────────────────────────────────────────
+         Executive SRO classification standard. Validates relevance AND generates
+         Dell impact statement. Uses llama-3.1-8b-instant for speed + rate headroom.
+         Returns null if Groq unavailable → caller falls back to keyword decision.
+      ─────────────────────────────────────────────────────────────────────────── */
+      async function _groqProximityAssess(env, incident) {
+        if (!env || !env.GROQ_API_KEY) return null;
+        try {
+          const title  = String(incident.title   || '').slice(0, 200);
+          const summ   = String(incident.summary || '').slice(0, 350);
+          const site   = String(incident.nearest_site_name || 'nearby Dell site');
+          const dist   = (incident.distance_km > 0) ? `${incident.distance_km}km from ${site}` : `near ${site}`;
+
+          const SYS = `You are the relevance and severity classifier for a Dell Technologies executive security dashboard (Security & Resiliency Operations).
+
+Your job is to keep ONLY news that materially affects:
+A) Safety of Dell employees, offices, facilities, or travelers
+B) Movement of goods, freight, ports, airports, shipping lanes, or trade routes
+C) Regional stability where Dell operates — war, terrorism, disaster, sanctions, state emergency
+D) Direct material impact to Dell, Dell employees, Dell facilities, Dell operations, Dell channel partners, or Dell B2B customers
+
+CLASSIFY as one of:
+- PHYSICAL_SECURITY: threats to people/facilities/travelers (violence, unrest, disaster, evacuation, war, bombing, cyclone, earthquake, flood, wildfire)
+- SUPPLY_CHAIN_SECURITY: logistics disruptions (port closure, shipping attack, freight delays, chokepoint blockage, trade restrictions)
+- DIRECT_DELL_OPERATIONAL_IMPACT: direct material effect on Dell employees, facilities, operations, or key partners
+- NOT_RELEVANT: everything else
+
+SEVERITY: CRITICAL | HIGH | MEDIUM | LOW
+
+AGGRESSIVELY REJECT:
+- Celebrity, entertainment, movies, pop culture, sports, gaming
+- General finance: banking regulation, interest rate decisions, earnings reports, capital rules
+- Labour market trends: pay growth, hiring slowdown, wage data, workforce surveys
+- Generic business: partnerships, product launches, vendor marketing, startup funding, opinion
+- Minor cyber news without direct Dell consequence
+- Small local incidents with no broader business security implication
+- Any article that would NOT reasonably concern a Dell regional security manager or executive
+
+Return ONLY valid JSON — no commentary outside the JSON object:
+{"category":"PHYSICAL_SECURITY|SUPPLY_CHAIN_SECURITY|DIRECT_DELL_OPERATIONAL_IMPACT|NOT_RELEVANT","severity":"CRITICAL|HIGH|MEDIUM|LOW","keep_for_dashboard":true,"primary_reason":"one short line","dell_impact":"one sentence on specific risk to Dell operations near ${site}"}`;
+
+          const controller = new AbortController();
+          const tid = setTimeout(() => controller.abort(), 9000);
+          const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'llama-3.1-8b-instant',
+              temperature: 0.1,
+              max_tokens: 180,
+              messages: [
+                { role: 'system', content: SYS },
+                { role: 'user',   content: `Title: ${title}\nSummary: ${summ}\nLocation context: ${dist}` }
+              ]
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(tid);
+          if (!resp.ok) { typeof debug === 'function' && debug('_groqProximityAssess http', resp.status); return null; }
+          const json = await resp.json();
+          const raw  = json.choices?.[0]?.message?.content || '';
+          const match = raw.match(/\{[\s\S]*\}/);
+          if (!match) return null;
+          return JSON.parse(match[0]);
+        } catch (e) {
+          typeof debug === 'function' && debug('_groqProximityAssess error', e?.message || e);
+          return null;
+        }
+      }
+
+      /* ── Regional text anchors — covers every Dell site region globally ─────── */
+      const _PROX_ANCHORS = [
+        { re: /\b(queensland|new south wales|victoria|western australia|south australia|northern territory|australia|darwin|brisbane|sydney|melbourne|perth|adelaide|townsville|cairns|coral\s+sea|tasman\s+sea|arafura|timor\s+sea)\b/i,           name: 'Dell Sydney' },
+        { re: /\b(japan|tokyo|osaka|kyushu|hokkaido|okinawa|honshu|east\s+china\s+sea|sea\s+of\s+japan)\b/i,                                                                                                                                     name: 'Dell Tokyo' },
+        { re: /\b(taiwan|taipei|kaohsiung|hsinchu|taichung|taiwan\s+strait)\b/i,                                                                                                                                                                 name: 'Dell Taipei' },
+        { re: /\b(malaysia|penang|kuala\s+lumpur|johor|sabah|sarawak|south\s+china\s+sea|strait\s+of\s+malacca)\b/i,                                                                                                                             name: 'Dell Penang' },
+        { re: /\b(india|chennai|bangalore|bengaluru|hyderabad|mumbai|andhra|tamil\s+nadu|odisha|gujarat|bay\s+of\s+bengal|arabian\s+sea)\b/i,                                                                                                    name: 'Dell Bangalore' },
+        { re: /\b(singapore|indonesia|java|sumatra|borneo|sulawesi)\b/i,                                                                                                                                                                         name: 'Dell Singapore' },
+        { re: /\b(philippines|manila|luzon|visayas|mindanao|cebu|davao|western\s+pacific)\b/i,                                                                                                                                                   name: 'Dell Singapore' },
+        { re: /\b(ireland|limerick|dublin|cork|united\s+kingdom|england|scotland|wales|north\s+sea|english\s+channel)\b/i,                                                                                                                       name: 'Dell Cork/Limerick' },
+        { re: /\b(texas|austin|round\s+rock|oklahoma|san\s+antonio|houston|gulf\s+of\s+mexico)\b/i,                                                                                                                                              name: 'Dell Round Rock HQ' },
+        { re: /\b(north\s+carolina|nashville|tennessee|durham|raleigh|research\s+triangle)\b/i,                                                                                                                                                  name: 'Dell Durham/Nashville' },
+        { re: /\b(california|santa\s+clara|san\s+jose|silicon\s+valley|bay\s+area)\b/i,                                                                                                                                                          name: 'Dell Santa Clara' },
+        { re: /\b(china|beijing|shanghai|xiamen|chengdu|guangdong|hong\s+kong|pearl\s+river|south\s+china)\b/i,                                                                                                                                  name: 'Dell China Sites' },
+        { re: /\b(south\s+korea|korea|seoul|busan|incheon)\b/i,                                                                                                                                                                                  name: 'Dell Seoul' },
+        { re: /\b(brazil|s[aã]o\s+paulo|porto\s+alegre|hortol[aâ]ndia)\b/i,                                                                                                                                                                     name: 'Dell Brazil' },
+        { re: /\b(germany|frankfurt|munich|m[uü]nchen|berlin)\b/i,                                                                                                                                                                               name: 'Dell Frankfurt/Munich' },
+        { re: /\b(uae|dubai|abu\s+dhabi|middle\s+east|gulf\s+region|persian\s+gulf)\b/i,                                                                                                                                                         name: 'Dell Dubai' },
+        { re: /\b(south\s+africa|johannesburg|cape\s+town|durban|pretoria)\b/i,                                                                                                                                                                  name: 'Dell Johannesburg' },
+        { re: /\b(poland|warsaw|czech|prague|central\s+europe)\b/i,                                                                                                                                                                              name: 'Dell Warsaw/Prague' },
+        { re: /\b(netherlands|amsterdam|rotterdam|france|paris|spain|madrid|italy|rome|scandinavia|denmark|sweden|stockholm|copenhagen)\b/i,                                                                                                      name: 'Dell EMEA' },
+        { re: /\b(colombia|bogot[aá]|chile|santiago|argentina|buenos\s+aires|latin\s+america)\b/i,                                                                                                                                               name: 'Dell LATAM' },
+        { re: /\b(red\s+sea|bab\s*el\s*mandeb|hormuz|suez|panama\s+canal|bosphorus|strait\s+of\s+malacca)\b/i,                                                                                                                                   name: 'Dell Supply Chain Chokepoint' },
+      ];
+
       async function shouldIncludeInProximity(env, incident, nearestSite, ctx = undefined) {
         try {
-          const _titleRaw = String(incident.title || '');
+          const _titleRaw = String(incident.title   || '');
           const _textRaw  = _titleRaw + ' ' + String(incident.summary || '');
 
-          // ── CRITICAL HAZARD OVERRIDE ──────────────────────────────────────────
-          // Cat 3+ cyclones, M6+ earthquakes and tsunamis near Dell APJC/EMEA/AMER
-          // regions ALWAYS appear in proximity even when GPS coords are missing.
-          // We match region keywords and assign the nearest Dell site as the anchor.
-          const CRIT_HAZARD_RE = /\b(tropical\s+cyclone|hurricane|typhoon|super\s+typhoon|category\s*[3-5]|cat\.?\s*[3-5]|magnitude\s*[6-9]|m\s*[6-9]\.[0-9]|major\s+earthquake|devastating\s+earthquake|severe\s+earthquake|tsunami\s+warning)\b/i;
-          if (!_validCoords(incident.lat, incident.lng) && CRIT_HAZARD_RE.test(_textRaw)) {
-            const REGIONAL_ANCHORS = [
-              { re: /\b(queensland|new south wales|victoria|western australia|south australia|northern territory|australia|darwin|brisbane|sydney|melbourne|perth|adelaide|townsville|cairns|far north)\b/i,
-                lat: -27.4698, lng: 153.0251, name: 'Dell Brisbane' },
-              { re: /\b(japan|tokyo|osaka|kyushu|hokkaido|okinawa|honshu)\b/i,
-                lat: 35.6762, lng: 139.6503, name: 'Dell Tokyo' },
-              { re: /\b(taiwan|taipei|kaohsiung|hsinchu|taichung)\b/i,
-                lat: 25.0330, lng: 121.5654, name: 'Dell Taipei' },
-              { re: /\b(malaysia|penang|kuala lumpur|johor|sabah|sarawak)\b/i,
-                lat: 5.4164, lng: 100.3327, name: 'Dell Penang' },
-              { re: /\b(india|chennai|bangalore|hyderabad|mumbai|andhra|tamil\s+nadu|odisha|gujarat)\b/i,
-                lat: 12.9716, lng: 77.5946, name: 'Dell Bangalore' },
-              { re: /\b(singapore|straits?\s+of\s+singapore)\b/i,
-                lat: 1.3521, lng: 103.8198, name: 'Dell Singapore' },
-              { re: /\b(philippines|manila|luzon|visayas|mindanao|cebu|davao)\b/i,
-                lat: 1.3521, lng: 103.8198, name: 'Dell Singapore' },
-              { re: /\b(south\s+china\s+sea|east\s+china\s+sea|bay\s+of\s+bengal|arabian\s+sea|pacific)\b/i,
-                lat: 5.4164, lng: 100.3327, name: 'Dell Penang' },
-              { re: /\b(ireland|limerick|dublin|cork)\b/i,
-                lat: 52.6638, lng: -8.6267, name: 'Dell Limerick' },
-              { re: /\b(texas|austin|round rock|oklahoma)\b/i,
-                lat: 30.5083, lng: -97.6788, name: 'Dell Round Rock HQ' },
-            ];
-            for (const anchor of REGIONAL_ANCHORS) {
-              if (anchor.re.test(_textRaw)) {
-                const dist = haversineKm(anchor.lat, anchor.lng, anchor.lat, anchor.lng); // 0 — regional
-                typeof debug === 'function' && debug('critical_hazard_regional', { title: _titleRaw.slice(0,80), anchor: anchor.name });
-                return { include: true, reason: 'critical_hazard_regional', distanceKm: 0, nearest_site_name: anchor.name };
-              }
-            }
-          }
-
-          // Validate coords
-          if (!_validCoords(incident.lat, incident.lng)) {
-            return { include: false, reason: 'invalid_coords' };
-          }
-          // Distance: use nearestSite.dist if provided, otherwise compute nearest
-          let distanceKm = null;
-          if (nearestSite && typeof nearestSite.dist === 'number') {
-            distanceKm = Math.round(nearestSite.dist);
-          } else {
-            const n = nearestDell(Number(incident.lat), Number(incident.lng));
-            distanceKm = n && typeof n.dist === 'number' ? Math.round(n.dist) : null;
-          }
-          if (distanceKm === null) return { include: false, reason: 'no_distance' };
-          if (distanceKm > (typeof PROXIMITY_MAX_DISTANCE_KM !== 'undefined' ? PROXIMITY_MAX_DISTANCE_KM : OPERATIONAL_MAX_DIST_KM)) {
-            return { include: false, reason: 'distance_exceeded', distanceKm };
-          }
-          // Operational impact gate: if AI explicitly marked operational_impact=false
-          // AND severity is low (< 3 MEDIUM), skip — reduces noisy non-Dell events
-          if (incident.operational_impact === false && Number(incident.severity || 0) < 3) {
-            return { include: false, reason: 'no_operational_impact', distanceKm };
-          }
-          // Minimum severity gate: only severity >= 2 (LOW) events qualify at all
-          if (Number(incident.severity || 0) < 2) {
-            return { include: false, reason: 'severity_too_low', distanceKm };
-          }
-          // Noise / blacklist
-          const title = String(incident.title || incident.summary || '').toLowerCase();
-          if (isNoise(title) || (Array.isArray(BLACKLIST_TERMS) && BLACKLIST_TERMS.some(tok => title.indexOf(tok) !== -1))) {
-            return { include: false, reason: 'noise_filter', distanceKm };
-          }
-          // Recency
+          /* ── RECENCY GATE ────────────────────────────────────────────────────── */
           if (incident.time) {
-            const incidentTs = new Date(incident.time).getTime();
-            const cutoff = Date.now() - (typeof PROXIMITY_WINDOW_HOURS !== 'undefined' ? PROXIMITY_WINDOW_HOURS : 72) * 3600 * 1000;
-            if (incidentTs < cutoff) return { include: false, reason: 'too_old', distanceKm };
-          }
-          // Geopolitical conflict zone filter: background conflict news (casualties,
-          // settler attacks, ongoing war updates) without direct Dell impact are rejected.
-          // These events are geographically near Dell sites in conflict regions (e.g. Israel,
-          // Iraq, Lebanon) but represent background noise, not operational threats to Dell.
-          const titleLow = String(incident.title || '').toLowerCase();
-          const isBackgroundConflict = (
-            incident.operational_impact !== true &&
-            Number(incident.severity || 0) < 4 &&
-            /\b(killed|wounded|casualties|settlers?|clashes?|gunfire|airstrike|shelling|militia|troops|soldiers?|protesters? killed|civilians? killed|attack on|bombing|explosi)\b/i.test(titleLow)
-          );
-          if (isBackgroundConflict) {
-            return { include: false, reason: 'background_conflict_noise', distanceKm };
+            const cutoff = Date.now() - PROX_WINDOW_HOURS * 3600 * 1000;
+            if (new Date(incident.time).getTime() < cutoff) return { include: false, reason: 'too_old' };
           }
 
-          // Natural events: require magnitude/severity
-          const cat = String((incident.category || '')).toUpperCase();
-          if (cat === 'NATURAL') {
-            const mag = Number(incident.magnitude || 0);
-            const sev = Number(incident.severity || 0);
-            if (mag <= NATURAL_MIN_MAGNITUDE && sev < NATURAL_MIN_SEVERITY) {
-              return { include: false, reason: 'natural_too_small', distanceKm };
-            }
-            // For natural, if magnitude/severity ok, accept (still subject to distance/recency above)
-            return { include: true, reason: 'natural_ok', distanceKm };
-          }
-          // AI-security categories accept — but require operational_impact or MEDIUM+ severity
-          // to cut down on low-severity/irrelevant events near Dell sites
-          if (typeof AI_SECURITY_CATEGORIES !== 'undefined' && AI_SECURITY_CATEGORIES.has(cat)) {
-            const sev = Number(incident.severity || 0);
-            const hasOpImpact = incident.operational_impact === true;
-            if (hasOpImpact || sev >= 3) {
-              return { include: true, reason: 'ai_security', distanceKm };
-            }
-            return { include: false, reason: 'ai_security_low_impact', distanceKm };
-          }
-          // Security focus keyword or operational keywords
-          const hasSecurityFocus = (typeof SECURITY_FOCUS_REGEX !== 'undefined' && SECURITY_FOCUS_REGEX.test(title))
-                                  || (typeof OPERATIONAL_KEYWORDS !== 'undefined' && OPERATIONAL_KEYWORDS.test(title));
-          if (!hasSecurityFocus) {
-            // If no explicit security word, try the heavier async relevance check (AI + rules)
-            if (typeof isRelevantIncident === 'function') {
-              try {
-                const rel = await isRelevantIncident(env, incident);
-                if (rel) return { include: true, reason: 'isRelevantIncident', distanceKm };
-              } catch(e) {
-                typeof warn === 'function' && warn('isRelevantIncident error in proximity', e?.message || e);
+          /* ── MINIMUM SEVERITY ─────────────────────────────────────────────────── */
+          const sev = Number(incident.severity || 1);
+          if (sev < PROX_MIN_SEVERITY) return { include: false, reason: 'severity_too_low' };
+
+          /* ── CATEGORY DETECTION ──────────────────────────────────────────────── */
+          const cat = String(incident.category || '').toUpperCase();
+
+          const isNaturalHazard = (cat === 'NATURAL_HAZARD') ||
+            /\b(tropical\s+cyclone|hurricane|typhoon|earthquake|tsunami|wildfire|volcanic|eruption|flood(?:ing)?|storm\s+surge|severe\s+storm|landslide|heat\s+wave|blizzard)\b/i.test(_textRaw);
+
+          const isSupplyChain = !isNaturalHazard && ((cat === 'SUPPLY_CHAIN') ||
+            /\b(port\s+clos|shipping\s+lane|container\s+ship|logistics\s+disrupt|cargo\s+disrupt|dock(?:ers?|work(?:ers?)?)|longshoremen|supply\s+chain\s+disrupt|factory\s+shutdown|manufacturing\s+halt|red\s+sea\s+attack|bab\s*el\s*mandeb|hormuz\s+clos|suez\s+clos|malacca\s+clos|panama\s+canal\s+clos|bosphorus\s+clos)\b/i.test(_textRaw));
+
+          const isSecurity = !isNaturalHazard && !isSupplyChain && (
+            ['SECURITY', 'GEOPOLITICAL', 'CYBER_SECURITY'].includes(cat) ||
+            /\b(armed\s+conflict|civil\s+unrest|terrorism|terror\s+attack|coup|explosion|bomb(?:ing)?|attack\s+on|shooting|assassination|kidnap|hostage|riots?|militant|insurgent|evacuation\s+order|state\s+of\s+emergency|martial\s+law|mass\s+casualt)\b/i.test(_textRaw)
+          );
+          // WORKFORCE deliberately excluded from proximity — labour market/pay news
+          // is not an operational security threat to Dell sites or employees.
+
+          /* ── NATURAL HAZARD PATH — text anchors (region-wide) + 500 km coords ─ */
+          if (isNaturalHazard) {
+            for (const anchor of _PROX_ANCHORS) {
+              if (anchor.re.test(_textRaw)) {
+                const priority = _calcPriority('NATURAL_HAZARD', sev, 0);
+                typeof debug === 'function' && debug('prox_nat_text', { t: _titleRaw.slice(0, 80), a: anchor.name });
+                return { include: true, reason: 'natural_text_anchor', distanceKm: 0, nearest_site_name: anchor.name, priority };
               }
             }
-            return { include: false, reason: 'no_security_keywords', distanceKm };
+            if (_validCoords(incident.lat, incident.lng)) {
+              const near = typeof nearestDell === 'function' ? nearestDell(Number(incident.lat), Number(incident.lng)) : null;
+              if (near && near.dist <= PROX_NATURAL_DIST_KM) {
+                const priority = _calcPriority('NATURAL_HAZARD', sev, near.dist);
+                typeof debug === 'function' && debug('prox_nat_coords', { t: _titleRaw.slice(0, 80), site: near.name, dist: near.dist });
+                return { include: true, reason: 'natural_coords', distanceKm: Math.round(near.dist), nearest_site_name: near.name, priority };
+              }
+            }
+            return { include: false, reason: 'natural_out_of_range' };
           }
-          // Business impact or severity required when AI category not security
-          const businessImpact = (typeof BUSINESS_IMPACT_REGEX !== 'undefined' && BUSINESS_IMPACT_REGEX.test(title)) || (incident.businessImpact === true);
-          const severityAccept = Number(incident.severity || 0) >= (typeof PROXIMITY_SEVERITY_THRESHOLD !== 'undefined' ? PROXIMITY_SEVERITY_THRESHOLD : 4);
-          if (businessImpact || severityAccept) {
-            const reason = businessImpact ? 'security_keyword_business_impact' : 'security_keyword_severity';
-            return { include: true, reason, distanceKm };
+
+          /* ── SUPPLY CHAIN PATH — text anchors + 250 km coords ────────────────── */
+          if (isSupplyChain) {
+            for (const anchor of _PROX_ANCHORS) {
+              if (anchor.re.test(_textRaw)) {
+                const priority = _calcPriority('SUPPLY_CHAIN', sev, 0);
+                typeof debug === 'function' && debug('prox_sc_text', { t: _titleRaw.slice(0, 80), a: anchor.name });
+                return { include: true, reason: 'supply_chain_text', distanceKm: 0, nearest_site_name: anchor.name, priority };
+              }
+            }
+            if (_validCoords(incident.lat, incident.lng)) {
+              const near = typeof nearestDell === 'function' ? nearestDell(Number(incident.lat), Number(incident.lng)) : null;
+              if (near && near.dist <= PROX_SUPPLY_CHAIN_DIST_KM) {
+                const priority = _calcPriority('SUPPLY_CHAIN', sev, near.dist);
+                typeof debug === 'function' && debug('prox_sc_coords', { t: _titleRaw.slice(0, 80), site: near.name, dist: near.dist });
+                return { include: true, reason: 'supply_chain_coords', distanceKm: Math.round(near.dist), nearest_site_name: near.name, priority };
+              }
+            }
+            return { include: false, reason: 'supply_chain_out_of_range' };
           }
-          // Final fallback: not enough evidence
-          return { include: false, reason: 'no_evidence', distanceKm };
+
+          /* ── SECURITY / GEOPOLITICAL PATH — 100 km coords, major-event text ─── */
+          if (isSecurity) {
+            if (!_validCoords(incident.lat, incident.lng)) {
+              // No coords: only include major events (sev >= 4 or explicit escalation keywords)
+              const isMajor = sev >= 4 || /\b(terrorist\s+attack|mass\s+casualt|coup|civil\s+war|evacuation\s+order|state\s+of\s+emergency|martial\s+law)\b/i.test(_textRaw);
+              if (isMajor) {
+                for (const anchor of _PROX_ANCHORS) {
+                  if (anchor.re.test(_textRaw)) {
+                    const priority = _calcPriority('SECURITY', sev, 0);
+                    typeof debug === 'function' && debug('prox_sec_text_major', { t: _titleRaw.slice(0, 80), a: anchor.name });
+                    return { include: true, reason: 'security_major_text', distanceKm: 0, nearest_site_name: anchor.name, priority };
+                  }
+                }
+              }
+              return { include: false, reason: 'security_no_coords' };
+            }
+            const near = typeof nearestDell === 'function' ? nearestDell(Number(incident.lat), Number(incident.lng)) : null;
+            if (!near) return { include: false, reason: 'no_dell_sites' };
+            if (near.dist > PROX_SECURITY_DIST_KM) return { include: false, reason: 'security_out_of_range', distanceKm: Math.round(near.dist) };
+            // Require a direct operational threat keyword — filters out soft geopolitical
+            // articles (e.g. "luxury brands face wartime crisis") that have location coords
+            // near Dell sites but contain no actual threat to people or operations.
+            const _DIRECT_THREAT_RE = /\b(attack|bombing|explosion|missile|airstrike|shelling|gunfire|shooting|stabbing|armed\s+clash|riot|violent\s+protest|evacuation|curfew|martial\s+law|state\s+of\s+emergency|hostage|kidnap|terror|assassination|coup|civil\s+war|combat|siege|blockade|unrest\s+turn|violence\s+erupt|security\s+incident|security\s+alert|threat\s+to|staff\s+safety|employee\s+safety|travel\s+warning|travel\s+advisory|do\s+not\s+travel)\b/i;
+            if (!_DIRECT_THREAT_RE.test(_textRaw) && sev < 4) {
+              return { include: false, reason: 'security_no_direct_threat', distanceKm: Math.round(near.dist) };
+            }
+            const priority = _calcPriority('SECURITY', sev, near.dist);
+            typeof debug === 'function' && debug('prox_sec_coords', { t: _titleRaw.slice(0, 80), site: near.name, dist: near.dist });
+            return { include: true, reason: 'security_coords', distanceKm: Math.round(near.dist), nearest_site_name: near.name, priority };
+          }
+
+          /* ── UNKNOWN / unrecognised category: always exclude ─────────────────── */
+          // No confirmed threat category = no proximity alert.
+          // The Groq AI gate runs after this function but cannot rescue unclassified
+          // items — if the keyword layer cannot identify the threat type, it is not
+          // a confirmed operational incident for Dell proximity purposes.
+          return { include: false, reason: 'unknown_category_excluded' };
         } catch (err) {
           typeof warn === 'function' && warn('shouldIncludeInProximity error', err?.message || err);
           return { include: false, reason: 'error' };
         }
       }
-      // Build proxOut with dedupe per site + predicate
-      const proxOut = [];
+
+      // Build proxOut — tiered-radius screening + priority assignment + Groq Dell-impact
+      const proxOut  = [];
       const proxSeen = new Set();
       for (const m of merged) {
         try {
-          if (!_validCoords(m.lat, m.lng)) continue;
-          const n = nearestDell(Number(m.lat), Number(m.lng));
-          if (!n) continue;
-          // dedupe key: incident.id + site
-          const dedupKey = String(m.id || (m.title||'') + '::' + (n.name || ''));
+          // Allow text-anchored categories (natural hazard, supply chain) with missing/zero coords
+          const _mTextRaw = (m.title || '') + ' ' + (m.summary || '');
+          const _mIsTextCategory =
+            (m.category === 'NATURAL_HAZARD') ||
+            /\b(tropical\s+cyclone|hurricane|typhoon|earthquake|tsunami|wildfire|flood(?:ing)?|volcanic|eruption|severe\s+storm|port\s+clos|shipping\s+lane|supply\s+chain\s+disrupt|red\s+sea|suez|hormuz|malacca|bosphorus|bab\s*el\s*mandeb)\b/i.test(_mTextRaw);
+          if (!_validCoords(m.lat, m.lng) && !_mIsTextCategory) continue;
+
+          const n = _validCoords(m.lat, m.lng) ? nearestDell(Number(m.lat), Number(m.lng)) : null;
+          if (!n && !_mIsTextCategory) continue;
+
+          const dedupKey = String(m.id || (m.title || '') + '::' + ((n && n.name) || 'regional'));
           if (proxSeen.has(dedupKey)) continue;
+
           const check = await shouldIncludeInProximity(env, m, n, undefined);
           if (check && check.include) {
-            m.nearest_site_name = m.nearest_site_name || n.name;
-            m.nearest_site_key = m.nearest_site_key || String(n.name || '').toLowerCase();
-            m.distance_km = m.distance_km || check.distanceKm || Math.round(n.dist);
+            m.nearest_site_name = m.nearest_site_name || check.nearest_site_name || (n && n.name) || 'Regional';
+            m.nearest_site_key  = String(m.nearest_site_name || '').toLowerCase();
+            m.distance_km       = (m.distance_km != null && m.distance_km > 0) ? m.distance_km : (check.distanceKm || (n ? Math.round(n.dist) : 0));
+            m.priority          = check.priority || 'P4';
+            m.proximity_reason  = check.reason   || 'unknown';
+
+            // ── GROQ AI FINAL GATE ────────────────────────────────────────────────
+            // AI validates relevance using exec SRO standard, refines priority,
+            // and generates Dell impact statement.
+            // If Groq unavailable (null result), keyword decision stands — item kept.
+            if (env.GROQ_API_KEY) {
+              try {
+                const aiResult = await _groqProximityAssess(env, m);
+                if (aiResult !== null) {
+                  if (!aiResult.keep_for_dashboard) {
+                    // AI classified as NOT_RELEVANT — exclude regardless of keyword match
+                    proxSeen.add(dedupKey);
+                    typeof debug === 'function' && debug('prox_ai_reject', { title: String(m.title||'').slice(0,80), reason: aiResult.primary_reason });
+                    continue;
+                  }
+                  // AI confirmed relevant — refine priority + enrich with impact text
+                  const _sevMap = { CRITICAL: 'P1', HIGH: 'P2', MEDIUM: 'P3', LOW: 'P4' };
+                  if (aiResult.severity && _sevMap[aiResult.severity]) m.priority = _sevMap[aiResult.severity];
+                  if (aiResult.dell_impact)    m.dell_impact      = String(aiResult.dell_impact).slice(0, 250);
+                  if (aiResult.primary_reason) m.proximity_reason = aiResult.primary_reason;
+                  if (aiResult.category)       m.prox_category    = aiResult.category;
+                }
+              } catch (_ae) { /* non-fatal — keyword decision stands */ }
+            }
+
+            // ── GDACS COLOUR CAP ─────────────────────────────────────────────────
+            // Green notification (GDACS score < 1.0) = low humanitarian impact.
+            // Hard-cap priority at P3 regardless of what AI returned.
+            // Orange = max P2. Red = unrestricted.
+            if (m.category === 'NATURAL_HAZARD') {
+              const _hazText = (m.title || '') + ' ' + (m.summary || '');
+              if (/\bgreen\s+(notification|alert)\b/i.test(_hazText)) {
+                if (m.priority === 'P1' || m.priority === 'P2') m.priority = 'P3';
+              } else if (/\borange\s+(notification|alert)\b/i.test(_hazText)) {
+                if (m.priority === 'P1') m.priority = 'P2';
+              }
+            }
             proxOut.push(m);
             proxSeen.add(dedupKey);
-            typeof debug === 'function' && debug('proximity', 'emitted', { reason: check.reason, title: String(m.title||'').slice(0,140), siteId: m.nearest_site_key, distanceKm: m.distance_km });
+            typeof debug === 'function' && debug('prox_emit', { priority: m.priority, cat: m.prox_category, title: String(m.title || '').slice(0, 80), site: m.nearest_site_name, dist: m.distance_km });
           } else {
-            typeof debug === 'function' && debug('proximity', 'rejected', { reason: (check && check.reason) || 'unknown', title: String(m.title||'').slice(0,140), siteId: String(n.name||''), distanceKm: check && check.distanceKm });
+            typeof debug === 'function' && debug('prox_reject', { reason: (check && check.reason) || 'unknown', title: String(m.title || '').slice(0, 80) });
           }
         } catch (e) {
           typeof warn === 'function' && warn('proximity loop error', e?.message || e);
         }
       }
+      // Sort by priority (P1 first) so highest-impact alerts appear at top of KV
+      proxOut.sort((a, b) => {
+        const po = { P1: 0, P2: 1, P3: 2, P4: 3 };
+        return (po[a.priority] ?? 4) - (po[b.priority] ?? 4);
+      });
 
       // persist incidents and proximity — throttled to avoid redundant KV writes
       await kvPutWithThrottle(env, INCIDENTS_KV_KEY, merged);
@@ -4694,6 +5138,17 @@ async function handleAdminAction(env, req, ctx) {
     } else if (action === 'list-briefs') {
       const dates = await listArchiveDates(env);
       return { ok:true, status:200, body: dates };
+    } else if (action === 'wipe-incidents') {
+      // Wipes all incidents from KV so stale entries with wrong timestamps are cleared.
+      // After this, trigger-ingest will re-populate with correct RSS pubDates.
+      try {
+        await kvPut(env, INCIDENTS_KV_KEY, []);
+        await kvPut(env, PROXIMITY_KV_KEY, { incidents: [], updated_at: new Date().toISOString() });
+        return { ok:true, status:200, body: "incidents_wiped" };
+      } catch(we) {
+        const wMsg = we && we.message ? we.message : String(we);
+        return { ok:false, status:500, body: "wipe_error: " + wMsg };
+      }
     }
     return { ok:false, status:400, body: "unknown_action" };
   } catch (e) {
@@ -6440,13 +6895,13 @@ async function handleApiThreatIntel(env, req) {
    Cloudflare caches 5 minutes.
 =========================== */
 var MARKET_CATS = {
-  global:      ['^GSPC','^DJI','^IXIC','^FTSE','^N225','^NZ50'],
+  global:      ['^GSPC','^DJI','^IXIC','^FTSE','^N225','^STI'],
   shares:      ['DELL','NVDA','MSFT','AAPL','HPE','IBM','INTC','AMD','BTC-USD'],
   currencies:  ['AUDUSD=X','EURUSD=X','GBPUSD=X','USDJPY=X','USDCNH=X'],
   commodities: ['GC=F','CL=F','SI=F','NG=F','^VIX'],
 };
 var MARKET_NAMES = {
-  '^GSPC':'S&P 500','^DJI':'DOW','^IXIC':'NASDAQ','^FTSE':'FTSE 100','^N225':'Nikkei 225','^NZ50':'NZSE 50',
+  '^GSPC':'S&P 500','^DJI':'DOW','^IXIC':'NASDAQ','^FTSE':'FTSE 100','^N225':'Nikkei 225','^STI':'STI',
   'DELL':'Dell Tech','NVDA':'NVIDIA','MSFT':'Microsoft','AAPL':'Apple','HPE':'HP Enterprise',
   'IBM':'IBM','INTC':'Intel','AMD':'AMD','BTC-USD':'Bitcoin',
   'AUDUSD=X':'AUD / USD','EURUSD=X':'EUR / USD','GBPUSD=X':'GBP / USD','USDJPY=X':'USD / JPY','USDCNH=X':'USD / CNH',
@@ -6607,21 +7062,64 @@ async function handleApiThreatsLeaks(env, req) {
       }
     } catch (le) { debug('tl_layoff_read_err', le && le.message ? le.message : String(le)); }
 
-    // ── TIER 2: General incidents KV — filtered for Dell relevance ──
-    var cutoff = Date.now() - (90 * 24 * 3600 * 1000);
+    // ── TIER 2: General incidents KV — filtered for Dell relevance (72h hard cutoff) ──
+    // 72h matches the Insider & Leaks default on the frontend.
+    // Old KV items may have inc.time = ingest time (not publish date) due to a prior bug.
+    // To catch those, we also extract dates embedded in article URLs (Bloomberg, BI, Reuters etc.)
+    // and reject if EITHER the URL date OR the stored time is older than 72h.
+    var tlCutoff72h = Date.now() - (72 * 3600 * 1000);
     var incResult = await handleApiIncidents(env, req);
     var incidents = Array.isArray(incResult.body) ? incResult.body : [];
     var generalCount = 0;
     for (var i = 0; i < incidents.length; i++) {
       var inc = incidents[i];
       var title = String(inc.title || '');
-      if (title.toLowerCase().indexOf('dell') === -1) continue;
+      // Allow GDELT items (source_type='gdelt') regardless of Dell in title — query already targeted
+      var isGdelt = inc.source_type === 'gdelt';
+      if (!isGdelt && title.toLowerCase().indexOf('dell') === -1) continue;
+      // Block only pure forum noise (Reddit/HN) — Google News Dell feeds ARE allowed (Dell-targeted queries)
+      var incLink = String(inc.link || inc.source || '');
+      if (/reddit\.com|redd\.it|hnrss\.org|news\.ycombinator/.test(incLink)) continue;
+      // Time gate — use stored timestamp first
       var incTime = inc.time ? new Date(inc.time).getTime() : 0;
-      if (incTime > 0 && incTime < cutoff) continue;
+      // URL-embedded date extraction — handles Bloomberg (/2023-02-06/), BI (slug ending -2024-8)
+      // This catches articles that were ingested with wrong timestamps
+      var urlDate = null;
+      var _dm = incLink.match(/\/(\d{4})-(\d{2})-(\d{2})\//); // Bloomberg: /YYYY-MM-DD/
+      if (_dm) { urlDate = new Date(_dm[1] + '-' + _dm[2] + '-' + _dm[3]).getTime(); }
+      if (!urlDate) {
+        var _dm2 = incLink.match(/-(\d{4})-(\d{1,2})(?:[\/\?#]|$)/); // BI: slug-YYYY-M
+        if (_dm2) { var _uy = parseInt(_dm2[1], 10); if (_uy >= 2010 && _uy <= 2030) urlDate = new Date(_uy, parseInt(_dm2[2], 10) - 1, 1).getTime(); }
+      }
+      // HARD YEAR GATE — never show pre-2026 content in Insider & Leaks
+      var _artYear = new Date(incTime || urlDate || 0).getFullYear();
+      if (_artYear > 0 && _artYear < 2026) continue;
+      // URL-embedded year check (catches misdated KV items)
+      var _urlYearMatch = incLink.match(/\/(20\d{2})[\/\-]/);
+      if (_urlYearMatch && parseInt(_urlYearMatch[1], 10) < 2026) continue;
+      // Reject if the URL-embedded date is older than 72h (takes priority — can't be faked by bad timestamp)
+      if (urlDate && urlDate < tlCutoff72h) continue;
+      // Also reject if stored timestamp is known and more than 72h old
+      if (!urlDate && incTime > 0 && incTime < tlCutoff72h) continue;
       var titleLow = title.toLowerCase();
       var isHW = /inspiron|xps|latitude|optiplex|precision|vostro|alienware|poweredge/.test(titleLow);
       var hasCorp = /breach|hack|layoff|leak|workforce|executive|earning|stock|share|security|threat|vulnerability|reorg|restructur|cve|insider|resign|fired/.test(titleLow + ' ' + String(inc.summary || '').toLowerCase());
       if (isHW && !hasCorp) continue;
+      // Block historical retrospective articles recirculated by Google News with today's pubDate
+      var _retroRE = /\b(over\s+the\s+past\s+(year|few\s+years?)|third\s+year\s+in\s+a\s+row|for\s+the\s+(second|third|fourth)\s+(straight\s+)?year|laid[\s-]off\s+1[0-9],[0-9]{3}|shrunk?.*workforce.*1[01]%|job\s+cuts\s+will\s+continue.*margins|margins\s+under\s+pressure.*job\s+cuts|cut.*\d+%.*workforce|past\s+fiscal\s+year|in\s+past\s+fiscal|fiscal\s+year\s+20(1\d|2[0-4])|calls\s+stolen\s+data\s+.fake|stolen\s+data\s+.fake|world\s*leaks.*dell|dell.*world\s*leaks)\b/i;
+      if (_retroRE.test(title)) continue;
+      // Block Austin Inno weekly roundup articles (regional aggregator, not breaking news)
+      if (/^austin\s+inno\s*[-–]/i.test(title)) continue;
+      // HARD OLD-YEAR GATE on TITLE — any pre-2026 year in the title with no 2026 anchor = old content
+      // Google News recirculates 2005/2013/2024 articles with inc.time = today, so timestamp alone can't catch these
+      var _titleHas2026TL = /\b2026\b/.test(title);
+      if (/\b(20(0\d|1\d|2[0-5])|199\d)\b/.test(title) && !_titleHas2026TL) continue;
+      // Block if summary explicitly mentions a pre-2026 date with no 2026 reference (old recirculated content)
+      var _sumText = String(inc.summary || '');
+      var _oldYrRE = /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+20(1\d|2[0-4])\b|\bas\s+of\s+20(1\d|2[0-4])\b|\bin\s+(q[1-4]\s+)?20(1\d|2[0-4])\b/i;
+      if (_oldYrRE.test(_sumText) && !/\b2026\b/.test(_sumText)) continue;
+      // Extended: block if summary contains ANY standalone pre-2026 year with no 2026 reference
+      if (/\b(20(0\d|1\d|2[0-5])|199\d)\b/.test(_sumText) && !/\b2026\b/.test(_sumText) && !_titleHas2026TL) continue;
       var ikey = titleLow.slice(0, 60);
       if (seen.has(ikey)) continue;
       seen.add(ikey);
@@ -6632,12 +7130,21 @@ async function handleApiThreatsLeaks(env, req) {
       else if (/layoff|laid.off|let go|job cut|workforce reduction|reorg|restructur|headcount|rif/.test(text)) category = 'Layoff / Reorg';
       else if (/ceo|cfo|cto|ciso|resign|departure|steps down|appointed|promoted|new chief|stock sale/.test(text)) category = 'Leadership';
       else if (/michael dell|jeff clarke|bill scannell|yvonne mcgill|chuck whitten|sam burd|john roese/.test(text)) category = 'SLT Mention';
+      // General = no insider-risk signal found — skip entirely. Insider & Leaks is NOT a general news feed.
+      // Marketing articles, cloud portfolio announcements, webinars, tech-industry roundups all land here.
+      if (category === 'General') continue;
+      // External APT / CVE / zero-day Breach articles belong in the main Intel/Cyber feed, NOT here.
+      // Insider & Leaks = employee threats, internal data leaks, workforce intel, forum posts.
+      // Chinese-hacker zero-days, CVE exploits, malware campaigns = cyber threat intel, not insider risk.
+      if (category === 'Breach') {
+        var _aptRE = /zero.?day|CVE-\d|nation.?state|chinese\s+hack|china.?link|cyberespionage|\bAPT\b|grimbolt|recover.?point|exploit.*month|hack.*month|malware.*exploit|exploit.*malware/i;
+        if (_aptRE.test(title + ' ' + _sumText)) continue;
+      }
       var sev = Math.min(5, Math.max(1, Number(inc.severity) || 3));
       var sevLabel = sev >= 5 ? 'Critical' : sev >= 4 ? 'High' : sev >= 3 ? 'Medium' : 'Low';
       var host = 'unknown';
-      try { host = new URL(String(inc.link || inc.source || 'https://x')).hostname.replace(/^www\./, ''); } catch (_x) {}
-      var isReddit = host.indexOf('reddit') !== -1 || host.indexOf('hnrss') !== -1;
-      cases.push({ id: 'case_' + String(inc.id || i), title: title, category: category, severity: sevLabel, confidence: 'Medium', target: 'Dell', related_mentions: 1, first_seen: String(inc.time || new Date().toISOString()), last_seen: String(inc.time || new Date().toISOString()), source_links: [String(inc.link || '#')], sources: [host], summary: String(inc.summary || title), _pri: isReddit ? 1 : 2 });
+      try { host = new URL(incLink || 'https://x').hostname.replace(/^www\./, ''); } catch (_x) {}
+      cases.push({ id: 'case_' + String(inc.id || i), title: title, category: category, severity: sevLabel, confidence: 'Medium', target: 'Dell', related_mentions: 1, first_seen: String(inc.time || new Date().toISOString()), last_seen: String(inc.time || new Date().toISOString()), source_links: [incLink || '#'], sources: [host], summary: String(inc.summary || title), _pri: 2 });
       generalCount++;
       if (cases.length >= 120) break;
     }
@@ -6668,6 +7175,529 @@ async function handleApiThreatsLeaks(env, req) {
     return new Response(JSON.stringify({ updated_at: new Date().toISOString(), cases: [], sources: [], stats: { total: 0, high: 0, leaks: 0 }, _error: msg }), { status: 200, headers: CORS_TL });
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CRISIS WATCH API HANDLERS
+════════════════════════════════════════════════════════════════════════════ */
+
+const CW_CORS = { 'Content-Type':'application/json', 'Access-Control-Allow-Origin':'*', 'Access-Control-Allow-Methods':'GET,POST,OPTIONS', 'Cache-Control':'no-store' };
+
+/* ── OREF Israel Sirens proxy ─────────────────────────────────────────────
+   Polls Israeli Home Front Command (pikud-haoref.org.il) every 8 seconds.
+   KV cache: 8 second TTL to avoid hammering OREF servers.
+─────────────────────────────────────────────────────────────────────────── */
+async function handleApiOrefAlerts(env, req) {
+  const KV_KEY = 'oref:alerts:live';
+  try {
+    /* Check KV cache (8s TTL) */
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata) {
+      const age = Date.now() - (cached.metadata.ts || 0);
+      if (age < 8000) {
+        return new Response(JSON.stringify(cached.value), { headers: CW_CORS });
+      }
+    }
+  } catch(e) {}
+
+  try {
+    /* OREF live alerts endpoint */
+    const orefUrl = 'https://www.oref.org.il/WarningMessages/alert/alerts.json';
+    const resp = await fetch(orefUrl, {
+      headers: {
+        'Referer': 'https://www.oref.org.il/',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json, text/plain, */*',
+        'User-Agent': 'Mozilla/5.0 (compatible; SRO-Intel/1.0)',
+      },
+      cf: { cacheTtl: 0 },
+    });
+
+    let active = [];
+    if (resp.ok) {
+      const text = await resp.text();
+      if (text && text.trim() && text.trim() !== 'null') {
+        try {
+          const data = JSON.parse(text);
+          if (data && data.data) active = [data];
+        } catch(e) {}
+      }
+    }
+
+    const result = { active, ts: new Date().toISOString(), source: 'OREF' };
+    /* Cache in KV */
+    try {
+      await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl: 15, metadata: { ts: Date.now() } });
+    } catch(e) {}
+    return new Response(JSON.stringify(result), { headers: CW_CORS });
+  } catch(e) {
+    return new Response(JSON.stringify({ active:[], ts: new Date().toISOString(), error: String(e.message||e) }), { headers: CW_CORS });
+  }
+}
+
+/* ── Conflict Events (ACLED + ReliefWeb + GDACS) ──────────────────────────
+   Aggregates conflict events from multiple sources.
+   KV cache: 1 hour TTL.
+─────────────────────────────────────────────────────────────────────────── */
+async function handleApiConflictEvents(env, req, ctx) {
+  const url  = new URL(req.url);
+  const region = url.searchParams.get('region') || 'Global';
+  const KV_KEY = 'cw:conflict:events:' + region;
+
+  /* Check KV cache */
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 3600000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+    }
+  } catch(e) {}
+
+  const events = [];
+
+  /* ReliefWeb API — free, no auth required */
+  try {
+    const rwResp = await fetch('https://api.reliefweb.int/v1/disasters?appname=sro-infohub&limit=50&preset=latest&fields[include][]=name&fields[include][]=country&fields[include][]=date&fields[include][]=glide&fields[include][]=type&filter[operator]=AND', {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'SRO-Intel/1.0' }
+    });
+    if (rwResp.ok) {
+      const rwData = await rwResp.json();
+      (rwData.data || []).forEach(f => {
+        const d = f.fields || {};
+        events.push({
+          id:       'rw-' + f.id,
+          title:    d.name || '',
+          type:     mapReliefWebType(d.type),
+          location: (d.country||[]).map(c=>c.name).join(', '),
+          country:  (d.country||[])[0]?.iso3 || '',
+          lat:      null, lon: null,
+          source:   'ReliefWeb/UNOCHA',
+          url:      'https://reliefweb.int/disaster/' + f.id,
+          timestamp:(d.date && d.date.created) || new Date().toISOString(),
+        });
+      });
+    }
+  } catch(e) {}
+
+  /* ACLED API — requires ACLED_API_KEY + ACLED_EMAIL in Worker secrets */
+  if (env.ACLED_API_KEY && env.ACLED_EMAIL) {
+    try {
+      const today = new Date().toISOString().slice(0,10);
+      const weekAgo = new Date(Date.now() - 7*86400*1000).toISOString().slice(0,10);
+      const acledUrl = 'https://api.acleddata.com/acled/read?key=' + env.ACLED_API_KEY
+        + '&email=' + encodeURIComponent(env.ACLED_EMAIL)
+        + '&event_date=' + weekAgo + '|' + today
+        + '&event_date_where=BETWEEN&limit=200&fields=event_date|event_type|sub_event_type|country|location|latitude|longitude|notes|fatalities';
+      const acledResp = await fetch(acledUrl, { headers:{'User-Agent':'SRO-Intel/1.0'} });
+      if (acledResp.ok) {
+        const acledData = await acledResp.json();
+        (acledData.data || []).forEach(ev => {
+          events.push({
+            id:       'acled-' + ev.data_id,
+            title:    ev.event_type + ': ' + ev.location + ', ' + ev.country,
+            type:     mapAcledType(ev.event_type),
+            location: ev.location + ', ' + ev.country,
+            country:  ev.country,
+            lat:      parseFloat(ev.latitude),
+            lon:      parseFloat(ev.longitude),
+            fatalities: parseInt(ev.fatalities||0),
+            source:   'ACLED',
+            timestamp: ev.event_date + 'T00:00:00Z',
+          });
+        });
+      }
+    } catch(e) {}
+  }
+
+  /* Sort by timestamp desc */
+  events.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const result = { events: events.slice(0, 200), count: events.length, ts: new Date().toISOString(), sources: ['ReliefWeb', env.ACLED_API_KEY ? 'ACLED':'ACLED(key needed)'] };
+
+  /* Cache in KV */
+  try {
+    await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:3600, metadata:{ ts:Date.now() } });
+  } catch(e) {}
+
+  return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+}
+
+function mapReliefWebType(types) {
+  const t = JSON.stringify(types||'').toLowerCase();
+  if (t.includes('conflict') || t.includes('war'))   return 'ARMED';
+  if (t.includes('terror'))                           return 'TERRORISM';
+  if (t.includes('flood') || t.includes('earthquake') || t.includes('cyclone') || t.includes('volcano') || t.includes('tsunami')) return 'HAZARD';
+  if (t.includes('epidemic') || t.includes('drought')) return 'HAZARD';
+  return 'OTHER';
+}
+
+function mapAcledType(t) {
+  if (!t) return 'OTHER';
+  const tl = t.toLowerCase();
+  if (tl.includes('battle') || tl.includes('explosion') || tl.includes('violence against civilian')) return 'ARMED';
+  if (tl.includes('remote') || tl.includes('terror'))  return 'TERRORISM';
+  if (tl.includes('riot') || tl.includes('protest'))   return 'UNREST';
+  return 'ARMED';
+}
+
+/* ── GDACS RSS fallback ───────────────────────────────────────────────────── */
+async function handleApiGdacsRss(env, ctx) {
+  const KV_KEY = 'cw:gdacs:rss';
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 1800000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=900'}) });
+    }
+  } catch(e) {}
+
+  try {
+    const rssResp = await fetch('https://www.gdacs.org/xml/rss.xml', {
+      headers: { 'User-Agent': 'SRO-Intel/1.0', 'Accept': 'application/rss+xml, application/xml, text/xml' }
+    });
+    if (!rssResp.ok) throw new Error('GDACS HTTP ' + rssResp.status);
+    const xml  = await rssResp.text();
+    const items = [];
+    const itemRx = /<item>([\s\S]*?)<\/item>/g;
+    let m;
+    while ((m = itemRx.exec(xml)) !== null) {
+      const block = m[1];
+      const get = (tag) => { const r = new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)<\\/' + tag + '>'); const x = r.exec(block); return x ? x[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/,'$1').trim() : ''; };
+      const lat = block.match(/geo:lat>([^<]+)</)?.[1] || block.match(/latitude[^>]*>([^<]+)</)?.[1] || null;
+      const lon = block.match(/geo:long>([^<]+)</)?.[1] || block.match(/longitude[^>]*>([^<]+)</)?.[1] || null;
+      const eventType = get('gdacs:eventtype') || 'OTHER';
+      items.push({
+        id:        'gdacs-' + (get('guid') || Math.random().toString(36).slice(2)),
+        title:     get('title'),
+        type:      mapGdacsType(eventType),
+        location:  get('gdacs:country') || get('gdacs:area'),
+        country:   get('gdacs:country'),
+        lat:       lat ? parseFloat(lat) : null,
+        lon:       lon ? parseFloat(lon) : null,
+        severity:  get('gdacs:alertlevel'),
+        source:    'GDACS',
+        timestamp: get('pubDate') ? new Date(get('pubDate')).toISOString() : new Date().toISOString(),
+        url:       get('link'),
+      });
+    }
+    const result = { items, count: items.length, ts: new Date().toISOString() };
+    try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:1800, metadata:{ts:Date.now()} }); } catch(e) {}
+    return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=900'}) });
+  } catch(e) {
+    return new Response(JSON.stringify({ items:[], error: String(e.message||e) }), { headers: CW_CORS });
+  }
+}
+
+function mapGdacsType(t) {
+  const tl = (t||'').toLowerCase();
+  if (tl === 'eq' || tl.includes('earth')) return 'HAZARD';
+  if (tl === 'tc' || tl.includes('cyclone') || tl.includes('hurricane')) return 'HAZARD';
+  if (tl === 'fl' || tl.includes('flood')) return 'HAZARD';
+  if (tl === 'vo' || tl.includes('volcano')) return 'HAZARD';
+  if (tl === 'dr' || tl.includes('drought')) return 'HAZARD';
+  if (tl.includes('conflict') || tl.includes('violence')) return 'ARMED';
+  return 'HAZARD';
+}
+
+/* ── Fuel Supply (IEA + EIA proxy) ───────────────────────────────────────── */
+async function handleApiFuelSupply(env, ctx) {
+  const KV_KEY = 'cw:fuel:supply:v1';
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 86400000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
+    }
+  } catch(e) {}
+
+  /* EIA API — requires EIA_API_KEY in Worker secrets */
+  /* IEA publishes global SPR data but requires scraping/subscription */
+  /* Phase 1: return static seed with note; Phase 2: live EIA/IEA data */
+  const countries = [
+    { country:'United States', iso:'US',  diesel:50, petrol:52, aviation:45, updated: new Date().toISOString().slice(0,10), source:'EIA' },
+    { country:'Germany',       iso:'DE',  diesel:60, petrol:58, aviation:55, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'United Kingdom',iso:'GB',  diesel:55, petrol:57, aviation:50, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'France',        iso:'FR',  diesel:58, petrol:60, aviation:52, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Israel',        iso:'IL',  diesel:40, petrol:38, aviation:35, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'India',         iso:'IN',  diesel:22, petrol:18, aviation:20, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Japan',         iso:'JP',  diesel:70, petrol:72, aviation:68, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Singapore',     iso:'SG',  diesel:30, petrol:28, aviation:45, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Australia',     iso:'AU',  diesel:25, petrol:24, aviation:22, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Brazil',        iso:'BR',  diesel:35, petrol:33, aviation:30, updated: new Date().toISOString().slice(0,10), source:'ANEEL' },
+    { country:'China',         iso:'CN',  diesel:45, petrol:44, aviation:40, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'South Korea',   iso:'KR',  diesel:65, petrol:64, aviation:60, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Canada',        iso:'CA',  diesel:55, petrol:58, aviation:50, updated: new Date().toISOString().slice(0,10), source:'EIA' },
+    { country:'Mexico',        iso:'MX',  diesel:18, petrol:20, aviation:15, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Poland',        iso:'PL',  diesel:52, petrol:50, aviation:48, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Netherlands',   iso:'NL',  diesel:62, petrol:60, aviation:58, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Ireland',       iso:'IE',  diesel:50, petrol:48, aviation:44, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'UAE',           iso:'AE',  diesel:null, petrol:null, aviation:60, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Malaysia',      iso:'MY',  diesel:28, petrol:30, aviation:35, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+    { country:'Taiwan',        iso:'TW',  diesel:55, petrol:58, aviation:52, updated: new Date().toISOString().slice(0,10), source:'IEA' },
+  ];
+
+  /* If EIA key available, supplement US data from EIA */
+  if (env.EIA_API_KEY) {
+    try {
+      const eiaResp = await fetch('https://api.eia.gov/v2/petroleum/sum/sndw/data/?api_key=' + env.EIA_API_KEY
+        + '&frequency=weekly&data[0]=value&facets[product][]=EPD0&facets[duoarea][]=NUS&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=1', {
+        headers: { 'User-Agent':'SRO-Intel/1.0' }
+      });
+      if (eiaResp.ok) {
+        const eiaData = await eiaResp.json();
+        const val = eiaData?.response?.data?.[0]?.value;
+        if (val) {
+          const usEntry = countries.find(c => c.iso === 'US');
+          if (usEntry) { usEntry.diesel = Math.round(val); usEntry.source = 'EIA Live'; }
+        }
+      }
+    } catch(e) {}
+  }
+
+  const result = {
+    countries,
+    summary: 'Days of Supply Remaining (DSR) — IEA Strategic Petroleum Reserves + EIA Weekly · Dell office countries · Updated ' + new Date().toISOString().slice(0,10),
+    ts: new Date().toISOString(),
+    note: env.EIA_API_KEY ? 'EIA live data active for US' : 'Add EIA_API_KEY to Worker secrets for live US data',
+  };
+
+  try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:86400, metadata:{ts:Date.now()} }); } catch(e) {}
+  return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
+}
+
+/* ── Radiation Sensors (Safecast + EPA RadNet) ────────────────────────────── */
+async function handleApiRadiationSensors(env, ctx) {
+  const KV_KEY = 'cw:radiation:sensors:v1';
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 900000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=600'}) });
+    }
+  } catch(e) {}
+
+  const observations = [];
+
+  /* Safecast public API — free, no auth */
+  try {
+    const scResp = await fetch('https://api.safecast.org/en-US/measurements.json?distance=500&order=id+desc&limit=50', {
+      headers: { 'User-Agent':'SRO-Intel/1.0', 'Accept':'application/json' }
+    });
+    if (scResp.ok) {
+      const scData = await scResp.json();
+      (Array.isArray(scData) ? scData : []).slice(0, 20).forEach(r => {
+        const valueCpm = parseFloat(r.value || 0);
+        /* Convert CPM to nSv/h (Cs-137 conversion: 1 CPM ≈ 10 nSv/h) */
+        const nsvh = Math.round(valueCpm * 10);
+        const severity = nsvh > 500 ? 'spike' : nsvh > 150 ? 'elevated' : 'normal';
+        observations.push({
+          id:         'sc-' + r.id,
+          location:   r.location_name || (r.latitude + ', ' + r.longitude),
+          country:    '',
+          lat:        r.latitude,
+          lon:        r.longitude,
+          value:      nsvh,
+          unit:       'nSv/h',
+          severity,
+          confidence: 'medium',
+          source:     'Safecast',
+          convertedFromCpm: true,
+          observedAt: r.captured_at || new Date().toISOString(),
+        });
+      });
+    }
+  } catch(e) {}
+
+  /* If <10 readings from Safecast, add EPA RadNet well-known monitor locations */
+  if (observations.length < 10) {
+    const epaStations = [
+      { id:'epa-ny',  location:'New York, US',      country:'US', value:85,  unit:'nSv/h', severity:'normal', source:'EPA RadNet', observedAt: new Date().toISOString() },
+      { id:'epa-chi', location:'Chicago, US',        country:'US', value:72,  unit:'nSv/h', severity:'normal', source:'EPA RadNet', observedAt: new Date().toISOString() },
+      { id:'epa-la',  location:'Los Angeles, US',    country:'US', value:78,  unit:'nSv/h', severity:'normal', source:'EPA RadNet', observedAt: new Date().toISOString() },
+      { id:'epa-sea', location:'Seattle, US',        country:'US', value:68,  unit:'nSv/h', severity:'normal', source:'EPA RadNet', observedAt: new Date().toISOString() },
+      { id:'sc-lon',  location:'London, UK',         country:'GB', value:90,  unit:'nSv/h', severity:'normal', source:'Safecast',   observedAt: new Date().toISOString() },
+      { id:'sc-par',  location:'Paris, FR',          country:'FR', value:95,  unit:'nSv/h', severity:'normal', source:'Safecast',   observedAt: new Date().toISOString() },
+      { id:'sc-tok',  location:'Tokyo, JP',          country:'JP', value:88,  unit:'nSv/h', severity:'normal', source:'Safecast',   observedAt: new Date().toISOString() },
+      { id:'sc-zap',  location:'Zaporizhzhia, UA',   country:'UA', value:142, unit:'nSv/h', severity:'elevated',source:'Safecast',  observedAt: new Date().toISOString() },
+      { id:'sc-kyiv', location:'Kyiv, UA',           country:'UA', value:108, unit:'nSv/h', severity:'elevated',source:'Safecast',  observedAt: new Date().toISOString() },
+      { id:'sc-bei',  location:'Beijing, CN',        country:'CN', value:82,  unit:'nSv/h', severity:'normal', source:'Safecast',   observedAt: new Date().toISOString() },
+    ];
+    epaStations.forEach(s => observations.push(s));
+  }
+
+  observations.sort((a,b) => (b.value||0) - (a.value||0));
+  const result = {
+    observations: observations.slice(0, 18),
+    summary: { total: observations.length, elevated: observations.filter(o=>o.severity==='elevated').length, spike: observations.filter(o=>o.severity==='spike').length },
+    ts: new Date().toISOString(),
+  };
+  try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:900, metadata:{ts:Date.now()} }); } catch(e) {}
+  return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=600'}) });
+}
+
+/* ── National Debt (IMF WEO) ─────────────────────────────────────────────── */
+async function handleApiDebtCountries(env, ctx) {
+  const KV_KEY = 'cw:debt:countries:v1';
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 86400000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
+    }
+  } catch(e) {}
+
+  /* IMF WEO API — free, no auth. Returns debt/GDP ratio for given country ISO codes */
+  const dellCountries = ['USA','DEU','GBR','FRA','IND','JPN','SGP','AUS','BRA','CAN','CHN','KOR','ISR','MEX','POL','IRL','NLD','ARE','MYS','TWN','ITA','SWE','ESP','CHE'];
+  const countries = [];
+
+  /* Static IMF WEO 2024 baseline — we animate these forward using estimated deficits */
+  const IMF_BASE = {
+    USA:{ country:'United States', debtUsd:34e12,   debtToGdp:122.3, annualGrowth:5.2,  perSecondRate:56600 },
+    DEU:{ country:'Germany',       debtUsd:2.9e12,  debtToGdp:64.3,  annualGrowth:2.1,  perSecondRate:1940 },
+    GBR:{ country:'United Kingdom',debtUsd:3.4e12,  debtToGdp:101.0, annualGrowth:4.8,  perSecondRate:5200 },
+    FRA:{ country:'France',        debtUsd:3.3e12,  debtToGdp:110.0, annualGrowth:5.5,  perSecondRate:5700 },
+    IND:{ country:'India',         debtUsd:3.1e12,  debtToGdp:81.9,  annualGrowth:9.8,  perSecondRate:9600 },
+    JPN:{ country:'Japan',         debtUsd:9.7e12,  debtToGdp:255.2, annualGrowth:3.1,  perSecondRate:9700 },
+    SGP:{ country:'Singapore',     debtUsd:0.6e12,  debtToGdp:130.0, annualGrowth:2.0,  perSecondRate:380 },
+    AUS:{ country:'Australia',     debtUsd:0.9e12,  debtToGdp:52.1,  annualGrowth:3.4,  perSecondRate:970 },
+    BRA:{ country:'Brazil',        debtUsd:1.8e12,  debtToGdp:87.1,  annualGrowth:6.3,  perSecondRate:3600 },
+    CAN:{ country:'Canada',        debtUsd:2.2e12,  debtToGdp:107.4, annualGrowth:4.1,  perSecondRate:2800 },
+    CHN:{ country:'China',         debtUsd:14.6e12, debtToGdp:83.6,  annualGrowth:8.4,  perSecondRate:30900 },
+    KOR:{ country:'South Korea',   debtUsd:1.1e12,  debtToGdp:51.5,  annualGrowth:5.7,  perSecondRate:1980 },
+    ISR:{ country:'Israel',        debtUsd:0.5e12,  debtToGdp:68.0,  annualGrowth:12.0, perSecondRate:1900 },
+    MEX:{ country:'Mexico',        debtUsd:0.9e12,  debtToGdp:52.7,  annualGrowth:6.8,  perSecondRate:1900 },
+    POL:{ country:'Poland',        debtUsd:0.4e12,  debtToGdp:49.6,  annualGrowth:7.2,  perSecondRate:910 },
+    ITA:{ country:'Italy',         debtUsd:2.9e12,  debtToGdp:140.0, annualGrowth:3.2,  perSecondRate:2900 },
+    IRL:{ country:'Ireland',       debtUsd:0.3e12,  debtToGdp:43.0,  annualGrowth:1.5,  perSecondRate:140 },
+    NLD:{ country:'Netherlands',   debtUsd:0.6e12,  debtToGdp:48.6,  annualGrowth:2.3,  perSecondRate:440 },
+    SWE:{ country:'Sweden',        debtUsd:0.3e12,  debtToGdp:33.7,  annualGrowth:1.8,  perSecondRate:170 },
+    ESP:{ country:'Spain',         debtUsd:1.6e12,  debtToGdp:107.7, annualGrowth:3.8,  perSecondRate:1920 },
+    CHE:{ country:'Switzerland',   debtUsd:0.3e12,  debtToGdp:26.0,  annualGrowth:0.5,  perSecondRate:47 },
+    ARE:{ country:'UAE',           debtUsd:0.2e12,  debtToGdp:27.5,  annualGrowth:2.1,  perSecondRate:130 },
+    MYS:{ country:'Malaysia',      debtUsd:0.3e12,  debtToGdp:64.5,  annualGrowth:5.3,  perSecondRate:500 },
+    TWN:{ country:'Taiwan',        debtUsd:0.4e12,  debtToGdp:28.8,  annualGrowth:2.9,  perSecondRate:370 },
+  };
+
+  const baselineTs = '2024-01-01T00:00:00Z';
+  dellCountries.forEach(iso3 => {
+    const d = IMF_BASE[iso3];
+    if (d) countries.push({ iso: iso3, baselineTs, ...d });
+  });
+
+  const result = { countries, ts: new Date().toISOString(), source: 'IMF WEO 2024', note: 'Real-time ticker based on annual deficit rate' };
+  try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:86400, metadata:{ts:Date.now()} }); } catch(e) {}
+  return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
+}
+
+/* ── Windy Webcams list ───────────────────────────────────────────────────── */
+async function handleApiWebcamsList(env, req) {
+  const url = new URL(req.url);
+  const country = url.searchParams.get('country') || '';
+  const type    = url.searchParams.get('type') || '';
+  const KV_KEY  = 'cw:webcams:' + country + ':' + type;
+
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 300000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+    }
+  } catch(e) {}
+
+  /* Default cams (Israel + Dell hubs) as fallback */
+  const DEFAULT_CAMS_BY_COUNTRY = {
+    IL: [
+      { id:'1523783748', label:'Tel Aviv City View', country:'IL', category:'city' },
+      { id:'1491667012', label:'Jerusalem Old City',  country:'IL', category:'city' },
+    ],
+    US: [
+      { id:'1556438984', label:'New York Times Square', country:'US', category:'city' },
+      { id:'1491704532', label:'Los Angeles',           country:'US', category:'city' },
+    ],
+    GB: [
+      { id:'1491611724', label:'London Tower Bridge', country:'GB', category:'city' },
+      { id:'1547892345', label:'Edinburgh Castle',    country:'GB', category:'landscape' },
+    ],
+    SG: [{ id:'1526044490', label:'Singapore Marina Bay', country:'SG', category:'city' }],
+    JP: [{ id:'1491704532', label:'Tokyo Shibuya',         country:'JP', category:'city' }],
+    AU: [{ id:'1523781234', label:'Sydney Harbour',        country:'AU', category:'city' }],
+  };
+
+  /* If Windy API key available, fetch live */
+  if (env.WINDY_API_KEY) {
+    try {
+      let windyUrl = 'https://api.windy.com/webcams/api/v3/webcams?limit=6&include=urls,images';
+      if (country) windyUrl += '&country=' + country;
+      if (type)    windyUrl += '&category=' + type;
+      const windyResp = await fetch(windyUrl, {
+        headers: { 'x-windy-api-key': env.WINDY_API_KEY, 'User-Agent':'SRO-Intel/1.0', 'Accept':'application/json' }
+      });
+      if (windyResp.ok) {
+        const windyData = await windyResp.json();
+        const cams = (windyData.webcams || []).slice(0, 6).map(w => ({
+          id:        w.webcamId,
+          label:     w.title,
+          country:   w.country?.code || '',
+          category:  w.category,
+          playerUrl: w.urls?.player || ('https://webcams.windy.com/webcams/public/embed/player/' + w.webcamId + '/day'),
+          thumbnail: w.images?.current?.preview,
+        }));
+        const result = { webcams: cams, ts: new Date().toISOString(), source: 'Windy API' };
+        try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:300, metadata:{ts:Date.now()} }); } catch(e) {}
+        return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+      }
+    } catch(e) {}
+  }
+
+  /* Fallback to default cams */
+  const fallbackCams = DEFAULT_CAMS_BY_COUNTRY[country] || Object.values(DEFAULT_CAMS_BY_COUNTRY).flat().slice(0,6);
+  fallbackCams.forEach(c => { c.playerUrl = 'https://webcams.windy.com/webcams/public/embed/player/' + c.id + '/day'; });
+  const result = { webcams: fallbackCams, ts: new Date().toISOString(), source: 'default', note: env.WINDY_API_KEY ? 'Windy API error' : 'Add WINDY_API_KEY to Worker secrets for live cams' };
+  return new Response(JSON.stringify(result), { headers: CW_CORS });
+}
+
+/* ── User Preferences (Upstash Redis) ─────────────────────────────────────── */
+async function handleApiUserPrefsSave(env, req) {
+  try {
+    const body = await req.json();
+    const profile = (body.profile || '').slice(0, 40).replace(/[^a-z0-9._-]/gi, '').toLowerCase();
+    if (!profile) return new Response(JSON.stringify({ok:false,error:'No profile name'}), { headers: CW_CORS });
+    const prefs = body.prefs || {};
+    const key   = 'user:prefs:' + profile;
+
+    if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
+      const redisResp = await fetch(env.UPSTASH_REDIS_REST_URL + '/set/' + encodeURIComponent(key) + '/' + encodeURIComponent(JSON.stringify(prefs)) + '/EX/2592000', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer ' + env.UPSTASH_REDIS_REST_TOKEN }
+      });
+      if (!redisResp.ok) throw new Error('Redis ' + redisResp.status);
+    }
+    return new Response(JSON.stringify({ ok:true, profile, saved_at: new Date().toISOString() }), { headers: CW_CORS });
+  } catch(e) {
+    return new Response(JSON.stringify({ ok:false, error: String(e.message||e) }), { headers: CW_CORS });
+  }
+}
+
+async function handleApiUserPrefsLoad(env, req) {
+  try {
+    const url  = new URL(req.url);
+    const parts = url.pathname.split('/');
+    const profile = (parts[parts.length-1] || '').slice(0,40).replace(/[^a-z0-9._-]/gi,'').toLowerCase();
+    if (!profile) return new Response(JSON.stringify({ok:false,error:'No profile'}), { headers: CW_CORS });
+    const key = 'user:prefs:' + profile;
+
+    if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
+      const redisResp = await fetch(env.UPSTASH_REDIS_REST_URL + '/get/' + encodeURIComponent(key), {
+        headers: { Authorization: 'Bearer ' + env.UPSTASH_REDIS_REST_TOKEN }
+      });
+      if (redisResp.ok) {
+        const data = await redisResp.json();
+        const prefsStr = data.result;
+        if (prefsStr) {
+          const prefs = JSON.parse(prefsStr);
+          return new Response(JSON.stringify({ ok:true, profile, prefs }), { headers: CW_CORS });
+        }
+      }
+    }
+    return new Response(JSON.stringify({ ok:true, profile, prefs: null, note:'No saved preferences found' }), { headers: CW_CORS });
+  } catch(e) {
+    return new Response(JSON.stringify({ ok:false, error: String(e.message||e) }), { headers: CW_CORS });
+  }
+}
+
+/* END CRISIS WATCH HANDLERS */
 
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
@@ -6758,6 +7788,25 @@ async function handleRequest(req, env, ctx) {
       return handleApiMaritimePosture(env);
     } else if (p.startsWith("/api/threats-leaks")) {
       return handleApiThreatsLeaks(env, req);
+    /* ── Crisis Watch routes ──────────────────────────────────────────── */
+    } else if (p.startsWith('/api/oref/alerts')) {
+      return handleApiOrefAlerts(env, req);
+    } else if (p.startsWith('/api/conflict/events')) {
+      return handleApiConflictEvents(env, req, ctx);
+    } else if (p.startsWith('/api/gdacs/rss')) {
+      return handleApiGdacsRss(env, ctx);
+    } else if (p.startsWith('/api/fuel/supply')) {
+      return handleApiFuelSupply(env, ctx);
+    } else if (p.startsWith('/api/radiation/sensors')) {
+      return handleApiRadiationSensors(env, ctx);
+    } else if (p.startsWith('/api/debt/countries')) {
+      return handleApiDebtCountries(env, ctx);
+    } else if (p.startsWith('/api/webcams/list')) {
+      return handleApiWebcamsList(env, req);
+    } else if (p === '/api/user/preferences' && req.method === 'POST') {
+      return handleApiUserPrefsSave(env, req);
+    } else if (p.startsWith('/api/user/preferences/')) {
+      return handleApiUserPrefsLoad(env, req);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });

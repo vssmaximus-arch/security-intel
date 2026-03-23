@@ -2051,6 +2051,396 @@
     .ticker-chg { font-size:.68rem; }
     .ticker-loading { color:#9aa0a6; }
     .ticker-sep { color:#3a3d45; padding:0 4px; }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     CRISIS WATCH TAB — full styles
+  ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* Tab icon — pulsing red dot */
+  .cw-tab-dot { color:#e53935; font-size:0.55rem; vertical-align:middle; animation:cw-pulse 2s ease-in-out infinite; }
+  @keyframes cw-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .view-tab[data-view="crisis-watch"].active .cw-tab-dot { animation:cw-pulse 1s ease-in-out infinite; }
+
+  /* ── Top bar ── */
+  .cw-topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 16px 6px; gap:12px; flex-wrap:wrap;
+    border-bottom:1px solid #2a2d35;
+  }
+  body.light-mode .cw-topbar { border-color:#dadce0; }
+  .cw-topbar-title {
+    display:flex; align-items:center; gap:10px;
+  }
+  .cw-badge {
+    background:#c62828; color:#fff; font-size:.65rem; font-weight:800;
+    letter-spacing:.8px; padding:3px 9px; border-radius:3px; text-transform:uppercase;
+  }
+  .cw-topbar-ts { font-size:.68rem; color:#5f6368; white-space:nowrap; }
+
+  /* ── Region filter bar inside CW tab ── */
+  .cw-region-bar {
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  }
+  .cw-region-btn {
+    background:none; border:1px solid #3a3d45; border-radius:5px;
+    color:#9aa0a6; font-size:.72rem; font-weight:700; padding:3px 11px;
+    cursor:pointer; transition:all .15s;
+  }
+  .cw-region-btn:hover { color:#e8eaed; border-color:#5f6368; }
+  .cw-region-btn.active { background:#c62828; border-color:#c62828; color:#fff; }
+  body.light-mode .cw-region-btn { border-color:#c8d6e5; color:#5f6368; }
+  body.light-mode .cw-region-btn:hover { color:#202124; border-color:#9aa0a6; }
+  body.light-mode .cw-region-btn.active { background:#c62828; border-color:#c62828; color:#fff; }
+
+  /* ── Posture banner ── */
+  .cw-posture-oneliner {
+    display:flex; align-items:center; gap:10px; padding:0 16px;
+    height:100%; font-size:.75rem; font-weight:600;
+    background:#1a0a0a; border-left:4px solid #e53935;
+    border-radius:0; overflow:hidden;
+  }
+  .cw-posture-elevated { background:#1a0a0a; border-left-color:#e53935; }
+  .cw-posture-watch    { background:#1a1200; border-left-color:#f9ab00; }
+  .cw-posture-stable   { background:#0a1a0a; border-left-color:#34a853; }
+  body.light-mode .cw-posture-oneliner { background:#fff0f0; }
+  body.light-mode .cw-posture-elevated { background:#fff0f0; }
+  body.light-mode .cw-posture-watch    { background:#fffde7; }
+  body.light-mode .cw-posture-stable   { background:#f0fff0; }
+  .cw-posture-icon { font-size:.8rem; }
+  .cw-posture-lbl { color:#9aa0a6; font-size:.65rem; font-weight:800; letter-spacing:.8px; text-transform:uppercase; }
+  .cw-posture-sep { color:#3a3d45; }
+  .cw-posture-level { font-weight:800; color:#f28b82; }
+  .cw-posture-level.watch   { color:#f9ab00; }
+  .cw-posture-level.stable  { color:#81c995; }
+  .cw-posture-summary { color:#9aa0a6; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cw-posture-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
+  .cw-posture-counts { font-size:.68rem; color:#5f6368; white-space:nowrap; }
+  .cw-btn-refresh {
+    background:none; border:1px solid #3a3d45; border-radius:4px; color:#9aa0a6;
+    width:24px; height:24px; cursor:pointer; font-size:.72rem; display:flex;
+    align-items:center; justify-content:center; transition:all .15s;
+  }
+  .cw-btn-refresh:hover { border-color:#4fc3f7; color:#4fc3f7; }
+
+  /* ── General widget styling (reuses vw-gs-* patterns) ── */
+  #cw-grid .widget-header-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 10px; height:36px; background:#181a22; border-bottom:1px solid #2a2d35;
+    font-size:.75rem; font-weight:700; color:#e8eaed; cursor:move; flex-shrink:0;
+    border-radius:8px 8px 0 0;
+  }
+  body.light-mode #cw-grid .widget-header-bar { background:#f1f3f4; border-color:#dadce0; color:#202124; }
+  .cw-gs-select {
+    background:#0f1115; border:1px solid #3a3d45; color:#9aa0a6; font-size:.68rem;
+    border-radius:4px; padding:2px 6px; cursor:pointer;
+  }
+  body.light-mode .cw-gs-select { background:#fff; border-color:#c8d6e5; color:#202124; }
+  .cw-gs-icon-btn {
+    background:none; border:1px solid #3a3d45; border-radius:4px; color:#9aa0a6;
+    width:24px; height:24px; cursor:pointer; font-size:.72rem; display:flex;
+    align-items:center; justify-content:center; transition:all .15s;
+  }
+  .cw-gs-icon-btn:hover { border-color:#4fc3f7; color:#4fc3f7; }
+
+  /* ── Map widget ── */
+  #cw-map { width:100%; height:100%; }
+  .cw-map-legend {
+    display:flex; align-items:center; gap:8px; font-size:.65rem; color:#9aa0a6; flex-wrap:wrap;
+  }
+  .cw-legend-dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .cw-legend-armed     { background:#e53935; }
+  .cw-legend-terrorism { background:#880e4f; }
+  .cw-legend-unrest    { background:#f9ab00; }
+  .cw-legend-hazard    { background:#1565c0; }
+  .cw-legend-cyber     { background:#6a1b9a; }
+
+  /* ── Israel Sirens widget ── */
+  .cw-sirens-header-meta {
+    display:flex; align-items:center; gap:8px;
+  }
+  .cw-sirens-status {
+    display:flex; align-items:center; gap:6px;
+    padding:6px 12px; font-size:.72rem; font-weight:700;
+    border-radius:4px; margin:8px; background:#0a1a0a;
+    border:1px solid #2e7d32; color:#81c995;
+  }
+  .cw-sirens-status.active-alert { background:#1a0808; border-color:#e53935; color:#f28b82; }
+  .cw-sirens-status.connecting   { background:#0a0c10; border-color:#3a3d45; color:#5f6368; }
+  body.light-mode .cw-sirens-status { background:#f0fff4; border-color:#34a853; color:#137333; }
+  body.light-mode .cw-sirens-status.active-alert { background:#fff0f0; border-color:#e53935; color:#c62828; }
+  .cw-sirens-pulse { width:8px; height:8px; border-radius:50%; background:#34a853; flex-shrink:0; }
+  .cw-sirens-pulse.active { background:#e53935; animation:cw-pulse .5s ease-in-out infinite; }
+  .cw-sirens-pulse.connecting { background:#f9ab00; animation:cw-pulse 1.5s ease-in-out infinite; }
+  .cw-sirens-tabs {
+    display:flex; gap:4px; padding:0 8px 6px; border-bottom:1px solid #2a2d35;
+  }
+  body.light-mode .cw-sirens-tabs { border-color:#dadce0; }
+  .cw-sirens-tab-btn {
+    background:none; border:1px solid #3a3d45; border-radius:4px;
+    color:#9aa0a6; font-size:.65rem; font-weight:700; padding:3px 10px; cursor:pointer;
+    transition:all .15s; letter-spacing:.3px;
+  }
+  .cw-sirens-tab-btn.active { background:#c62828; border-color:#c62828; color:#fff; }
+  body.light-mode .cw-sirens-tab-btn { border-color:#c8d6e5; color:#5f6368; }
+  body.light-mode .cw-sirens-tab-btn.active { background:#c62828; border-color:#c62828; color:#fff; }
+  .cw-sirens-panel { display:none; flex:1; overflow:hidden; flex-direction:column; }
+  .cw-sirens-panel.active { display:flex; }
+  .cw-sirens-ticker {
+    flex:1; overflow-y:auto; padding:4px 8px;
+    font-size:.7rem; color:#e8eaed;
+    scrollbar-width:thin; scrollbar-color:#3a3d45 transparent;
+  }
+  .cw-sirens-alert-item {
+    display:flex; align-items:flex-start; gap:8px;
+    padding:6px 8px; border-radius:4px; margin-bottom:4px;
+    border-left:3px solid #e53935; background:#1a0808;
+    animation:cw-alert-in .3s ease-out;
+  }
+  @keyframes cw-alert-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+  .cw-sirens-alert-item.old { border-left-color:#5f6368; background:#13151b; }
+  body.light-mode .cw-sirens-alert-item { background:#fff5f5; border-left-color:#e53935; }
+  body.light-mode .cw-sirens-alert-item.old { background:#f1f3f4; border-left-color:#9aa0a6; }
+  .cw-alert-time { font-size:.62rem; color:#5f6368; white-space:nowrap; flex-shrink:0; }
+  .cw-alert-zone { font-weight:700; color:#f28b82; }
+  .cw-alert-type { font-size:.62rem; color:#9aa0a6; }
+  body.light-mode .cw-alert-zone { color:#c62828; }
+  .cw-sirens-empty {
+    text-align:center; padding:24px 12px; color:#5f6368; font-size:.75rem;
+  }
+  .cw-sirens-empty i { font-size:1.5rem; color:#34a853; margin-bottom:8px; display:block; }
+  /* Israel mini-map panel */
+  #cw-israel-map { width:100%; height:180px; border-radius:4px; }
+
+  /* ── Fuel Supply widget ── */
+  .cw-fuel-table { width:100%; border-collapse:collapse; font-size:.7rem; }
+  .cw-fuel-table th {
+    background:#181a22; color:#9aa0a6; font-weight:700; font-size:.62rem;
+    text-transform:uppercase; letter-spacing:.5px; padding:5px 8px;
+    border-bottom:1px solid #2a2d35; position:sticky; top:0; z-index:1;
+  }
+  body.light-mode .cw-fuel-table th { background:#f1f3f4; border-color:#dadce0; color:#5f6368; }
+  .cw-fuel-table td { padding:5px 8px; border-bottom:1px solid #1e2029; vertical-align:middle; }
+  body.light-mode .cw-fuel-table td { border-color:#f1f3f4; }
+  .cw-fuel-table tr:hover td { background:rgba(255,255,255,.03); }
+  body.light-mode .cw-fuel-table tr:hover td { background:rgba(0,0,0,.03); }
+  .cw-fuel-country { font-weight:600; color:#e8eaed; }
+  body.light-mode .cw-fuel-country { color:#202124; }
+  .cw-dsr { font-weight:700; font-size:.72rem; }
+  .cw-dsr-ok   { color:#81c995; }
+  .cw-dsr-warn { color:#f9ab00; }
+  .cw-dsr-crit { color:#f28b82; }
+  .cw-dsr-na   { color:#5f6368; }
+  .cw-fuel-src { font-size:.58rem; color:#5f6368; }
+  .cw-fuel-bar {
+    height:4px; border-radius:2px; background:#2a2d35; overflow:hidden;
+    margin-top:2px; min-width:40px;
+  }
+  .cw-fuel-bar-fill { height:100%; border-radius:2px; transition:width .4s; }
+
+  /* ── Radiation Watch widget ── */
+  .cw-rad-table { width:100%; border-collapse:collapse; font-size:.7rem; }
+  .cw-rad-table th {
+    background:#181a22; color:#9aa0a6; font-weight:700; font-size:.62rem;
+    text-transform:uppercase; letter-spacing:.5px; padding:5px 8px;
+    border-bottom:1px solid #2a2d35; position:sticky; top:0; z-index:1;
+  }
+  body.light-mode .cw-rad-table th { background:#f1f3f4; border-color:#dadce0; color:#5f6368; }
+  .cw-rad-table td { padding:5px 8px; border-bottom:1px solid #1e2029; vertical-align:middle; }
+  body.light-mode .cw-rad-table td { border-color:#f1f3f4; }
+  .cw-rad-loc { font-weight:600; color:#e8eaed; }
+  body.light-mode .cw-rad-loc { color:#202124; }
+  .cw-rad-val { font-weight:700; font-size:.72rem; font-family:monospace; }
+  .cw-sev-normal   { color:#81c995; }
+  .cw-sev-elevated { color:#f9ab00; }
+  .cw-sev-spike    { color:#f28b82; }
+  .cw-rad-badge {
+    font-size:.58rem; font-weight:700; padding:1px 5px; border-radius:3px;
+    text-transform:uppercase; letter-spacing:.4px;
+  }
+  .cw-badge-normal   { background:rgba(52,168,83,.2);  color:#81c995; }
+  .cw-badge-elevated { background:rgba(249,171,0,.2);  color:#f9ab00; }
+  .cw-badge-spike    { background:rgba(229,57,53,.2);  color:#f28b82; }
+  .cw-rad-src { font-size:.58rem; color:#5f6368; }
+
+  /* ── National Debt Clock widget ── */
+  .cw-debt-summary {
+    display:flex; gap:8px; padding:8px; flex-wrap:wrap;
+  }
+  .cw-debt-stat {
+    flex:1; min-width:80px; background:#13151b; border-radius:6px;
+    border:1px solid #2a2d35; padding:8px 10px; text-align:center;
+  }
+  body.light-mode .cw-debt-stat { background:#f8f9fa; border-color:#dadce0; }
+  .cw-debt-stat-label { font-size:.6rem; color:#9aa0a6; text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
+  .cw-debt-stat-val { font-size:.9rem; font-weight:800; color:#4fc3f7; font-family:monospace; }
+  .cw-debt-table { width:100%; border-collapse:collapse; font-size:.7rem; }
+  .cw-debt-table th {
+    background:#181a22; color:#9aa0a6; font-weight:700; font-size:.62rem;
+    text-transform:uppercase; letter-spacing:.5px; padding:5px 8px;
+    border-bottom:1px solid #2a2d35; position:sticky; top:0; z-index:1;
+  }
+  body.light-mode .cw-debt-table th { background:#f1f3f4; border-color:#dadce0; color:#5f6368; }
+  .cw-debt-table td { padding:5px 8px; border-bottom:1px solid #1e2029; vertical-align:middle; }
+  body.light-mode .cw-debt-table td { border-color:#f1f3f4; }
+  .cw-debt-country { font-weight:600; color:#e8eaed; }
+  body.light-mode .cw-debt-country { color:#202124; }
+  .cw-debt-val { font-weight:800; color:#4fc3f7; font-family:monospace; font-size:.72rem; }
+  .cw-debt-gdp { color:#9aa0a6; font-size:.65rem; }
+  .cw-debt-gdp.high { color:#f28b82; }
+  .cw-debt-gdp.warn { color:#f9ab00; }
+  .cw-debt-gdp.ok   { color:#81c995; }
+  .cw-debt-src { font-size:.58rem; color:#5f6368; }
+  .cw-debt-sort-btns { display:flex; gap:4px; }
+  .cw-debt-sort-btn {
+    background:none; border:1px solid #3a3d45; border-radius:3px;
+    color:#9aa0a6; font-size:.62rem; padding:1px 6px; cursor:pointer;
+  }
+  .cw-debt-sort-btn.active { background:#1a73e8; border-color:#1a73e8; color:#fff; }
+
+  /* ── Windy Webcams widget ── */
+  .cw-webcams-toolbar {
+    display:flex; align-items:center; gap:6px; padding:6px 8px;
+    border-bottom:1px solid #2a2d35; flex-wrap:wrap;
+  }
+  body.light-mode .cw-webcams-toolbar { border-color:#dadce0; }
+  .cw-webcams-grid {
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:4px;
+    padding:4px; flex:1; overflow:hidden;
+  }
+  .cw-cam-slot {
+    position:relative; background:#0a0c10; border-radius:4px;
+    border:1px solid #2a2d35; overflow:hidden; aspect-ratio:16/9;
+  }
+  body.light-mode .cw-cam-slot { background:#f1f3f4; border-color:#dadce0; }
+  .cw-cam-slot iframe { width:100%; height:100%; border:0; }
+  .cw-cam-label {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(0,0,0,.7); color:#e8eaed; font-size:.58rem;
+    padding:2px 5px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .cw-cam-placeholder {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; color:#3a3d45; font-size:.65rem; gap:4px; cursor:pointer;
+    transition:all .2s;
+  }
+  .cw-cam-placeholder:hover { color:#9aa0a6; background:rgba(255,255,255,.03); }
+  .cw-cam-placeholder i { font-size:1.2rem; }
+
+  /* ── OSINT Conflict Feed widget ── */
+  .cw-osint-item {
+    display:flex; flex-direction:column; gap:3px;
+    padding:8px 10px; border-bottom:1px solid #1e2029;
+    transition:background .1s;
+  }
+  .cw-osint-item:hover { background:rgba(255,255,255,.025); }
+  body.light-mode .cw-osint-item { border-color:#f1f3f4; }
+  body.light-mode .cw-osint-item:hover { background:rgba(0,0,0,.02); }
+  .cw-osint-row1 { display:flex; align-items:center; gap:6px; }
+  .cw-osint-type {
+    font-size:.6rem; font-weight:700; padding:1px 5px; border-radius:3px;
+    text-transform:uppercase; letter-spacing:.4px; flex-shrink:0;
+  }
+  .cw-type-armed    { background:rgba(229,57,53,.2);  color:#f28b82; }
+  .cw-type-terror   { background:rgba(136,14,79,.2);  color:#f48fb1; }
+  .cw-type-unrest   { background:rgba(249,171,0,.2);  color:#f9ab00; }
+  .cw-type-hazard   { background:rgba(21,101,192,.2); color:#90caf9; }
+  .cw-type-cyber    { background:rgba(106,27,154,.2); color:#ce93d8; }
+  .cw-type-other    { background:rgba(95,99,104,.2);  color:#9aa0a6; }
+  .cw-osint-title { font-size:.72rem; color:#e8eaed; font-weight:600; line-height:1.3; flex:1; }
+  body.light-mode .cw-osint-title { color:#202124; }
+  .cw-osint-row2 { display:flex; align-items:center; gap:8px; }
+  .cw-osint-loc { font-size:.62rem; color:#9aa0a6; }
+  .cw-osint-ts  { font-size:.6rem; color:#5f6368; margin-left:auto; white-space:nowrap; }
+  .cw-osint-src { font-size:.6rem; color:#5f6368; }
+  .cw-loading-spinner {
+    display:flex; align-items:center; justify-content:center;
+    padding:32px; color:#5f6368; gap:8px; font-size:.8rem;
+  }
+  /* Widget show/hide customizer */
+  .cw-customize-btn {
+    display:flex; align-items:center; gap:5px;
+    background:none; border:1px solid #3a3d45; border-radius:5px;
+    color:#9aa0a6; font-size:.7rem; font-weight:700; padding:4px 12px;
+    cursor:pointer; transition:all .15s;
+  }
+  .cw-customize-btn:hover { border-color:#4fc3f7; color:#4fc3f7; }
+  body.light-mode .cw-customize-btn { border-color:#c8d6e5; color:#5f6368; }
+  /* Widget Picker Modal */
+  .cw-picker-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);
+    z-index:9999; align-items:center; justify-content:center;
+  }
+  .cw-picker-overlay.open { display:flex; }
+  .cw-picker-modal {
+    background:#1e2029; border:1px solid #2a2d35; border-radius:10px;
+    padding:20px; min-width:340px; max-width:520px; width:90%;
+    max-height:80vh; overflow-y:auto;
+    box-shadow:0 8px 32px rgba(0,0,0,.6);
+  }
+  body.light-mode .cw-picker-modal { background:#fff; border-color:#dadce0; box-shadow:0 4px 24px rgba(0,0,0,.15); }
+  .cw-picker-title {
+    font-size:.9rem; font-weight:800; color:#e8eaed; margin-bottom:4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  body.light-mode .cw-picker-title { color:#202124; }
+  .cw-picker-subtitle { font-size:.7rem; color:#5f6368; margin-bottom:16px; }
+  .cw-picker-section-label {
+    font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.6px;
+    color:#9aa0a6; margin:12px 0 6px; padding-bottom:4px; border-bottom:1px solid #2a2d35;
+  }
+  body.light-mode .cw-picker-section-label { border-color:#dadce0; }
+  .cw-picker-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:7px 0; border-bottom:1px solid #13151b;
+  }
+  body.light-mode .cw-picker-row { border-color:#f1f3f4; }
+  .cw-picker-row-label { font-size:.75rem; color:#e8eaed; display:flex; align-items:center; gap:8px; }
+  body.light-mode .cw-picker-row-label { color:#202124; }
+  .cw-picker-row-desc { font-size:.65rem; color:#5f6368; }
+  /* Toggle switch */
+  .cw-toggle { position:relative; display:inline-block; width:36px; height:20px; }
+  .cw-toggle input { opacity:0; width:0; height:0; }
+  .cw-toggle-slider {
+    position:absolute; cursor:pointer; inset:0; background:#3a3d45;
+    border-radius:20px; transition:.2s;
+  }
+  .cw-toggle-slider:before {
+    content:''; position:absolute; width:14px; height:14px; left:3px; bottom:3px;
+    background:#fff; border-radius:50%; transition:.2s;
+  }
+  .cw-toggle input:checked + .cw-toggle-slider { background:#1a73e8; }
+  .cw-toggle input:checked + .cw-toggle-slider:before { transform:translateX(16px); }
+  .cw-picker-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+  .cw-picker-save-btn {
+    background:#1a73e8; border:none; border-radius:6px;
+    color:#fff; font-size:.75rem; font-weight:700; padding:7px 18px; cursor:pointer;
+    transition:background .15s;
+  }
+  .cw-picker-save-btn:hover { background:#1557b0; }
+  .cw-picker-cancel-btn {
+    background:none; border:1px solid #3a3d45; border-radius:6px;
+    color:#9aa0a6; font-size:.75rem; font-weight:700; padding:7px 18px; cursor:pointer;
+  }
+  .cw-picker-cancel-btn:hover { border-color:#5f6368; color:#e8eaed; }
+  .cw-picker-profile-row {
+    display:flex; align-items:center; gap:8px; margin-bottom:12px;
+    background:#13151b; border-radius:6px; padding:8px 12px;
+    border:1px solid #2a2d35;
+  }
+  body.light-mode .cw-picker-profile-row { background:#f8f9fa; border-color:#dadce0; }
+  .cw-picker-profile-row label { font-size:.72rem; color:#9aa0a6; white-space:nowrap; }
+  .cw-picker-profile-input {
+    flex:1; background:#0f1115; border:1px solid #3a3d45; border-radius:4px;
+    color:#e8eaed; font-size:.75rem; padding:4px 8px; outline:none;
+  }
+  body.light-mode .cw-picker-profile-input { background:#fff; border-color:#c8d6e5; color:#202124; }
+  .cw-picker-profile-input:focus { border-color:#1a73e8; }
+  /* disclaimer */
+  .cw-disclaimer {
+    font-size:.65rem; color:#5f6368; padding:4px 8px;
+    text-align:center; border-top:1px solid #2a2d35;
+  }
+  body.light-mode .cw-disclaimer { border-color:#dadce0; }
   </style>
 
     <!-- APJC Sub-region Nav — shown only when APJC region is active -->
@@ -2121,6 +2511,9 @@
       </button>
       <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
+      </button>
+      <button class="view-tab" data-view="crisis-watch" role="tab" aria-selected="false" tabindex="0">
+        <i class="fas fa-circle cw-tab-dot" aria-hidden="true"></i> Crisis Watch
       </button>
     </div>
 
@@ -2790,6 +3183,341 @@
     <div id="tl-source-strip" class="tl-source-strip"></div>
     <div id="tl-feed" class="tl-feed"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Insider &amp; Leaks…</div></div>
   </div><!-- /view-threats-leaks -->
+
+  <!-- 🔴 CRISIS WATCH VIEW ─────────────────────────────────────────────────── -->
+  <div id="view-crisis-watch" style="display:none;" role="tabpanel" aria-label="Crisis Watch">
+
+    <!-- Top bar -->
+    <div class="cw-topbar">
+      <div class="cw-topbar-title">
+        <span class="cw-badge">🔴 CRISIS WATCH</span>
+        <div class="cw-region-bar" id="cw-region-bar" role="group" aria-label="Region filter">
+          <button class="cw-region-btn active" data-cw-region="Global">Global</button>
+          <button class="cw-region-btn" data-cw-region="AMER">AMER</button>
+          <button class="cw-region-btn" data-cw-region="EMEA">EMEA</button>
+          <button class="cw-region-btn" data-cw-region="APJC">APJC</button>
+          <button class="cw-region-btn" data-cw-region="LATAM">LATAM</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="cw-topbar-ts" id="cw-updated-ts">—</span>
+        <button class="cw-customize-btn" id="cw-customize-btn" title="Customize visible widgets">
+          <i class="fas fa-sliders-h"></i> Customize
+        </button>
+      </div>
+    </div>
+
+    <!-- GridStack -->
+    <div class="grid-stack" id="cw-grid">
+
+      <!-- ── POSTURE BANNER ──────────────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-posture-widget" gs-x="0" gs-y="0" gs-w="12" gs-h="1" gs-min-h="1">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div id="cw-posture-banner" class="cw-posture-oneliner cw-posture-stable">
+            <span class="cw-posture-icon">🔴</span>
+            <span class="cw-posture-lbl">Crisis Intelligence Posture</span>
+            <span class="cw-posture-sep">·</span>
+            <span id="cw-posture-level" class="cw-posture-level stable">Loading…</span>
+            <span class="cw-posture-sep">—</span>
+            <span id="cw-posture-summary" class="cw-posture-summary">Initialising intelligence feeds…</span>
+            <div class="cw-posture-right">
+              <span id="cw-posture-counts" class="cw-posture-counts"></span>
+              <button id="cw-refresh-all-btn" class="cw-btn-refresh" title="Refresh all Crisis Watch data"><i class="fas fa-sync-alt"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONFLICT MAP (left 8 cols) ─────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-map-widget" gs-x="0" gs-y="1" gs-w="8" gs-h="8" gs-min-h="4">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-map-marked-alt" style="margin-right:6px;color:#e53935;"></i>Conflict Intelligence Map</span>
+            <div class="cw-map-legend" style="margin-left:auto;">
+              <span class="cw-legend-dot cw-legend-armed"></span>Armed &nbsp;
+              <span class="cw-legend-dot cw-legend-terrorism"></span>Terrorism &nbsp;
+              <span class="cw-legend-dot cw-legend-unrest"></span>Unrest &nbsp;
+              <span class="cw-legend-dot cw-legend-hazard"></span>Hazard &nbsp;
+              <span class="cw-legend-dot cw-legend-cyber"></span>Cyber &nbsp;
+              <select class="cw-gs-select" id="cw-map-cat-filter" style="margin-left:8px;" aria-label="Filter by category">
+                <option value="ALL">All Types</option>
+                <option value="ARMED">⚔ Armed</option>
+                <option value="TERRORISM">💣 Terrorism</option>
+                <option value="UNREST">✊ Unrest</option>
+                <option value="HAZARD">🌊 Hazard</option>
+                <option value="CYBER">💻 Cyber</option>
+              </select>
+              <button class="cw-gs-icon-btn" id="cw-map-refresh-btn" title="Refresh conflict data"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div class="vw-gs-map-body">
+            <div id="cw-map"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ISRAEL SIRENS (right 4 cols) ───────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-sirens-widget" gs-x="8" gs-y="1" gs-w="4" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-bell" style="margin-right:6px;color:#e53935;"></i>Israel Alert System</span>
+            <div class="cw-sirens-header-meta">
+              <span id="cw-sirens-poll-badge" style="font-size:.6rem;color:#5f6368;">● Connecting…</span>
+            </div>
+          </div>
+          <!-- Status bar -->
+          <div class="cw-sirens-status connecting" id="cw-sirens-status">
+            <span class="cw-sirens-pulse connecting" id="cw-sirens-pulse"></span>
+            <span id="cw-sirens-status-text">Connecting to OREF…</span>
+          </div>
+          <!-- Sub-tabs: Ticker | Map | Log -->
+          <div class="cw-sirens-tabs">
+            <button class="cw-sirens-tab-btn active" data-sirens-tab="ticker">📡 Live Alerts</button>
+            <button class="cw-sirens-tab-btn" data-sirens-tab="map">🗺 Map</button>
+            <button class="cw-sirens-tab-btn" data-sirens-tab="log">📋 History</button>
+          </div>
+          <!-- Live alerts ticker -->
+          <div class="cw-sirens-panel active" id="cw-sirens-ticker-panel">
+            <div class="cw-sirens-ticker" id="cw-sirens-ticker">
+              <div class="cw-sirens-empty">
+                <i class="fas fa-shield-alt"></i>
+                Polling OREF — no active alerts
+              </div>
+            </div>
+          </div>
+          <!-- Mini Israel map -->
+          <div class="cw-sirens-panel" id="cw-sirens-map-panel" style="height:100%;">
+            <div id="cw-israel-map"></div>
+          </div>
+          <!-- Alert log -->
+          <div class="cw-sirens-panel" id="cw-sirens-log-panel">
+            <div class="cw-sirens-ticker" id="cw-sirens-log">
+              <div class="cw-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading history…</div>
+            </div>
+          </div>
+          <div class="cw-disclaimer">🔴 Israeli Home Front Command (OREF) · Live data · EN translated</div>
+        </div>
+      </div>
+
+      <!-- ── FUEL SUPPLY (4 cols) ────────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-fuel-widget" gs-x="0" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-gas-pump" style="margin-right:6px;color:#f9ab00;"></i>Fuel Supply Index</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select class="cw-gs-select" id="cw-fuel-type-filter" aria-label="Fuel type">
+                <option value="ALL">All Fuels</option>
+                <option value="DIESEL">Diesel</option>
+                <option value="PETROL">Petrol</option>
+                <option value="AVIATION">Aviation</option>
+              </select>
+              <button class="cw-gs-icon-btn" id="cw-fuel-refresh-btn" title="Refresh fuel data"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <div class="airport-ai-bar" style="margin:6px 0;border-radius:4px;" id="cw-fuel-ai-bar">
+              <i class="fas fa-chart-line"></i>
+              <span id="cw-fuel-ai-text">Days of Supply Remaining — IEA/EIA data · Dell office countries only</span>
+            </div>
+            <div style="padding:0 4px;">
+              <table class="cw-fuel-table" id="cw-fuel-table">
+                <thead>
+                  <tr>
+                    <th>Country</th>
+                    <th title="Diesel days of supply remaining">Diesel</th>
+                    <th title="Petrol days of supply remaining">Petrol</th>
+                    <th title="Aviation/Jet A days of supply remaining">Aviation</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody id="cw-fuel-tbody">
+                  <tr><td colspan="5" style="text-align:center;padding:20px;color:#5f6368;"><i class="fas fa-spinner fa-spin"></i> Loading fuel data…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cw-disclaimer">⛽ IEA Strategic Petroleum Reserves · EIA Weekly Supply · Updated weekly</div>
+        </div>
+      </div>
+
+      <!-- ── RADIATION WATCH (4 cols) ────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-radiation-widget" gs-x="4" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-radiation" style="margin-right:6px;color:#81c995;"></i>Radiation Watch</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select class="cw-gs-select" id="cw-rad-sev-filter" aria-label="Filter by severity">
+                <option value="ALL">All Levels</option>
+                <option value="elevated">⚠ Elevated</option>
+                <option value="spike">🚨 Spike</option>
+              </select>
+              <button class="cw-gs-icon-btn" id="cw-rad-refresh-btn" title="Refresh radiation data"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <div class="airport-ai-bar" style="margin:6px 0;border-radius:4px;" id="cw-rad-ai-bar">
+              <i class="fas fa-atom"></i>
+              <span id="cw-rad-ai-text">Global radiation monitoring · EPA RadNet + Safecast · 15 min refresh</span>
+            </div>
+            <div style="padding:0 4px;">
+              <table class="cw-rad-table" id="cw-rad-table">
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Reading</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody id="cw-rad-tbody">
+                  <tr><td colspan="5" style="text-align:center;padding:20px;color:#5f6368;"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cw-disclaimer">☢ EPA RadNet · Safecast · nSv/h = nanosieverts/hour · Normal &lt;100 nSv/h</div>
+        </div>
+      </div>
+
+      <!-- ── NATIONAL DEBT CLOCK (4 cols) ───────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-debt-widget" gs-x="8" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-coins" style="margin-right:6px;color:#f9ab00;"></i>National Debt Clock</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <div class="cw-debt-sort-btns">
+                <button class="cw-debt-sort-btn active" data-debt-sort="total">Total</button>
+                <button class="cw-debt-sort-btn" data-debt-sort="gdp">Debt/GDP</button>
+                <button class="cw-debt-sort-btn" data-debt-sort="growth">1Y △</button>
+              </div>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <!-- Global aggregate tickers -->
+            <div class="cw-debt-summary" id="cw-debt-summary">
+              <div class="cw-debt-stat"><div class="cw-debt-stat-label">Global Total Debt</div><div class="cw-debt-stat-val" id="cw-debt-global">Loading…</div></div>
+              <div class="cw-debt-stat"><div class="cw-debt-stat-label">Avg Debt/GDP</div><div class="cw-debt-stat-val" id="cw-debt-gdp-avg" style="color:#f9ab00;">—</div></div>
+            </div>
+            <div style="padding:0 4px;">
+              <table class="cw-debt-table" id="cw-debt-table">
+                <thead>
+                  <tr>
+                    <th>Country</th>
+                    <th>Total Debt</th>
+                    <th>Debt/GDP</th>
+                    <th>1Y △</th>
+                  </tr>
+                </thead>
+                <tbody id="cw-debt-tbody">
+                  <tr><td colspan="4" style="text-align:center;padding:20px;color:#5f6368;"><i class="fas fa-spinner fa-spin"></i> Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cw-disclaimer">💰 IMF World Economic Outlook · Dell office countries · Annual data</div>
+        </div>
+      </div>
+
+      <!-- ── WINDY LIVE CAMS (8 cols) ────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-webcams-widget" gs-x="0" gs-y="17" gs-w="8" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-video" style="margin-right:6px;color:#4fc3f7;"></i>Live Webcams</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select class="cw-gs-select" id="cw-cam-country" aria-label="Filter by country">
+                <option value="">All Countries</option>
+                <option value="IL" selected>🇮🇱 Israel</option>
+                <option value="US">🇺🇸 United States</option>
+                <option value="GB">🇬🇧 United Kingdom</option>
+                <option value="DE">🇩🇪 Germany</option>
+                <option value="IN">🇮🇳 India</option>
+                <option value="SG">🇸🇬 Singapore</option>
+                <option value="JP">🇯🇵 Japan</option>
+                <option value="AU">🇦🇺 Australia</option>
+                <option value="BR">🇧🇷 Brazil</option>
+              </select>
+              <select class="cw-gs-select" id="cw-cam-type" aria-label="Filter by type">
+                <option value="">All Types</option>
+                <option value="city">🏙 City</option>
+                <option value="traffic">🚦 Traffic</option>
+                <option value="landscape">🌄 Landscape</option>
+                <option value="beach">🌊 Beach/Water</option>
+              </select>
+              <button class="cw-gs-icon-btn" id="cw-cam-refresh-btn" title="Refresh webcams"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;height:calc(100% - 36px);overflow:hidden;">
+            <div class="cw-webcams-grid" id="cw-webcams-grid">
+              <!-- 6 cam slots populated by JS -->
+              <div class="cw-cam-slot" id="cw-cam-0"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
+              <div class="cw-cam-slot" id="cw-cam-1"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
+              <div class="cw-cam-slot" id="cw-cam-2"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
+              <div class="cw-cam-slot" id="cw-cam-3"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
+              <div class="cw-cam-slot" id="cw-cam-4"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
+              <div class="cw-cam-slot" id="cw-cam-5"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
+            </div>
+          </div>
+          <div class="cw-disclaimer">📷 Windy.com Webcams API · Public cameras · 5 min refresh</div>
+        </div>
+      </div>
+
+      <!-- ── OSINT CONFLICT FEED (4 cols) ───────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-osint-widget" gs-x="8" gs-y="17" gs-w="4" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-rss" style="margin-right:6px;color:#e53935;"></i>OSINT Conflict Feed</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select class="cw-gs-select" id="cw-osint-type-filter" aria-label="Filter by type">
+                <option value="ALL">All Types</option>
+                <option value="ARMED">⚔ Armed</option>
+                <option value="TERRORISM">💣 Terrorism</option>
+                <option value="UNREST">✊ Unrest</option>
+                <option value="HAZARD">🌊 Hazard</option>
+              </select>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll" id="cw-osint-feed">
+            <div class="cw-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading OSINT feed…</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cw-grid -->
+
+    <div class="vw-disclaimer" style="margin-top:4px;" id="cw-footer-disclaimer">
+      <i class="fas fa-lock" style="margin-right:6px;"></i>
+      Open-source intelligence only — ACLED · GDACS · ReliefWeb · UNOCHA · IEA · EPA RadNet · Safecast · OREF · IMF · Windy.
+      &nbsp;·&nbsp; <span style="color:#e53935;cursor:pointer;font-weight:700;" id="cw-reset-layout-btn">↺ Reset layout</span>
+    </div>
+
+  </div><!-- /view-crisis-watch -->
+
+  <!-- Widget Picker Overlay -->
+  <div class="cw-picker-overlay" id="cw-picker-overlay" role="dialog" aria-modal="true" aria-label="Customize widgets">
+    <div class="cw-picker-modal">
+      <div class="cw-picker-title"><i class="fas fa-sliders-h" style="color:#1a73e8;"></i> Customize Dashboard Widgets</div>
+      <div class="cw-picker-subtitle">Toggle widgets on/off. Preferences sync across all your devices via your profile name.</div>
+      <!-- Profile name row -->
+      <div class="cw-picker-profile-row">
+        <label for="cw-profile-name-input"><i class="fas fa-user" style="margin-right:4px;"></i>Profile:</label>
+        <input type="text" id="cw-profile-name-input" class="cw-picker-profile-input" placeholder="Enter your name (e.g. john.smith)" maxlength="40" autocomplete="off" />
+        <button class="cw-picker-save-btn" id="cw-profile-load-btn" style="padding:4px 10px;font-size:.68rem;">Load</button>
+      </div>
+      <!-- Crisis Watch section -->
+      <div class="cw-picker-section-label">🔴 Crisis Watch</div>
+      <div id="cw-picker-rows-crisis">
+        <!-- populated by JS -->
+      </div>
+      <!-- Intelligence tab -->
+      <div class="cw-picker-section-label">🛡 Intelligence (coming soon)</div>
+      <div style="font-size:.68rem;color:#5f6368;padding:4px 0;">Widget show/hide for the Intelligence tab will be added in the next update.</div>
+      <div class="cw-picker-footer">
+        <button class="cw-picker-cancel-btn" id="cw-picker-cancel-btn">Cancel</button>
+        <button class="cw-picker-save-btn" id="cw-picker-save-btn"><i class="fas fa-cloud-upload-alt" style="margin-right:4px;"></i>Save &amp; Sync</button>
+      </div>
+    </div>
+  </div>
 
   </div>
 
@@ -4126,6 +4854,7 @@
       var liveNews = document.getElementById('view-live-news');
       var tlView   = document.getElementById('view-threats-leaks');
       var vwView   = document.getElementById('view-vessel-watch');
+      var cwView   = document.getElementById('view-crisis-watch');
       var catBar   = document.getElementById('cat-filter-bar');
       var apjcBar  = document.getElementById('apjc-subnav');
       var sigmet   = document.getElementById('sigmet-ticker-strip');
@@ -4135,6 +4864,7 @@
       if (liveNews) liveNews.style.display = 'none';
       if (tlView)   tlView.style.display   = 'none';
       if (vwView)   vwView.style.display   = 'none';
+      if (cwView)   cwView.style.display   = 'none';
       if (catBar)   catBar.style.display   = 'none';
       if (apjcBar)  apjcBar.style.display  = 'none';
       if (sigmet)   sigmet.style.display   = 'none';
@@ -4170,6 +4900,10 @@
         if (tlView) tlView.style.display = '';
         if (typeof _tlInit === 'function') _tlInit();
         if (typeof loadThreatsLeaks === 'function' && !THREATS_LEAKS_DATA) loadThreatsLeaks();
+      } else if (view === 'crisis-watch') {
+        if (cwView) cwView.style.display = '';
+        if (typeof initCwGrid      === 'function') initCwGrid();
+        if (typeof initCrisisWatch === 'function') initCrisisWatch();
       } else {
         /* intelligence (default) */
         if (intel)   intel.style.display  = '';
@@ -4824,8 +5558,1044 @@
   })();
   </script>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CRISIS WATCH — GridStack + all widget logic
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
 
+    /* ── Constants ───────────────────────────────────────────────────────── */
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v1';
+    var CW_PREFS_KEY    = 'cw_widget_prefs_v1';
+    var CW_PROFILE_KEY  = 'cw_user_profile';
+    var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
+    var cwGrid          = null;
+    var cwGridReady     = false;
+    var cwInitDone      = false;
+    var cwActiveRegion  = 'Global';
+    var cwConflictMap   = null;
+    var cwIsraelMap     = null;
+    var cwConflictMarkers = [];
+    var cwOrefInterval  = null;
+    var cwOrefHistory   = [];   // circular buffer, max 100
+    var cwDebtData      = [];
+    var cwDebtSort      = 'total';
+    var cwFuelData      = [];
+    var cwRadData       = [];
+    var cwOsintData     = [];
+    var cwCamCountry    = 'IL';
+    var cwCamType       = '';
 
+    /* Widget visibility prefs: key = gs-id, value = true/false */
+    var cwWidgetPrefs = {
+      'cw-posture-widget'  : true,
+      'cw-map-widget'      : true,
+      'cw-sirens-widget'   : true,
+      'cw-fuel-widget'     : true,
+      'cw-radiation-widget': true,
+      'cw-debt-widget'     : true,
+      'cw-webcams-widget'  : true,
+      'cw-osint-widget'    : true,
+    };
+
+    /* Default GridStack layout */
+    var CW_DEFAULT_LAYOUT = [
+      { id:'cw-posture-widget',   x:0,  y:0,  w:12, h:1  },
+      { id:'cw-map-widget',       x:0,  y:1,  w:8,  h:8  },
+      { id:'cw-sirens-widget',    x:8,  y:1,  w:4,  h:8  },
+      { id:'cw-fuel-widget',      x:0,  y:9,  w:4,  h:8  },
+      { id:'cw-radiation-widget', x:4,  y:9,  w:4,  h:8  },
+      { id:'cw-debt-widget',      x:8,  y:9,  w:4,  h:8  },
+      { id:'cw-webcams-widget',   x:0,  y:17, w:8,  h:8  },
+      { id:'cw-osint-widget',     x:8,  y:17, w:4,  h:8  },
+    ];
+
+    /* Widget metadata for the picker */
+    var CW_WIDGETS_META = [
+      { id:'cw-posture-widget',   label:'Crisis Posture Banner',    icon:'fa-circle',         desc:'Live threat level summary bar' },
+      { id:'cw-map-widget',       label:'Conflict Intelligence Map',icon:'fa-map-marked-alt', desc:'Interactive OSINT conflict map' },
+      { id:'cw-sirens-widget',    label:'Israel Alert System',      icon:'fa-bell',           desc:'OREF live sirens — real-time' },
+      { id:'cw-fuel-widget',      label:'Fuel Supply Index',        icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation by country' },
+      { id:'cw-radiation-widget', label:'Radiation Watch',          icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors' },
+      { id:'cw-debt-widget',      label:'National Debt Clock',      icon:'fa-coins',          desc:'IMF debt data with live tickers' },
+      { id:'cw-webcams-widget',   label:'Live Webcams',             icon:'fa-video',          desc:'Windy.com webcam feeds' },
+      { id:'cw-osint-widget',     label:'OSINT Conflict Feed',      icon:'fa-rss',            desc:'ACLED, GDACS, ReliefWeb events' },
+    ];
+
+    /* ── Helpers ─────────────────────────────────────────────────────────── */
+    function esc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmtTs(iso) {
+      try {
+        var d = new Date(iso);
+        var now = new Date();
+        var diff = (now - d) / 1000;
+        if (diff < 60)   return 'just now';
+        if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+        if (diff < 86400)return Math.floor(diff/3600) + 'h ago';
+        return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      } catch(e){ return iso || ''; }
+    }
+    function fmtCurrency(usd) {
+      if (!usd || isNaN(usd)) return '—';
+      var n = parseFloat(usd);
+      if (Math.abs(n) >= 1e12) return '$' + (n/1e12).toFixed(1) + 'T';
+      if (Math.abs(n) >= 1e9)  return '$' + (n/1e9).toFixed(1) + 'B';
+      if (Math.abs(n) >= 1e6)  return '$' + (n/1e6).toFixed(0) + 'M';
+      return '$' + n.toFixed(0);
+    }
+    function setCwUpdatedTs() {
+      var el = document.getElementById('cw-updated-ts');
+      if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    }
+
+    /* ── GridStack init ───────────────────────────────────────────────────── */
+    function saveCwLayout() {
+      try { localStorage.setItem(CW_LAYOUT_KEY, JSON.stringify(cwGrid.save(false))); } catch(e){}
+    }
+
+    window.resetCwLayout = function() {
+      localStorage.removeItem(CW_LAYOUT_KEY);
+      var el = document.querySelector('#cw-grid');
+      var gs = (el && el.gridstack) ? el.gridstack : cwGrid;
+      if (!gs) { location.reload(true); return; }
+      gs.load(CW_DEFAULT_LAYOUT);
+      try { localStorage.setItem(CW_LAYOUT_KEY, JSON.stringify(CW_DEFAULT_LAYOUT)); } catch(e){}
+      setTimeout(invalidateCwMap, 120);
+    };
+
+    function invalidateCwMap() {
+      setTimeout(function(){
+        if (cwConflictMap && typeof cwConflictMap.invalidateSize === 'function') cwConflictMap.invalidateSize();
+        if (cwIsraelMap   && typeof cwIsraelMap.invalidateSize   === 'function') cwIsraelMap.invalidateSize();
+      }, 80);
+    }
+
+    window.initCwGrid = function() {
+      if (cwGridReady) { invalidateCwMap(); return; }
+      cwGridReady = true;
+
+      cwGrid = GridStack.init({
+        column:                 12,
+        cellHeight:             60,
+        margin:                 8,
+        float:                  false,
+        animate:                true,
+        alwaysShowResizeHandle: true,
+        resizable: { handles: 'se, s, sw, e, w' },
+        draggable: { handle: '.widget-header-bar' },
+        minRow:                 1,
+      }, '#cw-grid');
+
+      /* Restore saved layout */
+      var raw = localStorage.getItem(CW_LAYOUT_KEY);
+      if (raw) {
+        try {
+          var saved = JSON.parse(raw);
+          var visIds = Array.from(
+            document.querySelectorAll('#cw-grid .grid-stack-item[gs-id]')
+          ).map(function(el){ return el.getAttribute('gs-id'); });
+          var filtered = saved.filter(function(s){ return visIds.indexOf(s.id) !== -1; });
+          if (filtered.length) cwGrid.load(filtered);
+        } catch(e) {}
+      }
+
+      cwGrid.on('change', saveCwLayout);
+      cwGrid.on('resizestop', function(e, el) {
+        if (el && el.getAttribute) {
+          var id = el.getAttribute('gs-id');
+          if (id === 'cw-map-widget' || id === 'cw-sirens-widget') invalidateCwMap();
+        }
+      });
+      cwGrid.on('dragstop', invalidateCwMap);
+      invalidateCwMap();
+    };
+
+    /* ── Main init (called once on first tab activation) ─────────────────── */
+    window.initCrisisWatch = function() {
+      if (cwInitDone) {
+        /* Reconnect OREF polling if it was stopped */
+        if (!cwOrefInterval) startOrefPolling();
+        return;
+      }
+      cwInitDone = true;
+
+      loadCwPrefs();
+      applyWidgetVisibility();
+      initCwConflictMap();
+      initIsraelMap();
+      initRegionBar();
+      initSirensTabs();
+      startOrefPolling();
+      loadConflictEvents();
+      loadFuelData();
+      loadRadiationData();
+      loadDebtData();
+      loadWebcams();
+      initPickerUI();
+      bindCwEvents();
+      setCwUpdatedTs();
+      /* Auto-refresh every 10 min */
+      setInterval(function(){
+        if (typeof currentView !== 'undefined' && currentView === 'crisis-watch') {
+          loadConflictEvents();
+          loadRadiationData();
+          setCwUpdatedTs();
+        }
+      }, 10 * 60 * 1000);
+    };
+
+    /* ── Region bar ─────────────────────────────────────────────────────── */
+    function initRegionBar() {
+      var bar = document.getElementById('cw-region-bar');
+      if (!bar) return;
+      bar.addEventListener('click', function(e) {
+        var btn = e.target.closest('.cw-region-btn');
+        if (!btn) return;
+        cwActiveRegion = btn.dataset.cwRegion;
+        bar.querySelectorAll('.cw-region-btn').forEach(function(b){
+          b.classList.toggle('active', b === btn);
+        });
+        filterConflictByRegion(cwActiveRegion);
+        filterOsintByRegion(cwActiveRegion);
+        filterFuelByRegion(cwActiveRegion);
+      });
+    }
+
+    /* ── Conflict Map ────────────────────────────────────────────────────── */
+    function initCwConflictMap() {
+      if (typeof L === 'undefined') return;
+      var mapEl = document.getElementById('cw-map');
+      if (!mapEl || cwConflictMap) return;
+      var isLight = document.body.classList.contains('light-mode');
+      var tile = isLight
+        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10 });
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19 }).addTo(cwConflictMap);
+      cwConflictMap.setView([20, 10], 2);
+      /* Attribution */
+      L.control.attribution({ prefix:false }).addTo(cwConflictMap);
+    }
+
+    /* ── Israel mini-map ─────────────────────────────────────────────────── */
+    function initIsraelMap() {
+      if (typeof L === 'undefined') return;
+      var mapEl = document.getElementById('cw-israel-map');
+      if (!mapEl || cwIsraelMap) return;
+      var isLight = document.body.classList.contains('light-mode');
+      var tile = isLight
+        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      cwIsraelMap = L.map('cw-israel-map', { zoomControl:false, attributionControl:false });
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:14 }).addTo(cwIsraelMap);
+      cwIsraelMap.setView([31.5, 34.8], 7);
+    }
+
+    /* ── OREF Israel Sirens ──────────────────────────────────────────────── */
+    /* Hebrew → English city/zone lookup */
+    var OREF_HE_EN = {
+      'תל אביב - יפו': 'Tel Aviv - Jaffa',
+      'ירושלים': 'Jerusalem',
+      'חיפה': 'Haifa',
+      'באר שבע': 'Beer Sheva',
+      'אשקלון': 'Ashkelon',
+      'אשדוד': 'Ashdod',
+      'נתניה': 'Netanya',
+      'פתח תקווה': 'Petah Tikva',
+      'ראשון לציון': 'Rishon LeZion',
+      'רמת גן': 'Ramat Gan',
+      'בני ברק': 'Bnei Brak',
+      'הרצליה': 'Herzliya',
+      'חולון': 'Holon',
+      'בת ים': 'Bat Yam',
+      'רעננה': 'Ra\'anana',
+      'כפר סבא': 'Kfar Saba',
+      'מודיעין': 'Modi\'in',
+      'לוד': 'Lod',
+      'רמלה': 'Ramla',
+      'רחובות': 'Rehovot',
+      'נהריה': 'Nahariya',
+      'עכו': 'Acre',
+      'טבריה': 'Tiberias',
+      'צפת': 'Safed',
+      'קריית שמונה': 'Kiryat Shmona',
+      'דימונה': 'Dimona',
+      'אילת': 'Eilat',
+      'עוטף עזה': 'Gaza Envelope',
+      'שדרות': 'Sderot',
+      'עוטף עזה - לכיש': 'Gaza Envelope - Lakhish',
+      'גוש דן': 'Gush Dan (Greater Tel Aviv)',
+      'שפלה': 'Shephelah (Central Lowlands)',
+      'שומרון': 'Samaria (West Bank)',
+      'גליל עליון': 'Upper Galilee',
+      'גליל תחתון': 'Lower Galilee',
+      'כרמל': 'Mount Carmel',
+      'נגב': 'Negev',
+      'ערבה': 'Arava',
+      'עמק יזרעאל': 'Jezreel Valley',
+    };
+
+    function translateOref(heText) {
+      if (!heText) return heText;
+      return OREF_HE_EN[heText.trim()] || heText;
+    }
+
+    function startOrefPolling() {
+      if (cwOrefInterval) return;
+      pollOref(); /* immediate first call */
+      cwOrefInterval = setInterval(pollOref, 8000);
+    }
+
+    function pollOref() {
+      fetch(WORKER_URL + '/api/oref/alerts', { cache:'no-store' })
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          handleOrefData(data);
+        })
+        .catch(function(err) {
+          setOrefStatus('connecting', 'OREF connection error — retrying…');
+        });
+    }
+
+    function handleOrefData(data) {
+      /* data expected: { active: [{id,data:[zones],title,cat}], ts: ISO } */
+      var active = (data && Array.isArray(data.active)) ? data.active : [];
+      var pollBadge = document.getElementById('cw-sirens-poll-badge');
+      if (pollBadge) {
+        pollBadge.style.color = '#34a853';
+        pollBadge.textContent = '● Live';
+      }
+      if (active.length === 0) {
+        setOrefStatus('clear', 'No Active Alerts — Area Clear');
+        renderSirensTicker([], false);
+      } else {
+        setOrefStatus('alert', active.length + ' ACTIVE ALERT' + (active.length > 1 ? 'S' : '') + ' — ' + (active[0].title || 'Rocket Alert'));
+        var newAlerts = [];
+        active.forEach(function(alert) {
+          (alert.data || []).forEach(function(zone) {
+            newAlerts.push({ zone: translateOref(zone), type: alert.title || 'Alert', ts: new Date().toISOString(), isNew: true });
+          });
+        });
+        /* Add to history buffer */
+        newAlerts.forEach(function(a) { cwOrefHistory.unshift(a); });
+        if (cwOrefHistory.length > 100) cwOrefHistory.length = 100;
+        renderSirensTicker(newAlerts, true);
+        renderSirensLog();
+        /* Highlight zones on Israel map */
+        highlightOrefZones(newAlerts.map(function(a){ return a.zone; }));
+      }
+      /* Update posture if many alerts */
+      updateCwPosture();
+    }
+
+    function setOrefStatus(state, text) {
+      var statusEl = document.getElementById('cw-sirens-status');
+      var pulseEl  = document.getElementById('cw-sirens-pulse');
+      var textEl   = document.getElementById('cw-sirens-status-text');
+      if (!statusEl) return;
+      statusEl.className = 'cw-sirens-status ' + (state === 'alert' ? 'active-alert' : state === 'clear' ? '' : 'connecting');
+      if (pulseEl) pulseEl.className = 'cw-sirens-pulse ' + (state === 'alert' ? 'active' : state === 'clear' ? '' : 'connecting');
+      if (textEl) textEl.textContent = text;
+    }
+
+    function renderSirensTicker(alerts, hasActive) {
+      var ticker = document.getElementById('cw-sirens-ticker');
+      if (!ticker) return;
+      if (!hasActive && alerts.length === 0) {
+        ticker.innerHTML = '<div class="cw-sirens-empty"><i class="fas fa-shield-alt"></i>Polling OREF — no active alerts</div>';
+        return;
+      }
+      ticker.innerHTML = alerts.map(function(a) {
+        return '<div class="cw-sirens-alert-item' + (a.isNew ? '' : ' old') + '">'
+          + '<div><div class="cw-alert-zone">🚨 ' + esc(a.zone) + '</div>'
+          + '<div class="cw-alert-type">' + esc(a.type) + '</div></div>'
+          + '<span class="cw-alert-time" style="margin-left:auto;">' + fmtTs(a.ts) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderSirensLog() {
+      var logEl = document.getElementById('cw-sirens-log');
+      if (!logEl) return;
+      if (cwOrefHistory.length === 0) {
+        logEl.innerHTML = '<div class="cw-sirens-empty"><i class="fas fa-history"></i>No alerts recorded this session</div>';
+        return;
+      }
+      logEl.innerHTML = cwOrefHistory.map(function(a) {
+        return '<div class="cw-sirens-alert-item old">'
+          + '<div><div class="cw-alert-zone">' + esc(a.zone) + '</div>'
+          + '<div class="cw-alert-type">' + esc(a.type) + '</div></div>'
+          + '<span class="cw-alert-time" style="margin-left:auto;">' + fmtTs(a.ts) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    /* Zone → approximate lat/lon for Israel map markers */
+    var ISRAEL_ZONE_COORDS = {
+      'Tel Aviv - Jaffa': [32.07, 34.78], 'Jerusalem': [31.77, 35.21],
+      'Haifa': [32.82, 34.99], 'Beer Sheva': [31.25, 34.79],
+      'Ashkelon': [31.67, 34.57], 'Ashdod': [31.80, 34.65],
+      'Netanya': [32.33, 34.86], 'Sderot': [31.52, 34.60],
+      'Gaza Envelope': [31.40, 34.50], 'Eilat': [29.56, 34.95],
+      'Kiryat Shmona': [33.21, 35.57], 'Upper Galilee': [33.0, 35.5],
+      'Gush Dan (Greater Tel Aviv)': [32.05, 34.80],
+    };
+    var cwAlertMarkers = [];
+    function highlightOrefZones(zones) {
+      if (!cwIsraelMap) return;
+      cwAlertMarkers.forEach(function(m){ cwIsraelMap.removeLayer(m); });
+      cwAlertMarkers = [];
+      zones.forEach(function(zone) {
+        var coords = ISRAEL_ZONE_COORDS[zone];
+        if (!coords) return;
+        var m = L.circleMarker(coords, { radius:12, color:'#e53935', fillColor:'#f28b82', fillOpacity:.7, weight:2 })
+          .bindTooltip(zone, {permanent:false, direction:'top'});
+        m.addTo(cwIsraelMap);
+        cwAlertMarkers.push(m);
+      });
+    }
+
+    /* ── Sirens sub-tabs ─────────────────────────────────────────────────── */
+    function initSirensTabs() {
+      var tabBtns = document.querySelectorAll('.cw-sirens-tab-btn');
+      tabBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          tabBtns.forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+          var tab = btn.dataset.sirensTab;
+          document.querySelectorAll('.cw-sirens-panel').forEach(function(p){ p.classList.remove('active'); });
+          var panel = document.getElementById('cw-sirens-' + tab + '-panel');
+          if (panel) {
+            panel.classList.add('active');
+            if (tab === 'map') setTimeout(function(){ if(cwIsraelMap) cwIsraelMap.invalidateSize(); }, 80);
+            if (tab === 'log') renderSirensLog();
+          }
+        });
+      });
+    }
+
+    /* ── Conflict Events (GDACS + ACLED) ─────────────────────────────────── */
+    function loadConflictEvents() {
+      var feedEl = document.getElementById('cw-osint-feed');
+      if (feedEl) feedEl.innerHTML = '<div class="cw-loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading OSINT feed…</div>';
+      fetch(WORKER_URL + '/api/conflict/events?region=' + encodeURIComponent(cwActiveRegion))
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          cwOsintData = data.events || [];
+          renderOsintFeed();
+          plotConflictMarkers(cwOsintData);
+          updateCwPosture();
+          setCwUpdatedTs();
+        })
+        .catch(function() {
+          /* Fallback to GDACS RSS via proxy */
+          fetchGdacsFallback();
+        });
+    }
+
+    function fetchGdacsFallback() {
+      fetch(WORKER_URL + '/api/gdacs/rss')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          cwOsintData = data.items || [];
+          renderOsintFeed();
+          plotConflictMarkers(cwOsintData);
+          updateCwPosture();
+        })
+        .catch(function() {
+          var feedEl = document.getElementById('cw-osint-feed');
+          if (feedEl) feedEl.innerHTML = '<div class="cw-loading-spinner" style="flex-direction:column;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:#f9ab00;"></i><span>OSINT feed unavailable — check Worker routes</span></div>';
+        });
+    }
+
+    function renderOsintFeed() {
+      var feedEl = document.getElementById('cw-osint-feed');
+      if (!feedEl) return;
+      var typeFilter = (document.getElementById('cw-osint-type-filter') || {}).value || 'ALL';
+      var items = cwOsintData.filter(function(item) {
+        if (typeFilter !== 'ALL' && item.type !== typeFilter) return false;
+        return true;
+      });
+      if (items.length === 0) {
+        feedEl.innerHTML = '<div class="cw-loading-spinner" style="flex-direction:column;"><i class="fas fa-check-circle" style="color:#34a853;font-size:1.2rem;"></i><span>No events match current filter</span></div>';
+        return;
+      }
+      feedEl.innerHTML = items.slice(0, 50).map(function(item) {
+        var typeClass = ({ ARMED:'cw-type-armed', TERRORISM:'cw-type-terror', UNREST:'cw-type-unrest', HAZARD:'cw-type-hazard', CYBER:'cw-type-cyber' })[item.type] || 'cw-type-other';
+        var typeLabel = ({ ARMED:'⚔ Armed', TERRORISM:'💣 Terror', UNREST:'✊ Unrest', HAZARD:'🌊 Hazard', CYBER:'💻 Cyber' })[item.type] || item.type || 'Other';
+        return '<div class="cw-osint-item">'
+          + '<div class="cw-osint-row1">'
+          + '<span class="cw-osint-type ' + typeClass + '">' + typeLabel + '</span>'
+          + '<span class="cw-osint-title">' + esc(item.title || '') + '</span>'
+          + '</div>'
+          + '<div class="cw-osint-row2">'
+          + '<span class="cw-osint-loc"><i class="fas fa-map-pin" style="margin-right:3px;font-size:.55rem;"></i>' + esc(item.location || item.country || '') + '</span>'
+          + '<span class="cw-osint-src">' + esc(item.source || '') + '</span>'
+          + '<span class="cw-osint-ts">' + fmtTs(item.timestamp || item.date) + '</span>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function filterOsintByRegion(region) {
+      renderOsintFeed();
+      plotConflictMarkers(cwOsintData);
+    }
+
+    function plotConflictMarkers(events) {
+      if (!cwConflictMap) return;
+      cwConflictMarkers.forEach(function(m){ cwConflictMap.removeLayer(m); });
+      cwConflictMarkers = [];
+      var typeColors = { ARMED:'#e53935', TERRORISM:'#ad1457', UNREST:'#f9a825', HAZARD:'#1565c0', CYBER:'#6a1b9a' };
+      (events || []).forEach(function(item) {
+        if (!item.lat || !item.lon) return;
+        var color = typeColors[item.type] || '#9aa0a6';
+        var m = L.circleMarker([parseFloat(item.lat), parseFloat(item.lon)], {
+          radius:6, color:color, fillColor:color, fillOpacity:.7, weight:1.5
+        }).bindPopup(
+          '<strong>' + esc(item.title||'') + '</strong><br>'
+          + '<span style="font-size:.7rem;color:#9aa0a6;">' + esc(item.location||'') + ' · ' + fmtTs(item.timestamp||'') + '</span>'
+        );
+        m.addTo(cwConflictMap);
+        cwConflictMarkers.push(m);
+      });
+    }
+
+    function filterConflictByRegion(region) {
+      if (!cwConflictMap) return;
+      var regionBounds = {
+        Global: null,
+        AMER:   [[-60,-170],[72,-30]],
+        EMEA:   [[-40,-20],[72,60]],
+        APJC:   [[-50,60],[55,180]],
+        LATAM:  [[-60,-90],[25,-30]],
+      };
+      var bounds = regionBounds[region];
+      if (bounds) {
+        cwConflictMap.fitBounds(bounds, {animate:true, padding:[20,20]});
+      } else {
+        cwConflictMap.setView([20, 10], 2);
+      }
+    }
+
+    /* ── Fuel Supply ─────────────────────────────────────────────────────── */
+    function loadFuelData() {
+      fetch(WORKER_URL + '/api/fuel/supply')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          cwFuelData = data.countries || [];
+          renderFuelTable();
+          var aiEl = document.getElementById('cw-fuel-ai-text');
+          if (aiEl && data.summary) aiEl.textContent = data.summary;
+        })
+        .catch(function() {
+          /* Seed with static placeholder data until EIA key is configured */
+          cwFuelData = FUEL_STATIC_SEED;
+          renderFuelTable();
+          var aiEl = document.getElementById('cw-fuel-ai-text');
+          if (aiEl) aiEl.textContent = 'EIA/IEA key not yet configured — showing last cached data. Add EIA_API_KEY to Worker to enable live data.';
+        });
+    }
+
+    /* Static seed for initial display — IEA SPR data (approximate) */
+    var FUEL_STATIC_SEED = [
+      { country:'United States', iso:'US',  diesel:50, petrol:52, aviation:45, updated:'2026-03-15', source:'EIA' },
+      { country:'Germany',       iso:'DE',  diesel:60, petrol:58, aviation:55, updated:'2026-03-15', source:'IEA' },
+      { country:'United Kingdom',iso:'GB',  diesel:55, petrol:57, aviation:50, updated:'2026-03-15', source:'IEA' },
+      { country:'France',        iso:'FR',  diesel:58, petrol:60, aviation:52, updated:'2026-03-15', source:'IEA' },
+      { country:'Israel',        iso:'IL',  diesel:40, petrol:38, aviation:35, updated:'2026-03-15', source:'IEA' },
+      { country:'India',         iso:'IN',  diesel:22, petrol:18, aviation:20, updated:'2026-03-15', source:'IEA' },
+      { country:'Japan',         iso:'JP',  diesel:70, petrol:72, aviation:68, updated:'2026-03-15', source:'IEA' },
+      { country:'Singapore',     iso:'SG',  diesel:30, petrol:28, aviation:45, updated:'2026-03-15', source:'IEA' },
+      { country:'Australia',     iso:'AU',  diesel:25, petrol:24, aviation:22, updated:'2026-03-15', source:'IEA' },
+      { country:'Brazil',        iso:'BR',  diesel:35, petrol:33, aviation:30, updated:'2026-03-15', source:'ANEEL' },
+      { country:'China',         iso:'CN',  diesel:45, petrol:44, aviation:40, updated:'2026-03-15', source:'IEA' },
+      { country:'South Korea',   iso:'KR',  diesel:65, petrol:64, aviation:60, updated:'2026-03-15', source:'IEA' },
+      { country:'Canada',        iso:'CA',  diesel:55, petrol:58, aviation:50, updated:'2026-03-15', source:'EIA' },
+      { country:'Mexico',        iso:'MX',  diesel:18, petrol:20, aviation:15, updated:'2026-03-15', source:'IEA' },
+      { country:'Poland',        iso:'PL',  diesel:52, petrol:50, aviation:48, updated:'2026-03-15', source:'IEA' },
+    ];
+
+    function renderFuelTable() {
+      var tbody = document.getElementById('cw-fuel-tbody');
+      if (!tbody) return;
+      var typeFilter = (document.getElementById('cw-fuel-type-filter') || {}).value || 'ALL';
+      var showD = typeFilter === 'ALL' || typeFilter === 'DIESEL';
+      var showP = typeFilter === 'ALL' || typeFilter === 'PETROL';
+      var showA = typeFilter === 'ALL' || typeFilter === 'AVIATION';
+
+      function dsrClass(v) { return v === null ? 'cw-dsr-na' : v < 20 ? 'cw-dsr-crit' : v < 40 ? 'cw-dsr-warn' : 'cw-dsr-ok'; }
+      function dsrBar(v, max) {
+        if (v === null) return '';
+        var pct = Math.min(100, (v / max) * 100);
+        var col = v < 20 ? '#f28b82' : v < 40 ? '#f9ab00' : '#81c995';
+        return '<div class="cw-fuel-bar"><div class="cw-fuel-bar-fill" style="width:' + pct + '%;background:' + col + ';"></div></div>';
+      }
+      var maxDsr = 90;
+      tbody.innerHTML = cwFuelData.map(function(row) {
+        return '<tr>'
+          + '<td><div class="cw-fuel-country">' + esc(row.country) + '</div><div class="cw-fuel-src">' + esc(row.source||'') + '</div></td>'
+          + (showD ? '<td><div class="cw-dsr ' + dsrClass(row.diesel) + '">' + (row.diesel != null ? row.diesel + 'd' : 'N/A') + '</div>' + dsrBar(row.diesel, maxDsr) + '</td>' : '')
+          + (showP ? '<td><div class="cw-dsr ' + dsrClass(row.petrol) + '">' + (row.petrol != null ? row.petrol + 'd' : 'N/A') + '</div>' + dsrBar(row.petrol, maxDsr) + '</td>' : '')
+          + (showA ? '<td><div class="cw-dsr ' + dsrClass(row.aviation) + '">' + (row.aviation != null ? row.aviation + 'd' : 'N/A') + '</div>' + dsrBar(row.aviation, maxDsr) + '</td>' : '')
+          + '<td class="cw-fuel-src">' + esc(row.updated || '') + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    function filterFuelByRegion(region) {
+      renderFuelTable();
+    }
+
+    /* ── Radiation Watch ────────────────────────────────────────────────── */
+    function loadRadiationData() {
+      fetch(WORKER_URL + '/api/radiation/sensors')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          cwRadData = data.observations || [];
+          renderRadTable();
+        })
+        .catch(function() {
+          cwRadData = RAD_STATIC_SEED;
+          renderRadTable();
+          var aiEl = document.getElementById('cw-rad-ai-text');
+          if (aiEl) aiEl.textContent = 'Live radiation data loading… Showing last cached readings. Worker route /api/radiation/sensors required.';
+        });
+    }
+
+    var RAD_STATIC_SEED = [
+      { location:'New York, US',      country:'US', value:85,  unit:'nSv/h', severity:'normal',   source:'EPA RadNet',   observedAt: new Date(Date.now()-600000).toISOString() },
+      { location:'Chicago, US',       country:'US', value:72,  unit:'nSv/h', severity:'normal',   source:'EPA RadNet',   observedAt: new Date(Date.now()-900000).toISOString() },
+      { location:'Los Angeles, US',   country:'US', value:78,  unit:'nSv/h', severity:'normal',   source:'EPA RadNet',   observedAt: new Date(Date.now()-1200000).toISOString() },
+      { location:'London, UK',        country:'GB', value:90,  unit:'nSv/h', severity:'normal',   source:'Safecast',     observedAt: new Date(Date.now()-1800000).toISOString() },
+      { location:'Paris, FR',         country:'FR', value:95,  unit:'nSv/h', severity:'normal',   source:'Safecast',     observedAt: new Date(Date.now()-2400000).toISOString() },
+      { location:'Tokyo, JP',         country:'JP', value:88,  unit:'nSv/h', severity:'normal',   source:'Safecast',     observedAt: new Date(Date.now()-3000000).toISOString() },
+      { location:'Zaporizhzhia, UA',  country:'UA', value:142, unit:'nSv/h', severity:'elevated', source:'Safecast',     observedAt: new Date(Date.now()-3600000).toISOString() },
+      { location:'Kyiv, UA',          country:'UA', value:108, unit:'nSv/h', severity:'elevated', source:'Safecast',     observedAt: new Date(Date.now()-4200000).toISOString() },
+      { location:'Beijing, CN',       country:'CN', value:82,  unit:'nSv/h', severity:'normal',   source:'Safecast',     observedAt: new Date(Date.now()-5400000).toISOString() },
+      { location:'Mumbai, IN',        country:'IN', value:96,  unit:'nSv/h', severity:'normal',   source:'Safecast',     observedAt: new Date(Date.now()-7200000).toISOString() },
+    ];
+
+    function renderRadTable() {
+      var tbody = document.getElementById('cw-rad-tbody');
+      if (!tbody) return;
+      var sevFilter = (document.getElementById('cw-rad-sev-filter') || {}).value || 'ALL';
+      var items = cwRadData.filter(function(r) {
+        if (sevFilter !== 'ALL' && r.severity !== sevFilter) return false;
+        return true;
+      });
+      items.sort(function(a,b){ return (b.value||0) - (a.value||0); });
+      tbody.innerHTML = items.map(function(r) {
+        var sevClass = { normal:'cw-sev-normal', elevated:'cw-sev-elevated', spike:'cw-sev-spike' }[r.severity] || 'cw-sev-normal';
+        var badgeClass = { normal:'cw-badge-normal', elevated:'cw-badge-elevated', spike:'cw-badge-spike' }[r.severity] || 'cw-badge-normal';
+        var sevLabel = { normal:'Normal', elevated:'Elevated', spike:'Spike' }[r.severity] || r.severity;
+        return '<tr>'
+          + '<td class="cw-rad-loc">' + esc(r.location||r.country||'') + '</td>'
+          + '<td class="cw-rad-val ' + sevClass + '">' + (r.value||'—') + ' <span style="font-size:.58rem;font-weight:400;">' + esc(r.unit||'nSv/h') + '</span></td>'
+          + '<td><span class="cw-rad-badge ' + badgeClass + '">' + sevLabel + '</span></td>'
+          + '<td class="cw-rad-src">' + esc(r.source||'') + '</td>'
+          + '<td class="cw-rad-src">' + fmtTs(r.observedAt||r.timestamp) + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    /* ── National Debt Clock ─────────────────────────────────────────────── */
+    var cwDebtTickers = {}; /* iso → { el, baseVal, rate, startTs } */
+    var cwDebtTickInterval = null;
+
+    function loadDebtData() {
+      fetch(WORKER_URL + '/api/debt/countries')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          cwDebtData = data.countries || [];
+          renderDebtTable();
+          startDebtTickers();
+        })
+        .catch(function() {
+          cwDebtData = DEBT_STATIC_SEED;
+          renderDebtTable();
+          startDebtTickers();
+        });
+    }
+
+    /* Static seed — IMF WEO 2024 data (USD billions) */
+    var DEBT_STATIC_SEED = [
+      { country:'United States', iso:'US', debtUsd:34e12,  debtToGdp:122.3, annualGrowth:5.2,  perSecondRate:56600, baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Japan',         iso:'JP', debtUsd:9.7e12, debtToGdp:255.2, annualGrowth:3.1,  perSecondRate:9700,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'China',         iso:'CN', debtUsd:14.6e12,debtToGdp:83.6,  annualGrowth:8.4,  perSecondRate:30900, baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Germany',       iso:'DE', debtUsd:2.9e12, debtToGdp:64.3,  annualGrowth:2.1,  perSecondRate:1940,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'United Kingdom',iso:'GB', debtUsd:3.4e12, debtToGdp:101.0, annualGrowth:4.8,  perSecondRate:5200,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'France',        iso:'FR', debtUsd:3.3e12, debtToGdp:110.0, annualGrowth:5.5,  perSecondRate:5700,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Italy',         iso:'IT', debtUsd:2.9e12, debtToGdp:140.0, annualGrowth:3.2,  perSecondRate:2900,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'India',         iso:'IN', debtUsd:3.1e12, debtToGdp:81.9,  annualGrowth:9.8,  perSecondRate:9600,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Brazil',        iso:'BR', debtUsd:1.8e12, debtToGdp:87.1,  annualGrowth:6.3,  perSecondRate:3600,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Canada',        iso:'CA', debtUsd:2.2e12, debtToGdp:107.4, annualGrowth:4.1,  perSecondRate:2800,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Australia',     iso:'AU', debtUsd:0.9e12, debtToGdp:52.1,  annualGrowth:3.4,  perSecondRate:970,   baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'South Korea',   iso:'KR', debtUsd:1.1e12, debtToGdp:51.5,  annualGrowth:5.7,  perSecondRate:1980,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Singapore',     iso:'SG', debtUsd:0.6e12, debtToGdp:130.0, annualGrowth:2.0,  perSecondRate:380,   baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Israel',        iso:'IL', debtUsd:0.5e12, debtToGdp:68.0,  annualGrowth:12.0, perSecondRate:1900,  baselineTs:'2024-01-01T00:00:00Z' },
+      { country:'Mexico',        iso:'MX', debtUsd:0.9e12, debtToGdp:52.7,  annualGrowth:6.8,  perSecondRate:1900,  baselineTs:'2024-01-01T00:00:00Z' },
+    ];
+
+    function renderDebtTable() {
+      var tbody = document.getElementById('cw-debt-tbody');
+      if (!tbody) return;
+      var sorted = cwDebtData.slice().sort(function(a,b) {
+        if (cwDebtSort === 'gdp')    return (b.debtToGdp||0) - (a.debtToGdp||0);
+        if (cwDebtSort === 'growth') return (b.annualGrowth||0) - (a.annualGrowth||0);
+        return (b.debtUsd||0) - (a.debtUsd||0);
+      });
+      /* Global total */
+      var totalGlobal = cwDebtData.reduce(function(s,c){ return s + (c.debtUsd||0); }, 0);
+      var avgGdp = cwDebtData.length ? (cwDebtData.reduce(function(s,c){ return s + (c.debtToGdp||0); }, 0) / cwDebtData.length) : 0;
+      var globalEl = document.getElementById('cw-debt-global');
+      var avgEl    = document.getElementById('cw-debt-gdp-avg');
+      if (globalEl) { globalEl.dataset.base = totalGlobal; globalEl.dataset.rate = 100000; globalEl.dataset.ts = Date.now(); globalEl.textContent = fmtCurrency(totalGlobal); }
+      if (avgEl) avgEl.textContent = avgGdp.toFixed(1) + '% GDP';
+
+      tbody.innerHTML = sorted.map(function(c) {
+        var gdpClass = c.debtToGdp >= 120 ? 'high' : c.debtToGdp >= 80 ? 'warn' : 'ok';
+        var growthStr = (c.annualGrowth >= 0 ? '+' : '') + (c.annualGrowth||0).toFixed(1) + '%';
+        var growthCol = c.annualGrowth >= 10 ? '#f28b82' : c.annualGrowth >= 5 ? '#f9ab00' : '#81c995';
+        var tickerId = 'cw-debt-tick-' + (c.iso||c.country||Math.random()).replace(/\W/g,'');
+        cwDebtTickers[tickerId] = { base: c.debtUsd||0, rate: c.perSecondRate||0, ts: Date.now() };
+        return '<tr>'
+          + '<td class="cw-debt-country">' + esc(c.country) + '</td>'
+          + '<td><div class="cw-debt-val" id="' + tickerId + '">' + fmtCurrency(c.debtUsd||0) + '</div></td>'
+          + '<td><span class="cw-debt-gdp ' + gdpClass + '">' + (c.debtToGdp||0).toFixed(1) + '%</span></td>'
+          + '<td style="color:' + growthCol + ';font-size:.7rem;font-weight:700;">' + growthStr + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    function startDebtTickers() {
+      if (cwDebtTickInterval) return;
+      cwDebtTickInterval = setInterval(function(){
+        var now = Date.now();
+        Object.keys(cwDebtTickers).forEach(function(id){
+          var t = cwDebtTickers[id];
+          var el = document.getElementById(id);
+          if (!el || !t.rate) return;
+          var elapsed = (now - t.ts) / 1000;
+          var current = t.base + (t.rate * elapsed);
+          el.textContent = fmtCurrency(current);
+        });
+        /* Global counter */
+        var gEl = document.getElementById('cw-debt-global');
+        if (gEl && gEl.dataset.base) {
+          var elapsed = (Date.now() - parseFloat(gEl.dataset.ts||0)) / 1000;
+          var cur = parseFloat(gEl.dataset.base||0) + (parseFloat(gEl.dataset.rate||0) * elapsed);
+          gEl.textContent = fmtCurrency(cur);
+        }
+      }, 1000);
+    }
+
+    /* ── Webcams (Windy API) ─────────────────────────────────────────────── */
+    /* Default cam IDs (Israel + Dell hubs) — Windy webcam IDs */
+    var DEFAULT_CAMS = [
+      { id:'1523783748', label:'Tel Aviv, Israel',      country:'IL' },
+      { id:'1491667012', label:'Jerusalem, Israel',     country:'IL' },
+      { id:'1491611724', label:'London, UK',            country:'GB' },
+      { id:'1556438984', label:'New York, USA',         country:'US' },
+      { id:'1526044490', label:'Singapore',             country:'SG' },
+      { id:'1491704532', label:'Tokyo, Japan',          country:'JP' },
+    ];
+
+    function loadWebcams() {
+      var country = (document.getElementById('cw-cam-country') || {}).value || 'IL';
+      cwCamCountry = country;
+      /* Phase 1: use default cams; Phase 2: fetch from Windy API */
+      fetch(WORKER_URL + '/api/webcams/list?country=' + encodeURIComponent(country) + '&type=' + encodeURIComponent(cwCamType))
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          var cams = (data.webcams || []).slice(0, 6);
+          renderCamSlots(cams);
+        })
+        .catch(function() {
+          /* Fallback: render default cams as iframes */
+          renderCamSlots(DEFAULT_CAMS);
+        });
+    }
+
+    function renderCamSlots(cams) {
+      for (var i = 0; i < 6; i++) {
+        var slot = document.getElementById('cw-cam-' + i);
+        if (!slot) continue;
+        var cam = cams[i];
+        if (!cam) {
+          slot.innerHTML = '<div class="cw-cam-placeholder"><i class="fas fa-video-slash" style="color:#3a3d45;"></i><span style="color:#3a3d45;">No camera</span></div>';
+          continue;
+        }
+        var embedUrl = cam.playerUrl || ('https://webcams.windy.com/webcams/public/embed/player/' + cam.id + '/day');
+        slot.innerHTML = '<iframe src="' + esc(embedUrl) + '" sandbox="allow-scripts allow-same-origin allow-popups" loading="lazy" title="' + esc(cam.label||cam.title||'Webcam') + '"></iframe>'
+          + '<div class="cw-cam-label">' + esc(cam.label||cam.title||cam.id) + '</div>';
+      }
+    }
+
+    /* ── Posture banner update ───────────────────────────────────────────── */
+    function updateCwPosture() {
+      var activeAlerts   = cwOrefHistory.filter(function(a){ return a.isNew; }).length;
+      var critFuel       = cwFuelData.filter(function(c){ return (c.diesel||99) < 20 || (c.petrol||99) < 20 || (c.aviation||99) < 20; }).length;
+      var elevatedRad    = cwRadData.filter(function(r){ return r.severity !== 'normal'; }).length;
+      var conflictEvents = cwOsintData.length;
+      var level, cls, summary;
+      if (activeAlerts > 0) {
+        level = 'ELEVATED'; cls = 'elevated';
+        summary = activeAlerts + ' active siren alert' + (activeAlerts>1?'s':'') + ' in Israel';
+      } else if (critFuel > 0 || elevatedRad > 0) {
+        level = 'WATCH'; cls = 'watch';
+        summary = (critFuel > 0 ? critFuel + ' country fuel critical' : '') + (elevatedRad > 0 ? ' · ' + elevatedRad + ' elevated radiation readings' : '');
+      } else {
+        level = 'STABLE'; cls = 'stable';
+        summary = conflictEvents + ' OSINT events tracked · All systems monitoring · No immediate alerts';
+      }
+      var banner   = document.getElementById('cw-posture-banner');
+      var levelEl  = document.getElementById('cw-posture-level');
+      var summaryEl= document.getElementById('cw-posture-summary');
+      var countsEl = document.getElementById('cw-posture-counts');
+      if (banner)   banner.className   = 'cw-posture-oneliner cw-posture-' + cls;
+      if (levelEl)  { levelEl.textContent = level; levelEl.className = 'cw-posture-level ' + cls; }
+      if (summaryEl)summaryEl.textContent = summary;
+      if (countsEl) countsEl.textContent  = conflictEvents + ' events · ' + (activeAlerts || 'No') + ' sirens';
+    }
+
+    /* ── Widget Show/Hide (Picker UI) ────────────────────────────────────── */
+    function loadCwPrefs() {
+      /* Load from localStorage first */
+      try {
+        var raw = localStorage.getItem(CW_PREFS_KEY);
+        if (raw) { var saved = JSON.parse(raw); Object.assign(cwWidgetPrefs, saved); }
+      } catch(e) {}
+    }
+
+    function saveCwPrefs() {
+      try { localStorage.setItem(CW_PREFS_KEY, JSON.stringify(cwWidgetPrefs)); } catch(e) {}
+      /* Sync to Upstash Redis via Worker */
+      var profileName = (document.getElementById('cw-profile-name-input') || {}).value || '';
+      if (profileName.trim()) {
+        fetch(WORKER_URL + '/api/user/preferences', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ profile: profileName.trim().toLowerCase(), prefs: cwWidgetPrefs })
+        }).catch(function(){});
+      }
+    }
+
+    function loadProfilePrefs(profileName) {
+      if (!profileName.trim()) return;
+      localStorage.setItem(CW_PROFILE_KEY, profileName.trim().toLowerCase());
+      fetch(WORKER_URL + '/api/user/preferences/' + encodeURIComponent(profileName.trim().toLowerCase()))
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          if (data.prefs) {
+            Object.assign(cwWidgetPrefs, data.prefs);
+            localStorage.setItem(CW_PREFS_KEY, JSON.stringify(cwWidgetPrefs));
+            applyWidgetVisibility();
+            updatePickerToggles();
+          }
+        })
+        .catch(function(){});
+    }
+
+    function applyWidgetVisibility() {
+      Object.keys(cwWidgetPrefs).forEach(function(gsId) {
+        var el = document.querySelector('#cw-grid .grid-stack-item[gs-id="' + gsId + '"]');
+        if (!el) return;
+        if (cwWidgetPrefs[gsId]) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    function initPickerUI() {
+      var container = document.getElementById('cw-picker-rows-crisis');
+      if (!container) return;
+      container.innerHTML = CW_WIDGETS_META.map(function(w) {
+        var checked = cwWidgetPrefs[w.id] !== false ? 'checked' : '';
+        return '<div class="cw-picker-row">'
+          + '<div><div class="cw-picker-row-label"><i class="fas ' + w.icon + '" style="width:14px;color:#9aa0a6;"></i> ' + esc(w.label) + '</div>'
+          + '<div class="cw-picker-row-desc">' + esc(w.desc) + '</div></div>'
+          + '<label class="cw-toggle" title="Show/hide ' + esc(w.label) + '">'
+          + '<input type="checkbox" data-widget-id="' + esc(w.id) + '" ' + checked + '>'
+          + '<span class="cw-toggle-slider"></span>'
+          + '</label>'
+          + '</div>';
+      }).join('');
+      /* Restore profile name */
+      var savedProfile = localStorage.getItem(CW_PROFILE_KEY);
+      var profileInput = document.getElementById('cw-profile-name-input');
+      if (profileInput && savedProfile) profileInput.value = savedProfile;
+    }
+
+    function updatePickerToggles() {
+      document.querySelectorAll('#cw-picker-rows-crisis input[type=checkbox]').forEach(function(cb) {
+        var id = cb.dataset.widgetId;
+        if (id) cb.checked = cwWidgetPrefs[id] !== false;
+      });
+    }
+
+    /* ── Event bindings ─────────────────────────────────────────────────── */
+    function bindCwEvents() {
+      /* Customize button */
+      var custBtn = document.getElementById('cw-customize-btn');
+      if (custBtn) custBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var overlay = document.getElementById('cw-picker-overlay');
+        if (overlay) overlay.classList.add('open');
+      });
+
+      /* Cancel picker */
+      var cancelBtn = document.getElementById('cw-picker-cancel-btn');
+      if (cancelBtn) cancelBtn.addEventListener('click', function() {
+        var overlay = document.getElementById('cw-picker-overlay');
+        if (overlay) overlay.classList.remove('open');
+      });
+
+      /* Close picker on overlay click */
+      var overlay = document.getElementById('cw-picker-overlay');
+      if (overlay) overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.classList.remove('open');
+      });
+
+      /* Save picker */
+      var saveBtn = document.getElementById('cw-picker-save-btn');
+      if (saveBtn) saveBtn.addEventListener('click', function() {
+        document.querySelectorAll('#cw-picker-rows-crisis input[type=checkbox]').forEach(function(cb) {
+          var id = cb.dataset.widgetId;
+          if (id) cwWidgetPrefs[id] = cb.checked;
+        });
+        applyWidgetVisibility();
+        saveCwPrefs();
+        var ov = document.getElementById('cw-picker-overlay');
+        if (ov) ov.classList.remove('open');
+        /* Show brief confirmation */
+        var custBtn2 = document.getElementById('cw-customize-btn');
+        if (custBtn2) {
+          custBtn2.innerHTML = '<i class="fas fa-check" style="color:#81c995;"></i> Saved';
+          setTimeout(function(){ custBtn2.innerHTML = '<i class="fas fa-sliders-h"></i> Customize'; }, 2000);
+        }
+      });
+
+      /* Load profile */
+      var loadProfileBtn = document.getElementById('cw-profile-load-btn');
+      if (loadProfileBtn) loadProfileBtn.addEventListener('click', function() {
+        var name = (document.getElementById('cw-profile-name-input') || {}).value || '';
+        loadProfilePrefs(name);
+        loadProfileBtn.textContent = 'Loading…';
+        setTimeout(function(){ loadProfileBtn.textContent = 'Load'; }, 2000);
+      });
+
+      /* Map category filter */
+      var mapCatFilter = document.getElementById('cw-map-cat-filter');
+      if (mapCatFilter) mapCatFilter.addEventListener('change', function() {
+        var cat = this.value;
+        cwConflictMarkers.forEach(function(m) {
+          var layer = m;
+          if (layer._cwType && cat !== 'ALL' && layer._cwType !== cat) {
+            if (cwConflictMap) cwConflictMap.removeLayer(layer);
+          } else {
+            if (cwConflictMap) layer.addTo(cwConflictMap);
+          }
+        });
+      });
+
+      /* Map refresh */
+      var mapRefreshBtn = document.getElementById('cw-map-refresh-btn');
+      if (mapRefreshBtn) mapRefreshBtn.addEventListener('click', function() {
+        var icon = this.querySelector('i');
+        if (icon) icon.className = 'fas fa-spinner fa-spin';
+        var btn = this;
+        loadConflictEvents();
+        setTimeout(function(){ var ic = btn.querySelector('i'); if(ic) ic.className='fas fa-sync'; }, 3000);
+      });
+
+      /* Fuel filter */
+      var fuelFilter = document.getElementById('cw-fuel-type-filter');
+      if (fuelFilter) fuelFilter.addEventListener('change', renderFuelTable);
+
+      /* Fuel refresh */
+      var fuelRefBtn = document.getElementById('cw-fuel-refresh-btn');
+      if (fuelRefBtn) fuelRefBtn.addEventListener('click', function() {
+        var icon = this.querySelector('i'); if(icon) icon.className='fas fa-spinner fa-spin';
+        var btn = this;
+        loadFuelData();
+        setTimeout(function(){ var ic=btn.querySelector('i'); if(ic) ic.className='fas fa-sync'; }, 3000);
+      });
+
+      /* Radiation filter */
+      var radFilter = document.getElementById('cw-rad-sev-filter');
+      if (radFilter) radFilter.addEventListener('change', renderRadTable);
+
+      /* Radiation refresh */
+      var radRefBtn = document.getElementById('cw-rad-refresh-btn');
+      if (radRefBtn) radRefBtn.addEventListener('click', function() {
+        var icon = this.querySelector('i'); if(icon) icon.className='fas fa-spinner fa-spin';
+        var btn = this;
+        loadRadiationData();
+        setTimeout(function(){ var ic=btn.querySelector('i'); if(ic) ic.className='fas fa-sync'; }, 3000);
+      });
+
+      /* Debt sort buttons */
+      document.querySelectorAll('.cw-debt-sort-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.cw-debt-sort-btn').forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+          cwDebtSort = btn.dataset.debtSort;
+          renderDebtTable();
+        });
+      });
+
+      /* Webcam filters */
+      var camCountryFilter = document.getElementById('cw-cam-country');
+      if (camCountryFilter) camCountryFilter.addEventListener('change', function() {
+        cwCamCountry = this.value;
+        loadWebcams();
+      });
+      var camTypeFilter = document.getElementById('cw-cam-type');
+      if (camTypeFilter) camTypeFilter.addEventListener('change', function() {
+        cwCamType = this.value;
+        loadWebcams();
+      });
+      var camRefBtn = document.getElementById('cw-cam-refresh-btn');
+      if (camRefBtn) camRefBtn.addEventListener('click', function() {
+        var icon = this.querySelector('i'); if(icon) icon.className='fas fa-spinner fa-spin';
+        var btn = this;
+        loadWebcams();
+        setTimeout(function(){ var ic=btn.querySelector('i'); if(ic) ic.className='fas fa-sync'; }, 3000);
+      });
+
+      /* OSINT feed filter */
+      var osintFilter = document.getElementById('cw-osint-type-filter');
+      if (osintFilter) osintFilter.addEventListener('change', renderOsintFeed);
+
+      /* Refresh all button */
+      var refreshAllBtn = document.getElementById('cw-refresh-all-btn');
+      if (refreshAllBtn) refreshAllBtn.addEventListener('click', function() {
+        var icon = this.querySelector('i'); if(icon) icon.className='fas fa-spinner fa-spin';
+        var btn = this;
+        loadConflictEvents();
+        loadFuelData();
+        loadRadiationData();
+        loadWebcams();
+        setCwUpdatedTs();
+        setTimeout(function(){ var ic=btn.querySelector('i'); if(ic) ic.className='fas fa-sync-alt'; }, 5000);
+      });
+
+      /* Reset layout button */
+      var resetBtn = document.getElementById('cw-reset-layout-btn');
+      if (resetBtn) resetBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window.resetCwLayout();
+      });
+    }
+
+  })();
+  </script>
 
 </body>
 </html>
