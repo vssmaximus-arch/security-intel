@@ -2628,7 +2628,7 @@
       </div>
 
       <!-- ── MARITIME DISRUPTIONS WIDGET ────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="8" gs-w="8" gs-h="9" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="8" gs-w="6" gs-h="9" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-ship" style="margin-right:6px;"></i>Maritime Disruptions</span>
@@ -2686,7 +2686,7 @@
       </div>
 
       <!-- ── TRACK VESSEL WIDGET ────────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="0" gs-y="17" gs-w="4" gs-h="8" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="6" gs-y="8" gs-w="2" gs-h="9" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-search" style="margin-right:6px;"></i>Track Vessel</span>
@@ -2725,7 +2725,7 @@
       <i class="fas fa-lock" style="margin-right:6px;"></i>
       Public intelligence only — no internal Dell cargo, customer, shipment, supplier, SKU, or financial data.
       &nbsp;·&nbsp; Vessel positions via AIS feed or illustrative placeholders.
-      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="resetVwLayout();" title="Reset widget positions to default">Reset layout</span>
+      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="window.resetVwLayout ? resetVwLayout() : (localStorage.removeItem('vw_grid_layout_v3'),location.reload(true))" title="Reset widget positions to default">Reset layout</span>
     </div>
   </div><!-- /view-vessel-watch -->
 
@@ -4708,17 +4708,17 @@
   (function () {
     'use strict';
 
-    var VW_LAYOUT_KEY = 'vw_grid_layout_v2'; // bumped: new default layout (posture one-liner + map/fleet side-by-side)
+    var VW_LAYOUT_KEY = 'vw_grid_layout_v3'; // bumped: track vessel same row as disruptions+chokepoint
     var vwGrid        = null;
     var vwGridReady   = false;
 
     var VW_DEFAULT_LAYOUT = [
-      { id: 'vw-posture-widget',    x: 0, y: 0,  w: 12, h: 1  }, // slim one-liner at top
+      { id: 'vw-posture-widget',    x: 0, y: 0,  w: 12, h: 1  }, // posture: slim one-liner full width
       { id: 'vw-map-widget',        x: 0, y: 1,  w: 8,  h: 7  }, // map: left 8 cols
-      { id: 'vw-monitored-widget',  x: 8, y: 1,  w: 4,  h: 7  }, // fleet: right 4 cols, same row
-      { id: 'vw-disruptions-widget',x: 0, y: 8,  w: 8,  h: 9  }, // disruptions: left below map
-      { id: 'vw-chokepoint-widget', x: 8, y: 8,  w: 4,  h: 9  }, // chokepoints: right below fleet
-      { id: 'vw-track-widget',      x: 0, y: 17, w: 4,  h: 8  }, // track vessel: bottom left
+      { id: 'vw-monitored-widget',  x: 8, y: 1,  w: 4,  h: 7  }, // fleet: right 4 cols, same row as map
+      { id: 'vw-disruptions-widget',x: 0, y: 8,  w: 6,  h: 9  }, // disruptions: left 6 cols
+      { id: 'vw-track-widget',      x: 6, y: 8,  w: 2,  h: 9  }, // track vessel: centre 2 cols, SAME ROW
+      { id: 'vw-chokepoint-widget', x: 8, y: 8,  w: 4,  h: 9  }, // chokepoints: right 4 cols, SAME ROW
     ];
 
     function saveLayout() {
