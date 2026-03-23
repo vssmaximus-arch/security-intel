@@ -5356,15 +5356,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!action) return;
 
       if (action === 'go-home') {
-        // Reset to Global view — activate Global tab, reset map
+        // Switch to Intelligence tab first (switchView is defined in index.html script)
+        if (typeof switchView === 'function') {
+          // Force it even if already on intelligence by temporarily clearing currentView
+          if (typeof currentView !== 'undefined' && currentView === 'intelligence') {
+            currentView = null;
+          }
+          switchView('intelligence');
+        }
+        // Activate Global region tab
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => {
           el.classList.toggle('active', el.dataset.region === 'Global');
         });
         _setApjcSubNav(false);
         filterNews('Global');
         _zoomMapToRegion('Global');
-        // Scroll the main content back to top
-        try { document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) {}
+        // Scroll to top
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) {}
         return;
       }
 
