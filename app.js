@@ -2805,14 +2805,19 @@ function filterNews(region) {
   renderProximityAlerts(region);
   renderCriticalAlertsTicker();
   _refreshMapOverlays();      // re-clip heatmap + nature events to the active region
-  // Zoom map to the selected region
+  // Zoom map to the selected region — deferred so rendering completes first
   if (map) {
-    const bounds = _REGION_BOUNDS[region];
-    if (bounds) {
-      map.fitBounds(bounds, { animate: true, duration: 0.6, padding: [10, 10] });
-    } else {
-      map.setView([20, 0], 2, { animate: true, duration: 0.6 });
-    }
+    setTimeout(() => {
+      try {
+        map.invalidateSize();  // ensure map knows its container dimensions
+        const bounds = _REGION_BOUNDS[region];
+        if (bounds) {
+          map.flyToBounds(bounds, { animate: true, duration: 0.7, padding: [20, 20] });
+        } else {
+          map.flyTo([20, 0], 2, { animate: true, duration: 0.7 });
+        }
+      } catch(e) {}
+    }, 80);
   }
 }
 
@@ -5347,25 +5352,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const region = t.dataset.region || t.textContent.trim();
         // Show APJC sub-nav only when APJC is selected
         _setApjcSubNav(region === 'APJC');
-        filterNews(region);
-        // Reset map to the region's geographic bounds
-        if (map) {
-          const VIEW = {
-            GLOBAL: { center: [20, 10],   zoom: 2 },
-            AMER:   { bounds: [[-60, -170], [75,  -25]] },
-            LATAM:  { bounds: [[-60, -120], [25,  -30]] },
-            EMEA:   { bounds: [[-35,  -25], [72,   65]] },
-            APJC:   { bounds: [[-50,   55], [55,  180]] },
-          };
-          const v = VIEW[region] || VIEW.GLOBAL;
-          try {
-            if (v.bounds) {
-              map.flyToBounds(v.bounds, { padding: [30, 30], duration: 0.8 });
-            } else {
-              map.flyTo(v.center, v.zoom, { duration: 0.8 });
-            }
-          } catch(e) {}
-        }
+        filterNews(region);  // filterNews() handles map zoom with 80ms setTimeout
         return;
       }
       if (action === 'filter-apjc-sub') {
