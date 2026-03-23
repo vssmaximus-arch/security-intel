@@ -7234,6 +7234,72 @@ async function handleApiOrefAlerts(env, req) {
   }
 }
 
+/* ── ACLED Session Manager ────────────────────────────────────────────────
+   Cookie-based auth per ACLED docs:
+   POST /user/login?_format=json → { csrf_token, ... } + Set-Cookie session
+   Session cached in KV for 1 hour, auto-refreshed on 401/403.
+   Secrets required: ACLED_EMAIL + ACLED_PASSWORD
+─────────────────────────────────────────────────────────────────────────── */
+async function getAcledSession(env) {
+  const KV_KEY = 'acled:session:v1';
+
+  /* 1. Check KV cache — valid for 50 min (ACLED sessions last ~1h) */
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata) {
+      const age = Date.now() - (cached.metadata.ts || 0);
+      if (age < 50 * 60 * 1000) return cached.value;
+    }
+  } catch(e) {}
+
+  /* 2. Login to ACLED */
+  try {
+    const loginResp = await fetch('https://acleddata.com/user/login?_format=json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept':       'application/json',
+        'User-Agent':   'SRO-Intel/1.0',
+      },
+      body: JSON.stringify({ name: env.ACLED_EMAIL, pass: env.ACLED_PASSWORD }),
+    });
+
+    if (!loginResp.ok) {
+      console.error('ACLED login failed:', loginResp.status, await loginResp.text());
+      return null;
+    }
+
+    const loginData  = await loginResp.json();
+    const csrfToken  = loginData.csrf_token || '';
+
+    /* Extract all Set-Cookie headers and join them for the Cookie header */
+    const rawCookies = loginResp.headers.get('Set-Cookie') || '';
+    /* Parse out just the key=value pairs (drop path/expires/etc) */
+    const cookieStr  = rawCookies
+      .split(',')
+      .map(part => part.split(';')[0].trim())
+      .filter(Boolean)
+      .join('; ');
+
+    if (!csrfToken && !cookieStr) return null;
+
+    const session = { csrf_token: csrfToken, cookie: cookieStr, ts: Date.now() };
+
+    /* 3. Cache in KV */
+    try {
+      await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(session), {
+        expirationTtl: 3600,
+        metadata: { ts: Date.now() },
+      });
+    } catch(e) {}
+
+    return session;
+  } catch(e) {
+    console.error('ACLED session error:', e.message || e);
+    return null;
+  }
+}
+
 /* ── Conflict Events (ACLED + ReliefWeb + GDACS) ──────────────────────────
    Aggregates conflict events from multiple sources.
    KV cache: 1 hour TTL.
@@ -7277,39 +7343,52 @@ async function handleApiConflictEvents(env, req, ctx) {
     }
   } catch(e) {}
 
-  /* ACLED API — requires ACLED_API_KEY + ACLED_EMAIL in Worker secrets */
-  if (env.ACLED_API_KEY && env.ACLED_EMAIL) {
+  /* ACLED API — cookie-based session auth (email + password) */
+  if (env.ACLED_EMAIL && env.ACLED_PASSWORD) {
     try {
-      const today = new Date().toISOString().slice(0,10);
-      const weekAgo = new Date(Date.now() - 7*86400*1000).toISOString().slice(0,10);
-      const acledUrl = 'https://api.acleddata.com/acled/read?key=' + env.ACLED_API_KEY
-        + '&email=' + encodeURIComponent(env.ACLED_EMAIL)
-        + '&event_date=' + weekAgo + '|' + today
-        + '&event_date_where=BETWEEN&limit=200&fields=event_date|event_type|sub_event_type|country|location|latitude|longitude|notes|fatalities';
-      const acledResp = await fetch(acledUrl, { headers:{'User-Agent':'SRO-Intel/1.0'} });
-      if (acledResp.ok) {
-        const acledData = await acledResp.json();
-        (acledData.data || []).forEach(ev => {
-          events.push({
-            id:       'acled-' + ev.data_id,
-            title:    ev.event_type + ': ' + ev.location + ', ' + ev.country,
-            type:     mapAcledType(ev.event_type),
-            location: ev.location + ', ' + ev.country,
-            country:  ev.country,
-            lat:      parseFloat(ev.latitude),
-            lon:      parseFloat(ev.longitude),
-            fatalities: parseInt(ev.fatalities||0),
-            source:   'ACLED',
-            timestamp: ev.event_date + 'T00:00:00Z',
-          });
+      const session = await getAcledSession(env);
+      if (session) {
+        const today   = new Date().toISOString().slice(0,10);
+        const weekAgo = new Date(Date.now() - 7*86400*1000).toISOString().slice(0,10);
+        const acledUrl = 'https://acleddata.com/api/acled/read?limit=200'
+          + '&event_date=' + weekAgo + '|' + today
+          + '&event_date_where=BETWEEN'
+          + '&fields=event_date|event_type|sub_event_type|country|location|latitude|longitude|notes|fatalities';
+        const acledResp = await fetch(acledUrl, {
+          headers: {
+            'User-Agent':   'SRO-Intel/1.0',
+            'X-CSRF-Token': session.csrf_token,
+            'Cookie':       session.cookie,
+            'Accept':       'application/json',
+          }
         });
+        if (acledResp.ok) {
+          const acledData = await acledResp.json();
+          (acledData.data || []).forEach(ev => {
+            events.push({
+              id:         'acled-' + (ev.data_id || Math.random().toString(36).slice(2)),
+              title:      (ev.event_type||'Event') + ': ' + (ev.location||'') + ', ' + (ev.country||''),
+              type:       mapAcledType(ev.event_type),
+              location:   (ev.location||'') + ', ' + (ev.country||''),
+              country:    ev.country || '',
+              lat:        parseFloat(ev.latitude)  || null,
+              lon:        parseFloat(ev.longitude) || null,
+              fatalities: parseInt(ev.fatalities||0),
+              source:     'ACLED',
+              timestamp:  (ev.event_date ? ev.event_date + 'T00:00:00Z' : new Date().toISOString()),
+            });
+          });
+        } else if (acledResp.status === 403 || acledResp.status === 401) {
+          /* Session expired — clear KV cache so next request re-logs in */
+          try { await env.OSINFOHUB_KV.delete('acled:session:v1'); } catch(e2) {}
+        }
       }
     } catch(e) {}
   }
 
   /* Sort by timestamp desc */
   events.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const result = { events: events.slice(0, 200), count: events.length, ts: new Date().toISOString(), sources: ['ReliefWeb', env.ACLED_API_KEY ? 'ACLED':'ACLED(key needed)'] };
+  const result = { events: events.slice(0, 200), count: events.length, ts: new Date().toISOString(), sources: ['ReliefWeb/UNOCHA', (env.ACLED_EMAIL && env.ACLED_PASSWORD) ? 'ACLED' : 'ACLED(credentials needed)'] };
 
   /* Cache in KV */
   try {
