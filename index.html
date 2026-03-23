@@ -3555,6 +3555,27 @@
       var resetBtn = document.getElementById('btn-reset-layout');
       if (resetBtn) {
         resetBtn.addEventListener('click', function() {
+          /* ── Vessel Watch tab: reset VW grid layout ── */
+          if (typeof currentView !== 'undefined' && currentView === 'vessel-watch') {
+            var VW_D = [
+              {id:'vw-posture-widget',    x:0, y:0,  w:12, h:1},
+              {id:'vw-map-widget',        x:0, y:1,  w:8,  h:7},
+              {id:'vw-monitored-widget',  x:8, y:1,  w:4,  h:7},
+              {id:'vw-disruptions-widget',x:0, y:8,  w:6,  h:9},
+              {id:'vw-track-widget',      x:6, y:8,  w:2,  h:9},
+              {id:'vw-chokepoint-widget', x:8, y:8,  w:4,  h:9}
+            ];
+            var vwEl = document.querySelector('#vw-grid');
+            var vwGs = vwEl && vwEl.gridstack;
+            if (vwGs) {
+              vwGs.load(VW_D);
+              Object.keys(localStorage).filter(function(k){ return k.indexOf('vw_grid') === 0; }).forEach(function(k){ localStorage.removeItem(k); });
+              localStorage.setItem('vw_grid_layout_v3', JSON.stringify(VW_D));
+              setTimeout(function(){ if (window.vwMap) window.vwMap.invalidateSize(); }, 150);
+            }
+            return;
+          }
+          /* ── Intelligence tab: reset sidebar grid layout ── */
           if (window.confirm('Reset dashboard to the default layout?\n\nAll widget positions and sizes will be restored.')) {
             /* 1. Restore any hidden widgets back into the grid */
             var store     = document.getElementById('hidden-widgets-container');
