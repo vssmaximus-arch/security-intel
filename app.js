@@ -2786,6 +2786,15 @@ function startClock() {
 /* ===========================
    Filter news (main entry)
 =========================== */
+// Region bounding boxes [southLat, westLng, northLat, eastLng]
+const _REGION_BOUNDS = {
+  'Global': null,                              // full world view
+  'AMER':   [[-60, -170],  [75,  -30]],        // Americas
+  'EMEA':   [[-35,  -25],  [72,   65]],        // Europe, Middle East, Africa
+  'APJC':   [[-50,   60],  [55,  180]],        // Asia Pacific, Japan, China
+  'LATAM':  [[-60, -120],  [35,  -30]],        // Latin America
+};
+
 function filterNews(region) {
   currentRegion = region || 'GLOBAL';
   _syncCatPillUI();           // refresh category badge counts + active states
@@ -2796,6 +2805,15 @@ function filterNews(region) {
   renderProximityAlerts(region);
   renderCriticalAlertsTicker();
   _refreshMapOverlays();      // re-clip heatmap + nature events to the active region
+  // Zoom map to the selected region
+  if (map) {
+    const bounds = _REGION_BOUNDS[region];
+    if (bounds) {
+      map.fitBounds(bounds, { animate: true, duration: 0.6, padding: [10, 10] });
+    } else {
+      map.setView([20, 0], 2, { animate: true, duration: 0.6 });
+    }
+  }
 }
 
 // Re-renders heatmap and nature events overlays clipped to the current region
