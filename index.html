@@ -2725,7 +2725,7 @@
       <i class="fas fa-lock" style="margin-right:6px;"></i>
       Public intelligence only — no internal Dell cargo, customer, shipment, supplier, SKU, or financial data.
       &nbsp;·&nbsp; Vessel positions via AIS feed or illustrative placeholders.
-      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="localStorage.removeItem('vw_grid_layout_v2');location.reload();" title="Reset widget positions">Reset layout</span>
+      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="resetVwLayout();" title="Reset widget positions to default">Reset layout</span>
     </div>
   </div><!-- /view-vessel-watch -->
 
@@ -4724,6 +4724,15 @@
     function saveLayout() {
       try { localStorage.setItem(VW_LAYOUT_KEY, JSON.stringify(vwGrid.save(false))); } catch(e) {}
     }
+
+    /* Reset to default — applies immediately without page reload */
+    window.resetVwLayout = function () {
+      if (!vwGrid) { localStorage.removeItem(VW_LAYOUT_KEY); location.reload(true); return; }
+      localStorage.removeItem(VW_LAYOUT_KEY);
+      vwGrid.load(VW_DEFAULT_LAYOUT);
+      saveLayout();
+      setTimeout(invalidateVwMap, 120);
+    };
 
     function invalidateVwMap() {
       setTimeout(function () {
