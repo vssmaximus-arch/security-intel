@@ -5149,6 +5149,15 @@ async function handleAdminAction(env, req, ctx) {
         const wMsg = we && we.message ? we.message : String(we);
         return { ok:false, status:500, body: "wipe_error: " + wMsg };
       }
+    } else if (action === 'reset-groq') {
+      // Resets the Groq circuit breaker so AI classification resumes immediately.
+      // Use when stream shows only earthquakes / "keyword heuristic — low confidence".
+      try {
+        await clearGroqFailures(env);
+        return { ok:true, status:200, body: "groq_circuit_reset" };
+      } catch(e) {
+        return { ok:false, status:500, body: "reset_error: " + String(e.message||e) };
+      }
     }
     return { ok:false, status:400, body: "unknown_action" };
   } catch (e) {
