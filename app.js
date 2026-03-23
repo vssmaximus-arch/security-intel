@@ -989,6 +989,7 @@ function initMap() {
     disableClusteringAtZoom: 13,
     maxClusterRadius: 50,
     zoomToBoundsOnClick: !isTouch,
+    zIndexOffset: 1000, // clusters always above Dell site markers (zIndexOffset=0, max zIndex~260)
     iconCreateFunction: function(cluster) {
       const { counts, maxSeverity, childrenCount } = getClusterStats(cluster);
       let cls = 'cluster-blue';
