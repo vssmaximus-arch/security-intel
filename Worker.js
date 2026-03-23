@@ -7300,50 +7300,86 @@ async function getAcledSession(env) {
   }
 }
 
-/* ── Conflict Events (ACLED + ReliefWeb + GDACS) ──────────────────────────
+/* ── Conflict Events (GDACS + ReliefWeb RSS + ACLED) ─────────────────────
    Aggregates conflict events from multiple sources.
-   KV cache: 1 hour TTL.
+   KV cache: 1 hour TTL. Add ?force=true to bypass cache for testing.
 ─────────────────────────────────────────────────────────────────────────── */
 async function handleApiConflictEvents(env, req, ctx) {
-  const url  = new URL(req.url);
+  const url    = new URL(req.url);
   const region = url.searchParams.get('region') || 'Global';
+  const force  = url.searchParams.get('force') === 'true';
   const KV_KEY = 'cw:conflict:events:' + region;
 
-  /* Check KV cache */
-  try {
-    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
-    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 3600000) {
-      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
-    }
-  } catch(e) {}
+  /* Check KV cache (bypass with ?force=true) */
+  if (!force) {
+    try {
+      const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+      if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 3600000) {
+        return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+      }
+    } catch(e) {}
+  }
 
   const events = [];
+  const errors = [];
 
-  /* ReliefWeb API — free, no auth required */
+  /* ── Source 1: GDACS RSS (free, no auth, confirmed working) ── */
   try {
-    const rwResp = await fetch('https://api.reliefweb.int/v1/disasters?appname=sro-infohub&limit=50&preset=latest&fields[include][]=name&fields[include][]=country&fields[include][]=date&fields[include][]=glide&fields[include][]=type&filter[operator]=AND', {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'SRO-Intel/1.0' }
+    const gdacsResp = await fetch('https://www.gdacs.org/xml/rss.xml', {
+      headers: { 'User-Agent': 'SRO-Intel/1.0', 'Accept': 'application/rss+xml,text/xml' }
+    });
+    if (gdacsResp.ok) {
+      const xml = await gdacsResp.text();
+      const itemRx = /<item>([\s\S]*?)<\/item>/g;
+      let m;
+      while ((m = itemRx.exec(xml)) !== null) {
+        const block = m[1];
+        const get = (tag) => { const r = new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)<\\/' + tag + '>'); const x = r.exec(block); return x ? x[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/,'$1').trim() : ''; };
+        const lat = block.match(/geo:lat>([^<]+)</)?.[1] || null;
+        const lon = block.match(/geo:long>([^<]+)</)?.[1] || null;
+        events.push({
+          id:        'gdacs-' + (get('guid') || Math.random().toString(36).slice(2)),
+          title:     get('title'),
+          type:      mapGdacsType(get('gdacs:eventtype') || 'OTHER'),
+          location:  get('gdacs:country') || get('gdacs:area') || '',
+          country:   get('gdacs:country') || '',
+          lat:       lat ? parseFloat(lat) : null,
+          lon:       lon ? parseFloat(lon) : null,
+          severity:  get('gdacs:alertlevel') || '',
+          source:    'GDACS',
+          url:       get('link'),
+          timestamp: get('pubDate') ? new Date(get('pubDate')).toISOString() : new Date().toISOString(),
+        });
+      }
+    } else { errors.push('GDACS HTTP ' + gdacsResp.status); }
+  } catch(e) { errors.push('GDACS: ' + String(e.message||e)); }
+
+  /* ── Source 2: ReliefWeb RSS (RSS endpoint works; REST API returns 403) ── */
+  try {
+    const rwResp = await fetch('https://reliefweb.int/updates/rss.xml', {
+      headers: { 'User-Agent': 'SRO-Intel/1.0', 'Accept': 'application/rss+xml,text/xml' }
     });
     if (rwResp.ok) {
-      const rwData = await rwResp.json();
-      (rwData.data || []).forEach(f => {
-        const d = f.fields || {};
+      const xml    = await rwResp.text();
+      const parsed = parseRssAtom(xml);
+      parsed.slice(0, 50).forEach((item, i) => {
         events.push({
-          id:       'rw-' + f.id,
-          title:    d.name || '',
-          type:     mapReliefWebType(d.type),
-          location: (d.country||[]).map(c=>c.name).join(', '),
-          country:  (d.country||[])[0]?.iso3 || '',
-          lat:      null, lon: null,
-          source:   'ReliefWeb/UNOCHA',
-          url:      'https://reliefweb.int/disaster/' + f.id,
-          timestamp:(d.date && d.date.created) || new Date().toISOString(),
+          id:        'rw-' + i + '-' + Date.now(),
+          title:     item.title || '',
+          type:      'OTHER',
+          location:  '',
+          country:   '',
+          lat:       item.lat || null,
+          lon:       item.lng || null,
+          source:    'ReliefWeb/UNOCHA',
+          url:       item.link || 'https://reliefweb.int',
+          timestamp: new Date().toISOString(),
         });
       });
-    }
-  } catch(e) {}
+    } else { errors.push('ReliefWeb HTTP ' + rwResp.status); }
+  } catch(e) { errors.push('ReliefWeb: ' + String(e.message||e)); }
 
-  /* ACLED API — cookie-based session auth (email + password) */
+  /* ── Source 3: ACLED — cookie-based session auth (email + password) ── */
   if (env.ACLED_EMAIL && env.ACLED_PASSWORD) {
     try {
       const session = await getAcledSession(env);
@@ -7355,12 +7391,7 @@ async function handleApiConflictEvents(env, req, ctx) {
           + '&event_date_where=BETWEEN'
           + '&fields=event_date|event_type|sub_event_type|country|location|latitude|longitude|notes|fatalities';
         const acledResp = await fetch(acledUrl, {
-          headers: {
-            'User-Agent':   'SRO-Intel/1.0',
-            'X-CSRF-Token': session.csrf_token,
-            'Cookie':       session.cookie,
-            'Accept':       'application/json',
-          }
+          headers: { 'User-Agent':'SRO-Intel/1.0', 'X-CSRF-Token':session.csrf_token, 'Cookie':session.cookie, 'Accept':'application/json' }
         });
         if (acledResp.ok) {
           const acledData = await acledResp.json();
@@ -7379,21 +7410,28 @@ async function handleApiConflictEvents(env, req, ctx) {
             });
           });
         } else if (acledResp.status === 403 || acledResp.status === 401) {
-          /* Session expired — clear KV cache so next request re-logs in */
           try { await env.OSINFOHUB_KV.delete('acled:session:v1'); } catch(e2) {}
-        }
+          errors.push('ACLED session expired — will retry next request');
+        } else { errors.push('ACLED HTTP ' + acledResp.status); }
       }
-    } catch(e) {}
+    } catch(e) { errors.push('ACLED: ' + String(e.message||e)); }
   }
 
-  /* Sort by timestamp desc */
+  /* Sort newest first */
   events.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const result = { events: events.slice(0, 200), count: events.length, ts: new Date().toISOString(), sources: ['ReliefWeb/UNOCHA', (env.ACLED_EMAIL && env.ACLED_PASSWORD) ? 'ACLED' : 'ACLED(credentials needed)'] };
 
-  /* Cache in KV */
-  try {
-    await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:3600, metadata:{ ts:Date.now() } });
-  } catch(e) {}
+  const activeSources = ['GDACS', 'ReliefWeb/UNOCHA'];
+  if (env.ACLED_EMAIL && env.ACLED_PASSWORD) activeSources.push('ACLED');
+
+  const result = {
+    events:  events.slice(0, 300),
+    count:   events.length,
+    ts:      new Date().toISOString(),
+    sources: activeSources,
+    errors:  errors.length ? errors : undefined,
+  };
+
+  try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:3600, metadata:{ ts:Date.now() } }); } catch(e) {}
 
   return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
 }
