@@ -1028,14 +1028,49 @@ function initMap() {
   });
 
   incidentClusterGroup.on('clusterclick', (e) => {
-    // Close hover tooltip on click
+    L.DomEvent.stopPropagation(e);
+    window._lastMarkerClickMs = Date.now(); // suppress the map click that Leaflet fires after cluster click
     clearTimeout(_clusterHoverTimeout);
     if (_clusterHoverPopup) { try { _clusterHoverPopup.remove(); } catch(_){} _clusterHoverPopup = null; }
-    // On touch devices zoomToBoundsOnClick is disabled — manually zoom to cluster bounds
-    if (!incidentClusterGroup.options.zoomToBoundsOnClick) {
+
+    const childMarkers = e.layer.getAllChildMarkers();
+    // Large cluster at low zoom → zoom in so user can see individual markers
+    if (childMarkers.length > 8 && map.getZoom() < 7) {
       e.layer.zoomToBounds({ padding: [30, 30] });
+      return;
     }
-    // On desktop: built-in zoomToBoundsOnClick handles it automatically
+
+    // Build a list popup showing every incident in the cluster.
+    // User clicks a row → that incident's full popup opens. No zoom/spiderfy needed.
+    const sevColor = (s) => s >= 5 ? '#d93025' : s >= 4 ? '#e37400' : s === 3 ? '#c89f00' : '#1565c0';
+    const rows = childMarkers.slice(0, 12).map((m, idx) => {
+      const inc = m.options.incidentData;
+      if (!inc) return '';
+      const sLabel = Number(inc.severity) >= 5 ? 'CRITICAL' : Number(inc.severity) >= 4 ? 'HIGH' : Number(inc.severity) === 3 ? 'MED' : 'LOW';
+      const sc = sevColor(Number(inc.severity));
+      return `<div style="padding:6px 4px;${idx < Math.min(childMarkers.length,12)-1 ? 'border-bottom:1px solid #eee' : ''};cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''" onclick="window.__clusterOpen(${idx})">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+          <span style="background:${sc};color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0">${sLabel}</span>
+          <span style="font-size:10px;color:#888;flex-shrink:0">${escapeHtml(String(inc.category||'').replace(/_/g,' '))}</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#222;line-height:1.3">${escapeHtml((inc.title||'').slice(0,80))}${(inc.title||'').length>80?'…':''}</div>
+      </div>`;
+    }).join('');
+    const moreNote = childMarkers.length > 12 ? `<div style="text-align:center;padding:4px;color:#999;font-size:10px">+${childMarkers.length-12} more — zoom in to see all</div>` : '';
+
+    window.__clusterMarkers = childMarkers;
+    window.__clusterOpen = (idx) => {
+      // Close list popup and open the individual incident popup
+      if (_activeMapPopup) { try { _activeMapPopup.remove(); } catch(_){} _activeMapPopup = null; }
+      const m = window.__clusterMarkers[idx];
+      if (m) { window._lastMarkerClickMs = Date.now(); m.fire('click'); }
+    };
+
+    if (_activeMapPopup) { try { _activeMapPopup.remove(); } catch(_){} _activeMapPopup = null; }
+    _activeMapPopup = L.popup({ closeButton: true, autoClose: false, closeOnClick: false, keepInView: true, maxWidth: 350 })
+      .setLatLng(e.layer.getLatLng())
+      .setContent(`<div style="font-family:'Inter',sans-serif;"><div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#222">📍 ${childMarkers.length} Incidents — click to open</div>${rows}${moreNote}</div>`)
+      .openOn(map);
   });
 
   // Red circle removed on map click only (not on popupclose — that fires during programmatic pan)
@@ -1138,10 +1173,11 @@ function renderIncidentsOnMap(region, list) {
 
       const marker = L.marker([lat, lng], {
         severity: sev,
+        incidentData: i,  // stored so cluster popup can list contents on click
         icon: L.divIcon({
           html: `<div class="incident-dot" style="background:${color}; box-shadow: 0 0 5px ${color};"></div>`,
           className: '',
-          iconSize: [14, 14], 
+          iconSize: [14, 14],
           iconAnchor: [7, 7]
         })
       });
