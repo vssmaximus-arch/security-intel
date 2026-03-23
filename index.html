@@ -3554,7 +3554,8 @@
       /* Reset layout button ------------------------------------------ */
       var resetBtn = document.getElementById('btn-reset-layout');
       if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
+        resetBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
           /* ── Vessel Watch tab: reset VW grid layout ── */
           var activeTab = document.querySelector('.view-tab.active');
           if (activeTab && activeTab.dataset.view === 'vessel-watch') {
