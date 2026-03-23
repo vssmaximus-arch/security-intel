@@ -5355,6 +5355,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       const action = String(t.dataset.action || '').trim();
       if (!action) return;
 
+      if (action === 'go-home') {
+        // Reset to Global view — activate Global tab, reset map
+        document.querySelectorAll('[data-action="filter-region"]').forEach(el => {
+          el.classList.toggle('active', el.dataset.region === 'Global');
+        });
+        _setApjcSubNav(false);
+        filterNews('Global');
+        _zoomMapToRegion('Global');
+        // Scroll the main content back to top
+        try { document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) {}
+        return;
+      }
+
       if (action === 'filter-region') {
         document.querySelectorAll('[data-action="filter-region"]').forEach(el => el.classList.remove('active'));
         t.classList.add('active');

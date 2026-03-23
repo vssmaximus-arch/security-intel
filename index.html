@@ -196,6 +196,10 @@
     .logo-icon { font-size: 1.6rem; color: #1a73e8; display: flex; align-items: center; }
     .logo-text { font-size: 1.2rem; font-weight: 800; color: #202124; letter-spacing: -0.5px; margin-left: 12px; line-height: 1; padding-top: 2px; }
     .logo-text span { color: var(--dell-blue); }
+    .logo-home-btn { display: flex; align-items: center; background: none; border: none; padding: 4px 8px; border-radius: 8px; cursor: pointer; transition: background 0.15s; text-decoration: none; }
+    .logo-home-btn:hover { background: rgba(26,115,232,0.08); }
+    .logo-home-btn:active { background: rgba(26,115,232,0.16); }
+    body.dark-mode .logo-home-btn:hover { background: rgba(138,180,248,0.12); }
 
     .multi-clock-container { display: flex; gap: 12px; margin: 0 20px; padding-right: 20px; border-right: 1px solid #e0e0e0; height: 100%; align-items: center; }
     .clock-box { text-align: center; min-width: 85px; background: #2b2b2b; border: 3px solid #b0b0b0; border-radius: 10px; padding: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.3); }
@@ -1922,8 +1926,10 @@
   <div class="app-container" id="main-content">
     <div class="header-container">
       <div class="header-left">
-        <div class="logo-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
-        <div class="logo-text">OS <span>INFOHUB</span></div>
+        <button class="logo-home-btn" id="logo-home-btn" title="Back to Global View" aria-label="OS INFOHUB — click to return to Global view" data-action="go-home">
+          <div class="logo-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
+          <div class="logo-text">OS <span>INFOHUB</span></div>
+        </button>
       </div>
 
       <div class="header-right d-flex align-items-center">
