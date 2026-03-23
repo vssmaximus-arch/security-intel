@@ -2725,7 +2725,7 @@
       <i class="fas fa-lock" style="margin-right:6px;"></i>
       Public intelligence only — no internal Dell cargo, customer, shipment, supplier, SKU, or financial data.
       &nbsp;·&nbsp; Vessel positions via AIS feed or illustrative placeholders.
-      &nbsp;·&nbsp; <span style="color:#3c4043;cursor:pointer;" onclick="window.resetVwLayout ? resetVwLayout() : (localStorage.removeItem('vw_grid_layout_v3'),location.reload(true))" title="Reset widget positions to default">Reset layout</span>
+      &nbsp;·&nbsp; <span style="color:#1a73e8;cursor:pointer;font-weight:700;" onclick="(function(){var D=[{id:'vw-posture-widget',x:0,y:0,w:12,h:1},{id:'vw-map-widget',x:0,y:1,w:8,h:7},{id:'vw-monitored-widget',x:8,y:1,w:4,h:7},{id:'vw-disruptions-widget',x:0,y:8,w:6,h:9},{id:'vw-track-widget',x:6,y:8,w:2,h:9},{id:'vw-chokepoint-widget',x:8,y:8,w:4,h:9}];Object.keys(localStorage).filter(function(k){return k.indexOf('vw_grid')===0;}).forEach(function(k){localStorage.removeItem(k);});var el=document.querySelector('#vw-grid'),gs=el&&el.gridstack;if(gs){gs.load(D);localStorage.setItem('vw_grid_layout_v3',JSON.stringify(D));setTimeout(function(){if(window.vwMap)window.vwMap.invalidateSize();},150);}else{location.reload(true);}})()" title="Reset widget positions to default">↺ Reset layout</span>
     </div>
   </div><!-- /view-vessel-watch -->
 
