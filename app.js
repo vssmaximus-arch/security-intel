@@ -7223,7 +7223,7 @@ function _vwRenderMonitoredTable(vessels) {
       /* Vessel name — bright white, clearly readable */
       '<td>' +
         '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-          '<strong style="color:#ffffff;font-size:.82rem;">' + escapeHtml(v.vesselName) + '</strong>' +
+          '<strong class="vw-vessel-row-name">' + escapeHtml(v.vesselName) + '</strong>' +
           '<button class="vw-remove-btn" data-action="vw-remove-vessel" data-vkey="' + escapeHtml(key) + '" ' +
             'title="Remove from fleet" style="background:none;border:none;color:#5f6368;font-size:.75rem;cursor:pointer;padding:0 2px;line-height:1;margin-left:4px;">' +
             '\u2715</button>' +
