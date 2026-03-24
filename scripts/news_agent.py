@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """
-SRO Intelligence Brain v2.0 — Gemini-powered multi-source pipeline
+SRO Intelligence Brain v2.0 — Multi-source AI intelligence pipeline
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Scout   → Curated RSS feeds + GDELT real-time global news
-  Analyst → Gemini 2.0 Flash with full Dell operational context
-             No keyword gating — AI reasons about relevance directly
-             Second-order effects: teacher strike → childcare gap → workforce impact
+  Analyst → Groq batch (primary) or Gemini 2.0 Flash (if quota available)
+             Full Dell operational context — second-order reasoning
+             No keyword gating — AI reasons about intent and impact
   Output  → news.json scored, filtered, Dell-context-aware
 
+AI priority order:
+  1. Groq llama-3.3-70b  — primary (14,400 req/day free, 30 RPM, batch mode)
+  2. Gemini 2.0 Flash    — upgrade path (1500 req/day, requires valid quota)
+  3. Keyword fallback    — last resort
+
 Environment variables:
-  GEMINI_API_KEY   — from aistudio.google.com (free: 1500 req/day)
-  GROQ_API_KEY     — fallback classifier if Gemini unavailable
+  GROQ_API_KEY     — primary AI (already configured)
+  GEMINI_API_KEY   — optional upgrade (get new key from aistudio.google.com)
 """
 
 import json
@@ -36,23 +41,26 @@ NEWS_PATH      = os.path.join(DATA_DIR, "news.json")
 FEEDBACK_PATH  = os.path.join(DATA_DIR, "feedback.jsonl")
 LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 
-# ── Gemini config ──────────────────────────────────────────────────────────────
-GEMINI_MODEL       = "gemini-2.0-flash"
-GEMINI_API_BASE    = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_BATCH_SIZE  = 8    # articles per API call
-GEMINI_MAX_CALLS   = 30   # per run: 48 runs/day × 30 = 1440 (free tier: 1500/day)
-GEMINI_DELAY_S     = 0.5  # seconds between calls to respect rate limits
+# ── Groq config (PRIMARY AI) ───────────────────────────────────────────────────
+GROQ_API_URL       = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL         = "llama-3.3-70b-versatile"  # best free Groq model for reasoning
+GROQ_BATCH_SIZE    = 8    # articles per call
+GROQ_MAX_CALLS     = 100  # 48 runs/day × 100 = 4800 (well within 14,400/day free)
+GROQ_DELAY_S       = 2.5  # 30 RPM limit → 1 call per 2s minimum; 2.5s is safe
 MIN_RELEVANCE_SCORE = 4   # 1-10 scale — below this is discarded
 
-# ── Groq fallback config ───────────────────────────────────────────────────────
-GROQ_API_URL   = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL     = "llama-3.1-8b-instant"
-GROQ_MAX_CALLS = 90
+# ── Gemini config (OPTIONAL UPGRADE) ──────────────────────────────────────────
+GEMINI_MODEL       = "gemini-2.0-flash"
+GEMINI_API_BASE    = "https://generativelanguage.googleapis.com/v1beta/models"
+GEMINI_BATCH_SIZE  = 8
+GEMINI_MAX_CALLS   = 10   # conservative — free tier quota issues; use Groq instead
+GEMINI_DELAY_S     = 5.0  # 15 RPM free tier → 4s minimum; 5s is safe
 
 # ── GDELT config ───────────────────────────────────────────────────────────────
 GDELT_API_URL   = "https://api.gdeltproject.org/api/v2/doc/doc"
-GDELT_TIMESPAN  = "45min"   # look back 45 min (GDELT has ~10-15 min lag)
-GDELT_MAX_ARTS  = 25        # per query
+GDELT_TIMESPAN  = "60min"   # look back 60 min (GDELT has ~10-15 min lag)
+GDELT_MAX_ARTS  = 20        # per query — reduced to avoid hammering their servers
+GDELT_DELAY_S   = 4.0       # seconds between GDELT queries — they rate-limit fast requests
 
 # ── Dell site data ─────────────────────────────────────────────────────────────
 def _load_sites():
@@ -191,20 +199,17 @@ FEEDS = [
 # ── GDELT real-time queries ────────────────────────────────────────────────────
 # GDELT monitors every global news source in near real-time, translated from 65 langs.
 # Catches events that never make it to Western RSS feeds (local strikes, regional unrest).
-# No API key needed.
+# No API key needed. Rate limit: use GDELT_DELAY_S between each query.
+# Kept to 8 queries (down from 12) to stay within rate limits.
 GDELT_QUERIES = [
     "civil unrest protest riot curfew state of emergency",
-    "workers strike industrial action stoppage walkout picket",
-    "school closure teachers strike childcare disruption",
-    "transport bus train metro strike commute disruption",
-    "port closure shipping disruption cargo container",
-    "factory closure manufacturing shutdown production halt",
-    "power outage blackout electricity grid failure infrastructure",
-    "disease outbreak epidemic quarantine health emergency workforce",
-    "flood earthquake typhoon hurricane wildfire evacuation",
-    "travel ban border closure airport shutdown disruption",
-    "protest demonstration crackdown government opposition",
-    "supply chain disruption logistics semiconductor shortage",
+    "workers strike industrial action stoppage school closure",
+    "port closure shipping disruption cargo container factory",
+    "power outage blackout grid failure infrastructure disruption",
+    "disease outbreak epidemic quarantine health emergency",
+    "flood earthquake typhoon hurricane wildfire evacuation disaster",
+    "travel ban border closure airport shutdown advisory",
+    "supply chain logistics disruption manufacturing shutdown",
 ]
 
 # ── Hard blocklist — never relevant ───────────────────────────────────────────
@@ -388,23 +393,56 @@ Return a JSON array, one object per article:
         return []
 
 
-# ── Groq fallback classifier (single article, used when Gemini unavailable) ───
-def groq_classify(api_key, title, body, source, feedback_text=""):
-    """Groq single-article classification — fallback when Gemini not configured."""
-    user_msg = f"""Classify for Dell SRO physical security / supply chain / crisis relevance.
-CATEGORIES: PHYSICAL_SECURITY, CIVIL_UNREST, NATURAL_DISASTER, SUPPLY_CHAIN, LABOR_ACTION, INFRASTRUCTURE, HEALTH_WORKFORCE, TRAVEL_SECURITY, BRAND_MONITORING, CYBER_DIRECT, NOT_RELEVANT
-CYBER NOTE: Only CYBER_DIRECT if confirmed direct operational impact on Dell. Exclude ransomware reports, CVEs, patches.
-LABOR NOTE: Include teacher/transport strikes — they cause workforce absence via childcare/commute impact.
-{feedback_text}
-Title: {title}
-Body: {body[:600]}
-Source: {source}
-Return JSON: {{"category":"...","score":1-10,"severity":"LOW|MEDIUM|HIGH|CRITICAL","operational_impact":"one sentence","locations":[],"dell_region":"AMER|EMEA|APJC|LATAM|Global"}}"""
+# ── Groq batch classifier (PRIMARY AI) ────────────────────────────────────────
+_GROQ_SYSTEM = f"""You are the AI Security Intelligence Analyst for Dell Technologies' Global Security & Resiliency Operations (SRO).
+Users: Regional Security Managers, Regional Security Directors, Security VP, Crisis Leads.
+
+{DELL_SITES_COMPACT}
+
+DOMAIN: Physical security, workforce safety, supply chain, crisis management. NOT cyber/IT.
+
+PRIORITY CATEGORIES (highest first):
+1 PHYSICAL_SECURITY  — Protests, unrest, riots, terrorism, armed conflict, crime near Dell offices
+2 CIVIL_UNREST       — Coups, mass demos, curfews, states of emergency, political instability
+3 NATURAL_DISASTER   — Earthquakes M5+, floods, typhoons, hurricanes, wildfires
+4 SUPPLY_CHAIN       — Port/airport closures, shipping disruption, cargo issues, manufacturing shutdowns
+5 LABOR_ACTION       — ANY strike/stoppage including SECONDARY EFFECTS: teacher strike=school closure=employee childcare crisis; transport strike=employee commute failure
+6 INFRASTRUCTURE     — Power outages, internet failures, road/rail closures affecting Dell site access
+7 HEALTH_WORKFORCE   — Disease outbreaks, health advisories reducing workforce availability
+8 TRAVEL_SECURITY    — Travel advisories, airport/border closures, executive travel risk
+9 BRAND_MONITORING   — Dell layoffs, executive changes, breaches, insider incidents
+10 CYBER_DIRECT      — ONLY if cyber causes confirmed physical/operational impact (OT/ICS attack, grid failure). NOT: ransomware news, CVEs, patches, security research.
+NOT_RELEVANT         — Pure cyber/IT news, sports, entertainment, opinion, general markets
+
+SECOND-ORDER REASONING: Always ask how an event cascades to Dell.
+Teacher strike → schools close → employees with children absent → workforce drop at nearby Dell sites.
+Transit strike → employees can't commute → office attendance falls."""
+
+
+def groq_classify_batch(api_key, articles):
+    """
+    Send batch of articles to Groq llama-3.3-70b for Dell-context-aware classification.
+    Primary AI path. Returns list of assessment dicts, or [] on failure.
+    """
+    articles_payload = json.dumps([
+        {"idx": i, "title": a["title"], "body": a["body"][:250], "source": a.get("source", "")}
+        for i, a in enumerate(articles)
+    ], ensure_ascii=False)
+
+    user_msg = f"""Analyze these {len(articles)} articles for Dell SRO operational relevance.
+
+ARTICLES:
+{articles_payload}
+
+Return a JSON array with one object per article:
+[{{"idx":0,"relevant":true,"score":1-10,"category":"PHYSICAL_SECURITY|CIVIL_UNREST|NATURAL_DISASTER|SUPPLY_CHAIN|LABOR_ACTION|INFRASTRUCTURE|HEALTH_WORKFORCE|TRAVEL_SECURITY|BRAND_MONITORING|CYBER_DIRECT|NOT_RELEVANT","severity":"LOW|MEDIUM|HIGH|CRITICAL","locations":["city, country"],"dell_region":"AMER|EMEA|APJC|LATAM|Global","operational_impact":"one sentence on Dell ops impact","second_order":"cascading effect on Dell workforce/supply chain, or empty string"}}]"""
 
     payload = json.dumps({
-        "model": GROQ_MODEL, "temperature": 0, "max_tokens": 300,
+        "model":       GROQ_MODEL,
+        "temperature": 0,
+        "max_tokens":  2048,
         "messages": [
-            {"role": "system", "content": "Dell SRO intelligence analyst. Return only valid JSON."},
+            {"role": "system", "content": _GROQ_SYSTEM},
             {"role": "user",   "content": user_msg},
         ],
         "response_format": {"type": "json_object"},
@@ -414,17 +452,31 @@ Return JSON: {{"category":"...","score":1-10,"severity":"LOW|MEDIUM|HIGH|CRITICA
         headers={"Authorization": f"Bearer {api_key}",
                  "Content-Type": "application/json"}, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode("utf-8"))
         content = result["choices"][0]["message"]["content"].strip()
         content = re.sub(r"```json\s*|\s*```", "", content).strip()
-        return json.loads(content)
+        parsed = json.loads(content)
+        # Groq JSON mode returns object, not array — unwrap if needed
+        if isinstance(parsed, dict):
+            # Try common wrapper keys
+            for key in ("articles", "results", "assessments", "items"):
+                if key in parsed and isinstance(parsed[key], list):
+                    return parsed[key]
+            # Single result wrapped as object — return as list
+            if "idx" in parsed:
+                return [parsed]
+            return []
+        return parsed  # already a list
     except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")[:300]
+        print(f"    Groq HTTP {e.code}: {body}")
         if e.code == 429:
-            time.sleep(5)
-        return None
-    except Exception:
-        return None
+            time.sleep(10)
+        return []
+    except Exception as ex:
+        print(f"    Groq batch error: {ex}")
+        return []
 
 
 # ── Keyword fallback (last resort — no AI available) ──────────────────────────
@@ -533,15 +585,17 @@ _SEV_NUM = {"LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
 
 # ── Main pipeline ──────────────────────────────────────────────────────────────
 def main():
-    gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
     groq_key   = os.getenv("GROQ_API_KEY", "").strip()
+    gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
-    if gemini_key:
-        print("SRO Brain v2.0 — Gemini 2.0 Flash active")
-        ai_mode = "gemini"
-    elif groq_key:
-        print("SRO Brain v2.0 — Groq fallback active (add GEMINI_API_KEY for full intelligence)")
+    # Groq is primary — 14,400 req/day free, reliable, batch-capable
+    # Gemini is optional upgrade — only use if Groq unavailable AND Gemini quota exists
+    if groq_key:
+        print(f"SRO Brain v2.0 — Groq {GROQ_MODEL} (PRIMARY, batch mode)")
         ai_mode = "groq"
+    elif gemini_key:
+        print("SRO Brain v2.0 — Gemini 2.0 Flash (fallback — check quota at aistudio.google.com)")
+        ai_mode = "gemini"
     else:
         print("SRO Brain v2.0 — Keyword-only mode (no AI keys set)")
         ai_mode = "keyword"
@@ -615,7 +669,9 @@ def main():
     # ── Phase 1b: GDELT Scout ─────────────────────────────────────────────────
     print(f"\n[SCOUT] Querying GDELT ({len(GDELT_QUERIES)} queries, last {GDELT_TIMESPAN})...")
     gdelt_total = 0
-    for query in GDELT_QUERIES:
+    for qi, query in enumerate(GDELT_QUERIES):
+        if qi > 0:
+            time.sleep(GDELT_DELAY_S)  # respect GDELT rate limits
         articles = fetch_gdelt(query)
         for a in articles:
             title = a["title"]
@@ -718,46 +774,74 @@ def main():
         print(f"  Gemini calls used: {gemini_calls}")
 
     elif ai_mode == "groq":
+        # Batch mode — same quality prompt as Gemini, 8 articles per call
         groq_calls = 0
-        for article in raw_articles:
+        for batch_start in range(0, len(raw_articles), GROQ_BATCH_SIZE):
             if groq_calls >= GROQ_MAX_CALLS:
-                print(f"  Groq cap reached ({GROQ_MAX_CALLS})")
+                print(f"  Groq call cap reached ({GROQ_MAX_CALLS})")
                 break
-            analysis = groq_classify(groq_key, article["title"], article["body"],
-                                     article["source"])
+
+            batch = raw_articles[batch_start: batch_start + GROQ_BATCH_SIZE]
+            print(f"  Groq batch {groq_calls + 1}: articles {batch_start}–{batch_start + len(batch) - 1}")
+            assessments = groq_classify_batch(groq_key, batch)
             groq_calls += 1
-            if not analysis:
-                continue
-            cat   = analysis.get("category", "NOT_RELEVANT")
-            score = int(analysis.get("score", 0) or 0)
-            if cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
-                continue
 
-            sev_str = (analysis.get("severity") or "LOW").upper()
-            sev_num = _SEV_NUM.get(sev_str, 1)
-            if article.get("boost") and sev_num < 3:
-                sev_num = 3
+            if assessments:
+                for assessment in assessments:
+                    idx = assessment.get("idx", 0)
+                    if idx >= len(batch):
+                        continue
+                    article = batch[idx]
 
-            locations   = analysis.get("locations") or []
-            dell_region = analysis.get("dell_region") or map_region(article["title"])
-            op_impact   = analysis.get("operational_impact", "")
+                    relevant = assessment.get("relevant", False)
+                    score    = int(assessment.get("score", 0) or 0)
+                    cat      = assessment.get("category", "NOT_RELEVANT")
 
-            results.append({
-                "title":              article["title"],
-                "url":                article["url"],
-                "snippet":            op_impact or article["body"][:160],
-                "body":               article["body"][:600],
-                "source":             article["source"],
-                "time":               article["time"],
-                "region":             dell_region,
-                "severity":           sev_num,
-                "type":               _TYPE_MAP.get(cat, "GENERAL"),
-                "locations":          locations,
-                "operational_impact": op_impact,
-                "second_order":       "",
-                "ai_score":           score,
-            })
-            print(f"  [KEEP] {cat:20s} sev={sev_num} | {article['title'][:70]}")
+                    if not relevant or cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
+                        continue
+
+                    if article.get("boost") and score < 7:
+                        score = 7
+
+                    sev_str = (assessment.get("severity") or "LOW").upper()
+                    sev_num = _SEV_NUM.get(sev_str, 1)
+                    if article.get("boost") and sev_num < 3:
+                        sev_num = 3
+
+                    op_impact   = assessment.get("operational_impact", "")
+                    second_ord  = assessment.get("second_order", "")
+                    locations   = assessment.get("locations") or []
+                    dell_region = assessment.get("dell_region") or map_region(
+                        article["title"] + " " + " ".join(locations)
+                    )
+
+                    snippet = op_impact
+                    if second_ord:
+                        snippet = f"{op_impact} | {second_ord}"
+                    if not snippet:
+                        snippet = article["body"][:160]
+
+                    results.append({
+                        "title":              article["title"],
+                        "url":                article["url"],
+                        "snippet":            snippet,
+                        "body":               article["body"][:600],
+                        "source":             article["source"],
+                        "time":               article["time"],
+                        "region":             dell_region,
+                        "severity":           sev_num,
+                        "type":               _TYPE_MAP.get(cat, "GENERAL"),
+                        "locations":          locations,
+                        "operational_impact": op_impact,
+                        "second_order":       second_ord,
+                        "ai_score":           score,
+                        "gdelt":              article.get("gdelt", False),
+                    })
+                    print(f"  [KEEP] {cat:20s} sev={sev_num} score={score:2d} | {article['title'][:70]}")
+
+            time.sleep(GROQ_DELAY_S)
+
+        print(f"  Groq calls used: {groq_calls}")
 
     else:
         # Keyword-only mode
