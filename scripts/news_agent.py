@@ -57,9 +57,10 @@ MIN_RELEVANCE_SCORE = 4   # 1-10 scale — below this is discarded
 # ── Gemini config (OPTIONAL UPGRADE) ──────────────────────────────────────────
 GEMINI_MODEL       = "gemini-2.0-flash"
 GEMINI_API_BASE    = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_BATCH_SIZE  = 10   # articles per Gemini call
-GEMINI_MAX_CALLS   = 28   # 28 × 48 runs/day = 1344 calls/day (under 1500 free limit)
+GEMINI_BATCH_SIZE  = 6    # articles per call — keep prompt compact
+GEMINI_MAX_CALLS   = 12   # 12 × 48 runs/day = 576 calls/day (well under 1500 RPD limit)
 GEMINI_DELAY_S     = 5.0  # 15 RPM free tier → 4s minimum; 5s is safe
+# Token budget: 12 calls × ~700 tokens × 48 runs = ~403k tokens/day (under 1M daily limit)
 
 # ── GDELT config ───────────────────────────────────────────────────────────────
 GDELT_API_URL   = "https://api.gdeltproject.org/api/v2/doc/doc"
@@ -328,10 +329,8 @@ def fetch_gdelt(query):
 
 
 # ── Gemini Analyst ────────────────────────────────────────────────────────────
-_GEMINI_SYSTEM = f"""You are the AI Security Intelligence Analyst for Dell Technologies' Global Security & Resiliency Operations (SRO) team.
+_GEMINI_SYSTEM = """You are the AI Security Intelligence Analyst for Dell Technologies' Global Security & Resiliency Operations (SRO) team.
 Your users are Regional Security Managers, Regional Security Directors, the Security VP, and Crisis Leads.
-
-{DELL_SITES_COMPACT}
 
 DOMAIN: Physical security, workforce safety, supply chain, crisis management.
 CYBER: Lowest priority — only surface if there is a confirmed DIRECT physical or operational impact on Dell (e.g., cyberattack causing power failure at a Dell facility, OT/ICS attack affecting Dell manufacturing). Exclude all other cyber news: ransomware reports, CVEs, patches, advisories, vendor security updates, threat research.
@@ -419,10 +418,8 @@ Return a JSON array, one object per article:
 
 
 # ── Groq batch classifier (PRIMARY AI) ────────────────────────────────────────
-_GROQ_SYSTEM = f"""You are the AI Security Intelligence Analyst for Dell Technologies' Global Security & Resiliency Operations (SRO).
+_GROQ_SYSTEM = """You are the AI Security Intelligence Analyst for Dell Technologies' Global Security & Resiliency Operations (SRO).
 Users: Regional Security Managers, Regional Security Directors, Security VP, Crisis Leads.
-
-{DELL_SITES_COMPACT}
 
 DOMAIN: Physical security, workforce safety, supply chain, crisis management. NOT cyber/IT.
 
