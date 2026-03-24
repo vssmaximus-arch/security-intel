@@ -129,8 +129,40 @@ PUBLIC_LOCATIONS_PATH = os.path.join(DATA_DIR, "locations.json")
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(REPORT_DIR, exist_ok=True)
 
-# Distance threshold for proximity alerts (km)
-RADIUS_KM = 50
+# ── Proximity radius rules ────────────────────────────────────────────────────
+# Default tight radius for physical incidents (crime, unrest, strikes etc.)
+RADIUS_DEFAULT_KM  = 50
+
+# Natural disasters spread across wide areas — storm systems, earthquake shaking,
+# floods, wildfires can threaten sites hundreds of km from the epicentre
+RADIUS_NATURAL_KM  = 300
+
+# Ballistic/military threats: missiles, airstrikes, rocket attacks have wide
+# threat envelopes. Iran attacking Doha → Dell Dubai 400km away is at risk.
+# North Korea firing over Japan → all Japan/Korea sites are threatened.
+RADIUS_BALLISTIC_KM = 500
+
+# Keywords that trigger the ballistic radius regardless of category
+_BALLISTIC = re.compile(
+    r"\b(missile|rocket.attack|airstrike|air.strike|ballistic|bombing|"
+    r"military.strike|shelling|mortar.fire|fired.rockets?|launched.missiles?|"
+    r"nuclear.threat|hypersonic|drone.strike|artillery.fire|warhead)\b",
+    re.IGNORECASE,
+)
+
+# Categories that use the natural-disaster radius
+_NATURAL_CATS = {"NATURAL_DISASTER"}
+
+def _event_radius(article: Dict[str, Any]) -> int:
+    """Return the correct proximity radius for this article's threat type."""
+    category   = article.get("category", "")
+    title_body = (article.get("title", "") + " " +
+                  (article.get("body") or article.get("snippet") or ""))
+    if _BALLISTIC.search(title_body):
+        return RADIUS_BALLISTIC_KM
+    if category in _NATURAL_CATS:
+        return RADIUS_NATURAL_KM
+    return RADIUS_DEFAULT_KM
 
 # Report audiences
 REPORT_PROFILES = {
@@ -354,15 +386,19 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
     Phase 1: Geographic matching — find (article, site, distance) pairs.
 
     Three tiers, strictest first:
-      A) Exact coordinates → haversine, must be within RADIUS_KM
+      A) Exact coordinates → haversine, must be within _event_radius()
       B) AI-extracted city names (article.locations) → city text match,
-         use country centroid for distance estimate, cap at TEXT_CITY_RADIUS_KM
+         use country centroid for distance estimate, capped at _event_radius()
       C) Title/body city text match → same cap as B
+
+    Radius rules (per _event_radius):
+      - Ballistic/military (missile, airstrike, rocket): 500km
+      - Natural disaster (storm, earthquake, flood, cyclone): 300km
+      - Everything else (unrest, crime, strike, supply chain): 50km
 
     Per article: maximum MAX_SITES_PER_ARTICLE nearest sites shown.
     Country-level and region-level matching REMOVED — too broad, wrong sites.
     """
-    TEXT_CITY_RADIUS_KM    = 300   # generous: covers metro areas & nearby sites
     MAX_SITES_PER_ARTICLE  = 2     # never flood with every site in a country
 
     matches = []
@@ -381,13 +417,15 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
 
         article_hits: List[Dict] = []   # candidates for this article only
 
+        radius = _event_radius(article)   # 50 / 300 / 500 depending on threat type
+
         # ── Tier A: Exact coordinates ─────────────────────────────────────────
         if alat is not None and alon is not None:
             try:
                 alat_f, alon_f = float(alat), float(alon)
                 for loc in locations:
                     dist = haversine_km(alat_f, alon_f, loc.lat, loc.lon)
-                    if dist <= RADIUS_KM:
+                    if dist <= radius:
                         article_hits.append({"loc": loc, "distance_km": round(dist, 1),
                                              "match_tier": "coordinate"})
             except ValueError:
@@ -402,7 +440,7 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
                        if isinstance(geo_list, list) else set()
 
             for loc in locations:
-                city_terms = _city_terms(loc)           # city only, NOT country
+                city_terms   = _city_terms(loc)     # city only, NOT country
                 country_code = _country_code_for_loc(loc)
 
                 # City term found in article body OR AI-extracted locations
@@ -415,14 +453,14 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
                 if not city_matched:
                     continue
 
-                # Estimate distance via country centroid
+                # Estimate distance via country centroid — use same event radius
                 centroid = COUNTRY_CENTROIDS.get(country_code)
                 if centroid:
                     est_dist = haversine_km(centroid[0], centroid[1], loc.lat, loc.lon)
                 else:
                     est_dist = 0.0   # unknown → allow through
 
-                if est_dist <= TEXT_CITY_RADIUS_KM:
+                if est_dist <= radius:
                     article_hits.append({"loc": loc,
                                          "distance_km": round(est_dist, 1),
                                          "match_tier": "city_text"})
