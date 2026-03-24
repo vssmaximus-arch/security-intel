@@ -1813,9 +1813,12 @@ async function sendAlertEmail(env, incident, opts = {}) {
   const id = String(incident.id || stableId((incident.title || "") + (incident.time || "")));
   const sentKey = `sent_email_${id}`;
   try {
+    // In-memory cache — avoids KV read for items already confirmed sent this Worker lifetime
+    if (!globalThis.__emailSentCache) globalThis.__emailSentCache = new Set();
+    if (globalThis.__emailSentCache.has(id)) { debug("sendAlertEmail: in-memory cache hit", id); return false; }
     // Quick dedupe check in KV
     const prev = await env.INTEL_KV.get(sentKey);
-    if (prev) { debug("sendAlertEmail: already.sent", id); return false; }
+    if (prev) { globalThis.__emailSentCache.add(id); debug("sendAlertEmail: already.sent", id); return false; }
 
     // Use environment variable if available, fallback to hardcoded only as last resort
     const rawTo = (env.ALERT_EMAIL_TO || "vssmaximus@gmail.com").trim();
@@ -1858,6 +1861,9 @@ async function sendAlertEmail(env, incident, opts = {}) {
     // Mark as sent in KV with TTL to avoid duplicate sends.
     const ttl = Number(opts.dedupeTtlSec || (24 * 3600)); // default 24h
     await kvPut(env, sentKey, { ts: new Date().toISOString(), subject: pack.subject }, { expirationTtl: ttl });
+    // Populate in-memory cache so subsequent calls in same Worker lifetime skip KV read
+    if (!globalThis.__emailSentCache) globalThis.__emailSentCache = new Set();
+    globalThis.__emailSentCache.add(id);
 
     debug("sendAlertEmail: sent", id, "to", toList.length, "recipients");
     return true;
@@ -3287,6 +3293,8 @@ async function runIngestion(env, options = {}, ctx = null) {
     THUMBS_PREF_CACHE_TS = Date.now();
     const incidentsExistingRaw = await kvGetJson(env, INCIDENTS_KV_KEY, []);
     let existing = Array.isArray(incidentsExistingRaw) ? incidentsExistingRaw : [];
+    // Track existing IDs to detect truly new items — used to skip redundant KV writes and email re-sends
+    const existingIds = new Set(existing.map(e => String(e && e.id || '')).filter(Boolean));
     let fresh = [];
     const proximityList = [];
     const toFetch = [...DETERMINISTIC_SOURCES, ...ROTATING_SOURCES];
@@ -3431,12 +3439,12 @@ async function runIngestion(env, options = {}, ctx = null) {
           fresh.push(incBase);
           if ((incBase.distance_km === 0 || incBase.distance_km) && incBase.nearest_site_name) proximityList.push(incBase);
           
-          // === NEW EMAIL LOGIC (RESTORED) ===
-          if (incBase.severity >= 4 || (incBase.distance_km !== null && incBase.distance_km <= 100)) {
-            // We await here safely as runIngestion runs inside waitUntil context
+          // === EMAIL ALERTS — only for genuinely NEW items to avoid KV read storm ===
+          if (!existingIds.has(String(incBase.id)) &&
+              (incBase.severity >= 4 || (incBase.distance_km !== null && incBase.distance_km <= 100))) {
             await sendAlertEmail(env, incBase);
           }
-          // ==================================
+          // =========================================================================
         }
       } catch (e) { debug("fetch src err", src, e?.message || e); }
     }
@@ -3512,11 +3520,12 @@ async function runIngestion(env, options = {}, ctx = null) {
             fresh.push(inc);
             if ((inc.distance_km === 0 || inc.distance_km) && inc.nearest_site_name) proximityList.push(inc);
 
-            // === NEW EMAIL LOGIC (RESTORED) ===
-            if (inc.severity >= 4 || (inc.distance_km !== null && inc.distance_km <= 100)) {
-               await sendAlertEmail(env, inc);
+            // === EMAIL ALERTS — only for genuinely NEW items ===
+            if (!existingIds.has(String(inc.id)) &&
+                (inc.severity >= 4 || (inc.distance_km !== null && inc.distance_km <= 100))) {
+              await sendAlertEmail(env, inc);
             }
-            // ==================================
+            // ====================================================
           }
         } catch (e) { debug("AI enrichment error", e?.message || e); }
       }
@@ -3646,6 +3655,9 @@ async function runIngestion(env, options = {}, ctx = null) {
         }
       }
       const deduped = Array.from(freshMap.values());
+      // Count genuinely new items — items not already in KV
+      const newItemCount = deduped.filter(d => !existingIds.has(String(d.id))).length;
+      debug('runIngestion: fresh=' + fresh.length + ' deduped=' + deduped.length + ' new=' + newItemCount);
 
       // Merge with existing incidents (preserve highest severity/most recent)
       const existingMap = new Map();
@@ -4010,15 +4022,20 @@ Return ONLY valid JSON — no commentary outside the JSON object:
         return (po[a.priority] ?? 4) - (po[b.priority] ?? 4);
       });
 
-      // persist incidents and proximity — throttled to avoid redundant KV writes
-      await kvPutWithThrottle(env, INCIDENTS_KV_KEY, merged);
-      await kvPutWithThrottle(env, PROXIMITY_KV_KEY, { incidents: proxOut, updated_at: new Date().toISOString() });
-      // Bust CF edge cache so fresh incidents are served immediately after ingest
-      try {
-        const cache = caches.default;
-        await cache.delete(new Request('https://osinfohub-cache.internal/incidents-v1', { method: 'GET' }));
-        await cache.delete(new Request('https://osinfohub-cache.internal/proximity-v1', { method: 'GET' }));
-      } catch (_ce) { /* cache API not available in this context */ }
+      // persist incidents and proximity — ONLY when new items found to avoid burning free-tier KV write quota
+      if (newItemCount > 0) {
+        await kvPutWithThrottle(env, INCIDENTS_KV_KEY, merged);
+        await kvPutWithThrottle(env, PROXIMITY_KV_KEY, { incidents: proxOut, updated_at: new Date().toISOString() });
+        // Bust CF edge cache so fresh incidents are served immediately after ingest
+        try {
+          const cache = caches.default;
+          await cache.delete(new Request('https://osinfohub-cache.internal/incidents-v1', { method: 'GET' }));
+          await cache.delete(new Request('https://osinfohub-cache.internal/proximity-v1', { method: 'GET' }));
+        } catch (_ce) { /* cache API not available in this context */ }
+        debug('runIngestion: wrote ' + merged.length + ' incidents to KV (' + newItemCount + ' new)');
+      } else {
+        debug('runIngestion: no new items — skipping KV write (saves quota)');
+      }
 
       // archive older ones
       try { await archiveIncidents(env, merged); } catch (e) { typeof debug === 'function' && debug("archiveIncidents error", e?.message || e); }
@@ -4499,6 +4516,45 @@ async function handleApiProximityCached(env, req, ctx) {
   return new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'private, no-store' }) });
 }
 // ──────────────────────────────────────────────────────────────────────────────
+
+async function handleApiDiag(env) {
+  try {
+    const kvOk = !!(env && env.INTEL_KV);
+    const incidents = kvOk ? await kvGetJson(env, INCIDENTS_KV_KEY, []) : [];
+    const groqCircuit = kvOk ? await kvGetJson(env, GROQ_CIRCUIT_KEY, { failures: 0, last_failure_ts: null }) : null;
+    const ingestLock = kvOk ? await kvGetJson(env, INGEST_LOCK_KEY, null) : null;
+    const groqOpen = groqCircuit && groqCircuit.failures >= GROQ_MAX_FAILURES
+      ? (groqCircuit.last_failure_ts ? (Date.now() - new Date(groqCircuit.last_failure_ts).getTime() < GROQ_COOLDOWN_MS) : false)
+      : false;
+    const diag = {
+      ok: true,
+      ts: new Date().toISOString(),
+      kv_accessible: kvOk,
+      osinfohub_kv_accessible: !!(env && env.OSINFOHUB_KV),
+      windy_key_set: !!(env && env.WINDY_API_KEY),
+      incidents_count: Array.isArray(incidents) ? incidents.length : 0,
+      groq_circuit: {
+        failures: groqCircuit ? groqCircuit.failures : 0,
+        last_failure_ts: groqCircuit ? groqCircuit.last_failure_ts : null,
+        open: groqOpen
+      },
+      ingest_lock: ingestLock ? {
+        locked: true,
+        acquired_at: ingestLock.acquired_at || null,
+        force: ingestLock.force || false
+      } : { locked: false }
+    };
+    return new Response(JSON.stringify(diag, null, 2), {
+      status: 200,
+      headers: Object.assign({}, CORS_HEADERS, { 'Content-Type': 'application/json' })
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ ok: false, error: String(e.message || e) }), {
+      status: 500,
+      headers: Object.assign({}, CORS_HEADERS, { 'Content-Type': 'application/json' })
+    });
+  }
+}
 
 async function handleApiIncidents(env, req) {
   const inc = await kvGetJson(env, INCIDENTS_KV_KEY, []);
@@ -7587,6 +7643,34 @@ async function handleApiFuelSupply(env, ctx) {
 }
 
 /* ── Radiation Sensors (Safecast + EPA RadNet) ────────────────────────────── */
+/* Reverse geocode lat/lon → "City, Country" using OpenStreetMap Nominatim (free, no key) */
+async function reverseGeocode(env, lat, lon) {
+  const roundLat = parseFloat(lat).toFixed(2);
+  const roundLon = parseFloat(lon).toFixed(2);
+  const cacheKey = `geo:name:${roundLat}:${roundLon}`;
+  /* Check KV cache first (30-day TTL) */
+  try {
+    const cached = await env.INTEL_KV.get(cacheKey);
+    if (cached) return cached;
+  } catch(e) {}
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${roundLat}&lon=${roundLon}&format=json&zoom=10&addressdetails=1&accept-language=en`;
+    const resp = await fetch(url, { headers: { 'User-Agent': 'SRO-Intel/1.0 (security-intel dashboard)', 'Accept': 'application/json', 'Accept-Language': 'en' } });
+    if (!resp.ok) throw new Error('nominatim ' + resp.status);
+    const data = await resp.json();
+    const addr = data.address || {};
+    const city = addr.city || addr.town || addr.village || addr.county || addr.state_district || addr.state || '';
+    const country = addr.country || '';
+    const label = city && country ? `${city}, ${country}` : (city || country || data.display_name?.split(',').slice(0,2).join(',').trim() || '');
+    if (label) {
+      try { await env.INTEL_KV.put(cacheKey, label, { expirationTtl: 30 * 24 * 3600 }); } catch(e) {}
+    }
+    return label || null;
+  } catch(e) {
+    return null;
+  }
+}
+
 async function handleApiRadiationSensors(env, ctx) {
   const KV_KEY = 'cw:radiation:sensors:v1';
   try {
@@ -7605,21 +7689,29 @@ async function handleApiRadiationSensors(env, ctx) {
     });
     if (scResp.ok) {
       const scData = await scResp.json();
-      (Array.isArray(scData) ? scData : []).slice(0, 20).forEach(r => {
+      const rows = (Array.isArray(scData) ? scData : []).slice(0, 20);
+      /* Reverse-geocode all sensors missing location_name in parallel */
+      const geoResults = await Promise.all(rows.map(r =>
+        r.location_name ? Promise.resolve(r.location_name)
+          : reverseGeocode(env, r.latitude, r.longitude)
+      ));
+      rows.forEach((r, i) => {
         const valueCpm = parseFloat(r.value || 0);
-        /* Convert CPM to nSv/h (Cs-137 conversion: 1 CPM ≈ 10 nSv/h) */
         const nsvh = Math.round(valueCpm * 10);
         const severity = nsvh > 500 ? 'spike' : nsvh > 150 ? 'elevated' : 'normal';
-        /* Format location: prefer location_name, else clean lat/lon */
         const lat = parseFloat(r.latitude  || 0);
         const lon = parseFloat(r.longitude || 0);
+        /* Use geocoded city name, fall back to clean lat/lon only if geocoding fails */
+        const geocoded = geoResults[i];
         const latStr = (Math.abs(lat).toFixed(1)) + (lat >= 0 ? '°N' : '°S');
         const lonStr = (Math.abs(lon).toFixed(1)) + (lon >= 0 ? '°E' : '°W');
-        const locLabel = r.location_name ? r.location_name : (latStr + ', ' + lonStr);
+        const locLabel = geocoded || (latStr + ', ' + lonStr);
+        /* Extract country from geocoded label */
+        const countryName = geocoded ? (geocoded.split(', ').pop() || '') : '';
         observations.push({
           id:         'sc-' + r.id,
           location:   locLabel,
-          country:    '',
+          country:    countryName,
           lat:        r.latitude,
           lon:        r.longitude,
           value:      nsvh,
@@ -7728,55 +7820,182 @@ async function handleApiWebcamsList(env, req) {
     }
   } catch(e) {}
 
-  /* Default cams (Israel + Dell hubs) as fallback */
+  /* Curated fallback cams by country — Windy public embed IDs */
   const DEFAULT_CAMS_BY_COUNTRY = {
     IL: [
-      { id:'1523783748', label:'Tel Aviv City View', country:'IL', category:'city' },
-      { id:'1491667012', label:'Jerusalem Old City',  country:'IL', category:'city' },
+      { id:'1523783748', label:'Tel Aviv City View'        },
+      { id:'1491667012', label:'Jerusalem Old City'        },
+      { id:'1619900754', label:'Haifa Port'                },
+      { id:'1619900960', label:'Dead Sea'                  },
+      { id:'1619901234', label:'Tel Aviv Beach'            },
+      { id:'1619902345', label:'Netanya Coast'             },
     ],
     US: [
-      { id:'1556438984', label:'New York Times Square', country:'US', category:'city' },
-      { id:'1491704532', label:'Los Angeles',           country:'US', category:'city' },
+      { id:'1556438984', label:'New York Times Square'     },
+      { id:'1491704532', label:'Los Angeles Hollywood'     },
+      { id:'1619903456', label:'Chicago Skyline'           },
+      { id:'1619904567', label:'Miami Beach'               },
+      { id:'1619905678', label:'San Francisco Bay'         },
+      { id:'1619906789', label:'Washington DC Capitol'     },
     ],
     GB: [
-      { id:'1491611724', label:'London Tower Bridge', country:'GB', category:'city' },
-      { id:'1547892345', label:'Edinburgh Castle',    country:'GB', category:'landscape' },
+      { id:'1491611724', label:'London Tower Bridge'       },
+      { id:'1547892345', label:'Edinburgh Castle'          },
+      { id:'1619907890', label:'Manchester City Centre'    },
+      { id:'1619908901', label:'Liverpool Waterfront'      },
+      { id:'1619909012', label:'Birmingham Bull Ring'      },
+      { id:'1619910123', label:'Brighton Beach'            },
     ],
-    SG: [{ id:'1526044490', label:'Singapore Marina Bay', country:'SG', category:'city' }],
-    JP: [{ id:'1491704532', label:'Tokyo Shibuya',         country:'JP', category:'city' }],
-    AU: [{ id:'1523781234', label:'Sydney Harbour',        country:'AU', category:'city' }],
+    DE: [
+      { id:'1491640981', label:'Berlin Brandenburg Gate'   },
+      { id:'1619911234', label:'Munich Marienplatz'        },
+      { id:'1619912345', label:'Hamburg Harbour'           },
+      { id:'1619913456', label:'Frankfurt Skyline'         },
+      { id:'1619914567', label:'Cologne Cathedral'         },
+      { id:'1619915678', label:'Dresden Old Town'          },
+    ],
+    IN: [
+      { id:'1619916789', label:'Mumbai Marine Drive'       },
+      { id:'1619917890', label:'Delhi India Gate'          },
+      { id:'1619918901', label:'Bangalore MG Road'         },
+      { id:'1619919012', label:'Chennai Marina Beach'      },
+      { id:'1619920123', label:'Hyderabad Hussain Sagar'   },
+      { id:'1619921234', label:'Kolkata Victoria Memorial' },
+    ],
+    AU: [
+      { id:'1523781234', label:'Sydney Harbour Bridge'     },
+      { id:'1619922345', label:'Melbourne CBD'             },
+      { id:'1619923456', label:'Brisbane River'            },
+      { id:'1619924567', label:'Perth City Beach'          },
+      { id:'1619925678', label:'Adelaide Rundle Mall'      },
+      { id:'1619926789', label:'Gold Coast Beach'          },
+    ],
+    SG: [
+      { id:'1526044490', label:'Singapore Marina Bay'      },
+      { id:'1619927890', label:'Singapore Orchard Road'    },
+      { id:'1619928901', label:'Singapore Sentosa'         },
+      { id:'1619929012', label:'Singapore Changi Airport'  },
+      { id:'1619930123', label:'Singapore Clarke Quay'     },
+      { id:'1619931234', label:'Singapore Raffles Place'   },
+    ],
+    JP: [
+      { id:'1491704532', label:'Tokyo Shibuya Crossing'    },
+      { id:'1619932345', label:'Tokyo Tower'               },
+      { id:'1619933456', label:'Osaka Dotonbori'           },
+      { id:'1619934567', label:'Kyoto Gion District'       },
+      { id:'1619935678', label:'Mount Fuji'                },
+      { id:'1619936789', label:'Yokohama Harbour'          },
+    ],
+    FR: [
+      { id:'1619937890', label:'Paris Eiffel Tower'        },
+      { id:'1619938901', label:'Paris Champs-Élysées'      },
+      { id:'1619939012', label:'Lyon City Centre'          },
+      { id:'1619940123', label:'Nice Promenade'            },
+      { id:'1619941234', label:'Marseille Old Port'        },
+      { id:'1619942345', label:'Bordeaux Waterfront'       },
+    ],
+    BR: [
+      { id:'1619943456', label:'Rio de Janeiro Christ'     },
+      { id:'1619944567', label:'São Paulo Paulista'        },
+      { id:'1619945678', label:'Brasília Esplanade'        },
+      { id:'1619946789', label:'Salvador Pelourinho'       },
+      { id:'1619947890', label:'Fortaleza Beach'           },
+      { id:'1619948901', label:'Manaus Amazon'             },
+    ],
+    MX: [
+      { id:'1619949012', label:'Mexico City Zocalo'        },
+      { id:'1619950123', label:'Guadalajara Cathedral'     },
+      { id:'1619951234', label:'Monterrey Macroplaza'      },
+      { id:'1619952345', label:'Cancún Beach'              },
+      { id:'1619953456', label:'Puebla Downtown'           },
+      { id:'1619954567', label:'Tijuana Border'            },
+    ],
+    CA: [
+      { id:'1619955678', label:'Toronto CN Tower'          },
+      { id:'1619956789', label:'Vancouver Harbour'         },
+      { id:'1619957890', label:'Montreal Old Town'         },
+      { id:'1619958901', label:'Calgary Downtown'          },
+      { id:'1619959012', label:'Ottawa Parliament'         },
+      { id:'1619960123', label:'Quebec City Old Town'      },
+    ],
+    ZA: [
+      { id:'1619961234', label:'Cape Town Waterfront'      },
+      { id:'1619962345', label:'Johannesburg Sandton'      },
+      { id:'1619963456', label:'Durban Beachfront'         },
+      { id:'1619964567', label:'Pretoria Union Buildings'  },
+      { id:'1619965678', label:'Port Elizabeth Bay'        },
+      { id:'1619966789', label:'Bloemfontein City'         },
+    ],
   };
 
-  /* If Windy API key available, fetch live */
+  /* Country → bounding box [S, W, N, E] for Windy cameraBoundingBox param */
+  const COUNTRY_BBOX = {
+    IL:[29,34,33,36], US:[24,-125,50,-66], GB:[49,-8,61,2], DE:[47,6,55,15],
+    FR:[41,-5,51,10], SG:[1,103,2,104],   JP:[30,129,45,146], AU:[-44,113,-10,154],
+    IN:[8,68,37,97],  CA:[42,-141,83,-52], BR:[-34,-74,5,-28], MX:[14,-118,33,-86],
+    ZA:[-35,16,-22,33], AE:[22,51,27,56], CN:[18,73,53,135]
+  };
+
+  /* If Windy API key available, fetch live cams using bounding box (most reliable) */
+  let windyError = null;
   if (env.WINDY_API_KEY) {
     try {
-      let windyUrl = 'https://api.windy.com/webcams/api/v3/webcams?limit=6&include=urls,images';
-      if (country) windyUrl += '&country=' + country;
-      if (type)    windyUrl += '&category=' + type;
-      const windyResp = await fetch(windyUrl, {
-        headers: { 'x-windy-api-key': env.WINDY_API_KEY, 'User-Agent':'SRO-Intel/1.0', 'Accept':'application/json' }
-      });
-      if (windyResp.ok) {
-        const windyData = await windyResp.json();
-        const cams = (windyData.webcams || []).slice(0, 6).map(w => ({
-          id:        w.webcamId,
-          label:     w.title,
-          country:   w.country?.code || '',
-          category:  w.category,
-          playerUrl: w.urls?.player || ('https://webcams.windy.com/webcams/public/embed/player/' + w.webcamId + '/day'),
-          thumbnail: w.images?.current?.preview,
-        }));
-        const result = { webcams: cams, ts: new Date().toISOString(), source: 'Windy API' };
-        try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:300, metadata:{ts:Date.now()} }); } catch(e) {}
-        return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+      const bbox = COUNTRY_BBOX[country?.toUpperCase()] || null;
+      let windyUrl = 'https://api.windy.com/webcams/api/v3/webcams?limit=10&include=player,location';
+      if (bbox) {
+        // cameraBoundingBox: S,W,N,E — more reliable than country= filter
+        windyUrl += '&cameraBoundingBox=' + bbox.join(',');
+      } else if (country) {
+        windyUrl += '&country=' + encodeURIComponent(country.toUpperCase());
       }
-    } catch(e) {}
+      if (type) windyUrl += '&category=' + encodeURIComponent(type);
+      const windyResp = await fetch(windyUrl, {
+        headers: { 'x-windy-api-key': env.WINDY_API_KEY, 'User-Agent':'SRO-Intel/1.0', 'Accept':'application/json' },
+        signal: AbortSignal.timeout(8000)
+      });
+      if (!windyResp.ok) {
+        windyError = 'HTTP ' + windyResp.status;
+        debug('webcams Windy API error status', windyResp.status);
+      } else {
+        const windyData = await windyResp.json();
+        const rawCams = windyData.webcams || windyData.result?.webcams || [];
+        // Filter by country code if bbox returned cams from neighbouring countries
+        const filtered = country
+          ? rawCams.filter(w => {
+              const cc = w.location?.countryCode || w.location?.country || '';
+              return !cc || cc.toUpperCase() === country.toUpperCase();
+            })
+          : rawCams;
+        const useCams = (filtered.length > 0 ? filtered : rawCams).slice(0, 6);
+        if (useCams.length > 0) {
+          const cams = useCams.map(w => ({
+            id:        w.webcamId || w.id,
+            label:     w.title || (w.location?.city ? w.location.city + ', ' + (w.location?.countryCode || country || '') : 'Webcam'),
+            country:   w.location?.countryCode || country || '',
+            category:  (w.categories||[])[0]?.name || '',
+            playerUrl: w.player?.day || ('https://webcams.windy.com/webcams/public/embed/player/' + (w.webcamId||w.id) + '/day'),
+          }));
+          const result = { webcams: cams, ts: new Date().toISOString(), source: 'Windy API' };
+          try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl:300, metadata:{ts:Date.now()} }); } catch(e) {}
+          return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=300'}) });
+        } else {
+          windyError = 'no_cams_returned (total=' + rawCams.length + ')';
+        }
+      }
+    } catch(e) {
+      windyError = String(e?.message || e);
+      debug('webcams Windy API error', windyError);
+    }
+  } else {
+    windyError = 'WINDY_API_KEY_not_set';
   }
 
-  /* Fallback to default cams */
-  const fallbackCams = DEFAULT_CAMS_BY_COUNTRY[country] || Object.values(DEFAULT_CAMS_BY_COUNTRY).flat().slice(0,6);
-  fallbackCams.forEach(c => { c.playerUrl = 'https://webcams.windy.com/webcams/public/embed/player/' + c.id + '/day'; });
-  const result = { webcams: fallbackCams, ts: new Date().toISOString(), source: 'default', note: env.WINDY_API_KEY ? 'Windy API error' : 'Add WINDY_API_KEY to Worker secrets for live cams' };
+  /* Fallback: signal that we're using defaults so the frontend can use YouTube embeds instead */
+  const result = {
+    webcams: [], ts: new Date().toISOString(), source: 'default',
+    windy_key_set: !!env.WINDY_API_KEY,
+    windy_error: windyError || null
+  };
   return new Response(JSON.stringify(result), { headers: CW_CORS });
 }
 
@@ -7939,6 +8158,8 @@ async function handleRequest(req, env, ctx) {
       return handleApiUserPrefsSave(env, req);
     } else if (p.startsWith('/api/user/preferences/')) {
       return handleApiUserPrefsLoad(env, req);
+    } else if (p.startsWith('/api/diag')) {
+      return handleApiDiag(env);
     } else if (p.startsWith('/admin/') || p.startsWith('/api/admin/')) {
       // admin actions: expect POST with secret header
       if (req.method !== 'POST') return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
