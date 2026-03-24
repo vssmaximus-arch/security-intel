@@ -312,35 +312,61 @@ COUNTRY_NAMES = {
     "KR": ["korea", "korean", "seoul"],
 }
 
-def _location_search_terms(loc: Location) -> List[str]:
-    """Extract city + country terms from a Location for text matching."""
+# Approximate country centroids for distance estimation when article has no coordinates
+COUNTRY_CENTROIDS: Dict[str, tuple] = {
+    "US": (39.5, -98.4), "CA": (56.1, -106.3), "MX": (23.6, -102.5),
+    "BR": (-14.2, -51.9), "CO": (4.6, -74.3), "CL": (-35.7, -71.5),
+    "AR": (-38.4, -63.6), "GB": (55.4, -3.4), "IE": (53.4, -8.2),
+    "FR": (46.2, 2.2), "DE": (51.2, 10.4), "NL": (52.1, 5.3),
+    "PL": (51.9, 19.1), "DK": (56.3, 9.5), "SE": (60.1, 18.6),
+    "ES": (40.5, -3.7), "IT": (41.9, 12.6), "IL": (31.0, 35.0),
+    "AE": (23.4, 53.8), "SA": (23.9, 45.1), "ZA": (-30.6, 22.9),
+    "IN": (20.6, 78.9), "SG": (1.4, 103.8), "MY": (4.2, 108.0),
+    "CN": (35.9, 104.2), "TW": (23.7, 121.0), "JP": (37.0, 138.0),
+    "AU": (-25.3, 133.8), "KR": (36.5, 127.8), "PH": (12.9, 121.8),
+    "TH": (15.9, 100.9), "HK": (22.3, 114.2),
+}
+
+def _city_terms(loc: Location) -> List[str]:
+    """City-level terms only — specific enough to pinpoint the right site."""
     terms = []
-    # Extract city from name like "Dell Round Rock HQ (US)" → "round rock"
-    # Strip "Dell " prefix and " (XX)" suffix
     stripped = re.sub(r'^Dell\s+', '', loc.name, flags=re.IGNORECASE)
     stripped = re.sub(r'\s*\([A-Z]{2}\)\s*$', '', stripped).strip()
-    # Handle slash-separated cities: "Paris / Bezons" → ["paris", "bezons"]
     city_parts = [p.strip().lower() for p in re.split(r'[/,]', stripped) if p.strip()]
-    # Remove generic suffixes (HQ, Campus, Hub, Mfg, etc.)
     for part in city_parts:
-        clean = re.sub(r'\b(hq|campus|hub|mfg|manufacturing|parmer)\b', '', part).strip()
+        clean = re.sub(r'\b(hq|campus|hub|mfg|manufacturing|parmer|regional|office)\b',
+                       '', part, flags=re.IGNORECASE).strip()
         if clean and len(clean) > 2:
             terms.append(clean)
-    # Add country-level terms
-    country_code = loc.country.upper() if loc.country else ""
-    for code, names in COUNTRY_NAMES.items():
-        if code == country_code:
-            terms.extend(names)
-            break
     return list(set(terms))
+
+def _country_code_for_loc(loc: Location) -> str:
+    """Infer 2-letter country code from location name like 'Dell Sydney (AU)'."""
+    m = re.search(r'\(([A-Z]{2})\)\s*$', loc.name)
+    return m.group(1) if m else ""
+
+def _location_search_terms(loc: Location) -> List[str]:
+    """City terms only — no country-level terms (they cause false matches across vast distances)."""
+    return _city_terms(loc)
 
 def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
     """
-    Phase 1: Pure geographic/text matching — find (article, site, distance) pairs.
-    No AI involved here. Returns raw matches sorted by severity desc, distance asc.
+    Phase 1: Geographic matching — find (article, site, distance) pairs.
+
+    Three tiers, strictest first:
+      A) Exact coordinates → haversine, must be within RADIUS_KM
+      B) AI-extracted city names (article.locations) → city text match,
+         use country centroid for distance estimate, cap at TEXT_CITY_RADIUS_KM
+      C) Title/body city text match → same cap as B
+
+    Per article: maximum MAX_SITES_PER_ARTICLE nearest sites shown.
+    Country-level and region-level matching REMOVED — too broad, wrong sites.
     """
+    TEXT_CITY_RADIUS_KM    = 300   # generous: covers metro areas & nearby sites
+    MAX_SITES_PER_ARTICLE  = 2     # never flood with every site in a country
+
     matches = []
-    seen = set()
+    seen    = set()
 
     for article in articles:
         if int(article.get("severity", 1)) < 2:
@@ -348,53 +374,69 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
         if not _is_security_relevant(article):
             continue
 
-        alat, alon = article.get("lat"), article.get("lon")
+        alat     = article.get("lat")
+        alon     = article.get("lon")
         art_url  = article.get("url") or article.get("link", "")
+        art_sev  = int(article.get("severity", 1))
 
-        # ── Coordinate-based match ────────────────────────────────────────────
+        article_hits: List[Dict] = []   # candidates for this article only
+
+        # ── Tier A: Exact coordinates ─────────────────────────────────────────
         if alat is not None and alon is not None:
             try:
-                alat, alon = float(alat), float(alon)
+                alat_f, alon_f = float(alat), float(alon)
                 for loc in locations:
-                    dist = haversine_km(alat, alon, loc.lat, loc.lon)
+                    dist = haversine_km(alat_f, alon_f, loc.lat, loc.lon)
                     if dist <= RADIUS_KM:
-                        key = (art_url, loc.name)
-                        if key not in seen:
-                            seen.add(key)
-                            matches.append({"article": article, "loc": loc,
-                                            "distance_km": round(dist, 1)})
+                        article_hits.append({"loc": loc, "distance_km": round(dist, 1),
+                                             "match_tier": "coordinate"})
             except ValueError:
                 pass
 
-        # ── Text / geo-list match ─────────────────────────────────────────────
-        else:
-            text = _article_text(article)
+        # ── Tier B+C: City-name text matching ─────────────────────────────────
+        if not article_hits:
+            text     = _article_text(article)
             geo_list = article.get("locations") or []
-            geo_norm = set(g.lower().strip() for g in geo_list if g) if isinstance(geo_list, list) else set()
+            # AI-extracted locations like ["Perth, Australia", "Western Australia"]
+            geo_norm = set(g.lower().strip() for g in geo_list if g) \
+                       if isinstance(geo_list, list) else set()
 
             for loc in locations:
-                terms   = _location_search_terms(loc)
-                matched = any(term in text for term in terms if len(term) > 2)
+                city_terms = _city_terms(loc)           # city only, NOT country
+                country_code = _country_code_for_loc(loc)
 
-                if not matched and geo_norm:
-                    matched = any(
-                        any(term in geo_entry or geo_entry in term for geo_entry in geo_norm)
-                        for term in terms if len(term) > 2
+                # City term found in article body OR AI-extracted locations
+                city_matched = any(term in text for term in city_terms if len(term) > 2)
+                if not city_matched and geo_norm:
+                    city_matched = any(
+                        any(t in geo_entry or geo_entry in t for geo_entry in geo_norm)
+                        for t in city_terms if len(t) > 2
                     )
-
-                if not matched:
-                    art_region = (article.get("region") or "").upper()
-                    if art_region and art_region != "GLOBAL" and art_region == loc.region.upper():
-                        if int(article.get("severity", 1)) >= 3:
-                            matched = True
-
-                if not matched:
+                if not city_matched:
                     continue
 
-                key = (art_url, loc.name)
-                if key not in seen:
-                    seen.add(key)
-                    matches.append({"article": article, "loc": loc, "distance_km": 0.0})
+                # Estimate distance via country centroid
+                centroid = COUNTRY_CENTROIDS.get(country_code)
+                if centroid:
+                    est_dist = haversine_km(centroid[0], centroid[1], loc.lat, loc.lon)
+                else:
+                    est_dist = 0.0   # unknown → allow through
+
+                if est_dist <= TEXT_CITY_RADIUS_KM:
+                    article_hits.append({"loc": loc,
+                                         "distance_km": round(est_dist, 1),
+                                         "match_tier": "city_text"})
+
+        # ── Deduplicate + cap per article ─────────────────────────────────────
+        article_hits.sort(key=lambda h: h["distance_km"])
+        for hit in article_hits[:MAX_SITES_PER_ARTICLE]:
+            key = (art_url, hit["loc"].name)
+            if key not in seen:
+                seen.add(key)
+                matches.append({"article": article,
+                                 "loc": hit["loc"],
+                                 "distance_km": hit["distance_km"],
+                                 "match_tier": hit["match_tier"]})
 
     matches.sort(key=lambda m: (-int(m["article"].get("severity", 1)), m["distance_km"]))
     return matches
