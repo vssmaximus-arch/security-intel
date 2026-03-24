@@ -1,471 +1,812 @@
 #!/usr/bin/env python3
 """
-SRO Intelligence Ingest — Groq-powered with keyword fallback
+SRO Intelligence Brain v2.0 — Gemini-powered multi-source pipeline
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Scout   → Curated RSS feeds + GDELT real-time global news
+  Analyst → Gemini 2.0 Flash with full Dell operational context
+             No keyword gating — AI reasons about relevance directly
+             Second-order effects: teacher strike → childcare gap → workforce impact
+  Output  → news.json scored, filtered, Dell-context-aware
 
-Uses Groq free API (llama-3.1-8b-instant) for AI classification.
-Falls back to keyword matching if Groq is unavailable.
-Requires GROQ_API_KEY environment variable.
-Writes to public/data/news.json + mirrors to data/news.json (repo root).
+Environment variables:
+  GEMINI_API_KEY   — from aistudio.google.com (free: 1500 req/day)
+  GROQ_API_KEY     — fallback classifier if Gemini unavailable
 """
+
 import json
 import os
 import re
 import time
+import math
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
 
 import feedparser
 from bs4 import BeautifulSoup
 
-# ---------- PATHS ----------
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "public", "data")
+# ── Paths ──────────────────────────────────────────────────────────────────────
+BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR   = os.path.join(BASE_DIR, "public", "data")
+CONFIG_DIR = os.path.join(BASE_DIR, "config")
 os.makedirs(DATA_DIR, exist_ok=True)
 
-NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-FEEDBACK_PATH = os.path.join(DATA_DIR, "feedback.jsonl")
+NEWS_PATH      = os.path.join(DATA_DIR, "news.json")
+FEEDBACK_PATH  = os.path.join(DATA_DIR, "feedback.jsonl")
+LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 
-# ---------- CONFIG ----------
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = "llama-3.1-8b-instant"
-GROQ_MAX_TOKENS = 350
-GROQ_CALLS_PER_RUN = 90  # free-tier safe limit (138 feeds × 8 items each; Groq free tier: ~100 req/min)
+# ── Gemini config ──────────────────────────────────────────────────────────────
+GEMINI_MODEL       = "gemini-2.0-flash"
+GEMINI_API_BASE    = "https://generativelanguage.googleapis.com/v1beta/models"
+GEMINI_BATCH_SIZE  = 8    # articles per API call
+GEMINI_MAX_CALLS   = 30   # per run: 48 runs/day × 30 = 1440 (free tier: 1500/day)
+GEMINI_DELAY_S     = 0.5  # seconds between calls to respect rate limits
+MIN_RELEVANCE_SCORE = 4   # 1-10 scale — below this is discarded
 
-# ---------- RSS FEEDS ----------
-# Full 110-source feed list mirrored from Worker.js DETERMINISTIC + ROTATING sources
+# ── Groq fallback config ───────────────────────────────────────────────────────
+GROQ_API_URL   = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL     = "llama-3.1-8b-instant"
+GROQ_MAX_CALLS = 90
+
+# ── GDELT config ───────────────────────────────────────────────────────────────
+GDELT_API_URL   = "https://api.gdeltproject.org/api/v2/doc/doc"
+GDELT_TIMESPAN  = "45min"   # look back 45 min (GDELT has ~10-15 min lag)
+GDELT_MAX_ARTS  = 25        # per query
+
+# ── Dell site data ─────────────────────────────────────────────────────────────
+def _load_sites():
+    try:
+        with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"  WARN: could not load locations.json: {e}")
+        return []
+
+DELL_SITES = _load_sites()
+
+# Compact representation for Gemini prompt (~400 tokens for all 55 sites)
+_SITE_LINES = ", ".join(
+    f"{s['name'].replace('Dell ', '')}"
+    for s in DELL_SITES
+)
+DELL_SITES_COMPACT = f"Dell has {len(DELL_SITES)} global sites: {_SITE_LINES}."
+
+# ── RSS Feed Sources ───────────────────────────────────────────────────────────
+# Curated for physical security / supply chain / crisis / workforce domain.
+# Removed: ~20 pure cybersecurity feeds (DarkReading, THN, Bleeping, MSRC, etc.)
+# Added: labor/industrial action, broader APJC/EMEA regional coverage
 FEEDS = [
-    # ── Natural Hazards (deterministic — always fetched) ──────────────────────
+    # ── Natural Hazards (always fetch — deterministic tier-1 sources) ──────────
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
     "https://www.gdacs.org/xml/rss.xml",
     "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
     "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
-    # ── Dell Brand Monitoring (PRIORITY — must be before Groq cap is hit) ────
-    # Google News mirrors thelayoff.com - Google fetches it, bypassing Cloudflare
-    "https://news.google.com/rss/search?q=site:thelayoff.com+%22Dell%22&hl=en-US&gl=US&ceid=US:en",
+    "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
+    "https://www.fema.gov/rss/disaster_declarations.rss",
+    # ── Dell Brand / Workforce Monitoring ─────────────────────────────────────
     "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+breach+OR+Dell+hack&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=Dell+data+leak+OR+Dell+insider+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
-    "https://news.google.com/rss/search?q=%22Dell+Technologies%22+security+OR+threat+OR+vulnerability&hl=en-US&gl=US&ceid=US:en",
-    # The Layoff is Cloudflare-blocked — use Reddit/HN as insider chatter alternatives
+    "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+restructuring+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=%22Dell+Technologies%22+breach+OR+incident+OR+security&hl=en-US&gl=US&ceid=US:en",
     "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
-    "https://www.reddit.com/r/technology/search.rss?q=Dell+Technologies&sort=new&restrict_sr=1",
-    "https://hnrss.org/newest?q=Dell+Technologies",
-    "https://hnrss.org/newest?q=Dell+layoff+OR+Dell+breach+OR+Dell+hack",
-    # ── Global Tier-1 News ────────────────────────────────────────────────────
+    # ── Tier-1 Global News ────────────────────────────────────────────────────
     "https://feeds.reuters.com/reuters/worldNews",
-    "https://feeds.reuters.com/reuters/businessNews",
-    "https://feeds.reuters.com/reuters/politicsNews",
     "https://feeds.reuters.com/reuters/topNews",
+    "https://feeds.reuters.com/reuters/businessNews",
     "https://apnews.com/apf-worldnews?format=xml",
-    "https://apnews.com/apf-news?format=xml",
-    "https://www.afp.com/en/news-hub/rss",
-    "https://feeds.bbci.co.uk/news/rss.xml",
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://feeds.bbci.co.uk/news/business/rss.xml",
-    "http://rss.cnn.com/rss/edition.rss",
-    "http://rss.cnn.com/rss/edition_world.rss",
     "https://www.aljazeera.com/xml/rss/all.xml",
-    "https://www.dw.com/en/top-stories/world/s-1429/rss",
-    "https://www.dw.com/en/top-stories/business/s-1431/rss",
     "https://www.theguardian.com/world/rss",
-    "https://www.theguardian.com/business/rss",
     "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-    "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
     "https://feeds.washingtonpost.com/rss/world",
-    "https://feeds.washingtonpost.com/rss/business",
-    "https://www.scmp.com/rss/91/feed",
     "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
-    # ── Regional Coverage ─────────────────────────────────────────────────────
+    "https://www.scmp.com/rss/91/feed",
+    # ── APJC Regional (Dell's largest manufacturing + workforce region) ────────
+    "https://www.channelnewsasia.com/api/v1/rss-outbound-feed",  # Singapore
+    "https://www.thehindu.com/news/feeder/default.rss",          # India
+    "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", # India
+    "https://www.hindustantimes.com/rss/topnews/rssfeed.xml",    # India
+    "https://www.japantimes.co.jp/news/feed/",                   # Japan
+    "https://www3.nhk.or.jp/nhkworld/en/news/feeds/",            # Japan NHK
+    "https://japantoday.com/feed/atom",
+    "https://www.koreatimes.co.kr/www/rss/rss.xml",              # Korea
+    "https://www.bangkokpost.com/rss",                           # Thailand
+    "https://vnexpress.net/rss",                                  # Vietnam
+    "https://www.abc.net.au/news/feed/51120/rss.xml",            # Australia
+    "https://www.abc.net.au/news/feed/48480/rss.xml",
+    "https://www.theguardian.com/australia-news/rss",
+    "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+    # ── EMEA Regional ─────────────────────────────────────────────────────────
     "https://www.france24.com/en/rss",
     "https://www.euronews.com/rss?level=world",
+    "https://www.dw.com/en/top-stories/world/s-1429/rss",
     "https://www.arabnews.com/taxonomy/term/1/feed",
-    "https://www.channelnewsasia.com/api/v1/rss-outbound-feed",
-    "https://www.thehindu.com/news/feeder/default.rss",
-    "https://www.hindustantimes.com/rss/topnews/rssfeed.xml",
-    "https://www.japantimes.co.jp/news/feed/",
-    "https://www.koreatimes.co.kr/www/rss/rss.xml",
+    "https://www.middleeasteye.net/rss",
+    "https://www.spiegel.de/schlagzeilen/tops/index.rss",        # Germany
+    "https://www.themoscowtimes.com/rss/news",                   # Russia/Ukraine context
+    "https://meduza.io/rss/all",
+    # ── LATAM Regional ────────────────────────────────────────────────────────
+    "https://www.batimes.com.ar/rss-feed",                       # Argentina
+    "https://en.mercopress.com/rss",
+    "https://www.latinnews.com/index.php?format=feed",
+    # ── Africa ────────────────────────────────────────────────────────────────
     "https://www.africanews.com/feed/xml",
     "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
-    "https://www.latinnews.com/index.php?format=feed",
-    "https://www.batimes.com.ar/rss-feed",
-    "https://www.abc.net.au/news/feed/51120/rss.xml",
-    "https://www.abc.net.au/news/feed/48480/rss.xml",
-    # ── Supply Chain / Logistics ──────────────────────────────────────────────
+    "https://dailytrust.com/feed/",
+    # ── Supply Chain / Logistics (HIGH PRIORITY domain) ───────────────────────
     "https://www.freightwaves.com/feed",
-    "https://www.joc.com/rss.xml",
     "https://www.supplychaindive.com/feeds/news/",
     "https://gcaptain.com/feed/",
     "https://theloadstar.com/feed/",
     "https://splash247.com/feed/",
-    "https://www.porttechnology.org/feed/",
     "https://www.maritime-executive.com/rss",
+    "https://www.joc.com/rss.xml",
+    "https://www.porttechnology.org/feed/",
     "https://www.maritimebulletin.net/feed/",
-    "https://www.portoflosangeles.org/rss/news",
-    "https://www.portofantwerpbruges.com/en/news/rss",
-    "https://www.mpa.gov.sg/web/rss/rss.xml",
     "https://www.iata.org/en/pressroom/news-releases/rss/",
     "https://www.aircargonews.net/feed/",
-    # ── Government / Employee Safety / Travel ─────────────────────────────────
+    "https://www.portoflosangeles.org/rss/news",
+    "https://www.portofantwerpbruges.com/en/news/rss",
+    # ── Labor / Industrial Action (NEW — was completely missing) ──────────────
+    # These sources cover workforce disruptions that cascade to Dell operations
+    "https://news.google.com/rss/search?q=strike+workers+industrial+action+2025&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=teachers+strike+school+closure&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://news.google.com/rss/search?q=transport+strike+bus+train+metro+workers&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=port+strike+shipping+workers+dock&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=manufacturing+strike+factory+workers&hl=en-US&gl=US&ceid=US:en",
+    # ── Government / Travel / Emergency ───────────────────────────────────────
     "https://travel.state.gov/_res/rss/TAs.xml",
     "https://www.gov.uk/foreign-travel-advice.rss",
     "https://www.fbi.gov/feeds/fbi-top-stories/rss.xml",
-    "https://www.fbi.gov/feeds/national-press-releases/rss.xml",
     "https://www.europol.europa.eu/media-press/rss.xml",
-    "https://www.abf.gov.au/_layouts/15/AppPages/Rss.aspx?site=newsroom",
     "https://www.publicsafety.gc.ca/cnt/ntnl-scrt/rss-en.aspx",
     "https://www.civildefence.govt.nz/rss-feed",
-    # ── CISA / Cybersecurity Gov ──────────────────────────────────────────────
-    "https://www.cisa.gov/news.xml",
-    "https://www.cisa.gov/ics/xml",
-    "https://www.cisa.gov/cybersecurity-advisories.xml",
-    # ── Cybersecurity Industry ────────────────────────────────────────────────
-    "https://www.darkreading.com/rss_simple.asp",
-    "https://feeds.feedburner.com/TheHackersNews",
-    "https://www.bleepingcomputer.com/feed/",
-    "https://www.csoonline.com/index.rss",
-    "https://www.scmagazine.com/home/feed/",
-    "https://msrc.microsoft.com/blog/feed",
-    "https://www.crowdstrike.com/blog/feed/",
-    "https://www.cloudflare.com/rss/",
-    "https://www.mandiant.com/resources/rss.xml",
-    "https://www.okta.com/blog/index.xml",
-    "https://blog.talosintelligence.com/feed/",
-    # ── Humanitarian / Crisis / OSINT ─────────────────────────────────────────
+    "https://www.dhs.gov/news-releases.xml",
+    "https://www.state.gov/press-releases/rss/",
+    "https://www.cisa.gov/news.xml",    # General CISA alerts (not pure cyber advisories)
+    "https://www.abf.gov.au/_layouts/15/AppPages/Rss.aspx?site=newsroom",
+    "https://www.iaea.org/feeds/topnews",  # Nuclear/radiological events
+    # ── Humanitarian / Crisis Organizations ───────────────────────────────────
     "https://reliefweb.int/updates/rss.xml",
-    "https://www.ifrc.org/feeds/all.xml",
-    "https://www.globalsecurity.org/military/world/rss.xml",
     "https://www.crisisgroup.org/rss.xml",
-    # ── UN & International Organizations ─────────────────────────────────────
     "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
-    "https://www.nato.int/cps/en/natolive/news.rss",
     "https://www.who.int/rss-feeds/news-english.xml",
+    "https://www.ifrc.org/feeds/all.xml",
     "https://www.icrc.org/en/rss-feed",
-    "https://www.unicef.org/press-releases/rss",
-    # ── Additional Regional / International ───────────────────────────────────
-    "https://www3.nhk.or.jp/nhkworld/en/news/feeds/",
-    "https://www.middleeasteye.net/rss",
-    "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
-    "https://tass.com/rss/v2.xml",
-    "https://en.mercopress.com/rss",
-    # ── Security / Intelligence Think Tanks ───────────────────────────────────
+    "https://acleddata.com/feed/",
+    # ── Security / Geopolitical Think Tanks ───────────────────────────────────
     "https://www.cfr.org/rss.xml",
     "https://www.chathamhouse.org/rss-feeds/all",
-    "https://www.sipri.org/rss.xml",
     "https://www.rand.org/tools/rss.xml",
-    "https://acleddata.com/feed/",
-    # ── US Government Security & Alerts ──────────────────────────────────────
-    "https://www.state.gov/press-releases/rss/",
-    "https://www.dhs.gov/news-releases.xml",
-    "https://www.cbp.gov/newsroom/rss/",
-    # ── Additional Cybersecurity ──────────────────────────────────────────────
-    "https://krebsonsecurity.com/feed/",
-    "https://feeds.feedburner.com/securityweek",
-    "https://www.infosecurity-magazine.com/rss/news/",
-    "https://isc.sans.edu/rssfeed.xml",
-    "https://unit42.paloaltonetworks.com/feed/",
-    "https://www.welivesecurity.com/feed/",
-    "https://securelist.com/feed/",
-    "https://nakedsecurity.sophos.com/feed/",
-    "https://blog.rapid7.com/rss/",
-    # ── Natural Hazards / Emergency Management ────────────────────────────────
-    "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
-    "https://www.fema.gov/rss/disaster_declarations.rss",
-    # ── OSINT / Cyber Threat Intelligence ────────────────────────────────────
-    "https://www.ransomware.live/rss.xml",
-    "https://www.schneier.com/feed/",
+    "https://www.globalsecurity.org/military/world/rss.xml",
     "https://www.bellingcat.com/feed/",
-    "https://www.zdnet.com/news/rss.xml",
-    # ── Government / Security (additional) ───────────────────────────────────
-    "https://www.gov.uk/government/organisations/ministry-of-defence.atom",
-    "https://www.iaea.org/feeds/topnews",
-    # ── Security Think Tanks (additional) ────────────────────────────────────
-    "https://www.nti.org/rss/",
-    "https://jamestown.org/feed/",
-    "https://carnegieendowment.org/rss/",
-    "https://www.stimson.org/feed/",
-    "https://www.brookings.edu/feed/",
-    "https://www.fpri.org/feed/",
+    "https://www.nato.int/cps/en/natolive/news.rss",
     "https://responsiblestatecraft.org/feed/",
-    # ── Regional News (coverage gaps) ────────────────────────────────────────
-    "https://meduza.io/rss/all",
-    "https://www.themoscowtimes.com/rss/news",
-    "https://novayagazeta.eu/feed/rss",
-    "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
-    "https://japantoday.com/feed/atom",
-    "https://www.bangkokpost.com/rss",
-    "https://vnexpress.net/rss",
-    "https://www.theguardian.com/australia-news/rss",
-    "https://dailytrust.com/feed/",
-    "https://www.channelstv.com/feed/",
-    "https://www.spiegel.de/schlagzeilen/tops/index.rss",
-    # ── Aviation ─────────────────────────────────────────────────────────────
+    # ── Aviation / Transport ──────────────────────────────────────────────────
     "https://avherald.com/h?subscribe=rss",
     "https://simpleflying.com/feed/",
-    "https://www.aerotelegraph.com/feed",
-    "https://www.gov.uk/government/organisations/air-accidents-investigation-branch.atom",
 ]
 
-# ---------- BLOCKLIST ----------
-BLOCKLIST_WORDS = [
-    "sport", "football", "soccer", "cricket", "rugby", "tennis", "league", "cup", "tournament",
-    "celebrity", "entertainment", "movie", "film", "concert",
-    "lottery", "horoscope", "royal family", "gossip", "lifestyle", "fashion",
-    "review:", "opinion:", "editorial:", "tv show", "series finale", "premiere",
+# ── GDELT real-time queries ────────────────────────────────────────────────────
+# GDELT monitors every global news source in near real-time, translated from 65 langs.
+# Catches events that never make it to Western RSS feeds (local strikes, regional unrest).
+# No API key needed.
+GDELT_QUERIES = [
+    "civil unrest protest riot curfew state of emergency",
+    "workers strike industrial action stoppage walkout picket",
+    "school closure teachers strike childcare disruption",
+    "transport bus train metro strike commute disruption",
+    "port closure shipping disruption cargo container",
+    "factory closure manufacturing shutdown production halt",
+    "power outage blackout electricity grid failure infrastructure",
+    "disease outbreak epidemic quarantine health emergency workforce",
+    "flood earthquake typhoon hurricane wildfire evacuation",
+    "travel ban border closure airport shutdown disruption",
+    "protest demonstration crackdown government opposition",
+    "supply chain disruption logistics semiconductor shortage",
 ]
-BLOCKLIST_RE = re.compile(r"\b(" + "|".join(re.escape(w) for w in BLOCKLIST_WORDS) + r")\b", flags=re.IGNORECASE)
+
+# ── Hard blocklist — never relevant ───────────────────────────────────────────
+_HARD_BLOCK = re.compile(
+    r"\b(sport(?:s)?|football|soccer|cricket|rugby|tennis|basketball|nba|nfl|"
+    r"premier.league|champions.league|formula.?1|nascar|golf.tournament|"
+    r"celebrity|movie|film|cinema|concert|award|oscar|grammy|emmy|bafta|"
+    r"tv.show|series.finale|season.premiere|sitcom|reality.show|"
+    r"lottery|horoscope|astrology|fashion|gossip|lifestyle|recipe|restaurant|"
+    r"real.estate.tips|home.decor|gardening)\b",
+    flags=re.IGNORECASE,
+)
+
+# ── Cyber-only filter — deprioritize unless Dell-specific ─────────────────────
+# These are pure cyber/IT articles that have no physical operational consequence
+_CYBER_ONLY = re.compile(
+    r"\b(ransomware|phishing|malware|zero.?day|CVE-\d|patch.tuesday|"
+    r"vulnerability.(?:discovered|found|patched|disclosed)|"
+    r"exploit.(?:released|published|found)|bug.bounty|penetration.test|"
+    r"security.advisory|firmware.update|software.patch|"
+    r"threat.actor|apt.group|threat.intelligence.report)\b",
+    flags=re.IGNORECASE,
+)
+_DELL_MENTION = re.compile(r"\bdell\b", flags=re.IGNORECASE)
+
+# ── Helpers ────────────────────────────────────────────────────────────────────
+def _clean(html):
+    """Strip HTML tags, return plain text."""
+    return BeautifulSoup(html, "html.parser").get_text(" ", strip=True) if html else ""
 
 
-# ---------- KEYWORD FALLBACK ----------
-def keyword_classify(title, body):
-    text = (title + " " + body).lower()
-    if re.search(r"\b(ransomware|breach|hack|malware|cyber|cisa|vulnerability|exploit|phishing|ddos|data.?leak)\b", text):
-        sev = "HIGH" if re.search(r"\b(critical|breach|ransomware|nation.state|confirmed)\b", text) else "MEDIUM"
-        return {"category": "CYBER_SECURITY_MAJOR", "likelihood_relevant": 80, "severity": sev,
-                "primary_reason": "Cybersecurity incident detected.",
-                "geo_relevance": {"mentioned_countries_or_cities": []}}
-    if re.search(r"\b(port|shipping|cargo|freight|strike|container|vessel|supply.chain|disruption|airport.clos|airspace)\b", text):
-        return {"category": "SUPPLY_CHAIN_SECURITY", "likelihood_relevant": 75, "severity": "MEDIUM",
-                "primary_reason": "Supply chain or logistics disruption.",
-                "geo_relevance": {"mentioned_countries_or_cities": []}}
-    if re.search(r"\b(earthquake|flood|hurricane|typhoon|tsunami|wildfire|volcanic|eruption|disaster|emergency|evacuation)\b", text):
-        sev = "HIGH" if re.search(r"\b(major|severe|deadly|magnitude [6-9]|category [3-5])\b", text) else "MEDIUM"
-        return {"category": "CRISIS_WEATHER", "likelihood_relevant": 80, "severity": sev,
-                "primary_reason": "Natural disaster or emergency.",
-                "geo_relevance": {"mentioned_countries_or_cities": []}}
-    if re.search(r"\b(epidemic|pandemic|outbreak|pathogen|health.advisory|travel.ban|quarantine)\b", text):
-        return {"category": "HEALTH_SAFETY", "likelihood_relevant": 75, "severity": "MEDIUM",
-                "primary_reason": "Health or safety advisory.",
-                "geo_relevance": {"mentioned_countries_or_cities": []}}
-    if re.search(r"\b(protest|riot|terror|attack|bomb|shooting|war|conflict|coup|unrest|killed|troops|military|armed)\b", text):
-        sev = "HIGH" if re.search(r"\b(terror|bomb|killed|troops|war|coup)\b", text) else "MEDIUM"
-        return {"category": "PHYSICAL_SECURITY", "likelihood_relevant": 72, "severity": sev,
-                "primary_reason": "Physical security event.",
-                "geo_relevance": {"mentioned_countries_or_cities": []}}
-    return {"category": "PHYSICAL_SECURITY", "likelihood_relevant": 45, "severity": "LOW",
-            "primary_reason": "Keyword heuristic — low confidence.",
-            "geo_relevance": {"mentioned_countries_or_cities": []}}
+def _haversine_km(lat1, lon1, lat2, lon2):
+    """Distance in km between two lat/lon points."""
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * \
+        math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    return R * 2 * math.asin(math.sqrt(a))
 
 
-# ---------- GROQ ----------
-def init_groq():
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        print("GROQ_API_KEY not set — using keyword-only classification")
-        return None
-    return api_key
+def _nearest_site(lat, lon):
+    """Return (site_name, distance_km) for nearest Dell site."""
+    if not DELL_SITES or not lat or not lon:
+        return None, None
+    best, best_d = None, float("inf")
+    for s in DELL_SITES:
+        d = _haversine_km(lat, lon, s["lat"], s["lon"])
+        if d < best_d:
+            best_d, best = d, s["name"]
+    return best, round(best_d)
 
 
-def ai_analyze_article(api_key, title, body, source, feedback_text):
-    if not api_key:
-        return keyword_classify(title, body)
+# ── GDELT Scout ───────────────────────────────────────────────────────────────
+def fetch_gdelt(query):
+    """
+    Query GDELT Doc 2.0 API. Returns list of raw article dicts.
+    Free, no API key. Covers global news in near real-time.
+    """
+    params = {
+        "query":       query,
+        "mode":        "artlist",
+        "maxrecords":  str(GDELT_MAX_ARTS),
+        "format":      "json",
+        "timespan":    GDELT_TIMESPAN,
+        "sourcelang":  "english",
+        "sort":        "datedesc",
+    }
+    url = GDELT_API_URL + "?" + urlencode(params)
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        out = []
+        for item in (data.get("articles") or []):
+            title = (item.get("title") or "").strip()
+            if not title:
+                continue
+            out.append({
+                "title":   title,
+                "url":     item.get("url", ""),
+                "body":    title,   # GDELT doesn't return body text
+                "source":  urlparse(item.get("url", "")).netloc.replace("www.", ""),
+                "time":    item.get("seendate", ""),
+                "gdelt":   True,
+            })
+        return out
+    except Exception as ex:
+        print(f"    GDELT error [{query[:40]}]: {ex}")
+        return []
 
-    user_msg = f"""Classify this article for Dell SRO operational relevance.
 
-CATEGORIES:
-- PHYSICAL_SECURITY: Protests, riots, terror, war, crime, kidnapping, unrest, coups.
-- SUPPLY_CHAIN_SECURITY: Port/airport closures, shipping disruption, strikes, cargo theft.
-- CYBER_SECURITY_MAJOR: Confirmed breaches, ransomware, major outages, nation-state intrusions.
-- CRISIS_WEATHER: Earthquakes, typhoons, floods, wildfires, grid failure, states of emergency.
-- HEALTH_SAFETY: Epidemics, pandemics, travel bans, major health advisories.
-- BRAND_MONITORING: Dell Technologies layoffs, restructuring, data breaches, leadership changes, executive departures, insider leaks, employee/chatter threats, harassment, reputational risk, Dell-specific vulnerabilities or incidents.
-- NOT_RELEVANT: General politics, sports, entertainment, opinion, patch notes without confirmed impact.
+# ── Gemini Analyst ────────────────────────────────────────────────────────────
+_GEMINI_SYSTEM = f"""You are the AI Security Intelligence Analyst for Dell Technologies' Global Security & Resiliency Operations (SRO) team.
+Your users are Regional Security Managers, Regional Security Directors, the Security VP, and Crisis Leads.
 
-FEEDBACK: {feedback_text}
+{DELL_SITES_COMPACT}
 
-ARTICLE:
-Title: {title}
-Body: {body[:800]}
-Source: {source}
+DOMAIN: Physical security, workforce safety, supply chain, crisis management.
+CYBER: Lowest priority — only surface if there is a confirmed DIRECT physical or operational impact on Dell (e.g., cyberattack causing power failure at a Dell facility, OT/ICS attack affecting Dell manufacturing). Exclude all other cyber news: ransomware reports, CVEs, patches, advisories, vendor security updates, threat research.
 
-Return JSON only: {{"category":"...","likelihood_relevant":0-100,"severity":"LOW|MEDIUM|HIGH|CRITICAL","primary_reason":"one sentence","geo_relevance":{{"mentioned_countries_or_cities":[]}}}}"""
+PRIORITY CATEGORIES:
+1 PHYSICAL_SECURITY  — Protests, civil unrest, riots, terrorism, armed conflict, violent crime near Dell offices
+2 CIVIL_UNREST       — Political instability, coups, mass demonstrations, curfews, states of emergency
+3 NATURAL_DISASTER   — Earthquakes, floods, typhoons, hurricanes, wildfires, extreme weather
+4 SUPPLY_CHAIN       — Port/airport closures, shipping lane disruptions, cargo disruptions, logistics failures, manufacturing shutdowns
+5 LABOR_ACTION       — Any strikes or work stoppages. CRITICAL: include SECONDARY EFFECTS even if the strike is not in Dell's industry:
+                       * Teacher/school strike → employees with children cannot attend work → workforce availability impact
+                       * Bus/train/metro strike → employees cannot commute → Dell office attendance drop
+                       * Public sector strike → government services disrupted → operational impact
+6 INFRASTRUCTURE     — Power grid failures, internet outages, road/bridge/tunnel closures affecting Dell site access
+7 HEALTH_WORKFORCE   — Disease outbreaks, health advisories that reduce workforce availability or require travel restrictions
+8 TRAVEL_SECURITY    — Government travel advisories, airport/border closures, executive travel risk
+9 BRAND_MONITORING   — Dell layoffs, restructuring, executive changes, data breaches, insider incidents, reputation risk
+10 CYBER_DIRECT      — ONLY if confirmed direct physical/operational impact on Dell operations (see above)
+NOT_RELEVANT         — General cyber/IT news, sports, entertainment, opinion, academic research, general financial news
+
+SECOND-ORDER REASONING: Always consider how an event cascades to Dell operations.
+Example: "NSW teachers strike" → schools close → Dell Sydney/Melbourne employees with school-age children cannot come to work → estimated 10-25% workforce reduction at those sites for the duration."""
+
+
+def gemini_classify_batch(api_key, articles):
+    """
+    Send a batch of articles to Gemini 2.0 Flash.
+    Returns list of assessment dicts (one per article), or [] on failure.
+    """
+    articles_payload = json.dumps([
+        {
+            "idx":    i,
+            "title":  a["title"],
+            "body":   a["body"][:250],
+            "source": a.get("source", ""),
+        }
+        for i, a in enumerate(articles)
+    ], ensure_ascii=False)
+
+    user_msg = f"""Analyze these {len(articles)} articles for Dell SRO operational relevance.
+
+ARTICLES:
+{articles_payload}
+
+Return a JSON array, one object per article:
+[{{"idx":0,"relevant":true,"score":1-10,"category":"PHYSICAL_SECURITY|CIVIL_UNREST|NATURAL_DISASTER|SUPPLY_CHAIN|LABOR_ACTION|INFRASTRUCTURE|HEALTH_WORKFORCE|TRAVEL_SECURITY|BRAND_MONITORING|CYBER_DIRECT|NOT_RELEVANT","severity":"LOW|MEDIUM|HIGH|CRITICAL","locations":["city, country"],"dell_region":"AMER|EMEA|APJC|LATAM|Global","operational_impact":"one sentence","second_order":"cascading Dell workforce/ops effect if any, else empty string"}}]"""
 
     payload = json.dumps({
-        "model": GROQ_MODEL, "temperature": 0, "max_tokens": GROQ_MAX_TOKENS,
+        "contents": [
+            {"role": "user", "parts": [{"text": _GEMINI_SYSTEM}]},
+            {"role": "model", "parts": [{"text": "Understood. I will analyze articles for Dell SRO operational relevance with second-order reasoning. I will return only valid JSON."}]},
+            {"role": "user", "parts": [{"text": user_msg}]},
+        ],
+        "generationConfig": {
+            "temperature":      0,
+            "maxOutputTokens":  2048,
+            "responseMimeType": "application/json",
+        },
+    }).encode("utf-8")
+
+    url = f"{GEMINI_API_BASE}/{GEMINI_MODEL}:generateContent?key={api_key}"
+    req = urllib.request.Request(url, data=payload,
+                                 headers={"Content-Type": "application/json"},
+                                 method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+
+        raw = result["candidates"][0]["content"]["parts"][0]["text"]
+        raw = re.sub(r"```json\s*|\s*```", "", raw).strip()
+        assessments = json.loads(raw)
+        if isinstance(assessments, dict):
+            assessments = [assessments]
+        return assessments
+
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")[:400]
+        print(f"    Gemini HTTP {e.code}: {body}")
+        if e.code == 429:
+            time.sleep(15)
+        return []
+    except Exception as ex:
+        print(f"    Gemini error: {ex}")
+        return []
+
+
+# ── Groq fallback classifier (single article, used when Gemini unavailable) ───
+def groq_classify(api_key, title, body, source, feedback_text=""):
+    """Groq single-article classification — fallback when Gemini not configured."""
+    user_msg = f"""Classify for Dell SRO physical security / supply chain / crisis relevance.
+CATEGORIES: PHYSICAL_SECURITY, CIVIL_UNREST, NATURAL_DISASTER, SUPPLY_CHAIN, LABOR_ACTION, INFRASTRUCTURE, HEALTH_WORKFORCE, TRAVEL_SECURITY, BRAND_MONITORING, CYBER_DIRECT, NOT_RELEVANT
+CYBER NOTE: Only CYBER_DIRECT if confirmed direct operational impact on Dell. Exclude ransomware reports, CVEs, patches.
+LABOR NOTE: Include teacher/transport strikes — they cause workforce absence via childcare/commute impact.
+{feedback_text}
+Title: {title}
+Body: {body[:600]}
+Source: {source}
+Return JSON: {{"category":"...","score":1-10,"severity":"LOW|MEDIUM|HIGH|CRITICAL","operational_impact":"one sentence","locations":[],"dell_region":"AMER|EMEA|APJC|LATAM|Global"}}"""
+
+    payload = json.dumps({
+        "model": GROQ_MODEL, "temperature": 0, "max_tokens": 300,
         "messages": [
-            {"role": "system", "content": "You are a security news classifier for Dell SRO. Return ONLY valid JSON."},
-            {"role": "user", "content": user_msg},
+            {"role": "system", "content": "Dell SRO intelligence analyst. Return only valid JSON."},
+            {"role": "user",   "content": user_msg},
         ],
         "response_format": {"type": "json_object"},
     }).encode("utf-8")
 
     req = urllib.request.Request(GROQ_API_URL, data=payload,
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}, method="POST")
+        headers={"Authorization": f"Bearer {api_key}",
+                 "Content-Type": "application/json"}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=20) as resp:
             result = json.loads(resp.read().decode("utf-8"))
-        content = result["choices"][0]["message"]["content"].strip().strip("```json").strip("```").strip()
+        content = result["choices"][0]["message"]["content"].strip()
+        content = re.sub(r"```json\s*|\s*```", "", content).strip()
         return json.loads(content)
     except urllib.error.HTTPError as e:
-        print(f"Groq HTTP {e.code}: {e.read().decode('utf-8', errors='replace')[:200]}")
-        if e.code in (429, 503):
+        if e.code == 429:
             time.sleep(5)
-        return keyword_classify(title, body)
-    except Exception as ex:
-        print(f"Groq error: {ex}")
-        return keyword_classify(title, body)
+        return None
+    except Exception:
+        return None
 
 
-# ---------- UTILS ----------
-def clean_html(html):
-    return BeautifulSoup(html, "html.parser").get_text(" ", strip=True) if html else ""
+# ── Keyword fallback (last resort — no AI available) ──────────────────────────
+def keyword_classify(title, body):
+    """Heuristic fallback when neither Gemini nor Groq is available."""
+    text = (title + " " + body).lower()
+    # Immediately reject pure cyber-only
+    if _CYBER_ONLY.search(text) and not _DELL_MENTION.search(text):
+        return None
 
-def is_obviously_irrelevant(text):
-    return bool(BLOCKLIST_RE.search(text)) if text else False
+    checks = [
+        (r"\b(protest|riot|unrest|coup|curfew|martial.law|demonstration|civil.war|"
+         r"attack|bomb|explosion|shooting|terror|hostage|armed|troops|military.action)\b",
+         "PHYSICAL_SECURITY", "HIGH"),
+        (r"\b(strike|industrial.action|walkout|picket|work.stoppage|"
+         r"teachers?.strike|school.clos|transport.strike|bus.strike|train.strike|"
+         r"metro.strike|transit.strike|dock.strike|port.strike)\b",
+         "LABOR_ACTION", "MEDIUM"),
+        (r"\b(port.clos|shipping.disrupt|supply.chain|cargo.disrupt|"
+         r"container.shortage|logistics.halt|factory.clos|manufacturing.halt|"
+         r"freight.disrupt|airspace.clos|airport.clos)\b",
+         "SUPPLY_CHAIN", "MEDIUM"),
+        (r"\b(earthquake|tsunami|typhoon|hurricane|flood|wildfire|eruption|"
+         r"disaster|emergency.declar|evacuation|state.of.emergency)\b",
+         "NATURAL_DISASTER", "HIGH"),
+        (r"\b(power.outage|blackout|grid.failure|infrastructure.attack|"
+         r"internet.outage|road.clos|bridge.clos)\b",
+         "INFRASTRUCTURE", "MEDIUM"),
+        (r"\b(outbreak|epidemic|pandemic|quarantine|health.advisory|"
+         r"travel.ban|disease.spread|health.emergency)\b",
+         "HEALTH_WORKFORCE", "MEDIUM"),
+        (r"\b(travel.advisory|do.not.travel|border.clos|embassy|"
+         r"evacuation.order|safety.alert)\b",
+         "TRAVEL_SECURITY", "MEDIUM"),
+        (r"\b(dell.layoff|dell.breach|dell.incident|dell.restructur|"
+         r"dell.executive|dell.ceo|dell.cto|dell.insider)\b",
+         "BRAND_MONITORING", "HIGH"),
+    ]
+    for pattern, cat, sev in checks:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            return {"category": cat, "score": 6, "severity": sev,
+                    "operational_impact": f"{cat.replace('_', ' ').title()} event detected.",
+                    "locations": [], "dell_region": "Global"}
+    return None
 
-def build_article_key(title, source, url):
-    url = (url or "").strip().lower()
-    if url:
-        return f"u:{url}"
-    return f"s:{(source or '').strip().lower()}|t:{(title or '').strip().lower()}"
 
-def map_region(text):
-    t = (text or "").lower()
-    if any(x in t for x in ["china","asia","india","japan","australia","thailand","vietnam",
-                             "indonesia","malaysia","singapore","korea","taiwan","philippines"]):
-        return "APJC"
-    if any(x in t for x in ["uk","britain","england","europe","germany","france","poland",
-                             "ireland","israel","gaza","russia","ukraine","middle east",
-                             "africa","netherlands","sweden","spain","italy"]):
-        return "EMEA"
-    if any(x in t for x in ["usa","united states","america","canada","brazil","mexico",
-                             "colombia","argentina","chile","peru","panama"]):
-        return "AMER"
-    return "Global"
-
-
-# ---------- FEEDBACK ----------
+# ── Feedback loader ────────────────────────────────────────────────────────────
 def load_feedback():
-    block_keys, boost_keys, pos_ex, neg_ex = set(), set(), [], []
+    block_keys, boost_keys = set(), set()
     if not os.path.exists(FEEDBACK_PATH):
-        return block_keys, boost_keys, pos_ex, neg_ex
+        return block_keys, boost_keys
     with open(FEEDBACK_PATH, "r", encoding="utf-8") as f:
         for line in f:
             try:
                 obj = json.loads(line.strip())
+                label = (obj.get("label") or "").upper()
+                url   = (obj.get("url") or "").strip().lower()
+                title = (obj.get("title") or "").strip().lower()
+                key   = url or title
+                if not key:
+                    continue
+                if label == "NOT_RELEVANT":
+                    block_keys.add(key)
+                elif label in ("CRITICAL", "KEEP"):
+                    boost_keys.add(key)
             except Exception:
                 continue
-            label = (obj.get("label") or "").upper()
-            key = build_article_key(obj.get("title",""), obj.get("source",""), obj.get("url",""))
-            if label == "NOT_RELEVANT":
-                block_keys.add(key); neg_ex.append(obj)
-            elif label == "CRITICAL":
-                boost_keys.add(key); pos_ex.append(obj)
-    return block_keys, boost_keys, pos_ex[-20:], neg_ex[-20:]
-
-def build_feedback_prompt_section(pos_ex, neg_ex):
-    if not pos_ex and not neg_ex:
-        return "No prior feedback — use general security relevance rules."
-    lines = ["Recent analyst feedback:"]
-    if pos_ex:
-        lines.append("KEEP:")
-        lines += [f"- {e.get('source','')} – {e.get('title','')[:100]}" for e in pos_ex]
-    if neg_ex:
-        lines.append("DROP:")
-        lines += [f"- {e.get('source','')} – {e.get('title','')[:100]}" for e in neg_ex]
-    return "\n".join(lines)
+    return block_keys, boost_keys
 
 
-# ---------- THELAYOFF.COM SCRAPER ----------
+# ── Region mapper (for dashboard display) ─────────────────────────────────────
+def map_region(text):
+    t = (text or "").lower()
+    if any(x in t for x in ["china", "asia", "india", "japan", "australia",
+                             "thailand", "vietnam", "indonesia", "malaysia",
+                             "singapore", "korea", "taiwan", "philippines",
+                             "apjc", "hong kong", "myanmar", "bangladesh"]):
+        return "APJC"
+    if any(x in t for x in ["uk", "britain", "europe", "germany", "france",
+                             "ireland", "israel", "ukraine", "russia", "africa",
+                             "netherlands", "sweden", "spain", "italy", "emea",
+                             "middle east", "dubai", "saudi", "poland", "czech"]):
+        return "EMEA"
+    if any(x in t for x in ["usa", "united states", "canada", "brazil", "mexico",
+                             "colombia", "argentina", "chile", "latam", "amer",
+                             "peru", "venezuela", "ecuador"]):
+        return "AMER"
+    return "Global"
+
+
+_TYPE_MAP = {
+    "PHYSICAL_SECURITY":  "PHYSICAL SECURITY",
+    "CIVIL_UNREST":       "CIVIL UNREST",
+    "NATURAL_DISASTER":   "CRISIS / WEATHER",
+    "SUPPLY_CHAIN":       "SUPPLY CHAIN",
+    "LABOR_ACTION":       "LABOR / WORKFORCE",
+    "INFRASTRUCTURE":     "INFRASTRUCTURE",
+    "HEALTH_WORKFORCE":   "HEALTH / SAFETY",
+    "TRAVEL_SECURITY":    "TRAVEL ADVISORY",
+    "BRAND_MONITORING":   "INSIDER / LEAKS",
+    "CYBER_DIRECT":       "CYBER SECURITY",
+}
+
+_SEV_NUM = {"LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
+
+
+# ── Main pipeline ──────────────────────────────────────────────────────────────
 def main():
-    print(f"SRO Ingest starting — {len(FEEDS)} feeds")
-    api_key = init_groq()
-    block_keys, boost_keys, pos_ex, neg_ex = load_feedback()
-    feedback_text = build_feedback_prompt_section(pos_ex, neg_ex)
+    gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
+    groq_key   = os.getenv("GROQ_API_KEY", "").strip()
 
-    all_items, seen_titles, groq_calls = [], set(), 0
+    if gemini_key:
+        print("SRO Brain v2.0 — Gemini 2.0 Flash active")
+        ai_mode = "gemini"
+    elif groq_key:
+        print("SRO Brain v2.0 — Groq fallback active (add GEMINI_API_KEY for full intelligence)")
+        ai_mode = "groq"
+    else:
+        print("SRO Brain v2.0 — Keyword-only mode (no AI keys set)")
+        ai_mode = "keyword"
 
-    for url in FEEDS:
-        if groq_calls >= GROQ_CALLS_PER_RUN:
-            print(f"Groq cap reached ({GROQ_CALLS_PER_RUN}) — stopping")
-            break
+    block_keys, boost_keys = load_feedback()
+
+    # ── Phase 1: Scout — collect raw articles ─────────────────────────────────
+    print(f"\n[SCOUT] Fetching {len(FEEDS)} RSS feeds...")
+    raw_articles = []
+    seen_titles  = set()
+
+    for feed_url in FEEDS:
         try:
-            f = feedparser.parse(url)
-            print(f"  {url} → {len(getattr(f,'entries',[]))} entries")
-        except Exception as e:
-            print(f"  SKIP {url}: {e}"); continue
+            f = feedparser.parse(feed_url)
+            entries = getattr(f, "entries", [])
+            if entries:
+                print(f"  ✓ {feed_url[-60:]:60s} → {len(entries)} entries")
+            for e in entries[:6]:
+                title = (getattr(e, "title", "") or "").strip()
+                if not title or title.lower() in seen_titles:
+                    continue
+                seen_titles.add(title.lower())
 
-        for e in f.entries[:8]:
-            if groq_calls >= GROQ_CALLS_PER_RUN:
-                break
-            title = getattr(e, "title", "").strip()
-            if not title or title in seen_titles:
-                continue
-            seen_titles.add(title)
+                raw_body = _clean(getattr(e, "summary", "") or "")
+                if hasattr(e, "content") and e.content:
+                    try:
+                        cv = e.content[0].value
+                        if cv:
+                            raw_body = _clean(cv)
+                    except Exception:
+                        pass
 
-            raw_summary = clean_html(getattr(e, "summary", "") or "")
-            if hasattr(e, "content") and e.content:
+                link   = getattr(e, "link", "") or ""
+                source = (urlparse(link).netloc or urlparse(feed_url).netloc).replace("www.", "")
+
+                url_key   = link.strip().lower()
+                title_key = title.lower()
+                if url_key in block_keys or title_key in block_keys:
+                    continue
+
+                # Hard blocklist — entertainment/sports
+                if _HARD_BLOCK.search(title + " " + raw_body[:200]):
+                    continue
+
+                # Cyber-only pre-filter: skip if clearly pure IT security and no Dell mention
+                if _CYBER_ONLY.search(title) and not _DELL_MENTION.search(title + " " + raw_body[:100]):
+                    continue
+
+                pub_time = datetime.now(timezone.utc).isoformat()
                 try:
-                    cv = e.content[0].value
-                    if cv: raw_summary = clean_html(cv)
-                except Exception: pass
+                    if hasattr(e, "published_parsed") and e.published_parsed:
+                        pub_time = datetime(
+                            *e.published_parsed[:6], tzinfo=timezone.utc
+                        ).isoformat()
+                except Exception:
+                    pass
 
-            full_text = f"{title} {raw_summary}"
-            link = getattr(e, "link", "") or ""
-            source_host = urlparse(link).netloc.replace("www.","") or urlparse(url).netloc.replace("www.","")
-            key = build_article_key(title, source_host, link)
+                raw_articles.append({
+                    "title":    title,
+                    "url":      link,
+                    "body":     raw_body[:500],
+                    "source":   source,
+                    "time":     pub_time,
+                    "url_key":  url_key,
+                    "title_key": title_key,
+                    "boost":    (url_key in boost_keys or title_key in boost_keys),
+                })
+        except Exception as ex:
+            print(f"  ✗ {feed_url[-60:]:60s} → {ex}")
 
-            if key in block_keys or is_obviously_irrelevant(full_text):
+    # ── Phase 1b: GDELT Scout ─────────────────────────────────────────────────
+    print(f"\n[SCOUT] Querying GDELT ({len(GDELT_QUERIES)} queries, last {GDELT_TIMESPAN})...")
+    gdelt_total = 0
+    for query in GDELT_QUERIES:
+        articles = fetch_gdelt(query)
+        for a in articles:
+            title = a["title"]
+            if title.lower() in seen_titles:
                 continue
+            if _HARD_BLOCK.search(title):
+                continue
+            if _CYBER_ONLY.search(title) and not _DELL_MENTION.search(title):
+                continue
+            seen_titles.add(title.lower())
+            raw_articles.append({
+                "title":     title,
+                "url":       a["url"],
+                "body":      title,   # GDELT returns title only
+                "source":    a["source"],
+                "time":      datetime.now(timezone.utc).isoformat(),
+                "url_key":   a["url"].strip().lower(),
+                "title_key": title.lower(),
+                "boost":     False,
+                "gdelt":     True,
+            })
+            gdelt_total += 1
 
+    print(f"  GDELT added {gdelt_total} new articles")
+    print(f"\n[SCOUT] Total raw articles: {len(raw_articles)}")
+
+    # ── Phase 2: Analyst — AI classification ──────────────────────────────────
+    print(f"\n[ANALYST] Mode: {ai_mode.upper()} — classifying {len(raw_articles)} articles...")
+    results = []
+
+    if ai_mode == "gemini":
+        # Batch articles and send to Gemini
+        gemini_calls = 0
+        for batch_start in range(0, len(raw_articles), GEMINI_BATCH_SIZE):
+            if gemini_calls >= GEMINI_MAX_CALLS:
+                print(f"  Gemini call cap reached ({GEMINI_MAX_CALLS})")
+                break
+
+            batch = raw_articles[batch_start: batch_start + GEMINI_BATCH_SIZE]
+            print(f"  Gemini batch {gemini_calls + 1}: articles {batch_start}–{batch_start + len(batch) - 1}")
+            assessments = gemini_classify_batch(gemini_key, batch)
+            gemini_calls += 1
+
+            if assessments:
+                for assessment in assessments:
+                    idx = assessment.get("idx", 0)
+                    if idx >= len(batch):
+                        continue
+                    article = batch[idx]
+
+                    relevant = assessment.get("relevant", False)
+                    score    = int(assessment.get("score", 0) or 0)
+                    cat      = assessment.get("category", "NOT_RELEVANT")
+
+                    if not relevant or cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
+                        continue
+
+                    # Boost flagged articles
+                    if article.get("boost") and score < 7:
+                        score = 7
+
+                    sev_str = (assessment.get("severity") or "LOW").upper()
+                    sev_num = _SEV_NUM.get(sev_str, 1)
+                    if article.get("boost") and sev_num < 3:
+                        sev_num = 3
+
+                    op_impact   = assessment.get("operational_impact", "")
+                    second_ord  = assessment.get("second_order", "")
+                    locations   = assessment.get("locations") or []
+                    dell_region = assessment.get("dell_region") or map_region(
+                        article["title"] + " " + " ".join(locations)
+                    )
+
+                    snippet = op_impact
+                    if second_ord:
+                        snippet = f"{op_impact} | {second_ord}"
+                    if not snippet:
+                        snippet = article["body"][:160]
+
+                    results.append({
+                        "title":            article["title"],
+                        "url":              article["url"],
+                        "snippet":          snippet,
+                        "body":             article["body"][:600],
+                        "source":           article["source"],
+                        "time":             article["time"],
+                        "region":           dell_region,
+                        "severity":         sev_num,
+                        "type":             _TYPE_MAP.get(cat, "GENERAL"),
+                        "locations":        locations,
+                        "operational_impact": op_impact,
+                        "second_order":     second_ord,
+                        "ai_score":         score,
+                        "gdelt":            article.get("gdelt", False),
+                    })
+                    print(f"  [KEEP] {cat:20s} sev={sev_num} score={score:2d} | {article['title'][:70]}")
+
+            time.sleep(GEMINI_DELAY_S)
+
+        print(f"  Gemini calls used: {gemini_calls}")
+
+    elif ai_mode == "groq":
+        groq_calls = 0
+        for article in raw_articles:
+            if groq_calls >= GROQ_MAX_CALLS:
+                print(f"  Groq cap reached ({GROQ_MAX_CALLS})")
+                break
+            analysis = groq_classify(groq_key, article["title"], article["body"],
+                                     article["source"])
             groq_calls += 1
-            analysis = ai_analyze_article(api_key, title, raw_summary, source_host, feedback_text)
-            cat = analysis.get("category", "NOT_RELEVANT")
-            score = int(analysis.get("likelihood_relevant", 0) or 0)
-
-            if cat == "NOT_RELEVANT" or (score < 45 and cat != "BRAND_MONITORING"):
+            if not analysis:
+                continue
+            cat   = analysis.get("category", "NOT_RELEVANT")
+            score = int(analysis.get("score", 0) or 0)
+            if cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
                 continue
 
             sev_str = (analysis.get("severity") or "LOW").upper()
-            severity = {"MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}.get(sev_str, 1)
-            if key in boost_keys and severity < 3:
-                severity = 3
+            sev_num = _SEV_NUM.get(sev_str, 1)
+            if article.get("boost") and sev_num < 3:
+                sev_num = 3
 
-            dash_type = {"PHYSICAL_SECURITY": "PHYSICAL SECURITY", "SUPPLY_CHAIN_SECURITY": "SUPPLY CHAIN",
-                         "CYBER_SECURITY_MAJOR": "CYBER SECURITY", "CRISIS_WEATHER": "CRISIS / WEATHER",
-                         "HEALTH_SAFETY": "HEALTH / SAFETY", "BRAND_MONITORING": "INSIDER / LEAKS"}.get(cat, "GENERAL")
+            locations   = analysis.get("locations") or []
+            dell_region = analysis.get("dell_region") or map_region(article["title"])
+            op_impact   = analysis.get("operational_impact", "")
 
-            ts_iso = datetime.now(timezone.utc).isoformat()
-            sort_time = ts_iso
-            try:
-                if hasattr(e, "published_parsed") and e.published_parsed:
-                    pt = datetime(*e.published_parsed[:6]).replace(tzinfo=timezone.utc)
-                    ts_iso = pt.isoformat(); sort_time = ts_iso
-            except Exception: pass
-
-            geo = analysis.get("geo_relevance") or {}
-            geo_locations = geo.get("mentioned_countries_or_cities") or []
-
-            all_items.append({
-                "title": title, "url": link,
-                "snippet": analysis.get("primary_reason") or raw_summary[:160],
-                "body": raw_summary[:600],
-                "source": source_host, "time": ts_iso,
-                "region": map_region(full_text), "severity": severity,
-                "type": dash_type, "_sort_time": sort_time,
-                "locations": geo_locations,
+            results.append({
+                "title":              article["title"],
+                "url":                article["url"],
+                "snippet":            op_impact or article["body"][:160],
+                "body":               article["body"][:600],
+                "source":             article["source"],
+                "time":               article["time"],
+                "region":             dell_region,
+                "severity":           sev_num,
+                "type":               _TYPE_MAP.get(cat, "GENERAL"),
+                "locations":          locations,
+                "operational_impact": op_impact,
+                "second_order":       "",
+                "ai_score":           score,
             })
-            print(f"  [KEEP] {dash_type}|sev={severity}|{map_region(full_text)}| {title[:70]}")
+            print(f"  [KEEP] {cat:20s} sev={sev_num} | {article['title'][:70]}")
 
-    all_items.sort(key=lambda x: (x.get("severity", 1), x.get("_sort_time", "")), reverse=True)
-    for it in all_items:
-        it.pop("_sort_time", None)
+    else:
+        # Keyword-only mode
+        for article in raw_articles:
+            analysis = keyword_classify(article["title"], article["body"])
+            if not analysis:
+                continue
+            cat     = analysis.get("category", "NOT_RELEVANT")
+            sev_str = (analysis.get("severity") or "LOW").upper()
+            sev_num = _SEV_NUM.get(sev_str, 1)
+            results.append({
+                "title":              article["title"],
+                "url":                article["url"],
+                "snippet":            article["body"][:160],
+                "body":               article["body"][:600],
+                "source":             article["source"],
+                "time":               article["time"],
+                "region":             map_region(article["title"]),
+                "severity":           sev_num,
+                "type":               _TYPE_MAP.get(cat, "GENERAL"),
+                "locations":          [],
+                "operational_impact": "",
+                "second_order":       "",
+                "ai_score":           5,
+            })
+
+    # ── Phase 3: Sort, deduplicate, write ─────────────────────────────────────
+    # Sort: severity (high first), then time (newest first)
+    results.sort(key=lambda x: (x.get("severity", 1), x.get("time", "")), reverse=True)
+
+    # Cap to 300 items (KV limit)
+    results = results[:300]
 
     # Write primary output
     with open(NEWS_PATH, "w", encoding="utf-8") as f:
-        json.dump(all_items, f, indent=2, ensure_ascii=False)
-    print(f"\nDone: {len(all_items)} items → {NEWS_PATH} | Groq calls: {groq_calls}")
+        json.dump(results, f, indent=2, ensure_ascii=False)
+    print(f"\n[OUTPUT] {len(results)} items → {NEWS_PATH}")
 
     # Mirror to /data/news.json for Worker fetch
     try:
         root_data = os.path.join(BASE_DIR, "data")
         os.makedirs(root_data, exist_ok=True)
         with open(os.path.join(root_data, "news.json"), "w", encoding="utf-8") as f2:
-            json.dump(all_items, f2, indent=2, ensure_ascii=False)
-        print(f"Mirrored to {root_data}/news.json")
+            json.dump(results, f2, indent=2, ensure_ascii=False)
+        print(f"[OUTPUT] Mirrored to data/news.json")
     except Exception as ex:
-        print(f"Mirror failed (non-fatal): {ex}")
+        print(f"[OUTPUT] Mirror failed (non-fatal): {ex}")
+
+    print(f"\nSRO Brain v2.0 complete — {len(results)} intelligence items | mode={ai_mode}")
 
 
 if __name__ == "__main__":
