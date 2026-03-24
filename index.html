@@ -249,10 +249,10 @@
     .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
 
     .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
-    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; flex-shrink: 0; }
     .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
     .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
-    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; }
+    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; flex-shrink: 0; }
     .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
     .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
 
@@ -1821,6 +1821,7 @@
     #proximity-alerts-container {
       max-height: none !important;
       flex: 1;
+      min-height: 60px;
       overflow-y: auto;
     }
     #cii-list { flex: 1; overflow-y: auto; }
@@ -2695,7 +2696,7 @@
                   <div id="proximity-alerts-container" aria-live="polite"></div>
 
                   <!-- Global Disruptions Panel -->
-                  <div style="margin-top:14px;padding-top:12px;border-top:2px solid rgba(100,100,100,0.15);">
+                  <div style="margin-top:14px;padding-top:12px;border-top:2px solid rgba(100,100,100,0.15);flex-shrink:0;">
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                       <span style="font-size:0.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5f6368;">🌐 Global Disruptions</span>
                       <span style="font-size:0.6rem;color:#9aa0a6;margin-left:auto;">48h rolling</span>
