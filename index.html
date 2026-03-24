@@ -5235,6 +5235,86 @@
     var cancRefreshBtn = document.getElementById('canc-refresh-btn');
     if (cancRefreshBtn) cancRefreshBtn.addEventListener('click', function () { loadCancellations(true); });
 
+    /* ─── Airport Tab — Flight Watchlist ─────────────────────────────────────
+       The Track button (data-action="airport-add-watch") was previously unhandled.
+       This block wires it up: localStorage persistence + calls app.js trackFlight(). */
+    (function() {
+      var AW_LS_KEY = 'airport_watch_v2';
+      var awCache = [];
+      try { awCache = JSON.parse(localStorage.getItem(AW_LS_KEY) || '[]'); } catch(e) {}
+
+      function awEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      function renderAW() {
+        var listEl = document.getElementById('airport-watchlist-list');
+        if (!listEl) return;
+        if (!awCache.length) {
+          listEl.innerHTML = '<div style="color:#9aa0a6;font-size:0.8rem;padding:4px 0;">No flights tracked. Enter a callsign above.</div>';
+          return;
+        }
+        listEl.innerHTML = awCache.map(function(w) {
+          var id   = typeof w === 'string' ? w : (w.id || '');
+          var type = (typeof w === 'object' && w.type === 'vessel') ? 'vessel' : 'flight';
+          var icon = type === 'vessel' ? 'fa-ship' : 'fa-plane';
+          return '<div style="background:#1a1d24;border:1px solid #2a2d35;border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+            + '<span style="font-weight:700;font-family:monospace;font-size:0.85rem;color:#e8eaed;">'
+            + '<i class="fas ' + icon + '" style="color:#4fc3f7;margin-right:5px;"></i>' + awEsc(id.toUpperCase()) + '</span>'
+            + '<button onclick="window._awRemove(\'' + awEsc(id) + '\')" style="background:none;border:none;color:#5f6368;cursor:pointer;font-size:0.85rem;padding:2px 5px;" title="Remove">'
+            + '<i class="fas fa-times"></i></button></div>'
+            + '<div style="margin-top:6px;">'
+            + '<button onclick="window._awTrack(\'' + awEsc(id) + '\',\'' + awEsc(type) + '\')" '
+            + 'style="background:#1a3a5c;border:1px solid #1565c0;border-radius:5px;padding:4px 12px;color:#4fc3f7;font-size:0.75rem;cursor:pointer;">'
+            + '<i class="fas fa-satellite-dish" style="margin-right:4px;"></i>Track Live</button></div>'
+            + '<div id="aw-res-' + awEsc(id) + '" style="margin-top:4px;font-size:0.76rem;"></div>'
+            + '</div>';
+        }).join('');
+      }
+
+      window._awRemove = function(id) {
+        awCache = awCache.filter(function(w){ return (typeof w==='string'?w:w.id) !== id; });
+        try { localStorage.setItem(AW_LS_KEY, JSON.stringify(awCache)); } catch(e) {}
+        renderAW();
+      };
+
+      window._awTrack = function(id, type) {
+        if (typeof trackFlight === 'function') {
+          trackFlight(id, 'aw-res-' + id, type || 'flight');
+        }
+      };
+
+      function awAdd() {
+        var inputEl = document.getElementById('airport-watch-input');
+        var id = ((inputEl ? inputEl.value : '') || '').trim().toLowerCase();
+        if (!id || id.length < 2 || id.length > 14 || !/^[a-z0-9]+$/i.test(id)) {
+          var listEl = document.getElementById('airport-watchlist-list');
+          if (listEl) listEl.innerHTML = '<div style="color:#f28b82;font-size:0.8rem;">Enter a valid callsign or ICAO24 hex.</div>';
+          return;
+        }
+        var type = 'flight';
+        if (!awCache.some(function(w){ return (typeof w==='string'?w:w.id) === id; })) {
+          awCache.push({ id: id, type: type, added_at: new Date().toISOString() });
+          try { localStorage.setItem(AW_LS_KEY, JSON.stringify(awCache)); } catch(e) {}
+        }
+        if (inputEl) inputEl.value = '';
+        renderAW();
+        /* Auto-track immediately after render */
+        setTimeout(function(){ window._awTrack(id, type); }, 150);
+      }
+
+      /* Initial render from saved watchlist */
+      renderAW();
+
+      /* Wire Track button */
+      var addBtn = document.querySelector('[data-action="airport-add-watch"]');
+      if (addBtn) addBtn.addEventListener('click', awAdd);
+
+      /* Wire Enter key on input */
+      var awInput = document.getElementById('airport-watch-input');
+      if (awInput) awInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') awAdd(); });
+    })();
+    /* ──────────────────────────────────────────────────────────────────────── */
+
     function loadCancellations(force) {
       if (!force && CANC_DATA && (Date.now() - cancFetchTs) < 10 * 60 * 1000) {
         renderCancellations(CANC_DATA); return;
@@ -5268,38 +5348,69 @@
         });
     }
 
+    /* Airline name lookup for IATA-only entries from the API */
+    var _IATA_NAMES = {
+      'GF':'Gulf Air','LY':'El Al Israel Airlines','SG':'SpiceJet',
+      'VS':'Virgin Atlantic','VN':'Vietnam Airlines','ME':'Middle East Airlines',
+      'IA':'Iraqi Airways','KU':'Kuwait Airways','PK':'Pakistan International',
+      'RJ':'Royal Jordanian','MS':'EgyptAir','WY':'Oman Air','SV':'Saudi Arabian Airlines',
+      'ET':'Ethiopian Airlines','EK':'Emirates','EY':'Etihad Airways','FZ':'flydubai',
+      'XY':'flynas','TK':'Turkish Airlines','AI':'Air India'
+    };
+
     function renderCancellations(data) {
       var body = document.getElementById('canc-body');
       if (!body) return;
-      var airlines = data.airlines || [];
+      var airlines = (data.airlines || []).slice().sort(function(a,b){ return (b.cancelled||0)-(a.cancelled||0); });
       if (airlines.length === 0) {
         body.innerHTML = '<div class="canc-no-key">No cancellation data available at this time.</div>'; return;
       }
-      var totalCanc = airlines.reduce(function (s, a) { return s + (a.cancelled || 0); }, 0);
-      var totalDel  = airlines.reduce(function (s, a) { return s + (a.delayed   || 0); }, 0);
-      var rows = airlines.map(function (a, i) {
-        var cancPct = totalCanc > 0 ? Math.round((a.cancelled || 0) / totalCanc * 100) : 0;
-        var delPct  = totalDel  > 0 ? Math.round((a.delayed   || 0) / totalDel  * 100) : 0;
-        return '<tr>'
-          + '<td class="canc-num">' + (i + 1) + '</td>'
-          + '<td class="canc-num canc-num-cancelled">' + (a.cancelled || 0)
-          +   '<span class="canc-pct">' + cancPct + '%</span></td>'
-          + '<td class="canc-num canc-num-delayed">'   + (a.delayed   || 0)
-          +   '<span class="canc-pct">' + delPct  + '%</span></td>'
-          + '<td class="canc-airline">' + escHtml(a.airline || a.name || 'Unknown') + '</td>'
-          + '<td style="color:#9aa0a6;font-size:0.75rem;">' + escHtml(a.hub_airport || '') + '</td>'
-          + '</tr>';
+      var totalCanc = data.total_cancelled || airlines.reduce(function(s,a){return s+(a.cancelled||0);},0);
+      var airports  = (data.airports_sampled || []).join(' · ') || 'Multiple airports';
+
+      /* Summary stats bar */
+      var summary = '<div style="display:flex;gap:0;margin-bottom:14px;background:#12151c;border:1px solid #2a2d35;border-radius:10px;overflow:hidden;">'
+        + '<div style="flex:1;padding:14px 16px;border-right:1px solid #2a2d35;">'
+        + '<div style="font-size:1.8rem;font-weight:900;color:#ef5350;line-height:1;">' + totalCanc + '</div>'
+        + '<div style="font-size:0.68rem;color:#9aa0a6;margin-top:3px;letter-spacing:.5px;text-transform:uppercase;">Flights Cancelled</div></div>'
+        + '<div style="flex:1;padding:14px 16px;border-right:1px solid #2a2d35;">'
+        + '<div style="font-size:1.8rem;font-weight:900;color:#ffa726;line-height:1;">' + airlines.length + '</div>'
+        + '<div style="font-size:0.68rem;color:#9aa0a6;margin-top:3px;letter-spacing:.5px;text-transform:uppercase;">Airlines Affected</div></div>'
+        + '<div style="flex:2;padding:14px 16px;">'
+        + '<div style="font-size:0.82rem;font-weight:700;color:#e8eaed;line-height:1.4;">' + escHtml(airports) + '</div>'
+        + '<div style="font-size:0.68rem;color:#9aa0a6;margin-top:3px;letter-spacing:.5px;text-transform:uppercase;">Airports Sampled</div></div>'
+        + '</div>';
+
+      /* Airline rows with progress bars */
+      var rows = airlines.map(function(a) {
+        var cancelled = a.cancelled || 0;
+        var pct = totalCanc > 0 ? Math.round(cancelled / totalCanc * 100) : 0;
+        var iata = a.iata || '';
+        /* Resolve airline name — API sometimes returns IATA code as name */
+        var rawName = a.airline || a.name || '';
+        var airlineName = (rawName && rawName !== iata) ? rawName : (_IATA_NAMES[iata] || rawName || iata || 'Unknown');
+        var hub = a.hub_airport || '';
+        /* Color by severity */
+        var clr = cancelled >= 5 ? '#ef5350' : cancelled >= 3 ? '#ffa726' : cancelled >= 2 ? '#ffee58' : '#81c784';
+        var barBg = cancelled >= 5 ? 'rgba(239,83,80,.18)' : cancelled >= 3 ? 'rgba(255,167,38,.18)' : cancelled >= 2 ? 'rgba(255,238,88,.12)' : 'rgba(129,199,132,.12)';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #1a1d24;">'
+          + '<div style="background:#1a2a3a;color:#4fc3f7;font-size:0.7rem;font-weight:800;padding:4px 7px;border-radius:5px;font-family:monospace;min-width:36px;text-align:center;border:1px solid #1565c0;">' + escHtml(iata || '—') + '</div>'
+          + '<div style="flex:1;min-width:0;">'
+          + '<div style="font-size:0.82rem;font-weight:600;color:#e8eaed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(airlineName) + '</div>'
+          + '<div style="margin-top:4px;background:#1e2029;border-radius:3px;height:4px;overflow:hidden;">'
+          + '<div style="width:' + pct + '%;background:' + clr + ';height:100%;border-radius:3px;transition:width .4s;"></div>'
+          + '</div>'
+          + '</div>'
+          + '<div style="text-align:right;min-width:44px;">'
+          + '<span style="color:' + clr + ';font-weight:900;font-size:1rem;">' + cancelled + '</span>'
+          + '<span style="color:#5f6368;font-size:0.68rem;"> flt</span>'
+          + '</div>'
+          + '<div style="background:' + barBg + ';color:' + clr + ';font-size:0.68rem;font-weight:700;padding:3px 7px;border-radius:4px;min-width:36px;text-align:center;border:1px solid ' + clr + '33;">' + pct + '%</div>'
+          + (hub ? '<div style="color:#9aa0a6;font-size:0.7rem;font-family:monospace;min-width:32px;text-align:right;">' + escHtml(hub) + '</div>' : '')
+          + '</div>';
       }).join('');
-      body.innerHTML = '<table class="canc-table">'
-        + '<thead><tr>'
-        + '<th>#</th>'
-        + '<th class="canc-th-num">Cancelled</th>'
-        + '<th class="canc-th-num">Delayed</th>'
-        + '<th>Airline</th>'
-        + '<th>Hub</th>'
-        + '</tr></thead>'
-        + '<tbody>' + rows + '</tbody>'
-        + '</table>';
+
+      body.innerHTML = summary + '<div style="max-height:340px;overflow-y:auto;padding-right:2px;">' + rows + '</div>';
     }
 
     /* ══════════════════════════════════════════════════════════════════
@@ -6298,63 +6409,81 @@
       }, 1000);
     }
 
-    /* ── Webcams — country-specific verified Windy cam IDs + map fallback ── */
-    /* Windy webcam player IDs are unreliable (expire/change) — use webcam map embeds instead */
-    var VERIFIED_CAMS = {}; /* reserved for future use */
+    /* ── Webcams — YouTube live city cams (verified Feb 2026 — WorldMonitor source) ── */
+    var _YTP = 'https://www.youtube-nocookie.com/embed/';
+    var _YTQ = '?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1';
+    function _ytCam(id, label) { return { id: id, label: label, playerUrl: _YTP + id + _YTQ }; }
 
-    /* Map-based embeds for countries without verified cam IDs — always live, always work */
-    var COUNTRY_MAP_CITIES = {
-      IL: [{n:'Tel Aviv',lat:32.08,lon:34.78},{n:'Jerusalem',lat:31.77,lon:35.21},{n:'Haifa',lat:32.82,lon:34.99},{n:'Eilat',lat:29.56,lon:34.95},{n:'Netanya',lat:32.33,lon:34.86},{n:'Beer Sheva',lat:31.25,lon:34.79}],
-      US: [{n:'New York',lat:40.71,lon:-74.01},{n:'Los Angeles',lat:34.05,lon:-118.24},{n:'Chicago',lat:41.88,lon:-87.63},{n:'Miami',lat:25.77,lon:-80.19},{n:'Las Vegas',lat:36.17,lon:-115.14},{n:'San Francisco',lat:37.77,lon:-122.42}],
-      GB: [{n:'London',lat:51.51,lon:-0.13},{n:'Edinburgh',lat:55.95,lon:-3.19},{n:'Manchester',lat:53.48,lon:-2.24},{n:'Birmingham',lat:52.49,lon:-1.90},{n:'Liverpool',lat:53.41,lon:-2.98},{n:'Brighton',lat:50.82,lon:-0.14}],
-      SG: [{n:'Marina Bay',lat:1.28,lon:103.86},{n:'Orchard',lat:1.30,lon:103.84},{n:'Sentosa',lat:1.25,lon:103.82},{n:'Changi',lat:1.36,lon:103.99},{n:'Jurong',lat:1.33,lon:103.74},{n:'Woodlands',lat:1.44,lon:103.79}],
-      JP: [{n:'Tokyo',lat:35.68,lon:139.69},{n:'Osaka',lat:34.69,lon:135.50},{n:'Kyoto',lat:35.01,lon:135.77},{n:'Fuji',lat:35.36,lon:138.73},{n:'Sapporo',lat:43.06,lon:141.35},{n:'Fukuoka',lat:33.59,lon:130.40}],
-      DE: [{n:'Berlin',lat:52.52,lon:13.40},{n:'Munich',lat:48.14,lon:11.58},{n:'Hamburg',lat:53.55,lon:9.99},{n:'Frankfurt',lat:50.11,lon:8.68},{n:'Cologne',lat:50.94,lon:6.96},{n:'Stuttgart',lat:48.78,lon:9.18}],
-      IN: [{n:'Mumbai',lat:19.08,lon:72.88},{n:'Delhi',lat:28.61,lon:77.21},{n:'Bangalore',lat:12.97,lon:77.59},{n:'Chennai',lat:13.08,lon:80.27},{n:'Hyderabad',lat:17.39,lon:78.47},{n:'Kolkata',lat:22.57,lon:88.36}],
-      AU: [{n:'Sydney',lat:-33.87,lon:151.21},{n:'Melbourne',lat:-37.81,lon:144.96},{n:'Brisbane',lat:-27.47,lon:153.03},{n:'Perth',lat:-31.95,lon:115.86},{n:'Adelaide',lat:-34.93,lon:138.60},{n:'Gold Coast',lat:-28.00,lon:153.43}],
-      FR: [{n:'Paris',lat:48.86,lon:2.35},{n:'Lyon',lat:45.75,lon:4.84},{n:'Marseille',lat:43.30,lon:5.37},{n:'Nice',lat:43.71,lon:7.26},{n:'Bordeaux',lat:44.84,lon:-0.58},{n:'Toulouse',lat:43.60,lon:1.44}],
-      CA: [{n:'Toronto',lat:43.65,lon:-79.38},{n:'Vancouver',lat:49.25,lon:-123.12},{n:'Montreal',lat:45.50,lon:-73.57},{n:'Calgary',lat:51.04,lon:-114.07},{n:'Ottawa',lat:45.42,lon:-75.70},{n:'Edmonton',lat:53.55,lon:-113.49}],
-      BR: [{n:'São Paulo',lat:-23.55,lon:-46.63},{n:'Rio',lat:-22.91,lon:-43.17},{n:'Brasília',lat:-15.78,lon:-47.93},{n:'Salvador',lat:-12.97,lon:-38.51},{n:'Fortaleza',lat:-3.72,lon:-38.54},{n:'Manaus',lat:-3.10,lon:-60.02}],
-      MX: [{n:'Mexico City',lat:19.43,lon:-99.13},{n:'Guadalajara',lat:20.66,lon:-103.35},{n:'Monterrey',lat:25.69,lon:-100.32},{n:'Cancún',lat:21.16,lon:-86.85},{n:'Puebla',lat:19.04,lon:-98.20},{n:'Tijuana',lat:32.53,lon:-117.04}],
-      ZA: [{n:'Cape Town',lat:-33.93,lon:18.42},{n:'Johannesburg',lat:-26.20,lon:28.04},{n:'Durban',lat:-29.86,lon:31.02},{n:'Pretoria',lat:-25.75,lon:28.19},{n:'Port Elizabeth',lat:-33.96,lon:25.60},{n:'Bloemfontein',lat:-29.09,lon:26.21}],
-      AE: [{n:'Dubai',lat:25.20,lon:55.27},{n:'Abu Dhabi',lat:24.47,lon:54.37},{n:'Sharjah',lat:25.36,lon:55.39},{n:'Ajman',lat:25.41,lon:55.44},{n:'Ras Al Khaimah',lat:25.79,lon:55.94},{n:'Fujairah',lat:25.13,lon:56.33}],
-      CN: [{n:'Beijing',lat:39.91,lon:116.39},{n:'Shanghai',lat:31.23,lon:121.47},{n:'Shenzhen',lat:22.54,lon:114.06},{n:'Guangzhou',lat:23.13,lon:113.26},{n:'Chengdu',lat:30.57,lon:104.07},{n:'Xi\'an',lat:34.26,lon:108.93}],
+    /* Country → list of YouTube live-cam video IDs (up to 6 per country).
+       IDs sourced from WorldMonitor LiveWebcamsPanel — validated Feb 2026.
+       Falls back to global hotspot cams for countries without dedicated feeds. */
+    var COUNTRY_YOUTUBE_CAMS = {
+      IL: [_ytCam('gmtlJ_m2r5A','Tel Aviv — Live'),      _ytCam('fIurYTprwzg','Jerusalem — Western Wall'),
+           _ytCam('e34xb-Fbl0U','Jerusalem Live'),         _ytCam('Khfdb7qUvjk','Middle East Watch'),
+           _ytCam('-zGuR1qVKrU','Tehran'),                 _ytCam('djF-Lkgfp6k','Beirut')],
+      US: [_ytCam('4qyZLflp-sI','New York City'),         _ytCam('1wV9lLe14aU','Washington DC'),
+           _ytCam('EO_1LWqsCNE','Los Angeles'),            _ytCam('5YCajRjvWCg','Miami Beach'),
+           _ytCam('vytmBNhc9ig','ISS Earth View'),         _ytCam('_k-5U7IeK8g','Tokyo')],
+      GB: [_ytCam('Lxqcg1qt0XU','London'),                _ytCam('-Q7FuPINDjA','Kyiv'),
+           _ytCam('e2gC37ILQmk','Odessa'),                 _ytCam('OzYp4NRZlwQ','Paris'),
+           _ytCam('CjtIYbmVfck','St. Petersburg'),         _ytCam('vytmBNhc9ig','ISS Earth View')],
+      DE: [_ytCam('-Q7FuPINDjA','Kyiv'),                  _ytCam('e2gC37ILQmk','Odessa — Ukraine'),
+           _ytCam('OzYp4NRZlwQ','Paris'),                  _ytCam('Lxqcg1qt0XU','London'),
+           _ytCam('CjtIYbmVfck','St. Petersburg'),         _ytCam('vytmBNhc9ig','ISS Earth View')],
+      FR: [_ytCam('OzYp4NRZlwQ','Paris'),                 _ytCam('Lxqcg1qt0XU','London'),
+           _ytCam('-Q7FuPINDjA','Kyiv'),                   _ytCam('e2gC37ILQmk','Odessa'),
+           _ytCam('CjtIYbmVfck','St. Petersburg'),         _ytCam('vytmBNhc9ig','ISS Earth View')],
+      JP: [_ytCam('_k-5U7IeK8g','Tokyo'),                 _ytCam('-JhoMGoAfFc','Seoul'),
+           _ytCam('z_fY1pj1VBw','Taipei'),                 _ytCam('76EwqI5XZIc','Shanghai'),
+           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
+      AU: [_ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('-JhoMGoAfFc','Seoul'),
+           _ytCam('z_fY1pj1VBw','Taipei'),                 _ytCam('76EwqI5XZIc','Shanghai'),
+           _ytCam('_k-5U7IeK8g','Tokyo'),                  _ytCam('vytmBNhc9ig','ISS Earth View')],
+      SG: [_ytCam('-JhoMGoAfFc','Seoul'),                  _ytCam('z_fY1pj1VBw','Taipei'),
+           _ytCam('76EwqI5XZIc','Shanghai'),               _ytCam('_k-5U7IeK8g','Tokyo'),
+           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
+      IN: [_ytCam('Cm1v4bteXbI','Mecca'),                 _ytCam('gmtlJ_m2r5A','Tel Aviv'),
+           _ytCam('76EwqI5XZIc','Shanghai'),               _ytCam('-JhoMGoAfFc','Seoul'),
+           _ytCam('_k-5U7IeK8g','Tokyo'),                  _ytCam('vytmBNhc9ig','ISS Earth View')],
+      CA: [_ytCam('4qyZLflp-sI','New York City'),         _ytCam('1wV9lLe14aU','Washington DC'),
+           _ytCam('EO_1LWqsCNE','Los Angeles'),            _ytCam('Lxqcg1qt0XU','London'),
+           _ytCam('5YCajRjvWCg','Miami Beach'),            _ytCam('vytmBNhc9ig','ISS Earth View')],
+      BR: [_ytCam('5YCajRjvWCg','Miami Beach'),           _ytCam('EO_1LWqsCNE','Los Angeles'),
+           _ytCam('4qyZLflp-sI','New York City'),          _ytCam('OzYp4NRZlwQ','Paris'),
+           _ytCam('Lxqcg1qt0XU','London'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
+      MX: [_ytCam('4qyZLflp-sI','New York City'),         _ytCam('EO_1LWqsCNE','Los Angeles'),
+           _ytCam('5YCajRjvWCg','Miami Beach'),            _ytCam('1wV9lLe14aU','Washington DC'),
+           _ytCam('Lxqcg1qt0XU','London'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
+      ZA: [_ytCam('Lxqcg1qt0XU','London'),                _ytCam('OzYp4NRZlwQ','Paris'),
+           _ytCam('gmtlJ_m2r5A','Tel Aviv'),               _ytCam('djF-Lkgfp6k','Beirut'),
+           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
+      AE: [_ytCam('Cm1v4bteXbI','Mecca'),                 _ytCam('gmtlJ_m2r5A','Tel Aviv'),
+           _ytCam('fIurYTprwzg','Jerusalem'),              _ytCam('-zGuR1qVKrU','Tehran'),
+           _ytCam('djF-Lkgfp6k','Beirut'),                 _ytCam('Khfdb7qUvjk','Middle East Watch')],
+      CN: [_ytCam('76EwqI5XZIc','Shanghai'),              _ytCam('z_fY1pj1VBw','Taipei'),
+           _ytCam('-JhoMGoAfFc','Seoul'),                   _ytCam('_k-5U7IeK8g','Tokyo'),
+           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
     };
 
     function loadWebcams() {
       var country = (document.getElementById('cw-cam-country') || {}).value || 'IL';
       cwCamCountry = country;
-      /* Fetch from Worker — Worker calls Windy API with country filter for live camera IDs */
+      /* Try Worker first — only use its results if Windy API is live (source !== 'default') */
       fetch(WORKER_URL + '/api/webcams/list?country=' + encodeURIComponent(country) + '&type=' + encodeURIComponent(cwCamType))
         .then(function(r){ return r.json(); })
         .then(function(data) {
-          var cams = (data.webcams || []).slice(0, 6);
-          if (cams.length > 0) { renderCamSlots(cams); return; }
-          renderCountryCams(country); /* fallback if API returned nothing */
+          /* source='Windy API' means live results; 'default' means API failed — use YouTube fallback */
+          if (data.source && data.source !== 'default' && (data.webcams || []).length > 0) {
+            renderCamSlots(data.webcams.slice(0, 6)); return;
+          }
+          renderCountryCams(country);
         })
         .catch(function() { renderCountryCams(country); });
     }
 
-    function makeMapCam(city) {
-      /* Windy webcam map embed — shows live camera thumbnails for the area, always works */
-      return {
-        label: city.n + ' — Live Cams',
-        playerUrl: 'https://webcams.windy.com/webcams/public/embed/map/' + city.lat + '/' + city.lon + '/12'
-      };
-    }
-
     function renderCountryCams(country) {
-      var slots = [];
-      /* Start with verified real cam IDs for this country */
-      var verified = VERIFIED_CAMS[country] || [];
-      verified.forEach(function(c){ slots.push(c); });
-      /* Fill remaining slots with Windy live map embeds of cities in this country */
-      var cities = COUNTRY_MAP_CITIES[country] || COUNTRY_MAP_CITIES['US'];
-      var ci = 0;
-      while (slots.length < 6 && ci < cities.length) {
-        slots.push(makeMapCam(cities[ci])); ci++;
-      }
-      renderCamSlots(slots);
+      var cams = COUNTRY_YOUTUBE_CAMS[country] || COUNTRY_YOUTUBE_CAMS['US'];
+      renderCamSlots(cams.slice(0, 6));
     }
 
     function renderCamSlots(cams) {
@@ -6366,9 +6495,9 @@
           slot.innerHTML = '<div class="cw-cam-placeholder"><i class="fas fa-video-slash" style="color:#3a3d45;"></i><span style="color:#3a3d45;">No camera</span></div>';
           continue;
         }
-        var embedUrl = cam.playerUrl || ('https://webcams.windy.com/webcams/public/embed/player/' + cam.id + '/day');
-        slot.innerHTML = '<iframe src="' + esc(embedUrl) + '" allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms" title="' + esc(cam.label||cam.title||'Webcam') + '"></iframe>'
-          + '<div class="cw-cam-label">' + esc(cam.label||cam.title||cam.id) + '</div>';
+        var embedUrl = cam.playerUrl || (_YTP + cam.id + _YTQ);
+        slot.innerHTML = '<iframe src="' + esc(embedUrl) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms" title="' + esc(cam.label||cam.title||'Live Cam') + '"></iframe>'
+          + '<div class="cw-cam-label">' + esc(cam.label||cam.title||cam.id||'Live Cam') + '</div>';
       }
     }
 
