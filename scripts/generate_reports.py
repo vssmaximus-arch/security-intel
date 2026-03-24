@@ -11,11 +11,6 @@ from typing import List, Dict, Any, Optional
 
 from json import JSONDecodeError
 
-try:
-    import google.generativeai as genai
-except Exception:
-    genai = None
-
 # ── AI config — Gemini primary, Groq fallback ────────────────────────────────
 GEMINI_API_KEY    = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL      = "gemini-2.0-flash"
@@ -704,23 +699,28 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
 
 # --- Reporting Logic ---
 
-def init_gemini():
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key or genai is None:
-        return None
-    genai.configure(api_key=api_key)
-    return genai.GenerativeModel(GEMINI_MODEL)
-
-def summarise_with_gemini(model, profile_label, articles):
-    if not model or not articles: return ""
-    bullets = [f"- {a.get('title')}" for a in articles[:40]]
-    txt = "\n".join(bullets)
-    prompt = f"Security Briefing for {profile_label}. Incidents:\n{txt}"
+def summarise_with_gemini(profile_label, articles):
+    """Generate HTML report summary via Gemini REST API."""
+    if not GEMINI_API_KEY or not articles:
+        return ""
+    bullets = "\n".join(f"- {a.get('title','')}" for a in articles[:40])
+    prompt  = (f"Write a concise security briefing summary for Dell Technologies "
+               f"{profile_label} region based on these incidents:\n{bullets}\n"
+               f"2-3 paragraphs, professional tone, focus on operational impact.")
+    url = f"{GEMINI_API_BASE}/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    payload = json.dumps({
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 400}
+    }).encode("utf-8")
+    req = urllib.request.Request(url, data=payload,
+                                  headers={"Content-Type": "application/json"},
+                                  method="POST")
     try:
-        resp = model.generate_content(prompt)
-        return resp.text
-    except:
-        return "Summary unavailable."
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        return body["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        return ""
 
 def simple_text_summary(profile_label, articles):
     if not articles: return f"No major incidents for {profile_label}."
@@ -759,33 +759,24 @@ def main():
     with open(PROXIMITY_PATH, "w", encoding="utf-8") as f:
         json.dump({
             "generated_at": datetime.now(timezone.utc).isoformat(),
-            "radius_km": RADIUS_KM,
+            "radius_km": RADIUS_DEFAULT_KM,
             "alerts": proximity_alerts
         }, f, indent=2)
     print(f"Wrote {len(proximity_alerts)} alerts to {PROXIMITY_PATH}")
 
     # 3. Reports
-    model = init_gemini()
     now = datetime.now(timezone.utc)
-    
-    # We filter only recent articles for reports
-    # news_agent.py writes field "time" (not "timestamp")
-    cutoff = now - timedelta(hours=24)
-    cutoff_iso = cutoff.isoformat()
+    cutoff_iso = (now - timedelta(hours=24)).isoformat()
     recent_articles = [
         a for a in articles
         if (a.get("time") or a.get("timestamp", "")) > cutoff_iso
     ]
 
     for key, cfg in REPORT_PROFILES.items():
-        # simple region filter
-        region_arts = [a for a in recent_articles if a.get("region") in cfg["regions"] or "Global" in cfg["regions"]]
-        
-        if model:
-            body = summarise_with_gemini(model, cfg["label"], region_arts)
-        else:
-            body = simple_text_summary(cfg["label"], region_arts)
-            
+        region_arts = [a for a in recent_articles
+                       if a.get("region") in cfg["regions"] or "Global" in cfg["regions"]]
+        body = summarise_with_gemini(cfg["label"], region_arts) \
+               or simple_text_summary(cfg["label"], region_arts)
         html = render_html_report(cfg["label"], body, now)
         with open(os.path.join(REPORT_DIR, f"{key}_latest.html"), "w", encoding="utf-8") as f:
             f.write(html)
