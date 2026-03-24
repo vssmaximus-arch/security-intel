@@ -7123,12 +7123,15 @@ function _tlRender(data) {
    CONSTRAINT: No Dell cargo/customer/SKU/shipment/financial data displayed.
    ============================================================ */
 
-var _vwInitDone   = false;
-var _vwMap        = null;
-var _vwTileLayer  = null;
-var _vwMarkers    = [];
-var _vwZoneLayers = [];
-var _vwData       = null;
+var _vwInitDone    = false;
+var _vwMap         = null;
+var _vwTileLayer   = null;
+var _vwMarkers     = [];
+var _vwZoneLayers  = [];
+var _vwData        = null;
+var _vwMarkerByKey = {};   // imo/mmsi/name → Leaflet marker (for click-to-highlight)
+var _vwLocalFleet  = [];   // vessels added via Track Vessel search
+var _vwRemovedKeys = {};   // vessel keys hidden by user pressing ✕
 
 var VW_STATUS_CLASS = { 'Review Required':'vw-badge-review', 'Elevated':'vw-badge-elevated', 'Watch':'vw-badge-watch', 'Normal':'vw-badge-normal' };
 var VW_ACTION_CLASS = { 'Escalate':'vw-action-escalate', 'Review':'vw-action-review', 'Monitor':'vw-action-monitor', 'None':'vw-action-none' };
@@ -7164,14 +7167,22 @@ function loadVesselWatch(force) {
     });
 }
 
+function _vwVesselKey(v) {
+  return ((v.imo || v.mmsi || v.vesselName || '')).toString().toLowerCase();
+}
+
 function _vwRender(data) {
-  var vessels = Array.isArray(data.vessels) ? data.vessels : [];
+  /* Server vessels: cap at 5, exclude those the user removed */
+  var serverVessels = (Array.isArray(data.vessels) ? data.vessels : [])
+    .filter(function(v){ return !_vwRemovedKeys[_vwVesselKey(v)]; })
+    .slice(0, 5);
+  /* Merge locally-tracked vessels (added via Track Vessel search) */
+  var vessels = serverVessels.concat(_vwLocalFleet.filter(function(v){
+    return !_vwRemovedKeys[_vwVesselKey(v)];
+  }));
   _vwRenderPosture(data.posture || {});
   _vwRenderMonitoredTable(vessels);
   _vwRenderMap(vessels, data.riskZones || []);
-  /* _vwRenderChokepoints and _vwLoadIncidents now handled by port disruption section */
-  /* _vwRenderChokepoints(vessels); */
-  /* _vwLoadIncidents(vessels); */
   var countEl = document.getElementById('vw-fleet-count');
   if (countEl) countEl.textContent = vessels.length ? vessels.length + ' vessel' + (vessels.length !== 1 ? 's' : '') : '';
 }
@@ -7195,24 +7206,34 @@ function _vwRenderPosture(posture) {
 function _vwRenderMonitoredTable(vessels) {
   var el = document.getElementById('vw-monitored-table');
   if (!el) return;
-  if (!vessels.length) { el.innerHTML = '<div class="vw-loading">No monitored vessels found.</div>'; return; }
+  if (!vessels.length) { el.innerHTML = '<div class="vw-loading">No monitored vessels. Use Track Vessel to add ships.</div>'; return; }
   var sorted = vessels.slice().sort(function(a,b){
     var ord = {'Review Required':0,'Elevated':1,'Watch':2,'Normal':3};
     return (ord[a.status]||9) - (ord[b.status]||9);
   });
   var rows = sorted.map(function(v) {
+    var key = _vwVesselKey(v);
     var sc  = VW_STATUS_CLASS[v.status]  || 'vw-badge-normal';
     var ac  = VW_ACTION_CLASS[v.recommendedAction] || 'vw-action-none';
     var lat = v.lat != null ? v.lat.toFixed(2) : '\u2014';
     var lon = v.lon != null ? v.lon.toFixed(2) : '\u2014';
-    var mockTag = v._mock ? ' <span class="vw-badge vw-badge-mock" title="Illustrative position">MOCK</span>' : '';
-    return '<tr title="' + escapeHtml(v.reason||'') + '">' +
-      '<td><strong style="color:#e8eaed;">' + escapeHtml(v.vesselName) + '</strong>' + mockTag +
-        '<div style="font-size:.65rem;color:#5f6368;">IMO ' + escapeHtml(v.imo||'\u2014') + '</div></td>' +
-      '<td style="font-size:.68rem;color:#9aa0a6;">' + lat + '\u00b0, ' + lon + '\u00b0<br>' +
-        '<span style="color:#5f6368;">' + escapeHtml(v.nearestChokepoint||'') + (v.nearestCpDistNm?' '+v.nearestCpDistNm+'nm':'') + '</span></td>' +
-      '<td style="font-size:.72rem;">' + escapeHtml(v.destination||'\u2014') + '</td>' +
-      '<td style="font-size:.72rem;">' + escapeHtml(v.riskZone||'Open Waters') + '</td>' +
+    var hasPos = v.lat && v.lon && !(v.lat===0 && v.lon===0);
+    var locHint = hasPos ? ' \u25cf' : '';  /* dot if we can show it on map */
+    return '<tr class="vw-fleet-row" data-vkey="' + escapeHtml(key) + '" title="Click to locate on map" style="cursor:pointer;">' +
+      /* Vessel name — bright white, clearly readable */
+      '<td>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+          '<strong style="color:#ffffff;font-size:.82rem;">' + escapeHtml(v.vesselName) + '</strong>' +
+          '<button class="vw-remove-btn" data-action="vw-remove-vessel" data-vkey="' + escapeHtml(key) + '" ' +
+            'title="Remove from fleet" style="background:none;border:none;color:#5f6368;font-size:.75rem;cursor:pointer;padding:0 2px;line-height:1;margin-left:4px;">' +
+            '\u2715</button>' +
+        '</div>' +
+        '<div style="font-size:.65rem;color:#9aa0a6;">IMO ' + escapeHtml(v.imo||'\u2014') + (hasPos ? locHint : '') + '</div>' +
+      '</td>' +
+      '<td style="font-size:.68rem;color:#c4c8cc;">' + lat + '\u00b0, ' + lon + '\u00b0<br>' +
+        '<span style="color:#8a8e96;">' + escapeHtml(v.nearestChokepoint||'') + (v.nearestCpDistNm?' '+v.nearestCpDistNm+'nm':'') + '</span></td>' +
+      '<td style="font-size:.72rem;color:#d4d8dc;">' + escapeHtml(v.destination||'\u2014') + '</td>' +
+      '<td style="font-size:.72rem;color:#d4d8dc;">' + escapeHtml(v.riskZone||'Open Waters') + '</td>' +
       '<td><span class="vw-badge ' + sc + '">' + escapeHtml(v.status) + '</span></td>' +
       '<td><span class="vw-badge ' + ac + '">' + escapeHtml(v.recommendedAction) + '</span></td>' +
       '</tr>';
@@ -7245,6 +7266,7 @@ function _vwRenderMap(vessels, riskZones) {
   }
   _vwMarkers.forEach(function(m){ m.remove(); }); _vwMarkers = [];
   _vwZoneLayers.forEach(function(l){ l.remove(); }); _vwZoneLayers = [];
+  _vwMarkerByKey = {};
 
   riskZones.forEach(function(zone) {
     if (!zone.polygon || !zone.polygon.length) return;
@@ -7273,6 +7295,7 @@ function _vwRenderMap(vessels, riskZones) {
     );
     marker.addTo(_vwMap);
     _vwMarkers.push(marker);
+    _vwMarkerByKey[_vwVesselKey(v)] = marker;
   });
   setTimeout(function(){ if (_vwMap) _vwMap.invalidateSize(); }, 120);
 
@@ -7296,6 +7319,49 @@ function _vwRenderMap(vessels, riskZones) {
       window._vwPortMarkerLayer.addLayer(marker);
     });
   };
+}
+
+/* ── Highlight vessel on map when user clicks fleet row ───────────────────── */
+function _vwHighlightVessel(key) {
+  var marker = _vwMarkerByKey[key];
+  if (!marker || !_vwMap) return;
+  var latlng = marker.getLatLng();
+  _vwMap.flyTo(latlng, 5, { animate: true, duration: 0.7 });
+  /* Pulse: briefly enlarge radius then restore */
+  var origRadius = 7;
+  marker.setRadius(18);
+  marker.setStyle({ weight: 3, color: '#ffffff' });
+  setTimeout(function(){
+    marker.setRadius(origRadius);
+    marker.setStyle({ weight: 1.5, color: '#fff' });
+    marker.openPopup();
+  }, 700);
+  /* Highlight the clicked row */
+  document.querySelectorAll('.vw-fleet-row').forEach(function(r){ r.style.background = ''; });
+  var row = document.querySelector('.vw-fleet-row[data-vkey="' + key + '"]');
+  if (row) {
+    row.style.background = '#1a2a3a';
+    setTimeout(function(){ if (row) row.style.background = ''; }, 2500);
+  }
+}
+
+/* ── Remove vessel from fleet and map ────────────────────────────────────── */
+function _vwRemoveVessel(key) {
+  _vwLocalFleet = _vwLocalFleet.filter(function(v){ return _vwVesselKey(v) !== key; });
+  _vwRemovedKeys[key] = true;
+  /* Remove from map immediately */
+  var marker = _vwMarkerByKey[key];
+  if (marker) { marker.remove(); delete _vwMarkerByKey[key]; }
+  _vwMarkers = _vwMarkers.filter(function(m){ return m !== marker; });
+  /* Re-render fleet table (map re-render on next full refresh to avoid flicker) */
+  if (_vwData) {
+    var serverVessels = (Array.isArray(_vwData.vessels) ? _vwData.vessels : [])
+      .filter(function(v){ return !_vwRemovedKeys[_vwVesselKey(v)]; }).slice(0, 5);
+    var vessels = serverVessels.concat(_vwLocalFleet.filter(function(v){ return !_vwRemovedKeys[_vwVesselKey(v)]; }));
+    _vwRenderMonitoredTable(vessels);
+    var countEl = document.getElementById('vw-fleet-count');
+    if (countEl) countEl.textContent = vessels.length ? vessels.length + ' vessel' + (vessels.length !== 1 ? 's' : '') : '';
+  }
 }
 
 var VW_CHOKEPOINTS_STATIC = [
@@ -7371,6 +7437,22 @@ function _vwBindSearch() {
   var input = document.getElementById('vw-search-input');
   if (btn)   btn.addEventListener('click', _vwDoSearch);
   if (input) input.addEventListener('keydown', function(e){ if (e.key==='Enter') _vwDoSearch(); });
+
+  /* Fleet row: click row body → highlight on map; click ✕ → remove vessel */
+  document.addEventListener('click', function(e) {
+    /* ✕ remove button — must check before row so stopPropagation works */
+    var removeBtn = e.target.closest('[data-action="vw-remove-vessel"]');
+    if (removeBtn) {
+      e.stopPropagation();
+      _vwRemoveVessel(removeBtn.dataset.vkey);
+      return;
+    }
+    /* Fleet row body click → locate on map */
+    var row = e.target.closest('.vw-fleet-row[data-vkey]');
+    if (row) {
+      _vwHighlightVessel(row.dataset.vkey);
+    }
+  });
 }
 
 function _vwBindRefresh() {
@@ -7391,8 +7473,51 @@ function _vwDoSearch() {
   fetchWithTimeout(WORKER_URL + '/api/vessel/lookup?' + param, {}, 15000)
     .then(function(r){ return r.json(); })
     .then(function(d) {
-      if (!d.ok || !d.vessel) { res.innerHTML = '<div class="vw-loading" style="color:#f28b82;">Vessel not found. Try exact IMO (7 digits), MMSI (9 digits), or vessel name.</div>'; return; }
-      res.innerHTML = _vwBuildVesselCard(d.vessel, d.risk, d.isMonitored);
+      if (!d.ok || !d.vessel) {
+        res.innerHTML = '<div class="vw-loading" style="color:#f28b82;">Vessel not found. Try IMO (7 digits), MMSI (9 digits), or vessel name.</div>';
+        return;
+      }
+      var risk   = d.risk   || {};
+      var vessel = d.vessel || {};
+      /* Build a fleet-compatible vessel object */
+      var fv = {
+        vesselName:        vessel.name || risk.vesselName || q,
+        imo:               risk.imo    || vessel.imo  || '',
+        mmsi:              risk.mmsi   || vessel.mmsi || '',
+        lat:               risk.lat    || 0,
+        lon:               risk.lon    || 0,
+        destination:       risk.destination || '',
+        riskZone:          risk.riskZone    || 'Open Waters',
+        status:            risk.status      || 'Normal',
+        recommendedAction: risk.recommendedAction || 'None',
+        reason:            risk.reason || '',
+        nearestChokepoint: risk.nearestChokepoint || '',
+        nearestCpDistNm:   risk.nearestCpDistNm   || 0,
+        speed:   risk.speed   || 0,
+        heading: risk.heading || 0,
+        _local:  true,
+      };
+      var key = _vwVesselKey(fv);
+      /* Remove from hidden set in case user is re-adding */
+      delete _vwRemovedKeys[key];
+      /* Check if already in fleet */
+      var serverVessels  = _vwData ? (Array.isArray(_vwData.vessels) ? _vwData.vessels : []) : [];
+      var alreadyPresent = _vwLocalFleet.some(function(v){ return _vwVesselKey(v) === key; }) ||
+                           serverVessels.some(function(v){ return _vwVesselKey(v) === key; });
+      if (alreadyPresent) {
+        res.innerHTML = '<div class="vw-loading" style="color:#81c995;"><i class="fas fa-check-circle"></i> Already in fleet \u2014 locating on map\u2026</div>';
+        _vwHighlightVessel(key);
+        input.value = '';
+        return;
+      }
+      /* Add to local fleet, clear input, re-render */
+      _vwLocalFleet.push(fv);
+      input.value = '';
+      res.innerHTML = '<div class="vw-loading" style="color:#81c995;"><i class="fas fa-check-circle"></i> <strong>' +
+        escapeHtml(fv.vesselName) + '</strong> added to Monitored Fleet</div>';
+      if (_vwData) _vwRender(_vwData);
+      /* Highlight on map after render */
+      setTimeout(function(){ _vwHighlightVessel(key); }, 350);
     })
     .catch(function(){ res.innerHTML = '<div class="vw-loading" style="color:#f28b82;">Lookup failed \u2014 check Worker connection.</div>'; });
 }
