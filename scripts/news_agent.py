@@ -57,8 +57,8 @@ MIN_RELEVANCE_SCORE = 4   # 1-10 scale — below this is discarded
 # ── Gemini config (OPTIONAL UPGRADE) ──────────────────────────────────────────
 GEMINI_MODEL       = "gemini-2.0-flash"
 GEMINI_API_BASE    = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_BATCH_SIZE  = 8
-GEMINI_MAX_CALLS   = 10   # conservative — free tier quota issues; use Groq instead
+GEMINI_BATCH_SIZE  = 10   # articles per Gemini call
+GEMINI_MAX_CALLS   = 28   # 28 × 48 runs/day = 1344 calls/day (under 1500 free limit)
 GEMINI_DELAY_S     = 5.0  # 15 RPM free tier → 4s minimum; 5s is safe
 
 # ── GDELT config ───────────────────────────────────────────────────────────────
@@ -613,14 +613,14 @@ def main():
     groq_key   = os.getenv("GROQ_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
-    # Groq is primary — 14,400 req/day free, reliable, batch-capable
-    # Gemini is optional upgrade — only use if Groq unavailable AND Gemini quota exists
-    if groq_key:
-        print(f"SRO Brain v2.0 — Groq {GROQ_MODEL} (PRIMARY, batch mode)")
-        ai_mode = "groq"
-    elif gemini_key:
-        print("SRO Brain v2.0 — Gemini 2.0 Flash (fallback — check quota at aistudio.google.com)")
+    # Gemini is PRIMARY — Google infrastructure, no Cloudflare blocking from GitHub Actions
+    # Groq was primary but Cloudflare blocks GitHub Actions IPs (403 error 1010)
+    if gemini_key:
+        print(f"SRO Brain v2.0 — Gemini {GEMINI_MODEL} (PRIMARY, batch mode)")
         ai_mode = "gemini"
+    elif groq_key:
+        print(f"SRO Brain v2.0 — Groq {GROQ_MODEL} (fallback — may be blocked from CI)")
+        ai_mode = "groq"
     else:
         print("SRO Brain v2.0 — Keyword-only mode (no AI keys set)")
         ai_mode = "keyword"
