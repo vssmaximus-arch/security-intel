@@ -5777,7 +5777,7 @@
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
       cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-90,-180],[90,180]], maxBoundsViscosity:1.0 });
-      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:false }).addTo(cwConflictMap);
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
       /* Force size recalculation after grid renders */
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
@@ -6299,51 +6299,22 @@
     }
 
     /* ── Webcams — country-specific verified Windy cam IDs + map fallback ── */
-    var COUNTRY_CAMS = {
-      IL: [
-        { id:'1523783748', label:'Tel Aviv Seafront' },
-        { id:'1491667012', label:'Jerusalem Old City' },
-        { id:'1619560012', label:'Haifa Bay View' },
-        { id:'1619560013', label:'Eilat Red Sea' },
-        { id:'1619560014', label:'Nazareth City' },
-        { id:'1619560015', label:'Beersheba Desert' },
-      ],
-      US: [
-        { id:'1556438984', label:'New York City' },
-        { id:'1491704532', label:'Los Angeles' },
-        { id:'1619560020', label:'Chicago Lakefront' },
-        { id:'1619560021', label:'Miami South Beach' },
-        { id:'1619560022', label:'Las Vegas Strip' },
-        { id:'1619560023', label:'San Francisco Bay' },
-      ],
-      GB: [
-        { id:'1491611724', label:'London Tower Bridge' },
-        { id:'1619560030', label:'London Eye' },
-        { id:'1619560031', label:'Edinburgh Castle' },
-        { id:'1619560032', label:'Manchester City' },
-        { id:'1619560033', label:'Brighton Beach' },
-        { id:'1619560034', label:'Liverpool Docks' },
-      ],
-      SG: [
-        { id:'1526044490', label:'Singapore Marina Bay' },
-        { id:'1619560040', label:'Singapore Orchard Rd' },
-        { id:'1619560041', label:'Singapore Sentosa' },
-        { id:'1619560042', label:'Singapore Harbour' },
-        { id:'1619560043', label:'Singapore City Centre' },
-        { id:'1619560044', label:'Singapore Gardens' },
-      ],
-      JP: [
-        { id:'1491704532', label:'Tokyo Shibuya' },
-        { id:'1619560050', label:'Mount Fuji' },
-        { id:'1619560051', label:'Osaka Castle' },
-        { id:'1619560052', label:'Kyoto Temple' },
-        { id:'1619560053', label:'Tokyo Bay' },
-        { id:'1619560054', label:'Hokkaido Snow' },
-      ],
+    /* Only verified real Windy cam IDs — fake IDs show "not available" error */
+    var VERIFIED_CAMS = {
+      IL: [{ id:'1523783748', label:'Tel Aviv' }, { id:'1491667012', label:'Jerusalem' }],
+      GB: [{ id:'1491611724', label:'London Tower Bridge' }],
+      US: [{ id:'1556438984', label:'New York City' }],
+      SG: [{ id:'1526044490', label:'Singapore Marina Bay' }],
+      JP: [{ id:'1491704532', label:'Tokyo Shibuya' }],
     };
 
     /* Map-based embeds for countries without verified cam IDs — always live, always work */
     var COUNTRY_MAP_CITIES = {
+      IL: [{n:'Tel Aviv',lat:32.08,lon:34.78},{n:'Jerusalem',lat:31.77,lon:35.21},{n:'Haifa',lat:32.82,lon:34.99},{n:'Eilat',lat:29.56,lon:34.95},{n:'Netanya',lat:32.33,lon:34.86},{n:'Beer Sheva',lat:31.25,lon:34.79}],
+      US: [{n:'New York',lat:40.71,lon:-74.01},{n:'Los Angeles',lat:34.05,lon:-118.24},{n:'Chicago',lat:41.88,lon:-87.63},{n:'Miami',lat:25.77,lon:-80.19},{n:'Las Vegas',lat:36.17,lon:-115.14},{n:'San Francisco',lat:37.77,lon:-122.42}],
+      GB: [{n:'London',lat:51.51,lon:-0.13},{n:'Edinburgh',lat:55.95,lon:-3.19},{n:'Manchester',lat:53.48,lon:-2.24},{n:'Birmingham',lat:52.49,lon:-1.90},{n:'Liverpool',lat:53.41,lon:-2.98},{n:'Brighton',lat:50.82,lon:-0.14}],
+      SG: [{n:'Marina Bay',lat:1.28,lon:103.86},{n:'Orchard',lat:1.30,lon:103.84},{n:'Sentosa',lat:1.25,lon:103.82},{n:'Changi',lat:1.36,lon:103.99},{n:'Jurong',lat:1.33,lon:103.74},{n:'Woodlands',lat:1.44,lon:103.79}],
+      JP: [{n:'Tokyo',lat:35.68,lon:139.69},{n:'Osaka',lat:34.69,lon:135.50},{n:'Kyoto',lat:35.01,lon:135.77},{n:'Fuji',lat:35.36,lon:138.73},{n:'Sapporo',lat:43.06,lon:141.35},{n:'Fukuoka',lat:33.59,lon:130.40}],
       DE: [{n:'Berlin',lat:52.52,lon:13.40},{n:'Munich',lat:48.14,lon:11.58},{n:'Hamburg',lat:53.55,lon:9.99},{n:'Frankfurt',lat:50.11,lon:8.68},{n:'Cologne',lat:50.94,lon:6.96},{n:'Stuttgart',lat:48.78,lon:9.18}],
       IN: [{n:'Mumbai',lat:19.08,lon:72.88},{n:'Delhi',lat:28.61,lon:77.21},{n:'Bangalore',lat:12.97,lon:77.59},{n:'Chennai',lat:13.08,lon:80.27},{n:'Hyderabad',lat:17.39,lon:78.47},{n:'Kolkata',lat:22.57,lon:88.36}],
       AU: [{n:'Sydney',lat:-33.87,lon:151.21},{n:'Melbourne',lat:-37.81,lon:144.96},{n:'Brisbane',lat:-27.47,lon:153.03},{n:'Perth',lat:-31.95,lon:115.86},{n:'Adelaide',lat:-34.93,lon:138.60},{n:'Gold Coast',lat:-28.00,lon:153.43}],
@@ -6363,24 +6334,26 @@
       renderCountryCams(country);
     }
 
+    function makeMapCam(city) {
+      return {
+        label: city.n + ' — Live Weather',
+        playerUrl: 'https://embed.windy.com/embed2.html?lat=' + city.lat + '&lon=' + city.lon
+          + '&zoom=11&level=surface&overlay=wind&menu=&message=true&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1'
+      };
+    }
+
     function renderCountryCams(country) {
-      if (COUNTRY_CAMS[country]) {
-        renderCamSlots(COUNTRY_CAMS[country]);
-      } else if (COUNTRY_MAP_CITIES[country]) {
-        /* Use Windy weather map embeds centered on 6 cities — always live */
-        var mapCams = COUNTRY_MAP_CITIES[country].map(function(c){
-          return {
-            label: c.n,
-            playerUrl: 'https://embed.windy.com/embed2.html?lat=' + c.lat + '&lon=' + c.lon + '&zoom=11&level=surface&overlay=wind&menu=&message=true&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1'
-          };
-        });
-        renderCamSlots(mapCams);
-      } else {
-        /* Last resort: global mix of verified cameras */
-        var global = [];
-        Object.values(COUNTRY_CAMS).forEach(function(arr){ global = global.concat(arr); });
-        renderCamSlots(global.slice(0,6));
+      var slots = [];
+      /* Start with verified real cam IDs for this country */
+      var verified = VERIFIED_CAMS[country] || [];
+      verified.forEach(function(c){ slots.push(c); });
+      /* Fill remaining slots with Windy live map embeds of cities in this country */
+      var cities = COUNTRY_MAP_CITIES[country] || COUNTRY_MAP_CITIES['US'];
+      var ci = 0;
+      while (slots.length < 6 && ci < cities.length) {
+        slots.push(makeMapCam(cities[ci])); ci++;
       }
+      renderCamSlots(slots);
     }
 
     function renderCamSlots(cams) {
