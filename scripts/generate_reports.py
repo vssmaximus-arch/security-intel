@@ -449,6 +449,42 @@ def _is_security_relevant(article: Dict[str, Any]) -> bool:
             return True
     return False
 
+# ── Primary city guard — prevents body-text false matches ────────────────────
+# Australian weather articles say "Bureau of Meteorology Sydney" in body text,
+# causing Perth/Katherine events to match Dell Sydney. This guard uses the AI's
+# primary extracted location to block non-Dell cities before body matching runs.
+
+_GEO_NON_CITY = re.compile(
+    r"\b(strait|gulf|sea|ocean|bay|lake|river|coast|region|zone|area|"
+    r"province|territory|peninsula|island|border|valley|mountain|range|"
+    r"western|eastern|northern|southern|central|south|north|east|west|"
+    r"greater|metro|rural|remote|outback|basin|plateau|desert)\b",
+    re.IGNORECASE,
+)
+
+def _primary_event_city(article: Dict[str, Any]) -> Optional[str]:
+    """
+    Extract the primary city name from AI locations[0].
+    Returns None if the location is a geographic feature, region, or country
+    (those are too broad to use as a blocking signal).
+    Examples:
+      "Perth, Western Australia" → "perth"
+      "Katherine, Northern Territory" → "katherine"
+      "Western Australia" → None  (region descriptor)
+      "Strait of Hormuz" → None  (geographic feature)
+      "New South Wales" → None   (state/region)
+    """
+    geo_list = article.get("locations") or []
+    if not geo_list:
+        return None
+    raw = str(geo_list[0]).lower().strip()
+    city = raw.split(",")[0].strip()
+    if len(city) <= 3:
+        return None
+    if _GEO_NON_CITY.search(city):
+        return None   # it's a region/feature, not a specific city
+    return city
+
 # Country code → common name mapping for text matching
 COUNTRY_NAMES = {
     "US": ["united states", "usa", "u.s.", "america"],
@@ -575,9 +611,27 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
         if not article_hits:
             text     = _article_text(article)
             geo_list = article.get("locations") or []
-            # AI-extracted locations like ["Perth, Australia", "Western Australia"]
             geo_norm = set(g.lower().strip() for g in geo_list if g) \
                        if isinstance(geo_list, list) else set()
+
+            # ── Primary city guard ────────────────────────────────────────────
+            # If AI says the event's primary location is a specific city that
+            # is NOT a Dell site city, block text matching entirely.
+            # This stops body-text false matches like Perth/Katherine → Dell Sydney
+            # (Australian weather articles mention "Sydney" in their body text
+            # causing the city term match to fire incorrectly).
+            primary_city = _primary_event_city(article)
+            if primary_city:
+                all_dell_cities = set()
+                for _l in locations:
+                    all_dell_cities.update(_city_terms(_l))
+                primary_is_dell = any(
+                    primary_city in dc or dc in primary_city
+                    for dc in all_dell_cities if len(dc) > 2
+                )
+                if not primary_is_dell:
+                    # e.g. "perth" / "katherine" → no Dell site → skip all text matching
+                    continue
 
             for loc in locations:
                 city_terms   = _city_terms(loc)     # city only, NOT country
