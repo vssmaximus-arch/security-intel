@@ -23,6 +23,7 @@ import os
 import re
 import time
 import math
+import socket
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone
@@ -30,6 +31,10 @@ from urllib.parse import urlparse, urlencode
 
 import feedparser
 from bs4 import BeautifulSoup
+
+# Hard timeout for ALL network calls (feedparser, urllib, GDELT)
+# Without this, a single hanging RSS feed can stall the pipeline for minutes
+socket.setdefaulttimeout(8)
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
 BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,7 +48,7 @@ LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
 
 # ── Groq config (PRIMARY AI) ───────────────────────────────────────────────────
 GROQ_API_URL       = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL         = "llama-3.3-70b-versatile"  # best free Groq model for reasoning
+GROQ_MODEL         = "llama-3.1-8b-instant"  # confirmed free tier, fast, reliable
 GROQ_BATCH_SIZE    = 8    # articles per call
 GROQ_MAX_CALLS     = 100  # 48 runs/day × 100 = 4800 (well within 14,400/day free)
 GROQ_DELAY_S       = 2.5  # 30 RPM limit → 1 call per 2s minimum; 2.5s is safe
