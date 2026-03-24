@@ -1,10 +1,13 @@
 import json
 import os
 import re
+import time
+import urllib.request
+import urllib.error
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta, timezone
 from math import radians, sin, cos, asin, sqrt
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from json import JSONDecodeError
 
@@ -13,7 +16,106 @@ try:
 except Exception:
     genai = None
 
-# Paths
+# ── Groq config ───────────────────────────────────────────────────────────────
+GROQ_API_KEY   = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL     = "llama-3.1-8b-instant"
+GROQ_ENDPOINT  = "https://api.groq.com/openai/v1/chat/completions"
+MAX_AI_BRIEFS  = 25   # cap Groq calls per run (top N most severe proximity matches)
+GROQ_DELAY_S   = 2.0  # seconds between calls — stay under 30 RPM free limit
+
+# ── Site type inference ───────────────────────────────────────────────────────
+def _infer_site_type(site_name: str) -> str:
+    n = site_name.lower()
+    if any(x in n for x in ["mfg", "manufacturing", "factory", "plant"]):
+        return "Manufacturing / Production Facility"
+    if any(x in n for x in ["hq", "headquarters", "campus", "parmer", "round rock"]):
+        return "Corporate HQ / Campus"
+    if any(x in n for x in ["hub", "logistics", "distribution"]):
+        return "Logistics / Distribution Hub"
+    return "Regional Office"
+
+def groq_site_impact(article: Dict[str, Any], site_name: str,
+                     site_region: str, distance_km: float) -> Optional[Dict[str, str]]:
+    """
+    Use Groq to generate a site-specific operational impact brief.
+    Returns dict with keys: site_impact, rsm_action, second_order
+    Returns None on failure (caller falls back to generic text).
+    """
+    if not GROQ_API_KEY:
+        return None
+
+    site_type   = _infer_site_type(site_name)
+    category    = article.get("category", "")
+    title       = article.get("title", "")
+    snippet     = (article.get("body") or article.get("snippet") or article.get("summary") or "")[:400]
+    op_impact   = article.get("operational_impact", "")
+    second_ord  = article.get("second_order", "")
+    severity    = article.get("severity_label", article.get("severity", "MEDIUM"))
+
+    system_prompt = (
+        "You are a Dell Technologies Security Intelligence Analyst. "
+        "Your job is to generate site-specific operational briefings for "
+        "Regional Security Managers (RSMs). Be specific, practical, and "
+        "actionable. No generic statements — everything must reference the "
+        "actual event and the specific Dell site. Focus on: physical safety, "
+        "workforce availability, supply chain continuity, and business operations."
+    )
+
+    user_prompt = f"""Generate a site-specific operational alert for the following:
+
+EVENT: {title}
+CATEGORY: {category}
+SEVERITY: {severity}
+DISTANCE FROM SITE: {round(distance_km, 1) if distance_km else 'Within region'}km
+ARTICLE CONTEXT: {snippet}
+AI OPERATIONAL NOTE: {op_impact}
+AI SECOND-ORDER NOTE: {second_ord}
+
+DELL SITE: {site_name}
+SITE TYPE: {site_type}
+REGION: {site_region}
+
+Return ONLY valid JSON, no markdown, no explanation:
+{{
+  "site_impact": "2-3 sentences on the specific operational impact to THIS Dell site — reference the event and site by name",
+  "rsm_action": "3 specific immediately-actionable steps for the RSM at this site",
+  "second_order": "1 sentence on cascading effect beyond the immediate impact, or empty string if none"
+}}"""
+
+    payload = json.dumps({
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 350,
+        "response_format": {"type": "json_object"}
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        GROQ_ENDPOINT,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        content = body["choices"][0]["message"]["content"]
+        parsed = json.loads(content)
+        # Validate expected keys
+        if "site_impact" in parsed and "rsm_action" in parsed:
+            return parsed
+    except Exception as e:
+        print(f"  ⚠ Groq site-impact failed for {site_name}: {e}")
+    return None
+
+
+# ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 REPORT_DIR = os.path.join(BASE_DIR, "public", "reports")
@@ -232,9 +334,13 @@ def _location_search_terms(loc: Location) -> List[str]:
             break
     return list(set(terms))
 
-def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
-    alerts = []
-    seen = set()  # deduplicate on (article_url, site_name)
+def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
+    """
+    Phase 1: Pure geographic/text matching — find (article, site, distance) pairs.
+    No AI involved here. Returns raw matches sorted by severity desc, distance asc.
+    """
+    matches = []
+    seen = set()
 
     for article in articles:
         if int(article.get("severity", 1)) < 2:
@@ -243,11 +349,9 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
             continue
 
         alat, alon = article.get("lat"), article.get("lon")
-        art_time = article.get("time") or article.get("timestamp", "")
-        art_url = article.get("url") or article.get("link", "")
-        art_snippet = article.get("snippet") or article.get("summary", "")
+        art_url  = article.get("url") or article.get("link", "")
 
-        # Exact coordinate match
+        # ── Coordinate-based match ────────────────────────────────────────────
         if alat is not None and alon is not None:
             try:
                 alat, alon = float(alat), float(alon)
@@ -255,50 +359,32 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                     dist = haversine_km(alat, alon, loc.lat, loc.lon)
                     if dist <= RADIUS_KM:
                         key = (art_url, loc.name)
-                        if key in seen:
-                            continue
-                        seen.add(key)
-                        alerts.append({
-                            "article_title": article.get("title"),
-                            "article_source": article.get("source"),
-                            "article_timestamp": art_time,
-                            "article_link": art_url,
-                            "severity": int(article.get("severity", 1)),
-                            "summary": art_snippet,
-                            "site_name": loc.name,
-                            "site_country": loc.country,
-                            "site_region": loc.region,
-                            "distance_km": round(dist, 1),
-                            "lat": alat, "lon": alon,
-                            "type": article.get("type", "GENERAL")
-                        })
+                        if key not in seen:
+                            seen.add(key)
+                            matches.append({"article": article, "loc": loc,
+                                            "distance_km": round(dist, 1)})
             except ValueError:
                 pass
 
-        # Fallback: text-based country/city match (uses body + title + AI geo locations)
+        # ── Text / geo-list match ─────────────────────────────────────────────
         else:
             text = _article_text(article)
-            # Also build a set of normalised strings from AI-extracted location list
             geo_list = article.get("locations") or []
             geo_norm = set(g.lower().strip() for g in geo_list if g) if isinstance(geo_list, list) else set()
 
             for loc in locations:
-                terms = _location_search_terms(loc)
-
+                terms   = _location_search_terms(loc)
                 matched = any(term in text for term in terms if len(term) > 2)
 
-                # Also check if any AI-extracted location overlaps with our search terms
                 if not matched and geo_norm:
                     matched = any(
                         any(term in geo_entry or geo_entry in term for geo_entry in geo_norm)
                         for term in terms if len(term) > 2
                     )
 
-                # Region-level fallback: match article region code to location region
                 if not matched:
                     art_region = (article.get("region") or "").upper()
                     if art_region and art_region != "GLOBAL" and art_region == loc.region.upper():
-                        # Only fire on severity >= 3 for region-only matches (avoid noise)
                         if int(article.get("severity", 1)) >= 3:
                             matched = True
 
@@ -306,25 +392,82 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
                     continue
 
                 key = (art_url, loc.name)
-                if key in seen:
-                    continue
-                seen.add(key)
-                alerts.append({
-                    "article_title": article.get("title"),
-                    "article_source": article.get("source"),
-                    "article_timestamp": art_time,
-                    "article_link": art_url,
-                    "severity": int(article.get("severity", 1)),
-                    "summary": art_snippet,
-                    "site_name": loc.name,
-                    "site_country": loc.country,
-                    "site_region": loc.region,
-                    "distance_km": 0.0,
-                    "lat": loc.lat, "lon": loc.lon,
-                    "type": article.get("type", "GENERAL")
-                })
-    
-    alerts.sort(key=lambda a: (-int(a["severity"]), a["distance_km"]))
+                if key not in seen:
+                    seen.add(key)
+                    matches.append({"article": article, "loc": loc, "distance_km": 0.0})
+
+    matches.sort(key=lambda m: (-int(m["article"].get("severity", 1)), m["distance_km"]))
+    return matches
+
+
+def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
+    """
+    Phase 2: AI enrichment — take raw matches and generate site-specific
+    operational impact briefs using Groq. This is what makes proximity alerts
+    genuinely intelligent instead of just a filtered news feed.
+    """
+    raw_matches = _collect_raw_matches(articles, locations)
+    print(f"  [PROX] {len(raw_matches)} raw matches found → enriching top {MAX_AI_BRIEFS} with AI")
+
+    alerts = []
+    ai_calls = 0
+
+    for m in raw_matches:
+        article      = m["article"]
+        loc          = m["loc"]
+        distance_km  = m["distance_km"]
+
+        art_time    = article.get("time") or article.get("timestamp", "")
+        art_url     = article.get("url") or article.get("link", "")
+        art_snippet = (article.get("body") or article.get("snippet")
+                       or article.get("summary") or "")[:300]
+        severity    = int(article.get("severity", 1))
+
+        # ── AI site-specific brief (top N only, then fall back to generic) ───
+        ai_brief = None
+        if ai_calls < MAX_AI_BRIEFS and GROQ_API_KEY:
+            if ai_calls > 0:
+                time.sleep(GROQ_DELAY_S)
+            ai_brief  = groq_site_impact(article, loc.name, loc.region, distance_km)
+            ai_calls += 1
+
+        if ai_brief:
+            site_impact  = ai_brief.get("site_impact", "")
+            rsm_action   = ai_brief.get("rsm_action", "")
+            second_order = ai_brief.get("second_order", "")
+            ai_enriched  = True
+        else:
+            # Graceful fallback — still useful, just not site-specific
+            op_impact    = article.get("operational_impact", "")
+            site_impact  = op_impact if op_impact else art_snippet
+            rsm_action   = ""
+            second_order = article.get("second_order", "")
+            ai_enriched  = False
+
+        alerts.append({
+            # Event fields
+            "article_title":     article.get("title", ""),
+            "article_source":    article.get("source", ""),
+            "article_timestamp": art_time,
+            "article_link":      art_url,
+            "category":          article.get("category", "GENERAL"),
+            "severity":          severity,
+            # Site fields
+            "site_name":         loc.name,
+            "site_region":       loc.region,
+            "site_country":      loc.country,
+            "site_type":         _infer_site_type(loc.name),
+            "distance_km":       distance_km,
+            "lat":               loc.lat,
+            "lon":               loc.lon,
+            # Intelligence fields (the new layer)
+            "site_impact":       site_impact,
+            "rsm_action":        rsm_action,
+            "second_order":      second_order,
+            "ai_enriched":       ai_enriched,
+        })
+
+    print(f"  [PROX] {ai_calls} AI briefs generated, {len(alerts)} total alerts")
     return alerts
 
 # --- Reporting Logic ---
