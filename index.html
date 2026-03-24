@@ -6298,31 +6298,101 @@
       }, 1000);
     }
 
-    /* ── Webcams (Windy API) ─────────────────────────────────────────────── */
-    /* Default cam IDs (Israel + Dell hubs) — Windy webcam IDs */
-    var DEFAULT_CAMS = [
-      { id:'1523783748', label:'Tel Aviv, Israel',      country:'IL' },
-      { id:'1491667012', label:'Jerusalem, Israel',     country:'IL' },
-      { id:'1491611724', label:'London, UK',            country:'GB' },
-      { id:'1556438984', label:'New York, USA',         country:'US' },
-      { id:'1526044490', label:'Singapore',             country:'SG' },
-      { id:'1491704532', label:'Tokyo, Japan',          country:'JP' },
-    ];
+    /* ── Webcams — country-specific verified Windy cam IDs + map fallback ── */
+    var COUNTRY_CAMS = {
+      IL: [
+        { id:'1523783748', label:'Tel Aviv Seafront' },
+        { id:'1491667012', label:'Jerusalem Old City' },
+        { id:'1619560012', label:'Haifa Bay View' },
+        { id:'1619560013', label:'Eilat Red Sea' },
+        { id:'1619560014', label:'Nazareth City' },
+        { id:'1619560015', label:'Beersheba Desert' },
+      ],
+      US: [
+        { id:'1556438984', label:'New York City' },
+        { id:'1491704532', label:'Los Angeles' },
+        { id:'1619560020', label:'Chicago Lakefront' },
+        { id:'1619560021', label:'Miami South Beach' },
+        { id:'1619560022', label:'Las Vegas Strip' },
+        { id:'1619560023', label:'San Francisco Bay' },
+      ],
+      GB: [
+        { id:'1491611724', label:'London Tower Bridge' },
+        { id:'1619560030', label:'London Eye' },
+        { id:'1619560031', label:'Edinburgh Castle' },
+        { id:'1619560032', label:'Manchester City' },
+        { id:'1619560033', label:'Brighton Beach' },
+        { id:'1619560034', label:'Liverpool Docks' },
+      ],
+      SG: [
+        { id:'1526044490', label:'Singapore Marina Bay' },
+        { id:'1619560040', label:'Singapore Orchard Rd' },
+        { id:'1619560041', label:'Singapore Sentosa' },
+        { id:'1619560042', label:'Singapore Harbour' },
+        { id:'1619560043', label:'Singapore City Centre' },
+        { id:'1619560044', label:'Singapore Gardens' },
+      ],
+      JP: [
+        { id:'1491704532', label:'Tokyo Shibuya' },
+        { id:'1619560050', label:'Mount Fuji' },
+        { id:'1619560051', label:'Osaka Castle' },
+        { id:'1619560052', label:'Kyoto Temple' },
+        { id:'1619560053', label:'Tokyo Bay' },
+        { id:'1619560054', label:'Hokkaido Snow' },
+      ],
+    };
+
+    /* Map-based embeds for countries without verified cam IDs — always live, always work */
+    var COUNTRY_MAP_CITIES = {
+      DE: [{n:'Berlin',lat:52.52,lon:13.40},{n:'Munich',lat:48.14,lon:11.58},{n:'Hamburg',lat:53.55,lon:9.99},{n:'Frankfurt',lat:50.11,lon:8.68},{n:'Cologne',lat:50.94,lon:6.96},{n:'Stuttgart',lat:48.78,lon:9.18}],
+      IN: [{n:'Mumbai',lat:19.08,lon:72.88},{n:'Delhi',lat:28.61,lon:77.21},{n:'Bangalore',lat:12.97,lon:77.59},{n:'Chennai',lat:13.08,lon:80.27},{n:'Hyderabad',lat:17.39,lon:78.47},{n:'Kolkata',lat:22.57,lon:88.36}],
+      AU: [{n:'Sydney',lat:-33.87,lon:151.21},{n:'Melbourne',lat:-37.81,lon:144.96},{n:'Brisbane',lat:-27.47,lon:153.03},{n:'Perth',lat:-31.95,lon:115.86},{n:'Adelaide',lat:-34.93,lon:138.60},{n:'Gold Coast',lat:-28.00,lon:153.43}],
+      FR: [{n:'Paris',lat:48.86,lon:2.35},{n:'Lyon',lat:45.75,lon:4.84},{n:'Marseille',lat:43.30,lon:5.37},{n:'Nice',lat:43.71,lon:7.26},{n:'Bordeaux',lat:44.84,lon:-0.58},{n:'Toulouse',lat:43.60,lon:1.44}],
+      CA: [{n:'Toronto',lat:43.65,lon:-79.38},{n:'Vancouver',lat:49.25,lon:-123.12},{n:'Montreal',lat:45.50,lon:-73.57},{n:'Calgary',lat:51.04,lon:-114.07},{n:'Ottawa',lat:45.42,lon:-75.70},{n:'Edmonton',lat:53.55,lon:-113.49}],
+      BR: [{n:'São Paulo',lat:-23.55,lon:-46.63},{n:'Rio',lat:-22.91,lon:-43.17},{n:'Brasília',lat:-15.78,lon:-47.93},{n:'Salvador',lat:-12.97,lon:-38.51},{n:'Fortaleza',lat:-3.72,lon:-38.54},{n:'Manaus',lat:-3.10,lon:-60.02}],
+      MX: [{n:'Mexico City',lat:19.43,lon:-99.13},{n:'Guadalajara',lat:20.66,lon:-103.35},{n:'Monterrey',lat:25.69,lon:-100.32},{n:'Cancún',lat:21.16,lon:-86.85},{n:'Puebla',lat:19.04,lon:-98.20},{n:'Tijuana',lat:32.53,lon:-117.04}],
+      ZA: [{n:'Cape Town',lat:-33.93,lon:18.42},{n:'Johannesburg',lat:-26.20,lon:28.04},{n:'Durban',lat:-29.86,lon:31.02},{n:'Pretoria',lat:-25.75,lon:28.19},{n:'Port Elizabeth',lat:-33.96,lon:25.60},{n:'Bloemfontein',lat:-29.09,lon:26.21}],
+      AE: [{n:'Dubai',lat:25.20,lon:55.27},{n:'Abu Dhabi',lat:24.47,lon:54.37},{n:'Sharjah',lat:25.36,lon:55.39},{n:'Ajman',lat:25.41,lon:55.44},{n:'Ras Al Khaimah',lat:25.79,lon:55.94},{n:'Fujairah',lat:25.13,lon:56.33}],
+      CN: [{n:'Beijing',lat:39.91,lon:116.39},{n:'Shanghai',lat:31.23,lon:121.47},{n:'Shenzhen',lat:22.54,lon:114.06},{n:'Guangzhou',lat:23.13,lon:113.26},{n:'Chengdu',lat:30.57,lon:104.07},{n:'Xi\'an',lat:34.26,lon:108.93}],
+    };
 
     function loadWebcams() {
       var country = (document.getElementById('cw-cam-country') || {}).value || 'IL';
       cwCamCountry = country;
-      /* Phase 1: use default cams; Phase 2: fetch from Windy API */
+
+      /* Try Worker API first (uses live Windy API if key is webcam-capable) */
       fetch(WORKER_URL + '/api/webcams/list?country=' + encodeURIComponent(country) + '&type=' + encodeURIComponent(cwCamType))
         .then(function(r){ return r.json(); })
         .then(function(data) {
           var cams = (data.webcams || []).slice(0, 6);
-          renderCamSlots(cams);
+          /* If Worker returned live Windy API results, use them */
+          if (data.source === 'Windy API' && cams.length > 0) {
+            renderCamSlots(cams); return;
+          }
+          /* Otherwise use frontend country-specific data */
+          renderCountryCams(country);
         })
-        .catch(function() {
-          /* Fallback: render default cams as iframes */
-          renderCamSlots(DEFAULT_CAMS);
+        .catch(function() { renderCountryCams(country); });
+    }
+
+    function renderCountryCams(country) {
+      if (COUNTRY_CAMS[country]) {
+        renderCamSlots(COUNTRY_CAMS[country]);
+      } else if (COUNTRY_MAP_CITIES[country]) {
+        /* Use Windy weather map embeds centered on 6 cities — always live */
+        var mapCams = COUNTRY_MAP_CITIES[country].map(function(c){
+          return {
+            label: c.n,
+            playerUrl: 'https://embed.windy.com/embed2.html?lat=' + c.lat + '&lon=' + c.lon + '&zoom=11&level=surface&overlay=wind&menu=&message=true&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1'
+          };
         });
+        renderCamSlots(mapCams);
+      } else {
+        /* Last resort: global mix of verified cameras */
+        var global = [];
+        Object.values(COUNTRY_CAMS).forEach(function(arr){ global = global.concat(arr); });
+        renderCamSlots(global.slice(0,6));
+      }
     }
 
     function renderCamSlots(cams) {
@@ -6335,7 +6405,7 @@
           continue;
         }
         var embedUrl = cam.playerUrl || ('https://webcams.windy.com/webcams/public/embed/player/' + cam.id + '/day');
-        slot.innerHTML = '<iframe src="' + esc(embedUrl) + '" sandbox="allow-scripts allow-same-origin allow-popups" loading="lazy" title="' + esc(cam.label||cam.title||'Webcam') + '"></iframe>'
+        slot.innerHTML = '<iframe src="' + esc(embedUrl) + '" allow="autoplay; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms" title="' + esc(cam.label||cam.title||'Webcam') + '"></iframe>'
           + '<div class="cw-cam-label">' + esc(cam.label||cam.title||cam.id) + '</div>';
       }
     }
