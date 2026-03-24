@@ -228,17 +228,37 @@ _HARD_BLOCK = re.compile(
     flags=re.IGNORECASE,
 )
 
-# ── Cyber-only filter — deprioritize unless Dell-specific ─────────────────────
-# These are pure cyber/IT articles that have no physical operational consequence
+# ── Cyber-only filter — reject unless Dell-specific or physical OT/grid impact ─
+# Physical security SRO team does NOT want cyber/IT news. Another team handles it.
 _CYBER_ONLY = re.compile(
     r"\b(ransomware|phishing|malware|zero.?day|CVE-\d|patch.tuesday|"
     r"vulnerability.(?:discovered|found|patched|disclosed)|"
     r"exploit.(?:released|published|found)|bug.bounty|penetration.test|"
     r"security.advisory|firmware.update|software.patch|"
-    r"threat.actor|apt.group|threat.intelligence.report)\b",
+    r"threat.actor|apt.group|threat.intelligence.report|"
+    r"hacked?.account|account.compromise|credential.theft|password.manager|"
+    r"data.breach|data.leak|infosec|information.security|"
+    r"cybersecurity.(?:tip|guide|tool|practice|awareness|news|report)|"
+    r"mobile.malware|endpoint.security|antivirus|spyware|adware|trojan|"
+    r"facial.recognition.(?:hack|fool|bypass|spoof|defeat)|deepfake.detection|"
+    r"cyber.(?:fallout|guide|tip|awareness|hygiene|espionage.report)|"
+    r"recovering.a.hacked|how.to.stay.safe.online|two.factor|MFA.bypass|"
+    r"threat.hunting|incident.response.playbook|SIEM|SOC.analyst|"
+    r"network.intrusion|lateral.movement|command.and.control)\b",
     flags=re.IGNORECASE,
 )
 _DELL_MENTION = re.compile(r"\bdell\b", flags=re.IGNORECASE)
+
+# ── Cyber source domain blocklist — these sites are 100% IT/cyber security ────
+# Articles from these domains are rejected outright (they appear via Google News)
+_CYBER_DOMAINS = frozenset({
+    "welivesecurity.com", "thehackernews.com", "bleepingcomputer.com",
+    "securityweek.com", "krebsonsecurity.com", "threatpost.com",
+    "darkreading.com", "cyberscoop.com", "infosecurity-magazine.com",
+    "helpnetsecurity.com", "scmagazine.com", "securitymagazine.com",
+    "bankinfosecurity.com", "govinfosecurity.com", "databreachtoday.com",
+    "hackread.com", "cybernews.com", "therecord.media",
+})
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def _clean(html):
@@ -645,6 +665,11 @@ def main():
                 if _HARD_BLOCK.search(title + " " + raw_body[:200]):
                     continue
 
+                # Domain blocklist — pure cyber/IT security news sites
+                link_lower = link.lower()
+                if any(d in link_lower for d in _CYBER_DOMAINS):
+                    continue
+
                 # Cyber-only pre-filter: skip if clearly pure IT security and no Dell mention
                 if _CYBER_ONLY.search(title) and not _DELL_MENTION.search(title + " " + raw_body[:100]):
                     continue
@@ -683,6 +708,8 @@ def main():
             if title.lower() in seen_titles:
                 continue
             if _HARD_BLOCK.search(title):
+                continue
+            if any(d in (a.get("url","")).lower() for d in _CYBER_DOMAINS):
                 continue
             if _CYBER_ONLY.search(title) and not _DELL_MENTION.search(title):
                 continue
@@ -732,6 +759,10 @@ def main():
                     cat      = assessment.get("category", "NOT_RELEVANT")
 
                     if not relevant or cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
+                        continue
+                    # CYBER_DIRECT requires very high confidence — only pass if AI is
+                    # certain it caused confirmed physical/operational disruption (score 8+)
+                    if cat == "CYBER_DIRECT" and score < 8:
                         continue
 
                     # Boost flagged articles
@@ -803,6 +834,10 @@ def main():
                     cat      = assessment.get("category", "NOT_RELEVANT")
 
                     if not relevant or cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
+                        continue
+                    # CYBER_DIRECT requires very high confidence — only pass if AI is
+                    # certain it caused confirmed physical/operational disruption (score 8+)
+                    if cat == "CYBER_DIRECT" and score < 8:
                         continue
 
                     if article.get("boost") and score < 7:
