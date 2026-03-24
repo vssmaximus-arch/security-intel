@@ -5776,7 +5776,7 @@
       var tile = isLight
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false });
+      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-90,-180],[90,180]], maxBoundsViscosity:1.0 });
       L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:false }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
       /* Force size recalculation after grid renders */
@@ -6359,20 +6359,8 @@
     function loadWebcams() {
       var country = (document.getElementById('cw-cam-country') || {}).value || 'IL';
       cwCamCountry = country;
-
-      /* Try Worker API first (uses live Windy API if key is webcam-capable) */
-      fetch(WORKER_URL + '/api/webcams/list?country=' + encodeURIComponent(country) + '&type=' + encodeURIComponent(cwCamType))
-        .then(function(r){ return r.json(); })
-        .then(function(data) {
-          var cams = (data.webcams || []).slice(0, 6);
-          /* If Worker returned live Windy API results, use them */
-          if (data.source === 'Windy API' && cams.length > 0) {
-            renderCamSlots(cams); return;
-          }
-          /* Otherwise use frontend country-specific data */
-          renderCountryCams(country);
-        })
-        .catch(function() { renderCountryCams(country); });
+      /* Use frontend country data directly — Worker API returns same global cams regardless of country */
+      renderCountryCams(country);
     }
 
     function renderCountryCams(country) {
