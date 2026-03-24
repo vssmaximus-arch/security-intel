@@ -178,7 +178,8 @@ FEEDS = [
     "https://www.civildefence.govt.nz/rss-feed",
     "https://www.dhs.gov/news-releases.xml",
     "https://www.state.gov/press-releases/rss/",
-    "https://www.cisa.gov/news.xml",    # General CISA alerts (not pure cyber advisories)
+    # CISA removed — primarily publishes cyber advisories which flood the SRO feed
+    # "https://www.cisa.gov/news.xml",
     "https://www.abf.gov.au/_layouts/15/AppPages/Rss.aspx?site=newsroom",
     "https://www.iaea.org/feeds/topnews",  # Nuclear/radiological events
     # ── Humanitarian / Crisis Organizations ───────────────────────────────────
@@ -233,32 +234,48 @@ _HARD_BLOCK = re.compile(
 # Physical security SRO team does NOT want cyber/IT news. Another team handles it.
 _CYBER_ONLY = re.compile(
     r"\b(ransomware|phishing|malware|zero.?day|CVE-\d|patch.tuesday|"
-    r"vulnerability.(?:discovered|found|patched|disclosed)|"
-    r"exploit.(?:released|published|found)|bug.bounty|penetration.test|"
-    r"security.advisory|firmware.update|software.patch|"
-    r"threat.actor|apt.group|threat.intelligence.report|"
-    r"hacked?.account|account.compromise|credential.theft|password.manager|"
+    r"vulnerabilit(?:y|ies).(?:discovered|found|patched|disclosed|exploited)|"
+    r"exploit.(?:released|published|found|kit)|bug.bounty|penetration.test|"
+    r"security.(?:advisory|researcher|flaw|patch|bug|hole)|firmware.update|software.patch|"
+    r"threat.(?:actor|group|intelligence.report|assessment|report|brief)|"
+    r"apt[-\s]\d+|nation.state.hack|cyber.espionage|"
+    r"hacked?\b|account.compromise|credential.theft|password.(?:manager|leak|dump)|"
     r"data.breach|data.leak|infosec|information.security|"
     r"cybersecurity.(?:tip|guide|tool|practice|awareness|news|report)|"
-    r"mobile.malware|endpoint.security|antivirus|spyware|adware|trojan|"
+    r"mobile.malware|endpoint.security|antivirus|spyware|adware|trojan|wiper|"
+    r"pwn2own|supply.chain.(?:attack|hack|compromise|poison|malware|package|npm|pip)|"
     r"facial.recognition.(?:hack|fool|bypass|spoof|defeat)|deepfake.detection|"
-    r"cyber.(?:fallout|guide|tip|awareness|hygiene|espionage.report)|"
+    r"cyber.(?:fallout|guide|tip|awareness|hygiene|espionage)|"
     r"recovering.a.hacked|how.to.stay.safe.online|two.factor|MFA.bypass|"
     r"threat.hunting|incident.response.playbook|SIEM|SOC.analyst|"
-    r"network.intrusion|lateral.movement|command.and.control)\b",
+    r"network.intrusion|lateral.movement|command.and.control|"
+    r"patches.(?:four|three|two|five|six|multiple|critical)|"
+    r"vulnerability.scanner|security.scanner|pen.test)\b",
     flags=re.IGNORECASE,
 )
 _DELL_MENTION = re.compile(r"\bdell\b", flags=re.IGNORECASE)
 
-# ── Cyber source domain blocklist — these sites are 100% IT/cyber security ────
-# Articles from these domains are rejected outright (they appear via Google News)
+# ── Cyber source domain/link blocklist — 100% IT/cyber security sources ───────
+# Checked as substring of the FULL URL (not just domain) so feedburner relay URLs
+# like feeds.feedburner.com/SecurityWeek are also caught.
 _CYBER_DOMAINS = frozenset({
+    # Full domains
     "welivesecurity.com", "thehackernews.com", "bleepingcomputer.com",
     "securityweek.com", "krebsonsecurity.com", "threatpost.com",
     "darkreading.com", "cyberscoop.com", "infosecurity-magazine.com",
     "helpnetsecurity.com", "scmagazine.com", "securitymagazine.com",
     "bankinfosecurity.com", "govinfosecurity.com", "databreachtoday.com",
     "hackread.com", "cybernews.com", "therecord.media",
+    # Cyber threat intel / vendor research blogs
+    "unit42.paloaltonetworks.com", "blog.talosintelligence.com",
+    "securelist.com", "recordedfuture.com", "research.checkpoint.com",
+    "decoded.avast.io", "labs.sentinelone.com", "mandiant.com",
+    "proofpoint.com/us/blog", "crowdstrike.com/blog",
+    # Path fragments — catches feedburner relays (feeds.feedburner.com/SecurityWeek)
+    # and similar redirect/proxy URLs where domain alone doesn't identify the source
+    "feedburner.com/securityweek", "feedburner.com/thehackernews",
+    "feedburner.com/bleepingcomputer", "feedburner.com/darkreading",
+    "feedburner.com/threatpost", "feedburner.com/infosecurity",
 })
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -347,9 +364,9 @@ PRIORITY CATEGORIES:
 6 INFRASTRUCTURE     — Power grid failures, internet outages, road/bridge/tunnel closures affecting Dell site access
 7 HEALTH_WORKFORCE   — Disease outbreaks, health advisories that reduce workforce availability or require travel restrictions
 8 TRAVEL_SECURITY    — Government travel advisories, airport/border closures, executive travel risk
-9 BRAND_MONITORING   — Dell layoffs, restructuring, executive changes, data breaches, insider incidents, reputation risk
-10 CYBER_DIRECT      — ONLY if confirmed direct physical/operational impact on Dell operations (see above)
-NOT_RELEVANT         — General cyber/IT news, sports, entertainment, opinion, academic research, general financial news
+9 BRAND_MONITORING   — Dell layoffs, restructuring, executive changes, insider incidents, reputation risk
+NOT_RELEVANT         — ALL cybersecurity/IT news (ransomware, CVEs, patches, hacks, APTs, threat research, vulnerability reports, data breaches, phishing, malware) — mark these NOT_RELEVANT without exception. Also: sports, entertainment, opinion, general financial news.
+                       NOTE: If a cyberattack causes a confirmed physical disruption (power grid down, building access denied, factory halted), classify as INFRASTRUCTURE — not a cyber category.
 
 SECOND-ORDER REASONING: Always consider how an event cascades to Dell operations.
 Example: "NSW teachers strike" → schools close → Dell Sydney/Melbourne employees with school-age children cannot come to work → estimated 10-25% workforce reduction at those sites for the duration."""
@@ -376,7 +393,7 @@ ARTICLES:
 {articles_payload}
 
 Return a JSON array, one object per article:
-[{{"idx":0,"relevant":true,"score":1-10,"category":"PHYSICAL_SECURITY|CIVIL_UNREST|NATURAL_DISASTER|SUPPLY_CHAIN|LABOR_ACTION|INFRASTRUCTURE|HEALTH_WORKFORCE|TRAVEL_SECURITY|BRAND_MONITORING|CYBER_DIRECT|NOT_RELEVANT","severity":"LOW|MEDIUM|HIGH|CRITICAL","locations":["city, country"],"dell_region":"AMER|EMEA|APJC|LATAM|Global","operational_impact":"one sentence","second_order":"cascading Dell workforce/ops effect if any, else empty string"}}]"""
+[{{"idx":0,"relevant":true,"score":1-10,"category":"PHYSICAL_SECURITY|CIVIL_UNREST|NATURAL_DISASTER|SUPPLY_CHAIN|LABOR_ACTION|INFRASTRUCTURE|HEALTH_WORKFORCE|TRAVEL_SECURITY|BRAND_MONITORING|NOT_RELEVANT","severity":"LOW|MEDIUM|HIGH|CRITICAL","locations":["city, country"],"dell_region":"AMER|EMEA|APJC|LATAM|Global","operational_impact":"one sentence","second_order":"cascading Dell workforce/ops effect if any, else empty string"}}]"""
 
     payload = json.dumps({
         "contents": [
@@ -432,9 +449,9 @@ PRIORITY CATEGORIES (highest first):
 6 INFRASTRUCTURE     — Power outages, internet failures, road/rail closures affecting Dell site access
 7 HEALTH_WORKFORCE   — Disease outbreaks, health advisories reducing workforce availability
 8 TRAVEL_SECURITY    — Travel advisories, airport/border closures, executive travel risk
-9 BRAND_MONITORING   — Dell layoffs, executive changes, breaches, insider incidents
-10 CYBER_DIRECT      — ONLY if cyber causes confirmed physical/operational impact (OT/ICS attack, grid failure). NOT: ransomware news, CVEs, patches, security research.
-NOT_RELEVANT         — Pure cyber/IT news, sports, entertainment, opinion, general markets
+9 BRAND_MONITORING   — Dell layoffs, executive changes, insider incidents
+NOT_RELEVANT         — ALL cybersecurity/IT news: ransomware, hacks, CVEs, patches, APTs, threat research, data breaches, phishing, malware, vulnerability reports — mark NOT_RELEVANT without exception. Also sports, entertainment, opinion, general markets.
+                       NOTE: A cyberattack that physically knocks out power or halts a factory = INFRASTRUCTURE.
 
 SECOND-ORDER REASONING: Always ask how an event cascades to Dell.
 Teacher strike → schools close → employees with children absent → workforce drop at nearby Dell sites.
@@ -457,7 +474,7 @@ ARTICLES:
 {articles_payload}
 
 Return a JSON array with one object per article:
-[{{"idx":0,"relevant":true,"score":1-10,"category":"PHYSICAL_SECURITY|CIVIL_UNREST|NATURAL_DISASTER|SUPPLY_CHAIN|LABOR_ACTION|INFRASTRUCTURE|HEALTH_WORKFORCE|TRAVEL_SECURITY|BRAND_MONITORING|CYBER_DIRECT|NOT_RELEVANT","severity":"LOW|MEDIUM|HIGH|CRITICAL","locations":["city, country"],"dell_region":"AMER|EMEA|APJC|LATAM|Global","operational_impact":"one sentence on Dell ops impact","second_order":"cascading effect on Dell workforce/supply chain, or empty string"}}]"""
+[{{"idx":0,"relevant":true,"score":1-10,"category":"PHYSICAL_SECURITY|CIVIL_UNREST|NATURAL_DISASTER|SUPPLY_CHAIN|LABOR_ACTION|INFRASTRUCTURE|HEALTH_WORKFORCE|TRAVEL_SECURITY|BRAND_MONITORING|NOT_RELEVANT","severity":"LOW|MEDIUM|HIGH|CRITICAL","locations":["city, country"],"dell_region":"AMER|EMEA|APJC|LATAM|Global","operational_impact":"one sentence on Dell ops impact","second_order":"cascading effect on Dell workforce/supply chain, or empty string"}}]"""
 
     payload = json.dumps({
         "model":       GROQ_MODEL,
@@ -757,9 +774,9 @@ def main():
 
                     if not relevant or cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
                         continue
-                    # CYBER_DIRECT requires very high confidence — only pass if AI is
-                    # certain it caused confirmed physical/operational disruption (score 8+)
-                    if cat == "CYBER_DIRECT" and score < 8:
+                    # Hard-block all cyber categories — physical SRO team does not want any cyber news.
+                    # If AI somehow returns CYBER_DIRECT despite the prompt instructions, drop it.
+                    if "CYBER" in cat.upper():
                         continue
 
                     # Boost flagged articles
@@ -832,9 +849,9 @@ def main():
 
                     if not relevant or cat == "NOT_RELEVANT" or score < MIN_RELEVANCE_SCORE:
                         continue
-                    # CYBER_DIRECT requires very high confidence — only pass if AI is
-                    # certain it caused confirmed physical/operational disruption (score 8+)
-                    if cat == "CYBER_DIRECT" and score < 8:
+                    # Hard-block all cyber categories — physical SRO team does not want any cyber news.
+                    # If AI somehow returns CYBER_DIRECT despite the prompt instructions, drop it.
+                    if "CYBER" in cat.upper():
                         continue
 
                     if article.get("boost") and score < 7:
