@@ -5777,7 +5777,7 @@
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
       cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-90,-180],[90,180]], maxBoundsViscosity:1.0 });
-      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true }).addTo(cwConflictMap);
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:false, bounds:[[-90,-180],[90,180]] }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
       /* Force size recalculation after grid renders */
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
@@ -6299,14 +6299,8 @@
     }
 
     /* ── Webcams — country-specific verified Windy cam IDs + map fallback ── */
-    /* Only verified real Windy cam IDs — fake IDs show "not available" error */
-    var VERIFIED_CAMS = {
-      IL: [{ id:'1523783748', label:'Tel Aviv' }, { id:'1491667012', label:'Jerusalem' }],
-      GB: [{ id:'1491611724', label:'London Tower Bridge' }],
-      US: [{ id:'1556438984', label:'New York City' }],
-      SG: [{ id:'1526044490', label:'Singapore Marina Bay' }],
-      JP: [{ id:'1491704532', label:'Tokyo Shibuya' }],
-    };
+    /* Windy webcam player IDs are unreliable (expire/change) — use webcam map embeds instead */
+    var VERIFIED_CAMS = {}; /* reserved for future use */
 
     /* Map-based embeds for countries without verified cam IDs — always live, always work */
     var COUNTRY_MAP_CITIES = {
@@ -6335,10 +6329,10 @@
     }
 
     function makeMapCam(city) {
+      /* Windy webcam map embed — shows live camera thumbnails for the area, always works */
       return {
-        label: city.n + ' — Live Weather',
-        playerUrl: 'https://embed.windy.com/embed2.html?lat=' + city.lat + '&lon=' + city.lon
-          + '&zoom=11&level=surface&overlay=wind&menu=&message=true&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1'
+        label: city.n + ' — Live Cams',
+        playerUrl: 'https://webcams.windy.com/webcams/public/embed/map/' + city.lat + '/' + city.lon + '/12'
       };
     }
 
