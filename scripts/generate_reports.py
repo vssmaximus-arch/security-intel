@@ -16,103 +16,248 @@ try:
 except Exception:
     genai = None
 
-# ── Groq config ───────────────────────────────────────────────────────────────
-GROQ_API_KEY   = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL     = "llama-3.1-8b-instant"
-GROQ_ENDPOINT  = "https://api.groq.com/openai/v1/chat/completions"
-MAX_AI_BRIEFS  = 25   # cap Groq calls per run (top N most severe proximity matches)
-GROQ_DELAY_S   = 2.0  # seconds between calls — stay under 30 RPM free limit
+# ── AI config — Gemini primary, Groq fallback ────────────────────────────────
+GEMINI_API_KEY    = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL      = "gemini-2.0-flash"
+GEMINI_API_BASE   = "https://generativelanguage.googleapis.com/v1beta/models"
+
+GROQ_API_KEY      = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL        = "llama-3.1-8b-instant"
+GROQ_ENDPOINT     = "https://api.groq.com/openai/v1/chat/completions"
+
+MAX_AI_BRIEFS     = 25    # cap AI calls per run
+GROQ_DELAY_S      = 2.0   # stay under 30 RPM free limit
+GEMINI_DELAY_S    = 5.0   # stay under 15 RPM free limit
+
+# ── Site context — tells AI exactly what each site does ──────────────────────
+# This is what makes the assessment specific rather than generic
+SITE_CONTEXT: Dict[str, str] = {
+    "Dell Round Rock HQ":      "Global corporate HQ, executive leadership, legal, finance, ~13,000 on-site staff",
+    "Dell Austin Parmer":      "Major R&D and engineering campus, product development teams",
+    "Dell Hopkinton":          "EMC/data storage division HQ, critical enterprise infrastructure teams",
+    "Dell Durham":             "Technology and cloud division campus",
+    "Dell Santa Clara":        "Silicon Valley engineering and partnerships hub",
+    "Dell Nashville Hub":      "US regional business hub",
+    "Dell Oklahoma City":      "US operations and support center",
+    "Dell Toronto":            "Canada HQ, sales and support for Canadian market",
+    "Dell Mexico City":        "LATAM regional headquarters, sales and professional services",
+    "Dell Hortolândia":        "Primary LATAM manufacturing plant, hardware assembly and production",
+    "Dell São Paulo":          "Brazil commercial HQ, largest LATAM office by headcount",
+    "Dell Porto Alegre":       "Brazil technology center",
+    "Dell Bogotá":             "Colombia and Andean region office",
+    "Dell Santiago":           "Chile regional office",
+    "Dell Buenos Aires":       "Argentina regional office",
+    "Dell Cork Campus":        "Largest Dell campus outside USA, EMEA manufacturing + global customer support, ~3,000 staff",
+    "Dell Limerick":           "Ireland manufacturing and logistics facility",
+    "Dell Dublin":             "Ireland commercial office",
+    "Dell Bracknell":          "UK and Northern Europe regional HQ, sales and support",
+    "Dell Brentford":          "UK London-area office, financial services vertical",
+    "Dell Glasgow":            "UK technology center, customer support operations",
+    "Dell Paris / Bezons":     "France and Southern Europe HQ, enterprise sales",
+    "Dell Montpellier":        "France technology and support center",
+    "Dell Frankfurt":          "Germany and DACH region HQ, financial sector accounts",
+    "Dell Munich":             "Germany technology and engineering hub",
+    "Dell Amsterdam":          "Netherlands and Benelux HQ",
+    "Dell Copenhagen":         "Nordic region office",
+    "Dell Stockholm":          "Sweden and Nordic technology center",
+    "Dell Madrid":             "Spain and Iberia regional HQ",
+    "Dell Rome":               "Italy regional office",
+    "Dell Prague":             "Central and Eastern Europe hub, support operations",
+    "Dell Warsaw":             "Poland office, growing technology center",
+    "Dell Dubai":              "Middle East and Africa (MEA) regional HQ, executive presence, key supply chain node for Gulf region",
+    "Dell Riyadh":             "Saudi Arabia office, major government and enterprise accounts",
+    "Dell Johannesburg":       "Sub-Saharan Africa HQ, South Africa commercial center",
+    "Dell Bangalore":          "Largest India campus, ~30,000+ staff, global IT/software development, shared services, critical to global operations",
+    "Dell Hyderabad":          "India technology center, software engineering and support",
+    "Dell Gurgaon":            "India NCR office, enterprise sales and professional services",
+    "Dell Cyberjaya":          "Malaysia APJC shared services center, finance and HR operations",
+    "Dell Penang":             "APJC key manufacturing facility, hardware production and logistics",
+    "Dell Singapore":          "APJC regional HQ, executive leadership for Asia-Pacific, supply chain coordination",
+    "Dell Xiamen Mfg":         "Primary China manufacturing plant, high-volume hardware assembly, critical to global supply chain",
+    "Dell Chengdu":            "China technology center",
+    "Dell Shanghai":           "China commercial HQ, enterprise accounts",
+    "Dell Beijing":            "China government and public sector accounts",
+    "Dell Hong Kong":          "Hong Kong commercial office, financial sector",
+    "Dell Taipei":             "Taiwan office, semiconductor and ODM partner relationships",
+    "Dell Tokyo":              "Japan HQ, enterprise and public sector accounts",
+    "Dell Osaka":              "Japan regional office",
+    "Dell Seoul":              "Korea HQ, enterprise and government accounts",
+    "Dell Sydney":             "Australia and New Zealand HQ, commercial and government accounts",
+    "Dell Melbourne":          "Australia technology center and commercial office",
+    "Dell Manila":             "Philippines office, growing technology services hub",
+    "Dell Bangkok":            "Thailand regional office",
+}
+
+def _get_site_context(site_name: str) -> str:
+    """Match site name to context string (partial match tolerant)."""
+    for key, ctx in SITE_CONTEXT.items():
+        if key.lower() in site_name.lower() or site_name.lower() in key.lower():
+            return ctx
+    return "Regional Dell office"
 
 # ── Site type inference ───────────────────────────────────────────────────────
 def _infer_site_type(site_name: str) -> str:
     n = site_name.lower()
-    if any(x in n for x in ["mfg", "manufacturing", "factory", "plant"]):
+    if any(x in n for x in ["mfg", "manufacturing", "factory", "plant", "hortolândia", "penang", "xiamen", "cork", "limerick"]):
         return "Manufacturing / Production Facility"
-    if any(x in n for x in ["hq", "headquarters", "campus", "parmer", "round rock"]):
-        return "Corporate HQ / Campus"
-    if any(x in n for x in ["hub", "logistics", "distribution"]):
-        return "Logistics / Distribution Hub"
-    return "Regional Office"
+    if any(x in n for x in ["hq", "headquarters", "campus", "parmer", "round rock", "singapore", "dubai", "bangalore", "sydney"]):
+        return "Regional / Corporate HQ"
+    return "Commercial Office"
 
-def groq_site_impact(article: Dict[str, Any], site_name: str,
-                     site_region: str, distance_km: float) -> Optional[Dict[str, str]]:
+def _build_brief_prompt(article: Dict[str, Any], site_name: str,
+                         site_region: str, distance_km: float,
+                         match_tier: str) -> str:
     """
-    Use Groq to generate a site-specific operational impact brief.
-    Returns dict with keys: site_impact, rsm_action, second_order
-    Returns None on failure (caller falls back to generic text).
+    Build the intelligence brief prompt. This is the 'brain' — the quality
+    of this prompt determines the quality of every RSM alert.
     """
-    if not GROQ_API_KEY:
-        return None
+    site_type    = _infer_site_type(site_name)
+    site_context = _get_site_context(site_name)
+    category     = article.get("category", "UNKNOWN")
+    title        = article.get("title", "")
+    snippet      = (article.get("body") or article.get("snippet")
+                    or article.get("summary") or "")[:500]
+    op_impact    = article.get("operational_impact", "")
+    second_ord   = article.get("second_order", "")
+    sev_raw      = article.get("severity", 2)
+    sev_label    = {1:"LOW",2:"MEDIUM",3:"HIGH",4:"CRITICAL"}.get(int(sev_raw), "MEDIUM")
+    pub_time     = article.get("time") or article.get("timestamp", "recent")
 
-    site_type   = _infer_site_type(site_name)
-    category    = article.get("category", "")
-    title       = article.get("title", "")
-    snippet     = (article.get("body") or article.get("snippet") or article.get("summary") or "")[:400]
-    op_impact   = article.get("operational_impact", "")
-    second_ord  = article.get("second_order", "")
-    severity    = article.get("severity_label", article.get("severity", "MEDIUM"))
+    dist_str = f"{round(distance_km, 1)}km" if distance_km else "within city"
+    if match_tier == "coordinate":
+        dist_note = f"{dist_str} (precise GPS location)"
+    else:
+        dist_note = f"~{dist_str} estimated (city-level match)"
 
-    system_prompt = (
-        "You are a Dell Technologies Security Intelligence Analyst. "
-        "Your job is to generate site-specific operational briefings for "
-        "Regional Security Managers (RSMs). Be specific, practical, and "
-        "actionable. No generic statements — everything must reference the "
-        "actual event and the specific Dell site. Focus on: physical safety, "
-        "workforce availability, supply chain continuity, and business operations."
-    )
+    # Distance-calibrated threat context
+    if distance_km and distance_km <= 15:
+        proximity_context = "DIRECT ZONE — the Dell site may be within the immediate incident area."
+    elif distance_km and distance_km <= 50:
+        proximity_context = "NEARBY — staff commutes, building access, and site perimeter may be affected."
+    elif distance_km and distance_km <= 150:
+        proximity_context = "REGIONAL — monitor situation; travel, supply chain, or workforce may be disrupted."
+    elif distance_km and distance_km <= 300:
+        proximity_context = "EXTENDED RANGE — relevant for natural disasters and large-scale events only."
+    else:
+        proximity_context = "STRATEGIC AWARENESS — relevant due to ballistic/military threat radius."
 
-    user_prompt = f"""Generate a site-specific operational alert for the following:
+    return f"""You are generating a PROXIMITY INTELLIGENCE ALERT for a Dell Technologies Regional Security Manager (RSM).
+The RSM needs accurate, specific, actionable intelligence — not generic statements.
 
-EVENT: {title}
-CATEGORY: {category}
-SEVERITY: {severity}
-DISTANCE FROM SITE: {round(distance_km, 1) if distance_km else 'Within region'}km
-ARTICLE CONTEXT: {snippet}
-AI OPERATIONAL NOTE: {op_impact}
-AI SECOND-ORDER NOTE: {second_ord}
+━━━ EVENT ━━━
+Title:     {title}
+Category:  {category}
+Severity:  {sev_label}
+Published: {pub_time}
+Context:   {snippet}
 
-DELL SITE: {site_name}
-SITE TYPE: {site_type}
-REGION: {site_region}
+━━━ INTEL PIPELINE NOTES ━━━
+Operational impact (AI-classified): {op_impact or 'not available'}
+Second-order effects (AI-classified): {second_ord or 'not available'}
 
-Return ONLY valid JSON, no markdown, no explanation:
+━━━ DELL SITE ━━━
+Site:     {site_name}
+Type:     {site_type}
+Context:  {site_context}
+Region:   {site_region}
+
+━━━ PROXIMITY ━━━
+Distance: {dist_note}
+Assessment: {proximity_context}
+
+━━━ YOUR TASK ━━━
+Generate a precise, site-specific intelligence brief. Return ONLY valid JSON:
+
 {{
-  "site_impact": "2-3 sentences on the specific operational impact to THIS Dell site — reference the event and site by name",
-  "rsm_action": "3 specific immediately-actionable steps for the RSM at this site",
-  "second_order": "1 sentence on cascading effect beyond the immediate impact, or empty string if none"
-}}"""
+  "site_impact": "2-3 sentences. Name the site AND the event explicitly. Be precise about what operational aspect is affected (workforce attendance / building access / supply chain / production / executive safety). Calibrate to the actual distance — a 250km storm ≠ immediate evacuation. Never say 'Dell employees and facilities may be affected' — that is too generic.",
+  "rsm_action": "Exactly 3 bullet points starting with action verbs. Each must be immediately executable by THIS RSM at THIS site. Example: '1. Contact site security lead to confirm building access status. 2. Activate employee check-in protocol for staff within 10km of incident. 3. Notify APJC Security Director and await further guidance.' Tailor to site type — manufacturing sites → production continuity; HQ → executive safety + comms; office → workforce attendance.",
+  "second_order": "One sentence on the most likely cascading effect. For labor actions consider childcare/school closures. For natural disasters consider supply chain and logistics. For civil unrest consider executive travel risk. Empty string if genuinely none."
+}}
 
+HARD RULES:
+- Reference {site_name} and the actual event by name in site_impact
+- RSM actions must match the site type: {site_type}
+- If distance > 100km and category is not NATURAL_DISASTER or military, explain WHY this is still relevant
+- Do not invent facts — work only from the information provided above"""
+
+
+def _call_gemini_brief(prompt: str) -> Optional[Dict[str, str]]:
+    """Call Gemini 2.0 Flash for brief generation (primary — better reasoning)."""
+    if not GEMINI_API_KEY:
+        return None
+    url = f"{GEMINI_API_BASE}/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
     payload = json.dumps({
-        "model": GROQ_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_prompt}
-        ],
-        "temperature": 0.3,
-        "max_tokens": 350,
-        "response_format": {"type": "json_object"}
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 450,
+            "responseMimeType": "application/json"
+        }
     }).encode("utf-8")
-
-    req = urllib.request.Request(
-        GROQ_ENDPOINT,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {GROQ_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        method="POST"
-    )
+    req = urllib.request.Request(url, data=payload,
+                                  headers={"Content-Type": "application/json"},
+                                  method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:
             body = json.loads(resp.read().decode("utf-8"))
-        content = body["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
-        # Validate expected keys
+        text = body["candidates"][0]["content"]["parts"][0]["text"]
+        parsed = json.loads(text)
         if "site_impact" in parsed and "rsm_action" in parsed:
             return parsed
     except Exception as e:
-        print(f"  ⚠ Groq site-impact failed for {site_name}: {e}")
+        print(f"    Gemini brief failed: {e}")
     return None
+
+
+def _call_groq_brief(prompt: str) -> Optional[Dict[str, str]]:
+    """Call Groq llama as fallback for brief generation."""
+    if not GROQ_API_KEY:
+        return None
+    payload = json.dumps({
+        "model": GROQ_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.2,
+        "max_tokens": 450,
+        "response_format": {"type": "json_object"}
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        GROQ_ENDPOINT, data=payload,
+        headers={"Authorization": f"Bearer {GROQ_API_KEY}",
+                 "Content-Type": "application/json"},
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        content = body["choices"][0]["message"]["content"]
+        parsed = json.loads(content)
+        if "site_impact" in parsed and "rsm_action" in parsed:
+            return parsed
+    except Exception as e:
+        print(f"    Groq brief failed: {e}")
+    return None
+
+
+def generate_site_brief(article: Dict[str, Any], site_name: str,
+                         site_region: str, distance_km: float,
+                         match_tier: str = "text") -> Optional[Dict[str, str]]:
+    """
+    Generate AI intelligence brief. Tries Gemini first (better reasoning),
+    falls back to Groq if Gemini unavailable or fails.
+    """
+    prompt = _build_brief_prompt(article, site_name, site_region,
+                                  distance_km, match_tier)
+    # Try Gemini first
+    if GEMINI_API_KEY:
+        result = _call_gemini_brief(prompt)
+        if result:
+            result["ai_model"] = "gemini-2.0-flash"
+            return result
+    # Fall back to Groq
+    result = _call_groq_brief(prompt)
+    if result:
+        result["ai_model"] = "groq-llama-3.1"
+    return result
 
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
@@ -505,11 +650,17 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
 
         # ── AI site-specific brief (top N only, then fall back to generic) ───
         ai_brief = None
-        if ai_calls < MAX_AI_BRIEFS and GROQ_API_KEY:
+        if ai_calls < MAX_AI_BRIEFS and (GEMINI_API_KEY or GROQ_API_KEY):
             if ai_calls > 0:
-                time.sleep(GROQ_DELAY_S)
-            ai_brief  = groq_site_impact(article, loc.name, loc.region, distance_km)
+                delay = GEMINI_DELAY_S if GEMINI_API_KEY else GROQ_DELAY_S
+                time.sleep(delay)
+            ai_brief  = generate_site_brief(
+                article, loc.name, loc.region, distance_km,
+                m.get("match_tier", "text")
+            )
             ai_calls += 1
+            model_used = ai_brief.get("ai_model", "unknown") if ai_brief else "failed"
+            print(f"    Brief [{model_used}]: {loc.name[:35]}")
 
         if ai_brief:
             site_impact  = ai_brief.get("site_impact", "")
@@ -545,6 +696,7 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
             "rsm_action":        rsm_action,
             "second_order":      second_order,
             "ai_enriched":       ai_enriched,
+            "ai_model":          ai_brief.get("ai_model", "") if ai_brief else "",
         })
 
     print(f"  [PROX] {ai_calls} AI briefs generated, {len(alerts)} total alerts")
