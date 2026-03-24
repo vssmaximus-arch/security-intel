@@ -5777,7 +5777,7 @@
         ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
       cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-85,-180],[85,180]], maxBoundsViscosity:1.0 });
-      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true }).addTo(cwConflictMap);
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true, bounds:[[-90,-180],[90,180]] }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
       /* Force size recalculation after grid renders */
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
