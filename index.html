@@ -5774,10 +5774,10 @@
       if (!mapEl || cwConflictMap) return;
       var isLight = document.body.classList.contains('light-mode');
       var tile = isLight
-        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-90,-180],[90,180]], maxBoundsViscosity:1.0 });
-      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:false, bounds:[[-90,-180],[90,180]] }).addTo(cwConflictMap);
+        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+      cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-85,-180],[85,180]], maxBoundsViscosity:1.0 });
+      L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
       /* Force size recalculation after grid renders */
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
@@ -6324,8 +6324,15 @@
     function loadWebcams() {
       var country = (document.getElementById('cw-cam-country') || {}).value || 'IL';
       cwCamCountry = country;
-      /* Use frontend country data directly — Worker API returns same global cams regardless of country */
-      renderCountryCams(country);
+      /* Fetch from Worker — Worker calls Windy API with country filter for live camera IDs */
+      fetch(WORKER_URL + '/api/webcams/list?country=' + encodeURIComponent(country) + '&type=' + encodeURIComponent(cwCamType))
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          var cams = (data.webcams || []).slice(0, 6);
+          if (cams.length > 0) { renderCamSlots(cams); return; }
+          renderCountryCams(country); /* fallback if API returned nothing */
+        })
+        .catch(function() { renderCountryCams(country); });
     }
 
     function makeMapCam(city) {
