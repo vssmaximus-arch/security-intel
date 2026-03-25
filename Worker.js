@@ -5870,16 +5870,17 @@ async function handleApiAiBriefing(env, req) {
       return { status: 200, headers: { 'X-Cache': 'MISS' }, body: emptyResult };
     }
 
-    // Cyber gate: only include CYBER incidents if they directly affect Dell/major vendors or are CRITICAL-scale outages
-    const _CYBER_DELL_RE = /\b(dell|emc|vmware|microsoft|azure|aws|google\s+cloud|crowdstrike|okta|palo\s+alto|cisco|oracle|sap|cloudflare|fortinet|servicenow|workday|salesforce|o365|office\s+365)\b/i;
-    const _CYBER_MAJOR_RE = /\b(nation[\-\s]?state|apt\s+\d|critical\s+infrastructure|nationwide\s+outage|millions?\s+(affected|impacted|exposed)|widespread\s+outage|global\s+outage|supply[\-\s]chain\s+attack)\b/i;
+    // Cyber gate: SRO focus = PHYSICAL SECURITY + SUPPLY CHAIN. Cyber is lowest priority.
+    // Only include cyber if there is a CONFIRMED DIRECT operational impact on Dell infrastructure or employee safety.
+    // "Dell mentioned in an article" is NOT sufficient — must be an actual attack/breach ON Dell.
+    const _CYBER_DELL_DIRECT_RE = /\b(dell\s+(breach|hacked|attack|systems?\s+(down|offline|compromised|disrupted)|data\s+(stolen|leaked|exposed)|network\s+(compromised|intrusion|breach))|recoverpoint\s+(exploit|breach|attack|hack|zero.?day)|dell\s+emc|vmware\s+(breach|attack|hack|ransomware|exploit))\b/i;
+    const _CYBER_SUPPLY_CHAIN_RE = /\b(supply[\-\s]chain\s+(attack|hack|compromise|breach)|solarwinds|xz\s+utils|3cx\s+attack)\b/i;
     const filteredForBriefing = incidents.filter(i => {
       const cat = String(i.category || '').toUpperCase();
       if (cat === 'CYBER_SECURITY' || cat === 'CYBER') {
         const text = `${i.title || ''} ${i.summary || ''}`;
-        const sev = String(i.severity_label || '').toUpperCase();
-        // Only keep cyber if: Dell/major vendor named, or nation-state/major outage, or CRITICAL severity
-        return sev === 'CRITICAL' || _CYBER_DELL_RE.test(text) || _CYBER_MAJOR_RE.test(text);
+        // Strict: only confirmed direct attack on Dell infrastructure OR supply-chain cyberattack
+        return _CYBER_DELL_DIRECT_RE.test(text) || _CYBER_SUPPLY_CHAIN_RE.test(text);
       }
       return true;
     });
@@ -5972,7 +5973,7 @@ WRITING RULES:
 2. CONNECT DOTS: Iran strikes → energy infrastructure damage → fuel price rises → Asia rationing → Dell logistics costs/TM quality of life.
 3. Facts and confident assessments. Not hedging. Not "may", "could", "might" — write what IS happening and WILL happen based on trajectory.
 4. If Iran/Middle East/Gulf events exist — they MUST be the lead story. Synthesize all Iran-related incidents into a unified strategic picture.
-5. PROTESTS & CYBER: Only include these sections if data supports it. Cyber = Dell or major vendor named only.
+5. PROTESTS & CYBER: CYBER section — include ONLY if a confirmed direct attack on Dell infrastructure is in the data. NO general cyber news, NO vendor advisories, NO nation-state hacking unless Dell systems are down/breached. SRO leadership focuses on physical security and supply chain — cyber is the last priority.
 6. DELL IMPACT: Cross-reference incident countries against the Dell Sites list. Name actual cities. Only confirmed impacts — no speculation.
 7. OUTLOOK: Multi-dimensional trajectory (military escalation → energy/LNG → food supply chains → Asia impacts → Dell operational exposure).`;
 
@@ -6023,11 +6024,12 @@ EMEA
 - Awareness — Ongoing Russian attacks on Ukraine."
 
 WRITING RULES:
-1. ACTIVE MONITORING = flowing narrative paragraphs by major theme/geography. When a Dell office country is involved, name the city explicitly (e.g. "where we have an office in Dubai").
+1. ACTIVE MONITORING = flowing narrative paragraphs by major theme/geography. Lead with physical security threats (conflict, unrest, terrorism, natural hazards) and supply chain disruptions. When a Dell office country is involved, name the city explicitly (e.g. "where we have an office in Dubai").
 2. SRO FORWARD RADAR = upcoming concerns: new laws, regulatory changes, political trends, emerging risks. Not immediate crises — those go in Active Monitoring.
 3. ONGOING EVENTS = structured monitoring list grouped by region (APJC / EMEA / AMER). Each item: Status (Monitoring/Awareness) — Location — brief description — Dell TM note if relevant.
-4. OUTLOOK = 2–3 forward-looking bullets. What will develop, what Dell should expect.
-5. Tone: direct, factual, written for senior managers with no time. Complete sentences. No jargon.`;
+4. OUTLOOK = 2–3 forward-looking bullets on physical security and supply chain trajectory.
+5. Tone: direct, factual, written for senior managers with no time. Complete sentences. No jargon.
+6. CYBER RULE: Do NOT include cyber threats unless it is a confirmed direct attack on Dell infrastructure with operational impact (Dell systems down, Dell data breached). General cyber news, vendor patches, CVE advisories, nation-state hacking of OTHER companies = EXCLUDE. SRO leadership prioritises physical security and supply chain above all else.`;
 
       userContent = `SRO DAILY THREATSCAPE — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
 Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
