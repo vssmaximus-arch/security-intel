@@ -2806,7 +2806,7 @@
     <div class="grid-stack" id="ap-grid">
 
       <!-- ── FLIGHT DISRUPTIONS (left 8 cols) ─────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-disruptions-widget" gs-x="0" gs-y="0" gs-w="8" gs-h="14" gs-min-h="6">
+      <div class="grid-stack-item" gs-id="ap-disruptions-widget" gs-x="0" gs-y="0" gs-w="8" gs-h="16" gs-min-h="6">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-plane-departure" style="margin-right:6px;color:#ef5350;"></i>Flight Disruptions</span>
@@ -2832,11 +2832,8 @@
                 <option value="NAME">Name A–Z</option>
               </select>
               <button id="airport-refresh-btn" class="cw-gs-icon-btn" title="Refresh data"><i class="fas fa-sync"></i></button>
-              <a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener noreferrer"
-                class="ap-fr24-map-btn" title="Open FR24 global airport disruption index">
-                <i class="fas fa-external-link-alt"></i> FR24 Disruption Map
-              </a>
               <span id="airport-updated-at" class="airport-ts"></span>
+              <button class="widget-close-btn" data-ap-close="ap-disruptions-widget" title="Hide widget" aria-label="Hide Flight Disruptions widget"><i class="fas fa-times"></i></button>
             </div>
           </div>
           <div class="ap-map-body">
@@ -2853,10 +2850,11 @@
       </div>
 
       <!-- ── TRAVEL SAFETY CHECK (right 4 cols) ──────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-tsc-widget" gs-x="8" gs-y="0" gs-w="4" gs-h="9" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="ap-tsc-widget" gs-x="8" gs-y="0" gs-w="4" gs-h="11" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-passport" style="margin-right:6px;color:#4fc3f7;"></i>Travel Safety Check</span>
+            <button class="widget-close-btn" data-ap-close="ap-tsc-widget" title="Hide widget" aria-label="Hide Travel Safety Check widget" style="margin-left:auto;"><i class="fas fa-times"></i></button>
           </div>
           <div class="ap-widget-scroll">
             <p class="tsc-subtitle" style="margin:0 0 8px;">Select a country for US &amp; AU government advisory and recent travel news</p>
@@ -2870,10 +2868,11 @@
       </div>
 
       <!-- ── FLIGHT WATCHLIST (right 4 cols) ──────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-flightwatch-widget" gs-x="8" gs-y="9" gs-w="4" gs-h="5" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="ap-flightwatch-widget" gs-x="8" gs-y="11" gs-w="4" gs-h="5" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-binoculars" style="margin-right:6px;color:#4fc3f7;"></i>Flight Watchlist</span>
+            <button class="widget-close-btn" data-ap-close="ap-flightwatch-widget" title="Hide widget" aria-label="Hide Flight Watchlist widget" style="margin-left:auto;"><i class="fas fa-times"></i></button>
           </div>
           <div class="ap-widget-scroll">
             <p class="tsc-subtitle" style="margin:0 0 8px;">Track live flights by callsign (e.g. EJM618) or ICAO24 hex</p>
@@ -2891,13 +2890,14 @@
       </div>
 
       <!-- ── AIRLINE CANCELLATIONS (full width below map) ──────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-cancellations-widget" gs-x="0" gs-y="14" gs-w="12" gs-h="10" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="ap-cancellations-widget" gs-x="0" gs-y="16" gs-w="12" gs-h="13" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-ban" style="margin-right:6px;color:#ef5350;"></i>Airline Cancellations &amp; Delays</span>
             <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
               <button class="cw-gs-icon-btn" id="canc-refresh-btn" title="Refresh"><i class="fas fa-sync"></i></button>
               <span id="canc-updated-at" class="airport-ts"></span>
+              <button class="widget-close-btn" data-ap-close="ap-cancellations-widget" title="Hide widget" aria-label="Hide Airline Cancellations widget"><i class="fas fa-times"></i></button>
             </div>
           </div>
           <div class="canc-body ap-canc-scroll" id="canc-body">
@@ -4775,8 +4775,8 @@
     }
     .ap-fr24-map-btn:hover { background:#005ba1; }
 
-    /* Map inside widget */
-    .ap-map-body { height:240px; flex-shrink:0; }
+    /* Map inside widget — fills all remaining height after header + SIGMET bar */
+    .ap-map-body { flex:1; min-height:0; }
     .ap-map-body #airport-map { height:100%; border-radius:6px; overflow:hidden; }
     .ap-sigmet { flex-shrink:0; }
 
@@ -5521,12 +5521,12 @@
     var apGrid      = null;
     var apGridReady = false;
 
-    var AP_LAYOUT_KEY = 'ap_grid_layout_v2';
+    var AP_LAYOUT_KEY = 'ap_grid_layout_v3';
     var AP_DEFAULT_LAYOUT = [
-      { id:'ap-disruptions-widget',   x:0,  y:0,  w:8,  h:14 },
-      { id:'ap-tsc-widget',           x:8,  y:0,  w:4,  h:9  },
-      { id:'ap-flightwatch-widget',   x:8,  y:9,  w:4,  h:5  },
-      { id:'ap-cancellations-widget', x:0,  y:14, w:12, h:10 },
+      { id:'ap-disruptions-widget',   x:0,  y:0,  w:8,  h:16 },
+      { id:'ap-tsc-widget',           x:8,  y:0,  w:4,  h:11 },
+      { id:'ap-flightwatch-widget',   x:8,  y:11, w:4,  h:5  },
+      { id:'ap-cancellations-widget', x:0,  y:16, w:12, h:13 },
     ];
     var AP_WIDGETS_META = [
       { id:'ap-disruptions-widget',   label:'Flight Disruptions',        icon:'fa-plane-departure' },
@@ -5561,26 +5561,30 @@
       var list = document.getElementById('ap-picker-rows');
       if (!list) return;
       list.innerHTML = AP_WIDGETS_META.map(function(m){
-        var on = apWidgetPrefs[m.id] !== false;
-        return '<div class=”cw-picker-row” data-ap-widget=”' + m.id + '” style=”cursor:pointer;”>'
-          + '<span class=”cw-picker-row-icon”><i class=”fas ' + m.icon + '”></i></span>'
-          + '<span class=”cw-picker-row-label”>' + m.label + '</span>'
-          + '<span class=”cw-picker-row-toggle' + (on ? ' on' : '') + '”>'
-          + (on ? '<i class=”fas fa-toggle-on” style=”color:#1a73e8;font-size:1.1rem;”></i>'
-                : '<i class=”fas fa-toggle-off” style=”color:#5f6368;font-size:1.1rem;”></i>')
-          + '</span></div>';
+        var on  = apWidgetPrefs[m.id] !== false;
+        var chk = on ? ' checked' : '';
+        return '<div class=”cw-picker-row” data-ap-widget=”' + m.id + '”>'
+          + '<span class=”cw-picker-row-label”>'
+          +   '<i class=”fas ' + m.icon + '” style=”width:16px;text-align:center;opacity:.7;”></i> '
+          +   m.label
+          + '</span>'
+          + '<label class=”cw-toggle” title=”' + (on ? 'Hide widget' : 'Show widget') + '”>'
+          +   '<input type=”checkbox”' + chk + ' data-ap-chk=”' + m.id + '”>'
+          +   '<span class=”cw-toggle-slider”></span>'
+          + '</label>'
+          + '</div>';
       }).join('');
-      list.querySelectorAll('.cw-picker-row').forEach(function(item){
-        item.addEventListener('click', function(){
-          var wid = this.getAttribute('data-ap-widget');
-          var on  = apWidgetPrefs[wid] !== false;
-          apWidgetPrefs[wid] = !on;
+
+      list.querySelectorAll('input[data-ap-chk]').forEach(function(chkEl){
+        chkEl.addEventListener('change', function(){
+          var wid = this.getAttribute('data-ap-chk');
+          var on  = this.checked;
+          apWidgetPrefs[wid] = on;
           var gsItem = document.querySelector('#ap-grid .grid-stack-item[gs-id=”'+wid+'”]');
           if (gsItem && apGrid) {
-            if (!on) { apGrid.makeWidget(gsItem); }
-            else      { apGrid.removeWidget(gsItem, false); }
+            if (on) { apGrid.makeWidget(gsItem); }
+            else    { apGrid.removeWidget(gsItem, false); }
           }
-          renderApPicker();
           saveApLayout();
         });
       });
@@ -5649,6 +5653,19 @@
           if (e.target === apOv) apOv.classList.remove('open');
         });
       }
+      /* Widget close (✕) buttons — hide widget + update picker state */
+      document.querySelectorAll('#ap-grid [data-ap-close]').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          var wid    = this.getAttribute('data-ap-close');
+          var gsItem = document.querySelector('#ap-grid .grid-stack-item[gs-id="'+wid+'"]');
+          if (gsItem && apGrid) {
+            apWidgetPrefs[wid] = false;
+            apGrid.removeWidget(gsItem, false);
+            saveApLayout();
+          }
+        });
+      });
     }
 
     /* Wire cancellations refresh button */
@@ -5922,12 +5939,15 @@
         return;
       }
 
-      /* Tab switcher */
+      /* Tab switcher + FR24 link */
       var tabs = '<div class="canc-tab-bar">'
         + '<button class="canc-tab' + (_cancActiveTab==='airport'?' canc-tab-active':'') + '" data-canc-tab="airport">'
         +   '<i class="fas fa-plane-departure"></i> By Airport</button>'
         + '<button class="canc-tab' + (_cancActiveTab==='airline'?' canc-tab-active':'') + '" data-canc-tab="airline">'
         +   '<i class="fas fa-building"></i> By Airline</button>'
+        + '<a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener noreferrer"'
+        +   ' class="ap-fr24-map-btn" title="Open FR24 global airport disruption index" style="margin-left:auto;">'
+        +   '<i class="fas fa-external-link-alt"></i> FR24 Disruption Map</a>'
         + '</div>';
 
       var content = _cancActiveTab === 'airline'
