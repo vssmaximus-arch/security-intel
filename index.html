@@ -3016,7 +3016,7 @@
       </div>
 
       <!-- ── MAP WIDGET (left 8 cols) ───────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-map-widget" gs-x="0" gs-y="1" gs-w="8" gs-h="7" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="vw-map-widget" gs-x="0" gs-y="1" gs-w="8" gs-h="9" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-map-marked-alt" style="margin-right:6px;"></i>Maritime Operations Map</span>
@@ -3036,7 +3036,7 @@
       </div>
 
       <!-- ── MARITIME DISRUPTIONS WIDGET ────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="8" gs-w="6" gs-h="9" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="vw-disruptions-widget" gs-x="0" gs-y="10" gs-w="6" gs-h="11" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-ship" style="margin-right:6px;"></i>Maritime Disruptions</span>
@@ -3079,7 +3079,7 @@
       </div>
 
       <!-- ── CHOKEPOINT TRAFFIC WIDGET ──────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-chokepoint-widget" gs-x="8" gs-y="8" gs-w="4" gs-h="9" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="vw-chokepoint-widget" gs-x="8" gs-y="10" gs-w="4" gs-h="11" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-water" style="margin-right:6px;"></i>Chokepoint Traffic</span>
@@ -3094,7 +3094,7 @@
       </div>
 
       <!-- ── TRACK VESSEL WIDGET ────────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="6" gs-y="8" gs-w="2" gs-h="9" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="vw-track-widget" gs-x="6" gs-y="10" gs-w="2" gs-h="11" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-search" style="margin-right:6px;"></i>Track Vessel</span>
@@ -3113,7 +3113,7 @@
       </div>
 
       <!-- ── MONITORED FLEET WIDGET ─────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="vw-monitored-widget" gs-x="8" gs-y="1" gs-w="4" gs-h="7" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="vw-monitored-widget" gs-x="8" gs-y="1" gs-w="4" gs-h="9" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-binoculars" style="margin-right:6px;"></i>Monitored Fleet</span>
@@ -4037,7 +4037,7 @@
     .vw-gs-map-body #cw-israel-map { position: absolute; inset: 0; }
 
     /* standard widget body: scrollable content area */
-    .vw-gs-body { flex: 1; min-height: 0; padding: 10px 12px; }
+    .vw-gs-body { flex: 1; min-height: 0; padding: 10px 12px; overflow-y: auto; }
     .vw-gs-scroll { overflow-y: auto; }
 
     /* inline controls in widget headers */
@@ -4369,18 +4369,18 @@
           if (activeTab && activeTab.dataset.view === 'vessel-watch') {
             var VW_D = [
               {id:'vw-posture-widget',    x:0, y:0,  w:12, h:1},
-              {id:'vw-map-widget',        x:0, y:1,  w:8,  h:7},
-              {id:'vw-monitored-widget',  x:8, y:1,  w:4,  h:7},
-              {id:'vw-disruptions-widget',x:0, y:8,  w:6,  h:9},
-              {id:'vw-track-widget',      x:6, y:8,  w:2,  h:9},
-              {id:'vw-chokepoint-widget', x:8, y:8,  w:4,  h:9}
+              {id:'vw-map-widget',        x:0, y:1,  w:8,  h:9},
+              {id:'vw-monitored-widget',  x:8, y:1,  w:4,  h:9},
+              {id:'vw-disruptions-widget',x:0, y:10, w:6,  h:11},
+              {id:'vw-track-widget',      x:6, y:10, w:2,  h:11},
+              {id:'vw-chokepoint-widget', x:8, y:10, w:4,  h:11}
             ];
             var vwEl = document.querySelector('#vw-grid');
             var vwGs = vwEl && vwEl.gridstack;
             if (vwGs) {
               vwGs.load(VW_D);
               Object.keys(localStorage).filter(function(k){ return k.indexOf('vw_grid') === 0; }).forEach(function(k){ localStorage.removeItem(k); });
-              localStorage.setItem('vw_grid_layout_v3', JSON.stringify(VW_D));
+              localStorage.setItem('vw_grid_layout_v4', JSON.stringify(VW_D));
               setTimeout(function(){ if (window.vwMap) window.vwMap.invalidateSize(); }, 150);
             }
             return;
@@ -6260,17 +6260,17 @@
   (function () {
     'use strict';
 
-    var VW_LAYOUT_KEY = 'vw_grid_layout_v3'; // bumped: track vessel same row as disruptions+chokepoint
+    var VW_LAYOUT_KEY = 'vw_grid_layout_v4'; // bumped: taller map/fleet + disruptions to prevent content cutting
     var vwGrid        = null;
     var vwGridReady   = false;
 
     var VW_DEFAULT_LAYOUT = [
       { id: 'vw-posture-widget',    x: 0, y: 0,  w: 12, h: 1  }, // posture: slim one-liner full width
-      { id: 'vw-map-widget',        x: 0, y: 1,  w: 8,  h: 7  }, // map: left 8 cols
-      { id: 'vw-monitored-widget',  x: 8, y: 1,  w: 4,  h: 7  }, // fleet: right 4 cols, same row as map
-      { id: 'vw-disruptions-widget',x: 0, y: 8,  w: 6,  h: 9  }, // disruptions: left 6 cols
-      { id: 'vw-track-widget',      x: 6, y: 8,  w: 2,  h: 9  }, // track vessel: centre 2 cols, SAME ROW
-      { id: 'vw-chokepoint-widget', x: 8, y: 8,  w: 4,  h: 9  }, // chokepoints: right 4 cols, SAME ROW
+      { id: 'vw-map-widget',        x: 0, y: 1,  w: 8,  h: 9  }, // map: left 8 cols (taller)
+      { id: 'vw-monitored-widget',  x: 8, y: 1,  w: 4,  h: 9  }, // fleet: right 4 cols, same row as map (taller)
+      { id: 'vw-disruptions-widget',x: 0, y: 10, w: 6,  h: 11 }, // disruptions: left 6 cols (taller — avoids content cut)
+      { id: 'vw-track-widget',      x: 6, y: 10, w: 2,  h: 11 }, // track vessel: centre 2 cols, SAME ROW
+      { id: 'vw-chokepoint-widget', x: 8, y: 10, w: 4,  h: 11 }, // chokepoints: right 4 cols, SAME ROW
     ];
 
     function saveLayout() {

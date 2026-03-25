@@ -7279,13 +7279,34 @@ function _vwRenderMap(vessels, riskZones) {
     _vwZoneLayers.push(poly);
   });
 
+  /* Ship-shaped rotatable icon — points in heading direction */
+  function _vwShipIcon(color, heading) {
+    var deg = (heading != null && !isNaN(heading)) ? heading : 0;
+    var svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 28" width="20" height="28">',
+        '<polygon points="10,1 19,24 10,19 1,24"',
+          ' fill="', color, '"',
+          ' stroke="rgba(0,0,0,0.55)" stroke-width="1.2" stroke-linejoin="round"/>',
+        '<circle cx="10" cy="19" r="2.5" fill="rgba(255,255,255,0.6)"/>',
+      '</svg>',
+    ].join('');
+    return L.divIcon({
+      className: '',
+      iconAnchor: [10, 14],
+      iconSize:   [20, 28],
+      html: '<div style="transform:rotate(' + deg + 'deg);transform-origin:10px 14px;line-height:0;">' + svg + '</div>',
+    });
+  }
+
   vessels.forEach(function(v) {
     if (!v.lat || !v.lon || (v.lat===0 && v.lon===0)) return;
-    var color = VW_DOT_COLOR[v.status] || '#81c995';
-    var marker = L.circleMarker([v.lat, v.lon], { radius:7, fillColor:color, color:'#fff', weight:1.5, fillOpacity:0.9 });
+    var color    = VW_DOT_COLOR[v.status] || '#81c995';
+    var icon     = _vwShipIcon(color, v.heading);
+    var marker   = L.marker([v.lat, v.lon], { icon: icon, title: v.vesselName });
     var mockNote = v._mock ? '<br><em style="color:#5f6368;font-size:.68rem;">Illustrative position</em>' : '';
+    var carrier  = v.carrier ? ' · ' + escapeHtml(v.carrier) : '';
     marker.bindPopup(
-      '<strong>' + escapeHtml(v.vesselName) + '</strong><br>' +
+      '<strong>' + escapeHtml(v.vesselName) + '</strong>' + carrier + '<br>' +
       'IMO: ' + escapeHtml(v.imo||'\u2014') + ' \u00b7 MMSI: ' + escapeHtml(v.mmsi||'\u2014') + '<br>' +
       'Speed: ' + (v.speed||0) + 'kn \u00b7 Hdg: ' + (v.heading||0) + '\u00b0<br>' +
       'Dest: <strong>' + escapeHtml(v.destination||'\u2014') + '</strong><br>' +
