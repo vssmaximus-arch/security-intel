@@ -6073,9 +6073,9 @@ async function handleApiAviationCancellations(env) {
     });
   }
 
-  // Rate budget: 4 airports × 2 statuses (cancelled + delayed) × 2 refreshes/day (12h TTL) = 16/day = 480/month ✓
-  const CACHE_KEY    = 'aviation_cancellations_v4';
-  const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+  // Rate budget: 8 airports × 2 statuses × 1 refresh/day (24h TTL) = 16/day = 480/month ✓
+  const CACHE_KEY    = 'aviation_cancellations_v5';
+  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
   // Airport metadata for ranking table
   const AIRPORT_NAMES = {
@@ -6135,7 +6135,8 @@ async function handleApiAviationCancellations(env) {
   };
 
   // 4 hub airports × 2 statuses = 8 calls per refresh × 2 refreshes/day = 16/day = 480/month ✓
-  const HUB_AIRPORTS = ['ATL', 'LHR', 'CDG', 'DXB'];
+  // 8 airports: AMER (ATL, JFK), EMEA (LHR, CDG, FRA), MENA (DXB), APJC (SIN, SYD)
+  const HUB_AIRPORTS = ['ATL', 'JFK', 'LHR', 'CDG', 'FRA', 'DXB', 'SIN', 'SYD'];
 
   const fetchAirlabs = (iata, status) =>
     fetchWithTimeout(
@@ -8497,6 +8498,190 @@ async function handleApiArchive(env, req) {
   }
 }
 
+/* ===========================
+   SITREP BUILDER — Daily Intelligence Briefing
+   Structures raw incidents into a Situation Report (SITREP) matching the
+   Dell SRO Operations & Fusion Center format
+   =========================== */
+const SITREP_OP_NAMES = {
+  iran: 'Steel Crescent', ukraine: 'Eastern Watch', russia: 'Northern Shield',
+  china: 'Pacific Vigil', 'north korea': 'Silent Storm', myanmar: 'Jade Watch',
+  israel: 'Iron Dawn', lebanon: 'Cedar Storm', yemen: 'Red Sea Watch',
+  taiwan: 'Strait Watch', pakistan: 'Indus Alert', syria: 'Desert Vigil',
+  ethiopia: 'Horn Watch', nigeria: 'Gulf Vigil', sudan: 'Nile Watch',
+  venezuela: 'Orinoco Watch', 'saudi arabia': 'Gulf Shield', iraq: 'Tigris Watch',
+};
+
+const SITREP_COUNTRY_FULL = {
+  US:'United States', GB:'United Kingdom', IE:'Ireland', IN:'India', CN:'China',
+  MY:'Malaysia', SG:'Singapore', AU:'Australia', CA:'Canada', DE:'Germany',
+  FR:'France', PL:'Poland', BR:'Brazil', MX:'Mexico', CZ:'Czechia',
+  HU:'Hungary', TW:'Taiwan', JP:'Japan', KR:'South Korea', TH:'Thailand',
+  IL:'Israel', AE:'United Arab Emirates', SA:'Saudi Arabia',
+};
+
+function _buildSitrep(incidents, dateStr, issueNum) {
+  /* --- Country/region aggregation --- */
+  const countryCounts = {};
+  const regionCounts  = {};
+  for (const inc of incidents) {
+    const c = String(inc.country || '').toLowerCase().trim();
+    const r = String(inc.region  || 'Global').trim();
+    if (c && c !== 'global' && c !== 'unknown') countryCounts[c] = (countryCounts[c] || 0) + 1;
+    if (r) regionCounts[r] = (regionCounts[r] || 0) + 1;
+  }
+  const topCountries = Object.entries(countryCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([c]) => c);
+  const topRegion = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Global';
+
+  /* --- Operation name --- */
+  const opCountry = topCountries[0] || 'global';
+  const opName    = SITREP_OP_NAMES[opCountry] || 'Global Watch';
+
+  /* --- Severity counts --- */
+  const criticalInc = incidents.filter(i => Number(i.severity) >= 4);
+  const highInc     = incidents.filter(i => Number(i.severity) === 3);
+  const critCount   = criticalInc.length;
+  const highCount   = highInc.length;
+
+  /* --- Theme line (lead sentence) --- */
+  let theme = 'Monitoring — Ongoing Situational Awareness';
+  if (critCount >= 5)      theme = "'Escalating' — Multiple Critical Events Across Regions";
+  else if (critCount >= 2) theme = "'Active' — Significant Conflict Operations Underway";
+  else if (highCount >= 5) theme = "'Elevated' — High-Severity Activity Requires Monitoring";
+
+  /* --- Key Takeaways: top 5 countries, top incidents each --- */
+  const countryGroups = {};
+  for (const inc of incidents) {
+    const c = String(inc.country || 'Global').toLowerCase().trim();
+    if (!countryGroups[c]) countryGroups[c] = [];
+    countryGroups[c].push(inc);
+  }
+  const keyTakeaways = topCountries.slice(0, 6).map(c => {
+    const grp = (countryGroups[c] || [])
+      .sort((a, b) => (Number(b.severity) || 1) - (Number(a.severity) || 1));
+    return {
+      location: c.replace(/\b\w/g, x => x.toUpperCase()),
+      summary:  grp.slice(0, 3).map(i => String(i.title || '').trim()),
+      count:    grp.length,
+      maxSev:   Math.max(...grp.map(i => Number(i.severity) || 1)),
+    };
+  }).filter(t => t.summary.length > 0);
+
+  /* --- Escalations by domain --- */
+  // Patterns used for domain routing
+  const _SITREP_CISA_RE       = /\bcisa\b/i;
+  const _SITREP_DELL_REL      = /\b(dell|supply chain|manufacturing|critical infrastructure|zero.?day|actively exploited|CVE-\d{4}-\d+|ransomware|active exploit)\b/i;
+  const _SITREP_NAT_RE        = /\b(earthquake|tremor|magnitude|aftershock|seismic|flood|hurricane|typhoon|cyclone|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|tornado|drought|fire notification|blizzard|mudslide)\b/i;
+  const _SITREP_MAJOR_NAT_RE  = /\b(kill(ed)?|dead|deaths?|casualties|casualty|wounded|devastating|evacuat|state of emergency|disaster declaration|emergency declared)\b/i;
+
+  const domainMap = {
+    'Weather & Natural Disasters': [],
+    'Military & Conflict':         [],
+    'Cyber Threats':               [],
+    'Maritime & Logistics':        [],
+    'Energy & Infrastructure':     [],
+    'Political & Diplomatic':      [],
+  };
+  for (const inc of incidents) {
+    const cat   = String(inc.category || '').toUpperCase();
+    const title = String(inc.title || '');
+    const t     = title.toLowerCase();
+
+    // Skip CISA generic advisories — only include if directly Dell/operational relevant
+    if (_SITREP_CISA_RE.test(title) && !_SITREP_DELL_REL.test(title)) continue;
+
+    // Natural/weather events — route FIRST to avoid falling into Military default
+    const isNat = cat === 'NATURAL' || cat === 'ENVIRONMENT' || _SITREP_NAT_RE.test(t);
+    if (isNat) {
+      const sev = Number(inc.severity || 1);
+      // Only significant natural events in SITREP (severity≥3 OR major impact keywords)
+      if (sev >= 3 || _SITREP_MAJOR_NAT_RE.test(t)) {
+        domainMap['Weather & Natural Disasters'].push(title);
+      }
+      continue; // always skip from other domains
+    }
+
+    if (cat === 'CYBER' || t.includes('cyber') || t.includes('ransomware') || t.includes('hack')) {
+      domainMap['Cyber Threats'].push(title);
+    } else if (cat === 'TRANSPORT' || cat === 'SUPPLY_CHAIN' || t.includes('ship') || t.includes('naval') || t.includes('strait') || t.includes('port')) {
+      domainMap['Maritime & Logistics'].push(title);
+    } else if (t.includes('energy') || t.includes('oil') || t.includes('gas') || t.includes('refinery') || t.includes('pipeline') || t.includes('power grid') || t.includes('infrastructure')) {
+      domainMap['Energy & Infrastructure'].push(title);
+    } else if (cat === 'CONFLICT' || cat === 'SECURITY' || cat === 'PHYSICAL_SECURITY' || cat === 'CRITICAL' ||
+               t.includes('military') || t.includes('airstrike') || t.includes('missile') || t.includes('attack') || t.includes('strike') || t.includes('bomb')) {
+      domainMap['Military & Conflict'].push(title);
+    } else if (t.includes('sanction') || t.includes('diplomat') || t.includes('summit') || t.includes('agreement') || t.includes('embargo')) {
+      domainMap['Political & Diplomatic'].push(title);
+    } else {
+      domainMap['Military & Conflict'].push(title); // default bucket
+    }
+  }
+  const escalations = Object.entries(domainMap)
+    .filter(([, v]) => v.length > 0)
+    .map(([domain, bullets]) => ({ domain, bullets: bullets.slice(0, 4) }));
+
+  /* --- Dell Exposure --- */
+  const affectedCountryCodes = new Set();
+  for (const inc of incidents) {
+    const c = String(inc.country || '').toUpperCase().trim();
+    for (const site of DELL_SITES) {
+      if (site.country === c || String(inc.country || '').toLowerCase() === String(site.country || '').toLowerCase()) {
+        affectedCountryCodes.add(site.country);
+      }
+    }
+  }
+  const affectedSites = DELL_SITES.filter(s => affectedCountryCodes.has(s.country));
+  const affectedCountryNames = [...new Set(affectedSites.map(s => SITREP_COUNTRY_FULL[s.country] || s.country))];
+
+  /* --- Outlook --- */
+  let outlookEscalation = 'LOW — Situation is stable; continued monitoring recommended.';
+  let outlookRisk = 'Standard operational protocols apply.';
+  if (critCount >= 4) {
+    outlookEscalation = 'HIGH — Expansion more likely than de-escalation. Active conflict operations ongoing.';
+    outlookRisk = 'Potential targets include critical infrastructure, transportation networks, and personnel in affected regions.';
+  } else if (critCount >= 2 || highCount >= 4) {
+    outlookEscalation = 'MODERATE-HIGH — Multiple high-severity events indicate elevated regional instability.';
+    outlookRisk = 'Airspace closures, travel restrictions, and physical security threats may disrupt corporate activity.';
+  }
+
+  /* --- Date formatting --- */
+  const d      = new Date(dateStr + 'T00:00:00Z');
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dateFormatted = `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+
+  return {
+    title:         `Situation Report: Operation ${opName}`,
+    issue:         issueNum || 1,
+    date:          dateFormatted,
+    dateRaw:       dateStr,
+    org:           'SRO Operations & Fusion Center | Dell Technologies',
+    theme,
+    topRegion,
+    keyTakeaways,
+    escalations,
+    dellExposure: {
+      affectedCountries: affectedCountryNames,
+      sitesAffected:     affectedSites.length,
+      siteNames:         [...new Set(affectedSites.map(s => s.name))].slice(0, 8),
+    },
+    outlook: {
+      escalation: outlookEscalation,
+      risk:       outlookRisk,
+      priorities: topCountries.slice(0, 4).map(c => c.replace(/\b\w/g, x => x.toUpperCase())),
+    },
+    stats: {
+      total:     incidents.length,
+      critical:  critCount,
+      high:      highCount,
+      countries: Object.keys(countryCounts).length,
+      regions:   Object.keys(regionCounts).length,
+    },
+  };
+}
+
 async function handleApiDailyBrief(env, req) {
   try {
     const url = new URL(req.url);
@@ -8609,14 +8794,44 @@ async function handleApiDailyBrief(env, req) {
         const rq = region.toLowerCase();
         incidents = incidents.filter(i => i && typeof i.region === 'string' && i.region.toLowerCase().includes(rq));
       }
-      const body = JSON.stringify({ incidents });
+      /* ── SITREP quality pre-filter ────────────────────────────────────
+         1. Remove CISA generic advisories (no Dell or direct-impact relevance)
+         2. Remove minor natural disasters (severity < 3, no major impact keywords)
+         ------------------------------------------------------------------ */
+      const _BRIEF_CISA_RE      = /\bcisa\b/i;
+      const _BRIEF_DELL_REL     = /\b(dell|supply chain|manufacturing|critical infrastructure|zero.?day|actively exploited|CVE-\d{4}-\d+|ransomware|active exploit)\b/i;
+      const _BRIEF_NAT_WORDS_RE = /\b(earthquake|tremor|magnitude|flood|hurricane|typhoon|cyclone|tsunami|eruption|volcano|wildfire|forest fire|bushfire|landslide|avalanche|storm|tornado|drought|fire notification|blizzard|mudslide)\b/i;
+      const _BRIEF_MAJOR_NAT_RE = /\b(kill(ed)?|dead|deaths?|casualties|casualty|wounded|devastating|evacuat|state of emergency|disaster declaration|emergency declared)\b/i;
+      incidents = incidents.filter(inc => {
+        const title = String(inc.title || '');
+        const t     = title.toLowerCase();
+        // Drop CISA generic
+        if (_BRIEF_CISA_RE.test(title) && !_BRIEF_DELL_REL.test(title)) return false;
+        // Drop minor natural/weather events
+        const cat   = String(inc.category || '').toUpperCase();
+        const isNat = cat === 'NATURAL' || cat === 'ENVIRONMENT' || _BRIEF_NAT_WORDS_RE.test(t);
+        if (isNat && Number(inc.severity || 1) < 3 && !_BRIEF_MAJOR_NAT_RE.test(t)) return false;
+        return true;
+      });
+
+      /* Build SITREP — persistent issue counter per date */
+      const issueKey = `sitrep_issue_${date}`;
+      let issueNum   = await kvGetJson(env, issueKey, null);
+      if (!issueNum) {
+        const allIssues = await kvGetJson(env, 'sitrep_issue_counter', 0);
+        issueNum = (allIssues || 0) + 1;
+        try { await kvPut(env, 'sitrep_issue_counter', issueNum, { expirationTtl: 365 * 24 * 3600 }); } catch(_){}
+        try { await kvPut(env, issueKey, issueNum, { expirationTtl: 365 * 24 * 3600 }); } catch(_){}
+      }
+      const sitrep = _buildSitrep(incidents, date, issueNum);
+      const body = JSON.stringify({ incidents, sitrep });
       if (download) {
         return new Response(body, {
           status: 200,
           headers: {
             ...CORS_HEADERS,
             'Content-Type': 'application/json',
-            'Content-Disposition': `attachment; filename="brief-${date}.json"`,
+            'Content-Disposition': `attachment; filename="sitrep-${date}.json"`,
           },
         });
       }
