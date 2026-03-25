@@ -2950,11 +2950,11 @@ async function callGemini(env, systemPrompt, userContent, opts = {}) {
   if (!env.GEMINI_API_KEY) return { text: null, error: 'no_gemini_key' };
   // Try models in order — 404 = model not available for this key/version, skip to next
   const GEMINI_CANDIDATES = [
-    'v1/gemini-1.5-flash',
-    'v1beta/gemini-1.5-flash-latest',
+    'v1beta/gemini-2.0-flash',        // Most capable + generous quota
+    'v1/gemini-1.5-flash',            // Stable v1 endpoint
+    'v1beta/gemini-1.5-flash-latest', // Latest alias
     'v1beta/gemini-1.5-flash-001',
     'v1/gemini-1.5-flash-001',
-    'v1beta/gemini-2.0-flash',
     'v1/gemini-pro',
     'v1beta/gemini-pro',
   ];
@@ -5838,9 +5838,9 @@ async function handleApiAiBriefing(env, req) {
     const windowH = Math.min(48, Math.max(1, parseInt(url.searchParams.get('window') || '8', 10)));
     const region = (url.searchParams.get('region') || '').toUpperCase().trim();
 
-    // KV cache: 20-minute TTL per window+region combo
-    const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v7_${windowH}_${region || 'global'}`; // v7 — dual format: SITREP vs Daily Threatscape auto-switch
+    // KV cache: 2-hour TTL per window+region combo — reduces Gemini API calls significantly
+    const BRIEFING_CACHE_TTL_S = 7200; // 2 hours
+    const briefCacheKey = `briefing_v8_${windowH}_${region || 'global'}`; // v8 — Gemini→Groq fallback + 2h cache
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -6061,14 +6061,25 @@ Write the Daily Threatscape using exactly these sections:
     if (env.ANTHROPIC_API_KEY) {
       result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1800, model: 'claude-sonnet-4-5' });
     } else if (env.GEMINI_API_KEY) {
-      // Gemini 1.5 Flash — same model/endpoint as generate_reports.py, completely separate from Groq
+      // Primary: Gemini 2.0 Flash (cascades through models on 404)
       result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800 });
       if (result.error === 'http_429') {
-        await sleep(4000);
+        // Rate limited — wait briefly then try once more
+        await sleep(3000);
         result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800 });
       }
+      // If Gemini still failing (429 or no model available), fall through to Groq
+      if (result.error) {
+        typeof debug === 'function' && debug('callGemini failed, falling back to Groq', result.error);
+        const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
+        result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+        if (result.error === 'http_429') {
+          await sleep(5000);
+          result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+        }
+      }
     } else {
-      // Groq fallback — llama-3.3-70b-versatile has its own RPM bucket separate from classification
+      // Groq only (no Gemini key) — llama-3.3-70b-versatile separate RPM bucket from classification
       const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
       result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
       if (result.error === 'http_429') {
@@ -9580,7 +9591,7 @@ async function moduleScheduled(evt, env, ctx) {
           try {
             const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
             await handleApiAiBriefing(env, _briefReq);
-            debug('scheduled: briefing_v3_8_global cached');
+            debug('scheduled: briefing_v8_8_global cached');
           } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
