@@ -1346,6 +1346,24 @@ function _feedIncidentFilter(inc) {
     if (!dellHit && !activeHit) return false;
   }
   // ── /CISA strict gate ───────────────────────────────────────────────────────
+
+  // ── CYBER_SECURITY strict gate ─────────────────────────────────────────────
+  // Cyber articles are only shown in the Intel feed when they:
+  //   (a) explicitly name Dell or Dell products, OR
+  //   (b) describe a major confirmed attack on critical infrastructure / supply chain
+  //       that carries real operational risk for Dell's business environment
+  // Generic patch advisories, vulnerability disclosures, security tips, and
+  // malware analysis pieces are filtered out — too noisy, no direct SRO value.
+  if (cat === 'CYBER_SECURITY') {
+    const DELL_CYBER = /\bdell(\s+(technologies|emc|secureworks|boomi))?|poweredge|powerstore|isilon|avamar|data\s+domain\b/i;
+    const MAJOR_CYBER_IMPACT = /\b(nation[\s-]?state|critical\s+infrastructure|supply[\s-]?chain\s+(attack|breach|hack|compromise)|ransomware.{0,40}(hospital|energy|utility|power\s+grid|government|federal|pipeline|port|airport|telecom|bank|financial)|zero[\s-]?day.{0,30}exploit(ed|ing)?\s+(in\s+the\s+wild|actively|confirmed)|confirmed\s+(breach|intrusion|compromise)|data\s+breach.{0,30}\d{1,3}[\s,]?million|billion\s+(record|account|credential)|state[\s-]?sponsored|espionage|cyber\s*(war|attack\s+on\s+(ukraine|russia|china|iran|israel|nato|us\s+military|pentagon|dod))|backdoor\s+(discovered|implanted|found\s+in)\s+(major|critical|popular))\b/i;
+    if (!DELL_CYBER.test(title) && !DELL_CYBER.test(summary) &&
+        !MAJOR_CYBER_IMPACT.test(title) && !MAJOR_CYBER_IMPACT.test(summary)) {
+      return false;
+    }
+  }
+  // ── /CYBER_SECURITY strict gate ────────────────────────────────────────────
+
   // ── Financial/market-only articles — belong in Markets widget, NOT Intel feed ──
   // Catches: stock price analysis, earnings reports, memory price articles, analyst ratings
   if (isFinancialOnlyTitle(title)) return false;
@@ -7319,6 +7337,21 @@ var _vwMarkerByKey = {};   // imo/mmsi/name → Leaflet marker (for click-to-hig
 var _vwLocalFleet  = [];   // vessels added via Track Vessel search
 var _vwRemovedKeys = {};   // vessel keys hidden by user pressing ✕
 
+// ── Default tracked vessels (replaces Worker mock fleet) ──────────────────
+// Server returns 5 generic mock vessels — hide them and show these 4 instead.
+var VW_DEFAULT_FLEET = [
+  { vesselName:'MATSONIA',          imo:'9814612', mmsi:'',        flag:'US', vesselType:'Container Ship',
+    notesSanitized:'Matson Line — US West Coast / Hawaii transpacific route', businessRelevance:'High' },
+  { vesselName:'CMA CGM TENERE',    imo:'9859117', mmsi:'',        flag:'PA', vesselType:'Container Ship',
+    notesSanitized:'CMA CGM — large modern container vessel, Asia-Europe/AMER routes', businessRelevance:'High' },
+  { vesselName:'WAN HAI 511',       imo:'9455296', mmsi:'',        flag:'TW', vesselType:'Container Ship',
+    notesSanitized:'Wan Hai Lines — intra-Asia container service (APJC supply chain)', businessRelevance:'High' },
+  { vesselName:'CMA CGM MISSISSIPPI', imo:'9679907', mmsi:'',      flag:'PA', vesselType:'Container Ship',
+    notesSanitized:'CMA CGM — transpacific / Americas route coverage', businessRelevance:'High' },
+];
+// IMOs of the 5 Worker mock vessels to suppress from the monitored table
+var VW_SUPPRESS_SERVER_IMOS = ['9893890','9863297','9938338','9784305','9800838'];
+
 var VW_STATUS_CLASS = { 'Review Required':'vw-badge-review', 'Elevated':'vw-badge-elevated', 'Watch':'vw-badge-watch', 'Normal':'vw-badge-normal' };
 var VW_ACTION_CLASS = { 'Escalate':'vw-action-escalate', 'Review':'vw-action-review', 'Monitor':'vw-action-monitor', 'None':'vw-action-none' };
 var VW_DOT_COLOR    = { 'Review Required':'#f28b82', 'Elevated':'#f4a742', 'Watch':'#fbbc04', 'Normal':'#81c995' };
@@ -7329,6 +7362,48 @@ function initVesselWatch() {
     _vwInitDone = true;
     _vwBindSearch();
     _vwBindRefresh();
+    // Suppress generic Worker mock vessels and use the defined default fleet instead
+    VW_SUPPRESS_SERVER_IMOS.forEach(function(imo) { _vwRemovedKeys[imo] = true; });
+    VW_DEFAULT_FLEET.forEach(function(v) {
+      var key = (v.imo || v.vesselName || '').toLowerCase();
+      if (!_vwLocalFleet.some(function(x){ return (x.imo||x.vesselName||'').toLowerCase() === key; })) {
+        _vwLocalFleet.push(Object.assign({
+          lat: 0, lon: 0, speed: 0, heading: 0, destination: '', riskZone: 'Open Waters',
+          status: 'Normal', recommendedAction: 'None', reason: '',
+          nearestChokepoint: '', nearestCpDistNm: 0, _local: true, _mock: true
+        }, v));
+      }
+    });
+    // Fetch live positions for default vessels from Worker lookup
+    VW_DEFAULT_FLEET.forEach(function(v) {
+      if (!v.imo) return;
+      fetchWithTimeout(WORKER_URL + '/api/vessel/lookup?imo=' + encodeURIComponent(v.imo), {}, 12000)
+        .then(function(r){ return r.json(); })
+        .then(function(d) {
+          if (!d.ok || !d.vessel) return;
+          var risk = d.risk || {}; var vessel = d.vessel || {};
+          var key = v.imo.toLowerCase();
+          var idx = _vwLocalFleet.findIndex(function(x){ return (x.imo||'').toLowerCase() === key; });
+          if (idx === -1) return;
+          // Merge live data into the stub
+          _vwLocalFleet[idx] = Object.assign(_vwLocalFleet[idx], {
+            vesselName: vessel.name || risk.vesselName || v.vesselName,
+            mmsi: risk.mmsi || vessel.mmsi || '',
+            lat: risk.lat || 0, lon: risk.lon || 0,
+            speed: risk.speed || 0, heading: risk.heading || 0,
+            destination: risk.destination || '',
+            riskZone: risk.riskZone || 'Open Waters',
+            status: risk.status || 'Normal',
+            recommendedAction: risk.recommendedAction || 'None',
+            reason: risk.reason || '',
+            nearestChokepoint: risk.nearestChokepoint || '',
+            nearestCpDistNm: risk.nearestCpDistNm || 0,
+            _mock: vessel._mock || false
+          });
+          if (_vwData) _vwRender(_vwData);
+        })
+        .catch(function(){});  // fail silently — stub entry remains
+    });
   }
   loadVesselWatch(false);
 }
