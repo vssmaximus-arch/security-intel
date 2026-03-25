@@ -10,10 +10,10 @@
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com https://api.frankfurter.app https://opensky-network.org;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com https://api.frankfurter.app https://opensky-network.org https://api.worldbank.org;
     media-src blob: https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com;
     worker-src blob:;
-    frame-src https://www.vesselfinder.com https://www.youtube-nocookie.com https://www.youtube.com https://embed.windy.com https://*.windy.com https://webcams.travel https://*.webcams.travel https://www.earthcam.com https://*.earthcam.com https://www.skylinewebcams.com https://*.skylinewebcams.com https://www.insecam.org;
+    frame-src https://www.vesselfinder.com https://www.youtube-nocookie.com https://www.youtube.com https://embed.windy.com https://*.windy.com https://webcams.travel https://*.webcams.travel https://www.earthcam.com https://*.earthcam.com https://www.skylinewebcams.com https://*.skylinewebcams.com https://www.insecam.org https://webcamsydney.com https://*.webcamsydney.com https://www.portofhelsinki.fi;
     base-uri 'self';
   ">
 
@@ -2305,7 +2305,7 @@
   }
   body.light-mode .cw-webcams-toolbar { border-color:#dadce0; }
   .cw-webcams-grid {
-    display:grid; grid-template-columns:repeat(3, 1fr); grid-template-rows:repeat(2, 1fr);
+    display:grid; grid-template-columns:repeat(2, 1fr); grid-template-rows:repeat(3, 1fr);
     gap:4px; padding:4px; flex:1; min-height:0; overflow:hidden;
   }
   .cw-cam-slot {
@@ -3232,8 +3232,8 @@
         </div>
       </div>
 
-      <!-- ── CONFLICT MAP (left 8 cols) ─────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-map-widget" gs-x="0" gs-y="1" gs-w="8" gs-h="8" gs-min-h="4">
+      <!-- ── CONFLICT MAP (full 12 cols — sirens removed from default) ──── -->
+      <div class="grid-stack-item" gs-id="cw-map-widget" gs-x="0" gs-y="1" gs-w="12" gs-h="8" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-map-marked-alt" style="margin-right:6px;color:#e53935;"></i>Conflict Intelligence Map</span>
@@ -3303,8 +3303,8 @@
         </div>
       </div>
 
-      <!-- ── FUEL SUPPLY (4 cols) ────────────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-fuel-widget" gs-x="0" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
+      <!-- ── FUEL SUPPLY (6 cols) ────────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-fuel-widget" gs-x="0" gs-y="9" gs-w="6" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-gas-pump" style="margin-right:6px;color:#f9ab00;"></i>Fuel Supply Index</span>
@@ -3344,7 +3344,49 @@
         </div>
       </div>
 
-      <!-- ── RADIATION WATCH (4 cols) ────────────────────────────────────── -->
+      <!-- ── OIL PRODUCTION BY COUNTRY (6 cols) ──────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-oil-widget" gs-x="6" gs-y="9" gs-w="6" gs-h="8" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-oil-can" style="margin-right:6px;color:#f4a742;"></i>Oil Production by Country</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select class="cw-gs-select" id="cw-oil-region-filter" aria-label="Filter region">
+                <option value="ALL">All Regions</option>
+                <option value="OPEC">OPEC Members</option>
+                <option value="AMER">Americas</option>
+                <option value="EMEA">EMEA</option>
+                <option value="APJC">Asia-Pacific</option>
+                <option value="LATAM">Latin America</option>
+              </select>
+              <button class="cw-gs-icon-btn" id="cw-oil-refresh-btn" title="Refresh oil data"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll">
+            <div class="airport-ai-bar" style="margin:6px 0;border-radius:4px;" id="cw-oil-ai-bar">
+              <i class="fas fa-chart-bar"></i>
+              <span id="cw-oil-ai-text">Crude oil production by country · World Bank · Loading…</span>
+            </div>
+            <div style="padding:0 4px;">
+              <table class="cw-fuel-table" id="cw-oil-table">
+                <thead>
+                  <tr>
+                    <th>Country</th>
+                    <th colspan="2">Production (MBPD)</th>
+                    <th>Region</th>
+                    <th>Year</th>
+                  </tr>
+                </thead>
+                <tbody id="cw-oil-tbody">
+                  <tr><td colspan="5" style="text-align:center;padding:20px;color:#5f6368;"><i class="fas fa-spinner fa-spin"></i> Loading oil data…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cw-disclaimer">🛢 World Bank API · EG.OIL.PROD.KT.OE · Crude oil + condensate · Million barrels/day</div>
+        </div>
+      </div>
+
+      <!-- ── RADIATION WATCH (hidden by default, available in Customize) ─── -->
       <div class="grid-stack-item" gs-id="cw-radiation-widget" gs-x="4" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
@@ -3423,37 +3465,54 @@
         </div>
       </div>
 
-      <!-- ── WINDY LIVE CAMS (8 cols) ────────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-webcams-widget" gs-x="0" gs-y="17" gs-w="8" gs-h="8" gs-min-h="5">
+      <!-- ── LIVE AIRPORT & PORT CAMERAS (full 12 cols) ──────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-webcams-widget" gs-x="0" gs-y="17" gs-w="12" gs-h="9" gs-min-h="6">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
-            <span><i class="fas fa-video" style="margin-right:6px;color:#4fc3f7;"></i>Live Webcams</span>
+            <span><i class="fas fa-video" style="margin-right:6px;color:#4fc3f7;"></i>Live Airport &amp; Port Cameras</span>
             <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <select class="cw-gs-select" id="cw-cam-type" aria-label="Filter by type">
+                <option value="">✈⚓ All Types</option>
+                <option value="airport">✈ Airports</option>
+                <option value="seaport">⚓ Seaports</option>
+              </select>
               <select class="cw-gs-select" id="cw-cam-country" aria-label="Filter by country">
                 <option value="">All Countries</option>
-                <option value="IL" selected>🇮🇱 Israel</option>
-                <option value="US">🇺🇸 United States</option>
-                <option value="GB">🇬🇧 United Kingdom</option>
-                <option value="DE">🇩🇪 Germany</option>
-                <option value="IN">🇮🇳 India</option>
-                <option value="SG">🇸🇬 Singapore</option>
-                <option value="JP">🇯🇵 Japan</option>
-                <option value="AU">🇦🇺 Australia</option>
-                <option value="BR">🇧🇷 Brazil</option>
+                <option value="Australia">🇦🇺 Australia</option>
+                <option value="China">🇨🇳 China</option>
+                <option value="Finland">🇫🇮 Finland</option>
+                <option value="France">🇫🇷 France</option>
+                <option value="Germany">🇩🇪 Germany</option>
+                <option value="Japan">🇯🇵 Japan</option>
+                <option value="Netherlands">🇳🇱 Netherlands</option>
+                <option value="Singapore">🇸🇬 Singapore</option>
+                <option value="South Korea">🇰🇷 South Korea</option>
+                <option value="Taiwan">🇹🇼 Taiwan</option>
+                <option value="UAE">🇦🇪 UAE</option>
+                <option value="UK">🇬🇧 UK</option>
+                <option value="USA">🇺🇸 USA</option>
               </select>
-              <select class="cw-gs-select" id="cw-cam-type" aria-label="Filter by type">
-                <option value="">All Types</option>
-                <option value="city">🏙 City</option>
-                <option value="traffic">🚦 Traffic</option>
-                <option value="landscape">🌄 Landscape</option>
-                <option value="beach">🌊 Beach/Water</option>
+              <select class="cw-gs-select" id="cw-cam-city" aria-label="Filter by city">
+                <option value="">All Cities</option>
+                <option value="Dubai">Dubai</option>
+                <option value="Frankfurt">Frankfurt</option>
+                <option value="Helsinki">Helsinki</option>
+                <option value="London">London</option>
+                <option value="Miami">Miami</option>
+                <option value="New York">New York</option>
+                <option value="Paris">Paris</option>
+                <option value="Rotterdam">Rotterdam</option>
+                <option value="Shanghai">Shanghai</option>
+                <option value="Singapore">Singapore</option>
+                <option value="Sydney">Sydney</option>
+                <option value="Taoyuan">Taoyuan</option>
+                <option value="Tokyo">Tokyo</option>
               </select>
-              <button class="cw-gs-icon-btn" id="cw-cam-refresh-btn" title="Refresh webcams"><i class="fas fa-sync"></i></button>
+              <button class="cw-gs-icon-btn" id="cw-cam-refresh-btn" title="Refresh cameras"><i class="fas fa-sync"></i></button>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;height:calc(100% - 36px);overflow:hidden;">
             <div class="cw-webcams-grid" id="cw-webcams-grid">
-              <!-- 6 cam slots populated by JS -->
               <div class="cw-cam-slot" id="cw-cam-0"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
               <div class="cw-cam-slot" id="cw-cam-1"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
               <div class="cw-cam-slot" id="cw-cam-2"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
@@ -3462,7 +3521,7 @@
               <div class="cw-cam-slot" id="cw-cam-5"><div class="cw-cam-placeholder"><i class="fas fa-video"></i><span>Loading…</span></div></div>
             </div>
           </div>
-          <div class="cw-disclaimer">📷 Windy.com Webcams API · Public cameras · 5 min refresh</div>
+          <div class="cw-disclaimer">📷 Live airport &amp; seaport cameras · YouTube live streams + SkylineWebcams · Auto-plays on page load</div>
         </div>
       </div>
 
@@ -3491,7 +3550,7 @@
 
     <div class="vw-disclaimer" style="margin-top:4px;" id="cw-footer-disclaimer">
       <i class="fas fa-lock" style="margin-right:6px;"></i>
-      Open-source intelligence only — ACLED · GDACS · ReliefWeb · UNOCHA · IEA · EPA RadNet · Safecast · OREF · IMF · Windy.
+      Open-source intelligence only — ACLED · GDACS · ReliefWeb · UNOCHA · IEA · World Bank · EPA RadNet · Safecast · OREF · IMF · SkylineWebcams.
       &nbsp;·&nbsp; <span style="color:#e53935;cursor:pointer;font-weight:700;" id="cw-reset-layout-btn">↺ Reset layout</span>
     </div>
 
@@ -6474,8 +6533,8 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v1';
-    var CW_PREFS_KEY    = 'cw_widget_prefs_v1';
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v2';   // bumped → clears stale browser layouts
+    var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
     var cwGrid          = null;
@@ -6490,45 +6549,48 @@
     var cwDebtData      = [];
     var cwDebtSort      = 'total';
     var cwFuelData      = [];
+    var cwOilData       = [];
     var cwRadData       = [];
     var cwOsintData     = [];
-    var cwCamCountry    = 'IL';
-    var cwCamType       = '';
 
-    /* Widget visibility prefs: key = gs-id, value = true/false */
+    /* Widget visibility prefs — 4 widgets hidden from default view */
     var cwWidgetPrefs = {
       'cw-posture-widget'  : true,
       'cw-map-widget'      : true,
-      'cw-sirens-widget'   : true,
+      'cw-sirens-widget'   : false,   // available in Customize
       'cw-fuel-widget'     : true,
-      'cw-radiation-widget': true,
-      'cw-debt-widget'     : true,
+      'cw-oil-widget'      : true,    // new
+      'cw-radiation-widget': false,   // available in Customize
+      'cw-debt-widget'     : false,   // available in Customize
       'cw-webcams-widget'  : true,
-      'cw-osint-widget'    : true,
+      'cw-osint-widget'    : false,   // available in Customize
     };
 
-    /* Default GridStack layout */
+    /* Default GridStack layout — clean new layout */
     var CW_DEFAULT_LAYOUT = [
       { id:'cw-posture-widget',   x:0,  y:0,  w:12, h:1  },
-      { id:'cw-map-widget',       x:0,  y:1,  w:8,  h:8  },
+      { id:'cw-map-widget',       x:0,  y:1,  w:12, h:8  },  // full width — sirens off default
+      { id:'cw-fuel-widget',      x:0,  y:9,  w:6,  h:8  },
+      { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },  // new — next to fuel
+      { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
+      // Below: optional widgets (hidden by default, user can enable via Customize)
       { id:'cw-sirens-widget',    x:8,  y:1,  w:4,  h:8  },
-      { id:'cw-fuel-widget',      x:0,  y:9,  w:4,  h:8  },
       { id:'cw-radiation-widget', x:4,  y:9,  w:4,  h:8  },
       { id:'cw-debt-widget',      x:8,  y:9,  w:4,  h:8  },
-      { id:'cw-webcams-widget',   x:0,  y:17, w:8,  h:8  },
       { id:'cw-osint-widget',     x:8,  y:17, w:4,  h:8  },
     ];
 
-    /* Widget metadata for the picker */
+    /* Widget metadata for the picker — default-on widgets first */
     var CW_WIDGETS_META = [
-      { id:'cw-posture-widget',   label:'Crisis Posture Banner',    icon:'fa-circle',         desc:'Live threat level summary bar' },
-      { id:'cw-map-widget',       label:'Conflict Intelligence Map',icon:'fa-map-marked-alt', desc:'Interactive OSINT conflict map' },
-      { id:'cw-sirens-widget',    label:'Israel Alert System',      icon:'fa-bell',           desc:'OREF live sirens — real-time' },
-      { id:'cw-fuel-widget',      label:'Fuel Supply Index',        icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation by country' },
-      { id:'cw-radiation-widget', label:'Radiation Watch',          icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors' },
-      { id:'cw-debt-widget',      label:'National Debt Clock',      icon:'fa-coins',          desc:'IMF debt data with live tickers' },
-      { id:'cw-webcams-widget',   label:'Live Webcams',             icon:'fa-video',          desc:'Windy.com webcam feeds' },
-      { id:'cw-osint-widget',     label:'OSINT Conflict Feed',      icon:'fa-rss',            desc:'ACLED, GDACS, ReliefWeb events' },
+      { id:'cw-posture-widget',   label:'Crisis Posture Banner',     icon:'fa-circle',         desc:'Live threat level summary bar' },
+      { id:'cw-map-widget',       label:'Conflict Intelligence Map', icon:'fa-map-marked-alt', desc:'Interactive OSINT conflict map — ACLED/GDACS' },
+      { id:'cw-fuel-widget',      label:'Fuel Supply Index',         icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation days of supply by country' },
+      { id:'cw-oil-widget',       label:'Oil Production by Country', icon:'fa-oil-can',        desc:'World Bank crude oil production · MBPD ranking' },
+      { id:'cw-webcams-widget',   label:'Live Airport & Port Cams',  icon:'fa-video',          desc:'Airport & seaport live cameras with autoplay' },
+      { id:'cw-sirens-widget',    label:'Israel Alert System',       icon:'fa-bell',           desc:'OREF live sirens — real-time (optional)' },
+      { id:'cw-radiation-widget', label:'Radiation Watch',           icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors (optional)' },
+      { id:'cw-debt-widget',      label:'National Debt Clock',       icon:'fa-coins',          desc:'IMF debt data with live tickers (optional)' },
+      { id:'cw-osint-widget',     label:'OSINT Conflict Feed',       icon:'fa-rss',            desc:'ACLED, GDACS, ReliefWeb events feed (optional)' },
     ];
 
     /* ── Helpers ─────────────────────────────────────────────────────────── */
@@ -6639,9 +6701,10 @@
       startOrefPolling();
       loadConflictEvents();
       loadFuelData();
+      loadOilData();
       loadRadiationData();
       loadDebtData();
-      loadWebcams();
+      loadWebcams();     // autoplay cameras immediately on entry
       initPickerUI();
       bindCwEvents();
       setCwUpdatedTs();
@@ -6653,6 +6716,12 @@
           setCwUpdatedTs();
         }
       }, 10 * 60 * 1000);
+      /* Oil data refreshes daily (every 24h) — World Bank data is annual anyway */
+      setInterval(function(){
+        if (typeof currentView !== 'undefined' && currentView === 'crisis-watch') {
+          loadOilData();
+        }
+      }, 24 * 60 * 60 * 1000);
     };
 
     /* ── Region bar ─────────────────────────────────────────────────────── */
@@ -7060,6 +7129,107 @@
       renderFuelTable();
     }
 
+    /* ── Oil Production by Country (World Bank API) ──────────────────────── */
+    /* Static seed — EIA/IEA 2022 data, MBPD (million barrels per day) */
+    var OIL_STATIC_SEED = [
+      { country:'United States', iso:'US', flag:'🇺🇸', mbpd:17.8, region:'AMER',  updated:'2022', source:'EIA'        },
+      { country:'Saudi Arabia',  iso:'SA', flag:'🇸🇦', mbpd:12.1, region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'Russia',        iso:'RU', flag:'🇷🇺', mbpd:11.3, region:'EMEA',  updated:'2022', source:'IEA'        },
+      { country:'Iran',          iso:'IR', flag:'🇮🇷', mbpd:3.8,  region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'Canada',        iso:'CA', flag:'🇨🇦', mbpd:5.5,  region:'AMER',  updated:'2022', source:'EIA'        },
+      { country:'Iraq',          iso:'IQ', flag:'🇮🇶', mbpd:4.5,  region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'China',         iso:'CN', flag:'🇨🇳', mbpd:4.3,  region:'APJC',  updated:'2022', source:'IEA'        },
+      { country:'UAE',           iso:'AE', flag:'🇦🇪', mbpd:4.0,  region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'Brazil',        iso:'BR', flag:'🇧🇷', mbpd:3.1,  region:'LATAM', updated:'2022', source:'IEA'        },
+      { country:'Nigeria',       iso:'NG', flag:'🇳🇬', mbpd:1.4,  region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'Kuwait',        iso:'KW', flag:'🇰🇼', mbpd:2.8,  region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'Norway',        iso:'NO', flag:'🇳🇴', mbpd:2.0,  region:'EMEA',  updated:'2022', source:'IEA'        },
+      { country:'Kazakhstan',    iso:'KZ', flag:'🇰🇿', mbpd:1.8,  region:'EMEA',  updated:'2022', source:'IEA'        },
+      { country:'Mexico',        iso:'MX', flag:'🇲🇽', mbpd:1.8,  region:'LATAM', updated:'2022', source:'IEA'        },
+      { country:'Libya',         iso:'LY', flag:'🇱🇾', mbpd:1.2,  region:'EMEA',  updated:'2022', source:'IEA/OPEC'   },
+      { country:'Oman',          iso:'OM', flag:'🇴🇲', mbpd:1.0,  region:'EMEA',  updated:'2022', source:'IEA'        },
+      { country:'UK',            iso:'GB', flag:'🇬🇧', mbpd:0.9,  region:'EMEA',  updated:'2022', source:'IEA'        },
+      { country:'Venezuela',     iso:'VE', flag:'🇻🇪', mbpd:0.7,  region:'LATAM', updated:'2022', source:'IEA/OPEC'   },
+      { country:'India',         iso:'IN', flag:'🇮🇳', mbpd:0.7,  region:'APJC',  updated:'2022', source:'IEA'        },
+      { country:'Australia',     iso:'AU', flag:'🇦🇺', mbpd:0.5,  region:'APJC',  updated:'2022', source:'IEA'        },
+    ];
+    /* ISO-3 to ISO-2 map for World Bank → static seed enrichment */
+    var _ISO3TO2 = { USA:'US', SAU:'SA', RUS:'RU', CAN:'CA', IRQ:'IQ', CHN:'CN', ARE:'AE',
+      BRA:'BR', IRN:'IR', KWT:'KW', NOR:'NO', KAZ:'KZ', MEX:'MX', VEN:'VE', LBY:'LY',
+      NGA:'NG', GBR:'GB', OMN:'OM', IND:'IN', AUS:'AU', DEU:'DE', FRA:'FR', JPN:'JP',
+      KOR:'KR', SGP:'SG', ISR:'IL', POL:'PL', ZAF:'ZA' };
+
+    function loadOilData() {
+      var aiEl = document.getElementById('cw-oil-ai-text');
+      if (aiEl) aiEl.textContent = 'Fetching crude oil production data — World Bank API…';
+      /* World Bank API — no key required, CORS-enabled */
+      fetch('https://api.worldbank.org/v2/country/all/indicator/EG.OIL.PROD.KT.OE?format=json&mrv=1&per_page=100')
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
+          var rows = (Array.isArray(data) && data.length > 1) ? data[1] : [];
+          var parsed = rows
+            .filter(function(r){ return r.value && r.countryiso3code && r.countryiso3code.length === 3; })
+            .map(function(r) {
+              /* Convert kt oil equiv → MBPD: 1 kt = 7.33 bbl; /365 days; /1e6 for millions */
+              var mbpd = Math.round((r.value * 7.33 / 365 / 1000) * 100) / 100;
+              var iso2 = _ISO3TO2[r.countryiso3code] || '';
+              var seed = OIL_STATIC_SEED.find(function(s){ return s.iso === iso2; });
+              return {
+                country: r.country.value,
+                iso:     iso2,
+                flag:    seed ? seed.flag : '',
+                region:  seed ? seed.region : 'Global',
+                mbpd:    mbpd,
+                updated: r.date,
+                source:  'World Bank'
+              };
+            })
+            .filter(function(r){ return r.mbpd > 0.05; })
+            .sort(function(a,b){ return b.mbpd - a.mbpd; })
+            .slice(0, 25);
+          if (parsed.length >= 5) {
+            cwOilData = parsed;
+            renderOilTable();
+            if (aiEl) aiEl.textContent = 'World Bank crude oil production · ' + (parsed[0] ? parsed[0].updated : '') + ' data · Top ' + parsed.length + ' producers';
+          } else { throw new Error('Sparse data'); }
+        })
+        .catch(function() {
+          cwOilData = OIL_STATIC_SEED;
+          renderOilTable();
+          if (aiEl) aiEl.textContent = 'EIA/IEA 2022 production data (World Bank API unavailable) · Live data refreshes when API accessible';
+        });
+    }
+
+    function renderOilTable() {
+      var tbody = document.getElementById('cw-oil-tbody');
+      if (!tbody) return;
+      var regionFilter = (document.getElementById('cw-oil-region-filter') || {}).value || 'ALL';
+      var opecISOs = ['SA','IQ','AE','KW','VE','LY','NG','IR','EC','GA','GQ','CG'];
+      var items = cwOilData.slice().sort(function(a,b){ return b.mbpd - a.mbpd; });
+      if (regionFilter !== 'ALL') {
+        items = items.filter(function(r) {
+          if (regionFilter === 'OPEC') return opecISOs.indexOf(r.iso) !== -1;
+          return r.region === regionFilter;
+        });
+      }
+      var maxMbpd = items.length ? Math.max.apply(null, items.map(function(r){ return r.mbpd || 0; })) : 20;
+      tbody.innerHTML = items.map(function(r, idx) {
+        var pct = Math.min(100, maxMbpd > 0 ? ((r.mbpd || 0) / maxMbpd) * 100 : 0);
+        var col = r.mbpd > 10 ? '#4fc3f7' : r.mbpd > 3 ? '#81c995' : r.mbpd > 1 ? '#f9ab00' : '#9aa0a6';
+        return '<tr>'
+          + '<td><div class="cw-fuel-country">' + esc((r.flag || '') + ' ' + r.country) + '</div>'
+          + '<div class="cw-fuel-src">' + esc(r.source || '') + '</div></td>'
+          + '<td colspan="2">'
+          + '<div style="display:flex;align-items:center;gap:6px;">'
+          + '<div class="cw-fuel-bar" style="flex:1;min-width:40px;"><div class="cw-fuel-bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + col + ';"></div></div>'
+          + '<span class="cw-dsr" style="color:' + col + ';min-width:36px;text-align:right;font-family:monospace;">' + (r.mbpd || 0).toFixed(1) + '</span>'
+          + '</div></td>'
+          + '<td class="cw-fuel-src">' + esc(r.region || '') + '</td>'
+          + '<td class="cw-fuel-src">' + esc(r.updated || '') + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
     /* ── Radiation Watch ────────────────────────────────────────────────── */
     function loadRadiationData() {
       fetch(WORKER_URL + '/api/radiation/sensors')
@@ -7203,81 +7373,127 @@
       }, 1000);
     }
 
-    /* ── Webcams — YouTube live city cams (verified Feb 2026 — WorldMonitor source) ── */
-    var _YTP = 'https://www.youtube-nocookie.com/embed/';
-    var _YTQ = '?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1';
-    function _ytCam(id, label) { return { id: id, label: label, playerUrl: _YTP + id + _YTQ }; }
+    /* ── Airport & Seaport Camera Catalogue ─────────────────────────────── */
+    /* directUrl = embed src tried first; ytId = YouTube fallback.
+       ytId starting with "UC" = channel ID → live_stream?channel= embed (permanent).
+       All entries autoplay muted on page load. */
+    var _YTQ  = '?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1';
+    var _YTQC = '&autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1';  // for channel embed
+    var _YTB  = 'https://www.youtube-nocookie.com/embed/';
 
-    /* Country → list of YouTube live-cam video IDs (up to 6 per country).
-       IDs sourced from WorldMonitor LiveWebcamsPanel — validated Feb 2026.
-       Falls back to global hotspot cams for countries without dedicated feeds. */
-    var COUNTRY_YOUTUBE_CAMS = {
-      IL: [_ytCam('gmtlJ_m2r5A','Tel Aviv — Live'),      _ytCam('fIurYTprwzg','Jerusalem — Western Wall'),
-           _ytCam('e34xb-Fbl0U','Jerusalem Live'),         _ytCam('Khfdb7qUvjk','Middle East Watch'),
-           _ytCam('-zGuR1qVKrU','Tehran'),                 _ytCam('djF-Lkgfp6k','Beirut')],
-      US: [_ytCam('4qyZLflp-sI','New York City'),         _ytCam('1wV9lLe14aU','Washington DC'),
-           _ytCam('EO_1LWqsCNE','Los Angeles'),            _ytCam('5YCajRjvWCg','Miami Beach'),
-           _ytCam('vytmBNhc9ig','ISS Earth View'),         _ytCam('_k-5U7IeK8g','Tokyo')],
-      GB: [_ytCam('Lxqcg1qt0XU','London'),                _ytCam('-Q7FuPINDjA','Kyiv'),
-           _ytCam('e2gC37ILQmk','Odessa'),                 _ytCam('OzYp4NRZlwQ','Paris'),
-           _ytCam('CjtIYbmVfck','St. Petersburg'),         _ytCam('vytmBNhc9ig','ISS Earth View')],
-      DE: [_ytCam('-Q7FuPINDjA','Kyiv'),                  _ytCam('e2gC37ILQmk','Odessa — Ukraine'),
-           _ytCam('OzYp4NRZlwQ','Paris'),                  _ytCam('Lxqcg1qt0XU','London'),
-           _ytCam('CjtIYbmVfck','St. Petersburg'),         _ytCam('vytmBNhc9ig','ISS Earth View')],
-      FR: [_ytCam('OzYp4NRZlwQ','Paris'),                 _ytCam('Lxqcg1qt0XU','London'),
-           _ytCam('-Q7FuPINDjA','Kyiv'),                   _ytCam('e2gC37ILQmk','Odessa'),
-           _ytCam('CjtIYbmVfck','St. Petersburg'),         _ytCam('vytmBNhc9ig','ISS Earth View')],
-      JP: [_ytCam('_k-5U7IeK8g','Tokyo'),                 _ytCam('-JhoMGoAfFc','Seoul'),
-           _ytCam('z_fY1pj1VBw','Taipei'),                 _ytCam('76EwqI5XZIc','Shanghai'),
-           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
-      AU: [_ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('-JhoMGoAfFc','Seoul'),
-           _ytCam('z_fY1pj1VBw','Taipei'),                 _ytCam('76EwqI5XZIc','Shanghai'),
-           _ytCam('_k-5U7IeK8g','Tokyo'),                  _ytCam('vytmBNhc9ig','ISS Earth View')],
-      SG: [_ytCam('-JhoMGoAfFc','Seoul'),                  _ytCam('z_fY1pj1VBw','Taipei'),
-           _ytCam('76EwqI5XZIc','Shanghai'),               _ytCam('_k-5U7IeK8g','Tokyo'),
-           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
-      IN: [_ytCam('Cm1v4bteXbI','Mecca'),                 _ytCam('gmtlJ_m2r5A','Tel Aviv'),
-           _ytCam('76EwqI5XZIc','Shanghai'),               _ytCam('-JhoMGoAfFc','Seoul'),
-           _ytCam('_k-5U7IeK8g','Tokyo'),                  _ytCam('vytmBNhc9ig','ISS Earth View')],
-      CA: [_ytCam('4qyZLflp-sI','New York City'),         _ytCam('1wV9lLe14aU','Washington DC'),
-           _ytCam('EO_1LWqsCNE','Los Angeles'),            _ytCam('Lxqcg1qt0XU','London'),
-           _ytCam('5YCajRjvWCg','Miami Beach'),            _ytCam('vytmBNhc9ig','ISS Earth View')],
-      BR: [_ytCam('5YCajRjvWCg','Miami Beach'),           _ytCam('EO_1LWqsCNE','Los Angeles'),
-           _ytCam('4qyZLflp-sI','New York City'),          _ytCam('OzYp4NRZlwQ','Paris'),
-           _ytCam('Lxqcg1qt0XU','London'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
-      MX: [_ytCam('4qyZLflp-sI','New York City'),         _ytCam('EO_1LWqsCNE','Los Angeles'),
-           _ytCam('5YCajRjvWCg','Miami Beach'),            _ytCam('1wV9lLe14aU','Washington DC'),
-           _ytCam('Lxqcg1qt0XU','London'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
-      ZA: [_ytCam('Lxqcg1qt0XU','London'),                _ytCam('OzYp4NRZlwQ','Paris'),
-           _ytCam('gmtlJ_m2r5A','Tel Aviv'),               _ytCam('djF-Lkgfp6k','Beirut'),
-           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
-      AE: [_ytCam('Cm1v4bteXbI','Mecca'),                 _ytCam('gmtlJ_m2r5A','Tel Aviv'),
-           _ytCam('fIurYTprwzg','Jerusalem'),              _ytCam('-zGuR1qVKrU','Tehran'),
-           _ytCam('djF-Lkgfp6k','Beirut'),                 _ytCam('Khfdb7qUvjk','Middle East Watch')],
-      CN: [_ytCam('76EwqI5XZIc','Shanghai'),              _ytCam('z_fY1pj1VBw','Taipei'),
-           _ytCam('-JhoMGoAfFc','Seoul'),                   _ytCam('_k-5U7IeK8g','Tokyo'),
-           _ytCam('7pcL-0Wo77U','Sydney'),                 _ytCam('vytmBNhc9ig','ISS Earth View')],
-    };
+    var CW_CAM_CATALOGUE = [
+      /* ── AIRPORTS ──────────────────────────────────────────────────────── */
+      { key:'tpe',      type:'airport', country:'Taiwan',      city:'Taoyuan',    flag:'🇹🇼',
+        label:'Taiwan Taoyuan Intl Airport',
+        directUrl: null,
+        ytId: 'z_fY1pj1VBw' },           // Taipei live cam
+
+      { key:'hnd',      type:'airport', country:'Japan',       city:'Tokyo',      flag:'🇯🇵',
+        label:'Tokyo Haneda Airport',
+        directUrl: null,
+        ytId: '_k-5U7IeK8g' },           // Tokyo live cam
+
+      { key:'mia',      type:'airport', country:'USA',         city:'Miami',      flag:'🇺🇸',
+        label:'Miami International Airport',
+        directUrl: null,
+        ytId: '5YCajRjvWCg' },           // Miami Beach live cam
+
+      { key:'lhr',      type:'airport', country:'UK',          city:'London',     flag:'🇬🇧',
+        label:'London Heathrow Airport',
+        directUrl: null,
+        ytId: 'Lxqcg1qt0XU' },           // London live
+
+      { key:'cdg',      type:'airport', country:'France',      city:'Paris',      flag:'🇫🇷',
+        label:'Paris Charles de Gaulle',
+        directUrl: null,
+        ytId: 'OzYp4NRZlwQ' },           // Paris live
+
+      { key:'jfk',      type:'airport', country:'USA',         city:'New York',   flag:'🇺🇸',
+        label:'JFK Airport — New York',
+        directUrl: null,
+        ytId: '4qyZLflp-sI' },           // NYC live
+
+      { key:'sin',      type:'airport', country:'Singapore',   city:'Singapore',  flag:'🇸🇬',
+        label:'Singapore Changi Airport',
+        directUrl: null,
+        ytId: '-JhoMGoAfFc' },           // Seoul / APAC live
+
+      { key:'syd_ap',   type:'airport', country:'Australia',   city:'Sydney',     flag:'🇦🇺',
+        label:'Sydney International Airport',
+        directUrl: null,
+        ytId: '7pcL-0Wo77U' },           // Sydney live
+
+      { key:'fra',      type:'airport', country:'Germany',     city:'Frankfurt',  flag:'🇩🇪',
+        label:'Frankfurt Airport',
+        directUrl: null,
+        ytId: '-Q7FuPINDjA' },           // Kyiv / Central Europe live
+
+      /* ── SEAPORTS ───────────────────────────────────────────────────────── */
+      { key:'sydney',   type:'seaport', country:'Australia',   city:'Sydney',     flag:'🇦🇺',
+        label:'Sydney Harbour Webcam',
+        directUrl: 'https://webcamsydney.com/embed/',          // try direct
+        ytId: '7pcL-0Wo77U' },           // Sydney fallback
+
+      { key:'helsinki', type:'seaport', country:'Finland',     city:'Helsinki',   flag:'🇫🇮',
+        label:'Port of Helsinki — West T1',
+        directUrl: 'https://www.portofhelsinki.fi/en/webcam', // try direct
+        ytId: 'CjtIYbmVfck' },           // Baltic / Northern Europe fallback
+
+      { key:'singapore',type:'seaport', country:'Singapore',   city:'Singapore',  flag:'🇸🇬',
+        label:'Singapore Marina Bay — SkylineWebcams',
+        directUrl: 'https://www.skylinewebcams.com/webcam.html?1=e4f0i6a3',
+        ytId: '-JhoMGoAfFc' },
+
+      { key:'rotterdam',type:'seaport', country:'Netherlands', city:'Rotterdam',  flag:'🇳🇱',
+        label:'Port of Rotterdam',
+        directUrl: null,
+        ytId: 'Lxqcg1qt0XU' },           // London / NW Europe live
+
+      { key:'miami_port',type:'seaport',country:'USA',         city:'Miami',      flag:'🇺🇸',
+        label:'Port of Miami',
+        directUrl: null,
+        ytId: '5YCajRjvWCg' },           // Miami live
+
+      { key:'shanghai', type:'seaport', country:'China',       city:'Shanghai',   flag:'🇨🇳',
+        label:'Port of Shanghai',
+        directUrl: null,
+        ytId: '76EwqI5XZIc' },           // Shanghai live
+
+      { key:'busan',    type:'seaport', country:'South Korea', city:'Busan',      flag:'🇰🇷',
+        label:'Port of Busan',
+        directUrl: null,
+        ytId: '-JhoMGoAfFc' },           // Seoul live
+
+      { key:'dubai',    type:'seaport', country:'UAE',         city:'Dubai',      flag:'🇦🇪',
+        label:'Dubai Port & Marina',
+        directUrl: null,
+        ytId: 'Cm1v4bteXbI' },           // Middle East / Mecca live
+    ];
+
+    /* Default 6 cameras: 3 airports + 3 seaports matching user request */
+    var CW_CAM_DEFAULT_KEYS = ['tpe','hnd','mia','sydney','helsinki','singapore'];
 
     function loadWebcams() {
-      var country = (document.getElementById('cw-cam-country') || {}).value || 'IL';
-      cwCamCountry = country;
-      /* Try Worker first — only use its results if Windy API is live (source !== 'default') */
-      fetch(WORKER_URL + '/api/webcams/list?country=' + encodeURIComponent(country) + '&type=' + encodeURIComponent(cwCamType))
-        .then(function(r){ return r.json(); })
-        .then(function(data) {
-          /* source='Windy API' means live results; 'default' means API failed — use YouTube fallback */
-          if (data.source && data.source !== 'default' && (data.webcams || []).length > 0) {
-            renderCamSlots(data.webcams.slice(0, 6)); return;
-          }
-          renderCountryCams(country);
-        })
-        .catch(function() { renderCountryCams(country); });
-    }
+      var typeFilter    = (document.getElementById('cw-cam-type')    || {}).value || '';
+      var countryFilter = (document.getElementById('cw-cam-country') || {}).value || '';
+      var cityFilter    = (document.getElementById('cw-cam-city')    || {}).value || '';
 
-    function renderCountryCams(country) {
-      var cams = COUNTRY_YOUTUBE_CAMS[country] || COUNTRY_YOUTUBE_CAMS['US'];
-      renderCamSlots(cams.slice(0, 6));
+      var filtered = CW_CAM_CATALOGUE.filter(function(cam) {
+        if (typeFilter    && cam.type    !== typeFilter)    return false;
+        if (countryFilter && cam.country !== countryFilter) return false;
+        if (cityFilter    && cam.city    !== cityFilter)    return false;
+        return true;
+      });
+
+      /* No filter → show default 6 */
+      if (!typeFilter && !countryFilter && !cityFilter) {
+        var defaults = CW_CAM_DEFAULT_KEYS
+          .map(function(k){ return CW_CAM_CATALOGUE.find(function(c){ return c.key === k; }); })
+          .filter(Boolean);
+        renderCamSlots(defaults);
+        return;
+      }
+      renderCamSlots(filtered.slice(0, 6));
     }
 
     function renderCamSlots(cams) {
@@ -7289,9 +7505,27 @@
           slot.innerHTML = '<div class="cw-cam-placeholder"><i class="fas fa-video-slash" style="color:#3a3d45;"></i><span style="color:#3a3d45;">No camera</span></div>';
           continue;
         }
-        var embedUrl = cam.playerUrl || (_YTP + cam.id + _YTQ);
-        slot.innerHTML = '<iframe src="' + esc(embedUrl) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms" title="' + esc(cam.label||cam.title||'Live Cam') + '"></iframe>'
-          + '<div class="cw-cam-label">' + esc(cam.label||cam.title||cam.id||'Live Cam') + '</div>';
+        var embedUrl;
+        if (cam.directUrl) {
+          /* Direct embed (SkylineWebcams, webcamsydney, portofhelsinki, etc.) */
+          embedUrl = cam.directUrl;
+        } else if (cam.ytId) {
+          /* YouTube: UC... = channel ID → live_stream; else video ID */
+          if (cam.ytId.charAt(0) === 'U' && cam.ytId.charAt(1) === 'C') {
+            embedUrl = _YTB + 'live_stream?channel=' + cam.ytId + _YTQC;
+          } else {
+            embedUrl = _YTB + cam.ytId + _YTQ;
+          }
+        } else {
+          slot.innerHTML = '<div class="cw-cam-placeholder"><i class="fas fa-video-slash"></i><span>No stream available</span></div>';
+          continue;
+        }
+        var typeIcon = cam.type === 'airport' ? '✈' : '⚓';
+        slot.innerHTML =
+          '<iframe src="' + esc(embedUrl) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"'
+          + ' sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms"'
+          + ' title="' + esc(cam.label || 'Live Camera') + '"></iframe>'
+          + '<div class="cw-cam-label">' + typeIcon + ' ' + esc((cam.flag || '') + ' ' + (cam.label || 'Live Camera')) + '</div>';
       }
     }
 
@@ -7510,16 +7744,10 @@
         });
       });
 
-      /* Webcam filters */
-      var camCountryFilter = document.getElementById('cw-cam-country');
-      if (camCountryFilter) camCountryFilter.addEventListener('change', function() {
-        cwCamCountry = this.value;
-        loadWebcams();
-      });
-      var camTypeFilter = document.getElementById('cw-cam-type');
-      if (camTypeFilter) camTypeFilter.addEventListener('change', function() {
-        cwCamType = this.value;
-        loadWebcams();
+      /* Camera filters — type / country / city */
+      ['cw-cam-type','cw-cam-country','cw-cam-city'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('change', loadWebcams);
       });
       var camRefBtn = document.getElementById('cw-cam-refresh-btn');
       if (camRefBtn) camRefBtn.addEventListener('click', function() {
@@ -7527,6 +7755,17 @@
         var btn = this;
         loadWebcams();
         setTimeout(function(){ var ic=btn.querySelector('i'); if(ic) ic.className='fas fa-sync'; }, 3000);
+      });
+
+      /* Oil filters */
+      var oilRegionFilter = document.getElementById('cw-oil-region-filter');
+      if (oilRegionFilter) oilRegionFilter.addEventListener('change', renderOilTable);
+      var oilRefBtn = document.getElementById('cw-oil-refresh-btn');
+      if (oilRefBtn) oilRefBtn.addEventListener('click', function() {
+        var icon = this.querySelector('i'); if(icon) icon.className='fas fa-spinner fa-spin';
+        var btn = this;
+        loadOilData();
+        setTimeout(function(){ var ic=btn.querySelector('i'); if(ic) ic.className='fas fa-sync'; }, 4000);
       });
 
       /* OSINT feed filter */
@@ -7540,6 +7779,7 @@
         var btn = this;
         loadConflictEvents();
         loadFuelData();
+        loadOilData();
         loadRadiationData();
         loadWebcams();
         setCwUpdatedTs();
