@@ -5779,9 +5779,9 @@ async function handleApiAiBriefing(env, req) {
     const windowH = Math.min(48, Math.max(1, parseInt(url.searchParams.get('window') || '8', 10)));
     const region = (url.searchParams.get('region') || '').toUpperCase().trim();
 
-    // KV cache: 20-minute TTL per window+region combo (v2 — new prompt format)
+    // KV cache: 20-minute TTL per window+region combo
     const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v3_${windowH}_${region || 'global'}`; // v3 — busts stale data-only cache
+    const briefCacheKey = `briefing_v4_${windowH}_${region || 'global'}`; // v4 — cyber filter + improved prompt
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5811,16 +5811,30 @@ async function handleApiAiBriefing(env, req) {
       return { status: 200, headers: { 'X-Cache': 'MISS' }, body: emptyResult };
     }
 
+    // Cyber gate: only include CYBER incidents if they directly affect Dell/major vendors or are CRITICAL-scale outages
+    const _CYBER_DELL_RE = /\b(dell|emc|vmware|microsoft|azure|aws|google\s+cloud|crowdstrike|okta|palo\s+alto|cisco|oracle|sap|cloudflare|fortinet|servicenow|workday|salesforce|o365|office\s+365)\b/i;
+    const _CYBER_MAJOR_RE = /\b(nation[\-\s]?state|apt\s+\d|critical\s+infrastructure|nationwide\s+outage|millions?\s+(affected|impacted|exposed)|widespread\s+outage|global\s+outage|supply[\-\s]chain\s+attack)\b/i;
+    const filteredForBriefing = incidents.filter(i => {
+      const cat = String(i.category || '').toUpperCase();
+      if (cat === 'CYBER_SECURITY' || cat === 'CYBER') {
+        const text = `${i.title || ''} ${i.summary || ''}`;
+        const sev = String(i.severity_label || '').toUpperCase();
+        // Only keep cyber if: Dell/major vendor named, or nation-state/major outage, or CRITICAL severity
+        return sev === 'CRITICAL' || _CYBER_DELL_RE.test(text) || _CYBER_MAJOR_RE.test(text);
+      }
+      return true;
+    });
+
     // Sort by severity — CRITICAL first, then HIGH, MEDIUM, LOW
     const _SEV_RANK = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-    const sortedIncidents = [...incidents].sort((a, b) => {
+    const sortedIncidents = [...filteredForBriefing].sort((a, b) => {
       const ra = _SEV_RANK[String(a.severity_label || '').toUpperCase()] ?? 4;
       const rb = _SEV_RANK[String(b.severity_label || '').toUpperCase()] ?? 4;
       return ra - rb;
     });
-    // Top 12 CRITICAL/HIGH + 3 MEDIUM — keeps total tokens well under 6,000 TPM for llama-3.3-70b
-    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 12);
-    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 3);
+    // Top 15 CRITICAL/HIGH + 5 MEDIUM — enough material for a quality briefing
+    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 15);
+    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 5);
     const topIncidents = [...critHigh, ...medFill];
 
     // Compact format — title + metadata only, no summaries (saves ~40% tokens)
@@ -5841,31 +5855,45 @@ async function handleApiAiBriefing(env, req) {
       return `- [${p.priority||'P3'}] ${p.country||'?'}: ${p.title} → ${dist} from ${p.nearest_site_name||'Dell site'}`;
     }).join('\n');
 
-    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO. Write the shift handover briefing for SRO leadership and RSMs.
-RULES: SYNTHESIZE — do not copy-paste titles. Be specific (countries, companies, CVEs, event names). NO advice, NO "should/must/monitor". Facts only. Short punchy sentences.`;
+    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO). You write shift handover briefings for SRO leadership and Regional Security Managers (RSMs).
 
-    const userContent = `${windowH}h SRO briefing${region ? ` — ${region}` : ' — Global'}. ${incidents.length} total incidents, top ${topIncidents.length} shown.
+INTELLIGENCE FOCUS (in priority order):
+1. DUTY OF CARE — threats to Dell employees: terror attacks, kidnappings, shootings, civil unrest, evacuations, pandemics, travel advisories
+2. NATURAL HAZARDS / CRISIS — earthquakes, typhoons, cyclones, floods, wildfires, volcanic eruptions, state of emergency declarations affecting regions where Dell operates
+3. SUPPLY CHAIN — port closures, shipping lane disruptions (Red Sea, Suez, Hormuz, Panama), cargo theft, factory/plant shutdowns, rail/air freight disruptions, sanctions/trade embargoes
+4. SITE SECURITY — physical breaches, infrastructure failures, power grid outages, critical infrastructure attacks
+5. CYBER — ONLY if: directly named Dell/VMware/EMC OR a major vendor (Microsoft, AWS, Cisco, CrowdStrike, Okta) OR nation-state/APT attack OR affects critical infrastructure at scale. DO NOT include generic CVE patches, vendor advisories, or small-scale hacks.
 
-INTELLIGENCE (sorted by severity):
+WRITING RULES:
+- SYNTHESIZE — never copy-paste raw titles. Write like an experienced analyst.
+- Be SPECIFIC: name countries, cities, companies, scale (e.g. "7.2M quake", "3 ports closed", "14 dead")
+- Short punchy sentences. No padding, no advice, no "should/must/recommend/monitor".
+- Facts and assessments only. Confidently state what is significant and why.
+- If an event is in a country with Dell offices or employees, flag it explicitly.`;
+
+    const userContent = `${windowH}-hour SRO Shift Briefing${region ? ` — ${region} Region` : ' — Global'}.
+${incidents.length} total incidents this window. Top ${topIncidents.length} shown (cyber pre-filtered to Dell-relevant only).
+
+INCIDENT FEED (sorted by severity):
 ${incidentLines}
-${proxLines ? `\nNEAR DELL ASSETS:\n${proxLines}` : ''}
+${proxLines ? `\nPROXIMITY ALERTS (events near Dell sites):\n${proxLines}` : ''}
 
-5 sections — SYNTHESIZE each, write like a human analyst:
+Write the briefing using exactly these 5 sections. Each section must use real synthesized intelligence — not a list of raw titles:
 
 ## ⚡ KEY TAKEAWAYS
-[3-5 bullets: synthesized intelligence assessment per item — what happened, where, why it matters]
+[3–5 bullets. Lead with the highest-impact items. Each bullet: what happened + where + why it matters to Dell/employees/supply chain. Combine related items into a single synthesized sentence.]
 
 ## 🔺 RECENT ESCALATIONS
-[Each CRITICAL/HIGH: country — what specifically happened — scale/impact — date]
+[CRITICAL and HIGH items only. Format: COUNTRY/REGION — specific event description — scale or impact numbers — date. One line per event. Bold escalation keywords if appropriate.]
 
 ## 🏢 DELL OPERATIONAL IMPACT
-[Named Dell sites, products, travel routes affected. If none confirmed, state it.]
+[Be explicit: which Dell sites, business units, products, or travel corridors are affected. Cross-reference incident countries against Dell office locations. If Dell products named (e.g. Windchill, FlexPLM), state it. If no direct confirmed impact, write one sentence saying so and name the closest relevant Dell location.]
 
 ## 📍 EVENTS NEAR DELL ASSETS
-[From proximity data: event — city/country — distance — Dell site. If none: "None this period."]
+[List each proximity alert: event type — location — distance from nearest Dell site — Dell site name. If none this period, state "None reported this window."]
 
 ## 🔭 OUTLOOK
-[2-3 bullets: what is actively developing based only on the data above]`;
+[2–3 bullets. Only forecast based on data above. What situations are actively developing, escalating, or likely to affect Dell operations in the next 24–48 hours.]`;
 
     // Use llama-3.3-70b-versatile DIRECTLY — separate RPM bucket from classification (llama-3.1-8b-instant)
     // This prevents the ingest classification calls from exhausting the briefing rate limit

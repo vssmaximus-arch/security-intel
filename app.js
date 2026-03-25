@@ -6382,10 +6382,13 @@ async function handleGenerateBriefClick() {
       '🔭': '#9b7ed9', // Outlook — purple
     };
     const _isDark = document.body.classList.contains('dark-mode');
-    const _sectBg  = _isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
-    const _bodyTxt = _isDark ? '#e8eaed' : '#202124';   // near-white in dark, near-black in light
-    const _subTxt  = _isDark ? '#adb5bd' : '#5f6368';
-    const _divider = _isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+    const _sectBg  = _isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
+    const _bodyTxt = _isDark ? '#f0f2f5' : '#202124';   // bright white in dark mode
+    const _subTxt  = _isDark ? '#d8dce2' : '#5f6368';   // light gray in dark (not dim)
+    const _divider = _isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    const _wrapStyle = _isDark
+      ? 'padding:2px 4px;color:#f0f2f5;'
+      : 'padding:2px 4px;color:#202124;';
 
     // Render briefing — section-aware formatting
     const _briefLines = (data.briefing || '').split('\n');
@@ -6406,21 +6409,21 @@ async function handleGenerateBriefClick() {
         _inSection = true;
         return;
       }
-      // Bullet lines starting with - or •
-      const bMatch = trimmed.match(/^[-•]\s+(.+)/);
+      // Bullet lines: -, •, or * prefix (AI may output any of these)
+      const bMatch = trimmed.match(/^[-•*]\s+(.+)/);
       if (bMatch) {
-        _briefHtml += `<div style="display:flex;gap:8px;padding:5px 0 5px 10px;font-size:0.82rem;color:${_bodyTxt};line-height:1.6;border-bottom:1px solid ${_divider};">
+        _briefHtml += `<div style="display:flex;gap:8px;padding:6px 0 6px 10px;font-size:0.83rem;color:${_bodyTxt};line-height:1.65;border-bottom:1px solid ${_divider};">
           <span style="color:#4a90d9;flex-shrink:0;padding-top:3px;font-size:0.65rem;">▶</span>
-          <span>${escapeHtml(bMatch[1])}</span>
+          <span style="color:${_bodyTxt};">${escapeHtml(bMatch[1])}</span>
         </div>`;
         return;
       }
-      // Plain paragraph text
-      _briefHtml += `<div style="font-size:0.82rem;color:${_subTxt};padding:3px 10px;line-height:1.55;">${escapeHtml(trimmed)}</div>`;
+      // Plain paragraph text — also use _bodyTxt in dark mode for readability
+      _briefHtml += `<div style="font-size:0.83rem;color:${_subTxt};padding:4px 10px;line-height:1.6;">${escapeHtml(trimmed)}</div>`;
     });
     if (_inSection) _briefHtml += '</div>';
 
-    bodyEl.innerHTML = `${cacheBanner}<div style="padding:2px 4px;">${_briefHtml}</div>`;
+    bodyEl.innerHTML = `${cacheBanner}<div style="${_wrapStyle}">${_briefHtml}</div>`;
     if (metaEl) {
       metaEl.textContent = `${data.incident_count} incidents · ${data.region} · ${data.window_h}h · Model: ${data.model || 'AI'} · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
     }
