@@ -1631,12 +1631,14 @@ function renderProximityAlerts(region) {
         dist: (inc.distance_km != null) ? Number(inc.distance_km) : (siteDists[0] ? siteDists[0].dist : 9999)
       };
 
-      // Distance gate: proximity alerts must be within a meaningful radius of a Dell site.
-      // Worker-approved items are respected but still capped at 300km — prevents general
-      // geopolitical/maritime news from appearing just because a Worker priority was assigned.
-      // Natural hazards get a wider 500km allowance (personnel safety); all others capped at 300km.
+      // Distance gate — tiered hard caps per threat type:
+      //   300km: Natural hazards (earthquake, tsunami, cyclone) — wide zone for personnel safety
+      //   300km: Ballistic / missile events (NK rockets, airstrikes) — immediate physical danger zone
+      //    50km: Everything else (geopolitical news, supply chain, cyber) — must be near a Dell site
       const cat_raw = String(inc.category || '').toUpperCase();
-      const HARD_CAP_KM = (cat_raw === 'NATURAL_HAZARD') ? 500 : 300;
+      const titleSum = ((inc.title || '') + ' ' + (inc.summary || '')).toLowerCase();
+      const isMissileEvent = /\b(missile|ballistic|rocket\s+launch|icbm|irbm|projectile|airstrike|air\s+strike|aerial\s+bombardment|launched\s+(at|toward|over)|incoming\s+(fire|attack|threat))\b/.test(titleSum);
+      const HARD_CAP_KM = (cat_raw === 'NATURAL_HAZARD' || isMissileEvent) ? 300 : 50;
       if (!inc.country_wide && nearest.dist > HARD_CAP_KM) return;
       // Secondary check: for unscreened items (no Worker priority) also apply the UI radius slider
       const workerApproved = !!inc.priority;
