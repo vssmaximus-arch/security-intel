@@ -1631,9 +1631,14 @@ function renderProximityAlerts(region) {
         dist: (inc.distance_km != null) ? Number(inc.distance_km) : (siteDists[0] ? siteDists[0].dist : 9999)
       };
 
-      // TRUST WORKER: Worker uses tiered radii (Natural=500km, Security=100km, Supply Chain=250km).
-      // If the Worker assigned a priority, the incident already passed tiered screening — show it.
-      // For unscreened incidents (no priority), fall back to the frontend radius slider.
+      // Distance gate: proximity alerts must be within a meaningful radius of a Dell site.
+      // Worker-approved items are respected but still capped at 300km — prevents general
+      // geopolitical/maritime news from appearing just because a Worker priority was assigned.
+      // Natural hazards get a wider 500km allowance (personnel safety); all others capped at 300km.
+      const cat_raw = String(inc.category || '').toUpperCase();
+      const HARD_CAP_KM = (cat_raw === 'NATURAL_HAZARD') ? 500 : 300;
+      if (!inc.country_wide && nearest.dist > HARD_CAP_KM) return;
+      // Secondary check: for unscreened items (no Worker priority) also apply the UI radius slider
       const workerApproved = !!inc.priority;
       if (!inc.country_wide && !workerApproved && nearest.dist > currentRadius) return;
 
@@ -1718,10 +1723,9 @@ function renderProximityAlerts(region) {
     return `
       <div class="alert-row" style="border:1px solid ${borderColor};border-left:4px solid ${isAcked ? '#4caf50' : pcfg.color};border-radius:6px;margin-bottom:12px;overflow:hidden;background:${bodyBg};box-shadow:0 1px 4px rgba(0,0,0,0.10);${isAcked ? 'opacity:0.78;' : ''}">
 
-        <!-- Priority + Category Header -->
+        <!-- Priority Header (category label removed — avoided confusion with generic Supply Chain tag) -->
         <div style="padding:7px 12px;display:flex;align-items:center;gap:8px;background:${isAcked ? 'rgba(76,175,80,0.07)' : pcfg.bg};border-bottom:1px solid ${dark ? '#2a2d35' : '#e8eaed'};">
           ${ackedBadge}
-          <span style="font-size:0.73rem;color:${ccfg.color};font-weight:600;">${ccfg.icon}&nbsp;${escapeHtml(ccfg.label)}</span>
           ${timeAgo ? `<span style="margin-left:auto;font-size:0.68rem;color:${metaTxt};">🕐 ${escapeHtml(timeAgo)}</span>` : ''}
         </div>
 
@@ -1800,15 +1804,16 @@ function renderGlobalDisruptions() {
   const TYPE_CONFIG = {
     MAJOR_EARTHQUAKE:       { color: '#b05e00', bg: 'rgba(176,94,0,0.12)', icon: '🌍', label: 'Major Earthquake' },
     MAJOR_CYCLONE:          { color: '#1565c0', bg: 'rgba(21,101,192,0.12)', icon: '🌀', label: 'Major Cyclone / Hurricane' },
-    SUPPLY_CHAIN_CHOKEPOINT:{ color: '#6a1b9a', bg: 'rgba(106,27,154,0.12)', icon: '⚓', label: 'Chokepoint / Strait Alert' },
+    SUPPLY_CHAIN_CHOKEPOINT:{ color: '#6a1b9a', bg: 'rgba(106,27,154,0.12)', icon: '⚓', label: 'Supply Chain Alert' },
     TECH_SUPPLY_RISK:       { color: '#c62828', bg: 'rgba(198,40,40,0.12)', icon: '💾', label: 'Tech Supply Chain Risk' },
   };
 
   el.innerHTML = GLOBAL_DISRUPTIONS.slice(0, 8).map(d => {
     const cfg = TYPE_CONFIG[d.type] || { color: '#5f6368', bg: 'rgba(95,99,104,0.1)', icon: '⚠', label: d.type || 'Alert' };
     const sev = Number(d.severity || 3);
-    const sevWord = sev >= 5 ? 'CRITICAL' : sev >= 4 ? 'HIGH' : 'MEDIUM';
-    const sevColor = sev >= 5 ? '#d93025' : sev >= 4 ? '#e37400' : '#5f6368';
+    // Severity labels: no "HIGH" for indirect/maritime items — use awareness-level language
+    const sevWord  = sev >= 5 ? 'CRITICAL' : sev >= 4 ? 'INFORMED' : 'MONITORING';
+    const sevColor = sev >= 5 ? '#d93025'  : sev >= 4 ? '#e37400'  : '#5f6368';
     const magStr = d.magnitude ? ` M${Number(d.magnitude).toFixed(1)}` : '';
     const timeAgo = _proxTimeAgo(d.time);
     const firstLink = (d.link && d.link !== '#') ? (d.link.split(/\s+/).find(u => /^https?:\/\//.test(u)) || '') : '';
