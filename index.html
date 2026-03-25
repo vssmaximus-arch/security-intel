@@ -2938,53 +2938,47 @@
   </div>
 
   <!-- 📡 LIVE NEWS VIEW ────────────────────────────────────────────────────── -->
-  <div id="view-live-news" style="display:none;" role="tabpanel" aria-label="Live News">
+  <div id="view-live-news" style="display:none;" role="tabpanel" aria-label="Live News — Global TV Wall">
 
-    <!-- Top bar: badge + Headlines/TV tabs + source filter pills + timestamp -->
-    <div class="lnm-topbar" id="ln-topbar">
-      <span class="lnm-badge">&#128225; GLOBAL INTELLIGENCE FEED</span>
-      <div class="lnm-tabs">
-        <button class="lnm-tab-btn active" data-action="ln-tab" data-tab="headlines">&#128240; Headlines</button>
-        <button class="lnm-tab-btn" data-action="ln-tab" data-tab="tv">&#128250; Live TV</button>
-      </div>
-      <div class="lnm-src-pills" id="ln-src-pills">
-        <button class="lnm-pill active" data-action="ln-filter" data-src="all">All Sources</button>
-        <button class="lnm-pill" data-action="ln-filter" data-src="news">&#128240; News</button>
-        <button class="lnm-pill" data-action="ln-filter" data-src="logistics">&#128674; Logistics</button>
-        <button class="lnm-pill" data-action="ln-filter" data-src="security">&#128737; Security</button>
-        <button class="lnm-pill" data-action="ln-filter" data-src="hazards">&#9888; Hazards</button>
-        <button class="lnm-pill" data-action="ln-filter" data-src="cyber">&#128187; Cyber</button>
-      </div>
-      <span class="lnm-ts" id="ln-ts">Loading&hellip;</span>
-      <button class="lnm-refresh-btn" data-action="ln-refresh-now" style="margin-left:8px">&#8635; Refresh</button>
-    </div>
-
-    <!-- Headlines feed -->
-    <div class="lnm-feed" id="ln-feed">
-      <div class="lnm-loading"><i class="fas fa-spinner fa-spin"></i> Fetching global intelligence feed&hellip;</div>
-    </div>
-
-    <!-- Live TV panel -->
-    <div class="lnm-tv-panel" id="ln-tv-panel">
-      <div class="lnm-ch-bar" id="ln-ch-bar">
-        <span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>
-        <!-- Channel buttons populated by _lnTabInit() -->
-      </div>
-      <video class="lnm-tv-video" id="ln-tv-video" autoplay muted playsinline controls></video>
-      <iframe class="lnm-tv-frame" id="ln-tv-frame" src=""
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen></iframe>
-      <div class="lnm-tv-notice">
-        Select a channel above &middot;
-        <span id="ln-stream-badge" class="lnm-stream-badge" style="background:#1a3a5c;color:#4fc3f7">&#128225; Ready</span>
-        &middot; Direct HLS stream where available
+    <!-- ── Top bar ─────────────────────────────────────── -->
+    <div class="ltv-topbar">
+      <span class="ltv-badge">&#128250; LIVE TV</span>
+      <span class="ltv-count" id="ltv-count">6 channels active</span>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <button class="ltv-customize-btn" data-action="ltv-open-drawer">&#127897;&#65039; Customize</button>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="lnm-footer" id="ln-tab-footer">
-      <span>&#128240; 26 sources &middot; &#128240; News &middot; &#128674; Logistics &middot; &#128737; Security &middot; &#9888; Hazards &middot; &#128187; Cyber</span>
-      <button class="lnm-refresh-btn" data-action="ln-refresh-now">&#8635; Refresh Headlines</button>
+    <!-- ── 2-col × 3-row channel grid ─────────────────── -->
+    <div class="ltv-grid" id="ltv-grid"></div>
+
+    <!-- ── Expanded single-channel view ───────────────── -->
+    <div class="ltv-expanded" id="ltv-expanded" style="display:none;">
+      <div class="ltv-exp-bar">
+        <button class="ltv-back-btn" data-action="ltv-collapse">&#8592; Grid</button>
+        <span class="ltv-exp-title" id="ltv-exp-title"></span>
+        <span class="ltv-stream-badge" id="ltv-exp-badge" style="margin-left:auto;">&#128225; Ready</span>
+      </div>
+      <div class="ltv-exp-body" id="ltv-exp-body"></div>
+    </div>
+
+    <!-- ── Customize drawer ───────────────────────────── -->
+    <div class="ltv-drawer" id="ltv-drawer" style="display:none;">
+      <div class="ltv-drawer-head">
+        <span>&#127897;&#65039; Customize Channels</span>
+        <button data-action="ltv-close-drawer">&#x2715;</button>
+      </div>
+      <div class="ltv-drawer-body">
+        <div class="ltv-drawer-sec">Available Channels</div>
+        <div id="ltv-ch-toggles"></div>
+        <div class="ltv-drawer-sec" style="margin-top:16px;">Add Custom Stream</div>
+        <div class="ltv-custom-form">
+          <input id="ltv-cust-label" type="text" placeholder="Channel name" autocomplete="off" />
+          <input id="ltv-cust-url"   type="text" placeholder="HLS .m3u8 URL  &#8212;or&#8212;  YouTube video ID" autocomplete="off" />
+          <button class="ltv-cust-add-btn" data-action="ltv-add-custom">+ Add Channel</button>
+        </div>
+        <button class="ltv-reset-btn" data-action="ltv-reset-default">&#8635; Reset to Default (6 channels)</button>
+      </div>
     </div>
 
   </div><!-- /view-live-news -->
@@ -4883,36 +4877,172 @@
     .choke-status.normal    { background:#1e2a1e; color:#81c995; }
     .choke-vessels { font-size:.74rem; color:#9aa0a6; }
 
-    /* ── Live News tab panel layout ─────────────────────────────────────── */
+    /* ── Live TV Wall ────────────────────────────────────── */
     #view-live-news {
       display: flex; flex-direction: column;
-      background: #131416; min-height: 500px;
+      background: #0d1117; height: calc(100vh - 110px);
+      overflow: hidden; position: relative;
     }
-    /* Force the injected .lnm-topbar to stay as a non-scrollable header */
-    #view-live-news .lnm-topbar {
-      flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+    .ltv-topbar {
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+      padding: 8px 16px; background: #0d1117; border-bottom: 1px solid #2a2d31;
     }
-    /* Constrain the feed so it scrolls within the viewport */
-    #ln-feed {
-      flex: 1;
-      max-height: calc(100vh - 360px);
-      min-height: 280px;
+    .ltv-badge {
+      background: #1a3a5c; color: #4fc3f7; font-size: .7rem; font-weight: 800;
+      border-radius: 4px; padding: 3px 10px; letter-spacing: 1px; white-space: nowrap;
     }
-    /* TV panel fills remaining height */
-    #ln-tv-panel {
-      height: calc(100vh - 330px);
-      min-height: 350px;
+    .ltv-count { font-size: .7rem; color: #5f6368; }
+    .ltv-customize-btn {
+      background: #1c2a3a; color: #4fc3f7; border: 1px solid #2a5080;
+      border-radius: 6px; padding: 5px 14px; font-size: .72rem; font-weight: 700; cursor: pointer;
     }
-    /* Footer stays at bottom of panel */
-    #view-live-news .lnm-footer { flex-shrink: 0; }
-    /* Light mode */
-    body.light-mode #view-live-news { background: #ffffff; }
-    body.light-mode #view-live-news .lnm-topbar  { background: #f1f3f4; border-bottom-color: #e0e0e0; }
-    body.light-mode #view-live-news .lnm-badge   { background: #e8f0fe; color: #1a73e8; }
-    body.light-mode #view-live-news .lnm-item    { background: #f8f9fa; }
-    body.light-mode #view-live-news .lnm-item:hover { background: #e8f0fe; }
-    body.light-mode #view-live-news .lnm-title a { color: #202124; }
-    body.light-mode #view-live-news .lnm-footer  { background: #f1f3f4; border-top-color: #e0e0e0; }
+    .ltv-customize-btn:hover { background: #243050; }
+    /* Grid — 2 cols × 3 rows */
+    .ltv-grid {
+      flex: 1; display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 6px; padding: 8px; min-height: 0; overflow: auto;
+    }
+    /* Tile */
+    .ltv-tile {
+      position: relative; background: #000; border-radius: 8px; overflow: hidden;
+      border: 1px solid #2a2d31; cursor: pointer; transition: border-color .2s;
+    }
+    .ltv-tile:hover { border-color: #4fc3f7; }
+    .ltv-tile-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 8px;
+      background: linear-gradient(rgba(0,0,0,.72), transparent);
+      position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+    }
+    .ltv-tile-label {
+      font-size: .66rem; font-weight: 800; color: #fff;
+      letter-spacing: .5px; text-shadow: 0 1px 3px rgba(0,0,0,.8);
+    }
+    .ltv-tile-close {
+      background: rgba(0,0,0,.5); border: none; color: #9aa0a6; border-radius: 4px;
+      width: 20px; height: 20px; cursor: pointer; font-size: .7rem; line-height: 1;
+      opacity: 0; transition: opacity .15s;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ltv-tile:hover .ltv-tile-close { opacity: 1; }
+    .ltv-tile-close:hover { background: rgba(200,50,50,.7); color: #fff; }
+    .ltv-tile-expand {
+      position: absolute; bottom: 5px; right: 7px; z-index: 5;
+      font-size: .58rem; color: rgba(255,255,255,.25); pointer-events: none;
+      opacity: 0; transition: opacity .15s;
+    }
+    .ltv-tile:hover .ltv-tile-expand { opacity: 1; }
+    .ltv-tile video, .ltv-tile iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: block;
+    }
+    .ltv-tile-status {
+      position: absolute; inset: 0; z-index: 3; background: #090909;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; color: #5f6368; font-size: .72rem; text-align: center; padding: 10px;
+    }
+    .ltv-tile-status.ltv-hidden { display: none; }
+    .ltv-spin { animation: ltv-spin .9s linear infinite; display: inline-block; }
+    @keyframes ltv-spin { to { transform: rotate(360deg); } }
+    /* Expanded single-channel */
+    .ltv-expanded {
+      position: absolute; inset: 0; background: #000;
+      display: flex; flex-direction: column; z-index: 20;
+    }
+    .ltv-exp-bar {
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+      padding: 8px 16px; background: #0d1117; border-bottom: 1px solid #2a2d31;
+    }
+    .ltv-back-btn {
+      background: #1c2a3a; color: #4fc3f7; border: 1px solid #2a5080;
+      border-radius: 6px; padding: 5px 12px; font-size: .72rem; font-weight: 700; cursor: pointer;
+    }
+    .ltv-back-btn:hover { background: #243050; }
+    .ltv-exp-title { font-size: .85rem; font-weight: 700; color: #e8eaed; }
+    .ltv-stream-badge {
+      font-size: .6rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 4px; letter-spacing: .3px; background: #1a3a5c; color: #4fc3f7;
+    }
+    .ltv-exp-body { flex: 1; min-height: 0; position: relative; }
+    .ltv-exp-body video, .ltv-exp-body iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+    }
+    /* Customize drawer */
+    .ltv-drawer {
+      position: absolute; top: 0; right: 0; bottom: 0; width: 340px;
+      background: #1c1f26; border-left: 1px solid #2a2d31; z-index: 30;
+      display: flex; flex-direction: column; box-shadow: -8px 0 32px rgba(0,0,0,.55);
+    }
+    .ltv-drawer-head {
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+      padding: 12px 16px; background: #0d1117; border-bottom: 1px solid #2a2d31;
+      font-size: .8rem; font-weight: 700; color: #e8eaed;
+    }
+    .ltv-drawer-head button {
+      background: #5f2120; color: #f28b82; border: none; border-radius: 4px;
+      padding: 4px 10px; cursor: pointer; font-weight: 700;
+    }
+    .ltv-drawer-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+    .ltv-drawer-sec {
+      font-size: .63rem; font-weight: 800; color: #5f6368; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 8px;
+      border-bottom: 1px solid #2a2d31; padding-bottom: 4px;
+    }
+    .ltv-toggle-row {
+      display: flex; align-items: center; gap: 9px; padding: 7px 6px;
+      border-radius: 6px; transition: background .15s;
+    }
+    .ltv-toggle-row:hover { background: rgba(255,255,255,.04); }
+    .ltv-toggle-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .ltv-toggle-name { flex: 1; font-size: .78rem; color: #bdc1c6; }
+    .ltv-toggle-tag { font-size: .6rem; color: #5f6368; font-style: italic; }
+    .ltv-del-btn {
+      background: transparent; border: none; color: #5f6368;
+      cursor: pointer; font-size: .72rem; padding: 0 4px;
+    }
+    .ltv-del-btn:hover { color: #f28b82; }
+    .ltv-sw { position: relative; width: 34px; height: 18px; flex-shrink: 0; }
+    .ltv-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .ltv-sw-track {
+      position: absolute; inset: 0; background: #3c4043;
+      border-radius: 9px; cursor: pointer; transition: background .2s;
+    }
+    .ltv-sw-track::before {
+      content: ''; position: absolute; height: 12px; width: 12px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform .2s;
+    }
+    .ltv-sw input:checked + .ltv-sw-track { background: #1a73e8; }
+    .ltv-sw input:checked + .ltv-sw-track::before { transform: translateX(16px); }
+    .ltv-custom-form { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .ltv-custom-form input {
+      background: #0d1117; border: 1px solid #3c4043; color: #e8eaed;
+      border-radius: 6px; padding: 7px 10px; font-size: .75rem; outline: none;
+    }
+    .ltv-custom-form input:focus { border-color: #4fc3f7; }
+    .ltv-cust-add-btn {
+      background: #1a3a5c; color: #4fc3f7; border: 1px solid #2a5080;
+      border-radius: 6px; padding: 7px 0; font-size: .75rem; font-weight: 700; cursor: pointer;
+    }
+    .ltv-cust-add-btn:hover { background: #243050; }
+    .ltv-reset-btn {
+      background: transparent; color: #9aa0a6; border: 1px solid #3c4043;
+      border-radius: 6px; padding: 6px 0; width: 100%;
+      font-size: .72rem; cursor: pointer; margin-top: 8px;
+    }
+    .ltv-reset-btn:hover { border-color: #5f6368; color: #e8eaed; }
+    .ltv-empty {
+      grid-column: 1/-1; grid-row: 1/-1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #5f6368; font-size: .85rem; gap: 10px; text-align: center;
+    }
+    body.light-mode #view-live-news  { background: #f1f3f4; }
+    body.light-mode .ltv-topbar      { background: #fff; border-color: #e0e0e0; }
+    body.light-mode .ltv-badge       { background: #e8f0fe; color: #1a73e8; }
+    body.light-mode .ltv-exp-bar     { background: #f1f3f4; border-color: #e0e0e0; }
+    body.light-mode .ltv-drawer      { background: #fff; border-color: #e0e0e0; }
+    body.light-mode .ltv-drawer-head { background: #f1f3f4; border-color: #e0e0e0; color: #202124; }
+    body.light-mode .ltv-toggle-name { color: #3c4043; }
 
     /* Light-mode overrides */
     body.light-mode .live-table-header { background: #f1f3f4; border-color: #e0e0e0; color: #80868b; }
@@ -5145,19 +5275,8 @@
         if (typeof initApGrid === 'function') initApGrid();
       } else if (view === 'live-news') {
         if (liveNews) liveNews.style.display = '';
-        /* Init tab (CSS + channel buttons) — only runs once */
+        /* Init LTV grid — only runs once */
         if (typeof _lnTabInit === 'function') _lnTabInit();
-        /* Switch to Headlines and always fetch fresh data */
-        if (typeof _lnTabSwitchTab === 'function') _lnTabSwitchTab('headlines');
-        if (typeof _lnTabFetch === 'function') {
-          _lnTabFetch();
-        } else if (typeof _lnTabRender === 'function') {
-          _lnTabRender();
-        }
-        /* Auto-refresh every 5 min while on this tab */
-        _lnTabRefreshInterval = setInterval(function () {
-          if (currentView === 'live-news' && typeof _lnTabFetch === 'function') _lnTabFetch();
-        }, 5 * 60 * 1000);
       } else if (view === 'vessel-watch') {
         if (vwView) vwView.style.display = '';
         loadPortData(false);

@@ -3846,25 +3846,50 @@ let _lnmItems       = [];        // latest items from Worker
 let _lnmActiveTab   = 'headlines'; // 'headlines' | 'tv'
 let _lnmActiveChannel = 'aljazeera'; // active TV channel key
 
-// Live TV channel definitions
-// hlsUrl = direct broadcast CDN stream (no ads) — YouTube ytId used as fallback on HLS failure
-// Sources: iptv-org/iptv verified streams + official broadcaster CDNs (Akamai, getaj, france24, nhk, cgtn)
-let _lnmHls = null; // active hls.js instance — destroyed on channel switch and modal close
-const LNM_TV_CHANNELS = [
-  // ── Direct HLS — no ads (Akamai / official CDNs) ─────────────────────────────
-  { key: 'dw',        label: 'DW News',     color: '#1b5e20', ytId: 'LuKwFajn37U',
-    hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8' }, // Akamai
-  { key: 'skynews',   label: 'Sky News',    color: '#1565c0', ytId: 'uvviIF4725I',
-    hlsUrl: 'https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8' }, // Sky News UK official CDN 2026
-  { key: 'france24',  label: 'France 24',   color: '#880e4f', ytId: 'Ap-UM1O9RBU',
-    hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8' }, // France24 official
-  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2', ytId: 'gCNeDWCI0vo',
-    hlsUrl: 'https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8' },                        // Al Jazeera CDN (alt subdomain)
-  { key: 'bbc',       label: 'BBC World',   color: '#bb0000', ytId: 'bjgQzJzCZKs',
-    hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8' }, // BBC Akamai WW
-  { key: 'cgtn',      label: 'CGTN',        color: '#4a148c', ytId: '8bCBmjPa_jY',
-    hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8' },                          // CGTN official CDN
+// Live TV channel catalogue — HLS direct stream (no ads) preferred; YouTube fallback on HLS failure
+// Sources: official broadcaster CDNs (Akamai, getaj, france24, nhk, cgtn) + iptv-org/iptv verified
+let _lnmHls = null; // active hls.js instance for the modal — destroyed on channel switch / close
+
+const LTV_CHANNELS = [
+  // ── Direct HLS (Akamai / official CDNs) + YouTube fallback ───────────────────
+  { key: 'aljazeera', label: 'Al Jazeera',  color: '#1976d2',
+    hlsUrl: 'https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8',
+    ytId: 'gCNeDWCI0vo' },                                                         // Al Jazeera English CDN
+  { key: 'bbc',       label: 'BBC World',   color: '#bb0000',
+    hlsUrl: 'https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8',
+    ytId: 'bjgQzJzCZKs' },                                                         // BBC Akamai WW
+  { key: 'dw',        label: 'DW News',     color: '#1b5e20',
+    hlsUrl: 'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream01/streamPlaylist.m3u8',
+    ytId: 'LuKwFajn37U' },                                                         // DW Akamai
+  { key: 'france24',  label: 'France 24',   color: '#880e4f',
+    hlsUrl: 'https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_2300.m3u8',
+    ytId: 'Ap-UM1O9RBU' },                                                         // France 24 official
+  { key: 'skynews',   label: 'Sky News',    color: '#1565c0',
+    hlsUrl: 'https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8',
+    ytId: 'uvviIF4725I' },                                                         // Sky News UK CDN 2026
+  { key: 'cgtn',      label: 'CGTN',        color: '#7b1fa2',
+    hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8',
+    ytId: '8bCBmjPa_jY' },                                                         // CGTN official CDN
+  { key: 'cna',       label: 'CNA',         color: '#c62828',
+    hlsUrl: null,                                                                   // no public HLS — YouTube live
+    ytId: '8VMuknbVDeM' },                                                         // Channel NewsAsia live
+  { key: 'nhk',       label: 'NHK World',   color: '#01579b',
+    hlsUrl: 'https://nhkworldlive-nhkworld.akamaized.net/hls/live/2003408/nhkworld/index_5M.m3u8',
+    ytId: 'nF5RkGEBSFQ' },                                                         // NHK World Akamai
+  { key: 'euronews',  label: 'Euronews',    color: '#003399',
+    hlsUrl: null,
+    ytId: 'zCW8ZGPH8MQ' },                                                         // Euronews YouTube live
+  { key: 'wion',      label: 'WION',        color: '#e65100',
+    hlsUrl: null,
+    ytId: 'fHEMlBc2LPk' },                                                         // WION India YouTube live
 ];
+
+// Keep alias for modal (uses same catalogue)
+const LNM_TV_CHANNELS = LTV_CHANNELS;
+
+// Default 6 channels shown in the grid on first load
+const LTV_DEFAULT_VISIBLE = ['aljazeera','bbc','dw','france24','skynews','cgtn'];
+const LTV_PREFS_KEY = 'ltv_prefs_v1';
 
 // Source badge colors — keyed by source_key from Worker
 const LNM_SOURCE_COLORS = {
@@ -3885,6 +3910,7 @@ const LNM_SOURCE_COLORS = {
   usgs:         { bg: '#6d4c41', text: '#fff' }, gdacs:        { bg: '#f57c00', text: '#fff' },
   emsc:         { bg: '#d84315', text: '#fff' },
   // Cyber
+  cna:          { bg: '#c62828', text: '#fff' }, channelnewsasia: { bg: '#c62828', text: '#fff' },
   darkreading:  { bg: '#212121', text: '#fff' }, hackernews:   { bg: '#ff6d00', text: '#fff' },
   cisacyber:    { bg: '#283593', text: '#fff' },
 };
@@ -4184,163 +4210,233 @@ function closeLiveNewsModal() {
   if (_lnmTimer) { clearInterval(_lnmTimer); _lnmTimer = null; }
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   LIVE NEWS TAB  (view-switcher panel — shares data with modal)
-   Uses same _lnmItems state and LNM_* constants as the modal.
-   Separate HLS instance (_lnTabHls) so streams don't conflict.
-   ───────────────────────────────────────────────────────────────── */
-let _lnTabHls           = null;
-let _lnTabFilter        = 'all';
-let _lnTabActiveChannel = (LNM_TV_CHANNELS[0] || {}).key || 'dw';
-let _lnTabInitDone      = false;
+/* ═══════════════════════════════════════════════════════════
+   LIVE TV WALL — 2×3 grid, expand-on-click, customisable
+   localStorage-persisted channel selection + custom streams
+   ═══════════════════════════════════════════════════════════ */
 
-function _lnTabInit() {
-  if (_lnTabInitDone) return;
-  _lnTabInitDone = true;
-  /* Inject shared lnm CSS (idempotent — also creates hidden modal) */
-  _ensureLiveNewsModal();
-  /* Build TV channel buttons in the tab panel's channel bar */
-  const bar = document.getElementById('ln-ch-bar');
-  if (bar) {
-    bar.innerHTML = '<span class="lnm-ch-label">&#128250; SELECT CHANNEL</span>' +
-      LNM_TV_CHANNELS.map((ch, i) =>
-        '<button class="lnm-ch-btn' + (i === 0 ? ' active' : '') +
-        '" data-action="ln-channel" data-ch="' + ch.key + '">' + ch.label + '</button>'
-      ).join('');
+let _ltvHlsMap  = {};   // key → Hls instance per tile
+let _ltvExpHls  = null; // expanded-view Hls instance
+let _ltvPrefs   = null; // { visible: [...keys], custom: [...channel objects] }
+let _ltvInitDone = false;
+
+function _ltvLoadPrefs() {
+  try {
+    const raw = localStorage.getItem(LTV_PREFS_KEY);
+    if (raw) _ltvPrefs = JSON.parse(raw);
+  } catch(_) {}
+  if (!_ltvPrefs || !Array.isArray(_ltvPrefs.visible)) {
+    _ltvPrefs = { visible: [...LTV_DEFAULT_VISIBLE], custom: [] };
+  }
+  if (!Array.isArray(_ltvPrefs.custom)) _ltvPrefs.custom = [];
+}
+function _ltvSavePrefs() {
+  try { localStorage.setItem(LTV_PREFS_KEY, JSON.stringify(_ltvPrefs)); } catch(_) {}
+}
+function _ltvAllChannels() {
+  return LTV_CHANNELS.concat((_ltvPrefs.custom || []).map(c => Object.assign({}, c, { _custom: true })));
+}
+function _ltvVisibleChannels() {
+  const all = _ltvAllChannels();
+  return (_ltvPrefs.visible || []).map(k => all.find(c => c.key === k)).filter(Boolean);
+}
+
+/* ── Tile HLS management ───────────────────────────────── */
+function _ltvDestroyTileHls(key) {
+  if (_ltvHlsMap[key]) {
+    try { _ltvHlsMap[key].destroy(); } catch(_) {}
+    delete _ltvHlsMap[key];
+  }
+}
+function _ltvDestroyAllHls() {
+  Object.keys(_ltvHlsMap).forEach(_ltvDestroyTileHls);
+}
+
+/* Load stream into a tile — HLS first, YouTube fallback */
+function _ltvLoadTile(key) {
+  const ch = _ltvAllChannels().find(c => c.key === key);
+  if (!ch) return;
+  const tile = document.getElementById('ltv-tile-' + key);
+  if (!tile) return;
+  const video  = tile.querySelector('video');
+  const frame  = tile.querySelector('iframe');
+  const status = tile.querySelector('.ltv-tile-status');
+
+  function showStatus(html) {
+    if (status) { status.innerHTML = html; status.className = 'ltv-tile-status'; }
+    if (video)  { video.style.display  = 'none'; video.src = ''; }
+    if (frame)  { frame.style.display  = 'none'; frame.src = ''; }
+  }
+  function showYt() {
+    if (!ch.ytId) { showStatus('<div style="font-size:2em;opacity:.3">&#128225;</div><div>' + ch.label + '</div><div style="font-size:.65rem;color:#444">No stream available</div>'); return; }
+    if (status) status.className = 'ltv-tile-status ltv-hidden';
+    if (video)  video.style.display = 'none';
+    if (frame)  { frame.style.display = 'block'; frame.src = 'https://www.youtube.com/embed/' + ch.ytId + '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0'; }
+  }
+
+  _ltvDestroyTileHls(key);
+  showStatus('<span class="ltv-spin">&#9850;</span> Connecting\u2026');
+
+  if (ch.hlsUrl) {
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      if (frame)  { frame.style.display = 'none'; frame.src = ''; }
+      if (video)  { video.style.display = 'block'; }
+      if (status) status.className = 'ltv-tile-status ltv-hidden';
+      const hls = new Hls({ autoStartLoad: true, enableWorker: true, lowLatencyMode: true, maxBufferLength: 10 });
+      hls.loadSource(ch.hlsUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+      hls.on(Hls.Events.ERROR, (_, d) => {
+        if (d.fatal) { try { hls.destroy(); } catch(_) {} delete _ltvHlsMap[key]; showYt(); }
+      });
+      _ltvHlsMap[key] = hls;
+    } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
+      if (frame)  { frame.style.display = 'none'; frame.src = ''; }
+      if (video)  { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
+      if (status) status.className = 'ltv-tile-status ltv-hidden';
+    } else {
+      showYt();
+    }
+  } else {
+    showYt();
   }
 }
 
-function _lnTabRender() {
-  const feed = document.getElementById('ln-feed');
-  if (!feed) return;
-  // Block WORKFORCE/INSIDER/LAYOFF/UNKNOWN from Live News — those belong in Insider & Leaks only
-  const _LN_BLOCKED_CATS = new Set(['WORKFORCE','INSIDER','LAYOFF','LEAK','INSIDER_THREAT','BRAND_MONITORING','DISCARD','UNKNOWN']);
-  const _LN_BLOCKED_CAT_RE = /^(workforce|insider|layoff|leak|insider.?threat|brand.?monitoring|discard|unknown)$/i;
-  const items = (_lnmItems || []).filter(i => {
-    const cat = String(i.category || '').toUpperCase();
-    if (_LN_BLOCKED_CATS.has(cat)) return false;
-    if (_LN_BLOCKED_CAT_RE.test(String(i.category || ''))) return false;
-    return true;
-  });
-  const filtered = (_lnTabFilter === 'all')
-    ? items
-    : items.filter(i => (i.category || i.source_category || 'news') === _lnTabFilter);
-  if (!filtered.length) {
-    feed.innerHTML = '<div class="lnm-empty">' +
-      (items.length ? 'No items for this filter.' : 'Loading global intelligence feed…') + '</div>';
+/* ── Grid render ───────────────────────────────────────── */
+function _ltvRenderGrid() {
+  const grid = document.getElementById('ltv-grid');
+  if (!grid) return;
+  _ltvDestroyAllHls();
+
+  const visible = _ltvVisibleChannels();
+  const countEl = document.getElementById('ltv-count');
+  if (countEl) countEl.textContent = visible.length + ' channel' + (visible.length === 1 ? '' : 's') + ' active';
+
+  if (!visible.length) {
+    grid.innerHTML = '<div class="ltv-empty"><div style="font-size:2.5em">&#128250;</div><div>No channels selected</div><div style="font-size:.75rem;color:#3c4043">Open <strong>Customize</strong> to add channels</div></div>';
     return;
   }
-  feed.innerHTML = filtered.map(function(item) {
-    const sc      = LNM_SOURCE_COLORS[item.source_key] || { bg: '#37474f', text: '#fff' };
-    const ageStr  = _lnmTimeAgo(item.published || item.time || '');
-    const summary = (item.summary || '').slice(0, 200);
-    return '<div class="lnm-item" style="border-left-color:' + sc.bg + '">' +
-      '<div class="lnm-src"><span class="lnm-src-badge" style="background:' + sc.bg +
-      ';color:' + sc.text + '">' +
-      (item.source_label || item.source_key || '?').toUpperCase().slice(0, 10) + '</span></div>' +
-      '<div class="lnm-body">' +
-      '<div class="lnm-title"><a href="' + (item.link || '#') +
-      '" target="_blank" rel="noopener noreferrer">' + (item.title || '') + '</a></div>' +
-      '<div class="lnm-meta">' + (item.region || '') + (ageStr ? ' &middot; ' + ageStr : '') + '</div>' +
-      (summary ? '<div class="lnm-summary">' + summary + '</div>' : '') +
-      '</div></div>';
-  }).join('');
+  grid.innerHTML = visible.map(ch =>
+    '<div class="ltv-tile" id="ltv-tile-' + ch.key + '" data-key="' + ch.key + '">' +
+      '<div class="ltv-tile-hdr">' +
+        '<span class="ltv-tile-label" style="color:' + (ch.color || '#e8eaed') + '">' + ch.label + '</span>' +
+        '<button class="ltv-tile-close" data-action="ltv-close-tile" data-key="' + ch.key + '" title="Remove">&#x2715;</button>' +
+      '</div>' +
+      '<div class="ltv-tile-status"><span class="ltv-spin">&#9850;</span> Connecting\u2026</div>' +
+      '<video autoplay muted playsinline style="display:none;width:100%;height:100%;object-fit:cover;background:#000"></video>' +
+      '<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;width:100%;height:100%;border:none;background:#000"></iframe>' +
+      '<div class="ltv-tile-expand">&#10532; expand</div>' +
+    '</div>'
+  ).join('');
+
+  // Stagger tile loads to avoid CDN hammering
+  visible.forEach((ch, i) => setTimeout(() => _ltvLoadTile(ch.key), i * 400));
 }
 
-async function _lnTabFetch() {
-  try {
-    const res  = await fetchWithTimeout(WORKER_URL + '/api/live-news',
-      { headers: { 'X-User-Id': OSINFO_USER_ID } }, 15000);
-    const data = await res.json().catch(() => ({}));
-    if (data.ok && Array.isArray(data.items)) {
-      _lnmItems = data.items;                           // update shared state
-      _lnTabRender();
-      const ts = document.getElementById('ln-ts');
-      if (ts) ts.textContent = 'Updated ' + new Date().toLocaleTimeString();
-    } else {
-      _lnTabRender();
-    }
-  } catch (_) {
-    _lnTabRender();
-  }
-}
-
-function _lnTabSwitchTab(tab) {
-  const container = document.getElementById('view-live-news');
-  if (!container) return;
-  container.querySelectorAll('.lnm-tab-btn').forEach(
-    b => b.classList.toggle('active', b.dataset.tab === tab));
-  const pills   = document.getElementById('ln-src-pills');
-  const feed    = document.getElementById('ln-feed');
-  const tvPanel = document.getElementById('ln-tv-panel');
-  const footer  = document.getElementById('ln-tab-footer');
-  if (pills)  pills.style.display  = (tab === 'headlines') ? 'flex' : 'none';
-  if (feed)   feed.style.display   = (tab === 'headlines') ? ''     : 'none';
-  if (footer) footer.style.display = (tab === 'headlines') ? ''     : 'none';
-  if (tvPanel) {
-    if (tab === 'tv') {
-      tvPanel.classList.add('visible');
-      const frame = document.getElementById('ln-tv-frame');
-      const video = document.getElementById('ln-tv-video');
-      const noStream = !_lnTabHls &&
-        (!frame || !frame.getAttribute('src')) &&
-        (!video || !video.getAttribute('src'));
-      if (noStream) setTimeout(() => _lnTabSwitchChannel(_lnTabActiveChannel), 80);
-    } else {
-      tvPanel.classList.remove('visible');
-    }
-  }
-}
-
-function _lnTabSwitchChannel(key) {
-  _lnTabActiveChannel = key;
-  const ch = LNM_TV_CHANNELS.find(c => c.key === key);
+/* ── Expand / collapse ─────────────────────────────────── */
+function _ltvExpandChannel(key) {
+  const ch = _ltvAllChannels().find(c => c.key === key);
   if (!ch) return;
-  /* Update channel button highlight */
-  const container = document.getElementById('view-live-news');
-  if (container) container.querySelectorAll('.lnm-ch-btn')
-    .forEach(b => b.classList.toggle('active', b.dataset.ch === key));
-  /* Destroy previous HLS instance */
-  if (_lnTabHls) { try { _lnTabHls.destroy(); } catch (_) {} _lnTabHls = null; }
-  const video = document.getElementById('ln-tv-video');
-  const frame = document.getElementById('ln-tv-frame');
-  const badge = document.getElementById('ln-stream-badge');
-  function _noSig() {
-    if (video) { video.style.display = 'none'; video.src = ''; }
-    if (frame) {
-      frame.style.display = 'block'; frame.src = '';
-      frame.srcdoc = '<html><body style="margin:0;background:#090909;display:flex;' +
-        'flex-direction:column;align-items:center;justify-content:center;height:100vh;' +
-        'color:#555;font-family:sans-serif;text-align:center;gap:10px">' +
-        '<div style="font-size:3em;opacity:.35">&#128225;</div>' +
-        '<div style="font-size:15px;color:#777;font-weight:600">' + ch.label + '</div>' +
-        '<div style="font-size:12px;color:#555">Direct stream unavailable</div></body></html>';
-    }
-    if (badge) { badge.textContent = '\u26a1 No Signal'; badge.style.background = '#1a1a1a'; badge.style.color = '#666'; }
+  _ltvDestroyAllHls();
+
+  const expEl   = document.getElementById('ltv-expanded');
+  const titleEl = document.getElementById('ltv-exp-title');
+  const bodyEl  = document.getElementById('ltv-exp-body');
+  const badgeEl = document.getElementById('ltv-exp-badge');
+  const grid    = document.getElementById('ltv-grid');
+  if (!expEl || !bodyEl) return;
+
+  if (titleEl) titleEl.textContent = ch.label;
+  expEl.style.display = 'flex';
+  if (grid) grid.style.display = 'none';
+  bodyEl.innerHTML = '';
+
+  const video = document.createElement('video');
+  video.autoplay = true; video.muted = false; video.controls = true; video.playsInline = true;
+  video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;';
+  const frame = document.createElement('iframe');
+  frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+  frame.allowFullscreen = true;
+  frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;background:#000;display:none;';
+  bodyEl.appendChild(video);
+  bodyEl.appendChild(frame);
+
+  function setBadge(txt, bg, fg) {
+    if (badgeEl) { badgeEl.textContent = txt; badgeEl.style.background = bg; badgeEl.style.color = fg; }
+  }
+  function showYt() {
+    if (!ch.ytId) { setBadge('\u26a1 No Signal', '#1a1a1a', '#666'); return; }
+    frame.src = 'https://www.youtube.com/embed/' + ch.ytId + '?autoplay=1&controls=1&modestbranding=1&rel=0';
+    frame.style.display = 'block';
+    setBadge('\u25b6 YouTube', '#4a1a1a', '#ef9a9a');
   }
   if (ch.hlsUrl) {
     if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-      if (frame) { frame.style.display = 'none'; frame.src = ''; }
-      if (video) { video.style.display = 'block'; }
-      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
-      _lnTabHls = new Hls({ autoStartLoad: true, enableWorker: true, lowLatencyMode: true });
-      _lnTabHls.loadSource(ch.hlsUrl);
-      _lnTabHls.attachMedia(video);
-      _lnTabHls.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(() => {}); });
-      _lnTabHls.on(Hls.Events.ERROR, (_, data) => {
-        if (data.fatal) { try { _lnTabHls.destroy(); } catch (_) {} _lnTabHls = null; _noSig(); }
+      video.style.display = 'block';
+      setBadge('\ud83d\udce1 Direct Stream', '#1b5e20', '#81c995');
+      _ltvExpHls = new Hls({ autoStartLoad: true, enableWorker: true, lowLatencyMode: true });
+      _ltvExpHls.loadSource(ch.hlsUrl);
+      _ltvExpHls.attachMedia(video);
+      _ltvExpHls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+      _ltvExpHls.on(Hls.Events.ERROR, (_, d) => {
+        if (d.fatal) { try { _ltvExpHls.destroy(); } catch(_) {} _ltvExpHls = null; showYt(); }
       });
-    } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
-      if (frame) { frame.style.display = 'none'; frame.src = ''; }
-      if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
-      if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
-    } else {
-      _noSig();
-    }
-  } else {
-    _noSig();
-  }
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.style.display = 'block';
+      video.src = ch.hlsUrl; video.play().catch(() => {});
+      setBadge('\ud83d\udce1 Direct Stream', '#1b5e20', '#81c995');
+    } else { showYt(); }
+  } else { showYt(); }
 }
+
+function _ltvCollapseExpanded() {
+  if (_ltvExpHls) { try { _ltvExpHls.destroy(); } catch(_) {} _ltvExpHls = null; }
+  const bodyEl = document.getElementById('ltv-exp-body');
+  if (bodyEl) bodyEl.innerHTML = '';
+  const expEl  = document.getElementById('ltv-expanded');
+  if (expEl) expEl.style.display = 'none';
+  const grid = document.getElementById('ltv-grid');
+  if (grid) grid.style.display = '';
+  _ltvRenderGrid();
+}
+
+/* ── Drawer ────────────────────────────────────────────── */
+function _ltvOpenDrawer() {
+  const d = document.getElementById('ltv-drawer');
+  if (d) { d.style.display = 'flex'; _ltvRenderDrawer(); }
+}
+function _ltvCloseDrawer() {
+  const d = document.getElementById('ltv-drawer');
+  if (d) d.style.display = 'none';
+}
+function _ltvRenderDrawer() {
+  const el = document.getElementById('ltv-ch-toggles');
+  if (!el) return;
+  const all = _ltvAllChannels();
+  el.innerHTML = all.map(ch => {
+    const on  = (_ltvPrefs.visible || []).includes(ch.key);
+    const tag = ch._custom ? 'custom' : (ch.hlsUrl ? 'direct' : 'youtube');
+    return '<div class="ltv-toggle-row">' +
+      '<span class="ltv-toggle-dot" style="background:' + (ch.color || '#607d8b') + '"></span>' +
+      '<span class="ltv-toggle-name">' + ch.label + '</span>' +
+      '<span class="ltv-toggle-tag">' + tag + '</span>' +
+      (ch._custom ? '<button class="ltv-del-btn" data-action="ltv-del-custom" data-key="' + ch.key + '" title="Remove">&#128465;</button>' : '') +
+      '<label class="ltv-sw"><input type="checkbox" ' + (on ? 'checked' : '') + ' data-action="ltv-toggle-ch" data-key="' + ch.key + '"><span class="ltv-sw-track"></span></label>' +
+    '</div>';
+  }).join('');
+}
+
+/* ── Init ──────────────────────────────────────────────── */
+function _ltvInit() {
+  if (_ltvInitDone) return;
+  _ltvInitDone = true;
+  _ltvLoadPrefs();
+  _ltvRenderGrid();
+}
+
+// Shim: keep _lnTabInit pointing at LTV init so tab-switch code still works
+function _lnTabInit() { _ltvInit(); }
+async function _lnTabFetch() { /* headlines removed from Live TV page — no-op for tab */ }
 
 /* ============================================================
    PHASE 2 — GDELT OSINT INTEL PANEL
@@ -5516,16 +5612,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      // Live News Tab actions (view panel)
-      if (action === 'ln-refresh-now') { _lnTabFetch(); return; }
-      if (action === 'ln-tab')         { _lnTabSwitchTab(t.dataset.tab || 'headlines'); return; }
-      if (action === 'ln-channel')     { _lnTabSwitchChannel(t.dataset.ch || _lnTabActiveChannel); return; }
-      if (action === 'ln-filter') {
-        _lnTabFilter = t.dataset.src || 'all';
-        const cont = document.getElementById('view-live-news');
-        if (cont) cont.querySelectorAll('.lnm-pill')
-          .forEach(p => p.classList.toggle('active', p.dataset.src === _lnTabFilter));
-        _lnTabRender();
+      // Live TV Wall actions
+      if (action === 'ltv-open-drawer')  { _ltvOpenDrawer(); return; }
+      if (action === 'ltv-close-drawer') { _ltvCloseDrawer(); return; }
+      if (action === 'ltv-collapse')     { _ltvCollapseExpanded(); return; }
+      if (action === 'ltv-close-tile') {
+        const key = t.dataset.key;
+        _ltvDestroyTileHls(key);
+        _ltvPrefs.visible = (_ltvPrefs.visible || []).filter(k => k !== key);
+        _ltvSavePrefs();
+        _ltvRenderGrid();
+        _ltvRenderDrawer();
+        return;
+      }
+      if (action === 'ltv-toggle-ch') {
+        const key = t.dataset.key;
+        const on  = t.checked;
+        if (on && !(_ltvPrefs.visible || []).includes(key)) _ltvPrefs.visible.push(key);
+        else if (!on) _ltvPrefs.visible = (_ltvPrefs.visible || []).filter(k => k !== key);
+        _ltvSavePrefs();
+        _ltvRenderGrid();
+        return;
+      }
+      if (action === 'ltv-del-custom') {
+        const key = t.dataset.key;
+        _ltvPrefs.custom  = (_ltvPrefs.custom  || []).filter(c => c.key !== key);
+        _ltvPrefs.visible = (_ltvPrefs.visible || []).filter(k => k !== key);
+        _ltvSavePrefs();
+        _ltvRenderDrawer();
+        _ltvRenderGrid();
+        return;
+      }
+      if (action === 'ltv-add-custom') {
+        const label = (document.getElementById('ltv-cust-label') || {}).value || '';
+        const url   = ((document.getElementById('ltv-cust-url')   || {}).value || '').trim();
+        if (!label.trim() || !url) return;
+        const key   = 'custom_' + Date.now();
+        const isYt  = /^[A-Za-z0-9_-]{11}$/.test(url);
+        const ch    = { key, label: label.trim(), color: '#607d8b',
+                        hlsUrl: isYt ? null : url,
+                        ytId:   isYt ? url  : null };
+        _ltvPrefs.custom.push(ch);
+        _ltvPrefs.visible.push(key);
+        _ltvSavePrefs();
+        const li = document.getElementById('ltv-cust-label');
+        const ui = document.getElementById('ltv-cust-url');
+        if (li) li.value = ''; if (ui) ui.value = '';
+        _ltvRenderDrawer();
+        _ltvRenderGrid();
+        return;
+      }
+      if (action === 'ltv-reset-default') {
+        _ltvPrefs = { visible: [...LTV_DEFAULT_VISIBLE], custom: [] };
+        _ltvSavePrefs();
+        _ltvCloseDrawer();
+        _ltvRenderGrid();
         return;
       }
 
@@ -5639,6 +5780,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       const href = card.getAttribute('data-link');
       if (!href) return;
       try { window.open(href, '_blank', 'noopener'); } catch(e) {}
+    });
+
+    // LTV tile body click → expand (not triggered by close button — that has data-action)
+    document.addEventListener('click', (e) => {
+      const tileEl = e.target.closest ? e.target.closest('.ltv-tile') : null;
+      if (!tileEl || !tileEl.dataset.key) return;
+      if (e.target.closest('[data-action]')) return;
+      _ltvExpandChannel(tileEl.dataset.key);
     });
 
     // inputs wiring
