@@ -2825,6 +2825,11 @@
       <button id="airport-refresh-btn" class="airport-refresh-btn" aria-label="Refresh disruption data">
         <i class="fas fa-sync" aria-hidden="true"></i> Refresh
       </button>
+      <a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener noreferrer"
+        class="airport-refresh-btn" style="text-decoration:none;"
+        title="Open FR24 global airport disruption index map">
+        <i class="fas fa-external-link-alt" aria-hidden="true"></i> FR24 Disruption Map
+      </a>
       <span id="airport-updated-at" class="airport-ts"></span>
     </div>
 
@@ -5146,37 +5151,40 @@
       JNB:'FAJS', LOS:'DNMM', ACC:'DGAA', DKR:'GOOY', CMN:'GMMN',
     };
 
-    /* Derive live status from OpenSky departure count */
-    function _oskyStatus(count) {
-      if (count === null) return { cls:'os-live-checking', label:'Checking…' };
-      if (count === 0)    return { cls:'os-live-closed',  label:'0 dep/2h — CLOSED?' };
-      if (count < 4)      return { cls:'os-live-reduced', label: count + ' dep/2h — REDUCED' };
-      return               { cls:'os-live-open',   label: count + ' dep/2h — ACTIVE' };
+    /* Map disruption index (0-5) to badge class + label */
+    function _idxStatus(idx) {
+      if (idx === null || idx === undefined)
+        return { cls:'os-live-checking', label:'—' };
+      if (idx >= 3.5) return { cls:'os-live-closed',   label:'Index ' + idx.toFixed(1) + ' — MAJOR' };
+      if (idx >= 2.0) return { cls:'os-live-reduced',  label:'Index ' + idx.toFixed(1) + ' — MINOR' };
+      return                  { cls:'os-live-open',    label:'Index ' + idx.toFixed(1) + ' — NORMAL' };
     }
 
-    /* Fetch OpenSky departures for an airport in last 2h, update badge */
+    /* Call Worker /api/airport-live proxy (FR24 → OpenSky fallback, no CORS) */
     function checkLiveStatus(iata, badgeId) {
-      var icao = IATA_TO_ICAO[iata];
-      if (!icao) return;
       var badgeEl = document.getElementById(badgeId);
       if (!badgeEl) return;
-      var st = _oskyStatus(null);
-      badgeEl.className = 'os-live-badge ' + st.cls;
-      badgeEl.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:0.6rem"></i> Live…';
-      var end   = Math.floor(Date.now() / 1000);
-      var begin = end - 7200; // 2h window
-      var url   = 'https://opensky-network.org/api/flights/departure?airport=' + icao + '&begin=' + begin + '&end=' + end;
-      fetch(url, { signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined })
+      badgeEl.className = 'os-live-badge os-live-checking';
+      badgeEl.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:0.6rem"></i>';
+      fetch(WORKER_URL + '/api/airport-live?iata=' + encodeURIComponent(iata), { signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined })
         .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
         .then(function(data){
-          var count = Array.isArray(data) ? data.length : 0;
-          var s = _oskyStatus(count);
+          var idx = (data.disruption_index !== undefined && data.disruption_index !== null)
+            ? parseFloat(data.disruption_index) : null;
+          /* For OpenSky source: derive index from departure count */
+          if (data.source === 'OpenSky' && data.departures_2h !== undefined) {
+            var c = data.departures_2h;
+            idx = c === 0 ? 4.5 : c < 4 ? 3.5 : c < 10 ? 1.5 : 0.5;
+          }
+          var s = _idxStatus(idx);
           badgeEl.className = 'os-live-badge ' + s.cls;
-          badgeEl.textContent = s.label;
+          /* Show source tag */
+          var src = data.source === 'FR24' ? 'FR24' : (data.source === 'OpenSky' ? 'ADS-B' : '');
+          badgeEl.textContent = s.label + (src ? ' · ' + src : '');
         })
         .catch(function(){
           badgeEl.className = 'os-live-badge os-live-checking';
-          badgeEl.textContent = 'No data';
+          badgeEl.innerHTML = '<a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener" style="color:inherit;">FR24 map ↗</a>';
         });
     }
 
@@ -5197,10 +5205,10 @@
       var name      = (d.airport_name || '').slice(0, 36);
       var country   = d.country || '';
 
-      /* Smart link: FlightAware shows real delays/cancellations; fall back to FAA NAS */
+      /* Smart link: FR24 airport page → FR24 data page fallback → FAA NAS */
       var link = isFaa
         ? 'https://nasstatus.faa.gov/'
-        : (d.iata ? 'https://www.flightaware.com/live/airport/' + d.iata.toUpperCase() : (d.link || ''));
+        : (d.iata ? 'https://www.flightradar24.com/data/airports/' + d.iata.toLowerCase() : (d.link || 'https://www.flightradar24.com/data/airport-disruption'));
 
       /* Source timestamp: "Active since Month YYYY" for known long-running disruptions */
       var timeStr;
@@ -5223,7 +5231,7 @@
           + '<button class="os-chk-btn" onclick="event.stopPropagation();checkLiveStatus(\'' + escHtml(d.iata) + '\',\'' + badgeId + '\')">Check live</button>'
         : '';
 
-      return '<div class="live-row' + rowClass + '" data-link="' + escHtml(link) + '" role="row" tabindex="0" style="cursor:pointer;" title="Click to open FlightAware live airport status">'
+      return '<div class="live-row' + rowClass + '" data-link="' + escHtml(link) + '" role="row" tabindex="0" style="cursor:pointer;" title="Click to open FR24 airport live page">'
         + '<span class="lr-rank">' + rank + '</span>'
         + '<span class="lr-score">'
         +   '<span class="score-val" style="color:' + sColor + '">' + score.toFixed(1) + '</span>'
