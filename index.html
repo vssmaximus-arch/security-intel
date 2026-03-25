@@ -2399,8 +2399,8 @@
   body.light-mode .cw-picker-row-label { color:#202124; }
   .cw-picker-row-desc { font-size:.65rem; color:#5f6368; }
   /* Toggle switch */
-  .cw-toggle { position:relative; display:inline-block; width:36px; height:20px; }
-  .cw-toggle input { opacity:0; width:0; height:0; }
+  .cw-toggle { position:relative; display:inline-block; width:36px; height:20px; flex-shrink:0; }
+  .cw-toggle input { position:absolute; opacity:0; width:0; height:0; margin:0; padding:0; }
   .cw-toggle-slider {
     position:absolute; cursor:pointer; inset:0; background:#3a3d45;
     border-radius:20px; transition:.2s;
@@ -5166,8 +5166,9 @@
         scrollWheelZoom: true, zoomControl: true, attributionControl: false,
         maxBounds: apBounds, maxBoundsViscosity: 1.0, worldCopyJump: false,
       });
+      /* Voyager in light mode = colourful FR24-style streets/terrain */
       var tileUrl = isLight
-        ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
         : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
       L.tileLayer(tileUrl, { subdomains: 'abcd', maxZoom: 19, noWrap: true, bounds: apBounds }).addTo(airportMap);
       airportMarkerLayer = L.layerGroup().addTo(airportMap);
@@ -5521,7 +5522,7 @@
     var apGrid      = null;
     var apGridReady = false;
 
-    var AP_LAYOUT_KEY = 'ap_grid_layout_v3';
+    var AP_LAYOUT_KEY = 'ap_grid_layout_v4';
     var AP_DEFAULT_LAYOUT = [
       { id:'ap-disruptions-widget',   x:0,  y:0,  w:8,  h:16 },
       { id:'ap-tsc-widget',           x:8,  y:0,  w:4,  h:11 },
@@ -5529,10 +5530,10 @@
       { id:'ap-cancellations-widget', x:0,  y:16, w:12, h:13 },
     ];
     var AP_WIDGETS_META = [
-      { id:'ap-disruptions-widget',   label:'Flight Disruptions',        icon:'fa-plane-departure' },
-      { id:'ap-cancellations-widget', label:'Airline Cancellations',     icon:'fa-ban'             },
-      { id:'ap-tsc-widget',           label:'Travel Safety Check',       icon:'fa-passport'        },
-      { id:'ap-flightwatch-widget',   label:'Flight Watchlist',          icon:'fa-binoculars'      },
+      { id:'ap-disruptions-widget',   label:'Flight Disruptions',    icon:'fa-plane-departure', desc:'Live disruption map + SIGMETs' },
+      { id:'ap-cancellations-widget', label:'Airline Cancellations', icon:'fa-ban',             desc:'FR24-style ranked airport table' },
+      { id:'ap-tsc-widget',           label:'Travel Safety Check',   icon:'fa-passport',        desc:'US & AU government advisories' },
+      { id:'ap-flightwatch-widget',   label:'Flight Watchlist',      icon:'fa-binoculars',      desc:'Track flights by callsign / ICAO24' },
     ];
     var apWidgetPrefs = {};
     AP_WIDGETS_META.forEach(function(w){ apWidgetPrefs[w.id] = true; });
@@ -5560,33 +5561,41 @@
     function renderApPicker() {
       var list = document.getElementById('ap-picker-rows');
       if (!list) return;
+      /* Build rows matching CW picker structure exactly */
       list.innerHTML = AP_WIDGETS_META.map(function(m){
         var on  = apWidgetPrefs[m.id] !== false;
-        var chk = on ? ' checked' : '';
-        return '<div class=”cw-picker-row” data-ap-widget=”' + m.id + '”>'
-          + '<span class=”cw-picker-row-label”>'
-          +   '<i class=”fas ' + m.icon + '” style=”width:16px;text-align:center;opacity:.7;”></i> '
-          +   m.label
-          + '</span>'
-          + '<label class=”cw-toggle” title=”' + (on ? 'Hide widget' : 'Show widget') + '”>'
-          +   '<input type=”checkbox”' + chk + ' data-ap-chk=”' + m.id + '”>'
+        var chk = on ? 'checked' : '';
+        return '<div class=”cw-picker-row”>'
+          + '<div>'
+          +   '<div class=”cw-picker-row-label”><i class=”fas ' + m.icon + '” style=”width:14px;color:#9aa0a6;”></i> ' + m.label + '</div>'
+          +   '<div class=”cw-picker-row-desc”>' + m.desc + '</div>'
+          + '</div>'
+          + '<label class=”cw-toggle” title=”' + (on ? 'Hide' : 'Show') + ' ' + m.label + '”>'
+          +   '<input type=”checkbox” data-ap-chk=”' + m.id + '” ' + chk + '>'
           +   '<span class=”cw-toggle-slider”></span>'
           + '</label>'
           + '</div>';
       }).join('');
+      /* Event delegation — same pattern as CW picker */
+      list.addEventListener('change', function(e) {
+        var cb = e.target.closest('input[data-ap-chk]');
+        if (!cb) return;
+        var wid = cb.getAttribute('data-ap-chk');
+        var on  = cb.checked;
+        apWidgetPrefs[wid] = on;
+        var gsItem = document.querySelector('#ap-grid .grid-stack-item[gs-id=”'+wid+'”]');
+        if (gsItem && apGrid) {
+          if (on) apGrid.makeWidget(gsItem);
+          else    apGrid.removeWidget(gsItem, false);
+        }
+        saveApLayout();
+      }, { once: false });
+    }
 
-      list.querySelectorAll('input[data-ap-chk]').forEach(function(chkEl){
-        chkEl.addEventListener('change', function(){
-          var wid = this.getAttribute('data-ap-chk');
-          var on  = this.checked;
-          apWidgetPrefs[wid] = on;
-          var gsItem = document.querySelector('#ap-grid .grid-stack-item[gs-id=”'+wid+'”]');
-          if (gsItem && apGrid) {
-            if (on) { apGrid.makeWidget(gsItem); }
-            else    { apGrid.removeWidget(gsItem, false); }
-          }
-          saveApLayout();
-        });
+    function updateApPickerToggles() {
+      document.querySelectorAll('#ap-picker-rows input[data-ap-chk]').forEach(function(cb) {
+        var wid = cb.getAttribute('data-ap-chk');
+        if (wid) cb.checked = apWidgetPrefs[wid] !== false;
       });
     }
 
@@ -5621,7 +5630,7 @@
       if (apCustBtn && apOv) {
         apCustBtn.addEventListener('click', function(e){
           e.stopPropagation();
-          renderApPicker();
+          updateApPickerToggles();   /* just sync checked states — rows already built */
           apOv.classList.add('open');
         });
       }
@@ -5653,6 +5662,19 @@
           if (e.target === apOv) apOv.classList.remove('open');
         });
       }
+      /* Travel Safety Check — reset select to placeholder when clicking outside the widget */
+      document.addEventListener('click', function(e) {
+        var tscWidget = document.querySelector('#ap-grid .grid-stack-item[gs-id="ap-tsc-widget"]');
+        if (!tscWidget || tscWidget.contains(e.target)) return;
+        var sel = document.getElementById('countrySelect');
+        if (sel && sel.selectedIndex > 0) {
+          sel.selectedIndex = 0;
+          var adv = document.getElementById('travel-advisories');
+          var nws = document.getElementById('travel-news');
+          if (adv) adv.innerHTML = '';
+          if (nws) nws.innerHTML = '';
+        }
+      });
       /* Widget close (✕) buttons — hide widget + update picker state */
       document.querySelectorAll('#ap-grid [data-ap-close]').forEach(function(btn){
         btn.addEventListener('click', function(e){
@@ -5714,10 +5736,78 @@
         renderAW();
       };
 
+      /* Live aircraft position markers keyed by id */
+      var _awMarkers = {};
+
+      /* Plane SVG icon for Leaflet */
+      function _awPlaneIcon(color) {
+        color = color || '#fbbc04';
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">'
+          + '<path fill="' + color + '" stroke="#000" stroke-width="0.5" d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>'
+          + '</svg>';
+        return L.divIcon({
+          className: '', iconAnchor: [14,14], iconSize: [28,28],
+          html: svg,
+        });
+      }
+
       window._awTrack = function(id, type) {
-        if (typeof trackFlight === 'function') {
-          trackFlight(id, 'aw-res-' + id, type || 'flight');
+        var resEl = document.getElementById('aw-res-' + id);
+        if (resEl) resEl.innerHTML = '<span style="color:#9aa0a6;font-size:0.73rem;"><i class="fas fa-spinner fa-spin"></i> Fetching live position…</span>';
+
+        /* Try callsign first, then ICAO24 */
+        var url;
+        var isIcao = /^[0-9a-f]{6}$/i.test(id);
+        if (isIcao) {
+          url = 'https://opensky-network.org/api/states/all?icao24=' + encodeURIComponent(id.toLowerCase());
+        } else {
+          url = 'https://opensky-network.org/api/states/all?callsign=' + encodeURIComponent(id.toUpperCase().padEnd(8,' '));
         }
+
+        fetch(url, { headers: { 'Accept':'application/json' }, signal: AbortSignal.timeout(10000) })
+          .then(function(r){ return r.json(); })
+          .then(function(d) {
+            var states = (d && Array.isArray(d.states)) ? d.states : [];
+            if (!states.length) {
+              if (resEl) resEl.innerHTML = '<span style="color:#f28b82;font-size:0.73rem;">⚠ Not airborne or not in OpenSky coverage</span>';
+              return;
+            }
+            var s   = states[0];
+            var lat = s[6], lon = s[5], alt = s[7], spd = s[9], hdg = s[10];
+            var cs  = (s[1] || id).trim();
+            var dep = s[2] || '?';
+            if (lat == null || lon == null) {
+              if (resEl) resEl.innerHTML = '<span style="color:#f28b82;font-size:0.73rem;">⚠ Position unavailable</span>';
+              return;
+            }
+            /* Remove existing marker */
+            if (_awMarkers[id]) { try { airportMap.removeLayer(_awMarkers[id]); } catch(e){} }
+            /* Add yellow plane icon to airport map */
+            if (airportMap && typeof L !== 'undefined') {
+              var mk = L.marker([lat, lon], { icon: _awPlaneIcon(), title: cs })
+                .addTo(airportMap)
+                .bindPopup(
+                  '<b>' + cs + '</b><br>'
+                  + 'Lat: ' + lat.toFixed(4) + '  Lon: ' + lon.toFixed(4) + '<br>'
+                  + (alt  != null ? 'Alt: ' + Math.round(alt) + ' m<br>' : '')
+                  + (spd  != null ? 'Speed: ' + Math.round(spd) + ' m/s<br>' : '')
+                  + (hdg  != null ? 'Heading: ' + Math.round(hdg) + '°<br>' : '')
+                  + 'Origin: ' + dep,
+                  { maxWidth: 180 }
+                )
+                .openPopup();
+              _awMarkers[id] = mk;
+              airportMap.setView([lat, lon], Math.max(airportMap.getZoom(), 5), { animate: true });
+            }
+            if (resEl) resEl.innerHTML = '<span style="color:#81c995;font-size:0.73rem;">'
+              + '<i class="fas fa-map-marker-alt" style="color:#fbbc04;margin-right:3px;"></i>'
+              + cs + ' · ' + lat.toFixed(2) + '°, ' + lon.toFixed(2) + '°'
+              + (alt != null ? ' · ' + Math.round(alt/1000*3.28) + ' kft' : '')
+              + '</span>';
+          })
+          .catch(function() {
+            if (resEl) resEl.innerHTML = '<span style="color:#f28b82;font-size:0.73rem;">⚠ OpenSky unavailable — try again</span>';
+          });
       };
 
       function awAdd() {
