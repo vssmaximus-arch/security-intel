@@ -10,7 +10,7 @@
     style-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com 'unsafe-inline';
     font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
     img-src 'self' data: https://*.basemaps.cartocdn.com https://*.arcgisonline.com;
-    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com https://api.frankfurter.app;
+    connect-src 'self' https://osinfohub.vssmaximus.workers.dev https://raw.githubusercontent.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://server.arcgisonline.com https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://api.gdeltproject.org https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com https://api.frankfurter.app https://opensky-network.org;
     media-src blob: https://*.akamaized.net https://*.getaj.net https://*.fastly.net https://live.france24.com https://english-livebkali.cgtn.com https://linear417-gb-hls1-prd-ak.cdn.skycdp.com;
     worker-src blob:;
     frame-src https://www.vesselfinder.com https://www.youtube-nocookie.com https://www.youtube.com https://embed.windy.com https://*.windy.com https://webcams.travel https://*.webcams.travel https://www.earthcam.com https://*.earthcam.com https://www.skylinewebcams.com https://*.skylinewebcams.com https://www.insecam.org;
@@ -4162,6 +4162,34 @@
     .os-chk-btn { cursor:pointer; font-size:0.68rem; color:#8ab4f8; background:none; border:none;
       padding:0; margin-left:4px; text-decoration:underline; }
     body.light-mode .os-chk-btn { color:#1a73e8; }
+
+    /* Flight Watchlist cards — theme-aware */
+    .aw-card {
+      background:#1a1d24; border:1px solid #2a2d35; border-radius:8px;
+      padding:8px 10px; margin-bottom:6px;
+    }
+    body.light-mode .aw-card { background:#ffffff; border-color:#dadce0; }
+    .aw-card-id {
+      font-weight:700; font-family:monospace; font-size:0.85rem; color:#e8eaed;
+    }
+    body.light-mode .aw-card-id { color:#202124; }
+    .aw-card-remove {
+      background:none; border:none; color:#5f6368; cursor:pointer;
+      font-size:0.85rem; padding:2px 5px;
+    }
+    .aw-card-remove:hover { color:#ef5350; }
+    .aw-track-btn {
+      background:#1a3a5c; border:1px solid #1565c0; border-radius:5px;
+      padding:4px 12px; color:#4fc3f7; font-size:0.75rem; cursor:pointer;
+    }
+    body.light-mode .aw-track-btn {
+      background:#e8f0fe; border-color:#aecbfa; color:#1a73e8;
+    }
+    .aw-track-btn:hover { background:#1565c0; color:#fff; }
+    body.light-mode .aw-track-btn:hover { background:#1a73e8; color:#fff; }
+    .aw-res {
+      margin-top:4px; font-size:0.76rem;
+    }
   </style>
   <!-- Canonical external application script -->
   <script src="app.js"></script>
@@ -5522,7 +5550,7 @@
     var apGrid      = null;
     var apGridReady = false;
 
-    var AP_LAYOUT_KEY = 'ap_grid_layout_v4';
+    var AP_LAYOUT_KEY = 'ap_grid_layout_v5';
     var AP_DEFAULT_LAYOUT = [
       { id:'ap-disruptions-widget',   x:0,  y:0,  w:8,  h:16 },
       { id:'ap-tsc-widget',           x:8,  y:0,  w:4,  h:11 },
@@ -5608,6 +5636,8 @@
         resizable: { handles: 'se' },
         handle: '.widget-header-bar',
         animate: true,
+        float: false,          /* prevent widgets floating up over each other */
+        disableOneColumnMode: true,
       }, '#ap-grid');
       var raw = localStorage.getItem(AP_LAYOUT_KEY);
       if (raw) {
@@ -5715,17 +5745,16 @@
           var id   = typeof w === 'string' ? w : (w.id || '');
           var type = (typeof w === 'object' && w.type === 'vessel') ? 'vessel' : 'flight';
           var icon = type === 'vessel' ? 'fa-ship' : 'fa-plane';
-          return '<div style="background:#1a1d24;border:1px solid #2a2d35;border-radius:8px;padding:8px 10px;margin-bottom:6px;">'
+          return '<div class="aw-card">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-            + '<span style="font-weight:700;font-family:monospace;font-size:0.85rem;color:#e8eaed;">'
-            + '<i class="fas ' + icon + '" style="color:#4fc3f7;margin-right:5px;"></i>' + awEsc(id.toUpperCase()) + '</span>'
-            + '<button onclick="window._awRemove(\'' + awEsc(id) + '\')" style="background:none;border:none;color:#5f6368;cursor:pointer;font-size:0.85rem;padding:2px 5px;" title="Remove">'
-            + '<i class="fas fa-times"></i></button></div>'
+            +   '<span class="aw-card-id"><i class="fas ' + icon + '" style="color:#4fc3f7;margin-right:5px;"></i>' + awEsc(id.toUpperCase()) + '</span>'
+            +   '<button class="aw-card-remove" onclick="window._awRemove(\'' + awEsc(id) + '\')" title="Remove"><i class="fas fa-times"></i></button>'
+            + '</div>'
             + '<div style="margin-top:6px;">'
-            + '<button onclick="window._awTrack(\'' + awEsc(id) + '\',\'' + awEsc(type) + '\')" '
-            + 'style="background:#1a3a5c;border:1px solid #1565c0;border-radius:5px;padding:4px 12px;color:#4fc3f7;font-size:0.75rem;cursor:pointer;">'
-            + '<i class="fas fa-satellite-dish" style="margin-right:4px;"></i>Track Live</button></div>'
-            + '<div id="aw-res-' + awEsc(id) + '" style="margin-top:4px;font-size:0.76rem;"></div>'
+            +   '<button class="aw-track-btn" onclick="window._awTrack(\'' + awEsc(id) + '\',\'' + awEsc(type) + '\')">'
+            +   '<i class="fas fa-satellite-dish" style="margin-right:4px;"></i>Track Live</button>'
+            + '</div>'
+            + '<div class="aw-res" id="aw-res-' + awEsc(id) + '"></div>'
             + '</div>';
         }).join('');
       }
@@ -5764,8 +5793,10 @@
           url = 'https://opensky-network.org/api/states/all?callsign=' + encodeURIComponent(id.toUpperCase().padEnd(8,' '));
         }
 
-        fetch(url, { headers: { 'Accept':'application/json' }, signal: AbortSignal.timeout(10000) })
-          .then(function(r){ return r.json(); })
+        var _ctrl = new AbortController();
+        var _tid  = setTimeout(function(){ _ctrl.abort(); }, 12000);
+        fetch(url, { headers: { 'Accept':'application/json' }, signal: _ctrl.signal })
+          .then(function(r){ clearTimeout(_tid); return r.json(); })
           .then(function(d) {
             var states = (d && Array.isArray(d.states)) ? d.states : [];
             if (!states.length) {
@@ -6036,7 +6067,7 @@
         + '<button class="canc-tab' + (_cancActiveTab==='airline'?' canc-tab-active':'') + '" data-canc-tab="airline">'
         +   '<i class="fas fa-building"></i> By Airline</button>'
         + '<a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener noreferrer"'
-        +   ' class="ap-fr24-map-btn" title="Open FR24 global airport disruption index" style="margin-left:auto;">'
+        +   ' class="ap-fr24-map-btn" title="Open FR24 global airport disruption index">'
         +   '<i class="fas fa-external-link-alt"></i> FR24 Disruption Map</a>'
         + '</div>';
 
