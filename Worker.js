@@ -2896,16 +2896,20 @@ async function callClaude(env, messages, opts = {}) {
 
 /**
  * callGroqChat — POST to Groq chat completions (narrative, not JSON-only).
- * Respects opts.model; defaults to llama-3.1-8b-instant (14,400 RPD — high rate limit).
- * Pass opts.model = 'llama-3.3-70b-versatile' explicitly only when higher quality is needed
- * and rate limits are not a concern.
+ * Respects opts.model with smart Anthropic→Groq model mapping to isolate rate-limit buckets:
+ *   claude-sonnet-* → llama-3.3-70b-versatile  (quality narrative; 1k RPD, low-frequency endpoint)
+ *   claude-haiku-*  → llama-3.1-8b-instant      (fast/cheap; 14.4k RPD, higher-frequency endpoint)
+ *   (no claude prefix) → passed through as-is (already a Groq model name)
+ * IMPORTANT: classification uses callGroq() with llama-3.1-8b-instant directly.
+ * Briefings use claude-sonnet → llama-3.3-70b-versatile to avoid competing with classification.
  */
 async function callGroqChat(env, messages, opts = {}) {
   if (!env.GROQ_API_KEY) return { text: null, error: 'no_groq_key' };
   const maxTokens = opts.max_tokens || 1024;
-  // Translate Anthropic model names → Groq equivalents; default to fast/high-rate-limit model
+  // Map Anthropic model names → appropriate Groq equivalents
   let groqModel = opts.model || 'llama-3.1-8b-instant';
-  if (String(groqModel).startsWith('claude-')) groqModel = 'llama-3.1-8b-instant';
+  if (String(groqModel).startsWith('claude-haiku')) groqModel = 'llama-3.1-8b-instant';
+  else if (String(groqModel).startsWith('claude-')) groqModel = 'llama-3.3-70b-versatile';
   const body = {
     model: groqModel,
     temperature: 0.3,
@@ -9244,6 +9248,12 @@ async function moduleScheduled(evt, env, ctx) {
             await kvPut(env, 'exec_report_v2', { ts: Date.now(), data: _erc }, { expirationTtl: 7200 });
             debug('scheduled: exec_report_v2 cached', _erc.incident_count + ' incidents');
           } catch(_e) { debug('scheduled: exec report failed', _e?.message || _e); }
+          // Pre-generate AI Shift Briefing (8h global) so users get instant load
+          try {
+            const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
+            await handleApiAiBriefing(env, _briefReq);
+            debug('scheduled: briefing_v1_8_global cached');
+          } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
     } else {
@@ -9255,6 +9265,11 @@ async function moduleScheduled(evt, env, ctx) {
         const _erc = await generateExecReportCache(env);
         await kvPut(env, 'exec_report_v2', { ts: Date.now(), data: _erc }, { expirationTtl: 7200 });
       } catch(_e) { debug('scheduled: exec report failed', _e?.message || _e); }
+      try {
+        const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
+        await handleApiAiBriefing(env, _briefReq);
+        debug('scheduled: briefing_v1_8_global cached');
+      } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
     }
   } catch (e) {
     debug("scheduled wrapper err", e?.message || e);
