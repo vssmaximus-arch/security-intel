@@ -6074,7 +6074,8 @@ async function handleApiAviationCancellations(env) {
   }
 
   // Rate budget: 8 airports × 2 statuses × 2 refreshes/day (12h TTL) = 32/day = 960/month ✓ (Airlabs free = 1,000/month)
-  const CACHE_KEY    = 'aviation_cancellations_v6';
+  // OpenSky Network (free, unlimited) adds 15 more airports using departure-activity scoring
+  const CACHE_KEY    = 'aviation_cancellations_v7';
   const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours — refreshes twice daily
 
   // Airport metadata for ranking table
@@ -6134,9 +6135,35 @@ async function handleApiAviationCancellations(env) {
     FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
   };
 
-  // 4 hub airports × 2 statuses = 8 calls per refresh × 2 refreshes/day = 16/day = 480/month ✓
-  // 8 airports: AMER (ATL, JFK), EMEA (LHR, CDG, FRA), MENA (DXB), APJC (SIN, SYD)
+  // 8 Airlabs hub airports (cancel+delay data): AMER (ATL, JFK), EMEA (LHR, CDG, FRA), MENA (DXB), APJC (SIN, SYD)
   const HUB_AIRPORTS = ['ATL', 'JFK', 'LHR', 'CDG', 'FRA', 'DXB', 'SIN', 'SYD'];
+
+  // 15 OpenSky airports (activity-based scoring via departure counts — free, unlimited)
+  // ICAO code + expected departures per 6 hours (rough baseline for activity-ratio scoring)
+  const OPENSKY_AIRPORTS = [
+    { iata:'LAX', icao:'KLAX', base6h:200 }, { iata:'ORD', icao:'KORD', base6h:250 },
+    { iata:'MIA', icao:'KMIA', base6h:150 }, { iata:'BOS', icao:'KBOS', base6h:140 },
+    { iata:'AMS', icao:'EHAM', base6h:200 }, { iata:'IST', icao:'LTFM', base6h:250 },
+    { iata:'MUC', icao:'EDDM', base6h:160 }, { iata:'MAD', icao:'LEMD', base6h:170 },
+    { iata:'FCO', icao:'LIRF', base6h:150 }, { iata:'NRT', icao:'RJAA', base6h:180 },
+    { iata:'HKG', icao:'VHHH', base6h:190 }, { iata:'PEK', icao:'ZBAA', base6h:220 },
+    { iata:'BKK', icao:'VTBS', base6h:160 }, { iata:'MEX', icao:'MMMX', base6h:160 },
+    { iata:'JNB', icao:'FAOR', base6h:140 },
+  ];
+
+  // Add OpenSky names/countries to shared maps (for any not already in AIRPORT_NAMES)
+  const OPENSKY_NAMES = {
+    LAX:'Los Angeles International', ORD:"O'Hare Chicago", MIA:'Miami International',
+    BOS:'Boston Logan', AMS:'Amsterdam Schiphol', IST:'Istanbul Airport',
+    MUC:'Munich Airport', MAD:'Madrid Barajas', FCO:'Rome Fiumicino',
+    NRT:'Tokyo Narita', HKG:'Hong Kong International', PEK:'Beijing Capital',
+    BKK:'Bangkok Suvarnabhumi', MEX:'Mexico City International', JNB:'Johannesburg OR Tambo',
+  };
+  const OPENSKY_COUNTRIES = {
+    LAX:'US', ORD:'US', MIA:'US', BOS:'US', AMS:'NL', IST:'TR',
+    MUC:'DE', MAD:'ES', FCO:'IT', NRT:'JP', HKG:'HK', PEK:'CN',
+    BKK:'TH', MEX:'MX', JNB:'ZA',
+  };
 
   const fetchAirlabs = (iata, status) =>
     fetchWithTimeout(
@@ -6150,14 +6177,31 @@ async function handleApiAviationCancellations(env) {
       return (Array.isArray(d.response) ? d.response : []).map(f => ({ ...f, _status: status }));
     });
 
+  // OpenSky departure fetch — last 6 hours of actual departures (free, no auth required)
+  const fetchOpenSkyDeps = async (icao) => {
+    const endTs   = Math.floor(Date.now() / 1000);
+    const beginTs = endTs - 6 * 3600;
+    const url = `https://opensky-network.org/api/flights/departure?airport=${icao}&begin=${beginTs}&end=${endTs}`;
+    const r = await fetchWithTimeout(url,
+      { headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' } }, 12000);
+    if (!r.ok) throw new Error(`OpenSky HTTP ${r.status} for ${icao}`);
+    const d = await r.json();
+    return Array.isArray(d) ? d.length : 0;
+  };
+
   try {
-    // Parallel: cancelled + delayed for each hub
+    // ── Airlabs: cancelled + delayed for each hub airport ──────────────────
     const queries = [];
     for (const iata of HUB_AIRPORTS) {
       queries.push(fetchAirlabs(iata, 'cancelled'));
       queries.push(fetchAirlabs(iata, 'delayed'));
     }
-    const responses = await Promise.allSettled(queries);
+    // ── OpenSky: departure counts for extra airports (run in parallel) ─────
+    const osQueries = OPENSKY_AIRPORTS.map(ap => fetchOpenSkyDeps(ap.icao).catch(() => null));
+    const [responses, osResults] = await Promise.all([
+      Promise.allSettled(queries),
+      Promise.allSettled(osQueries),
+    ]);
 
     // Deduplicate & collect all flights with their status
     const seen = new Set();
@@ -6220,11 +6264,42 @@ async function handleApiAviationCancellations(env) {
       return a;
     }).sort((a, b) => b.disruption_score - a.disruption_score);
 
+    // ── OpenSky airport disruption scoring (activity-ratio based) ────────────
+    // Fewer departures vs baseline → higher disruption score
+    // Score formula: disruption = 5 × (1 − min(1, actual/baseline))
+    const osAirports = [];
+    OPENSKY_AIRPORTS.forEach((ap, idx) => {
+      const res = osResults[idx];
+      if (res.status !== 'fulfilled' || res.value === null) return; // skip failed
+      const depCount = typeof res.value === 'number' ? res.value : 0;
+      const ratio = Math.min(1, depCount / ap.base6h);
+      const score = parseFloat(Math.max(0, 5 * (1 - ratio)).toFixed(1));
+      osAirports.push({
+        iata: ap.iata,
+        airport_name: OPENSKY_NAMES[ap.iata] || ap.iata,
+        country: OPENSKY_COUNTRIES[ap.iata] || '',
+        cancelled: null,   // not available from OpenSky
+        delayed:   null,
+        disruption_score: score,
+        cancel_pct: null,
+        delay_pct:  null,
+        dep_count:  depCount,
+        data_source: 'opensky',
+      });
+    });
+
+    // Merge and sort all airports by disruption score (Airlabs airports first where tied)
+    const allAirports = [
+      ...airports.map(a => ({ ...a, data_source: 'airlabs' })),
+      ...osAirports,
+    ].sort((a, b) => b.disruption_score - a.disruption_score);
+
     const result = {
-      ok: true, airlines, airports,
+      ok: true, airlines, airports: allAirports,
       total_cancelled: cancelledFlights.length,
       total_delayed:   delayedFlights.length,
       airports_sampled: HUB_AIRPORTS,
+      opensky_sampled:  OPENSKY_AIRPORTS.map(a => a.iata),
       updated_at: new Date().toISOString(), _ts: Date.now(),
     };
     try { await kvPut(env, CACHE_KEY, result); } catch (_) {}

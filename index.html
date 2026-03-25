@@ -2796,26 +2796,17 @@
       <i class="fas fa-brain" aria-hidden="true"></i>
       <span id="airport-ai-text">Switch to this tab to load live disruption analysis…</span>
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
-        <button class="ap-widget-toggle-btn" id="ap-widget-picker-btn" title="Add / remove widgets">
-          <i class="fas fa-th-large"></i> Widgets
-        </button>
-        <button class="ap-widget-toggle-btn" onclick="resetApLayout()" title="Reset widget layout">
-          <i class="fas fa-undo"></i> Reset
+        <button class="cw-customize-btn" id="ap-customize-btn" title="Customize visible widgets">
+          <i class="fas fa-sliders-h"></i> Customize
         </button>
       </div>
-    </div>
-
-    <!-- Widget Picker (hidden by default) -->
-    <div class="ap-widget-picker" id="ap-widget-picker" style="display:none;">
-      <div class="ap-picker-title">Toggle Widgets</div>
-      <div id="ap-picker-list" class="ap-picker-list"></div>
     </div>
 
     <!-- GridStack -->
     <div class="grid-stack" id="ap-grid">
 
       <!-- ── FLIGHT DISRUPTIONS (left 8 cols) ─────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-disruptions-widget" gs-x="0" gs-y="0" gs-w="8" gs-h="15" gs-min-h="6">
+      <div class="grid-stack-item" gs-id="ap-disruptions-widget" gs-x="0" gs-y="0" gs-w="8" gs-h="14" gs-min-h="6">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-plane-departure" style="margin-right:6px;color:#ef5350;"></i>Flight Disruptions</span>
@@ -2858,14 +2849,49 @@
             </div>
             <div id="sigmet-mini-list" class="sigmet-mini-list"><div class="sigmet-none">Loading aviation weather hazards…</div></div>
           </div>
-          <div class="airport-table-section" id="airport-disruptions-list" aria-live="polite">
-            <div class="airport-loading"><i class="fas fa-plane fa-bounce" aria-hidden="true"></i><br>Loading disruption data…</div>
+        </div>
+      </div>
+
+      <!-- ── TRAVEL SAFETY CHECK (right 4 cols) ──────────────────────────── -->
+      <div class="grid-stack-item" gs-id="ap-tsc-widget" gs-x="8" gs-y="0" gs-w="4" gs-h="9" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-passport" style="margin-right:6px;color:#4fc3f7;"></i>Travel Safety Check</span>
+          </div>
+          <div class="ap-widget-scroll">
+            <p class="tsc-subtitle" style="margin:0 0 8px;">Select a country for US &amp; AU government advisory and recent travel news</p>
+            <select class="travel-select" id="countrySelect" aria-label="Select country for travel info">
+              <option selected disabled>Loading countries…</option>
+            </select>
+            <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
+            <div id="travel-news" class="mt-2"></div>
           </div>
         </div>
       </div>
 
-      <!-- ── AIRLINE CANCELLATIONS (right 4 cols) ──────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-cancellations-widget" gs-x="8" gs-y="0" gs-w="4" gs-h="10" gs-min-h="5">
+      <!-- ── FLIGHT WATCHLIST (right 4 cols) ──────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="ap-flightwatch-widget" gs-x="8" gs-y="9" gs-w="4" gs-h="5" gs-min-h="4">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-binoculars" style="margin-right:6px;color:#4fc3f7;"></i>Flight Watchlist</span>
+          </div>
+          <div class="ap-widget-scroll">
+            <p class="tsc-subtitle" style="margin:0 0 8px;">Track live flights by callsign (e.g. EJM618) or ICAO24 hex</p>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+              <input class="airport-watch-input-field" id="airport-watch-input" name="airport-watch-input" type="text"
+                placeholder="Callsign or ICAO24 hex…" maxlength="12" autocomplete="off" />
+              <button class="drawer-btn" data-action="airport-add-watch" aria-label="Add to flight watchlist"
+                style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
+            </div>
+            <div id="airport-watchlist-list">
+              <div style="color:#9aa0a6;font-size:0.8rem;">No flights tracked. Enter a callsign above.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AIRLINE CANCELLATIONS (full width below map) ──────────────────── -->
+      <div class="grid-stack-item" gs-id="ap-cancellations-widget" gs-x="0" gs-y="14" gs-w="12" gs-h="10" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-ban" style="margin-right:6px;color:#ef5350;"></i>Airline Cancellations &amp; Delays</span>
@@ -2891,48 +2917,25 @@
         </div>
       </div>
 
-      <!-- ── TRAVEL SAFETY CHECK (right 4 cols) ──────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-tsc-widget" gs-x="8" gs-y="10" gs-w="4" gs-h="9" gs-min-h="5">
-        <div class="grid-stack-item-content vw-gs-content">
-          <div class="widget-header-bar" title="Drag to reposition">
-            <span><i class="fas fa-passport" style="margin-right:6px;color:#4fc3f7;"></i>Travel Safety Check</span>
-          </div>
-          <div class="ap-widget-scroll">
-            <p class="tsc-subtitle" style="margin:0 0 8px;">Select a country for US &amp; AU government advisory and recent travel news</p>
-            <select class="travel-select" id="countrySelect" aria-label="Select country for travel info">
-              <option selected disabled>Loading countries…</option>
-            </select>
-            <div id="travel-advisories" class="mt-3" aria-live="polite"></div>
-            <div id="travel-news" class="mt-2"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── FLIGHT WATCHLIST (right 4 cols) ──────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="ap-flightwatch-widget" gs-x="8" gs-y="19" gs-w="4" gs-h="5" gs-min-h="4">
-        <div class="grid-stack-item-content vw-gs-content">
-          <div class="widget-header-bar" title="Drag to reposition">
-            <span><i class="fas fa-binoculars" style="margin-right:6px;color:#4fc3f7;"></i>Flight Watchlist</span>
-          </div>
-          <div class="ap-widget-scroll">
-            <p class="tsc-subtitle" style="margin:0 0 8px;">Track live flights by callsign (e.g. EJM618) or ICAO24 hex</p>
-            <div style="display:flex;gap:8px;margin-bottom:10px;">
-              <input class="airport-watch-input-field" id="airport-watch-input" name="airport-watch-input" type="text"
-                placeholder="Callsign or ICAO24 hex…" maxlength="12" autocomplete="off" />
-              <button class="drawer-btn" data-action="airport-add-watch" aria-label="Add to flight watchlist"
-                style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
-            </div>
-            <div id="airport-watchlist-list">
-              <div style="color:#9aa0a6;font-size:0.8rem;">No flights tracked. Enter a callsign above.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div><!-- /ap-grid -->
 
   </div><!-- /view-airport -->
   <div id="airport-conflict-section" style="display:none;"></div>
+
+  <!-- Airport Widget Picker Overlay -->
+  <div class="cw-picker-overlay" id="ap-picker-overlay" role="dialog" aria-modal="true" aria-label="Customize airport widgets">
+    <div class="cw-picker-modal">
+      <div class="cw-picker-title"><i class="fas fa-sliders-h" style="color:#1a73e8;"></i> Customize Airport Widgets</div>
+      <div class="cw-picker-subtitle">Toggle widgets on/off. Drag widgets to reorder. Layout is saved automatically in your browser.</div>
+      <div class="cw-picker-section-label">✈️ Airport Disruptions</div>
+      <div id="ap-picker-rows"><!-- populated by JS --></div>
+      <div class="cw-picker-footer">
+        <button class="cw-picker-cancel-btn" id="ap-picker-cancel-btn">Cancel</button>
+        <button class="cw-picker-cancel-btn" id="ap-picker-reset-btn" style="margin-left:4px;"><i class="fas fa-undo" style="margin-right:4px;"></i>Reset Layout</button>
+        <button class="cw-picker-save-btn" id="ap-picker-done-btn"><i class="fas fa-check" style="margin-right:4px;"></i>Done</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 📡 LIVE NEWS VIEW ────────────────────────────────────────────────────── -->
   <div id="view-live-news" style="display:none;" role="tabpanel" aria-label="Live News">
@@ -5518,12 +5521,12 @@
     var apGrid      = null;
     var apGridReady = false;
 
-    var AP_LAYOUT_KEY = 'ap_grid_layout_v1';
+    var AP_LAYOUT_KEY = 'ap_grid_layout_v2';
     var AP_DEFAULT_LAYOUT = [
-      { id:'ap-disruptions-widget',   x:0, y:0,  w:8, h:15 },
-      { id:'ap-cancellations-widget', x:8, y:0,  w:4, h:10 },
-      { id:'ap-tsc-widget',           x:8, y:10, w:4, h:9  },
-      { id:'ap-flightwatch-widget',   x:8, y:19, w:4, h:5  },
+      { id:'ap-disruptions-widget',   x:0,  y:0,  w:8,  h:14 },
+      { id:'ap-tsc-widget',           x:8,  y:0,  w:4,  h:9  },
+      { id:'ap-flightwatch-widget',   x:8,  y:9,  w:4,  h:5  },
+      { id:'ap-cancellations-widget', x:0,  y:14, w:12, h:10 },
     ];
     var AP_WIDGETS_META = [
       { id:'ap-disruptions-widget',   label:'Flight Disruptions',        icon:'fa-plane-departure' },
@@ -5555,15 +5558,19 @@
     };
 
     function renderApPicker() {
-      var list = document.getElementById('ap-picker-list');
+      var list = document.getElementById('ap-picker-rows');
       if (!list) return;
       list.innerHTML = AP_WIDGETS_META.map(function(m){
         var on = apWidgetPrefs[m.id] !== false;
-        return '<div class=”ap-picker-item' + (on ? ' active' : '') + '” data-ap-widget=”' + m.id + '”>'
-          + '<i class=”fas ' + m.icon + '” style=”font-size:0.75rem;”></i> ' + m.label
-          + '</div>';
+        return '<div class=”cw-picker-row” data-ap-widget=”' + m.id + '” style=”cursor:pointer;”>'
+          + '<span class=”cw-picker-row-icon”><i class=”fas ' + m.icon + '”></i></span>'
+          + '<span class=”cw-picker-row-label”>' + m.label + '</span>'
+          + '<span class=”cw-picker-row-toggle' + (on ? ' on' : '') + '”>'
+          + (on ? '<i class=”fas fa-toggle-on” style=”color:#1a73e8;font-size:1.1rem;”></i>'
+                : '<i class=”fas fa-toggle-off” style=”color:#5f6368;font-size:1.1rem;”></i>')
+          + '</span></div>';
       }).join('');
-      list.querySelectorAll('.ap-picker-item').forEach(function(item){
+      list.querySelectorAll('.cw-picker-row').forEach(function(item){
         item.addEventListener('click', function(){
           var wid = this.getAttribute('data-ap-widget');
           var on  = apWidgetPrefs[wid] !== false;
@@ -5604,12 +5611,42 @@
         if (airportMap) airportMap.invalidateSize();
       });
       renderApPicker();
-      /* Widget picker toggle */
-      var pickerBtn = document.getElementById('ap-widget-picker-btn');
-      var picker    = document.getElementById('ap-widget-picker');
-      if (pickerBtn && picker) {
-        pickerBtn.addEventListener('click', function(){
-          picker.style.display = picker.style.display === 'none' ? '' : 'none';
+      /* Customize button → open overlay */
+      var apCustBtn = document.getElementById('ap-customize-btn');
+      var apOv      = document.getElementById('ap-picker-overlay');
+      if (apCustBtn && apOv) {
+        apCustBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          renderApPicker();
+          apOv.classList.add('open');
+        });
+      }
+      /* Overlay close buttons */
+      var apCancelBtn = document.getElementById('ap-picker-cancel-btn');
+      var apDoneBtn   = document.getElementById('ap-picker-done-btn');
+      var apResetBtn  = document.getElementById('ap-picker-reset-btn');
+      if (apCancelBtn && apOv) {
+        apCancelBtn.addEventListener('click', function(){ apOv.classList.remove('open'); });
+      }
+      if (apDoneBtn && apOv) {
+        apDoneBtn.addEventListener('click', function(){
+          apOv.classList.remove('open');
+          if (apCustBtn) {
+            apCustBtn.innerHTML = '<i class="fas fa-check" style="color:#81c995;"></i> Saved';
+            setTimeout(function(){ apCustBtn.innerHTML = '<i class="fas fa-sliders-h"></i> Customize'; }, 2000);
+          }
+        });
+      }
+      if (apResetBtn) {
+        apResetBtn.addEventListener('click', function(){
+          apOv.classList.remove('open');
+          resetApLayout();
+        });
+      }
+      /* Close overlay when clicking outside */
+      if (apOv) {
+        apOv.addEventListener('click', function(e){
+          if (e.target === apOv) apOv.classList.remove('open');
         });
       }
     }
@@ -5766,6 +5803,10 @@
       var totalCanc  = data.total_cancelled || 0;
       var totalDelay = data.total_delayed   || 0;
 
+      var allAirports  = data.airports || [];
+      var osCount      = allAirports.filter(function(a){ return a.data_source === 'opensky'; }).length;
+      var alCount      = allAirports.filter(function(a){ return a.data_source !== 'opensky'; }).length;
+
       var stats = '<div class="canc-summary-bar">'
         + '<div class="canc-summary-box" style="border-right:1px solid #2a2d35;">'
         +   '<div class="canc-summary-num" style="color:#ef5350;">' + totalCanc + '</div>'
@@ -5774,8 +5815,8 @@
         +   '<div class="canc-summary-num" style="color:#fbbc04;">' + totalDelay + '</div>'
         +   '<div class="canc-summary-lbl">Delayed Today</div></div>'
         + '<div class="canc-summary-box canc-summary-airports">'
-        +   '<div class="canc-airports-label">' + escHtml((data.airports_sampled||[]).join(' · ')) + '</div>'
-        +   '<div class="canc-summary-lbl">Airports Sampled</div></div>'
+        +   '<div class="canc-summary-num" style="color:#4fc3f7;">' + allAirports.length + '</div>'
+        +   '<div class="canc-summary-lbl">' + alCount + ' Airlabs · ' + osCount + ' OpenSky</div></div>'
         + '</div>';
 
       /* FR24-style ranked table */
@@ -5791,27 +5832,33 @@
         + '</div>';
 
       var rows = airports.map(function(a, i) {
-        var score = a.disruption_score || 0;
-        var clr   = _cancScoreColor(score);
-        var lbl   = _cancScoreLabel(score);
-        var flag  = _cancFlag(a.country || '');
+        var score  = a.disruption_score || 0;
+        var clr    = _cancScoreColor(score);
+        var lbl    = _cancScoreLabel(score);
+        var flag   = _cancFlag(a.country || '');
+        var isOS   = a.data_source === 'opensky';
         var faLink = 'https://www.flightaware.com/live/airport/' + (a.iata||'');
+        var cancStr = isOS
+          ? '<span style="color:#5f6368;font-size:0.75rem;" title="Activity-based estimate — cancellation data not available from OpenSky">⚡ activity</span>'
+          : a.cancelled + ' <span class="apr-pct">(' + (a.cancel_pct||0) + '%)</span>';
+        var delayStr = isOS
+          ? '<span style="color:#5f6368;font-size:0.75rem;">—</span>'
+          : a.delayed + ' <span class="apr-pct">(' + (a.delay_pct||0) + '%)</span>';
         return '<a href="' + escHtml(faLink) + '" target="_blank" rel="noopener" class="ap-rank-row">'
           + '<span class="apr-rank">' + (i+1) + '</span>'
           + '<span class="apr-score" style="color:' + clr + ';font-weight:900;">' + score.toFixed(1) + '</span>'
           + '<span class="apr-iata" style="color:' + clr + ';">' + escHtml(a.iata||'—') + '</span>'
           + '<span class="apr-name">' + flag + ' ' + escHtml(a.airport_name||a.iata||'') + '</span>'
-          + '<span class="apr-canc" style="color:#ef5350;font-weight:700;">'
-          +   a.cancelled + ' <span class="apr-pct">(' + (a.cancel_pct||0) + '%)</span></span>'
-          + '<span class="apr-delay" style="color:#fbbc04;font-weight:700;">'
-          +   a.delayed + ' <span class="apr-pct">(' + (a.delay_pct||0) + '%)</span></span>'
+          + '<span class="apr-canc" style="color:#ef5350;font-weight:700;">' + cancStr + '</span>'
+          + '<span class="apr-delay" style="color:#fbbc04;font-weight:700;">' + delayStr + '</span>'
           + '<span class="apr-status-badge" style="background:' + clr + '22;color:' + clr + ';border:1px solid ' + clr + '55;">'
           +   lbl + '</span>'
           + '</a>';
       }).join('');
 
       var src = '<div class="canc-source-bar" style="margin-top:6px;">'
-        + '<i class="fas fa-database" style="font-size:0.7rem;"></i> Source: Airlabs · 8 global hubs · updated daily'
+        + '<i class="fas fa-database" style="font-size:0.7rem;"></i>'
+        + ' Airlabs (cancel/delay data) · OpenSky Network (activity-based) · 23 airports total'
         + '<span class="canc-src-note">Click any row → FlightAware live airport</span>'
         + '</div>';
 
