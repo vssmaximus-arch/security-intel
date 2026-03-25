@@ -1250,6 +1250,43 @@
     body.light-mode .exec-report-content { background: #f8f9fa; color: #333; }
     body.light-mode .exec-section-head { color: #1565c0; border-color: #e0e0e0; }
 
+    /* ── Exec Report v2 section layout ─────────────────────────────────────── */
+    .exec-section { margin-bottom:22px; }
+    .exec-section-head { color:#58a6ff;font-size:.82rem;font-weight:800;margin:0 0 10px;padding:6px 10px;background:#161b22;border-left:3px solid #58a6ff;border-radius:0 4px 4px 0;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px; }
+    .exec-section-num { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#58a6ff;color:#0d1117;border-radius:50%;font-size:.7rem;font-weight:900;flex-shrink:0; }
+    .exec-bullet-list { margin:0;padding:0 0 0 18px;list-style:disc;color:#c9d1d9;font-size:.84rem;line-height:1.75; }
+    .exec-bullet-list li { margin-bottom:4px;padding-left:4px; }
+    .exec-impact-list li { color:#fff3e0; }
+    .exec-empty { color:#546e7a;font-size:.82rem;font-style:italic;margin:4px 0 0; }
+    .exec-escalation-row { background:#161b22;border:1px solid #21262d;border-radius:6px;padding:10px 12px;margin-bottom:8px; }
+    .exec-escalation-header { display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap; }
+    .exec-escalation-title { font-weight:600;font-size:.85rem;color:#e0e0e0;flex:1;min-width:0; }
+    .exec-escalation-loc { font-size:.75rem;color:#78909c;white-space:nowrap; }
+    .exec-escalation-narrative { font-size:.82rem;color:#90a4ae;line-height:1.6; }
+    .exec-sev-badge { display:inline-block;font-size:.65rem;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.04em;white-space:nowrap;flex-shrink:0; }
+    .exec-sev-critical { background:#b71c1c;color:#fff; }
+    .exec-sev-high { background:#e65100;color:#fff; }
+    .exec-sev-medium { background:#f57f17;color:#000; }
+    .exec-sev-low { background:#1b5e20;color:#c8e6c9; }
+    .exec-prox-region-label { font-size:.7rem;font-weight:700;color:#546e7a;text-transform:uppercase;letter-spacing:.08em;margin:10px 0 4px; }
+    .exec-prox-row { display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #1a1c22;font-size:.82rem;flex-wrap:wrap; }
+    .exec-prox-site { color:#80deea;font-weight:600;white-space:nowrap;flex-shrink:0; }
+    .exec-prox-dist { color:#546e7a;font-size:.72rem;margin-left:4px; }
+    .exec-prox-title { color:#90a4ae;flex:1;min-width:0; }
+    .exec-factual-notice { font-size:.72rem;color:#455a64;margin-bottom:8px;padding:4px 8px;background:#0d1117;border-radius:4px; }
+    .exec-region-chip { display:inline-block;background:#1a1c22;border:1px solid #2a2d35;border-radius:3px;padding:1px 5px;font-size:.65rem;color:#78909c;margin:1px;white-space:nowrap; }
+    body.light-mode .exec-section-head { background:#e8f5e9;border-color:#1565c0;color:#1565c0; }
+    body.light-mode .exec-section-num { background:#1565c0;color:#fff; }
+    body.light-mode .exec-escalation-row { background:#f5f5f5;border-color:#e0e0e0; }
+    body.light-mode .exec-escalation-title { color:#212121; }
+    body.light-mode .exec-escalation-narrative { color:#546e7a; }
+    body.light-mode .exec-bullet-list { color:#333; }
+    body.light-mode .exec-impact-list li { color:#6d4c41; }
+    body.light-mode .exec-prox-site { color:#00838f; }
+    body.light-mode .exec-prox-title { color:#607d8b; }
+    body.light-mode .exec-region-chip { background:#f5f5f5;border-color:#bdbdbd;color:#546e7a; }
+    body.light-mode .exec-factual-notice { background:#f9fbe7;color:#827717; }
+
     /* ============================================================
        TIER-3: Cyber Threat Intel Drawer
        ============================================================ */
@@ -3772,19 +3809,27 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content" style="background:#13151a; border:1px solid #2a2d35; color:#e0e0e0;">
         <div class="modal-header" style="background:#1a1b1e; border-bottom:1px solid #2a2d35;">
-          <h5 class="modal-title" id="execReportLabel" style="color:#81c784; font-weight:700; font-size:0.95rem;">
-            <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Executive Security Report
-          </h5>
+          <div class="d-flex flex-column me-auto">
+            <h5 class="modal-title" id="execReportLabel" style="color:#81c784;font-weight:700;font-size:.95rem;margin:0;">
+              <i class="fas fa-chart-line me-2" aria-hidden="true"></i>Executive Security Report
+            </h5>
+            <div style="font-size:.7rem;color:#78909c;margin-top:2px;">
+              SRO Operations &amp; Fusion Center &bull;
+              <span id="exec-cache-age" style="color:#90a4ae;"></span>
+            </div>
+          </div>
           <div class="d-flex gap-2 align-items-center ms-3">
-            <button class="btn btn-sm btn-outline-light" data-action="generate-exec-report" style="font-size:0.78rem;">
-              <i class="fas fa-robot" aria-hidden="true"></i> Generate
+            <button class="btn btn-sm btn-outline-light" data-action="generate-exec-report" style="font-size:.78rem;">
+              <i class="fas fa-robot" aria-hidden="true"></i> Load
             </button>
-            <button class="btn btn-sm btn-outline-success" id="exec-pdf-btn" data-action="download-exec-pdf"
-              style="font-size:0.78rem; display:none;">
+            <button class="btn btn-sm btn-outline-warning" id="exec-refresh-btn" data-action="force-refresh-exec-report" style="font-size:.78rem;">
+              <i class="fas fa-sync-alt" aria-hidden="true"></i> Force Refresh
+            </button>
+            <button class="btn btn-sm btn-outline-success" id="exec-pdf-btn" data-action="download-exec-pdf" style="font-size:.78rem;display:none;">
               <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
             </button>
           </div>
-          <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" style="background:#0f1012; padding:24px;">
           <div id="exec-report-meta" class="text-muted mb-2" style="font-size:0.75rem;"></div>
@@ -3792,7 +3837,8 @@
           <div id="exec-report-content" class="exec-report-content">
             <p class="text-muted text-center py-5">
               <i class="fas fa-chart-line fa-3x mb-3 d-block" style="color:#2a3a2a;"></i>
-              Click <strong>Generate</strong> to produce an AI-written executive security briefing.
+              Click <strong>Load</strong> to retrieve the latest pre-generated executive briefing.<br>
+              <small style="color:#546e7a;">Reports are pre-generated hourly by the SRO fusion pipeline. Use Force Refresh for immediate regeneration.</small>
             </p>
           </div>
         </div>

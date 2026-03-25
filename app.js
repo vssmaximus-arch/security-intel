@@ -5611,6 +5611,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       /* --- Tier-3 actions --- */
       if (action === 'toggle-supply-chain')  { toggleSupplyChainLayer(); return; }
       if (action === 'generate-exec-report') { generateExecReport(); return; }
+      if (action === 'force-refresh-exec-report') { forceRefreshExecReport(); return; }
       if (action === 'download-exec-pdf')    { downloadExecReportPDF(); return; }
       if (action === 'open-threat-intel')    { openThreatIntelPanel(); return; }
       if (action === 'close-threat-intel')   { closeThreatIntelPanel(); return; }
@@ -6765,78 +6766,178 @@ async function loadEscalationScore(country) {
    AI EXECUTIVE REPORT + PDF EXPORT
    ---------------------------------------------------------- */
 async function generateExecReport() {
-  const contentEl = document.getElementById('exec-report-content');
-  const kpisEl = document.getElementById('exec-report-kpis');
-  const metaEl = document.getElementById('exec-report-meta');
-  const pdfBtn = document.getElementById('exec-pdf-btn');
-  const footerEl = document.getElementById('exec-report-footer');
+  const contentEl  = document.getElementById('exec-report-content');
+  const kpisEl     = document.getElementById('exec-report-kpis');
+  const metaEl     = document.getElementById('exec-report-meta');
+  const pdfBtn     = document.getElementById('exec-pdf-btn');
+  const cacheAgeEl = document.getElementById('exec-cache-age');
 
-  if (contentEl) contentEl.innerHTML = '<div class="text-center py-5"><i class="fas fa-robot fa-2x mb-3 d-block" style="color:#81c784;"></i><span style="color:#90a4ae;font-size:0.9rem;">Generating AI executive briefing…</span></div>';
-  if (kpisEl) kpisEl.innerHTML = '';
-  if (pdfBtn) pdfBtn.style.display = 'none';
+  if (contentEl) contentEl.innerHTML = '<div class="text-center py-4"><i class="fas fa-robot fa-2x mb-3 d-block" style="color:#81c784;"></i><span style="color:#90a4ae;font-size:0.9rem;">Loading executive briefing…</span></div>';
+  if (kpisEl)    kpisEl.innerHTML = '';
+  if (pdfBtn)    pdfBtn.style.display = 'none';
+  if (cacheAgeEl) cacheAgeEl.textContent = '';
 
   try {
-    const res = await fetchWithTimeout(`${WORKER_URL}/api/ai/exec-report`, {});
+    const res  = await fetchWithTimeout(`${WORKER_URL}/api/ai/exec-report`, {});
     const data = await res.json();
 
+    const cacheHit   = res.headers.get('X-Cache') === 'HIT';
+    const ageSeconds = parseInt(res.headers.get('X-Cache-Age') || '0', 10);
+    const ageMinutes = Math.round(ageSeconds / 60);
+    const cacheLabel = cacheHit
+      ? (ageMinutes < 2 ? 'Generated just now' : `Generated ${ageMinutes} min ago`)
+      : 'Generated now — cached for next load';
+    if (cacheAgeEl) cacheAgeEl.textContent = cacheLabel;
+
     renderExecReport(data);
-    console.log('[EXEC-REPORT] Generated successfully');
   } catch(e) {
     console.error('[EXEC-REPORT] failed:', e.message);
-    if (contentEl) contentEl.innerHTML = `<div style="color:#e57373;padding:20px;">Failed to generate report: ${escapeHtml(e.message)}</div>`;
+    if (contentEl) contentEl.innerHTML = `<div style="color:#e57373;padding:20px;">Failed to load report: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function forceRefreshExecReport() {
+  const btn        = document.getElementById('exec-refresh-btn');
+  const cacheAgeEl = document.getElementById('exec-cache-age');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing…'; }
+  if (cacheAgeEl) cacheAgeEl.textContent = 'Regenerating — this takes ~30s…';
+
+  const secretInput = document.getElementById('admin-secret-input');
+  const secret = secretInput ? secretInput.value.trim() : '';
+
+  try {
+    const res = await fetchWithTimeout(`${WORKER_URL}/api/ai/exec-report/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'secret': secret }
+    }, 90000);
+    const data = await res.json();
+    if (res.status === 403 || (data && data.error === 'Unauthorized')) {
+      if (cacheAgeEl) cacheAgeEl.textContent = '⚠ Unauthorized — enter INGEST_SECRET in Admin Controls (⚙) first';
+    } else if (data && data.ok) {
+      if (cacheAgeEl) cacheAgeEl.textContent = '✓ Regenerated — loading…';
+      await generateExecReport();
+    } else {
+      if (cacheAgeEl) cacheAgeEl.textContent = 'Refresh failed: ' + escapeHtml(String(data.error || 'unknown error'));
+    }
+  } catch(e) {
+    console.error('[EXEC-REPORT] force refresh failed:', e.message);
+    if (cacheAgeEl) cacheAgeEl.textContent = 'Refresh failed: ' + escapeHtml(e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i> Force Refresh'; }
   }
 }
 
 function renderExecReport(data) {
   const contentEl = document.getElementById('exec-report-content');
-  const kpisEl = document.getElementById('exec-report-kpis');
-  const metaEl = document.getElementById('exec-report-meta');
-  const pdfBtn = document.getElementById('exec-pdf-btn');
-  const footerEl = document.getElementById('exec-report-footer');
+  const kpisEl    = document.getElementById('exec-report-kpis');
+  const metaEl    = document.getElementById('exec-report-meta');
+  const footerEl  = document.getElementById('exec-report-footer');
+  const pdfBtn    = document.getElementById('exec-pdf-btn');
 
-  // Render KPI tiles
+  // KPI tiles
   const kpis = data.kpis || {};
+  const regions = kpis.regions || {};
   if (kpisEl) {
-    const regions = kpis.regions || {};
     kpisEl.innerHTML = `
+      <div class="exec-kpi-card"><div class="exec-kpi-val">${kpis.total||0}</div><div class="exec-kpi-label">Total 24h</div></div>
+      <div class="exec-kpi-card"><div class="exec-kpi-val kpi-critical">${kpis.critical||0}</div><div class="exec-kpi-label">Critical</div></div>
+      <div class="exec-kpi-card"><div class="exec-kpi-val kpi-high">${kpis.high||0}</div><div class="exec-kpi-label">High</div></div>
       <div class="exec-kpi-card">
-        <div class="exec-kpi-val">${kpis.total || 0}</div>
-        <div class="exec-kpi-label">Total (24h)</div>
-      </div>
-      <div class="exec-kpi-card">
-        <div class="exec-kpi-val kpi-critical">${kpis.critical || 0}</div>
-        <div class="exec-kpi-label">Critical</div>
-      </div>
-      <div class="exec-kpi-card">
-        <div class="exec-kpi-val kpi-high">${kpis.high || 0}</div>
-        <div class="exec-kpi-label">High</div>
-      </div>
-      <div class="exec-kpi-card">
-        <div class="exec-kpi-val" style="font-size:0.75rem;line-height:1.5;padding-top:4px;">
-          AMER:${regions.AMER||0} EMEA:${regions.EMEA||0}<br>APJC:${regions.APJC||0} LATAM:${regions.LATAM||0}
+        <div class="exec-kpi-val" style="font-size:0.68rem;line-height:1.8;padding-top:4px;">
+          <span class="exec-region-chip">AMER ${regions.AMER||0}</span><span class="exec-region-chip">EMEA ${regions.EMEA||0}</span><span class="exec-region-chip">APJC ${regions.APJC||0}</span><span class="exec-region-chip">LATAM ${regions.LATAM||0}</span>
         </div>
         <div class="exec-kpi-label">Regions</div>
       </div>
+      <div class="exec-kpi-card"><div class="exec-kpi-val" style="font-size:1rem;">${data.proximity_count||0}</div><div class="exec-kpi-label">Near Dell</div></div>
     `;
   }
 
-  // Parse and render report text with markdown-lite formatting
-  if (contentEl && data.report_text) {
-    const html = data.report_text
-      .replace(/^## (.+)$/gm, '<h5 class="exec-section-head">$1</h5>')
-      .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
-      .replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>')
-      .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul class="mb-2">${match}</ul>`)
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>');
-    contentEl.innerHTML = `<p>${html}</p>`;
+  function sevBadge(sev) {
+    const s = String(sev||'').toUpperCase();
+    const cls = s==='CRITICAL'?'exec-sev-critical':s==='HIGH'?'exec-sev-high':s==='MEDIUM'?'exec-sev-medium':'exec-sev-low';
+    return `<span class="exec-sev-badge ${cls}">${escapeHtml(s||'UNKNOWN')}</span>`;
   }
 
-  // Show PDF button + metadata
+  // Section 1: KEY TAKEAWAYS
+  const takeaways = Array.isArray(data.key_takeaways) ? data.key_takeaways : [];
+  const s1 = takeaways.length
+    ? `<ul class="exec-bullet-list">${takeaways.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul>`
+    : '<p class="exec-empty">No data available.</p>';
+
+  // Section 2: RECENT ESCALATIONS
+  const escalations = Array.isArray(data.escalations) ? data.escalations : [];
+  const s2 = escalations.length
+    ? escalations.map(e=>`
+        <div class="exec-escalation-row">
+          <div class="exec-escalation-header">
+            ${sevBadge(e.severity)}
+            <span class="exec-escalation-title">${escapeHtml(e.title||'')}</span>
+            ${e.location?`<span class="exec-escalation-loc">${escapeHtml(e.location)}</span>`:''}
+          </div>
+          <div class="exec-escalation-narrative">${escapeHtml(e.narrative||'')}</div>
+        </div>`).join('')
+    : '<p class="exec-empty">No significant escalations in this period.</p>';
+
+  // Section 3: DELL OPERATIONAL IMPACT
+  const impacts = Array.isArray(data.dell_impact) ? data.dell_impact : [];
+  const s3 = impacts.length
+    ? `<ul class="exec-bullet-list exec-impact-list">${impacts.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>`
+    : '<p class="exec-empty">No direct Dell operational impacts identified in this period.</p>';
+
+  // Section 4: EVENTS NEAR DELL ASSETS
+  const prox = Array.isArray(data.proximity_section) ? data.proximity_section : [];
+  const proxByRegion = {};
+  for (const p of prox) { const r=p.region||'Global'; if(!proxByRegion[r]) proxByRegion[r]=[]; proxByRegion[r].push(p); }
+  let s4 = '';
+  if (!prox.length) {
+    s4 = '<p class="exec-empty">No proximity alerts near Dell assets in this period.</p>';
+  } else {
+    for (const [region, items] of Object.entries(proxByRegion)) {
+      s4 += `<div class="exec-prox-region-label">${escapeHtml(region)}</div>`;
+      s4 += items.map(p=>`
+        <div class="exec-prox-row">
+          ${sevBadge(p.severity)}
+          <span class="exec-prox-site"><i class="fas fa-map-marker-alt" style="font-size:0.65rem;margin-right:3px;"></i>${escapeHtml(p.site||'')} <span class="exec-prox-dist">${Math.round(Number(p.distance_km)||0)} km</span></span>
+          <span class="exec-prox-title">${escapeHtml(p.title||'')}</span>
+        </div>`).join('');
+    }
+  }
+
+  // Section 5: OUTLOOK
+  const outlook = Array.isArray(data.outlook) ? data.outlook : [];
+  const s5 = outlook.length
+    ? `<ul class="exec-bullet-list">${outlook.map(o=>`<li>${escapeHtml(o)}</li>`).join('')}</ul>`
+    : '<p class="exec-empty">No outlook available.</p>';
+
+  if (contentEl) {
+    contentEl.innerHTML = `
+      <div class="exec-section">
+        <div class="exec-section-head"><span class="exec-section-num">1</span> KEY TAKEAWAYS</div>
+        ${s1}
+      </div>
+      <div class="exec-section">
+        <div class="exec-section-head"><span class="exec-section-num">2</span> RECENT ESCALATIONS</div>
+        ${s2}
+      </div>
+      <div class="exec-section">
+        <div class="exec-section-head"><span class="exec-section-num">3</span> DELL OPERATIONAL IMPACT</div>
+        <div class="exec-factual-notice"><i class="fas fa-info-circle"></i> Confirmed operational facts only — no speculation or advisory content.</div>
+        ${s3}
+      </div>
+      <div class="exec-section">
+        <div class="exec-section-head"><span class="exec-section-num">4</span> EVENTS NEAR DELL ASSETS</div>
+        ${s4}
+      </div>
+      <div class="exec-section">
+        <div class="exec-section-head"><span class="exec-section-num">5</span> OUTLOOK</div>
+        ${s5}
+      </div>`;
+  }
+
   if (pdfBtn) pdfBtn.style.display = 'inline-block';
-  const genAt = data.generated_at ? new Date(data.generated_at).toLocaleTimeString() : '—';
-  if (metaEl) metaEl.textContent = `${data.incident_count || 0} incidents analysed • Generated ${genAt}`;
-  if (footerEl) footerEl.textContent = `${data.incident_count || 0} incidents analysed • Generated ${genAt}`;
+  const genAt = data.generated_at ? new Date(data.generated_at).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  if (metaEl)   metaEl.textContent  = `${data.incident_count||0} incidents analysed · ${data.proximity_count||0} proximity alerts · ${genAt}`;
+  if (footerEl) footerEl.textContent = `SRO Operations & Fusion Center · ${data.incident_count||0} incidents · ${genAt}`;
 }
 
 async function downloadExecReportPDF() {
