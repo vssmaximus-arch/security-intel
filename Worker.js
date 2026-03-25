@@ -2896,13 +2896,18 @@ async function callClaude(env, messages, opts = {}) {
 
 /**
  * callGroqChat — POST to Groq chat completions (narrative, not JSON-only).
- * Uses llama-3.3-70b-versatile for better narrative quality.
+ * Respects opts.model; defaults to llama-3.1-8b-instant (14,400 RPD — high rate limit).
+ * Pass opts.model = 'llama-3.3-70b-versatile' explicitly only when higher quality is needed
+ * and rate limits are not a concern.
  */
 async function callGroqChat(env, messages, opts = {}) {
   if (!env.GROQ_API_KEY) return { text: null, error: 'no_groq_key' };
   const maxTokens = opts.max_tokens || 1024;
+  // Translate Anthropic model names → Groq equivalents; default to fast/high-rate-limit model
+  let groqModel = opts.model || 'llama-3.1-8b-instant';
+  if (String(groqModel).startsWith('claude-')) groqModel = 'llama-3.1-8b-instant';
   const body = {
-    model: 'llama-3.3-70b-versatile',
+    model: groqModel,
     temperature: 0.3,
     max_tokens: maxTokens,
     messages,
