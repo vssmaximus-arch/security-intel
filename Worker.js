@@ -5781,7 +5781,7 @@ async function handleApiAiBriefing(env, req) {
 
     // KV cache: 20-minute TTL per window+region combo (v2 — new prompt format)
     const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v2_${windowH}_${region || 'global'}`;
+    const briefCacheKey = `briefing_v3_${windowH}_${region || 'global'}`; // v3 — busts stale data-only cache
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -9385,7 +9385,7 @@ async function moduleScheduled(evt, env, ctx) {
           try {
             const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
             await handleApiAiBriefing(env, _briefReq);
-            debug('scheduled: briefing_v2_8_global cached');
+            debug('scheduled: briefing_v3_8_global cached');
           } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
@@ -9401,7 +9401,7 @@ async function moduleScheduled(evt, env, ctx) {
       try {
         const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
         await handleApiAiBriefing(env, _briefReq);
-        debug('scheduled: briefing_v2_8_global cached');
+        debug('scheduled: briefing_v3_8_global cached');
       } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
     }
   } catch (e) {
