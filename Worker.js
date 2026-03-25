@@ -5696,6 +5696,80 @@ async function handleApiAiFeedback(env, req, ctx) {
    =========================== */
 
 /**
+ * _buildNoAiBriefing — generates a structured SRO briefing directly from incident data.
+ * Zero LLM calls. Used as fallback when AI is rate-limited or unavailable.
+ * Always returns a valid, useful briefing with real incident data.
+ */
+function _buildNoAiBriefing(incidents, proxIncidents, windowH, region) {
+  const _ts = i => { try { return new Date(i.time).toISOString().slice(0,16).replace('T',' ') + ' UTC'; } catch { return ''; } };
+  const _loc = i => [i.country, i.location].filter(Boolean).join('/') || '?';
+  const _sev = i => String(i.severity_label || 'INFO').toUpperCase();
+
+  const critHigh = incidents.filter(i => ['CRITICAL','HIGH'].includes(_sev(i)));
+  const medium   = incidents.filter(i => _sev(i) === 'MEDIUM');
+  const byRegion = {};
+  incidents.forEach(i => { const r = i.region || 'Global'; byRegion[r] = (byRegion[r]||0)+1; });
+
+  // ── KEY TAKEAWAYS ─────────────────────────────────────────────────────────
+  const takeaways = critHigh.slice(0, 5).map(i =>
+    `- [${_sev(i)}] ${_loc(i)}: ${i.title}`
+  );
+  if (!takeaways.length && medium.length) takeaways.push(`- ${medium.length} MEDIUM-severity events in the ${windowH}h window. No CRITICAL or HIGH items at this time.`);
+  if (!takeaways.length) takeaways.push('- No significant events in this period.');
+
+  // ── RECENT ESCALATIONS ────────────────────────────────────────────────────
+  const escalations = critHigh.slice(0, 15).map(i =>
+    `- [${_sev(i)}][${i.region||'?'}][${i.category||'?'}] ${_loc(i)} — ${i.title} — ${_ts(i)}`
+  );
+  if (!escalations.length) escalations.push('- No CRITICAL or HIGH escalations this period.');
+
+  // ── DELL OPERATIONAL IMPACT ───────────────────────────────────────────────
+  const dellRx = /\bdell(\s+(technologies|emc|secureworks|boomi))?\b|poweredge|powerstore|dell\s+site|dell\s+office/i;
+  const dellIncs = incidents.filter(i => dellRx.test(i.title||'') || dellRx.test(i.summary||''));
+  const supplyIncs = incidents.filter(i => ['SUPPLY_CHAIN','INFRASTRUCTURE','TRANSPORT'].includes(String(i.category||'').toUpperCase()) && ['CRITICAL','HIGH'].includes(_sev(i)));
+  const dellLines = [];
+  dellIncs.slice(0,5).forEach(i => dellLines.push(`- ${_loc(i)}: ${i.title}`));
+  supplyIncs.slice(0,5).forEach(i => dellLines.push(`- [Supply Chain] ${_loc(i)}: ${i.title}`));
+  if (!dellLines.length) dellLines.push('- No direct Dell facility or confirmed supply chain impact identified in this period.');
+
+  // ── EVENTS NEAR DELL ASSETS ───────────────────────────────────────────────
+  const proxLines = proxIncidents.length
+    ? proxIncidents.map(p => {
+        const dist = p.distance_km != null ? `${Math.round(Number(p.distance_km))}km` : 'country-wide';
+        return `- [${p.priority||'P3'}] ${p.country||'?'}: ${p.title} — ${dist} from ${p.nearest_site_name||'Dell site'}`;
+      })
+    : ['- None reported this period.'];
+
+  // ── OUTLOOK ───────────────────────────────────────────────────────────────
+  const devRegions = Object.entries(byRegion).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([r,n])=>`${r} (${n} events)`);
+  const catCounts = {};
+  incidents.forEach(i => { const c = i.category||'UNKNOWN'; catCounts[c]=(catCounts[c]||0)+1; });
+  const topCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,n])=>`${c} (${n})`);
+  const outlook = [];
+  if (devRegions.length) outlook.push(`- Highest activity regions in ${windowH}h window: ${devRegions.join(', ')}.`);
+  if (topCats.length) outlook.push(`- Dominant incident categories: ${topCats.join(', ')}.`);
+  if (critHigh.length > 5) outlook.push(`- ${critHigh.length} CRITICAL/HIGH events in window — elevated operational tempo.`);
+  if (!outlook.length) outlook.push('- Situation stable. Continue routine monitoring.');
+
+  return [
+    '## ⚡ KEY TAKEAWAYS',
+    takeaways.join('\n'),
+    '',
+    '## 🔺 RECENT ESCALATIONS',
+    escalations.join('\n'),
+    '',
+    '## 🏢 DELL OPERATIONAL IMPACT',
+    dellLines.join('\n'),
+    '',
+    '## 📍 EVENTS NEAR DELL ASSETS',
+    proxLines.join('\n'),
+    '',
+    '## 🔭 OUTLOOK',
+    outlook.join('\n'),
+  ].join('\n');
+}
+
+/**
  * GET /api/ai/briefing?window=8&region=AMER
  * Generates an AI shift briefing narrative from recent incidents.
  */
@@ -5804,7 +5878,9 @@ Write EXACTLY these 5 sections, in order. Be specific. Use the actual incident t
       model: 'claude-sonnet-4-5',
     });
 
-    // On rate-limit or LLM failure — serve stale cache if available rather than showing error
+    // On rate-limit or LLM failure:
+    // 1. Serve stale KV cache if available
+    // 2. Otherwise generate a no-AI structured briefing directly from incident data (always works)
     if (result.error && !result.text) {
       if (cachedResult) {
         return {
@@ -5813,7 +5889,19 @@ Write EXACTLY these 5 sections, in order. Be specific. Use the actual incident t
           body: { ...cachedResult, cached: true, stale: true, stale_reason: result.error },
         };
       }
-      return { status: 503, headers: { 'X-Cache': 'MISS' }, body: { error: `AI unavailable: ${result.error}`, incident_count: incidents.length, window_h: windowH, region: region || 'Global' } };
+      // No cache, no LLM → build structured briefing directly from incident data
+      const _noAiBriefing = _buildNoAiBriefing(topIncidents, proxFiltered, windowH, region);
+      const noAiResult = {
+        briefing: _noAiBriefing,
+        incident_count: incidents.length,
+        window_h: windowH,
+        region: region || 'Global',
+        generated_at: new Date().toISOString(),
+        model: 'data-only',
+      };
+      // Cache this so next request is instant
+      await kvPut(env, briefCacheKey, noAiResult, { expirationTtl: BRIEFING_CACHE_TTL_S });
+      return { status: 200, headers: { 'X-Cache': 'MISS' }, body: { ...noAiResult, cached: false } };
     }
 
     const freshResult = {
