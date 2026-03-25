@@ -1612,6 +1612,9 @@ function renderProximityAlerts(region) {
   const data = regionFiltered.filter(filterByCategoryAllowed);
   const alerts = [];
 
+  // Doc/meeting quality gate pattern — defined once, reused in spillover block below
+  const _PROX_DOC_GATE = /\b(MoM\b|minutes\s+of\s+(meeting|the\s+meeting)|sub[\s-]?working\s+group|SWG\b|working\s+paper|terms\s+of\s+reference|ToR\b|agenda\s+item|refer\s+to\s+attached|MoU\s+signing|CPGBV|SGBV\s+SWG|GBV\s+SWG|\bSWG\s+[A-Z]|February\s+MoM|January\s+MoM|March\s+MoM|April\s+MoM|May\s+MoM|June\s+MoM|July\s+MoM|August\s+MoM|September\s+MoM|October\s+MoM|November\s+MoM|December\s+MoM|quarterly\s+report|monthly\s+report|sitrep\s+\#|situation\s+report\s+\#)\b/i;
+
   data.forEach(inc => {
     try {
       const key = generateId(inc);
@@ -1631,10 +1634,8 @@ function renderProximityAlerts(region) {
         dist: (inc.distance_km != null) ? Number(inc.distance_km) : (siteDists[0] ? siteDists[0].dist : 9999)
       };
 
-      // Document / meeting quality gate — blocks UN docs, meeting minutes, working papers,
-      // bureaucratic items that are not operational threats. Applies even to country_wide items.
-      const _PROX_DOC_PATTERN = /\b(MoM\b|minutes\s+of\s+(meeting|the\s+meeting)|sub[\s-]?working\s+group|SWG\b|working\s+paper|terms\s+of\s+reference|ToR\b|agenda\s+item|refer\s+to\s+attached|MoU\s+signing|CPGBV|SGBV\s+SWG|GBV\s+SWG|\bSWG\s+[A-Z]|February\s+MoM|January\s+MoM|March\s+MoM|April\s+MoM|May\s+MoM|June\s+MoM|July\s+MoM|August\s+MoM|September\s+MoM|October\s+MoM|November\s+MoM|December\s+MoM|quarterly\s+report|monthly\s+report|sitrep\s+\#|situation\s+report\s+\#)\b/i;
-      if (_PROX_DOC_PATTERN.test(inc.title || '')) return;
+      // Document / meeting quality gate (uses _PROX_DOC_GATE defined above)
+      if (_PROX_DOC_GATE.test(inc.title || '')) return;
 
       // Distance gate — tiered hard caps per threat type:
       //   300km: Natural hazards (earthquake, tsunami, cyclone) — wide zone for personnel safety
@@ -1661,6 +1662,66 @@ function renderProximityAlerts(region) {
     if (pa !== pb) return pa - pb;
     return (a.nearest.dist || 0) - (b.nearest.dist || 0);
   });
+
+  // ── Country-level natural hazard spillover ────────────────────────────────
+  // Cyclones, earthquakes, floods etc. can be hundreds of km from the nearest Dell office
+  // yet still severely disrupt operations in that country (travel bans, supply chain, curfews).
+  // If a HIGH/CRITICAL NATURAL_HAZARD event targets a country with Dell offices but didn't
+  // pass the 300km distance gate, pull it in from the main INCIDENTS feed here.
+  {
+    const _DELL_ISO = new Set(DELL_SITES.map(s => s.country));
+    // Map of full country names → ISO codes for Dell-site countries only
+    const _CNAME_ISO = {
+      'australia':'AU','united states':'US','usa':'US','united states of america':'US',
+      'ireland':'IE','united kingdom':'GB','great britain':'GB','uk':'GB',
+      'germany':'DE','france':'FR','netherlands':'NL','poland':'PL',
+      'india':'IN','singapore':'SG','malaysia':'MY','china':'CN','taiwan':'TW',
+      'japan':'JP','israel':'IL','united arab emirates':'AE','uae':'AE',
+      'morocco':'MA','egypt':'EG','brazil':'BR','canada':'CA','mexico':'MX','panama':'PA'
+    };
+    const _existingIds = new Set(alerts.map(a => String(generateId(a.inc))));
+    const _spill48h = Date.now() - 48 * 3600 * 1000;
+
+    (Array.isArray(INCIDENTS) ? INCIDENTS : []).forEach(inc => {
+      try {
+        if (String(inc.category || '').toUpperCase() !== 'NATURAL_HAZARD') return;
+        const sev = Number(inc.severity || 1);
+        const sevLbl = String(inc.severity_label || '').toUpperCase();
+        if (sev < 4 && sevLbl !== 'HIGH' && sevLbl !== 'CRITICAL') return;
+        try { if (new Date(inc.time).getTime() < _spill48h) return; } catch { return; }
+        if (region !== 'Global' && inc.region && inc.region !== region) return;
+        const cName = String(inc.country || '').toLowerCase().trim();
+        const iso = _CNAME_ISO[cName];
+        if (!iso || !_DELL_ISO.has(iso)) return;
+        const key = generateId(inc);
+        if (DISMISSED_ALERT_IDS.has(String(key))) return;
+        if (_existingIds.has(String(key))) return;
+        if (_PROX_DOC_GATE.test(inc.title || '')) return;
+        // Find the closest Dell site in that country
+        const countrySites = DELL_SITES.filter(s => s.country === iso);
+        const coords = (Number.isFinite(Number(inc.lat)) && Number.isFinite(Number(inc.lng)))
+          ? { lat: Number(inc.lat), lng: Number(inc.lng) } : getCoordsForIncident(inc);
+        let nearest;
+        if (coords && coords.lat && coords.lng) {
+          const dists = countrySites.map(s => ({ name: s.name, dist: haversineKm(coords.lat, coords.lng, Number(s.lat), Number(s.lon)) })).sort((a, b) => a.dist - b.dist);
+          nearest = { name: dists[0].name, dist: Math.round(dists[0].dist) };
+        } else {
+          nearest = { name: countrySites[0].name, dist: 0 };
+        }
+        const spillPriority = sev >= 5 ? 'P1' : 'P2';
+        alerts.push({ inc: Object.assign({}, inc, { country_wide: true, priority: inc.priority || spillPriority }), nearest, key });
+        _existingIds.add(String(key));
+      } catch(e) {}
+    });
+
+    // Re-sort after spillover additions
+    alerts.sort((a, b) => {
+      const pa = _prioRank[a.inc.priority] ?? 4;
+      const pb = _prioRank[b.inc.priority] ?? 4;
+      if (pa !== pb) return pa - pb;
+      return (a.nearest.dist || 0) - (b.nearest.dist || 0);
+    });
+  }
 
   if (!alerts.length) {
     container.innerHTML = `<div style="padding:18px 14px;text-align:center;color:#999;font-size:0.78rem;">No active threats within proximity of Dell sites.</div>`;
