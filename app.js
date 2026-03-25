@@ -3871,17 +3871,18 @@ const LTV_CHANNELS = [
     hlsUrl: 'https://english-livebkali.cgtn.com/live/encgtn.m3u8',
     ytId: '8bCBmjPa_jY' },                                                         // CGTN official CDN
   { key: 'cna',       label: 'CNA',         color: '#c62828',
-    hlsUrl: null,                                                                   // no public HLS — YouTube live
-    ytId: '8VMuknbVDeM' },                                                         // Channel NewsAsia live
-  { key: 'nhk',       label: 'NHK World',   color: '#01579b',
-    hlsUrl: 'https://nhkworldlive-nhkworld.akamaized.net/hls/live/2003408/nhkworld/index_5M.m3u8',
-    ytId: 'nF5RkGEBSFQ' },                                                         // NHK World Akamai
-  { key: 'euronews',  label: 'Euronews',    color: '#003399',
     hlsUrl: null,
-    ytId: 'zCW8ZGPH8MQ' },                                                         // Euronews YouTube live
+    // ytId starting with "UC" = YouTube Channel ID → uses live_stream?channel= embed (permanent URL)
+    ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' },                                           // CNA YouTube channel
+  { key: 'nhk',       label: 'NHK World',   color: '#01579b',
+    hlsUrl: 'https://nhkworldlive-nhkworld.akamaized.net/hls/live/2003408/nhkworld/index_3M.m3u8',
+    ytId: 'UCqDpTlQMEhTK5B6GRtF_nqA' },                                           // NHK World-Japan YouTube channel
+  { key: 'euronews',  label: 'Euronews',    color: '#003399',
+    hlsUrl: 'https://euronews.hsv1.akamaized.net/hls/live/2037246/euronews_en_app/master.m3u8',
+    ytId: 'UCg4x9voS_xkn1cFJhKc8N6g' },                                           // Euronews English YouTube channel
   { key: 'wion',      label: 'WION',        color: '#e65100',
     hlsUrl: null,
-    ytId: 'fHEMlBc2LPk' },                                                         // WION India YouTube live
+    ytId: 'UCKCgnJHxFnQk3eGbNH8-P1A' },                                           // WION News YouTube channel
 ];
 
 // Keep alias for modal (uses same catalogue)
@@ -4271,7 +4272,12 @@ function _ltvLoadTile(key) {
     if (!ch.ytId) { showStatus('<div style="font-size:2em;opacity:.3">&#128225;</div><div>' + ch.label + '</div><div style="font-size:.65rem;color:#444">No stream available</div>'); return; }
     if (status) status.className = 'ltv-tile-status ltv-hidden';
     if (video)  video.style.display = 'none';
-    if (frame)  { frame.style.display = 'block'; frame.src = 'https://www.youtube.com/embed/' + ch.ytId + '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0'; }
+    // UC… = YouTube Channel ID → live_stream?channel= (permanent, no stale IDs)
+    // anything else = specific video ID
+    var ytSrc = ch.ytId.startsWith('UC')
+      ? 'https://www.youtube.com/embed/live_stream?channel=' + ch.ytId + '&autoplay=1&mute=1&controls=1&modestbranding=1&rel=0'
+      : 'https://www.youtube.com/embed/' + ch.ytId + '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0';
+    if (frame)  { frame.style.display = 'block'; frame.src = ytSrc; }
   }
 
   _ltvDestroyTileHls(key);
@@ -4373,9 +4379,12 @@ function _ltvExpandChannel(key) {
   }
   function showYt() {
     if (!ch.ytId) { setBadge('\u26a1 No Signal', '#1a1a1a', '#666'); return; }
-    frame.src = 'https://www.youtube.com/embed/' + ch.ytId + '?autoplay=1&controls=1&modestbranding=1&rel=0';
+    var ytSrc = ch.ytId.startsWith('UC')
+      ? 'https://www.youtube.com/embed/live_stream?channel=' + ch.ytId + '&autoplay=1&controls=1&modestbranding=1&rel=0'
+      : 'https://www.youtube.com/embed/' + ch.ytId + '?autoplay=1&controls=1&modestbranding=1&rel=0';
+    frame.src = ytSrc;
     frame.style.display = 'block';
-    setBadge('\u25b6 YouTube', '#4a1a1a', '#ef9a9a');
+    setBadge('\u25b6 YouTube Live', '#4a1a1a', '#ef9a9a');
   }
   if (ch.hlsUrl) {
     if (typeof Hls !== 'undefined' && Hls.isSupported()) {
