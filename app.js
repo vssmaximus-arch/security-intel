@@ -6374,12 +6374,19 @@ async function handleGenerateBriefClick() {
     }
 
     // Section colour map — emoji prefix → accent colour
+    // SITREP sections
     const _SECT_COLORS = {
       '⚡': '#f4a742', // Key Takeaways — amber
       '🔺': '#e05252', // Escalations — red
-      '🏢': '#4a90d9', // Dell Impact — blue
+      '🛡': '#e05252', // Protests & Cyber — red
+      '🛡️': '#e05252', // Protests & Cyber (with variation selector) — red
       '📍': '#5cb85c', // Near Assets — green
       '🔭': '#9b7ed9', // Outlook — purple
+      // Daily Threatscape sections
+      '🌐': '#4a90d9', // Active Monitoring — blue
+      '📡': '#e37400', // SRO Forward Radar — orange
+      '🗺': '#5cb85c', // Ongoing Events — green
+      '🗺️': '#5cb85c', // Ongoing Events (with variation selector) — green
     };
     // The briefing modal (#shift-brief-body) ALWAYS has background:#0f1012 (see index.html)
     // so always render with light/white text — never check dark mode toggle for this panel
@@ -6424,7 +6431,8 @@ async function handleGenerateBriefClick() {
 
     bodyEl.innerHTML = `${cacheBanner}<div style="${_wrapStyle}">${_briefHtml}</div>`;
     if (metaEl) {
-      metaEl.textContent = `${data.incident_count} incidents · ${data.region} · ${data.window_h}h · Model: ${data.model || 'AI'} · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
+      const _fmtLabel = data.report_format === 'SITREP' ? '🔴 SITREP' : '📋 DAILY THREATSCAPE';
+      metaEl.textContent = `${_fmtLabel} · ${data.incident_count} incidents · ${data.region} · ${data.window_h}h · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
     }
   } catch(e) {
     bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;">Failed to generate briefing: ${escapeHtml(e.message)}</div>`;

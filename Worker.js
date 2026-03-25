@@ -5781,7 +5781,7 @@ async function handleApiAiBriefing(env, req) {
 
     // KV cache: 20-minute TTL per window+region combo
     const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v6_${windowH}_${region || 'global'}`; // v6 — SITREP style + connect-dots prompt + 50s timeout
+    const briefCacheKey = `briefing_v7_${windowH}_${region || 'global'}`; // v7 — dual format: SITREP vs Daily Threatscape auto-switch
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5840,77 +5840,159 @@ async function handleApiAiBriefing(env, req) {
     // Include summary where available for richer briefing content
     const incidentLines = topIncidents.map((i, idx) => {
       const ts = (() => { try { return new Date(i.time).toISOString().slice(0,16).replace('T',' '); } catch { return ''; } })();
-      const summary = String(i.summary || '').slice(0, 180).trim();
+      const summary = String(i.summary || '').slice(0, 200).trim();
       return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}][${i.region||'?'}] ${i.country||'?'}: ${i.title} (${ts})${summary ? `\n   → ${summary}` : ''}`;
     }).join('\n');
 
-    // Include proximity incidents for Dell asset context
+    // Incidents grouped by region for Daily Threatscape regional monitoring section
+    const _byRegion = {};
+    topIncidents.forEach(i => {
+      const r = String(i.region || 'GLOBAL').toUpperCase();
+      if (!_byRegion[r]) _byRegion[r] = [];
+      _byRegion[r].push(i);
+    });
+    const regionLines = ['APJC','EMEA','AMER','LATAM','GLOBAL']
+      .filter(r => _byRegion[r] && _byRegion[r].length)
+      .map(r => `${r}:\n${_byRegion[r].map(i => `  - [${i.severity_label||'?'}] ${i.country||'?'}: ${i.title}`).join('\n')}`)
+      .join('\n\n');
+
+    // Proximity alerts
     const proxData = await kvGetJson(env, PROXIMITY_KV_KEY, {});
     const proxIncidents = Array.isArray(proxData.incidents) ? proxData.incidents : [];
-    const proxFiltered = proxIncidents.filter(p => {
-      if (!region) return true;
-      return String(p.region || '').toUpperCase() === region;
-    }).slice(0, 10);
+    const proxFiltered = proxIncidents.filter(p => !region || String(p.region||'').toUpperCase() === region).slice(0, 10);
     const proxLines = proxFiltered.map(p => {
       const dist = p.distance_km != null ? `${Math.round(Number(p.distance_km))}km` : 'country-wide';
       return `- [${p.priority||'P3'}] ${p.country||'?'}: ${p.title} → ${dist} from ${p.nearest_site_name||'Dell site'}`;
     }).join('\n');
 
-    // Dell sites summary for grounding Dell impact assessments
-    const dellSitesSummary = (() => {
+    // Dell sites keyed by country for grounding Dell impact assessments
+    const dellSitesByCountry = (() => {
       try {
-        const countryGroups = {};
+        const m = {};
         (DELL_SITES || []).forEach(s => {
-          const c = s.country || s.name || 'Unknown';
-          if (!countryGroups[c]) countryGroups[c] = [];
-          countryGroups[c].push(s.city || s.name);
+          const c = (s.country || 'Unknown').trim();
+          if (!m[c]) m[c] = [];
+          m[c].push(s.city || s.name || c);
         });
-        return Object.entries(countryGroups).map(([c, cities]) => `${c}: ${cities.slice(0,3).join(', ')}`).join(' | ');
-      } catch { return ''; }
+        return m;
+      } catch { return {}; }
     })();
+    const dellSitesSummary = Object.entries(dellSitesByCountry)
+      .map(([c, cities]) => `${c}: ${cities.slice(0,3).join(', ')}`).join(' | ');
 
-    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO) Fusion Center. You write Situation Reports (SITREPs) for SRO leadership and Regional Security Managers (RSMs).
+    // ── MODE DETECTION ──────────────────────────────────────────────────────
+    // SITREP: ≥3 CRITICAL incidents = active major crisis → deep crisis dive format
+    // Daily Threatscape: normal watch period → broader daily overview
+    const criticalCount = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'CRITICAL').length;
+    const isSitrepMode = criticalCount >= 3;
+    const reportFormat = isSitrepMode ? 'SITREP' : 'DAILY_THREATSCAPE';
 
-YOUR OUTPUT MUST READ LIKE THE SAMPLE BELOW — full synthesized analysis, not a bullet list of headlines:
+    // ── PROMPTS ─────────────────────────────────────────────────────────────
+    let systemPrompt, userContent;
 
-SAMPLE KEY TAKEAWAY (write like this):
-"The Iran conflict is expanding geographically and in severity. US strikes have reached eastern Iran and Iraq-based militias, while Iranian retaliatory strikes on Gulf state infrastructure have reduced Qatari LNG output by ~17%. Escalation into eastern Iran and Iraq increases risk of airspace closures, security restrictions, and logistics delays that may impair Dell's ability to move people, product, and sustain operations across the Middle East."
+    if (isSitrepMode) {
+      // ── SITREP FORMAT — used during active major crises (≥3 CRITICAL incidents) ──
+      systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO Fusion Center. An active major crisis is detected. Write a formal Situation Report (SITREP) for SRO leadership and Regional Security Managers (RSMs).
+
+EXACT STYLE TO MATCH — these are real SRO SITREP examples, write identically:
+
+KEY TAKEAWAY example:
+"The Iran conflict is expanding both geographically and in severity. US military operations are expanding on multiple fronts, with long-range strikes reaching eastern Iran and additional actions targeting Iran-backed militias in Iraq. Escalation increases risk of broader regional disruption, including airspace closures, security restrictions, and supplier/logistics delays. These factors may impair Dell's ability to move people, product, and sustain operations across the Middle East."
+
+ANOTHER KEY TAKEAWAY example (global spillover):
+"Reactions continue to spread and intensify well beyond the Middle East. Italy is cutting taxes on fuel for 20 days to alleviate pressure on consumers. Sri Lanka is now rationing fuel, with purchases capped at 15 liters per person per week. Higher fuel costs and rationing will raise Dell's operating and logistics expenses while adding inflation pressure in affected markets."
+
+RECENT ESCALATION example:
+"Iranian strikes on Ras Laffan Industrial City in Qatar — Following an earlier attack on Iran's South Pars gas field, retaliatory strikes caused major damage to Qatari facilities, reducing national LNG output by roughly 17%. This tightens global LNG supply and impacts regional production stability and near-term price volatility."
+
+OUTLOOK example:
+"Increased targeting of energy production and export assets will drive further price rises on global markets. Impacts will not be limited to crude oil or fuels, but will spread through multiple sectors, including industrial manufacturing and food production."
 
 WRITING RULES:
-1. SYNTHESIZE multiple incidents into coherent narratives — do not list raw headlines
-2. CONNECT DOTS — link related events (e.g. Iran strikes → fuel prices → Asia logistics → Dell supply chain)
-3. Be SPECIFIC: names, numbers, percentages, distances, death tolls, port names
-4. Write in confident declarative sentences. Never "may affect", "could impact", "should monitor"
-5. IRAN/MIDDLE EAST: If any Iran/Gulf/Israel incidents exist, synthesize them as the lead story and assess regional spillover to countries where Dell operates
-6. CYBER: Only include if Dell/VMware/EMC named directly, or nation-state APT, or CrowdStrike-scale outage. Never generic CVEs or vendor patches
-7. DELL OPERATIONAL IMPACT: ONLY confirmed facts. If no Dell site/product explicitly named in the data, write: "No confirmed direct Dell operational impact this window." + list nearest Dell locations to incident countries
-8. OUTLOOK: Forward-looking analysis of what will develop in next 24–48h based on trajectory of events above`;
+1. Each KEY TAKEAWAY bullet = 2–5 sentences. Named actors, specific numbers, clear chain of consequences ending at Dell.
+2. CONNECT DOTS: Iran strikes → energy infrastructure damage → fuel price rises → Asia rationing → Dell logistics costs/TM quality of life.
+3. Facts and confident assessments. Not hedging. Not "may", "could", "might" — write what IS happening and WILL happen based on trajectory.
+4. If Iran/Middle East/Gulf events exist — they MUST be the lead story. Synthesize all Iran-related incidents into a unified strategic picture.
+5. PROTESTS & CYBER: Only include these sections if data supports it. Cyber = Dell or major vendor named only.
+6. DELL IMPACT: Cross-reference incident countries against the Dell Sites list. Name actual cities. Only confirmed impacts — no speculation.
+7. OUTLOOK: Multi-dimensional trajectory (military escalation → energy/LNG → food supply chains → Asia impacts → Dell operational exposure).`;
 
-    const userContent = `SRO SITUATION REPORT — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
-Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
-Incidents in window: ${incidents.length} (top ${topIncidents.length} shown after cyber filter)
-${dellSitesSummary ? `\nDELL SITES FOR REFERENCE: ${dellSitesSummary}` : ''}
+      userContent = `SRO SITUATION REPORT — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
+Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC | ${criticalCount} CRITICAL incidents detected — SITREP mode
+Total incidents: ${incidents.length} | Shown: ${topIncidents.length} (cyber pre-filtered)
+${dellSitesSummary ? `\nDELL SITES REFERENCE: ${dellSitesSummary}` : ''}
 
-INCIDENT FEED (severity-ranked):
+INCIDENT FEED (severity-ranked, with summaries):
 ${incidentLines}
-${proxLines ? `\nPROXIMITY ALERTS — events within range of Dell assets:\n${proxLines}` : ''}
+${proxLines ? `\nPROXIMITY ALERTS (events near Dell assets):\n${proxLines}` : ''}
 
-Write the SITREP in exactly these 5 sections. Each must be fully synthesized intelligence — not a list of titles. Write as a human analyst would for senior leadership:
+Write the SITREP using exactly these sections. Each section must be fully synthesized intelligence — NOT a list of raw titles:
 
 ## ⚡ KEY TAKEAWAYS
-[3–5 bullets. Each bullet is 2–4 sentences synthesizing the strategic picture. Lead with the biggest story (e.g. Iran conflict). Connect causes to consequences to Dell exposure. Write like the sample above.]
+[3–5 bullets. Each = 2–5 sentences of synthesized strategic assessment. Lead with the dominant crisis (e.g. Iran/Gulf conflict). Each bullet connects: what happened → scale/numbers → consequences → Dell exposure. Write exactly like the samples above.]
 
 ## 🔺 RECENT ESCALATIONS
-[Named events with specifics: location — what happened — scale/numbers — date. One paragraph or structured list per major event. Include quotes or official statements if in the data.]
+[Specific named events. For each: bold location/actor — narrative description of what happened — scale (numbers, %, casualties, infrastructure named) — date. Write as structured paragraphs, not a headline list.]
 
-## 🏢 DELL OPERATIONAL IMPACT
-[CONFIRMED ONLY — no speculation. Cross-reference incident countries against DELL SITES FOR REFERENCE. State which Dell office locations are in affected countries/regions. Only state confirmed closures, WFH directives, travel impacts, or named Dell products if explicitly in the incident data. End with: "Dell sites in affected areas: [list]".]
+## 🛡️ PROTESTS & CYBER
+[Include ONLY if the incident data contains: (a) protests near Dell offices, anti-US/tech sentiment, or (b) cyber events naming Dell, VMware, or a major vendor. If neither is in the data, omit this section entirely.]
 
 ## 📍 EVENTS NEAR DELL ASSETS
-[From proximity alerts above: event — location — distance — Dell site name. Write as formatted list. If none: "No proximity events this window."]
+[From proximity alerts: event — location — distance — Dell site name. If none: "No proximity events this window."]
 
 ## 🔭 OUTLOOK
-[2–3 bullets. Trajectory-based assessment: what is actively escalating, what will likely develop in 24–48h, and what operational implications follow for Dell. Be specific about countries and business functions at risk.]`;
+[2–4 bullets. Multi-dimensional forward trajectory: military/political → energy markets → supply chain/logistics → Asia spillover → Dell operational implications. Name specific countries and business functions at risk.]`;
+
+    } else {
+      // ── DAILY THREATSCAPE FORMAT — normal watch period (< 3 CRITICAL incidents) ──
+      systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO Fusion Center. Write the Daily Threatscape briefing for SRO leadership and Regional Security Managers (RSMs).
+
+EXACT STYLE TO MATCH — these are real SRO Daily Threatscape examples, write identically:
+
+ACTIVE MONITORING example:
+"Iran/Israel/Global: President Trump is currently signaling both a desire to negotiate an end to the war, and a willingness to escalate. We should not plan for an immediate, lasting ceasefire. Iran continues to fire at Israel and Gulf countries; attacks on Iran are similarly ongoing. In the Philippines, where we have an office in capital city Manila, the president has declared a national energy emergency. In the immediate term, our TMs there may experience higher prices or shortages of fuel and other essential goods, and increased journey times traveling to and from work sites."
+
+SRO FORWARD RADAR example:
+"Hong Kong: As of 23 March, police can compel people suspected of violating national security laws to provide passwords to their cell phones and computers. The laws cover subversion, secession, terrorism, and collusion with foreign forces — defined vaguely, meaning an extremely broad spectrum of activities can be deemed illegal. Foreign companies should respond by using devices stripped of sensitive corporate and personal data and avoiding politically sensitive activity."
+
+ONGOING EVENTS example:
+"APJC
+- Monitoring — Pakistan/Afghanistan: Pakistan has declared 'open war' with Afghanistan. Major air strike on Kabul 17 March.
+- Monitoring — Tropical Cyclone Narelle, moving over Australia. No TMs currently in path.
+EMEA
+- Monitoring — US/Israeli attacks against Iran; widening Iranian retaliation across Middle East.
+- Awareness — Ongoing Russian attacks on Ukraine."
+
+WRITING RULES:
+1. ACTIVE MONITORING = flowing narrative paragraphs by major theme/geography. When a Dell office country is involved, name the city explicitly (e.g. "where we have an office in Dubai").
+2. SRO FORWARD RADAR = upcoming concerns: new laws, regulatory changes, political trends, emerging risks. Not immediate crises — those go in Active Monitoring.
+3. ONGOING EVENTS = structured monitoring list grouped by region (APJC / EMEA / AMER). Each item: Status (Monitoring/Awareness) — Location — brief description — Dell TM note if relevant.
+4. OUTLOOK = 2–3 forward-looking bullets. What will develop, what Dell should expect.
+5. Tone: direct, factual, written for senior managers with no time. Complete sentences. No jargon.`;
+
+      userContent = `SRO DAILY THREATSCAPE — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
+Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
+Total incidents: ${incidents.length} | Shown: ${topIncidents.length}
+${dellSitesSummary ? `\nDELL SITES REFERENCE: ${dellSitesSummary}` : ''}
+
+INCIDENT FEED (by region):
+${regionLines || incidentLines}
+${proxLines ? `\nPROXIMITY ALERTS (events near Dell assets):\n${proxLines}` : ''}
+
+Write the Daily Threatscape using exactly these sections:
+
+## 🌐 ACTIVE MONITORING
+[2–4 narrative paragraphs covering the main ongoing situations. Lead with the most significant developing situation. When an incident country has a Dell office, name the city. Write like the sample above — connected analytical narrative, not bullet points.]
+
+## 📡 SRO FORWARD RADAR
+[Country-specific watch items for situations that are developing but not yet immediate crises. Regulatory/legal changes, political developments, emerging security trends. Format: "COUNTRY: narrative paragraph." Include only what has forward intelligence value.]
+
+## 🗺️ ONGOING EVENTS
+[Structured monitoring list grouped by APJC / EMEA / AMER. Each item: "- Monitoring/Awareness — Location: description. [Dell TM note if relevant]." Only include regions that have items.]
+
+## 🔭 OUTLOOK
+[2–3 bullets. What is actively developing, what Dell should expect in the next 24–48h, and which business functions or geographies are most exposed.]`;
+    }
 
     // Use llama-3.3-70b-versatile DIRECTLY — separate RPM bucket from classification (llama-3.1-8b-instant)
     let result;
@@ -5949,6 +6031,7 @@ Write the SITREP in exactly these 5 sections. Each must be fully synthesized int
       region: region || 'Global',
       generated_at: new Date().toISOString(),
       model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
+      report_format: reportFormat, // 'SITREP' or 'DAILY_THREATSCAPE'
     };
 
     // Store in KV (fire-and-forget, no await needed but we await for reliability)
