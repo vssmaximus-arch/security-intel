@@ -1631,6 +1631,11 @@ function renderProximityAlerts(region) {
         dist: (inc.distance_km != null) ? Number(inc.distance_km) : (siteDists[0] ? siteDists[0].dist : 9999)
       };
 
+      // Document / meeting quality gate — blocks UN docs, meeting minutes, working papers,
+      // bureaucratic items that are not operational threats. Applies even to country_wide items.
+      const _PROX_DOC_PATTERN = /\b(MoM\b|minutes\s+of\s+(meeting|the\s+meeting)|sub[\s-]?working\s+group|SWG\b|working\s+paper|terms\s+of\s+reference|ToR\b|agenda\s+item|refer\s+to\s+attached|MoU\s+signing|CPGBV|SGBV\s+SWG|GBV\s+SWG|\bSWG\s+[A-Z]|February\s+MoM|January\s+MoM|March\s+MoM|April\s+MoM|May\s+MoM|June\s+MoM|July\s+MoM|August\s+MoM|September\s+MoM|October\s+MoM|November\s+MoM|December\s+MoM|quarterly\s+report|monthly\s+report|sitrep\s+\#|situation\s+report\s+\#)\b/i;
+      if (_PROX_DOC_PATTERN.test(inc.title || '')) return;
+
       // Distance gate — tiered hard caps per threat type:
       //   300km: Natural hazards (earthquake, tsunami, cyclone) — wide zone for personnel safety
       //   300km: Ballistic / missile events (NK rockets, airstrikes) — immediate physical danger zone
@@ -6281,11 +6286,30 @@ async function handleGenerateBriefClick() {
   try {
     const url = `${WORKER_URL}/api/ai/briefing?window=${encodeURIComponent(windowH)}&region=${encodeURIComponent(region)}`;
     const res = await fetchWithTimeout(url, {});
+    const cacheStatus = res.headers.get('X-Cache') || '';
+    const cacheAgeS   = parseInt(res.headers.get('X-Cache-Age') || '0', 10) || 0;
     const data = await res.json();
 
     if (data.error && !data.briefing) {
-      bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;">${escapeHtml(data.error)}</div>`;
+      bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;font-size:0.82rem;">
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        Unable to generate briefing right now — AI rate limit reached. Please try again in a minute.
+      </div>`;
       return;
+    }
+
+    // Cache / stale notice banner
+    let cacheBanner = '';
+    if (data.stale) {
+      const staleMinAgo = Math.round(cacheAgeS / 60);
+      cacheBanner = `<div style="padding:6px 10px;margin-bottom:10px;border-radius:4px;font-size:0.74rem;background:rgba(227,116,0,0.12);color:#e37400;border-left:3px solid #e37400;">
+        <i class="fas fa-exclamation-circle me-1"></i>AI rate limit reached — showing last briefing from ${staleMinAgo}m ago.
+      </div>`;
+    } else if (data.cached || cacheStatus === 'HIT') {
+      const minAgo = Math.round(cacheAgeS / 60);
+      cacheBanner = `<div style="padding:6px 10px;margin-bottom:10px;border-radius:4px;font-size:0.74rem;background:rgba(74,144,217,0.10);color:#4a90d9;border-left:3px solid #4a90d9;">
+        <i class="fas fa-bolt me-1"></i>Cached briefing · generated ${minAgo}m ago.
+      </div>`;
     }
 
     // Render briefing text: convert ## headings and - bullets to basic HTML
@@ -6294,7 +6318,7 @@ async function handleGenerateBriefClick() {
       .replace(/^- (.+)$/gm, '<div style="padding-left:12px;">• $1</div>')
       .replace(/\n/g, '<br>');
 
-    bodyEl.innerHTML = `<div style="padding:4px 0;">${formatted}</div>`;
+    bodyEl.innerHTML = `${cacheBanner}<div style="padding:4px 0;">${formatted}</div>`;
     if (metaEl) {
       metaEl.textContent = `${data.incident_count} incidents · ${data.region} · ${data.window_h}h · Model: ${data.model || 'AI'} · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
     }

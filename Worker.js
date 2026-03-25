@@ -953,6 +953,10 @@ function _responseFromResult(resObj) {
   const bodyVal = (resObj && typeof resObj.body === 'object') ? JSON.stringify(resObj.body) : String(resObj && resObj.body != null ? resObj.body : '');
   const headers = { ...CORS_HEADERS };
   if (resObj && typeof resObj.body === 'object') headers["Content-Type"] = "application/json";
+  // Merge any extra headers returned by the handler (e.g. X-Cache, X-Cache-Age)
+  if (resObj && resObj.headers && typeof resObj.headers === 'object') {
+    Object.assign(headers, resObj.headers);
+  }
   return new Response(bodyVal, { status: resObj.status || 200, headers });
 }
 
@@ -5692,6 +5696,24 @@ async function handleApiAiBriefing(env, req) {
     const windowH = Math.min(48, Math.max(1, parseInt(url.searchParams.get('window') || '8', 10)));
     const region = (url.searchParams.get('region') || '').toUpperCase().trim();
 
+    // KV cache: 20-minute TTL per window+region combo
+    const BRIEFING_CACHE_TTL_S = 1200; // 20 min
+    const briefCacheKey = `briefing_v1_${windowH}_${region || 'global'}`;
+
+    const cachedResult = await kvGetJson(env, briefCacheKey, null);
+    const cacheAgeS = cachedResult?.generated_at
+      ? Math.floor((Date.now() - new Date(cachedResult.generated_at).getTime()) / 1000)
+      : null;
+    const isCacheFresh = cachedResult && cacheAgeS != null && cacheAgeS < BRIEFING_CACHE_TTL_S;
+
+    if (isCacheFresh) {
+      return {
+        status: 200,
+        headers: { 'X-Cache': 'HIT', 'X-Cache-Age': String(cacheAgeS) },
+        body: { ...cachedResult, cached: true },
+      };
+    }
+
     let incidents = await kvGetJson(env, INCIDENTS_KV_KEY, []);
     const cutoffMs = Date.now() - windowH * 3600 * 1000;
     incidents = (Array.isArray(incidents) ? incidents : []).filter(i => {
@@ -5702,7 +5724,8 @@ async function handleApiAiBriefing(env, req) {
     }
 
     if (!incidents.length) {
-      return { status: 200, body: { briefing: `No incidents found in the last ${windowH}h${region ? ` for ${region}` : ''}.`, incident_count: 0, window_h: windowH, region: region || 'Global', generated_at: new Date().toISOString(), model: 'none' } };
+      const emptyResult = { briefing: `No incidents found in the last ${windowH}h${region ? ` for ${region}` : ''}.`, incident_count: 0, window_h: windowH, region: region || 'Global', generated_at: new Date().toISOString(), model: 'none' };
+      return { status: 200, headers: { 'X-Cache': 'MISS' }, body: emptyResult };
     }
 
     const incidentLines = incidents.slice(0, 30).map((i, idx) =>
@@ -5722,17 +5745,34 @@ Write in intelligence report style: clear, factual, action-oriented. No fluff.`;
       model: 'claude-sonnet-4-5',
     });
 
+    // On rate-limit or LLM failure — serve stale cache if available rather than showing error
+    if (result.error && !result.text) {
+      if (cachedResult) {
+        return {
+          status: 200,
+          headers: { 'X-Cache': 'STALE', 'X-Cache-Age': String(cacheAgeS ?? 9999) },
+          body: { ...cachedResult, cached: true, stale: true, stale_reason: result.error },
+        };
+      }
+      return { status: 503, headers: { 'X-Cache': 'MISS' }, body: { error: `AI unavailable: ${result.error}`, incident_count: incidents.length, window_h: windowH, region: region || 'Global' } };
+    }
+
+    const freshResult = {
+      briefing: result.text,
+      incident_count: incidents.length,
+      window_h: windowH,
+      region: region || 'Global',
+      generated_at: new Date().toISOString(),
+      model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
+    };
+
+    // Store in KV (fire-and-forget, no await needed but we await for reliability)
+    await kvPut(env, briefCacheKey, freshResult, { expirationTtl: BRIEFING_CACHE_TTL_S * 3 }); // KV TTL 3x longer than freshness window so stale fallback works
+
     return {
-      status: result.error && !result.text ? 503 : 200,
-      body: {
-        briefing: result.text || `AI unavailable: ${result.error}`,
-        incident_count: incidents.length,
-        window_h: windowH,
-        region: region || 'Global',
-        generated_at: new Date().toISOString(),
-        model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
-        error: result.error || null,
-      },
+      status: 200,
+      headers: { 'X-Cache': 'MISS' },
+      body: { ...freshResult, cached: false },
     };
   } catch (e) {
     typeof debug === 'function' && debug('handleApiAiBriefing error', e?.message || e);
