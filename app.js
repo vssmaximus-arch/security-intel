@@ -4313,9 +4313,16 @@ function _ltvRenderGrid() {
   if (countEl) countEl.textContent = visible.length + ' channel' + (visible.length === 1 ? '' : 's') + ' active';
 
   if (!visible.length) {
+    grid.style.gridTemplateRows = 'repeat(3, 1fr)';
     grid.innerHTML = '<div class="ltv-empty"><div style="font-size:2.5em">&#128250;</div><div>No channels selected</div><div style="font-size:.75rem;color:#3c4043">Open <strong>Customize</strong> to add channels</div></div>';
     return;
   }
+
+  // Dynamic row count: minimum 3 rows (fills screen for 6 default channels),
+  // grows for additional channels so extras continue in the same tile format
+  const rows = Math.max(3, Math.ceil(visible.length / 2));
+  grid.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+
   grid.innerHTML = visible.map(ch =>
     '<div class="ltv-tile" id="ltv-tile-' + ch.key + '" data-key="' + ch.key + '">' +
       '<div class="ltv-tile-hdr">' +
@@ -4426,13 +4433,34 @@ function _ltvRenderDrawer() {
   }).join('');
 }
 
+/* ── Height fit — fills exactly the visible viewport below the chrome ── */
+function _ltvFitHeight() {
+  const el = document.getElementById('view-live-news');
+  if (!el || el.style.display === 'none') return;
+  // Measure the element's actual top edge relative to the viewport
+  const top = el.getBoundingClientRect().top;
+  const h   = Math.max(400, window.innerHeight - top - 2);
+  el.style.height = h + 'px';
+}
+
 /* ── Init ──────────────────────────────────────────────── */
 function _ltvInit() {
   if (_ltvInitDone) return;
   _ltvInitDone = true;
   _ltvLoadPrefs();
+  // Fit height on first render, then again after layout settles
+  _ltvFitHeight();
+  setTimeout(_ltvFitHeight, 80);
   _ltvRenderGrid();
 }
+
+// Re-fit on window resize (covers switching between monitors / resizing browser)
+window.addEventListener('resize', function() {
+  if (document.getElementById('view-live-news') &&
+      document.getElementById('view-live-news').style.display !== 'none') {
+    _ltvFitHeight();
+  }
+});
 
 // Shim: keep _lnTabInit pointing at LTV init so tab-switch code still works
 function _lnTabInit() { _ltvInit(); }

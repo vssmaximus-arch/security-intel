@@ -4880,7 +4880,8 @@
     /* ── Live TV Wall ────────────────────────────────────── */
     #view-live-news {
       display: flex; flex-direction: column;
-      background: #0d1117; height: calc(100vh - 110px);
+      background: #0d1117;
+      /* height set dynamically by _ltvFitHeight() on init + resize */
       overflow: hidden; position: relative;
     }
     .ltv-topbar {
@@ -4897,12 +4898,12 @@
       border-radius: 6px; padding: 5px 14px; font-size: .72rem; font-weight: 700; cursor: pointer;
     }
     .ltv-customize-btn:hover { background: #243050; }
-    /* Grid — 2 cols × 3 rows */
+    /* Grid — 2 cols × N rows (row count set dynamically by JS) */
     .ltv-grid {
       flex: 1; display: grid;
       grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 6px; padding: 8px; min-height: 0; overflow: auto;
+      /* grid-template-rows injected by _ltvRenderGrid() */
+      gap: 6px; padding: 8px; min-height: 0; overflow-y: auto;
     }
     /* Tile */
     .ltv-tile {
@@ -5275,8 +5276,9 @@
         if (typeof initApGrid === 'function') initApGrid();
       } else if (view === 'live-news') {
         if (liveNews) liveNews.style.display = '';
-        /* Init LTV grid — only runs once */
-        if (typeof _lnTabInit === 'function') _lnTabInit();
+        /* Init LTV grid — only runs once; re-fit height every visit */
+        if (typeof _lnTabInit    === 'function') _lnTabInit();
+        if (typeof _ltvFitHeight === 'function') { _ltvFitHeight(); setTimeout(_ltvFitHeight, 120); }
       } else if (view === 'vessel-watch') {
         if (vwView) vwView.style.display = '';
         loadPortData(false);
