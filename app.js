@@ -6346,7 +6346,7 @@ async function handleGenerateBriefClick() {
 
   try {
     const url = `${WORKER_URL}/api/ai/briefing?window=${encodeURIComponent(windowH)}&region=${encodeURIComponent(region)}`;
-    const res = await fetchWithTimeout(url, {});
+    const res = await fetchWithTimeout(url, {}, 50000); // 50s — LLM calls need longer than default 15s
     const cacheStatus = res.headers.get('X-Cache') || '';
     const cacheAgeS   = parseInt(res.headers.get('X-Cache-Age') || '0', 10) || 0;
     const data = await res.json();

@@ -5781,7 +5781,7 @@ async function handleApiAiBriefing(env, req) {
 
     // KV cache: 20-minute TTL per window+region combo
     const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v5_${windowH}_${region || 'global'}`; // v5 — confirmed-only Dell impact + no-hypothetical rule
+    const briefCacheKey = `briefing_v6_${windowH}_${region || 'global'}`; // v6 — SITREP style + connect-dots prompt + 50s timeout
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5837,76 +5837,92 @@ async function handleApiAiBriefing(env, req) {
     const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 5);
     const topIncidents = [...critHigh, ...medFill];
 
-    // Compact format — title + metadata only, no summaries (saves ~40% tokens)
+    // Include summary where available for richer briefing content
     const incidentLines = topIncidents.map((i, idx) => {
-      const ts = (() => { try { return new Date(i.time).toISOString().slice(0,10); } catch { return ''; } })();
-      return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}][${i.region||'?'}] ${i.country||'?'}: ${i.title} (${ts})`;
+      const ts = (() => { try { return new Date(i.time).toISOString().slice(0,16).replace('T',' '); } catch { return ''; } })();
+      const summary = String(i.summary || '').slice(0, 180).trim();
+      return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}][${i.region||'?'}] ${i.country||'?'}: ${i.title} (${ts})${summary ? `\n   → ${summary}` : ''}`;
     }).join('\n');
 
-    // Include proximity incidents (events near Dell sites) for context
+    // Include proximity incidents for Dell asset context
     const proxData = await kvGetJson(env, PROXIMITY_KV_KEY, {});
     const proxIncidents = Array.isArray(proxData.incidents) ? proxData.incidents : [];
     const proxFiltered = proxIncidents.filter(p => {
       if (!region) return true;
       return String(p.region || '').toUpperCase() === region;
-    }).slice(0, 8);
+    }).slice(0, 10);
     const proxLines = proxFiltered.map(p => {
       const dist = p.distance_km != null ? `${Math.round(Number(p.distance_km))}km` : 'country-wide';
       return `- [${p.priority||'P3'}] ${p.country||'?'}: ${p.title} → ${dist} from ${p.nearest_site_name||'Dell site'}`;
     }).join('\n');
 
-    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO). You write shift handover briefings for SRO leadership and Regional Security Managers (RSMs).
+    // Dell sites summary for grounding Dell impact assessments
+    const dellSitesSummary = (() => {
+      try {
+        const countryGroups = {};
+        (DELL_SITES || []).forEach(s => {
+          const c = s.country || s.name || 'Unknown';
+          if (!countryGroups[c]) countryGroups[c] = [];
+          countryGroups[c].push(s.city || s.name);
+        });
+        return Object.entries(countryGroups).map(([c, cities]) => `${c}: ${cities.slice(0,3).join(', ')}`).join(' | ');
+      } catch { return ''; }
+    })();
 
-INTELLIGENCE FOCUS (in priority order):
-1. DUTY OF CARE — threats to Dell employees: terror attacks, kidnappings, shootings, civil unrest, evacuations, pandemics, travel advisories
-2. NATURAL HAZARDS / CRISIS — earthquakes, typhoons, cyclones, floods, wildfires, volcanic eruptions, state of emergency declarations affecting regions where Dell operates
-3. SUPPLY CHAIN — port closures, shipping lane disruptions (Red Sea, Suez, Hormuz, Panama), cargo theft, factory/plant shutdowns, rail/air freight disruptions, sanctions/trade embargoes
-4. SITE SECURITY — physical breaches, infrastructure failures, power grid outages, critical infrastructure attacks
-5. CYBER — ONLY if: directly named Dell/VMware/EMC OR a major vendor (Microsoft, AWS, Cisco, CrowdStrike, Okta) OR nation-state/APT attack OR affects critical infrastructure at scale. DO NOT include generic CVE patches, vendor advisories, or small-scale hacks.
+    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO) Fusion Center. You write Situation Reports (SITREPs) for SRO leadership and Regional Security Managers (RSMs).
+
+YOUR OUTPUT MUST READ LIKE THE SAMPLE BELOW — full synthesized analysis, not a bullet list of headlines:
+
+SAMPLE KEY TAKEAWAY (write like this):
+"The Iran conflict is expanding geographically and in severity. US strikes have reached eastern Iran and Iraq-based militias, while Iranian retaliatory strikes on Gulf state infrastructure have reduced Qatari LNG output by ~17%. Escalation into eastern Iran and Iraq increases risk of airspace closures, security restrictions, and logistics delays that may impair Dell's ability to move people, product, and sustain operations across the Middle East."
 
 WRITING RULES:
-- SYNTHESIZE — never copy-paste raw titles. Write like an experienced analyst.
-- Be SPECIFIC: name countries, cities, companies, scale (e.g. "7.2M quake", "3 ports closed", "14 dead")
-- Short punchy sentences. No padding, no advice, no "should/must/recommend/monitor".
-- Facts and assessments only. Confidently state what is significant and why.
-- If an event is in a country with Dell offices or employees, flag it explicitly.`;
+1. SYNTHESIZE multiple incidents into coherent narratives — do not list raw headlines
+2. CONNECT DOTS — link related events (e.g. Iran strikes → fuel prices → Asia logistics → Dell supply chain)
+3. Be SPECIFIC: names, numbers, percentages, distances, death tolls, port names
+4. Write in confident declarative sentences. Never "may affect", "could impact", "should monitor"
+5. IRAN/MIDDLE EAST: If any Iran/Gulf/Israel incidents exist, synthesize them as the lead story and assess regional spillover to countries where Dell operates
+6. CYBER: Only include if Dell/VMware/EMC named directly, or nation-state APT, or CrowdStrike-scale outage. Never generic CVEs or vendor patches
+7. DELL OPERATIONAL IMPACT: ONLY confirmed facts. If no Dell site/product explicitly named in the data, write: "No confirmed direct Dell operational impact this window." + list nearest Dell locations to incident countries
+8. OUTLOOK: Forward-looking analysis of what will develop in next 24–48h based on trajectory of events above`;
 
-    const userContent = `${windowH}-hour SRO Shift Briefing${region ? ` — ${region} Region` : ' — Global'}.
-${incidents.length} total incidents this window. Top ${topIncidents.length} shown (cyber pre-filtered to Dell-relevant only).
+    const userContent = `SRO SITUATION REPORT — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
+Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
+Incidents in window: ${incidents.length} (top ${topIncidents.length} shown after cyber filter)
+${dellSitesSummary ? `\nDELL SITES FOR REFERENCE: ${dellSitesSummary}` : ''}
 
-INCIDENT FEED (sorted by severity):
+INCIDENT FEED (severity-ranked):
 ${incidentLines}
-${proxLines ? `\nPROXIMITY ALERTS (events near Dell sites):\n${proxLines}` : ''}
+${proxLines ? `\nPROXIMITY ALERTS — events within range of Dell assets:\n${proxLines}` : ''}
 
-Write the briefing using exactly these 5 sections. Each section must use real synthesized intelligence — not a list of raw titles:
+Write the SITREP in exactly these 5 sections. Each must be fully synthesized intelligence — not a list of titles. Write as a human analyst would for senior leadership:
 
 ## ⚡ KEY TAKEAWAYS
-[3–5 bullets. Lead with the highest-impact items. Each bullet: what happened + where + why it matters to Dell/employees/supply chain. Combine related items into a single synthesized sentence.]
+[3–5 bullets. Each bullet is 2–4 sentences synthesizing the strategic picture. Lead with the biggest story (e.g. Iran conflict). Connect causes to consequences to Dell exposure. Write like the sample above.]
 
 ## 🔺 RECENT ESCALATIONS
-[CRITICAL and HIGH items only. Format: COUNTRY/REGION — specific event description — scale or impact numbers — date. One line per event. Bold escalation keywords if appropriate.]
+[Named events with specifics: location — what happened — scale/numbers — date. One paragraph or structured list per major event. Include quotes or official statements if in the data.]
 
 ## 🏢 DELL OPERATIONAL IMPACT
-[STRICT RULE: Only write what is EXPLICITLY AND DIRECTLY confirmed in the incident data above. Do NOT infer, speculate, or hypothesise. Do NOT say "may affect", "could impact", "should be vigilant", "potential impact". Only state: a Dell site name mentioned in an incident, a Dell product explicitly named (e.g. Dell RecoverPoint, FlexPLM), a confirmed Dell employee/travel route affected. If NONE of the incidents explicitly name Dell, a Dell site, or a Dell product — write exactly: "No confirmed direct Dell operational impact this window. Nearest relevant Dell locations: [list 1-2 Dell sites in countries appearing in the incident feed]." Nothing else.]
+[CONFIRMED ONLY — no speculation. Cross-reference incident countries against DELL SITES FOR REFERENCE. State which Dell office locations are in affected countries/regions. Only state confirmed closures, WFH directives, travel impacts, or named Dell products if explicitly in the incident data. End with: "Dell sites in affected areas: [list]".]
 
 ## 📍 EVENTS NEAR DELL ASSETS
-[List each proximity alert: event type — location — distance from nearest Dell site — Dell site name. If none this period, state "None reported this window."]
+[From proximity alerts above: event — location — distance — Dell site name. Write as formatted list. If none: "No proximity events this window."]
 
 ## 🔭 OUTLOOK
-[2–3 bullets. Only forecast based on data above. What situations are actively developing, escalating, or likely to affect Dell operations in the next 24–48 hours.]`;
+[2–3 bullets. Trajectory-based assessment: what is actively escalating, what will likely develop in 24–48h, and what operational implications follow for Dell. Be specific about countries and business functions at risk.]`;
 
     // Use llama-3.3-70b-versatile DIRECTLY — separate RPM bucket from classification (llama-3.1-8b-instant)
-    // This prevents the ingest classification calls from exhausting the briefing rate limit
     let result;
     if (env.ANTHROPIC_API_KEY) {
-      result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1200, model: 'claude-sonnet-4-5' });
+      result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1800, model: 'claude-sonnet-4-5' });
     } else {
       const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
-      result = await callGroqChat(env, groqMsgs, { max_tokens: 1200, model: 'llama-3.3-70b-versatile' });
-      // One retry after 6s on rate limit — RPM window resets every 60s, usually 6s is enough after a burst
+      result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+      // One retry after 6s on rate limit
       if (result.error === 'http_429') {
         await sleep(6000);
-        result = await callGroqChat(env, groqMsgs, { max_tokens: 1200, model: 'llama-3.3-70b-versatile' });
+        result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
       }
     }
 
