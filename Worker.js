@@ -5122,6 +5122,108 @@ async function handleApiMaritimePosture(env) {
 }
 /* ── END MARITIME EXPOSURE LAYER ──────────────────────────────────────────── */
 
+/* ── Airport Live Status — proxies FR24 then OpenSky, no browser CORS ── */
+async function handleApiAirportLive(env, req) {
+  const url  = new URL(req.url);
+  const iata = (url.searchParams.get('iata') || '').toUpperCase().replace(/[^A-Z]/g,'').slice(0,4);
+  if (!iata) return new Response(JSON.stringify({ error:'iata required' }), { status:400, headers:CORS_HEADERS });
+
+  /* KV cache — 15 min */
+  const cacheKey = `airport_live_v2:${iata}`;
+  try {
+    const cached = await env.INCIDENTS_KV.get(cacheKey, 'json');
+    if (cached && cached._ts && (Date.now() - cached._ts) < 900000) {
+      return new Response(JSON.stringify({ ...cached, cached:true }), {
+        headers: { ...CORS_HEADERS, 'Content-Type':'application/json', 'X-Cache':'HIT' },
+      });
+    }
+  } catch (_) {}
+
+  let result = null;
+
+  /* ── 1. Try FlightRadar24 airport traffic-stats API ── */
+  try {
+    const fr24 = await fetch(
+      `https://www.flightradar24.com/airports/traffic-stats/?iata=${iata}&timezone=UTC`,
+      {
+        headers: {
+          'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36',
+          'Accept':'application/json, */*',
+          'Referer':'https://www.flightradar24.com/',
+          'Origin':'https://www.flightradar24.com',
+        },
+        signal: AbortSignal.timeout(8000),
+      }
+    );
+    if (fr24.ok) {
+      const d = await fr24.json();
+      const stats  = d.stats || d.airport?.stats || d;
+      const dep    = stats.departures || {};
+      const arr    = stats.arrivals   || {};
+      const total  = (dep.total || 0) + (arr.total || 0);
+      const canc   = (dep.cancelled || dep.canceled || 0) + (arr.cancelled || arr.canceled || 0);
+      const delayed= (dep.delayed || 0) + (arr.delayed || 0);
+      const avgDly = stats.averageDelay || dep.avgDelay || arr.avgDelay || 0;
+      const rawIdx = d.disruptionIndex ?? d.disruption_index ?? stats.disruptionIndex ?? null;
+      let idx = rawIdx !== null ? parseFloat(rawIdx) : null;
+      if (idx === null && total > 0) {
+        const cr = canc / total;
+        const dr = delayed / total;
+        idx = Math.min(5, parseFloat((cr * 5 + dr * 2 + (Math.min(avgDly, 120) / 120) * 1.5).toFixed(1)));
+      }
+      result = {
+        iata, source:'FR24',
+        disruption_index: idx,
+        total_flights: total, cancelled: canc, delayed, avg_delay_min: avgDly,
+        _ts: Date.now(),
+      };
+    }
+  } catch (_) {}
+
+  /* ── 2. Fallback: OpenSky Network departure count ── */
+  if (!result) {
+    const ICAO = {
+      BGW:'ORBI',BEY:'OLBA',TLV:'LLBG',DAM:'OSDI',DOH:'OTHH',
+      DXB:'OMDB',AUH:'OMAA',AMM:'OJAI',KWI:'OKBK',KBL:'OAKB',
+      KRT:'HSSS',MHD:'OIMM',GZA:'LVGZ',CAI:'HECA',IST:'LTBA',
+      SAW:'LTFJ',ESB:'LTAC',ADD:'HAAB',NBO:'HKNA',JNB:'FAJS',
+      LOS:'DNMM',ACC:'DGAA',DKR:'GOOY',CMN:'GMMN',TLY:'UMII',
+      LED:'ULLI',KHI:'OPKC',ISB:'OPRN',LHE:'OPLA',DEL:'VIDP',
+    };
+    const icao = ICAO[iata];
+    if (icao) {
+      try {
+        const end   = Math.floor(Date.now() / 1000);
+        const begin = end - 7200;
+        const osky  = await fetch(
+          `https://opensky-network.org/api/flights/departure?airport=${icao}&begin=${begin}&end=${end}`,
+          { signal: AbortSignal.timeout(9000) }
+        );
+        if (osky.ok) {
+          const flights = await osky.json();
+          const count   = Array.isArray(flights) ? flights.length : 0;
+          const idx = count === 0 ? 4.5 : count < 4 ? 3.5 : count < 10 ? 2.0 : 0.5;
+          result = {
+            iata, source:'OpenSky',
+            departures_2h: count,
+            disruption_index: idx,
+            total_flights: count, cancelled: null, delayed: null, avg_delay_min: null,
+            _ts: Date.now(),
+          };
+        }
+      } catch (_) {}
+    }
+  }
+
+  if (!result) result = { iata, source:'unavailable', disruption_index:null, _ts:Date.now() };
+
+  try { await env.INCIDENTS_KV.put(cacheKey, JSON.stringify(result), { expirationTtl:900 }); } catch (_) {}
+
+  return new Response(JSON.stringify(result), {
+    headers: { ...CORS_HEADERS, 'Content-Type':'application/json', 'Cache-Control':'public, max-age=300' },
+  });
+}
+
 async function handleApiTravel(env, urlParams) {
   // support /api/traveladvisories and /api/traveladvisories/live
   if (urlParams && urlParams.get('country')) {
@@ -5971,10 +6073,35 @@ async function handleApiAviationCancellations(env) {
     });
   }
 
-  // Airlabs /schedules requires dep_iata or arr_iata — query 4 major hubs in parallel.
-  // Rate limit: 4 airports × 4 refreshes/day × 30 days = 480 calls/month (within 500/month free quota).
-  const CACHE_KEY = 'aviation_cancellations_v3';
-  const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
+  // Rate budget: 4 airports × 2 statuses (cancelled + delayed) × 2 refreshes/day (12h TTL) = 16/day = 480/month ✓
+  const CACHE_KEY    = 'aviation_cancellations_v4';
+  const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+  // Airport metadata for ranking table
+  const AIRPORT_NAMES = {
+    ATL:'Hartsfield–Jackson Atlanta', JFK:'John F. Kennedy New York',
+    LAX:'Los Angeles International', ORD:"O'Hare Chicago",
+    LHR:'London Heathrow', CDG:'Paris Charles de Gaulle',
+    FRA:'Frankfurt Airport', AMS:'Amsterdam Schiphol',
+    DXB:'Dubai International', DOH:'Hamad Doha',
+    SIN:'Singapore Changi', NRT:'Tokyo Narita',
+    SYD:'Sydney Kingsford Smith', HKG:'Hong Kong International',
+    IST:'Istanbul Airport', MAD:'Madrid Barajas',
+    BCN:'Barcelona El Prat', FCO:'Rome Fiumicino',
+    MUC:'Munich Airport', ZRH:'Zurich Airport',
+    GRU:'São Paulo Guarulhos', EZE:'Buenos Aires Ezeiza',
+    MEX:'Mexico City International', BOG:'Bogotá El Dorado',
+    JNB:'Johannesburg OR Tambo', NBO:'Nairobi Jomo Kenyatta',
+    CAI:'Cairo International', DUS:'Düsseldorf Airport',
+    BRU:'Brussels Airport', VIE:'Vienna International',
+  };
+  const AIRPORT_COUNTRIES = {
+    ATL:'US', JFK:'US', LAX:'US', ORD:'US', LHR:'GB', CDG:'FR',
+    FRA:'DE', AMS:'NL', DXB:'AE', DOH:'QA', SIN:'SG', NRT:'JP',
+    SYD:'AU', HKG:'HK', IST:'TR', MAD:'ES', BCN:'ES', FCO:'IT',
+    MUC:'DE', ZRH:'CH', GRU:'BR', EZE:'AR', MEX:'MX', BOG:'CO',
+    JNB:'ZA', NBO:'KE', CAI:'EG', DUS:'DE', BRU:'BE', VIE:'AT',
+  };
 
   try {
     const cached = await kvGetJson(env, CACHE_KEY, null);
@@ -6007,54 +6134,95 @@ async function handleApiAviationCancellations(env) {
     FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
   };
 
-  // 4 major hub airports covering AMER / EMEA / MENA — queried in parallel
+  // 4 hub airports × 2 statuses = 8 calls per refresh × 2 refreshes/day = 16/day = 480/month ✓
   const HUB_AIRPORTS = ['ATL', 'LHR', 'CDG', 'DXB'];
 
-  try {
-    const responses = await Promise.allSettled(
-      HUB_AIRPORTS.map(iata =>
-        fetchWithTimeout(
-          `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&dep_iata=${iata}&status=cancelled&limit=100`,
-          { headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' } },
-          12000
-        ).then(async r => {
-          if (!r.ok) throw new Error(`Airlabs HTTP ${r.status}`);
-          const d = await r.json();
-          if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
-          return Array.isArray(d.response) ? d.response : [];
-        })
-      )
-    );
+  const fetchAirlabs = (iata, status) =>
+    fetchWithTimeout(
+      `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&dep_iata=${iata}&status=${status}&limit=100`,
+      { headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' } },
+      12000
+    ).then(async r => {
+      if (!r.ok) throw new Error(`Airlabs HTTP ${r.status}`);
+      const d = await r.json();
+      if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+      return (Array.isArray(d.response) ? d.response : []).map(f => ({ ...f, _status: status }));
+    });
 
-    // Deduplicate by flight_iata across all hub results, then group by airline
+  try {
+    // Parallel: cancelled + delayed for each hub
+    const queries = [];
+    for (const iata of HUB_AIRPORTS) {
+      queries.push(fetchAirlabs(iata, 'cancelled'));
+      queries.push(fetchAirlabs(iata, 'delayed'));
+    }
+    const responses = await Promise.allSettled(queries);
+
+    // Deduplicate & collect all flights with their status
     const seen = new Set();
-    const allFlights = [];
+    const cancelledFlights = [];
+    const delayedFlights   = [];
     for (const res of responses) {
       if (res.status !== 'fulfilled') continue;
       for (const f of res.value) {
         const key = f.flight_iata || f.flight_icao || `${f.airline_iata}${f.dep_iata}${f.dep_time}`;
-        if (!seen.has(key)) { seen.add(key); allFlights.push(f); }
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (f._status === 'delayed') delayedFlights.push(f);
+        else cancelledFlights.push(f);
       }
     }
+    const allFlights = [...cancelledFlights, ...delayedFlights];
 
+    // ── By Airline ─────────────────────────────────────────────────────────
     const byAirline = {};
     for (const f of allFlights) {
       const iata = f.airline_iata || f.airline_icao || '';
-      const name = AIRLINE_NAMES[iata] || (iata ? `${iata}` : 'Unknown Airline');
+      const name = AIRLINE_NAMES[iata] || (iata || 'Unknown Airline');
       const hub  = f.dep_iata || '';
-      if (!byAirline[iata || name]) byAirline[iata || name] = { airline: name, iata, hub_airport: hub, cancelled: 0, delayed: 0 };
-      if (f.status === 'delayed') byAirline[iata || name].delayed++;
-      else byAirline[iata || name].cancelled++; // status=cancelled or default
+      const key  = iata || name;
+      if (!byAirline[key]) byAirline[key] = { airline: name, iata, hub_airport: hub, cancelled: 0, delayed: 0 };
+      if (f._status === 'delayed') byAirline[key].delayed++;
+      else byAirline[key].cancelled++;
     }
-
     const airlines = Object.values(byAirline)
       .filter(a => a.cancelled > 0)
       .sort((a, b) => b.cancelled - a.cancelled)
       .slice(0, 30);
 
+    // ── By Airport — FR24-style disruption ranking ──────────────────────────
+    // Each sampled airport gets: cancelled count, delayed count, disruption score (0–5)
+    const byAirport = {};
+    for (const iata of HUB_AIRPORTS) {
+      byAirport[iata] = {
+        iata,
+        airport_name: AIRPORT_NAMES[iata] || iata,
+        country: AIRPORT_COUNTRIES[iata] || '',
+        cancelled: 0, delayed: 0,
+      };
+    }
+    for (const f of allFlights) {
+      const iata = f.dep_iata || '';
+      if (!byAirport[iata]) continue;
+      if (f._status === 'delayed') byAirport[iata].delayed++;
+      else byAirport[iata].cancelled++;
+    }
+    // Disruption score: cancelled weighted 0.6, delayed weighted 0.4
+    // Scale: 10 cancellations or 15 delays = score ~3.0 (matching FR24 "minor")
+    const airports = Object.values(byAirport).map(a => {
+      const raw = (a.cancelled * 0.6) + (a.delayed * 0.4);
+      a.disruption_score = parseFloat(Math.min(5, raw / 4).toFixed(1));
+      a.cancel_pct = a.cancelled + a.delayed > 0
+        ? Math.round(a.cancelled / (a.cancelled + a.delayed) * 100) : 0;
+      a.delay_pct  = a.cancelled + a.delayed > 0
+        ? Math.round(a.delayed  / (a.cancelled + a.delayed) * 100) : 0;
+      return a;
+    }).sort((a, b) => b.disruption_score - a.disruption_score);
+
     const result = {
-      ok: true, airlines,
-      total_cancelled: allFlights.length,
+      ok: true, airlines, airports,
+      total_cancelled: cancelledFlights.length,
+      total_delayed:   delayedFlights.length,
       airports_sampled: HUB_AIRPORTS,
       updated_at: new Date().toISOString(), _ts: Date.now(),
     };
@@ -8131,6 +8299,8 @@ async function handleRequest(req, env, ctx) {
       return handleApiMarkets(env, req);
     } else if (p.startsWith('/api/port-disruptions')) {
       return handleApiPortDisruptions(env, req);
+    } else if (p.startsWith('/api/airport-live')) {
+      return handleApiAirportLive(env, req);
     } else if (p.startsWith('/api/vessel/lookup')) {
       return handleApiVesselLookup(env, req);
     } else if (p.startsWith('/api/vessel/monitored')) {

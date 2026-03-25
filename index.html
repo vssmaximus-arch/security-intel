@@ -4677,6 +4677,40 @@
     .canc-row-pct { font-size:0.72rem; font-weight:700; padding:3px 7px; border-radius:4px;
       min-width:42px; text-align:center; border:1px solid; background:transparent; flex-shrink:0; }
 
+    /* Cancellations tab switcher */
+    .canc-tab-bar { display:flex; gap:6px; margin-bottom:8px; }
+    .canc-tab { font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:5px; cursor:pointer;
+      background:#1e2029; border:1px solid #3c4043; color:#9aa0a6; transition:all .15s; }
+    .canc-tab:hover { background:#2a2d35; color:#e8eaed; }
+    .canc-tab-active { background:#0076ce !important; border-color:#0076ce !important; color:#fff !important; }
+    body.light-mode .canc-tab { background:#f1f3f4; border-color:#dadce0; color:#5f6368; }
+    body.light-mode .canc-tab-active { background:#0076ce !important; border-color:#0076ce !important; color:#fff !important; }
+
+    /* FR24-style airport ranking table */
+    .ap-rank-table { font-size:0.75rem; width:100%; }
+    .ap-rank-hdr, .ap-rank-row {
+      display:grid;
+      grid-template-columns: 24px 44px 42px 1fr 72px 72px 60px;
+      align-items:center; gap:4px; padding:6px 4px;
+    }
+    .ap-rank-hdr { font-size:0.65rem; font-weight:700; color:#5f6368; text-transform:uppercase;
+      border-bottom:1px solid #2a2d35; padding-bottom:6px; margin-bottom:2px; }
+    body.light-mode .ap-rank-hdr { border-color:#e0e3e7; color:#80868b; }
+    .ap-rank-row { border-bottom:1px solid #1a1d24; text-decoration:none; color:inherit;
+      transition:background .12s; cursor:pointer; }
+    .ap-rank-row:hover { background:rgba(255,255,255,.04); }
+    body.light-mode .ap-rank-row { border-color:#f1f3f4; color:#202124; }
+    body.light-mode .ap-rank-row:hover { background:rgba(0,0,0,.03); }
+    .apr-rank  { color:#5f6368; font-size:0.68rem; }
+    .apr-score { font-size:0.88rem; }
+    .apr-iata  { font-family:monospace; font-weight:800; font-size:0.8rem; }
+    .apr-name  { font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    body.light-mode .apr-name { color:#202124; }
+    .apr-canc, .apr-delay { font-size:0.78rem; }
+    .apr-pct   { font-size:0.62rem; font-weight:400; opacity:.7; }
+    .apr-status-badge { font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:4px;
+      text-align:center; white-space:nowrap; }
+
     /* Airport table section */
     .airport-table-section { min-height: 200px; }
 
@@ -5707,73 +5741,163 @@
       'XY':'flynas','TK':'Turkish Airlines','AI':'Air India'
     };
 
-    function renderCancellations(data) {
-      var body = document.getElementById('canc-body');
-      if (!body) return;
-      var airlines = (data.airlines || []).slice().sort(function(a,b){ return (b.cancelled||0)-(a.cancelled||0); });
-      if (airlines.length === 0) {
-        body.innerHTML = '<div class="canc-no-key">No cancellation data available at this time. '
-          + '<br><a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener" style="color:#4fc3f7;">Check FR24 live disruption map ↗</a></div>'; return;
-      }
-      var totalCanc = data.total_cancelled || airlines.reduce(function(s,a){return s+(a.cancelled||0);},0);
-      var airports  = (data.airports_sampled || []).join(' · ') || 'Multiple airports';
+    /* Active tab state for the cancellations widget */
+    var _cancActiveTab = 'airport'; // 'airport' | 'airline'
 
-      /* Summary stats bar — uses CSS classes for light/dark compatibility */
-      var summary = '<div class="canc-summary-bar">'
+    function _cancScoreColor(score) {
+      if (score >= 3.5) return '#ea8600';
+      if (score >= 2.0) return '#fbbc04';
+      return '#34a853';
+    }
+    function _cancScoreLabel(score) {
+      if (score >= 3.5) return 'Major';
+      if (score >= 2.0) return 'Minor';
+      return 'Good';
+    }
+    function _cancFlag(cc) {
+      if (!cc || cc.length !== 2) return '';
+      var base = 0x1F1E6;
+      return String.fromCodePoint(base + cc.charCodeAt(0) - 65)
+           + String.fromCodePoint(base + cc.charCodeAt(1) - 65);
+    }
+
+    function _renderAirportRanking(data) {
+      var airports = (data.airports || []).slice().sort(function(a,b){ return b.disruption_score - a.disruption_score; });
+      var totalCanc  = data.total_cancelled || 0;
+      var totalDelay = data.total_delayed   || 0;
+
+      var stats = '<div class="canc-summary-bar">'
         + '<div class="canc-summary-box" style="border-right:1px solid #2a2d35;">'
-        + '<div class="canc-summary-num" style="color:#ef5350;">' + totalCanc + '</div>'
-        + '<div class="canc-summary-lbl">Flights Cancelled</div></div>'
+        +   '<div class="canc-summary-num" style="color:#ef5350;">' + totalCanc + '</div>'
+        +   '<div class="canc-summary-lbl">Cancelled Today</div></div>'
         + '<div class="canc-summary-box" style="border-right:1px solid #2a2d35;">'
-        + '<div class="canc-summary-num" style="color:#ffa726;">' + airlines.length + '</div>'
-        + '<div class="canc-summary-lbl">Airlines Affected</div></div>'
+        +   '<div class="canc-summary-num" style="color:#fbbc04;">' + totalDelay + '</div>'
+        +   '<div class="canc-summary-lbl">Delayed Today</div></div>'
         + '<div class="canc-summary-box canc-summary-airports">'
-        + '<div class="canc-airports-label">' + escHtml(airports) + '</div>'
-        + '<div class="canc-summary-lbl">Airports Sampled</div></div>'
+        +   '<div class="canc-airports-label">' + escHtml((data.airports_sampled||[]).join(' · ')) + '</div>'
+        +   '<div class="canc-summary-lbl">Airports Sampled</div></div>'
         + '</div>';
 
-      /* Source + legend note */
-      var sourceBar = '<div class="canc-source-bar">'
-        + '<i class="fas fa-database" style="font-size:0.7rem;"></i> Data: '
-        + '<a href="https://www.flightradar24.com/data/airport-disruption" target="_blank" rel="noopener" class="canc-src-link">FlightRadar24 Disruption Index</a>'
-        + ' &nbsp;·&nbsp; Grouped by airline · Today\'s flights only'
-        + '<span class="canc-src-note">Bar = share of total cancellations. Click airline for FR24 profile.</span>'
+      /* FR24-style ranked table */
+      var hdr = '<div class="ap-rank-table">'
+        + '<div class="ap-rank-hdr">'
+        +   '<span class="apr-rank">#</span>'
+        +   '<span class="apr-score">Score</span>'
+        +   '<span class="apr-iata">IATA</span>'
+        +   '<span class="apr-name">Airport</span>'
+        +   '<span class="apr-canc">Cancelled</span>'
+        +   '<span class="apr-delay">Delayed</span>'
+        +   '<span class="apr-status">Status</span>'
         + '</div>';
 
-      /* Airline rows with progress bars */
+      var rows = airports.map(function(a, i) {
+        var score = a.disruption_score || 0;
+        var clr   = _cancScoreColor(score);
+        var lbl   = _cancScoreLabel(score);
+        var flag  = _cancFlag(a.country || '');
+        var faLink = 'https://www.flightaware.com/live/airport/' + (a.iata||'');
+        return '<a href="' + escHtml(faLink) + '" target="_blank" rel="noopener" class="ap-rank-row">'
+          + '<span class="apr-rank">' + (i+1) + '</span>'
+          + '<span class="apr-score" style="color:' + clr + ';font-weight:900;">' + score.toFixed(1) + '</span>'
+          + '<span class="apr-iata" style="color:' + clr + ';">' + escHtml(a.iata||'—') + '</span>'
+          + '<span class="apr-name">' + flag + ' ' + escHtml(a.airport_name||a.iata||'') + '</span>'
+          + '<span class="apr-canc" style="color:#ef5350;font-weight:700;">'
+          +   a.cancelled + ' <span class="apr-pct">(' + (a.cancel_pct||0) + '%)</span></span>'
+          + '<span class="apr-delay" style="color:#fbbc04;font-weight:700;">'
+          +   a.delayed + ' <span class="apr-pct">(' + (a.delay_pct||0) + '%)</span></span>'
+          + '<span class="apr-status-badge" style="background:' + clr + '22;color:' + clr + ';border:1px solid ' + clr + '55;">'
+          +   lbl + '</span>'
+          + '</a>';
+      }).join('');
+
+      var src = '<div class="canc-source-bar" style="margin-top:6px;">'
+        + '<i class="fas fa-database" style="font-size:0.7rem;"></i> Source: '
+        + '<a href="https://airlabs.co" target="_blank" rel="noopener" class="canc-src-link">Airlabs schedules API</a>'
+        + ' · Score = cancelled×0.6 + delayed×0.4, capped at 5.0'
+        + '<span class="canc-src-note">Click any row → FlightAware live airport</span>'
+        + '</div>';
+
+      return stats + src + hdr + rows + '</div>';
+    }
+
+    function _renderByAirline(data) {
+      var airlines  = (data.airlines || []).slice().sort(function(a,b){ return (b.cancelled||0)-(a.cancelled||0); });
+      var totalCanc = data.total_cancelled || airlines.reduce(function(s,a){return s+(a.cancelled||0);},0);
+      if (airlines.length === 0) {
+        return '<div class="canc-no-key">No airline cancellation data available.<br>'
+          + '<a href="https://www.flightaware.com/live/cancelled" target="_blank" rel="noopener" style="color:#4fc3f7;">View on FlightAware ↗</a></div>';
+      }
       var rows = airlines.map(function(a) {
         var cancelled = a.cancelled || 0;
-        var pct = totalCanc > 0 ? Math.round(cancelled / totalCanc * 100) : 0;
-        var iata = a.iata || '';
-        var rawName = a.airline || a.name || '';
-        var airlineName = (rawName && rawName !== iata) ? rawName : (_IATA_NAMES[iata] || rawName || iata || 'Unknown');
-        var hub = a.hub_airport || '';
-        var delayed = a.delayed || 0;
-        /* Color thresholds match FR24 index: red ≥5 cancelled, amber 3-4, yellow 2, green <2 */
+        var delayed   = a.delayed   || 0;
+        var pct       = totalCanc > 0 ? Math.round(cancelled / totalCanc * 100) : 0;
+        var iata      = a.iata || '';
+        var rawName   = a.airline || a.name || '';
+        var name      = (rawName && rawName !== iata) ? rawName : (_IATA_NAMES[iata] || rawName || iata || 'Unknown');
+        var hub       = a.hub_airport || '';
         var clr = cancelled >= 5 ? '#ef5350' : cancelled >= 3 ? '#ffa726' : cancelled >= 2 ? '#e6b800' : '#34a853';
-        var fr24Link = iata
-          ? 'https://www.flightradar24.com/data/airlines/' + iata.toLowerCase()
-          : 'https://www.flightradar24.com/data/airport-disruption';
+        var link = iata ? 'https://www.flightradar24.com/data/airlines/' + iata.toLowerCase()
+                        : 'https://www.flightradar24.com/data/airport-disruption';
         return '<div class="canc-row">'
-          + '<a href="' + escHtml(fr24Link) + '" target="_blank" rel="noopener" class="canc-iata-badge" title="View ' + escHtml(airlineName) + ' on FR24" style="border-color:' + clr + ';color:' + clr + ';">' + escHtml(iata || '—') + '</a>'
+          + '<a href="' + escHtml(link) + '" target="_blank" rel="noopener" class="canc-iata-badge"'
+          +   ' style="border-color:' + clr + ';color:' + clr + ';" title="FR24 airline profile">'
+          +   escHtml(iata || '—') + '</a>'
           + '<div class="canc-row-body">'
-          + '<div class="canc-row-name">' + escHtml(airlineName)
-          + (hub ? '<span class="canc-row-hub"> · hub: ' + escHtml(hub) + '</span>' : '')
-          + (delayed > 0 ? '<span class="canc-row-delayed"> · ' + delayed + ' delayed</span>' : '')
-          + '</div>'
-          + '<div class="canc-row-bar-wrap">'
-          + '<div class="canc-row-bar-bg"><div class="canc-row-bar-fill" style="width:' + pct + '%;background:' + clr + ';"></div></div>'
-          + '</div>'
+          +   '<div class="canc-row-name">' + escHtml(name)
+          +     (hub     ? '<span class="canc-row-hub"> · ' + escHtml(hub) + '</span>' : '')
+          +     (delayed ? '<span class="canc-row-delayed"> · ' + delayed + ' delayed</span>' : '')
+          +   '</div>'
+          +   '<div class="canc-row-bar-wrap"><div class="canc-row-bar-bg">'
+          +     '<div class="canc-row-bar-fill" style="width:' + pct + '%;background:' + clr + ';"></div>'
+          +   '</div></div>'
           + '</div>'
           + '<div class="canc-row-stats">'
-          + '<span class="canc-row-count" style="color:' + clr + ';">' + cancelled + '</span>'
-          + '<span class="canc-row-unit"> cancelled flights</span>'
+          +   '<span class="canc-row-count" style="color:' + clr + ';">' + cancelled + '</span>'
+          +   '<span class="canc-row-unit"> cancelled</span>'
           + '</div>'
-          + '<div class="canc-row-pct" style="color:' + clr + ';border-color:' + clr + '33;">' + pct + '%<br><span style="font-size:0.6rem;font-weight:400;opacity:.7;">of total</span></div>'
+          + '<div class="canc-row-pct" style="color:' + clr + ';border-color:' + clr + '33;">'
+          +   pct + '%<br><span style="font-size:0.6rem;font-weight:400;opacity:.7;">of total</span></div>'
           + '</div>';
       }).join('');
 
-      body.innerHTML = summary + sourceBar
-        + '<div class="canc-rows-wrap">' + rows + '</div>';
+      var src = '<div class="canc-source-bar">'
+        + '<i class="fas fa-database" style="font-size:0.7rem;"></i> Source: '
+        + '<a href="https://airlabs.co" target="_blank" rel="noopener" class="canc-src-link">Airlabs · hubs: ATL LHR CDG DXB</a>'
+        + '<span class="canc-src-note">Click IATA badge → FR24 airline profile</span></div>';
+
+      return src + '<div class="canc-rows-wrap">' + rows + '</div>';
+    }
+
+    function renderCancellations(data) {
+      var body = document.getElementById('canc-body');
+      if (!body) return;
+      if (!data || (!data.airlines && !data.airports)) {
+        body.innerHTML = '<div class="canc-no-key">No cancellation data available.<br>'
+          + '<a href="https://www.flightaware.com/live/cancelled" target="_blank" rel="noopener" style="color:#4fc3f7;">View on FlightAware ↗</a></div>';
+        return;
+      }
+
+      /* Tab switcher */
+      var tabs = '<div class="canc-tab-bar">'
+        + '<button class="canc-tab' + (_cancActiveTab==='airport'?' canc-tab-active':'') + '" data-canc-tab="airport">'
+        +   '<i class="fas fa-plane-departure"></i> By Airport</button>'
+        + '<button class="canc-tab' + (_cancActiveTab==='airline'?' canc-tab-active':'') + '" data-canc-tab="airline">'
+        +   '<i class="fas fa-building"></i> By Airline</button>'
+        + '</div>';
+
+      var content = _cancActiveTab === 'airline'
+        ? _renderByAirline(data)
+        : _renderAirportRanking(data);
+
+      body.innerHTML = tabs + content;
+
+      /* Wire tab clicks */
+      body.querySelectorAll('.canc-tab').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          _cancActiveTab = this.getAttribute('data-canc-tab');
+          renderCancellations(CANC_DATA);
+        });
+      });
     }
 
     /* ══════════════════════════════════════════════════════════════════
