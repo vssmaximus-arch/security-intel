@@ -6073,9 +6073,9 @@ async function handleApiAviationCancellations(env) {
     });
   }
 
-  // Rate budget: 8 airports × 2 statuses × 1 refresh/day (24h TTL) = 16/day = 480/month ✓
-  const CACHE_KEY    = 'aviation_cancellations_v5';
-  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+  // Rate budget: 8 airports × 2 statuses × 2 refreshes/day (12h TTL) = 32/day = 960/month ✓ (Airlabs free = 1,000/month)
+  const CACHE_KEY    = 'aviation_cancellations_v6';
+  const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours — refreshes twice daily
 
   // Airport metadata for ranking table
   const AIRPORT_NAMES = {
