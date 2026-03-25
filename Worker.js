@@ -2948,44 +2948,54 @@ async function callGroqChat(env, messages, opts = {}) {
  */
 async function callGemini(env, systemPrompt, userContent, opts = {}) {
   if (!env.GEMINI_API_KEY) return { text: null, error: 'no_gemini_key' };
-  // Use v1beta with gemini-1.5-flash — same endpoint as generate_reports.py
-  const model = 'gemini-1.5-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
-  // Combine system + user into a single user turn (avoids systemInstruction compatibility issues)
+  // Try models in order — 404 = model not available for this key/version, skip to next
+  const GEMINI_CANDIDATES = [
+    'v1/gemini-1.5-flash',
+    'v1beta/gemini-1.5-flash-latest',
+    'v1beta/gemini-1.5-flash-001',
+    'v1/gemini-1.5-flash-001',
+    'v1beta/gemini-2.0-flash',
+    'v1/gemini-pro',
+    'v1beta/gemini-pro',
+  ];
   const fullPrompt = systemPrompt ? `${systemPrompt}\n\n---\n\n${userContent}` : userContent;
-  const body = {
+  const reqBody = JSON.stringify({
     contents: [{ parts: [{ text: fullPrompt }] }],
-    generationConfig: {
-      maxOutputTokens: opts.max_tokens || 1600,
-      temperature: 0.35,
-    },
-  };
-  try {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 45000);
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    clearTimeout(tid);
-    if (!resp.ok) {
-      const errText = await resp.text().catch(() => '');
-      typeof debug === 'function' && debug('callGemini error', resp.status, errText.slice(0, 400));
-      return { text: null, error: `http_${resp.status}: ${errText.slice(0, 120)}` };
+    generationConfig: { maxOutputTokens: opts.max_tokens || 1600, temperature: 0.35 },
+  });
+  for (const candidate of GEMINI_CANDIDATES) {
+    const [apiVer, model] = candidate.split('/');
+    const url = `https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 45000);
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: reqBody,
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      if (resp.status === 404) {
+        typeof debug === 'function' && debug('callGemini 404 skip', model);
+        continue; // try next candidate
+      }
+      if (resp.status === 429) return { text: null, error: 'http_429' };
+      if (!resp.ok) {
+        const errText = await resp.text().catch(() => '');
+        return { text: null, error: `http_${resp.status}: ${errText.slice(0, 200)}` };
+      }
+      const json = await resp.json();
+      const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text) continue; // try next if empty
+      typeof debug === 'function' && debug('callGemini success', model, apiVer);
+      return { text: text.trim(), error: null };
+    } catch (e) {
+      typeof debug === 'function' && debug('callGemini exception', model, e?.message);
+      continue; // try next on timeout/network error
     }
-    const json = await resp.json();
-    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    if (!text) {
-      typeof debug === 'function' && debug('callGemini empty response', JSON.stringify(json).slice(0, 300));
-      return { text: null, error: 'empty_response' };
-    }
-    return { text: text.trim(), error: null };
-  } catch (e) {
-    typeof debug === 'function' && debug('callGemini exception', e?.message || e);
-    return { text: null, error: e?.message || 'call_failed' };
   }
+  return { text: null, error: 'no_gemini_model_available' };
 }
 
 /**
