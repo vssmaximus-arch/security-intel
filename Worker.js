@@ -5705,9 +5705,9 @@ async function handleApiAiBriefing(env, req) {
     const windowH = Math.min(48, Math.max(1, parseInt(url.searchParams.get('window') || '8', 10)));
     const region = (url.searchParams.get('region') || '').toUpperCase().trim();
 
-    // KV cache: 20-minute TTL per window+region combo
+    // KV cache: 20-minute TTL per window+region combo (v2 — new prompt format)
     const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v1_${windowH}_${region || 'global'}`;
+    const briefCacheKey = `briefing_v2_${windowH}_${region || 'global'}`;
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5737,20 +5737,70 @@ async function handleApiAiBriefing(env, req) {
       return { status: 200, headers: { 'X-Cache': 'MISS' }, body: emptyResult };
     }
 
-    const incidentLines = incidents.slice(0, 30).map((i, idx) =>
-      `${idx + 1}. [${i.severity_label || 'INFO'}][${i.region || '?'}] ${i.country || ''}: ${i.title}${i.category ? ` (${i.category})` : ''}`
+    // Sort by severity — CRITICAL first, then HIGH, MEDIUM, LOW
+    const _SEV_RANK = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+    const sortedIncidents = [...incidents].sort((a, b) => {
+      const ra = _SEV_RANK[String(a.severity_label || '').toUpperCase()] ?? 4;
+      const rb = _SEV_RANK[String(b.severity_label || '').toUpperCase()] ?? 4;
+      return ra - rb;
+    });
+    // Send top 50 by severity to LLM
+    const topIncidents = sortedIncidents.slice(0, 50);
+
+    const incidentLines = topIncidents.map((i, idx) => {
+      const ts = (() => { try { return new Date(i.time).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'; } catch { return ''; } })();
+      return `${idx + 1}. [${i.severity_label || 'INFO'}][${i.region || '?'}][${i.category || '?'}] ${i.country || '?'}${i.location ? '/' + i.location : ''}: ${i.title} ${ts}`;
+    }).join('\n');
+
+    // Include proximity incidents (events near Dell sites) for context
+    const proxData = await kvGetJson(env, PROXIMITY_KV_KEY, {});
+    const proxIncidents = Array.isArray(proxData.incidents) ? proxData.incidents : [];
+    const proxFiltered = proxIncidents.filter(p => {
+      if (!region) return true;
+      return String(p.region || '').toUpperCase() === region;
+    }).slice(0, 12);
+    const proxLines = proxFiltered.map(p =>
+      `- [${p.priority || 'P3'}][${p.category || '?'}] ${p.country || '?'}: ${p.title} → nearest Dell site: ${p.nearest_site_name || '?'} (${p.distance_km != null ? Math.round(Number(p.distance_km)) + 'km' : 'country-wide'})`
     ).join('\n');
 
-    const systemPrompt = `You are a senior intelligence analyst for Dell Technologies' Global Security Operations Center (GSOC).
-Your role is to produce concise, professional shift briefings for Regional Security Managers (RSMs).
-Focus on: employee safety threats, Dell facility/asset risks, supply chain disruptions, cyber threats, and travel advisories.
-Write in intelligence report style: clear, factual, action-oriented. No fluff.`;
+    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO).
+Audience: SRO leadership and Regional Security Managers (RSMs). This briefing replaces a human analyst's shift handover report.
 
-    const userContent = `Generate a ${windowH}-hour shift briefing${region ? ` for region: ${region}` : ' (Global)'} based on these ${incidents.length} intelligence items:\n\n${incidentLines}\n\nStructure the briefing as:\n## SITUATION SUMMARY\n(2-3 sentences)\n\n## KEY THREATS (Priority Order)\n- (bullet each)\n\n## DELL OPERATIONAL IMPACT\n(brief assessment)`;
+ABSOLUTE RULES — breaking any rule makes this briefing worthless:
+1. FACTS ONLY. No advice. No recommendations. Zero "RSMs should", "teams must", "we recommend". State what happened, not what to do.
+2. SPECIFIC, not vague. Name exact countries, cities, events, companies. NEVER write "geopolitical tensions persist" or "ongoing instability" — always say what specifically is happening, where, and when.
+3. Only reference incidents from the data provided. Never fabricate or infer beyond the raw data.
+4. Severity order: CRITICAL events first, then HIGH, then MEDIUM. Skip LOW unless highly relevant.
+5. Dell Operational Impact: concrete facts about named Dell sites, specific travel corridors, named supply routes — not general assertions.
+6. Events Near Dell Assets: use ONLY the proximity section provided. If none, state "None reported this period."
+7. If a section has no relevant events, write exactly: "No significant events this period."`;
+
+    const userContent = `Generate a ${windowH}-hour SRO intelligence briefing${region ? ` — ${region} REGION` : ' — GLOBAL (all regions)'}.
+
+INTELLIGENCE FEED — ${topIncidents.length} incidents (sorted severity-first; ${incidents.length} total in ${windowH}h window):
+${incidentLines}
+${proxLines ? `\nEVENTS NEAR DELL ASSETS (proximity-triggered):\n${proxLines}` : '\nEVENTS NEAR DELL ASSETS: None reported this period.'}
+
+Write EXACTLY these 5 sections, in order. Be specific. Use the actual incident titles and countries from the data above:
+
+## ⚡ KEY TAKEAWAYS
+[3-5 bullets — the most critical facts any RSM must know right now. Name specific events and locations.]
+
+## 🔺 RECENT ESCALATIONS
+[One bullet per CRITICAL or HIGH incident. Format: [SEVERITY][REGION] Country/Location — what happened — when. Skip MEDIUM/LOW unless exceptional.]
+
+## 🏢 DELL OPERATIONAL IMPACT
+[Concrete facts only about named Dell sites, travel routes, supply lanes affected. No speculation. If no direct Dell impact confirmed, state that.]
+
+## 📍 EVENTS NEAR DELL ASSETS
+[Use proximity data above only. Format: Event — Location — Xkm from Dell [SiteName]. If none, state "None reported this period."]
+
+## 🔭 OUTLOOK
+[2-3 bullets — factual observations about what is actively developing based solely on the data. No predictions beyond confirmed trends.]`;
 
     const result = await callLLM(env, [{ role: 'user', content: userContent }], {
       system: systemPrompt,
-      max_tokens: 1200,
+      max_tokens: 1800,
       model: 'claude-sonnet-4-5',
     });
 
@@ -9252,7 +9302,7 @@ async function moduleScheduled(evt, env, ctx) {
           try {
             const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
             await handleApiAiBriefing(env, _briefReq);
-            debug('scheduled: briefing_v1_8_global cached');
+            debug('scheduled: briefing_v2_8_global cached');
           } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
@@ -9268,7 +9318,7 @@ async function moduleScheduled(evt, env, ctx) {
       try {
         const _briefReq = new Request('https://localhost/api/ai/briefing?window=8&region=');
         await handleApiAiBriefing(env, _briefReq);
-        debug('scheduled: briefing_v1_8_global cached');
+        debug('scheduled: briefing_v2_8_global cached');
       } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
     }
   } catch (e) {

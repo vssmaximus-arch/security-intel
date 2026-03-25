@@ -6373,13 +6373,51 @@ async function handleGenerateBriefClick() {
       </div>`;
     }
 
-    // Render briefing text: convert ## headings and - bullets to basic HTML
-    const formatted = escapeHtml(data.briefing || '')
-      .replace(/^## (.+)$/gm, '<h6 style="color:#64b5f6;font-weight:700;margin:16px 0 6px;font-size:0.85rem;letter-spacing:0.04em;">$1</h6>')
-      .replace(/^- (.+)$/gm, '<div style="padding-left:12px;">• $1</div>')
-      .replace(/\n/g, '<br>');
+    // Section colour map — emoji prefix → accent colour
+    const _SECT_COLORS = {
+      '⚡': '#f4a742', // Key Takeaways — amber
+      '🔺': '#e05252', // Escalations — red
+      '🏢': '#4a90d9', // Dell Impact — blue
+      '📍': '#5cb85c', // Near Assets — green
+      '🔭': '#9b7ed9', // Outlook — purple
+    };
+    // Render briefing — section-aware formatting
+    const _briefLines = (data.briefing || '').split('\n');
+    let _briefHtml = '';
+    let _inSection = false;
+    const dark = document.body.classList.contains('dark-mode');
+    const sectBg  = dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.035)';
+    const sectTxt = dark ? '#c9d1d9' : '#2c3340';
+    _briefLines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) { if (_inSection) _briefHtml += '<div style="height:4px;"></div>'; return; }
+      // Section header: ## ⚡ KEY TAKEAWAYS
+      const hMatch = trimmed.match(/^##\s+(.)(.+)$/);
+      if (hMatch) {
+        if (_inSection) _briefHtml += '</div>'; // close previous section
+        const emoji = hMatch[1]; const title = (emoji + hMatch[2]).trim();
+        const accent = _SECT_COLORS[emoji] || '#4a90d9';
+        _briefHtml += `<div style="margin:14px 0 6px;padding:7px 12px;border-left:3px solid ${accent};background:${sectBg};border-radius:0 4px 4px 0;">
+          <span style="font-weight:700;font-size:0.82rem;letter-spacing:0.05em;color:${accent};text-transform:uppercase;">${escapeHtml(title)}</span>
+        </div><div style="padding-left:4px;margin-bottom:8px;">`;
+        _inSection = true;
+        return;
+      }
+      // Bullet lines starting with - or •
+      const bMatch = trimmed.match(/^[-•]\s+(.+)/);
+      if (bMatch) {
+        _briefHtml += `<div style="display:flex;gap:8px;padding:3px 0 3px 8px;font-size:0.81rem;color:${sectTxt};line-height:1.5;">
+          <span style="color:#4a90d9;flex-shrink:0;margin-top:1px;">▸</span>
+          <span>${escapeHtml(bMatch[1])}</span>
+        </div>`;
+        return;
+      }
+      // Plain text line
+      _briefHtml += `<div style="font-size:0.81rem;color:${sectTxt};padding:2px 8px;line-height:1.5;">${escapeHtml(trimmed)}</div>`;
+    });
+    if (_inSection) _briefHtml += '</div>';
 
-    bodyEl.innerHTML = `${cacheBanner}<div style="padding:4px 0;">${formatted}</div>`;
+    bodyEl.innerHTML = `${cacheBanner}<div style="padding:4px 2px;">${_briefHtml}</div>`;
     if (metaEl) {
       metaEl.textContent = `${data.incident_count} incidents · ${data.region} · ${data.window_h}h · Model: ${data.model || 'AI'} · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
     }
