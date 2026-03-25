@@ -5781,7 +5781,7 @@ async function handleApiAiBriefing(env, req) {
 
     // KV cache: 20-minute TTL per window+region combo
     const BRIEFING_CACHE_TTL_S = 1200; // 20 min
-    const briefCacheKey = `briefing_v4_${windowH}_${region || 'global'}`; // v4 — cyber filter + improved prompt
+    const briefCacheKey = `briefing_v5_${windowH}_${region || 'global'}`; // v5 — confirmed-only Dell impact + no-hypothetical rule
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5887,7 +5887,7 @@ Write the briefing using exactly these 5 sections. Each section must use real sy
 [CRITICAL and HIGH items only. Format: COUNTRY/REGION — specific event description — scale or impact numbers — date. One line per event. Bold escalation keywords if appropriate.]
 
 ## 🏢 DELL OPERATIONAL IMPACT
-[Be explicit: which Dell sites, business units, products, or travel corridors are affected. Cross-reference incident countries against Dell office locations. If Dell products named (e.g. Windchill, FlexPLM), state it. If no direct confirmed impact, write one sentence saying so and name the closest relevant Dell location.]
+[STRICT RULE: Only write what is EXPLICITLY AND DIRECTLY confirmed in the incident data above. Do NOT infer, speculate, or hypothesise. Do NOT say "may affect", "could impact", "should be vigilant", "potential impact". Only state: a Dell site name mentioned in an incident, a Dell product explicitly named (e.g. Dell RecoverPoint, FlexPLM), a confirmed Dell employee/travel route affected. If NONE of the incidents explicitly name Dell, a Dell site, or a Dell product — write exactly: "No confirmed direct Dell operational impact this window. Nearest relevant Dell locations: [list 1-2 Dell sites in countries appearing in the incident feed]." Nothing else.]
 
 ## 📍 EVENTS NEAR DELL ASSETS
 [List each proximity alert: event type — location — distance from nearest Dell site — Dell site name. If none this period, state "None reported this window."]

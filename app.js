@@ -6381,14 +6381,13 @@ async function handleGenerateBriefClick() {
       '📍': '#5cb85c', // Near Assets — green
       '🔭': '#9b7ed9', // Outlook — purple
     };
-    const _isDark = document.body.classList.contains('dark-mode');
-    const _sectBg  = _isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-    const _bodyTxt = _isDark ? '#f0f2f5' : '#202124';   // bright white in dark mode
-    const _subTxt  = _isDark ? '#d8dce2' : '#5f6368';   // light gray in dark (not dim)
-    const _divider = _isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-    const _wrapStyle = _isDark
-      ? 'padding:2px 4px;color:#f0f2f5;'
-      : 'padding:2px 4px;color:#202124;';
+    // The briefing modal (#shift-brief-body) ALWAYS has background:#0f1012 (see index.html)
+    // so always render with light/white text — never check dark mode toggle for this panel
+    const _sectBg  = 'rgba(255,255,255,0.07)';
+    const _bodyTxt = '#f0f2f5';  // bright white — readable on #0f1012
+    const _subTxt  = '#cdd2db';  // light gray — still clearly visible on dark bg
+    const _divider = 'rgba(255,255,255,0.09)';
+    const _wrapStyle = 'padding:2px 4px;color:#f0f2f5;';
 
     // Render briefing — section-aware formatting
     const _briefLines = (data.briefing || '').split('\n');
