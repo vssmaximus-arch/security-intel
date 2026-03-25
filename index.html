@@ -3415,7 +3415,7 @@
                     <th style="width:28%">Country</th>
                     <th>Proven Reserves</th>
                     <th>Emergency Stocks</th>
-                    <th title="Days of supply based on net imports — IEA standard. Not total consumption.">Import Cover</th>
+                    <th title="Import cover reflects ability to replace lost imports, not total consumption. Values may vary based on imports, production and policy requirements. IEA standard.">Import Cover</th>
                     <th>Conf.</th>
                     <th>Verified</th>
                     <th>Src</th>
@@ -6578,7 +6578,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v3';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v4';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7189,7 +7189,7 @@
       { country:'United States', iso2:'US', flag:'🇺🇸', region:'AMER', dell:true,
         res_display:'38.2B bbl',   res_barrels:38.2e9,
         emg_display:'~415M bbl (SPR)', emg_barrels:415e6,
-        import_cover: 104, import_cover_display:'~104d',  /* 415M / ~4M net imports/day */
+        import_cover: 90, import_cover_display:'~60–120d (variable)',  /* net imports fluctuate 3–6M bbl/day */
         net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-03', checked_at:'2026-03-25',
         notes:'US SPR ~415M bbl (DOE, Mar 2025 — refill in progress after 2022 emergency releases). Net imports ~4M bbl/day → ~104d import cover. EIA reports SPR weekly.',
@@ -7221,47 +7221,47 @@
       { country:'United Kingdom', iso2:'GB', flag:'🇬🇧', region:'EMEA', dell:true,
         res_display:'2.5B bbl',    res_barrels:2.5e9,
         emg_display:'≈105M bbl (compulsory)', emg_barrels:105e6,
-        import_cover: 90, import_cover_display:'90d (IEA min)',
+        import_cover: 90, import_cover_display:'≥90d (IEA/EU min)',
         net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'NSTA reserves 2024. IEA member — 90d compulsory stockholding (~14.2M tonnes = ~105M bbl). Managed by DBT (formerly BEIS).',
+        notes:'NSTA reserves 2024. IEA member — 90d compulsory stockholding (~14.2M tonnes = ~105M bbl). Policy minimum, not necessarily actual stock. Managed by DBT.',
         sources:['https://www.nstauthority.co.uk/data-centre/nsta-open-data/','https://www.gov.uk/guidance/oil-and-gas-emergency-response','https://www.iea.org/countries/united-kingdom','https://www.bp.com/en/global/corporate/energy-economics/statistical-review-of-world-energy.html'] },
       { country:'Germany', iso2:'DE', flag:'🇩🇪', region:'EMEA', dell:true,
         res_display:'115M bbl',    res_barrels:115e6,
         emg_display:'≈100M bbl (EBV)', emg_barrels:100e6,
-        import_cover: 90, import_cover_display:'90d (EU min)',
+        import_cover: 90, import_cover_display:'≥90d (IEA/EU min)',
         net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'EBV manages emergency stocks (~100M bbl EBV alone; total with industry meets EU 90d obligation). BGR proven reserves 2024.',
+        notes:'EBV manages emergency stocks (~100M bbl EBV alone; total with industry meets EU 90d legal minimum). 90d is policy floor, not actual stock level. BGR proven reserves 2024.',
         sources:['https://www.ebv.de/en/','https://www.bgr.bund.de/EN/Themen/Energie/','https://www.iea.org/countries/germany','https://www.eia.gov/international/analysis/country/DEU'] },
       { country:'Netherlands', iso2:'NL', flag:'🇳🇱', region:'EMEA', dell:true,
         res_display:'82M bbl',     res_barrels:82e6,
         emg_display:'≈107M bbl (COVA)', emg_barrels:107e6,
-        import_cover: 90, import_cover_display:'90d (EU min)',
+        import_cover: 90, import_cover_display:'≥90d (IEA/EU min)',
         net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'COVA — ~17M m³ = ~107M bbl. Major European refining/transit hub. IEA/EU 90-day minimum met.',
+        notes:'COVA — ~17M m³ = ~107M bbl. Major European refining/transit hub. 90d is EU legal minimum, actual stocks may exceed this.',
         sources:['https://www.cova.nl/en/','https://www.iea.org/countries/netherlands','https://www.eia.gov/international/analysis/country/NLD'] },
       { country:'Poland', iso2:'PL', flag:'🇵🇱', region:'EMEA', dell:true,
         res_display:'96M bbl',     res_barrels:96e6,
         emg_display:'90d min (ARF)', emg_barrels:null,
-        import_cover: 90, import_cover_display:'90d (EU min)',
+        import_cover: 90, import_cover_display:'≥90d (IEA/EU min)',
         net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'ARF (Agencja Rezerw Strategicznych). EU 90-day minimum stockholding. Reserves per EIA / PGNiG data.',
+        notes:'ARF (Agencja Rezerw Strategicznych). EU 90-day legal minimum stockholding — policy floor, not actual level. Reserves per EIA / PGNiG data.',
         sources:['https://www.gov.pl/web/agencja-rezerw-strategicznych','https://www.eia.gov/international/analysis/country/POL','https://ec.europa.eu/eurostat/statistics-explained/index.php/Oil_and_petroleum_products'] },
       { country:'Ireland', iso2:'IE', flag:'🇮🇪', region:'EMEA', dell:true,
         res_display:'~2M bbl',     res_barrels:2e6,
         emg_display:'90d min (NORA)', emg_barrels:null,
-        import_cover: 90, import_cover_display:'90d (IEA min)',
+        import_cover: 90, import_cover_display:'≥90d (IEA/EU min)',
         net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'NORA manages IEA/EU 90-day stockholding. Negligible domestic reserves. SEAI 2024.',
+        notes:'NORA manages IEA/EU 90-day stockholding obligation. Policy minimum — negligible domestic reserves. SEAI 2024.',
         sources:['https://www.noraireland.ie/','https://www.iea.org/countries/ireland','https://www.seai.ie/data-and-insights/seai-statistics/'] },
       { country:'India', iso2:'IN', flag:'🇮🇳', region:'APJC', dell:true,
         res_display:'4.7B bbl',    res_barrels:4.7e9,
         emg_display:'39.1M bbl (ISPRL)', emg_barrels:39.1e6,
-        import_cover: 9, import_cover_display:'~9d',   /* 39.1M / ~4.5M net imports/day */
+        import_cover: 9, import_cover_display:'~8–10d',  /* 39.1M / ~4–5M net imports/day */
         net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
         notes:'ISPRL 3 caverns: Visakhapatnam 13.3M bbl, Mangaluru 11.3M bbl, Padur 14.5M bbl. India imports ~4.5M bbl/day net → ~9d import cover. Phase-II (6.5M bbl) under construction.',
@@ -7269,7 +7269,7 @@
       { country:'China', iso2:'CN', flag:'🇨🇳', region:'APJC', dell:true,
         res_display:'36.5B bbl',   res_barrels:36.5e9,
         emg_display:'220–290M bbl (est.)', emg_barrels:255e6,
-        import_cover: 24, import_cover_display:'~20–28d (est.)',  /* 255M est / ~10.5M imports/day */
+        import_cover: 24, import_cover_display:'Not Public (est. ~20–28d)',
         net_exporter: false,
         confidence:'MEDIUM', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
         notes:'SPR not officially disclosed. IEA + Wood Mackenzie estimate 220–290M bbl (satellite tank-farm analysis). Net imports ~10.5M bbl/day → ~20–28d estimated import cover.',
@@ -7277,7 +7277,7 @@
       { country:'Japan', iso2:'JP', flag:'🇯🇵', region:'APJC', dell:true,
         res_display:'44M bbl',     res_barrels:44e6,
         emg_display:'≈321M bbl (JOGMEC)', emg_barrels:321e6,
-        import_cover: 235, import_cover_display:'~235d',  /* METI/IEA official figure */
+        import_cover: 235, import_cover_display:'~210–250d (combined)',  /* METI/IEA: national+industry */
         net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
         notes:'World\'s most robust SPR relative to imports. JOGMEC national + industry mandated stocks = ~235 days import cover (METI annual report 2024).',
@@ -7285,7 +7285,7 @@
       { country:'South Korea', iso2:'KR', flag:'🇰🇷', region:'APJC', dell:true,
         res_display:'12M bbl',     res_barrels:12e6,
         emg_display:'≈96M bbl (KNOC)', emg_barrels:96e6,
-        import_cover: 107, import_cover_display:'~107d',  /* KNOC/IEA official */
+        import_cover: 107, import_cover_display:'~100–115d (combined)',  /* KNOC national+industry */
         net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2025-01', checked_at:'2026-03-25',
         notes:'KNOC national + industry stocks ~96M bbl. IEA member. MOTIE 2024. ~107 days of net import cover.',
@@ -7293,7 +7293,7 @@
       { country:'Taiwan', iso2:'TW', flag:'🇹🇼', region:'APJC', dell:true,
         res_display:'2.4M bbl',    res_barrels:2.4e6,
         emg_display:'≈146 days',   emg_barrels:null,
-        import_cover: 146, import_cover_display:'~146d',  /* Bureau of Energy official */
+        import_cover: 146, import_cover_display:'~130–160d (combined)',  /* Bureau of Energy: govt+industry */
         net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2025-01', checked_at:'2026-03-25',
         notes:'Bureau of Energy: 60d mandatory minimum. Combined government + industry ~146d import cover — one of highest globally.',
@@ -7309,7 +7309,7 @@
       { country:'Australia', iso2:'AU', flag:'🇦🇺', region:'APJC', dell:true,
         res_display:'2.4B bbl',    res_barrels:2.4e9,
         emg_display:'~53 days (IEA)', emg_barrels:null,
-        import_cover: 53, import_cover_display:'~53d',  /* IEA 2024 assessment */
+        import_cover: 53, import_cover_display:'~45–65d',  /* IEA 2024 assessment: physical only */
         net_exporter: false,
         confidence:'MEDIUM', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
         notes:'Historically below IEA 90-day threshold. Uses offshore "ticket" arrangements. Physical stocks ~53d import cover (AEMO/DISER 2024).',
@@ -7567,6 +7567,18 @@
     var CW_CAM_CATALOGUE = [
       /* ── AIRPORTS ───────────────────────────────────────────────────────── */
       /* ── DEFAULT 6: Confirmed real airport/port webcam streams ─────────── */
+      { key:'lax',       type:'airport', country:'USA',         city:'Los Angeles', flag:'🇺🇸',
+        label:'Los Angeles LAX — Live Plane Spotting',
+        ytId: '12KqO5IBLeY' },               // AirlineVideosLive+ — 24/7 LAX runways (confirmed embeddable)
+
+      { key:'lhr_live',  type:'airport', country:'UK',          city:'London',     flag:'🇬🇧',
+        label:'London Heathrow Airport Live',
+        ytId: 'T9eRvJ30iIA' },               // Flight Focus 365 — daily Heathrow live stream
+
+      { key:'miami_port_ptztv', type:'seaport', country:'USA',  city:'Miami',      flag:'🇺🇸',
+        label:'Port Miami Webcam + VHF Radio — PTZtv',
+        ytId: 'DxZziUUr6CY' },               // PTZtv — confirmed Port Miami live feed
+
       { key:'tpe',       type:'airport', country:'Taiwan',      city:'Taoyuan',    flag:'🇹🇼',
         label:'Taiwan Taoyuan Intl Airport',
         ytId: '91PfFoqvuUk' },               // @TaoyuanTravel — confirmed live airport stream
@@ -7638,7 +7650,7 @@
     ];
 
     /* Default 6 cameras: 3 airports + 3 seaports matching user request */
-    var CW_CAM_DEFAULT_KEYS = ['tpe','hnd','mia','sydney','helsinki','singapore'];
+    var CW_CAM_DEFAULT_KEYS = ['lax','lhr_live','tpe','hnd','helsinki','miami_port_ptztv'];
 
     function loadWebcams() {
       var typeFilter    = (document.getElementById('cw-cam-type')    || {}).value || '';
