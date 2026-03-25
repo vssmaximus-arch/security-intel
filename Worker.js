@@ -4536,7 +4536,7 @@ async function handleApiIncidentsCached(env, req, ctx) {
       }
       const r    = await handleApiIncidents(env, req);
       const body = JSON.stringify(Array.isArray(r.body) ? r.body : []);
-      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=120', 'X-Cache': 'MISS' }) });
+      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=300', 'X-Cache': 'MISS' }) });
       if (ctx) ctx.waitUntil(cache.put(cacheKey, resp.clone()));
       else cache.put(cacheKey, resp.clone());
       return resp;
@@ -4561,7 +4561,7 @@ async function handleApiProximityCached(env, req, ctx) {
       }
       const r    = await handleApiProximity(env, req);
       const body = JSON.stringify(r.body || {});
-      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=300', 'X-Cache': 'MISS' }) });
+      const resp = new Response(body, { status: 200, headers: Object.assign({}, _TL_HDRS, { 'Cache-Control': 'public, max-age=600', 'X-Cache': 'MISS' }) });
       if (ctx) ctx.waitUntil(cache.put(cacheKey, resp.clone()));
       else cache.put(cacheKey, resp.clone());
       return resp;
