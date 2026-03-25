@@ -3306,7 +3306,7 @@
       </div>
 
       <!-- ── ISRAEL SIRENS (right 4 cols) ───────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-sirens-widget" gs-x="8" gs-y="1" gs-w="4" gs-h="8" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="cw-sirens-widget" gs-x="0" gs-y="50" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-bell" style="margin-right:6px;color:#e53935;"></i>Israel Alert System</span>
@@ -3432,7 +3432,7 @@
       </div>
 
       <!-- ── RADIATION WATCH (hidden by default, available in Customize) ─── -->
-      <div class="grid-stack-item" gs-id="cw-radiation-widget" gs-x="4" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="cw-radiation-widget" gs-x="4" gs-y="50" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-radiation" style="margin-right:6px;color:#81c995;"></i>Radiation Watch</span>
@@ -3472,7 +3472,7 @@
       </div>
 
       <!-- ── NATIONAL DEBT CLOCK (4 cols) ───────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-debt-widget" gs-x="8" gs-y="9" gs-w="4" gs-h="8" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="cw-debt-widget" gs-x="8" gs-y="50" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-coins" style="margin-right:6px;color:#f9ab00;"></i>National Debt Clock</span>
@@ -3571,7 +3571,7 @@
       </div>
 
       <!-- ── OSINT CONFLICT FEED (4 cols) ───────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-osint-widget" gs-x="8" gs-y="17" gs-w="4" gs-h="8" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="cw-osint-widget" gs-x="0" gs-y="50" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-rss" style="margin-right:6px;color:#e53935;"></i>OSINT Conflict Feed</span>
@@ -6578,7 +6578,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v4';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v5';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -6618,11 +6618,12 @@
       { id:'cw-fuel-widget',      x:0,  y:9,  w:6,  h:8  },
       { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },  // new — next to fuel
       { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
-      // Below: optional widgets (hidden by default, user can enable via Customize)
-      { id:'cw-sirens-widget',    x:8,  y:1,  w:4,  h:8  },
-      { id:'cw-radiation-widget', x:4,  y:9,  w:4,  h:8  },
-      { id:'cw-debt-widget',      x:8,  y:9,  w:4,  h:8  },
-      { id:'cw-osint-widget',     x:8,  y:17, w:4,  h:8  },
+      // Below: optional widgets (hidden by default — placed at y:26 so they never
+      // conflict with visible widgets above; appear at bottom when user enables them)
+      { id:'cw-sirens-widget',    x:0,  y:26, w:6,  h:8  },
+      { id:'cw-radiation-widget', x:6,  y:26, w:6,  h:8  },
+      { id:'cw-debt-widget',      x:0,  y:34, w:6,  h:8  },
+      { id:'cw-osint-widget',     x:6,  y:34, w:6,  h:8  },
     ];
 
     /* Widget metadata for the picker — default-on widgets first */
@@ -6704,7 +6705,7 @@
         minRow:                 1,
       }, '#cw-grid');
 
-      /* Restore saved layout */
+      /* Restore saved layout — or apply clean default on first load */
       var raw = localStorage.getItem(CW_LAYOUT_KEY);
       if (raw) {
         try {
@@ -6715,6 +6716,10 @@
           var filtered = saved.filter(function(s){ return visIds.indexOf(s.id) !== -1; });
           if (filtered.length) cwGrid.load(filtered);
         } catch(e) {}
+      } else {
+        /* Fresh load (new key version): apply the canonical default layout immediately */
+        cwGrid.load(CW_DEFAULT_LAYOUT);
+        try { localStorage.setItem(CW_LAYOUT_KEY, JSON.stringify(CW_DEFAULT_LAYOUT)); } catch(e) {}
       }
 
       cwGrid.on('change', saveCwLayout);
@@ -7650,7 +7655,7 @@
     ];
 
     /* Default 6 cameras: 3 airports + 3 seaports matching user request */
-    var CW_CAM_DEFAULT_KEYS = ['lax','lhr_live','tpe','hnd','helsinki','miami_port_ptztv'];
+    var CW_CAM_DEFAULT_KEYS = ['lax','lhr_live','tpe','hnd','helsinki','sydney'];
 
     function loadWebcams() {
       var typeFilter    = (document.getElementById('cw-cam-type')    || {}).value || '';
