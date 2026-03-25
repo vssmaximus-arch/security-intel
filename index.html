@@ -2883,10 +2883,9 @@
           <div class="card-label"><i class="fas fa-binoculars"></i> Flight Watchlist</div>
           <p class="tsc-subtitle">Track live flights by callsign (e.g. EJM618) or ICAO24 hex (e.g. a0001e)</p>
           <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <input class="drawer-input" id="airport-watch-input" name="airport-watch-input" type="text"
+            <input class="drawer-input airport-watch-input-field" id="airport-watch-input" name="airport-watch-input" type="text"
               placeholder="Callsign or ICAO24 hex…"
-              maxlength="12" autocomplete="off"
-              style="flex:1;background:#35384a;border:1px solid #4a4d5a;border-radius:6px;padding:6px 10px;color:#e8eaed;font-size:0.82rem;" />
+              maxlength="12" autocomplete="off" />
             <button class="drawer-btn" data-action="airport-add-watch" aria-label="Add to flight watchlist"
               style="background:#1a73e8;border:none;border-radius:6px;padding:6px 14px;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;">Track</button>
           </div>
@@ -4126,6 +4125,33 @@
     .airport-watch-header { font-size:.88rem; font-weight:700; color:#e8eaed; margin-bottom:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     body.light-mode .airport-watch-header { color:#202124; }
     .airport-watch-hint { font-size:.72rem; color:#9aa0a6; font-weight:400; }
+
+    /* Flight watch input — adaptive */
+    .airport-watch-input-field {
+      flex:1; border-radius:6px; padding:6px 10px; font-size:0.82rem;
+      background:#35384a; border:1px solid #4a4d5a; color:#e8eaed;
+      outline:none; transition:border-color .15s;
+    }
+    .airport-watch-input-field:focus { border-color:#0076ce; }
+    body.light-mode .airport-watch-input-field {
+      background:#ffffff; border-color:#dadce0; color:#202124;
+    }
+    body.light-mode .airport-watch-input-field::placeholder { color:#80868b; }
+
+    /* OpenSky live-check badge */
+    .os-live-badge { display:inline-flex; align-items:center; gap:4px; font-size:0.68rem;
+      padding:2px 7px; border-radius:10px; font-weight:600; margin-left:6px; vertical-align:middle; }
+    .os-live-open   { background:#1b4332; color:#81c995; border:1px solid #2d6a4f; }
+    .os-live-reduced{ background:#3e2a00; color:#fbbc04; border:1px solid #6e4800; }
+    .os-live-closed { background:#3e1a1a; color:#f28b82; border:1px solid #6e2222; }
+    .os-live-checking { background:#1a2033; color:#8ab4f8; border:1px solid #2a3a5a; }
+    body.light-mode .os-live-open    { background:#e8f5e9; color:#2e7d32; border-color:#a5d6a7; }
+    body.light-mode .os-live-reduced { background:#fffde7; color:#e65100; border-color:#ffcc80; }
+    body.light-mode .os-live-closed  { background:#fce8e6; color:#c62828; border-color:#ef9a9a; }
+    body.light-mode .os-live-checking{ background:#e8f0fe; color:#1a73e8; border-color:#aecbfa; }
+    .os-chk-btn { cursor:pointer; font-size:0.68rem; color:#8ab4f8; background:none; border:none;
+      padding:0; margin-left:4px; text-decoration:underline; }
+    body.light-mode .os-chk-btn { color:#1a73e8; }
   </style>
   <!-- Canonical external application script -->
   <script src="app.js"></script>
@@ -4569,6 +4595,7 @@
     body.light-mode .airport-legend    { background: #f8f9fa; border-color: #e0e0e0; }
     body.light-mode .airport-subtab    { background: #f1f3f4; border-color: #dadce0; color: #5f6368; }
     body.light-mode .airport-subtab.active { background: #0076ce; border-color: #0076ce; color: #fff; }
+    body.light-mode .airport-tsc-card { background:#f8f9fa !important; border-color:#e0e3e7 !important; }
     body.light-mode .canc-table th { background: #1565c0; }
     body.light-mode .canc-table td { border-color: #e0e0e0; color: #202124; }
     body.light-mode .canc-table tr:hover td { background: #f8f9fa; }
@@ -5110,6 +5137,49 @@
         + '</div>';
     }
 
+    /* IATA → ICAO mapping for OpenSky live-check */
+    var IATA_TO_ICAO = {
+      BGW:'ORBI', BEY:'OLBA', TLV:'LLBG', DAM:'OSDI', DOH:'OTHH',
+      DXB:'OMDB', AUH:'OMAA', AMM:'OJAI', KWI:'OKBK', KBL:'OAKB',
+      KRT:'HSSS', MHD:'OIMM', GZA:'LVGZ', TLY:'UMII', CAI:'HECA',
+      IST:'LTBA', SAW:'LTFJ', ESB:'LTAC', ADD:'HAAB', NBO:'HKNA',
+      JNB:'FAJS', LOS:'DNMM', ACC:'DGAA', DKR:'GOOY', CMN:'GMMN',
+    };
+
+    /* Derive live status from OpenSky departure count */
+    function _oskyStatus(count) {
+      if (count === null) return { cls:'os-live-checking', label:'Checking…' };
+      if (count === 0)    return { cls:'os-live-closed',  label:'0 dep/2h — CLOSED?' };
+      if (count < 4)      return { cls:'os-live-reduced', label: count + ' dep/2h — REDUCED' };
+      return               { cls:'os-live-open',   label: count + ' dep/2h — ACTIVE' };
+    }
+
+    /* Fetch OpenSky departures for an airport in last 2h, update badge */
+    function checkLiveStatus(iata, badgeId) {
+      var icao = IATA_TO_ICAO[iata];
+      if (!icao) return;
+      var badgeEl = document.getElementById(badgeId);
+      if (!badgeEl) return;
+      var st = _oskyStatus(null);
+      badgeEl.className = 'os-live-badge ' + st.cls;
+      badgeEl.innerHTML = '<i class="fas fa-circle-notch fa-spin" style="font-size:0.6rem"></i> Live…';
+      var end   = Math.floor(Date.now() / 1000);
+      var begin = end - 7200; // 2h window
+      var url   = 'https://opensky-network.org/api/flights/departure?airport=' + icao + '&begin=' + begin + '&end=' + end;
+      fetch(url, { signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined })
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(data){
+          var count = Array.isArray(data) ? data.length : 0;
+          var s = _oskyStatus(count);
+          badgeEl.className = 'os-live-badge ' + s.cls;
+          badgeEl.textContent = s.label;
+        })
+        .catch(function(){
+          badgeEl.className = 'os-live-badge os-live-checking';
+          badgeEl.textContent = 'No data';
+        });
+    }
+
     function renderLiveRow(d, rank) {
       var score      = typeof d.disruption_score === 'number' ? d.disruption_score : 0;
       var sColor     = scoreColor(score);
@@ -5126,16 +5196,34 @@
       var iata      = d.iata || '\u2014';
       var name      = (d.airport_name || '').slice(0, 36);
       var country   = d.country || '';
-      /* Smart link: use explicit source → FlightRadar24 airport page → FR24 search */
-      var link = d.link
-        || (isFaa ? 'https://nasstatus.faa.gov/' : '')
-        || (d.iata ? 'https://www.flightradar24.com/data/airports/' + d.iata.toLowerCase() : '')
-        || 'https://www.flightradar24.com/airport/' + encodeURIComponent(d.airport_name || '');
-      var timeStr   = timeAgoShort(new Date(d.disruption_date || d.time || Date.now()));
+
+      /* Smart link: FlightAware shows real delays/cancellations; fall back to FAA NAS */
+      var link = isFaa
+        ? 'https://nasstatus.faa.gov/'
+        : (d.iata ? 'https://www.flightaware.com/live/airport/' + d.iata.toUpperCase() : (d.link || ''));
+
+      /* Source timestamp: "Active since Month YYYY" for known long-running disruptions */
+      var timeStr;
+      if (isVerified && d.disruption_date) {
+        var sinceDate = new Date(d.disruption_date);
+        timeStr = 'Active since ' + sinceDate.toLocaleDateString('en-US', { month:'short', year:'numeric' });
+      } else {
+        timeStr = timeAgoShort(new Date(d.time || Date.now()));
+      }
+
       var fillPct   = Math.min(100, score / 5 * 100).toFixed(0);
       var flightStatus = d.flight_status || SEV_TO_STATUS[d.severity] || d.severity || '';
       var fsCls        = FLIGHT_STATUS_CLASS[flightStatus] || 'ftag-info';
-      return '<div class="live-row' + rowClass + '" data-link="' + escHtml(link) + '" role="row" tabindex="0" style="cursor:pointer;" title="Click to view live status on FlightRadar24">'
+
+      /* OpenSky live-check badge (lazy: only loaded when user clicks Check) */
+      var badgeId   = 'os-badge-' + escHtml(d.iata || d.id || rank);
+      var hasIcao   = d.iata && IATA_TO_ICAO[d.iata];
+      var livePart  = hasIcao
+        ? '<span id="' + badgeId + '" class="os-live-badge os-live-checking" title="OpenSky live departure count">—</span>'
+          + '<button class="os-chk-btn" onclick="event.stopPropagation();checkLiveStatus(\'' + escHtml(d.iata) + '\',\'' + badgeId + '\')">Check live</button>'
+        : '';
+
+      return '<div class="live-row' + rowClass + '" data-link="' + escHtml(link) + '" role="row" tabindex="0" style="cursor:pointer;" title="Click to open FlightAware live airport status">'
         + '<span class="lr-rank">' + rank + '</span>'
         + '<span class="lr-score">'
         +   '<span class="score-val" style="color:' + sColor + '">' + score.toFixed(1) + '</span>'
@@ -5151,7 +5239,7 @@
         +   '<span class="airport-cause-badge cause-' + escHtml(d.cause_type || 'OTHER') + '">' + escHtml(cause) + '</span>'
         +   '<span class="fs-badge ' + fsCls + '" style="margin-top:3px;">' + escHtml(flightStatus) + '</span>'
         + '</span>'
-        + '<span class="lr-src">' + srcBadge + '<span class="lr-time">' + timeStr + '</span></span>'
+        + '<span class="lr-src">' + srcBadge + '<span class="lr-time">' + timeStr + '</span>' + livePart + '</span>'
         + '</div>';
     }
 
