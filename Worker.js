@@ -5818,17 +5818,16 @@ async function handleApiAiBriefing(env, req) {
       const rb = _SEV_RANK[String(b.severity_label || '').toUpperCase()] ?? 4;
       return ra - rb;
     });
-    // Top 25 CRITICAL/HIGH incidents + 5 MEDIUM for context (keeps token count low)
-    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 25);
-    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 5);
+    // Top 12 CRITICAL/HIGH + 3 MEDIUM — keeps total tokens well under 6,000 TPM for llama-3.3-70b
+    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 12);
+    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 3);
     const topIncidents = [...critHigh, ...medFill];
 
-    const _fmtInc = (i, idx) => {
-      const ts = (() => { try { return new Date(i.time).toISOString().slice(0,16).replace('T',' ') + ' UTC'; } catch { return ''; } })();
-      const summary = i.summary ? ' — ' + String(i.summary).slice(0, 120) : '';
-      return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}] ${i.country||'?'}${i.location?'/'+i.location:''}: ${i.title}${summary} (${ts})`;
-    };
-    const incidentLines = topIncidents.map(_fmtInc).join('\n');
+    // Compact format — title + metadata only, no summaries (saves ~40% tokens)
+    const incidentLines = topIncidents.map((i, idx) => {
+      const ts = (() => { try { return new Date(i.time).toISOString().slice(0,10); } catch { return ''; } })();
+      return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}][${i.region||'?'}] ${i.country||'?'}: ${i.title} (${ts})`;
+    }).join('\n');
 
     // Include proximity incidents (events near Dell sites) for context
     const proxData = await kvGetJson(env, PROXIMITY_KV_KEY, {});
@@ -5836,52 +5835,52 @@ async function handleApiAiBriefing(env, req) {
     const proxFiltered = proxIncidents.filter(p => {
       if (!region) return true;
       return String(p.region || '').toUpperCase() === region;
-    }).slice(0, 10);
+    }).slice(0, 8);
     const proxLines = proxFiltered.map(p => {
       const dist = p.distance_km != null ? `${Math.round(Number(p.distance_km))}km` : 'country-wide';
-      return `- [${p.priority||'P3'}][${p.category||'?'}] ${p.country||'?'}: ${p.title} → ${dist} from ${p.nearest_site_name||'Dell site'}`;
+      return `- [${p.priority||'P3'}] ${p.country||'?'}: ${p.title} → ${dist} from ${p.nearest_site_name||'Dell site'}`;
     }).join('\n');
 
-    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO).
-You write the shift handover briefing read by the CISO, VP of Security, and Regional Security Managers.
+    const systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO. Write the shift handover briefing for SRO leadership and RSMs.
+RULES: SYNTHESIZE — do not copy-paste titles. Be specific (countries, companies, CVEs, event names). NO advice, NO "should/must/monitor". Facts only. Short punchy sentences.`;
 
-YOUR WRITING RULES:
-- SYNTHESIZE. Do not copy-paste incident titles. Write what is happening, who is involved, and what the situation is.
-- SPECIFIC facts only. Name exact countries, companies, CVE numbers, event names, casualty figures where available.
-- NO advice. NO "teams should", "RSMs must", "monitor closely". Write facts — leadership decides what to do.
-- NO vague phrases: never write "geopolitical tensions", "ongoing instability", "various incidents".
-- CRITICAL/HIGH severity events must dominate. Skip LOW entirely.
-- Short, punchy sentences. Intelligence brief style, not journalism.`;
+    const userContent = `${windowH}h SRO briefing${region ? ` — ${region}` : ' — Global'}. ${incidents.length} total incidents, top ${topIncidents.length} shown.
 
-    const userContent = `Write a ${windowH}-hour SRO intelligence briefing${region ? ` for ${region}` : ' (Global)'}.
-Total incidents in window: ${incidents.length}. Analysis based on top ${topIncidents.length} by severity.
-
-RAW INTELLIGENCE DATA:
+INTELLIGENCE (sorted by severity):
 ${incidentLines}
-${proxLines ? `\nPROXIMITY ALERTS — EVENTS NEAR DELL SITES:\n${proxLines}` : ''}
+${proxLines ? `\nNEAR DELL ASSETS:\n${proxLines}` : ''}
 
-Write these 5 sections. SYNTHESIZE — do not just list titles. Write like a human analyst who understands the situation:
+5 sections — SYNTHESIZE each, write like a human analyst:
 
 ## ⚡ KEY TAKEAWAYS
-[3-5 bullets. Each bullet is one synthesized intelligence assessment: what happened, where, significance. Example: "China-linked threat actor (UNC group) actively exploiting Dell RecoverPoint CVE-2026-22769 zero-day in enterprise backup systems since mid-2024 — patch not yet available."]
+[3-5 bullets: synthesized intelligence assessment per item — what happened, where, why it matters]
 
 ## 🔺 RECENT ESCALATIONS
-[Bulleted list of CRITICAL and HIGH events. Each: country/region — what happened — confirmed scale or impact. Include timestamps where relevant. Be specific.]
+[Each CRITICAL/HIGH: country — what specifically happened — scale/impact — date]
 
 ## 🏢 DELL OPERATIONAL IMPACT
-[What this means for Dell specifically. Named sites, travel corridors, supply routes, Dell products mentioned. If no confirmed direct impact: state that clearly in one line.]
+[Named Dell sites, products, travel routes affected. If none confirmed, state it.]
 
 ## 📍 EVENTS NEAR DELL ASSETS
-[From proximity data only. Each: what event, which country/city, distance to which Dell site. If empty: "No proximity events this period."]
+[From proximity data: event — city/country — distance — Dell site. If none: "None this period."]
 
 ## 🔭 OUTLOOK
-[2-3 bullets. What situations are actively developing or escalating based purely on the data. Facts only — no speculation.]`;
+[2-3 bullets: what is actively developing based only on the data above]`;
 
-    const result = await callLLM(env, [{ role: 'user', content: userContent }], {
-      system: systemPrompt,
-      max_tokens: 1400,
-      model: 'claude-haiku-4-5', // maps to llama-3.1-8b-instant on Groq (131,072 TPM — no rate limit issues)
-    });
+    // Use llama-3.3-70b-versatile DIRECTLY — separate RPM bucket from classification (llama-3.1-8b-instant)
+    // This prevents the ingest classification calls from exhausting the briefing rate limit
+    let result;
+    if (env.ANTHROPIC_API_KEY) {
+      result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1200, model: 'claude-sonnet-4-5' });
+    } else {
+      const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
+      result = await callGroqChat(env, groqMsgs, { max_tokens: 1200, model: 'llama-3.3-70b-versatile' });
+      // One retry after 6s on rate limit — RPM window resets every 60s, usually 6s is enough after a burst
+      if (result.error === 'http_429') {
+        await sleep(6000);
+        result = await callGroqChat(env, groqMsgs, { max_tokens: 1200, model: 'llama-3.3-70b-versatile' });
+      }
+    }
 
     // On LLM failure: serve stale cache if available, otherwise surface the error clearly
     if (result.error && !result.text) {
