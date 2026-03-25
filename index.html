@@ -7304,11 +7304,11 @@
         notes:'Bureau of Energy: 60d mandatory minimum. Combined government + industry ~146d import cover — one of highest globally.',
         sources:['https://www.moeaboe.gov.tw/ECW/english/','https://www.eia.gov/international/analysis/country/TWN','https://www.iea.org/countries/chinese-taipei'] },
       { country:'Singapore', iso2:'SG', flag:'🇸🇬', region:'APJC', dell:true,
-        res_display:'0 (none)',     res_barrels:0,
-        emg_display:'Not Public / Not Disclosed', emg_barrels:null,
+        res_display:'Not Disclosed', res_barrels:0,
+        emg_display:'Not Disclosed', emg_barrels:null,
         import_cover: null, import_cover_display:'Not Disclosed',
         net_exporter: false,
-        confidence:'LOW', src_count:2, last_verified:'2024-12', checked_at:'2026-03-25',
+        confidence:'MEDIUM', src_count:2, last_verified:'2024-12', checked_at:'2026-03-25',
         notes:'Major global trading/refining hub with very large commercial stocks but no published government SPR. EMA does not publicly report emergency stock figures.',
         sources:['https://www.ema.gov.sg/statistics/petroleum-trade-statistics','https://www.eia.gov/international/analysis/country/SGP'] },
       { country:'Australia', iso2:'AU', flag:'🇦🇺', region:'APJC', dell:true,
@@ -7345,8 +7345,7 @@
       var data = OIL_RESERVES_DATA.slice();
       if (_cwOilTab === 'risk') {
         data = data.filter(function(r) {
-          return r.confidence === 'LOW'
-            || (!r.net_exporter && r.import_cover !== null && r.import_cover < 30)
+          return (!r.net_exporter && r.import_cover !== null && r.import_cover < 30)
             || r.emg_display.indexOf('Not Public') !== -1;
         });
       } else if (_cwOilTab === 'top') {
@@ -7622,8 +7621,8 @@
 
       /* ── SEAPORTS ─────────────────────────────────────────────────────── */
       { key:'sydney',    type:'seaport', country:'Australia',   city:'Sydney',     flag:'🇦🇺',
-        label:'Sydney Harbour Webcam',
-        ytId: 'IhWWW2l-pP0' },               // WebcamSydney 1 — 24/7 harbour live stream
+        label:'Sydney Harbour Webcam — WebcamSydney',
+        ytId: 'UCLav_kTu9PmAEChvGyrPbhQ' },  // WebcamSydney channel — 24/7 harbour live stream
 
       { key:'helsinki',  type:'seaport', country:'Finland',     city:'Helsinki',   flag:'🇫🇮',
         label:'Port of Helsinki — West T1',
