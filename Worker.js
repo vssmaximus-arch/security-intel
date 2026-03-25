@@ -2948,14 +2948,16 @@ async function callGroqChat(env, messages, opts = {}) {
  */
 async function callGemini(env, systemPrompt, userContent, opts = {}) {
   if (!env.GEMINI_API_KEY) return { text: null, error: 'no_gemini_key' };
-  const model = opts.model || 'gemini-1.5-flash';
+  // Use v1beta with gemini-1.5-flash — same endpoint as generate_reports.py
+  const model = 'gemini-1.5-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+  // Combine system + user into a single user turn (avoids systemInstruction compatibility issues)
+  const fullPrompt = systemPrompt ? `${systemPrompt}\n\n---\n\n${userContent}` : userContent;
   const body = {
-    systemInstruction: { parts: [{ text: systemPrompt }] },
-    contents: [{ role: 'user', parts: [{ text: userContent }] }],
+    contents: [{ parts: [{ text: fullPrompt }] }],
     generationConfig: {
       maxOutputTokens: opts.max_tokens || 1600,
-      temperature: opts.temperature ?? 0.35,
+      temperature: 0.35,
     },
   };
   try {
@@ -2970,11 +2972,15 @@ async function callGemini(env, systemPrompt, userContent, opts = {}) {
     clearTimeout(tid);
     if (!resp.ok) {
       const errText = await resp.text().catch(() => '');
-      typeof debug === 'function' && debug('callGemini error', resp.status, errText.slice(0, 200));
-      return { text: null, error: `http_${resp.status}` };
+      typeof debug === 'function' && debug('callGemini error', resp.status, errText.slice(0, 400));
+      return { text: null, error: `http_${resp.status}: ${errText.slice(0, 120)}` };
     }
     const json = await resp.json();
     const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!text) {
+      typeof debug === 'function' && debug('callGemini empty response', JSON.stringify(json).slice(0, 300));
+      return { text: null, error: 'empty_response' };
+    }
     return { text: text.trim(), error: null };
   } catch (e) {
     typeof debug === 'function' && debug('callGemini exception', e?.message || e);
@@ -6045,16 +6051,11 @@ Write the Daily Threatscape using exactly these sections:
     if (env.ANTHROPIC_API_KEY) {
       result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1800, model: 'claude-sonnet-4-5' });
     } else if (env.GEMINI_API_KEY) {
-      // Gemini: completely separate from Groq — no rate limit competition at all
-      // Try gemini-2.0-flash first (newest free), fall back to gemini-1.5-flash
-      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-2.0-flash' });
-      if (result.error && result.error !== 'http_429') {
-        typeof debug === 'function' && debug('briefing: gemini-2.0-flash failed, trying 1.5-flash', result.error);
-        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });
-      }
+      // Gemini 1.5 Flash — same model/endpoint as generate_reports.py, completely separate from Groq
+      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800 });
       if (result.error === 'http_429') {
         await sleep(4000);
-        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });
+        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800 });
       }
     } else {
       // Groq fallback — llama-3.3-70b-versatile has its own RPM bucket separate from classification
