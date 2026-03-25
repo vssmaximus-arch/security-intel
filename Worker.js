@@ -6046,7 +6046,12 @@ Write the Daily Threatscape using exactly these sections:
       result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1800, model: 'claude-sonnet-4-5' });
     } else if (env.GEMINI_API_KEY) {
       // Gemini: completely separate from Groq — no rate limit competition at all
-      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });
+      // Try gemini-2.0-flash first (newest free), fall back to gemini-1.5-flash
+      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-2.0-flash' });
+      if (result.error && result.error !== 'http_429') {
+        typeof debug === 'function' && debug('briefing: gemini-2.0-flash failed, trying 1.5-flash', result.error);
+        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });
+      }
       if (result.error === 'http_429') {
         await sleep(4000);
         result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });

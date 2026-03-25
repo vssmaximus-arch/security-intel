@@ -6352,9 +6352,13 @@ async function handleGenerateBriefClick() {
     const data = await res.json();
 
     if (data.error && !data.briefing) {
+      const _rawErr = String(data.error || '');
+      const _isRateLimit = _rawErr.includes('429') || _rawErr.toLowerCase().includes('rate');
+      const _errMsg = _isRateLimit
+        ? 'AI rate limit reached — please try again in a minute.'
+        : `Briefing error: ${_rawErr.slice(0, 120)}`;
       bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;font-size:0.82rem;">
-        <i class="fas fa-exclamation-triangle me-1"></i>
-        Unable to generate briefing right now — AI rate limit reached. Please try again in a minute.
+        <i class="fas fa-exclamation-triangle me-1"></i>${escapeHtml(_errMsg)}
       </div>`;
       return;
     }
