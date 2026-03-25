@@ -7469,20 +7469,12 @@ var _vwMarkerByKey = {};   // imo/mmsi/name → Leaflet marker (for click-to-hig
 var _vwLocalFleet  = [];   // vessels added via Track Vessel search
 var _vwRemovedKeys = {};   // vessel keys hidden by user pressing ✕
 
-// ── Default tracked vessels (replaces Worker mock fleet) ──────────────────
-// Server returns 5 generic mock vessels — hide them and show these 4 instead.
-var VW_DEFAULT_FLEET = [
-  { vesselName:'MATSONIA',          imo:'9814612', mmsi:'',        flag:'US', vesselType:'Container Ship',
-    notesSanitized:'Matson Line — US West Coast / Hawaii transpacific route', businessRelevance:'High' },
-  { vesselName:'CMA CGM TENERE',    imo:'9859117', mmsi:'',        flag:'PA', vesselType:'Container Ship',
-    notesSanitized:'CMA CGM — large modern container vessel, Asia-Europe/AMER routes', businessRelevance:'High' },
-  { vesselName:'WAN HAI 511',       imo:'9455296', mmsi:'',        flag:'TW', vesselType:'Container Ship',
-    notesSanitized:'Wan Hai Lines — intra-Asia container service (APJC supply chain)', businessRelevance:'High' },
-  { vesselName:'CMA CGM MISSISSIPPI', imo:'9679907', mmsi:'',      flag:'PA', vesselType:'Container Ship',
-    notesSanitized:'CMA CGM — transpacific / Americas route coverage', businessRelevance:'High' },
-];
-// IMOs of the 5 Worker mock vessels to suppress from the monitored table
-var VW_SUPPRESS_SERVER_IMOS = ['9893890','9863297','9938338','9784305','9800838'];
+// ── Default tracked vessels ────────────────────────────────────────────────
+// Using the Worker's built-in fleet (EVER ACE, HMM ALGECIRAS, MAERSK INTEGRITY,
+// MSC HAMBURG, MSC LUCIA) — these have live mock positions in the Worker.
+var VW_DEFAULT_FLEET = [];
+// No Worker vessels suppressed — show the full server fleet
+var VW_SUPPRESS_SERVER_IMOS = [];
 
 var VW_STATUS_CLASS = { 'Review Required':'vw-badge-review', 'Elevated':'vw-badge-elevated', 'Watch':'vw-badge-watch', 'Normal':'vw-badge-normal' };
 var VW_ACTION_CLASS = { 'Escalate':'vw-action-escalate', 'Review':'vw-action-review', 'Monitor':'vw-action-monitor', 'None':'vw-action-none' };
