@@ -2940,6 +2940,49 @@ async function callGroqChat(env, messages, opts = {}) {
 }
 
 /**
+ * callGemini — Google Gemini API for AI briefings.
+ * Free tier: 15 RPM, 1,000,000 TPM, 1,500 RPD — far more generous than Groq.
+ * Completely separate from Groq classification calls — no rate limit competition.
+ * Set GEMINI_API_KEY in Cloudflare Worker environment variables.
+ * Get a free key at: https://aistudio.google.com/app/apikey
+ */
+async function callGemini(env, systemPrompt, userContent, opts = {}) {
+  if (!env.GEMINI_API_KEY) return { text: null, error: 'no_gemini_key' };
+  const model = opts.model || 'gemini-1.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+  const body = {
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userContent }] }],
+    generationConfig: {
+      maxOutputTokens: opts.max_tokens || 1600,
+      temperature: opts.temperature ?? 0.35,
+    },
+  };
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 45000);
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    clearTimeout(tid);
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => '');
+      typeof debug === 'function' && debug('callGemini error', resp.status, errText.slice(0, 200));
+      return { text: null, error: `http_${resp.status}` };
+    }
+    const json = await resp.json();
+    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    return { text: text.trim(), error: null };
+  } catch (e) {
+    typeof debug === 'function' && debug('callGemini exception', e?.message || e);
+    return { text: null, error: e?.message || 'call_failed' };
+  }
+}
+
+/**
  * callLLM — Unified LLM router.
  * Uses Claude if ANTHROPIC_API_KEY is set, otherwise Groq.
  * messages: [{role:'user'|'assistant', content: string}]
@@ -5994,14 +6037,24 @@ Write the Daily Threatscape using exactly these sections:
 [2–3 bullets. What is actively developing, what Dell should expect in the next 24–48h, and which business functions or geographies are most exposed.]`;
     }
 
-    // Use llama-3.3-70b-versatile DIRECTLY — separate RPM bucket from classification (llama-3.1-8b-instant)
+    // Briefing API priority chain — each uses a completely separate API/key from Groq classification:
+    // 1. Anthropic Claude (best quality, paid)
+    // 2. Google Gemini 1.5 Flash (free, 15 RPM / 1M TPM — zero competition with Groq)
+    // 3. Groq llama-3.3-70b-versatile (fallback, different RPM bucket from classification)
     let result;
     if (env.ANTHROPIC_API_KEY) {
       result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1800, model: 'claude-sonnet-4-5' });
+    } else if (env.GEMINI_API_KEY) {
+      // Gemini: completely separate from Groq — no rate limit competition at all
+      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });
+      if (result.error === 'http_429') {
+        await sleep(4000);
+        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800, model: 'gemini-1.5-flash' });
+      }
     } else {
+      // Groq fallback — llama-3.3-70b-versatile has its own RPM bucket separate from classification
       const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
       result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
-      // One retry after 6s on rate limit
       if (result.error === 'http_429') {
         await sleep(6000);
         result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
@@ -6030,7 +6083,7 @@ Write the Daily Threatscape using exactly these sections:
       window_h: windowH,
       region: region || 'Global',
       generated_at: new Date().toISOString(),
-      model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GROQ_API_KEY ? 'groq' : 'none'),
+      model: env.ANTHROPIC_API_KEY ? 'claude' : (env.GEMINI_API_KEY ? 'gemini' : (env.GROQ_API_KEY ? 'groq' : 'none')),
       report_format: reportFormat, // 'SITREP' or 'DAILY_THREATSCAPE'
     };
 
