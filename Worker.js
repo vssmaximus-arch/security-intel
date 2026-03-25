@@ -5818,13 +5818,17 @@ async function handleApiAiBriefing(env, req) {
       const rb = _SEV_RANK[String(b.severity_label || '').toUpperCase()] ?? 4;
       return ra - rb;
     });
-    // Send top 50 by severity to LLM
-    const topIncidents = sortedIncidents.slice(0, 50);
+    // Top 25 CRITICAL/HIGH incidents + 5 MEDIUM for context (keeps token count low)
+    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 25);
+    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 5);
+    const topIncidents = [...critHigh, ...medFill];
 
-    const incidentLines = topIncidents.map((i, idx) => {
-      const ts = (() => { try { return new Date(i.time).toISOString().slice(0, 16).replace('T', ' ') + ' UTC'; } catch { return ''; } })();
-      return `${idx + 1}. [${i.severity_label || 'INFO'}][${i.region || '?'}][${i.category || '?'}] ${i.country || '?'}${i.location ? '/' + i.location : ''}: ${i.title} ${ts}`;
-    }).join('\n');
+    const _fmtInc = (i, idx) => {
+      const ts = (() => { try { return new Date(i.time).toISOString().slice(0,16).replace('T',' ') + ' UTC'; } catch { return ''; } })();
+      const summary = i.summary ? ' — ' + String(i.summary).slice(0, 120) : '';
+      return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}] ${i.country||'?'}${i.location?'/'+i.location:''}: ${i.title}${summary} (${ts})`;
+    };
+    const incidentLines = topIncidents.map(_fmtInc).join('\n');
 
     // Include proximity incidents (events near Dell sites) for context
     const proxData = await kvGetJson(env, PROXIMITY_KV_KEY, {});
@@ -5832,55 +5836,54 @@ async function handleApiAiBriefing(env, req) {
     const proxFiltered = proxIncidents.filter(p => {
       if (!region) return true;
       return String(p.region || '').toUpperCase() === region;
-    }).slice(0, 12);
-    const proxLines = proxFiltered.map(p =>
-      `- [${p.priority || 'P3'}][${p.category || '?'}] ${p.country || '?'}: ${p.title} → nearest Dell site: ${p.nearest_site_name || '?'} (${p.distance_km != null ? Math.round(Number(p.distance_km)) + 'km' : 'country-wide'})`
-    ).join('\n');
+    }).slice(0, 10);
+    const proxLines = proxFiltered.map(p => {
+      const dist = p.distance_km != null ? `${Math.round(Number(p.distance_km))}km` : 'country-wide';
+      return `- [${p.priority||'P3'}][${p.category||'?'}] ${p.country||'?'}: ${p.title} → ${dist} from ${p.nearest_site_name||'Dell site'}`;
+    }).join('\n');
 
     const systemPrompt = `You are the duty intelligence analyst for Dell Technologies Security & Resiliency Operations (SRO).
-Audience: SRO leadership and Regional Security Managers (RSMs). This briefing replaces a human analyst's shift handover report.
+You write the shift handover briefing read by the CISO, VP of Security, and Regional Security Managers.
 
-ABSOLUTE RULES — breaking any rule makes this briefing worthless:
-1. FACTS ONLY. No advice. No recommendations. Zero "RSMs should", "teams must", "we recommend". State what happened, not what to do.
-2. SPECIFIC, not vague. Name exact countries, cities, events, companies. NEVER write "geopolitical tensions persist" or "ongoing instability" — always say what specifically is happening, where, and when.
-3. Only reference incidents from the data provided. Never fabricate or infer beyond the raw data.
-4. Severity order: CRITICAL events first, then HIGH, then MEDIUM. Skip LOW unless highly relevant.
-5. Dell Operational Impact: concrete facts about named Dell sites, specific travel corridors, named supply routes — not general assertions.
-6. Events Near Dell Assets: use ONLY the proximity section provided. If none, state "None reported this period."
-7. If a section has no relevant events, write exactly: "No significant events this period."`;
+YOUR WRITING RULES:
+- SYNTHESIZE. Do not copy-paste incident titles. Write what is happening, who is involved, and what the situation is.
+- SPECIFIC facts only. Name exact countries, companies, CVE numbers, event names, casualty figures where available.
+- NO advice. NO "teams should", "RSMs must", "monitor closely". Write facts — leadership decides what to do.
+- NO vague phrases: never write "geopolitical tensions", "ongoing instability", "various incidents".
+- CRITICAL/HIGH severity events must dominate. Skip LOW entirely.
+- Short, punchy sentences. Intelligence brief style, not journalism.`;
 
-    const userContent = `Generate a ${windowH}-hour SRO intelligence briefing${region ? ` — ${region} REGION` : ' — GLOBAL (all regions)'}.
+    const userContent = `Write a ${windowH}-hour SRO intelligence briefing${region ? ` for ${region}` : ' (Global)'}.
+Total incidents in window: ${incidents.length}. Analysis based on top ${topIncidents.length} by severity.
 
-INTELLIGENCE FEED — ${topIncidents.length} incidents (sorted severity-first; ${incidents.length} total in ${windowH}h window):
+RAW INTELLIGENCE DATA:
 ${incidentLines}
-${proxLines ? `\nEVENTS NEAR DELL ASSETS (proximity-triggered):\n${proxLines}` : '\nEVENTS NEAR DELL ASSETS: None reported this period.'}
+${proxLines ? `\nPROXIMITY ALERTS — EVENTS NEAR DELL SITES:\n${proxLines}` : ''}
 
-Write EXACTLY these 5 sections, in order. Be specific. Use the actual incident titles and countries from the data above:
+Write these 5 sections. SYNTHESIZE — do not just list titles. Write like a human analyst who understands the situation:
 
 ## ⚡ KEY TAKEAWAYS
-[3-5 bullets — the most critical facts any RSM must know right now. Name specific events and locations.]
+[3-5 bullets. Each bullet is one synthesized intelligence assessment: what happened, where, significance. Example: "China-linked threat actor (UNC group) actively exploiting Dell RecoverPoint CVE-2026-22769 zero-day in enterprise backup systems since mid-2024 — patch not yet available."]
 
 ## 🔺 RECENT ESCALATIONS
-[One bullet per CRITICAL or HIGH incident. Format: [SEVERITY][REGION] Country/Location — what happened — when. Skip MEDIUM/LOW unless exceptional.]
+[Bulleted list of CRITICAL and HIGH events. Each: country/region — what happened — confirmed scale or impact. Include timestamps where relevant. Be specific.]
 
 ## 🏢 DELL OPERATIONAL IMPACT
-[Concrete facts only about named Dell sites, travel routes, supply lanes affected. No speculation. If no direct Dell impact confirmed, state that.]
+[What this means for Dell specifically. Named sites, travel corridors, supply routes, Dell products mentioned. If no confirmed direct impact: state that clearly in one line.]
 
 ## 📍 EVENTS NEAR DELL ASSETS
-[Use proximity data above only. Format: Event — Location — Xkm from Dell [SiteName]. If none, state "None reported this period."]
+[From proximity data only. Each: what event, which country/city, distance to which Dell site. If empty: "No proximity events this period."]
 
 ## 🔭 OUTLOOK
-[2-3 bullets — factual observations about what is actively developing based solely on the data. No predictions beyond confirmed trends.]`;
+[2-3 bullets. What situations are actively developing or escalating based purely on the data. Facts only — no speculation.]`;
 
     const result = await callLLM(env, [{ role: 'user', content: userContent }], {
       system: systemPrompt,
-      max_tokens: 1800,
-      model: 'claude-sonnet-4-5',
+      max_tokens: 1400,
+      model: 'claude-haiku-4-5', // maps to llama-3.1-8b-instant on Groq (131,072 TPM — no rate limit issues)
     });
 
-    // On rate-limit or LLM failure:
-    // 1. Serve stale KV cache if available
-    // 2. Otherwise generate a no-AI structured briefing directly from incident data (always works)
+    // On LLM failure: serve stale cache if available, otherwise surface the error clearly
     if (result.error && !result.text) {
       if (cachedResult) {
         return {
@@ -5889,19 +5892,11 @@ Write EXACTLY these 5 sections, in order. Be specific. Use the actual incident t
           body: { ...cachedResult, cached: true, stale: true, stale_reason: result.error },
         };
       }
-      // No cache, no LLM → build structured briefing directly from incident data
-      const _noAiBriefing = _buildNoAiBriefing(topIncidents, proxFiltered, windowH, region);
-      const noAiResult = {
-        briefing: _noAiBriefing,
-        incident_count: incidents.length,
-        window_h: windowH,
-        region: region || 'Global',
-        generated_at: new Date().toISOString(),
-        model: 'data-only',
+      return {
+        status: 503,
+        headers: { 'X-Cache': 'MISS' },
+        body: { error: `AI temporarily unavailable (${result.error}). ${incidents.length} incidents in window. Please retry in 60 seconds.`, incident_count: incidents.length, window_h: windowH, region: region || 'Global' }
       };
-      // Cache this so next request is instant
-      await kvPut(env, briefCacheKey, noAiResult, { expirationTtl: BRIEFING_CACHE_TTL_S });
-      return { status: 200, headers: { 'X-Cache': 'MISS' }, body: { ...noAiResult, cached: false } };
     }
 
     const freshResult = {
