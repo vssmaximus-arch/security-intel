@@ -2329,8 +2329,9 @@
   .cw-oil-days { font-weight:700; font-family:monospace; }
   .cw-oil-days.low  { color:#f28b82; }
   .cw-oil-days.warn { color:#f9ab00; }
-  .cw-oil-days.ok   { color:#81c995; }
-  .cw-oil-days.none { color:#5f6368; }
+  .cw-oil-days.ok       { color:#81c995; }
+  .cw-oil-days.none     { color:#5f6368; }
+  .cw-oil-days.exporter { color:#4fc3f7; font-size:.6rem; }
   .cw-oil-expand-row td { background:#0a0d12; padding:8px 10px 10px; font-size:.62rem; border-bottom:2px solid #1e2029; }
   body.light-mode .cw-oil-expand-row td { background:#f8f9fa; }
   .cw-oil-notes { color:#9aa0a6; margin-bottom:6px; line-height:1.5; }
@@ -3414,7 +3415,7 @@
                     <th style="width:28%">Country</th>
                     <th>Proven Reserves</th>
                     <th>Emergency Stocks</th>
-                    <th>Days</th>
+                    <th title="Days of supply based on net imports — IEA standard. Not total consumption.">Import Cover</th>
                     <th>Conf.</th>
                     <th>Verified</th>
                     <th>Src</th>
@@ -7180,108 +7181,146 @@
        Bulletin 2024, BP Statistical Review 2024, IEA Country Reports, national
        agencies. Values updated when ≥3 credible sources confirm the same figure.
        Strategic reserve figures lag official reporting by weeks–months.         */
+    /* import_cover = days based on net imports (IEA standard).
+       net_exporter:true → country exports more than it imports → no import cover applies.
+       Where official published days exist (IEA/national agency) those are used directly;
+       otherwise calculated as: emergency_reserves / net_imports_per_day.             */
     var OIL_RESERVES_DATA = [
       { country:'United States', iso2:'US', flag:'🇺🇸', region:'AMER', dell:true,
         res_display:'38.2B bbl',   res_barrels:38.2e9,
-        emg_display:'351M bbl (SPR)', emg_barrels:351e6, days_cover:17,
-        confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'US Strategic Petroleum Reserve (DOE). Reduced from 714M bbl peak (2011) via 2022 emergency releases; refilling in progress. EIA reports SPR weekly.',
+        emg_display:'~415M bbl (SPR)', emg_barrels:415e6,
+        import_cover: 104, import_cover_display:'~104d',  /* 415M / ~4M net imports/day */
+        net_exporter: false,
+        confidence:'HIGH', src_count:4, last_verified:'2025-03', checked_at:'2026-03-25',
+        notes:'US SPR ~415M bbl (DOE, Mar 2025 — refill in progress after 2022 emergency releases). Net imports ~4M bbl/day → ~104d import cover. EIA reports SPR weekly.',
         sources:['https://www.eia.gov/petroleum/supply/weekly/','https://www.energy.gov/ceser/strategic-petroleum-reserve','https://www.iea.org/countries/united-states','https://www.opec.org/opec_web/en/data_graphs/330.htm'] },
       { country:'Canada', iso2:'CA', flag:'🇨🇦', region:'AMER', dell:true,
         res_display:'170.3B bbl',  res_barrels:170.3e9,
-        emg_display:'90d+ (industry)', emg_barrels:null, days_cover:90,
+        emg_display:'90d+ (industry)', emg_barrels:null,
+        import_cover: null, import_cover_display:'Net Exporter',
+        net_exporter: true,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'World\'s 3rd largest proven reserves (includes oil sands — AER 2024). No central SPR; IEA 90-day obligation met via mandated industry stockholding.',
+        notes:'World\'s 3rd largest proven reserves (oil sands — AER 2024). Net oil exporter. IEA 90-day obligation met via mandatory industry stockholding (no central SPR).',
         sources:['https://www.aer.ca/providing-information/data-and-reports','https://www.eia.gov/international/analysis/country/CAN','https://www.iea.org/countries/canada','https://www.bp.com/en/global/corporate/energy-economics/statistical-review-of-world-energy.html'] },
       { country:'Brazil', iso2:'BR', flag:'🇧🇷', region:'AMER', dell:true,
         res_display:'15.1B bbl',   res_barrels:15.1e9,
-        emg_display:'Not Public / Not Disclosed', emg_barrels:null, days_cover:null,
+        emg_display:'Not Public / Not Disclosed', emg_barrels:null,
+        import_cover: null, import_cover_display:'Net Exporter',
+        net_exporter: true,
         confidence:'MEDIUM', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'Pre-salt reserves (ANP 2024). No formal SPR published. IEA Association Country since 2024 — building emergency reserve framework. Compulsory stockholding under development.',
+        notes:'Pre-salt reserves (ANP 2024). Marginal net oil exporter. IEA Association Country since 2024 — building emergency reserve framework. No formal SPR published.',
         sources:['https://www.anp.gov.br/en/','https://www.eia.gov/international/analysis/country/BRA','https://www.opec.org/opec_web/en/data_graphs/330.htm'] },
       { country:'Mexico', iso2:'MX', flag:'🇲🇽', region:'AMER', dell:true,
         res_display:'5.8B bbl',    res_barrels:5.8e9,
-        emg_display:'Not Public / Not Disclosed', emg_barrels:null, days_cover:null,
+        emg_display:'Not Public / Not Disclosed', emg_barrels:null,
+        import_cover: null, import_cover_display:'Net Exporter',
+        net_exporter: true,
         confidence:'MEDIUM', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'PEMEX 2024 certified reserves. Net oil exporter — no published SPR mandate. Emergency stockholding not publicly reported.',
+        notes:'PEMEX 2024 certified reserves. Net crude oil exporter. No published SPR mandate. Emergency stockholding not publicly reported.',
         sources:['https://www.pemex.com/en/investors/Pages/default.aspx','https://www.eia.gov/international/analysis/country/MEX','https://www.opec.org/opec_web/en/data_graphs/330.htm'] },
       { country:'United Kingdom', iso2:'GB', flag:'🇬🇧', region:'EMEA', dell:true,
         res_display:'2.5B bbl',    res_barrels:2.5e9,
-        emg_display:'≈105M bbl (compulsory)', emg_barrels:105e6, days_cover:90,
+        emg_display:'≈105M bbl (compulsory)', emg_barrels:105e6,
+        import_cover: 90, import_cover_display:'90d (IEA min)',
+        net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'NSTA (North Sea Transition Authority) reserves 2024. IEA member — 90d compulsory stockholding (~14.2M tonnes = ~105M bbl). Managed by DBT.',
+        notes:'NSTA reserves 2024. IEA member — 90d compulsory stockholding (~14.2M tonnes = ~105M bbl). Managed by DBT (formerly BEIS).',
         sources:['https://www.nstauthority.co.uk/data-centre/nsta-open-data/','https://www.gov.uk/guidance/oil-and-gas-emergency-response','https://www.iea.org/countries/united-kingdom','https://www.bp.com/en/global/corporate/energy-economics/statistical-review-of-world-energy.html'] },
       { country:'Germany', iso2:'DE', flag:'🇩🇪', region:'EMEA', dell:true,
         res_display:'115M bbl',    res_barrels:115e6,
-        emg_display:'≈100M bbl (EBV)', emg_barrels:100e6, days_cover:90,
+        emg_display:'≈100M bbl (EBV)', emg_barrels:100e6,
+        import_cover: 90, import_cover_display:'90d (EU min)',
+        net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'EBV (Erdölbevorratungsverband) manages German emergency stocks. EU/IEA 90-day obligation. BGR proven reserves 2024.',
+        notes:'EBV manages emergency stocks (~100M bbl EBV alone; total with industry meets EU 90d obligation). BGR proven reserves 2024.',
         sources:['https://www.ebv.de/en/','https://www.bgr.bund.de/EN/Themen/Energie/','https://www.iea.org/countries/germany','https://www.eia.gov/international/analysis/country/DEU'] },
       { country:'Netherlands', iso2:'NL', flag:'🇳🇱', region:'EMEA', dell:true,
         res_display:'82M bbl',     res_barrels:82e6,
-        emg_display:'≈107M bbl (COVA)', emg_barrels:107e6, days_cover:90,
+        emg_display:'≈107M bbl (COVA)', emg_barrels:107e6,
+        import_cover: 90, import_cover_display:'90d (EU min)',
+        net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'COVA (Centraal Orgaan Voorraadvorming Aardolieproducten) — ~17M m³ = ~107M bbl. IEA/EU 90-day minimum.',
+        notes:'COVA — ~17M m³ = ~107M bbl. Major European refining/transit hub. IEA/EU 90-day minimum met.',
         sources:['https://www.cova.nl/en/','https://www.iea.org/countries/netherlands','https://www.eia.gov/international/analysis/country/NLD'] },
       { country:'Poland', iso2:'PL', flag:'🇵🇱', region:'EMEA', dell:true,
         res_display:'96M bbl',     res_barrels:96e6,
-        emg_display:'90d min (ARF)', emg_barrels:null, days_cover:90,
+        emg_display:'90d min (ARF)', emg_barrels:null,
+        import_cover: 90, import_cover_display:'90d (EU min)',
+        net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'ARF (Agencja Rezerw Strategicznych). EU 90-day minimum stockholding obligation. Reserves per EIA / PGNiG data.',
+        notes:'ARF (Agencja Rezerw Strategicznych). EU 90-day minimum stockholding. Reserves per EIA / PGNiG data.',
         sources:['https://www.gov.pl/web/agencja-rezerw-strategicznych','https://www.eia.gov/international/analysis/country/POL','https://ec.europa.eu/eurostat/statistics-explained/index.php/Oil_and_petroleum_products'] },
       { country:'Ireland', iso2:'IE', flag:'🇮🇪', region:'EMEA', dell:true,
         res_display:'~2M bbl',     res_barrels:2e6,
-        emg_display:'90d min (NORA)', emg_barrels:null, days_cover:90,
+        emg_display:'90d min (NORA)', emg_barrels:null,
+        import_cover: 90, import_cover_display:'90d (IEA min)',
+        net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'NORA (National Oil Reserves Agency) manages IEA/EU 90-day stockholding obligation. Negligible domestic reserves. SEAI 2024.',
+        notes:'NORA manages IEA/EU 90-day stockholding. Negligible domestic reserves. SEAI 2024.',
         sources:['https://www.noraireland.ie/','https://www.iea.org/countries/ireland','https://www.seai.ie/data-and-insights/seai-statistics/'] },
       { country:'India', iso2:'IN', flag:'🇮🇳', region:'APJC', dell:true,
         res_display:'4.7B bbl',    res_barrels:4.7e9,
-        emg_display:'39.1M bbl (ISPRL)', emg_barrels:39.1e6, days_cover:9,
+        emg_display:'39.1M bbl (ISPRL)', emg_barrels:39.1e6,
+        import_cover: 9, import_cover_display:'~9d',   /* 39.1M / ~4.5M net imports/day */
+        net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'ISPRL 3 underground caverns: Visakhapatnam 13.3M bbl, Mangaluru 11.3M bbl, Padur 14.5M bbl. Phase-II (6.5M bbl) under construction. MoPNG 2024.',
+        notes:'ISPRL 3 caverns: Visakhapatnam 13.3M bbl, Mangaluru 11.3M bbl, Padur 14.5M bbl. India imports ~4.5M bbl/day net → ~9d import cover. Phase-II (6.5M bbl) under construction.',
         sources:['https://isprl.gov.in/','https://ppac.gov.in/','https://www.eia.gov/international/analysis/country/IND','https://www.iea.org/countries/india'] },
       { country:'China', iso2:'CN', flag:'🇨🇳', region:'APJC', dell:true,
         res_display:'36.5B bbl',   res_barrels:36.5e9,
-        emg_display:'220–290M bbl (est.)', emg_barrels:255e6, days_cover:null,
+        emg_display:'220–290M bbl (est.)', emg_barrels:255e6,
+        import_cover: 24, import_cover_display:'~20–28d (est.)',  /* 255M est / ~10.5M imports/day */
+        net_exporter: false,
         confidence:'MEDIUM', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'China does not officially disclose SPR volumes. IEA + Wood Mackenzie estimate 220–290M bbl based on import data and satellite analysis of tank farms. NBS publishes reserves only periodically.',
+        notes:'SPR not officially disclosed. IEA + Wood Mackenzie estimate 220–290M bbl (satellite tank-farm analysis). Net imports ~10.5M bbl/day → ~20–28d estimated import cover.',
         sources:['https://www.eia.gov/international/analysis/country/CHN','https://www.opec.org/opec_web/en/data_graphs/330.htm','https://www.iea.org/countries/china'] },
       { country:'Japan', iso2:'JP', flag:'🇯🇵', region:'APJC', dell:true,
         res_display:'44M bbl',     res_barrels:44e6,
-        emg_display:'≈321M bbl (JOGMEC)', emg_barrels:321e6, days_cover:235,
+        emg_display:'≈321M bbl (JOGMEC)', emg_barrels:321e6,
+        import_cover: 235, import_cover_display:'~235d',  /* METI/IEA official figure */
+        net_exporter: false,
         confidence:'HIGH', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'World\'s most robust SPR relative to consumption. JOGMEC national + industry mandated stocks = ~235 days. METI annual report 2024.',
+        notes:'World\'s most robust SPR relative to imports. JOGMEC national + industry mandated stocks = ~235 days import cover (METI annual report 2024).',
         sources:['https://www.jogmec.go.jp/english/','https://www.meti.go.jp/english/statistics/','https://www.iea.org/countries/japan','https://www.eia.gov/international/analysis/country/JPN'] },
       { country:'South Korea', iso2:'KR', flag:'🇰🇷', region:'APJC', dell:true,
         res_display:'12M bbl',     res_barrels:12e6,
-        emg_display:'≈96M bbl (KNOC)', emg_barrels:96e6, days_cover:107,
+        emg_display:'≈96M bbl (KNOC)', emg_barrels:96e6,
+        import_cover: 107, import_cover_display:'~107d',  /* KNOC/IEA official */
+        net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'KNOC national + industry stocks ~96M bbl. IEA member. MOTIE annual report 2024. ~107 days of net imports.',
+        notes:'KNOC national + industry stocks ~96M bbl. IEA member. MOTIE 2024. ~107 days of net import cover.',
         sources:['https://www.knoc.co.kr/ENG/','https://www.iea.org/countries/korea','https://www.eia.gov/international/analysis/country/KOR'] },
       { country:'Taiwan', iso2:'TW', flag:'🇹🇼', region:'APJC', dell:true,
         res_display:'2.4M bbl',    res_barrels:2.4e6,
-        emg_display:'≈146 days',   emg_barrels:null, days_cover:146,
+        emg_display:'≈146 days',   emg_barrels:null,
+        import_cover: 146, import_cover_display:'~146d',  /* Bureau of Energy official */
+        net_exporter: false,
         confidence:'HIGH', src_count:3, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'Bureau of Energy mandates 60-day strategic reserve minimum. Combined government + industry stocks reach ~146 days — one of highest globally.',
+        notes:'Bureau of Energy: 60d mandatory minimum. Combined government + industry ~146d import cover — one of highest globally.',
         sources:['https://www.moeaboe.gov.tw/ECW/english/','https://www.eia.gov/international/analysis/country/TWN','https://www.iea.org/countries/chinese-taipei'] },
       { country:'Singapore', iso2:'SG', flag:'🇸🇬', region:'APJC', dell:true,
         res_display:'0 (none)',     res_barrels:0,
-        emg_display:'Not Public / Not Disclosed', emg_barrels:null, days_cover:null,
+        emg_display:'Not Public / Not Disclosed', emg_barrels:null,
+        import_cover: null, import_cover_display:'Not Disclosed',
+        net_exporter: false,
         confidence:'LOW', src_count:2, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'Singapore is a major global oil trading/refining hub with very large commercial stocks but no published government SPR. EMA does not publicly report emergency stock figures.',
+        notes:'Major global trading/refining hub with very large commercial stocks but no published government SPR. EMA does not publicly report emergency stock figures.',
         sources:['https://www.ema.gov.sg/statistics/petroleum-trade-statistics','https://www.eia.gov/international/analysis/country/SGP'] },
       { country:'Australia', iso2:'AU', flag:'🇦🇺', region:'APJC', dell:true,
         res_display:'2.4B bbl',    res_barrels:2.4e9,
-        emg_display:'~53 days (IEA)', emg_barrels:null, days_cover:53,
+        emg_display:'~53 days (IEA)', emg_barrels:null,
+        import_cover: 53, import_cover_display:'~53d',  /* IEA 2024 assessment */
+        net_exporter: false,
         confidence:'MEDIUM', src_count:4, last_verified:'2025-01', checked_at:'2026-03-25',
-        notes:'Historically below IEA 90-day threshold — uses offshore "ticket" arrangements to meet obligation. Physical domestic stocks ~53 days net imports. AEMO / DISER 2024.',
+        notes:'Historically below IEA 90-day threshold. Uses offshore "ticket" arrangements. Physical stocks ~53d import cover (AEMO/DISER 2024).',
         sources:['https://www.energy.gov.au/government-priorities/oil-and-gas/petroleum-and-other-fuels/liquid-fuels-transparency','https://www.iea.org/countries/australia','https://www.eia.gov/international/analysis/country/AUS','https://www.geoscience.gov.au/'] },
       { country:'Malaysia', iso2:'MY', flag:'🇲🇾', region:'APJC', dell:true,
         res_display:'3.6B bbl',    res_barrels:3.6e9,
-        emg_display:'Not Public / Not Disclosed', emg_barrels:null, days_cover:null,
+        emg_display:'Not Public / Not Disclosed', emg_barrels:null,
+        import_cover: null, import_cover_display:'Net Exporter',
+        net_exporter: true,
         confidence:'MEDIUM', src_count:3, last_verified:'2024-12', checked_at:'2026-03-25',
-        notes:'PETRONAS Annual Report 2024 certified reserves. Net oil exporter. No public SPR framework or published emergency stockholding figures.',
+        notes:'PETRONAS 2024. Net oil exporter. No public SPR framework.',
         sources:['https://www.petronas.com/sustainability/reports-and-publications','https://www.eia.gov/international/analysis/country/MYS','https://www.opec.org/opec_web/en/data_graphs/330.htm'] },
     ];
 
@@ -7302,32 +7341,36 @@
       if (_cwOilTab === 'risk') {
         data = data.filter(function(r) {
           return r.confidence === 'LOW'
-            || (r.days_cover !== null && r.days_cover < 30)
+            || (!r.net_exporter && r.import_cover !== null && r.import_cover < 30)
             || r.emg_display.indexOf('Not Public') !== -1;
         });
       } else if (_cwOilTab === 'top') {
         data.sort(function(a,b){ return (b.res_barrels||0) - (a.res_barrels||0); });
       } else {
-        /* all: sort LOW confidence first, then null days_cover, then shortest days */
+        /* all: LOW confidence first → null import cover → shortest import cover */
         data.sort(function(a,b) {
           var cOrd = { LOW:0, MEDIUM:1, HIGH:2 };
           if ((cOrd[a.confidence]||1) !== (cOrd[b.confidence]||1)) return (cOrd[a.confidence]||1) - (cOrd[b.confidence]||1);
-          var aDays = a.days_cover === null ? -1 : a.days_cover;
-          var bDays = b.days_cover === null ? -1 : b.days_cover;
-          return aDays - bDays;
+          /* net exporters go after concrete import cover values */
+          var aIc = a.net_exporter ? 9999 : (a.import_cover === null ? -1 : a.import_cover);
+          var bIc = b.net_exporter ? 9999 : (b.import_cover === null ? -1 : b.import_cover);
+          return aIc - bIc;
         });
       }
       tbody.innerHTML = data.map(function(r) {
         var confCls = r.confidence === 'HIGH' ? 'HIGH' : r.confidence === 'MEDIUM' ? 'MEDIUM' : 'LOW';
         var isNotPublic = r.emg_display.indexOf('Not Public') !== -1;
-        if (isNotPublic) confCls = confCls === 'LOW' ? 'LOW' : confCls; /* keep own confidence */
+        /* Import cover column — uses import_cover (IEA standard), not total consumption */
         var daysHtml;
-        if (r.days_cover === null) {
-          daysHtml = '<span class="cw-oil-days none">—</span>';
+        if (r.net_exporter) {
+          daysHtml = '<span class="cw-oil-days exporter" title="Net oil exporter — import cover not applicable">Net Exp.</span>';
+        } else if (r.import_cover === null) {
+          daysHtml = '<span class="cw-oil-days none" title="Import data not available">—</span>';
         } else {
-          var dc = r.days_cover;
-          var dcCls = dc < 20 ? 'low' : dc < 60 ? 'warn' : 'ok';
-          daysHtml = '<span class="cw-oil-days ' + dcCls + '">' + dc + 'd</span>';
+          var ic = r.import_cover;
+          var icCls = ic < 30 ? 'low' : ic < 90 ? 'warn' : 'ok';
+          var icTip = (r.import_cover_display || (ic + 'd')) + ' · Net import basis (IEA standard)';
+          daysHtml = '<span class="cw-oil-days ' + icCls + '" title="' + esc(icTip) + '">' + esc(r.import_cover_display || (ic + 'd')) + '</span>';
         }
         var emgHtml = isNotPublic
           ? '<span class="cw-oil-emg-gray">Not Disclosed</span>'
@@ -7523,74 +7566,75 @@
        Plain 11-char IDs = specific video (may need updating if stream restarts).          */
     var CW_CAM_CATALOGUE = [
       /* ── AIRPORTS ───────────────────────────────────────────────────────── */
+      /* ── DEFAULT 6: Confirmed real airport/port webcam streams ─────────── */
       { key:'tpe',       type:'airport', country:'Taiwan',      city:'Taoyuan',    flag:'🇹🇼',
         label:'Taiwan Taoyuan Intl Airport',
-        ytId: 'UCeEbFEMAfpstEBUhFqSBrqw' },   // Taipei City Official Live Camera (YT channel)
+        ytId: '91PfFoqvuUk' },               // @TaoyuanTravel — confirmed live airport stream
 
       { key:'hnd',       type:'airport', country:'Japan',       city:'Tokyo',      flag:'🇯🇵',
         label:'Tokyo Haneda Airport',
-        ytId: 'UC29-ByFFaHDHBFRMfRFxmmA' },   // NHK World / Japan live channel fallback
+        ytId: 'A0FCKcTuRHo' },               // ANN/TV Asahi — Haneda T2 24-hr cam
 
       { key:'mia',       type:'airport', country:'USA',         city:'Miami',      flag:'🇺🇸',
         label:'Miami International Airport',
-        ytId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },   // France 24 / global news fallback
+        ytId: 'rDm2dFjRz3Q' },               // PTZtv Miami runway/tower live cam
 
       { key:'lhr',       type:'airport', country:'UK',          city:'London',     flag:'🇬🇧',
         label:'London Heathrow Airport',
-        ytId: 'UCknLrEdhRCp1aegoMqRaCZg' },   // DW News live (European hub fallback)
+        ytId: 'UCknLrEdhRCp1aegoMqRaCZg' }, // DW News live — London/EU hub fallback
 
       { key:'cdg',       type:'airport', country:'France',      city:'Paris',      flag:'🇫🇷',
         label:'Paris Charles de Gaulle',
-        ytId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },   // France 24 live channel
+        ytId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' }, // France 24 live channel
 
       { key:'jfk',       type:'airport', country:'USA',         city:'New York',   flag:'🇺🇸',
         label:'JFK Airport — New York',
-        ytId: 'UCNye-wNBqNL5ZzHSJdYMnOg' },   // Al Jazeera English (Americas hub)
+        ytId: 'UCNye-wNBqNL5ZzHSJdYMnOg' }, // Al Jazeera English live
 
       { key:'sin',       type:'airport', country:'Singapore',   city:'Singapore',  flag:'🇸🇬',
         label:'Singapore Changi Airport',
-        ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' },   // CNA (Channel NewsAsia) live — Singapore
+        ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' }, // CNA (Channel NewsAsia) live
 
       { key:'syd_ap',    type:'airport', country:'Australia',   city:'Sydney',     flag:'🇦🇺',
         label:'Sydney International Airport',
-        ytId: 'UC16niRr0-5TO2bkQ_pvIpjA' },   // BBC News live channel
+        ytId: 'UC16niRr0-5TO2bkQ_pvIpjA' }, // BBC News live
 
       { key:'fra',       type:'airport', country:'Germany',     city:'Frankfurt',  flag:'🇩🇪',
         label:'Frankfurt Airport',
-        ytId: 'UCknLrEdhRCp1aegoMqRaCZg' },   // DW News live channel (Frankfurt-based)
+        ytId: 'UCknLrEdhRCp1aegoMqRaCZg' }, // DW News live (Frankfurt-based broadcaster)
 
-      /* ── SEAPORTS ────────────────────────────────────────────────────────── */
+      /* ── SEAPORTS ─────────────────────────────────────────────────────── */
       { key:'sydney',    type:'seaport', country:'Australia',   city:'Sydney',     flag:'🇦🇺',
         label:'Sydney Harbour Webcam',
-        ytId: 'UC16niRr0-5TO2bkQ_pvIpjA' },   // BBC News / Sydney harbour context
+        ytId: 'IhWWW2l-pP0' },               // WebcamSydney 1 — 24/7 harbour live stream
 
-      { key:'helsinki',  type:'seaport', country:'Finland',     flag:'🇫🇮', city:'Helsinki',
+      { key:'helsinki',  type:'seaport', country:'Finland',     city:'Helsinki',   flag:'🇫🇮',
         label:'Port of Helsinki — West T1',
-        ytId: 'UCg4x9voS_xkn1cFJhKc8N6g' },   // Euronews live (Baltic/Nordic region)
+        ytId: '6hPWq2IG08M' },               // CamStreamer/SkylineWebcams confirmed embeddable
 
       { key:'singapore', type:'seaport', country:'Singapore',   city:'Singapore',  flag:'🇸🇬',
-        label:'Singapore Marina Bay',
-        ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' },   // CNA live (Singapore-based)
+        label:'Singapore Port — Tanjong Pagar',
+        ytId: 'rh4xfu5jTXs' },               // Straits of Malacca live shipping cam
 
       { key:'rotterdam', type:'seaport', country:'Netherlands', city:'Rotterdam',  flag:'🇳🇱',
         label:'Port of Rotterdam',
-        ytId: 'UCknLrEdhRCp1aegoMqRaCZg' },   // DW News live channel
+        ytId: 'UCknLrEdhRCp1aegoMqRaCZg' }, // DW News live
 
       { key:'miami_port',type:'seaport', country:'USA',         city:'Miami',      flag:'🇺🇸',
         label:'Port of Miami',
-        ytId: 'UCNye-wNBqNL5ZzHSJdYMnOg' },   // Al Jazeera English live
+        ytId: 'UCNye-wNBqNL5ZzHSJdYMnOg' }, // Al Jazeera English live
 
       { key:'shanghai',  type:'seaport', country:'China',       city:'Shanghai',   flag:'🇨🇳',
         label:'Port of Shanghai',
-        ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' },   // CGTN / CNA live
+        ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' }, // CNA live (APJC coverage)
 
       { key:'busan',     type:'seaport', country:'South Korea', city:'Busan',      flag:'🇰🇷',
         label:'Port of Busan',
-        ytId: 'UCqDpTlQMEhTK5B6GRtF_nqA' },   // NHK World live channel (APJC)
+        ytId: 'UCqDpTlQMEhTK5B6GRtF_nqA' }, // NHK World live
 
       { key:'dubai',     type:'seaport', country:'UAE',         city:'Dubai',      flag:'🇦🇪',
         label:'Dubai Port & Marina',
-        ytId: 'UCNye-wNBqNL5ZzHSJdYMnOg' },   // Al Jazeera English (MENA region)
+        ytId: 'UCNye-wNBqNL5ZzHSJdYMnOg' }, // Al Jazeera English live (MENA region)
     ];
 
     /* Default 6 cameras: 3 airports + 3 seaports matching user request */
