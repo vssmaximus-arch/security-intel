@@ -3317,44 +3317,34 @@
         <span style="margin-left:auto;font-size:.68rem;color:#5f6368;">Click to expand</span>
       </div>
       <div id="tl-manual-body" style="display:none;padding:14px;background:#12151c;border-top:1px solid #2a2d35;">
-        <div style="font-size:.72rem;color:#9aa0a6;margin-bottom:10px;">
-          <i class="fas fa-info-circle" style="color:#fbbc04;"></i>
-          Browse <strong>thelayoff.com/dell</strong> → copy a post → paste here → Submit. Requires admin secret.
+        <div style="font-size:.72rem;color:#5f6368;margin-bottom:12px;">
+          <i class="fas fa-arrow-right" style="color:#8ab4f8;margin-right:4px;"></i>
+          Open <strong style="color:#e8eaed;">thelayoff.com/dell</strong> &rarr; copy a post title &amp; link &rarr; paste below &rarr; Submit
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div style="grid-column:1/-1;">
-            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Post Title *</label>
-            <input id="tl-manual-title" type="text" placeholder="e.g. Dell quietly shrinks workforce again — 2026 RIF confirmed" autocomplete="off"
-              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;"/>
-          </div>
-          <div style="grid-column:1/-1;">
-            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Snippet / Summary</label>
-            <textarea id="tl-manual-snippet" rows="2" placeholder="Short description or quote from the post…"
-              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
-          </div>
-          <div>
-            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">URL</label>
-            <input id="tl-manual-url" type="url" placeholder="https://www.thelayoff.com/t/…"
-              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;"/>
-          </div>
-          <div>
-            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Category</label>
-            <select id="tl-manual-category" style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;">
-              <option value="Layoff / Reorg">Layoff / Reorg</option>
-              <option value="Leak">Leak</option>
-              <option value="Breach">Breach</option>
-              <option value="Leadership">Leadership</option>
-            </select>
-          </div>
-          <div style="grid-column:1/-1;">
-            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Admin Secret</label>
-            <input id="tl-manual-secret" type="password" placeholder="INGEST_SECRET"
-              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;"/>
-          </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+          <input id="tl-manual-title" type="text" placeholder="Post title *" autocomplete="off"
+            style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:8px 12px;font-size:.82rem;outline:none;box-sizing:border-box;"/>
+          <input id="tl-manual-url" type="url" placeholder="Link — https://www.thelayoff.com/t/…"
+            style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:8px 12px;font-size:.82rem;outline:none;box-sizing:border-box;"/>
+          <input id="tl-manual-secret" type="password" placeholder="Admin secret *"
+            style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:8px 12px;font-size:.82rem;outline:none;box-sizing:border-box;"/>
+          <details style="margin-top:2px;">
+            <summary style="font-size:.7rem;color:#5f6368;cursor:pointer;user-select:none;">Optional: snippet &amp; category</summary>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+              <textarea id="tl-manual-snippet" rows="2" placeholder="Short quote or description from the post (optional)"
+                style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:8px 12px;font-size:.78rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+              <select id="tl-manual-category" style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:8px 12px;font-size:.78rem;outline:none;box-sizing:border-box;">
+                <option value="Layoff / Reorg">Layoff / Reorg</option>
+                <option value="Leak">Leak</option>
+                <option value="Breach">Breach</option>
+                <option value="Leadership">Leadership</option>
+              </select>
+            </div>
+          </details>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button onclick="tlManualSubmit()" style="background:#1a73e8;border:none;color:#fff;border-radius:5px;padding:7px 18px;font-size:.78rem;cursor:pointer;font-weight:600;">
-            <i class="fas fa-upload" style="margin-right:5px;"></i>Submit Post
+          <button onclick="tlManualSubmit()" style="background:#1a73e8;border:none;color:#fff;border-radius:5px;padding:8px 20px;font-size:.8rem;cursor:pointer;font-weight:600;">
+            <i class="fas fa-upload" style="margin-right:5px;"></i>Submit
           </button>
           <span id="tl-manual-status" style="font-size:.75rem;color:#9aa0a6;"></span>
         </div>
