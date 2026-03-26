@@ -7210,6 +7210,11 @@
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
       /* Attribution */
       L.control.attribution({ prefix:false }).addTo(cwConflictMap);
+      /* Auto-activate fuel choropleth on first load */
+      setTimeout(function(){
+        var btn = document.getElementById('cw-fuel-layer-btn');
+        _cwToggleFuelLayer(btn);
+      }, 900);
     }
 
     /* ── Fuel Supply Choropleth ──────────────────────────────────────────── */
