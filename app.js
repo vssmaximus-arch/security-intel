@@ -212,32 +212,57 @@ function toggleCategoryFilter(cat) {
 }
 
 function _syncCatPillUI() {
+  let needsRerender = false;
   document.querySelectorAll('.cat-pill').forEach(pill => {
     const c = pill.dataset.cat;
-    const isActive = (c === 'ALL') ? (ACTIVE_CATEGORIES.size === 0) : ACTIVE_CATEGORIES.has(c);
-    pill.classList.toggle('active', isActive);
-    pill.setAttribute('aria-pressed', String(isActive));
-    // Update count badge for non-ALL pills
-    if (c && c !== 'ALL') {
-      // Use the same validation as filterByCategoryAllowed so count matches what is actually displayed.
-      // DISASTER filter applies keyword validation — count only items that would actually pass.
-      const count = INCIDENTS.filter(i => {
-        if (getIncidentFilterKey(i.category) !== c) return false;
-        if (c === 'DISASTER') {
-          return _DISASTER_KEYWORDS.test(i.title || ''); // title-only, matches filterByCategoryAllowed
-        }
-        return true;
-      }).length;
+    if (c === 'ALL') {
+      // ALL pill is always visible
+      const isActive = ACTIVE_CATEGORIES.size === 0;
+      pill.classList.toggle('active', isActive);
+      pill.setAttribute('aria-pressed', String(isActive));
+      pill.style.display = '';
+      return;
+    }
+    // Count items that would actually appear under this filter
+    const count = INCIDENTS.filter(i => {
+      if (getIncidentFilterKey(i.category) !== c) return false;
+      if (c === 'DISASTER') return _DISASTER_KEYWORDS.test(i.title || '');
+      return true;
+    }).length;
+
+    if (count === 0) {
+      // Hide pill — no articles for this category
+      pill.style.display = 'none';
+      // If this filter was active, silently deselect it so feed isn't stuck empty
+      if (ACTIVE_CATEGORIES.has(c)) {
+        ACTIVE_CATEGORIES.delete(c);
+        needsRerender = true;
+      }
+    } else {
+      pill.style.display = '';
+      const isActive = ACTIVE_CATEGORIES.has(c);
+      pill.classList.toggle('active', isActive);
+      pill.setAttribute('aria-pressed', String(isActive));
+      // Update count badge
       let badge = pill.querySelector('.cat-count-badge');
       if (!badge) {
         badge = document.createElement('span');
         badge.className = 'cat-count-badge';
         pill.appendChild(badge);
       }
-      badge.textContent = count || '';
-      badge.style.display = count ? '' : 'none';
+      badge.textContent = count;
+      badge.style.display = '';
     }
   });
+  // If any active filter was auto-removed (count dropped to 0), re-sync the ALL pill state
+  if (needsRerender) {
+    const allPill = document.querySelector('.cat-pill[data-cat="ALL"]');
+    if (allPill) {
+      const isActive = ACTIVE_CATEGORIES.size === 0;
+      allPill.classList.toggle('active', isActive);
+      allPill.setAttribute('aria-pressed', String(isActive));
+    }
+  }
 }
 
 function getOrCreateUserId() {
