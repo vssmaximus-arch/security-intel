@@ -811,13 +811,14 @@ function normaliseWorkerIncident(item) {
     // that the Worker classified without a country/region field.
     if (!regionCanonical || regionCanonical === 'Global') {
       const tl = title.toLowerCase();
-      if (/\b(iran|iraq|israel|saudi|arabia|uae|dubai|abu dhabi|qatar|kuwait|bahrain|oman|yemen|jordan|lebanon|syria|turkey|egypt|libya|tunisia|algeria|morocco|africa|nigeria|kenya|ethiopia|ghana|europe|european|britain|france|germany|italy|spain|russia|ukraine|poland|balkans|middle east|north africa|west africa|east africa|persian gulf|red sea|strait of hormuz|bab el mandeb|suez)\b/.test(tl)) {
+      // No trailing \b — needed to match adjective forms: "Iranian", "Chinese", "Russian" etc.
+      if (/\b(iran|iraq|israel|saudi|arab|uae|dubai|abu dhabi|qatar|kuwait|bahrain|oman|yem|jordan|leban|syria|turk|egypt|libya|tunis|alger|morocc|africa|niger|kenya|ethiop|ghana|europ|brit|franc|german|italy|italian|spain|spanish|russia|ukrain|poland|polish|balkan|middle east|north africa|west africa|east africa|persian gulf|gulf war|red sea|strait of hormuz|bab el mandeb|suez|hormuz|tehran|baghdad|tel aviv|cairo|riyadh|ankara|beirut|damascus|kyiv|moscow)/.test(tl)) {
         regionCanonical = 'EMEA';
-      } else if (/\b(china|chinese|japan|japanese|india|indian|australia|australian|singapore|korea|korean|taiwan|hong kong|pakistan|bangladesh|southeast asia|asia pacific|indo-pacific|south china sea|taiwan strait|malacca)\b/.test(tl)) {
+      } else if (/\b(chin|japan|india|indian|australia|australian|singapor|korea|taiwan|hong kong|pakistan|bangla|southeast asia|asia.pacific|indo.pacific|south china sea|taiwan strait|malacca|beijing|tokyo|delhi|mumbai|seoul|sydney|jakarta|manila|bangkok|hanoi|kuala lumpur|yangon)/.test(tl)) {
         regionCanonical = 'APJC';
-      } else if (/\b(brazil|argentina|colombia|chile|venezuela|peru|latin america|caribbean|central america|panama canal|south america)\b/.test(tl)) {
+      } else if (/\b(brazil|argentina|colombia|chile|venezuel|peru|latin america|caribbean|central america|panama canal|south america|rio|bogota|lima|santiago|caracas|havana)/.test(tl)) {
         regionCanonical = 'LATAM';
-      } else if (/\b(united states|america\b|u\.s\b|us\s+(?:military|troops|congress|senate|president|navy|army)|canada|mexico|washington\s+d\.?c|pentagon|white house)\b/.test(tl)) {
+      } else if (/\b(united states|america\b|american\b|u\.s\b|us\s+(?:military|troops|congress|senate|president|navy|army|dollar)|canada|canadian|mexico|mexican|washington|pentagon|white house|wall street|silicon valley|new york|los angeles|chicago|texas|california)/.test(tl)) {
         regionCanonical = 'AMER';
       }
     }
@@ -1501,14 +1502,14 @@ function mapSeverityToLabel(s) {
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  // Regional filter: show items tagged for the selected region.
-  // GLOBAL-tagged items are included only if severity ≥ 3 (MEDIUM/HIGH/CRITICAL) —
-  // low-severity global noise should not flood regional RSM views.
-  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => {
-    if (i.region === region) return true;
-    if (i.region === 'GLOBAL' || i.region === 'Global') return Number(i.severity || 1) >= 3;
-    return false;
-  });
+  // Regional filter: show items tagged for this region + all GLOBAL items.
+  // Text-inference in normaliseWorkerIncident re-tags region-specific articles
+  // (e.g. "Iranian Minelaying" → EMEA, "China tariffs" → APJC) so they stop
+  // appearing in unrelated regions. Truly global items (no geography) stay Global
+  // and appear everywhere — that is correct behaviour for an SRO feed.
+  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i =>
+    i.region === region || i.region === 'GLOBAL' || i.region === 'Global'
+  );
   // APJC sub-region drill-down
   if (region === 'APJC' && activeApjcSub) {
     rawData = rawData.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));

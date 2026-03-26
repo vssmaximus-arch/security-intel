@@ -594,12 +594,13 @@ function resolveRegionFromCountry(country, title) {
   // EMEA — Europe + Middle East + Africa
   if (/^(uk|gb|united kingdom|fr|france|de|germany|it|italy|es|spain|nl|netherlands|be|belgium|ie|ireland|pt|portugal|ch|switzerland|at|austria|se|sweden|no|norway|dk|denmark|fi|finland|pl|poland|cz|czech|sk|slovakia|hu|hungary|ro|romania|bg|bulgaria|hr|croatia|rs|serbia|gr|greece|cy|cyprus|ua|ukraine|ru|russia|tr|turkey|ge|georgia|am|armenia|az|azerbaijan|il|israel|ps|palestine|lb|lebanon|sy|syria|jo|jordan|iq|iraq|ir|iran|sa|saudi arabia|ae|united arab emirates|uae|kw|kuwait|bh|bahrain|qa|qatar|om|oman|ye|yemen|eg|egypt|ly|libya|tn|tunisia|dz|algeria|ma|morocco|za|south africa|ng|nigeria|ke|kenya|et|ethiopia|gh|ghana|tz|tanzania|ug|uganda|cm|cameroon|sn|senegal|sd|sudan|so|somalia|rw|rwanda)$/.test(c)) return 'EMEA';
   // Text-based inference from title when country field is missing/generic
+  // No trailing \b on geo-roots — needed to match adjective forms (Iranian, Chinese, Russian etc.)
   if (!c || c === 'global' || c === 'unknown') {
     const t = String(title || '').toLowerCase();
-    if (/\b(iran|iraq|israel|saudi|arabia|uae|dubai|qatar|kuwait|bahrain|oman|yemen|jordan|lebanon|syria|turkey|egypt|libya|tunisia|algeria|morocco|africa|nigeria|kenya|ethiopia|europe|european|britain|france|germany|italy|spain|russia|ukraine|poland|middle east|north africa|persian gulf|red sea|strait of hormuz|suez|bab el mandeb)\b/.test(t)) return 'EMEA';
-    if (/\b(china|chinese|japan|japanese|india|indian|australia|australian|singapore|korea|korean|taiwan|hong kong|pakistan|bangladesh|southeast asia|asia.pacific|indo-pacific|south china sea|malacca)\b/.test(t)) return 'APJC';
-    if (/\b(brazil|argentina|colombia|chile|venezuela|peru|latin america|caribbean|central america|panama canal|south america)\b/.test(t)) return 'LATAM';
-    if (/\b(united states|america\b|u\.s\b|canada|mexico|washington\s+d\.?c|pentagon|white house)\b/.test(t)) return 'AMER';
+    if (/\b(iran|iraq|israel|saudi|arab|uae|dubai|qatar|kuwait|bahrain|oman|yem|jordan|leban|syria|turk|egypt|libya|tunis|alger|morocc|africa|niger|kenya|ethiop|europ|brit|franc|german|italy|spain|russia|ukrain|poland|middle east|north africa|persian gulf|gulf war|red sea|hormuz|suez|bab el mandeb|tehran|baghdad|tel aviv|cairo|riyadh|ankara|beirut|damascus|kyiv|moscow)/.test(t)) return 'EMEA';
+    if (/\b(chin|japan|india|australia|singapor|korea|taiwan|hong kong|pakistan|bangla|southeast asia|asia.pacific|indo.pacific|south china sea|malacca|beijing|tokyo|delhi|seoul|sydney|jakarta|manila|bangkok|hanoi)/.test(t)) return 'APJC';
+    if (/\b(brazil|argentin|colombia|chile|venezuel|peru|latin america|caribbean|central america|panama canal|south america|bogota|lima|santiago)/.test(t)) return 'LATAM';
+    if (/\b(united states|america\b|american\b|u\.s\b|canada|canadian|mexico|mexican|washington|pentagon|white house|wall street|new york|texas|california)/.test(t)) return 'AMER';
   }
   return null; // caller should fall back to 'Global'
 }
