@@ -219,7 +219,16 @@ function _syncCatPillUI() {
     pill.setAttribute('aria-pressed', String(isActive));
     // Update count badge for non-ALL pills
     if (c && c !== 'ALL') {
-      const count = INCIDENTS.filter(i => getIncidentFilterKey(i.category) === c).length;
+      // Use the same validation as filterByCategoryAllowed so count matches what is actually displayed.
+      // DISASTER filter applies keyword validation — count only items that would actually pass.
+      const count = INCIDENTS.filter(i => {
+        if (getIncidentFilterKey(i.category) !== c) return false;
+        if (c === 'DISASTER') {
+          const text = (i.title || '') + ' ' + (i.summary || '');
+          return _DISASTER_KEYWORDS.test(text);
+        }
+        return true;
+      }).length;
       let badge = pill.querySelector('.cat-count-badge');
       if (!badge) {
         badge = document.createElement('span');
