@@ -4923,7 +4923,7 @@
     .ap-rank-table { font-size:0.75rem; width:100%; }
     .ap-rank-hdr, .ap-rank-row {
       display:grid;
-      grid-template-columns: 24px 44px 42px 1fr 72px 72px 60px;
+      grid-template-columns: 24px 44px 42px 1fr 72px 72px 120px;
       align-items:center; gap:4px; padding:6px 4px;
     }
     .ap-rank-hdr { font-size:0.65rem; font-weight:700; color:#5f6368; text-transform:uppercase;
@@ -5628,15 +5628,20 @@
         airportMarkerLayer.clearLayers();
         filtered.forEach(function (d) {
           if (!d.lat || !d.lng) return;
-          var color     = CAUSE_COLORS[d.cause_type] || '#9aa0a6';
-          var isVerified = d.source_type === 'VERIFIED_ONGOING';
+          var fs = (d.flight_status || '').toUpperCase();
+          var color = fs === 'CLOSED' || fs === 'SEVERELY RESTRICTED' ? '#ef5350'
+            : fs === 'PARTIALLY RESTRICTED' ? '#ea8600'
+            : fs === 'DISRUPTION RISK' ? '#fbbc04'
+            : (d.disruption_score >= 4.0 ? '#ef5350'
+              : d.disruption_score >= 3.0 ? '#ea8600'
+              : d.disruption_score >= 2.0 ? '#fbbc04' : '#34a853');
           var icon = L.divIcon({
             className: '',
-            html: '<div class="airport-map-pin" style="background:' + color
-              + (isVerified ? ';box-shadow:0 0 10px ' + color + '90' : '') + '">'
-              + '<i class="fas fa-' + (d.cause_type === 'CONFLICT' ? 'exclamation-triangle' : 'plane')
-              + '" style="font-size:9px;"></i></div>',
-            iconSize: [28, 28], iconAnchor: [14, 14],
+            html: '<div style="background:' + color + ';width:26px;height:26px;border-radius:50%;'
+              + 'display:flex;align-items:center;justify-content:center;'
+              + 'box-shadow:0 0 8px ' + color + '99;border:2px solid rgba(255,255,255,0.55);'
+              + 'font-size:15px;font-weight:900;color:#fff;line-height:1;">!</div>',
+            iconSize: [26, 26], iconAnchor: [13, 13],
           });
           var popup = '<b>' + escHtml(d.airport_name + (d.iata ? ' (' + d.iata + ')' : '')) + '</b>'
             + '<br><b>' + escHtml(d.country || '') + '</b>'
@@ -6330,6 +6335,7 @@
       BKK:{ lat:13.6811,  lng:100.7477 }, MEX:{ lat:19.4363,  lng:-99.0721 },
       JNB:{ lat:-26.1367, lng:28.2463  }, CAI:{ lat:30.1219,  lng:31.4056  },
       DFW:{ lat:32.8998,  lng:-97.0403 },
+      DOH:{ lat:25.2731,  lng:51.6080  },
     };
 
     // Add map markers on the airportMarkerLayer for affected airports from the
@@ -6354,11 +6360,11 @@
             + ' &nbsp; Delayed: <b style="color:#fbbc04;">' + (a.delayed != null ? a.delayed : '—') + '</b>';
         var icon = L.divIcon({
           className: '',
-          html: '<div style="background:' + color + ';width:22px;height:22px;border-radius:50%;'
+          html: '<div style="background:' + color + ';width:26px;height:26px;border-radius:50%;'
             + 'display:flex;align-items:center;justify-content:center;'
-            + 'box-shadow:0 0 8px ' + color + '88;border:2px solid #fff;">'
-            + '<i class="fas fa-plane" style="font-size:9px;color:#fff;"></i></div>',
-          iconSize: [22,22], iconAnchor: [11,11],
+            + 'box-shadow:0 0 8px ' + color + '99;border:2px solid rgba(255,255,255,0.55);'
+            + 'font-size:15px;font-weight:900;color:#fff;line-height:1;">!</div>',
+          iconSize: [26,26], iconAnchor: [13,13],
         });
         var popup = '<b>' + escHtml(a.airport_name || a.iata) + ' (' + escHtml(a.iata) + ')</b>'
           + '<br><b style="color:' + color + ';">' + label + ' — Score: ' + score.toFixed(1) + '/5.0</b>'
