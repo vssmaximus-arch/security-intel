@@ -1516,12 +1516,19 @@ function _incidentMentionsRegion(title, region) {
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  // Regional filter: show items explicitly tagged for this region OR whose title
-  // contains that region's geographic keywords. Global-tagged items only appear
-  // in the Global tab to prevent geographic bleed (e.g. Australian articles
-  // showing under EMEA because no region was identified at ingest).
+  // Regional filter: show items tagged for this region OR whose title matches
+  // this region's geographic keywords. Additional guard: if the Worker tagged
+  // an item as this region but the title clearly belongs to a DIFFERENT region
+  // (and NOT this region), exclude it — catches Worker misclassifications
+  // e.g. Australian cyclone wrongly tagged as EMEA.
+  const _OTHER_REGIONS = ['EMEA','APJC','LATAM','AMER'];
+  function _wronglyTagged(i, region) {
+    if (i.region !== region) return false; // only check Worker-tagged items
+    if (_incidentMentionsRegion(i.title, region)) return false; // title confirms region
+    return _OTHER_REGIONS.some(r => r !== region && _incidentMentionsRegion(i.title, r));
+  }
   let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i =>
-    i.region === region || _incidentMentionsRegion(i.title, region)
+    !_wronglyTagged(i, region) && (i.region === region || _incidentMentionsRegion(i.title, region))
   );
   // APJC sub-region drill-down
   if (region === 'APJC' && activeApjcSub) {
