@@ -6277,7 +6277,11 @@
               if (isIcao) return st[0] && st[0].toLowerCase() === id.toLowerCase();
               return st[1] && st[1].trim().toUpperCase() === upperSearch;
             });
-            var s = matched.length ? matched[0] : states[0];
+            if (!matched.length) {
+              if (resEl) resEl.innerHTML = '<span style="color:#f28b82;font-size:0.73rem;">⚠ ' + awEsc(id.toUpperCase()) + ' not found in OpenSky — may not be airborne or try ICAO24 hex</span>';
+              return;
+            }
+            var s = matched[0];
             var lat = s[6], lon = s[5], alt = s[7], spd = s[9], hdg = s[10];
             var cs  = (s[1] || id).trim();
             var dep = s[2] || '?';
