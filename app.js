@@ -8022,16 +8022,17 @@ function _vwRemoveVessel(key) {
 }
 
 var VW_CHOKEPOINTS_STATIC = [
-  { id:'bab_el_mandeb',   name:'Bab-el-Mandeb',     trend:-52, status:'Severely Disrupted', severity:'CRITICAL' },
-  { id:'red_sea',         name:'Red Sea Corridor',   trend:-45, status:'Severely Disrupted', severity:'CRITICAL' },
-  { id:'suez',            name:'Suez Canal',         trend:-38, status:'Severely Disrupted', severity:'HIGH'     },
-  { id:'hormuz',          name:'Strait of Hormuz',   trend:-8,  status:'Reduced',            severity:'ELEVATED' },
-  { id:'taiwan_strait',   name:'Taiwan Strait',      trend:-5,  status:'Reduced',            severity:'ELEVATED' },
-  { id:'malacca',         name:'Strait of Malacca',  trend:2,   status:'Normal',             severity:'NORMAL'   },
-  { id:'panama',          name:'Panama Canal',       trend:-18, status:'Reduced',            severity:'ELEVATED' },
-  { id:'bosphorus',       name:'Bosphorus Strait',   trend:-12, status:'Reduced',            severity:'ELEVATED' },
-  { id:'south_china_sea', name:'South China Sea',    trend:-3,  status:'Normal',             severity:'NORMAL'   },
-  { id:'singapore',       name:'Port of Singapore',  trend:1,   status:'Normal',             severity:'NORMAL'   },
+  { id:'bab_el_mandeb',   name:'Bab-el-Mandeb',     trend:-52, status:'Severely Disrupted', severity:'CRITICAL',  lat:12.58,  lng:43.32  },
+  { id:'red_sea',         name:'Red Sea Corridor',   trend:-45, status:'Severely Disrupted', severity:'CRITICAL',  lat:20.00,  lng:38.50  },
+  { id:'suez',            name:'Suez Canal',         trend:-38, status:'Severely Disrupted', severity:'HIGH',      lat:30.58,  lng:32.34  },
+  { id:'hormuz',          name:'Strait of Hormuz',   trend:-8,  status:'Reduced',            severity:'ELEVATED',  lat:26.57,  lng:56.26  },
+  { id:'taiwan_strait',   name:'Taiwan Strait',      trend:-5,  status:'Reduced',            severity:'ELEVATED',  lat:24.50,  lng:119.50 },
+  { id:'malacca',         name:'Strait of Malacca',  trend:2,   status:'Normal',             severity:'NORMAL',    lat:2.50,   lng:101.50 },
+  { id:'panama',          name:'Panama Canal',       trend:-18, status:'Reduced',            severity:'ELEVATED',  lat:9.10,   lng:-79.70 },
+  { id:'bosphorus',       name:'Bosphorus Strait',   trend:-12, status:'Reduced',            severity:'ELEVATED',  lat:41.11,  lng:29.06  },
+  { id:'south_china_sea', name:'South China Sea',    trend:-3,  status:'Normal',             severity:'NORMAL',    lat:12.00,  lng:113.00 },
+  { id:'singapore',       name:'Port of Singapore',  trend:1,   status:'Normal',             severity:'NORMAL',    lat:1.26,   lng:103.82 },
+  { id:'shanghai',        name:'Port of Shanghai',   trend:0,   status:'Normal',             severity:'NORMAL',    lat:30.63,  lng:122.05 },
 ];
 
 function _vwRenderChokepoints(vessels) {
@@ -8039,12 +8040,40 @@ function _vwRenderChokepoints(vessels) {
   if (!el) return;
   var nearby = {};
   vessels.forEach(function(v){ if (v.nearestChokepoint) nearby[v.nearestChokepoint] = (nearby[v.nearestChokepoint]||0)+1; });
+
+  /* Add chokepoint markers to the map */
+  if (_vwMap && typeof L !== 'undefined') {
+    if (window._vwChokepointLayer) { window._vwChokepointLayer.clearLayers(); }
+    else { window._vwChokepointLayer = L.layerGroup().addTo(_vwMap); }
+    VW_CHOKEPOINTS_STATIC.forEach(function(cp) {
+      if (!cp.lat || !cp.lng) return;
+      var sevColor = cp.severity==='CRITICAL'?'#f28b82':cp.severity==='HIGH'?'#f4a742':cp.severity==='ELEVATED'?'#fbbc04':'#81c995';
+      var icon = L.divIcon({
+        className: '',
+        html: '<div style="background:' + sevColor + ';color:#000;font-size:11px;font-weight:800;'
+            + 'width:22px;height:22px;border-radius:50%;display:flex;align-items:center;'
+            + 'justify-content:center;border:2px solid rgba(255,255,255,0.6);'
+            + 'box-shadow:0 0 6px ' + sevColor + '99;cursor:pointer;">⚓</div>',
+        iconSize: [22, 22], iconAnchor: [11, 11],
+      });
+      var trendStr = (cp.trend > 0 ? '+' : '') + cp.trend + '%';
+      L.marker([cp.lat, cp.lng], { icon: icon, title: cp.name })
+        .bindPopup('<strong>' + cp.name + '</strong><br>'
+          + '<span style="color:' + sevColor + ';">' + cp.status + '</span><br>'
+          + 'Traffic trend: ' + trendStr, { maxWidth: 160 })
+        .addTo(window._vwChokepointLayer);
+    });
+  }
+
   el.innerHTML = VW_CHOKEPOINTS_STATIC.map(function(cp) {
     var trendStr = (cp.trend > 0 ? '+' : '') + cp.trend + '%';
     var cls = cp.trend <= -25 ? 'down' : (cp.trend < 0 ? 'flat' : 'up');
     var sevColor = cp.severity==='CRITICAL'?'#f28b82':cp.severity==='HIGH'?'#f4a742':cp.severity==='ELEVATED'?'#fbbc04':'#81c995';
     var nearbyCount = nearby[cp.name] || 0;
-    return '<div class="vw-choke-row">' +
+    var clickable = (cp.lat && cp.lng)
+      ? ' style="cursor:pointer;" onclick="if(window.vwMap){window.vwMap.flyTo([' + cp.lat + ',' + cp.lng + '],6,{animate:true,duration:0.8});}"'
+      : '';
+    return '<div class="vw-choke-row"' + clickable + ' title="Click to locate on map">' +
       '<div><div class="vw-choke-name">' + escapeHtml(cp.name) + '</div>' +
       '<div style="font-size:.65rem;color:' + sevColor + ';">' + escapeHtml(cp.status) + '</div></div>' +
       '<div style="text-align:right"><div class="vw-choke-trend ' + cls + '">' + trendStr + '</div>' +
