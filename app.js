@@ -646,10 +646,50 @@ function parseCoord(v){ const n = (v===null||v===undefined) ? NaN : parseFloat(S
 =========================== */
 const COUNTRY_TO_REGION = (function(){
   const m = {};
-  ['us','united states','usa','canada','mx','mexico'].forEach(k => m[k] = 'AMER');
-  ['br','brazil','ar','argentina','cl','chile','co','colombia','pe','peru'].forEach(k => m[k] = 'LATAM');
-  ['uk','gb','united kingdom','france','de','germany','it','italy','es','spain','nl','netherlands','be','belgium','ie','ireland'].forEach(k => m[k] = 'EMEA');
-  ['cn','china','jp','japan','kr','korea','in','india','sg','singapore','au','australia','nz','new zealand','my','malaysia','id','indonesia','ph','philippines','th','thailand','vn','vietnam'].forEach(k => m[k] = 'APJC');
+  // AMER — North America
+  ['us','usa','united states','united states of america','ca','canada','mx','mexico'].forEach(k => m[k] = 'AMER');
+  // LATAM — Latin America & Caribbean
+  ['br','brazil','ar','argentina','cl','chile','co','colombia','pe','peru','ve','venezuela',
+   'ec','ecuador','bo','bolivia','py','paraguay','uy','uruguay','gy','guyana','sr','suriname',
+   'pa','panama','cr','costa rica','gt','guatemala','hn','honduras','sv','el salvador',
+   'ni','nicaragua','bz','belize','cu','cuba','do','dominican republic','ht','haiti',
+   'jm','jamaica','tt','trinidad','bb','barbados','bs','bahamas'].forEach(k => m[k] = 'LATAM');
+  // EMEA — Europe
+  ['uk','gb','united kingdom','great britain','fr','france','de','germany','it','italy',
+   'es','spain','nl','netherlands','be','belgium','ie','ireland','pt','portugal',
+   'ch','switzerland','at','austria','se','sweden','no','norway','dk','denmark',
+   'fi','finland','pl','poland','cz','czech republic','czechia','sk','slovakia',
+   'hu','hungary','ro','romania','bg','bulgaria','hr','croatia','rs','serbia',
+   'si','slovenia','ba','bosnia','me','montenegro','mk','north macedonia','al','albania',
+   'gr','greece','cy','cyprus','mt','malta','lu','luxembourg','ee','estonia',
+   'lv','latvia','lt','lithuania','by','belarus','ua','ukraine','md','moldova',
+   'ru','russia','tr','turkey','ge','georgia','am','armenia','az','azerbaijan',
+   // Middle East
+   'il','israel','ps','palestine','lb','lebanon','sy','syria','jo','jordan',
+   'iq','iraq','ir','iran','sa','saudi arabia','ae','united arab emirates','uae',
+   'kw','kuwait','bh','bahrain','qa','qatar','om','oman','ye','yemen',
+   // Africa
+   'eg','egypt','ly','libya','tn','tunisia','dz','algeria','ma','morocco',
+   'za','south africa','ng','nigeria','ke','kenya','et','ethiopia','gh','ghana',
+   'tz','tanzania','ug','uganda','cm','cameroon','sn','senegal','ci','ivory coast',
+   'cd','congo','ao','angola','mz','mozambique','zw','zimbabwe','zm','zambia',
+   'sd','sudan','so','somalia','dz','algeria','rw','rwanda','mg','madagascar',
+   'bf','burkina faso','ml','mali','ne','niger','td','chad','mr','mauritania',
+   // Common text references for region inference
+   'europe','european union','eu','middle east','africa','north africa','sub-saharan africa',
+   'gulf','gulf states','levant','maghreb','east africa','west africa','southern africa'].forEach(k => m[k] = 'EMEA');
+  // APJC — Asia Pacific, Japan, China
+  ['cn','china','jp','japan','kr','south korea','korea','in','india','sg','singapore',
+   'au','australia','nz','new zealand','my','malaysia','id','indonesia','ph','philippines',
+   'th','thailand','vn','vietnam','tw','taiwan','hk','hong kong','pk','pakistan',
+   'bd','bangladesh','lk','sri lanka','np','nepal','mm','myanmar','kh','cambodia',
+   'la','laos','bn','brunei','pg','papua new guinea','fj','fiji','to','tonga',
+   'ws','samoa','vu','vanuatu','sb','solomon islands','nc','new caledonia',
+   'mn','mongolia','kz','kazakhstan','uz','uzbekistan','kg','kyrgyzstan',
+   'tj','tajikistan','tm','turkmenistan','af','afghanistan',
+   // Common text references
+   'asia','asia pacific','apac','southeast asia','south asia','east asia',
+   'pacific','oceania'].forEach(k => m[k] = 'APJC');
   return m;
 })();
 
@@ -761,6 +801,25 @@ function normaliseWorkerIncident(item) {
     if ((!regionCanonical || regionCanonical === 'Global') && (Number.isFinite(lat) && Number.isFinite(lng))) {
       // rough longitudinal heuristic for APJC
       if (lng >= 60 && lng <= 160) regionCanonical = 'APJC';
+      // longitude-based AMER heuristic
+      else if (lng >= -170 && lng <= -30) regionCanonical = 'AMER';
+      // remainder: EMEA (Europe/Africa/Middle East longitude band)
+      else if (lng >= -30 && lng < 60) regionCanonical = 'EMEA';
+    }
+    // Final fallback: infer region from keywords in title when no other signal is available.
+    // This catches articles like "North Africa Regional Outlook" or "Iranian Minelaying"
+    // that the Worker classified without a country/region field.
+    if (!regionCanonical || regionCanonical === 'Global') {
+      const tl = title.toLowerCase();
+      if (/\b(iran|iraq|israel|saudi|arabia|uae|dubai|abu dhabi|qatar|kuwait|bahrain|oman|yemen|jordan|lebanon|syria|turkey|egypt|libya|tunisia|algeria|morocco|africa|nigeria|kenya|ethiopia|ghana|europe|european|britain|france|germany|italy|spain|russia|ukraine|poland|balkans|middle east|north africa|west africa|east africa|persian gulf|red sea|strait of hormuz|bab el mandeb|suez)\b/.test(tl)) {
+        regionCanonical = 'EMEA';
+      } else if (/\b(china|chinese|japan|japanese|india|indian|australia|australian|singapore|korea|korean|taiwan|hong kong|pakistan|bangladesh|southeast asia|asia pacific|indo-pacific|south china sea|taiwan strait|malacca)\b/.test(tl)) {
+        regionCanonical = 'APJC';
+      } else if (/\b(brazil|argentina|colombia|chile|venezuela|peru|latin america|caribbean|central america|panama canal|south america)\b/.test(tl)) {
+        regionCanonical = 'LATAM';
+      } else if (/\b(united states|america\b|u\.s\b|us\s+(?:military|troops|congress|senate|president|navy|army)|canada|mexico|washington\s+d\.?c|pentagon|white house)\b/.test(tl)) {
+        regionCanonical = 'AMER';
+      }
     }
     if (!regionCanonical || regionCanonical === '') regionCanonical = 'Global';
 
@@ -1442,8 +1501,14 @@ function mapSeverityToLabel(s) {
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  // Include GLOBAL-tagged incidents in every region view — global events affect all RSM regions
-  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => i.region === region || i.region === 'GLOBAL' || i.region === 'Global');
+  // Regional filter: show items tagged for the selected region.
+  // GLOBAL-tagged items are included only if severity ≥ 3 (MEDIUM/HIGH/CRITICAL) —
+  // low-severity global noise should not flood regional RSM views.
+  let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i => {
+    if (i.region === region) return true;
+    if (i.region === 'GLOBAL' || i.region === 'Global') return Number(i.severity || 1) >= 3;
+    return false;
+  });
   // APJC sub-region drill-down
   if (region === 'APJC' && activeApjcSub) {
     rawData = rawData.filter(i => _incidentMatchesApjcSub(i, activeApjcSub));

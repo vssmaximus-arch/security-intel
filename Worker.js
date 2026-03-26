@@ -578,6 +578,32 @@ const GEOCODE_CACHE_PREFIX = "rg_";
 const GEOCODE_CACHE_TTL_SEC = 30 * 24 * 3600; // 30 days
 const DEFAULT_GEOCODE_URL = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10";
 
+/**
+ * resolveRegionFromCountry — maps a country name/code to AMER/EMEA/APJC/LATAM.
+ * Used to assign specific regions to incidents instead of defaulting to 'Global'.
+ * Falls back to title-text keyword inference when country field is empty.
+ */
+function resolveRegionFromCountry(country, title) {
+  const c = String(country || '').toLowerCase().trim();
+  // AMER
+  if (/^(us|usa|united states|canada|ca|mx|mexico)$/.test(c)) return 'AMER';
+  // LATAM
+  if (/^(br|brazil|ar|argentina|cl|chile|co|colombia|pe|peru|ve|venezuela|ec|ecuador|bo|bolivia|py|paraguay|uy|uruguay|pa|panama|cr|costa rica|gt|guatemala|hn|honduras|sv|el salvador|ni|nicaragua|cu|cuba|do|dominican republic|ht|haiti|jm|jamaica)$/.test(c)) return 'LATAM';
+  // APJC
+  if (/^(cn|china|jp|japan|in|india|au|australia|sg|singapore|kr|south korea|korea|tw|taiwan|hk|hong kong|my|malaysia|id|indonesia|ph|philippines|th|thailand|vn|vietnam|nz|new zealand|pk|pakistan|bd|bangladesh|lk|sri lanka|np|nepal|mm|myanmar|kh|cambodia|mn|mongolia|af|afghanistan|fj|fiji|to|tonga|pg|papua new guinea)$/.test(c)) return 'APJC';
+  // EMEA — Europe + Middle East + Africa
+  if (/^(uk|gb|united kingdom|fr|france|de|germany|it|italy|es|spain|nl|netherlands|be|belgium|ie|ireland|pt|portugal|ch|switzerland|at|austria|se|sweden|no|norway|dk|denmark|fi|finland|pl|poland|cz|czech|sk|slovakia|hu|hungary|ro|romania|bg|bulgaria|hr|croatia|rs|serbia|gr|greece|cy|cyprus|ua|ukraine|ru|russia|tr|turkey|ge|georgia|am|armenia|az|azerbaijan|il|israel|ps|palestine|lb|lebanon|sy|syria|jo|jordan|iq|iraq|ir|iran|sa|saudi arabia|ae|united arab emirates|uae|kw|kuwait|bh|bahrain|qa|qatar|om|oman|ye|yemen|eg|egypt|ly|libya|tn|tunisia|dz|algeria|ma|morocco|za|south africa|ng|nigeria|ke|kenya|et|ethiopia|gh|ghana|tz|tanzania|ug|uganda|cm|cameroon|sn|senegal|sd|sudan|so|somalia|rw|rwanda)$/.test(c)) return 'EMEA';
+  // Text-based inference from title when country field is missing/generic
+  if (!c || c === 'global' || c === 'unknown') {
+    const t = String(title || '').toLowerCase();
+    if (/\b(iran|iraq|israel|saudi|arabia|uae|dubai|qatar|kuwait|bahrain|oman|yemen|jordan|lebanon|syria|turkey|egypt|libya|tunisia|algeria|morocco|africa|nigeria|kenya|ethiopia|europe|european|britain|france|germany|italy|spain|russia|ukraine|poland|middle east|north africa|persian gulf|red sea|strait of hormuz|suez|bab el mandeb)\b/.test(t)) return 'EMEA';
+    if (/\b(china|chinese|japan|japanese|india|indian|australia|australian|singapore|korea|korean|taiwan|hong kong|pakistan|bangladesh|southeast asia|asia.pacific|indo-pacific|south china sea|malacca)\b/.test(t)) return 'APJC';
+    if (/\b(brazil|argentina|colombia|chile|venezuela|peru|latin america|caribbean|central america|panama canal|south america)\b/.test(t)) return 'LATAM';
+    if (/\b(united states|america\b|u\.s\b|canada|mexico|washington\s+d\.?c|pentagon|white house)\b/.test(t)) return 'AMER';
+  }
+  return null; // caller should fall back to 'Global'
+}
+
 /* ===========================
    DELL SITES — FULL LIST
    =========================== */
@@ -2718,7 +2744,9 @@ function normalizeIncident(raw) {
     category,
     severity,
     severity_label: sevLabel,
-    region: raw.region || "Global",
+    region: raw.region && raw.region !== 'Global' && raw.region !== 'GLOBAL'
+      ? raw.region
+      : (resolveRegionFromCountry(raw.country || raw.country_code, raw.title) || "Global"),
     country: raw.country || (raw.country_code || "GLOBAL"),
     location: raw.location || "UNKNOWN",
     link: raw.link || raw.url || "#",
@@ -3557,7 +3585,9 @@ async function runIngestion(env, options = {}, ctx = null) {
                 : (_aiCls.category !== 'UNKNOWN' ? _aiCls.category : 'UNKNOWN'),
               severity: severityFromText(data.severity || "") || 3,
               severity_label: "",
-              region: data.region || "Global",
+              region: (data.region && data.region !== 'Global' && data.region !== 'GLOBAL')
+                ? data.region
+                : (resolveRegionFromCountry(data.country, itm.title) || "Global"),
               country: data.country || "GLOBAL",
               location: data.location || "UNKNOWN",
               link: itm.link || "#",
