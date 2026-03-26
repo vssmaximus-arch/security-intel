@@ -6722,11 +6722,33 @@
         if (chokepoints.length === 0) {
           chokeEl.innerHTML = '<div style="color:#9aa0a6;font-size:.8rem;padding:8px 0;">No chokepoint data available.</div>';
         } else {
+          var _cpKw = [
+              { keys: ['suez'],           lat: 30.58,  lng: 32.34  },
+              { keys: ['bab', 'red sea'], lat: 12.58,  lng: 43.32  },
+              { keys: ['hormuz'],         lat: 26.57,  lng: 56.26  },
+              { keys: ['malacca'],        lat: 2.50,   lng: 101.50 },
+              { keys: ['panama'],         lat: 9.10,   lng: -79.70 },
+              { keys: ['bosphorus'],      lat: 41.11,  lng: 29.06  },
+              { keys: ['taiwan'],         lat: 24.50,  lng: 119.50 },
+              { keys: ['south china'],    lat: 12.00,  lng: 113.00 },
+              { keys: ['singapore'],      lat: 1.26,   lng: 103.82 },
+              { keys: ['shanghai'],       lat: 30.63,  lng: 122.05 },
+            ];
           chokeEl.innerHTML = chokepoints.slice(0, 12).map(function (c) {
             var trendStr = (c.trend_pct > 0 ? '+' : '') + c.trend_pct + '%';
             var trendClass = c.trend_pct >= -5 ? 'up' : (c.trend_pct <= -25 ? 'down' : 'flat');
             var statusClass = c.status === 'Normal' ? 'normal' : (c.status.includes('Severe') ? 'disrupted' : 'reduced');
-            return '<div class="choke-row">'
+            var cNm = (c.name || '').toLowerCase();
+            var coord = null;
+            for (var ki = 0; ki < _cpKw.length && !coord; ki++) {
+              for (var kj = 0; kj < _cpKw[ki].keys.length; kj++) {
+                if (cNm.indexOf(_cpKw[ki].keys[kj]) !== -1) { coord = _cpKw[ki]; break; }
+              }
+            }
+            var clickAttr = coord
+              ? ' style="cursor:pointer;" title="Click to locate on map" onclick="if(window.vwMap){window.vwMap.flyTo([' + coord.lat + ',' + coord.lng + '],6,{animate:true,duration:0.8});}"'
+              : '';
+            return '<div class="choke-row"' + clickAttr + '>'
               + '<span class="choke-name">' + escHtml(c.name) + '</span>'
               + '<span class="choke-trend ' + trendClass + '">' + escHtml(trendStr) + '</span>'
               + '<span class="choke-status ' + statusClass + '">' + escHtml(c.status) + '</span>'
