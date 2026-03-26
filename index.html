@@ -6389,19 +6389,32 @@
         + '</a>';
     }
 
+    // Maps the flight_status field from CLIENT_KNOWN_DISRUPTIONS to display values.
+    // CLOSED / SEVERELY RESTRICTED = red. PARTIALLY RESTRICTED = orange.
+    // DISRUPTION RISK = amber. Anything else = amber.
+    function _flightStatusDisplay(fs) {
+      var s = (fs || '').toUpperCase();
+      if (s === 'CLOSED')                return { color:'#ef5350', icon:'⛔', label:'Closed'      };
+      if (s === 'SEVERELY RESTRICTED')   return { color:'#ef5350', icon:'🚫', label:'Restricted'  };
+      if (s === 'PARTIALLY RESTRICTED')  return { color:'#ea8600', icon:'⚠️', label:'Partial'     };
+      if (s === 'DISRUPTION RISK')       return { color:'#fbbc04', icon:'⚠',  label:'Risk'        };
+      return                                    { color:'#fbbc04', icon:'⚠',  label: fs || 'Risk' };
+    }
+
     function _renderClosedRow(a, i) {
-      var flag  = _cancFlag(a.country || '');
-      var score = a.disruption_score || 5.0;
+      var flag   = _cancFlag(a.country || '');
+      var disp   = _flightStatusDisplay(a._flight_status);
       var faLink = 'https://www.flightaware.com/live/airport/' + (a.iata||'');
       var titleAttr = a._ai_summary ? ' title="' + escHtml(a._ai_summary.slice(0,200)) + '"' : '';
       return '<a href="' + escHtml(faLink) + '" target="_blank" rel="noopener" class="ap-rank-row"' + titleAttr + '>'
         + '<span class="apr-rank">' + (i+1) + '</span>'
-        + '<span class="apr-score" style="color:#ef5350;font-weight:900;">—</span>'
-        + '<span class="apr-iata" style="color:#ef5350;">' + escHtml(a.iata||'—') + '</span>'
+        + '<span class="apr-score" style="color:' + disp.color + ';font-weight:900;">—</span>'
+        + '<span class="apr-iata" style="color:' + disp.color + ';">' + escHtml(a.iata||'—') + '</span>'
         + '<span class="apr-name">' + flag + ' ' + escHtml(a.airport_name||a.iata||'') + '</span>'
-        + '<span class="apr-canc" style="color:#ef5350;font-weight:700;font-size:0.75rem;">⛔ Closed</span>'
+        + '<span class="apr-canc" style="color:' + disp.color + ';font-weight:700;font-size:0.75rem;">' + disp.icon + ' ' + disp.label + '</span>'
         + '<span class="apr-delay" style="color:#5f6368;font-size:0.75rem;">—</span>'
-        + '<span class="apr-status-badge" style="background:#ef535022;color:#ef5350;border:1px solid #ef535055;">Closed</span>'
+        + '<span class="apr-status-badge" style="background:' + disp.color + '22;color:' + disp.color + ';border:1px solid ' + disp.color + '55;">'
+        + disp.label + '</span>'
         + '</a>';
     }
 
@@ -6444,6 +6457,7 @@
               disruption_score: d.disruption_score || 5.0,
               data_source: 'disruption',
               _closed: true,
+              _flight_status: d.flight_status || 'DISRUPTION RISK',
               _ai_summary: d.ai_summary || '',
             });
           });
