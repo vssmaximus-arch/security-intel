@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
@@ -2201,6 +2202,9 @@
     align-items:center; justify-content:center; transition:all .15s;
   }
   .cw-gs-icon-btn:hover { border-color:#4fc3f7; color:#4fc3f7; }
+  .cw-fuel-layer-btn.active { background:rgba(249,168,37,.15); border-color:#f9a825; color:#f9a825; }
+  .cw-fuel-tooltip { background:rgba(15,17,23,.95)!important; color:#e8eaed!important; border:1px solid #3a3d45!important; font-size:11px!important; padding:5px 9px!important; border-radius:4px!important; box-shadow:0 2px 8px rgba(0,0,0,.5)!important; }
+  .cw-fuel-tooltip::before { border-top-color:#3a3d45!important; }
 
   /* ── Map widget ── */
   #cw-map { width:100%; height:100%; }
@@ -3455,6 +3459,7 @@
                 <option value="CYBER">💻 Cyber</option>
               </select>
               <button class="cw-gs-icon-btn" id="cw-map-refresh-btn" title="Refresh conflict data"><i class="fas fa-sync"></i></button>
+              <button class="cw-gs-icon-btn cw-fuel-layer-btn" id="cw-fuel-layer-btn" title="Toggle fuel supply choropleth" style="width:auto;padding:0 7px;gap:4px;" onclick="_cwToggleFuelLayer(this)">⛽ Fuel</button>
             </div>
           </div>
           <div class="vw-gs-map-body">
@@ -7205,6 +7210,84 @@
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
       /* Attribution */
       L.control.attribution({ prefix:false }).addTo(cwConflictMap);
+    }
+
+    /* ── Fuel Supply Choropleth ──────────────────────────────────────────── */
+    var _cwFuelLayerVisible = false;
+    var _cwTopoWorldCache   = null;
+
+    /* ISO numeric → alpha-2 for all countries in fuel data */
+    var _CW_ISO_NUM = {
+      '840':'US','276':'DE','826':'GB','250':'FR','376':'IL',
+      '356':'IN','392':'JP','702':'SG', '36':'AU', '76':'BR',
+      '156':'CN','410':'KR','124':'CA','484':'MX','616':'PL',
+      '158':'TW','784':'AE','458':'MY','528':'NL','372':'IE',
+    };
+
+    function _cwFuelColor(minDsr) {
+      if (minDsr == null) return null;
+      if (minDsr < 20)   return '#e53935'; // critical — red
+      if (minDsr < 40)   return '#f9a825'; // warning  — orange
+      return '#2e7d32';                    // adequate — green
+    }
+
+    function _cwToggleFuelLayer(btn) {
+      if (!cwConflictMap) return;
+
+      /* Toggle OFF */
+      if (_cwFuelLayerVisible) {
+        cwConflictMap.eachLayer(function(l) {
+          if (l._isCwFuelLayer) cwConflictMap.removeLayer(l);
+        });
+        _cwFuelLayerVisible = false;
+        if (btn) btn.classList.remove('active');
+        return;
+      }
+
+      /* Build iso→minDsr lookup from current cwFuelData */
+      var lookup = {};
+      (typeof cwFuelData !== 'undefined' ? cwFuelData : []).forEach(function(d) {
+        var vals = [d.diesel, d.petrol, d.aviation].filter(function(v){ return typeof v === 'number'; });
+        if (vals.length) lookup[d.iso] = Math.min.apply(null, vals);
+      });
+
+      function _buildLayer(world) {
+        var geojson = topojson.feature(world, world.objects.countries);
+        var layer = L.geoJSON(geojson, {
+          style: function(feat) {
+            var alpha2 = _CW_ISO_NUM[String(feat.id)];
+            var dsr    = (alpha2 != null && lookup[alpha2] != null) ? lookup[alpha2] : null;
+            var color  = _cwFuelColor(dsr);
+            if (!color) return { fillOpacity:0, weight:0, stroke:false };
+            return { fillColor:color, fillOpacity:0.38, color:color, weight:0.6, opacity:0.5 };
+          },
+          onEachFeature: function(feat, lyr) {
+            var alpha2 = _CW_ISO_NUM[String(feat.id)];
+            var d = alpha2 && (typeof cwFuelData !== 'undefined' ? cwFuelData : []).find(function(x){ return x.iso === alpha2; });
+            if (!d) return;
+            var min = Math.min(d.diesel||999, d.petrol||999, d.aviation||999);
+            var status = min < 20 ? '🔴 Critical' : min < 40 ? '🟠 Warning' : '🟢 Adequate';
+            lyr.bindTooltip(
+              '<strong>' + d.country + '</strong> &nbsp;' + status + '<br>' +
+              '⛽ Diesel: <b>' + (d.diesel != null ? d.diesel + 'd' : '—') + '</b> &nbsp; ' +
+              'Petrol: <b>'  + (d.petrol  != null ? d.petrol  + 'd' : '—') + '</b> &nbsp; ' +
+              'Aviation: <b>'+ (d.aviation!= null ? d.aviation+ 'd' : '—') + '</b>',
+              { sticky:true, className:'cw-fuel-tooltip' }
+            );
+          }
+        });
+        layer._isCwFuelLayer = true;
+        layer.addTo(cwConflictMap);
+        layer.bringToBack();
+        _cwFuelLayerVisible = true;
+        if (btn) btn.classList.add('active');
+      }
+
+      if (_cwTopoWorldCache) { _buildLayer(_cwTopoWorldCache); return; }
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(function(r){ return r.json(); })
+        .then(function(world){ _cwTopoWorldCache = world; _buildLayer(world); })
+        .catch(function(e){ console.warn('Fuel choropleth: world atlas load failed', e); });
     }
 
     /* ── Israel mini-map ─────────────────────────────────────────────────── */
