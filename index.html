@@ -7224,10 +7224,10 @@
     /* ISO numeric → alpha-2 for all countries in fuel data */
     var _CW_ISO_NUM = {
       '840':'US','276':'DE','826':'GB','250':'FR','376':'IL',
-      '356':'IN','392':'JP','702':'SG', '36':'AU', '76':'BR',
+      '356':'IN','392':'JP','036':'AU','076':'BR',
       '156':'CN','410':'KR','124':'CA','484':'MX','616':'PL',
       '158':'TW','784':'AE','458':'MY','528':'NL','372':'IE',
-    };
+    }; // Note: SG=702 absent from world-atlas 110m (city-state, too small)
 
     function _cwFuelColor(minDsr) {
       if (minDsr == null) return null;
