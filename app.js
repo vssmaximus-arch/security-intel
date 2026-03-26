@@ -8159,7 +8159,7 @@ function _vwDoSearch() {
   fetchWithTimeout(WORKER_URL + '/api/vessel/lookup?' + param, {}, 15000)
     .then(function(r){ return r.json(); })
     .then(function(d) {
-      if (!d.ok || !d.vessel) {
+      if (!d.ok || !d.vessel || d.vessel._notFound) {
         res.innerHTML = '<div class="vw-loading" style="color:#f28b82;">Vessel not found. Try IMO (7 digits), MMSI (9 digits), or vessel name.</div>';
         return;
       }
