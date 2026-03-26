@@ -3026,7 +3026,7 @@
       <div class="grid-stack-item" gs-id="ap-avnews-widget" gs-x="6" gs-y="16" gs-w="6" gs-h="13" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
-            <span><i class="fas fa-newspaper" style="margin-right:6px;color:#4fc3f7;"></i>Aviation Disruption News</span>
+            <span><i class="fas fa-newspaper" style="margin-right:6px;color:#4fc3f7;"></i>Aviation News</span>
             <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
               <button class="cw-gs-icon-btn" id="avnews-refresh-btn" title="Refresh"><i class="fas fa-sync"></i></button>
               <span id="avnews-updated-at" class="airport-ts"></span>
@@ -5897,7 +5897,7 @@
     var AP_WIDGETS_META = [
       { id:'ap-disruptions-widget',   label:'Flight Disruptions',       icon:'fa-plane-departure', desc:'Live disruption map + SIGMETs' },
       { id:'ap-cancellations-widget', label:'Airline Cancellations',    icon:'fa-ban',             desc:'FR24-style ranked airport table' },
-      { id:'ap-avnews-widget',        label:'Aviation Disruption News', icon:'fa-newspaper',       desc:'Simple Flying + Aero-News disruption feed' },
+      { id:'ap-avnews-widget',        label:'Aviation News', icon:'fa-newspaper',       desc:'Aviation Herald · Simple Flying · Flight Global and more' },
       { id:'ap-tsc-widget',           label:'Travel Safety Check',      icon:'fa-passport',        desc:'US & AU government advisories' },
       { id:'ap-flightwatch-widget',   label:'Flight Watchlist',         icon:'fa-binoculars',      desc:'Track flights by callsign / ICAO24' },
     ];
@@ -6100,7 +6100,7 @@
       }).join('');
       body.innerHTML = '<div class="avnews-list">' + html + '</div>'
         + '<div class="canc-source-bar" style="margin-top:4px;">'
-        + '<i class="fas fa-rss" style="font-size:0.7rem;"></i> Aviation Herald · Simple Flying · The Air Current · Flight Global · AeroTelegraph'
+        + '<i class="fas fa-rss" style="font-size:0.7rem;"></i> Aviation Herald · Simple Flying · Flight Global · Aerotime Hub · Airline Ratings · Aviation Pros · Airways Magazine'
         + '</div>';
     }
     var avNewsRefreshBtn = document.getElementById('avnews-refresh-btn');
