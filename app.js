@@ -6391,7 +6391,7 @@ function updateMainTicker() {
   // Duplicate for seamless infinite scroll — slow enough to read comfortably
   var totalItems = mktItems.length + finNews.length + 2;
   track.innerHTML = html + html;
-  track.style.animationDuration = Math.max(120, totalItems * 9) + 's';
+  track.style.animationDuration = '20s';
 }
 window.updateMainTicker = updateMainTicker;
 
