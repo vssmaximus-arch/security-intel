@@ -7687,7 +7687,6 @@ function _tlRender(data) {
       '<div class="tl-case-header">' +
         '<span class="tl-cat-badge" style="background:' + catColor + '">' + escapeHtml(c.category || 'Other') + '</span>' +
         '<span class="tl-sev-badge" style="background:' + sevColor + '">' + escapeHtml(c.severity || 'Medium') + '</span>' +
-        (c.confidence === 'High' ? '<span class="tl-conf-badge">CONFIRMED</span>' : '') +
         '<span class="tl-case-date">' + escapeHtml(dateStr) + '</span>' +
       '</div>' +
       '<div class="tl-case-title">' +
