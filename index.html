@@ -3010,8 +3010,10 @@
           <div class="ap-canc-footer">
             <div class="ap-di-legend">
               <span class="ap-di-label">Disruption Index</span>
-              <span class="ap-di-item ap-di-major"><span class="ap-di-dot"></span>3.5–5.0 Major</span>
-              <span class="ap-di-item ap-di-minor"><span class="ap-di-dot"></span>2.0–3.4 Minor</span>
+              <span class="ap-di-item ap-di-major"><span class="ap-di-dot"></span>4.0–5.0 Major</span>
+              <span class="ap-di-item ap-di-minor"><span class="ap-di-dot"></span>3.0–3.9 Minor</span>
+              <span class="ap-di-item ap-di-watch"><span class="ap-di-dot"></span>2.0–2.9 Watch</span>
+              <span class="ap-di-item ap-di-good"><span class="ap-di-dot"></span>1.0–1.9 No Impact</span>
             </div>
             <a href="https://www.flightaware.com/live/cancelled" target="_blank" rel="noopener" class="canc-fa-link">
               <i class="fas fa-external-link-alt"></i> FlightAware
@@ -5026,8 +5028,9 @@
     .ap-di-item { display:flex; align-items:center; gap:4px; font-size:0.68rem; color:#9aa0a6; white-space:nowrap; }
     body.light-mode .ap-di-item { color:#5f6368; }
     .ap-di-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-    .ap-di-major .ap-di-dot { background:#ea8600; }
-    .ap-di-minor .ap-di-dot { background:#fbbc04; }
+    .ap-di-major .ap-di-dot { background:#d93025; }
+    .ap-di-minor .ap-di-dot { background:#e8710a; }
+    .ap-di-watch .ap-di-dot { background:#fbbc04; }
     .ap-di-good  .ap-di-dot { background:#34a853; }
 
     /* GridStack for airport page */
@@ -5423,10 +5426,10 @@
     };
 
     function scoreColor(score) {
-      if (score >= 4.5) return '#d93025';
-      if (score >= 3.5) return '#e8710a';
-      if (score >= 2.5) return '#f9ab00';
-      return '#137333';
+      if (score >= 4.0) return '#d93025'; // Major
+      if (score >= 3.0) return '#e8710a'; // Minor
+      if (score >= 2.0) return '#f9ab00'; // Watch
+      return '#137333';                   // No Impact
     }
 
     /* ── Merge server disruptions with guaranteed client-side known ones ──── */
@@ -6294,13 +6297,15 @@
     var _cancActiveTab = 'airport'; // 'airport' | 'airline'
 
     function _cancScoreColor(score) {
-      if (score >= 3.5) return '#ea8600';
-      if (score >= 2.0) return '#fbbc04';
-      return '#34a853';
+      if (score >= 4.0) return '#d93025'; // Major
+      if (score >= 3.0) return '#e8710a'; // Minor
+      if (score >= 2.0) return '#fbbc04'; // Watch
+      return '#34a853';                   // No Impact
     }
     function _cancScoreLabel(score) {
-      if (score >= 3.5) return 'Major';
-      if (score >= 2.0) return 'Minor';
+      if (score >= 4.0) return 'Major';
+      if (score >= 3.0) return 'Minor';
+      if (score >= 2.0) return 'Watch';
       return 'Good';
     }
     function _cancFlag(cc) {
