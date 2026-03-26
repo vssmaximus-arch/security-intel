@@ -7289,6 +7289,7 @@
         .then(function(world){ _cwTopoWorldCache = world; _buildLayer(world); })
         .catch(function(e){ console.warn('Fuel choropleth: world atlas load failed', e); });
     }
+    window._cwToggleFuelLayer = _cwToggleFuelLayer;
 
     /* ── Israel mini-map ─────────────────────────────────────────────────── */
     function initIsraelMap() {
