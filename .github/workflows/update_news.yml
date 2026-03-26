@@ -79,7 +79,7 @@ jobs:
 
       - name: Push changes
         run: |
-          git pull origin "${GITHUB_REF_NAME}" --rebase
+          git pull origin "${GITHUB_REF_NAME}" --rebase -X theirs
           git push origin "${GITHUB_REF_NAME}"
 
       - name: Trigger Worker KV update

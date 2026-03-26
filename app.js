@@ -1499,16 +1499,27 @@ function mapSeverityToLabel(s) {
   return { label: "LOW", badgeClass: "ftag-info", barClass: "status-bar-info" };
 }
 
+// Returns true if an article title mentions keywords relevant to the given region.
+// Used in renderGeneralFeed so articles like "Trump warns Iran" appear in BOTH
+// AMER and EMEA, rather than being locked to whichever region matched first at ingest.
+function _incidentMentionsRegion(title, region) {
+  const tl = (title || '').toLowerCase();
+  if (region === 'EMEA')  return /\b(iran|iraq|israel|saudi|arab|uae|dubai|qatar|kuwait|bahrain|oman|yem|jordan|leban|syria|turk|egypt|libya|tunis|alger|morocc|niger|kenya|ethiop|ghana|europ|brit|franc|german|italy|spain|russia|ukrain|poland|middle east|north africa|persian gulf|red sea|strait of hormuz|bab el mandeb|suez)/.test(tl);
+  if (region === 'APJC')  return /\b(chin|japan|india|indian|australia|singapor|korea|taiwan|hong kong|pakistan|bangla|southeast asia|asia.pacific|indo.pacific|south china sea|taiwan strait|malacca|beijing|tokyo|delhi|mumbai|seoul|sydney|jakarta|manila|bangkok|hanoi|kuala lumpur|yangon)/.test(tl);
+  if (region === 'LATAM') return /\b(brazil|argentin|colombia|chile|venezuel|peru|latin america|caribbean|central america|panama canal|south america|bogota|lima|santiago|caracas|havana)/.test(tl);
+  if (region === 'AMER')  return /\b(trump|united states|american?\b|u\.s\b|us\s+(?:military|troops|congress|senate|president|navy|army|dollar)|canada|canadian|mexico|mexican|washington|pentagon|white house|wall street|silicon valley|new york|los angeles|chicago|texas|california)/.test(tl);
+  return false;
+}
+
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  // Regional filter: show items tagged for this region + all GLOBAL items.
-  // Text-inference in normaliseWorkerIncident re-tags region-specific articles
-  // (e.g. "Iranian Minelaying" → EMEA, "China tariffs" → APJC) so they stop
-  // appearing in unrelated regions. Truly global items (no geography) stay Global
-  // and appear everywhere — that is correct behaviour for an SRO feed.
+  // Regional filter: show items tagged for this region + Global items + any item
+  // whose title mentions this region's keywords (catches articles tagged to another
+  // region at ingest time that are still relevant here, e.g. "Trump warns Iran" → AMER+EMEA).
   let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i =>
-    i.region === region || i.region === 'GLOBAL' || i.region === 'Global'
+    i.region === region || i.region === 'GLOBAL' || i.region === 'Global' ||
+    _incidentMentionsRegion(i.title, region)
   );
   // APJC sub-region drill-down
   if (region === 'APJC' && activeApjcSub) {
