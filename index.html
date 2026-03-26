@@ -1446,25 +1446,51 @@
     }
     .cat-pill:hover { border-color: #5a5d65; color: #e8eaed; background: rgba(255,255,255,0.06); }
     .cat-pill.active {
-      background: var(--cat-color, #0076ce);
-      border-color: var(--cat-color, #0076ce);
+      background: #e65100;
+      border-color: #e65100;
       color: #fff;
     }
-    .cat-pill:focus { outline: 2px solid var(--cat-color, #0076ce); outline-offset: 2px; }
-    .cat-pill-all { --cat-color: #0076ce; }
+    .cat-pill:focus { outline: 2px solid #e65100; outline-offset: 2px; }
     .cat-count-badge {
       display: inline-block; background: rgba(255,255,255,0.25); border-radius: 10px;
       padding: 0 5px; font-size: 0.62rem; font-weight: 800; min-width: 16px; text-align: center;
+    }
+    /* Square checkbox indicator inside each filter pill */
+    .pill-check {
+      display: inline-block;
+      width: 11px; height: 11px;
+      border: 1.5px solid currentColor;
+      border-radius: 2px;
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+      opacity: 0.55;
+      vertical-align: middle;
+    }
+    .cat-pill.active .pill-check {
+      background: rgba(255,255,255,0.25);
+      border-color: #fff;
+      opacity: 1;
+    }
+    .cat-pill.active .pill-check::after {
+      content: '';
+      position: absolute;
+      left: 2px; top: 0px;
+      width: 5px; height: 8px;
+      border: 1.5px solid #fff;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
     }
     /* Light-mode overrides */
     body.light-mode .cat-filter-bar { background: #f5f7fa; border-bottom-color: #e0e0e0; }
     body.light-mode .cat-filter-label { color: #80868b; }
     body.light-mode .cat-pill { color: #5f6368; border-color: #dadce0; background: #fff; }
     body.light-mode .cat-pill:hover { background: #f1f3f4; color: #202124; border-color: #bbb; }
-    body.light-mode .cat-pill.active { color: #fff; }
+    body.light-mode .cat-pill.active { background: #e65100; border-color: #e65100; color: #fff; }
     /* Dark-mode explicit override */
     body.dark-mode .cat-filter-bar { background: #13151b; border-bottom-color: #2a2d35; }
     body.dark-mode .cat-pill { border-color: #3a3d45; color: #9aa0a6; }
+    body.dark-mode .cat-pill.active { background: #e65100; border-color: #e65100; color: #fff; }
 
     /* ══════════════════════════════════════════════════════════════════
        VIEW SWITCHER — main tab bar (Intelligence vs Airport Disruptions)
@@ -2541,36 +2567,36 @@
       <button class="cat-pill cat-pill-all active" data-cat="ALL" data-action="filter-cat"
         aria-pressed="true" title="Show all categories">All</button>
       <button class="cat-pill" data-cat="DISASTER" data-action="filter-cat"
-        style="--cat-color:#1565c0" aria-pressed="false" title="Natural disasters and severe weather">
-        🌊 Natural Disaster
+        aria-pressed="false" title="Natural disasters and severe weather">
+        <span class="pill-check"></span>🌊 Natural Disaster
       </button>
       <button class="cat-pill" data-cat="SUPPLY_CHAIN" data-action="filter-cat"
-        style="--cat-color:#e65100" aria-pressed="false" title="Supply chain disruptions and logistics">
-        🔗 Supply Chain
+        aria-pressed="false" title="Supply chain disruptions and logistics">
+        <span class="pill-check"></span>🔗 Supply Chain
       </button>
       <button class="cat-pill" data-cat="PROTESTS" data-action="filter-cat"
-        style="--cat-color:#f57f17" aria-pressed="false" title="Protests and civil unrest">
-        ✊ Protests
+        aria-pressed="false" title="Protests and civil unrest">
+        <span class="pill-check"></span>✊ Protests
       </button>
       <button class="cat-pill" data-cat="CYBER" data-action="filter-cat"
-        style="--cat-color:#6a1b9a" aria-pressed="false" title="Operational cyber incidents — breaches, ransomware, outages">
-        💻 Cyber
+        aria-pressed="false" title="Operational cyber incidents — breaches, ransomware, outages">
+        <span class="pill-check"></span>💻 Cyber
       </button>
       <button class="cat-pill" data-cat="INFRASTRUCTURE" data-action="filter-cat"
-        style="--cat-color:#00695c" aria-pressed="false" title="Infrastructure and facility incidents">
-        🏭 Infrastructure
+        aria-pressed="false" title="Infrastructure and facility incidents">
+        <span class="pill-check"></span>🏭 Infrastructure
       </button>
       <button class="cat-pill" data-cat="CONFLICT" data-action="filter-cat"
-        style="--cat-color:#c62828" aria-pressed="false" title="Armed conflict and military operations">
-        ⚔️ Armed Conflict
+        aria-pressed="false" title="Armed conflict and military operations">
+        <span class="pill-check"></span>⚔️ Armed Conflict
       </button>
       <button class="cat-pill" data-cat="TERRORISM" data-action="filter-cat"
-        style="--cat-color:#880e4f" aria-pressed="false" title="Terrorism and major attacks">
-        💣 Terrorism
+        aria-pressed="false" title="Terrorism and major attacks">
+        <span class="pill-check"></span>💣 Terrorism
       </button>
       <button class="cat-pill" data-cat="POLITICAL" data-action="filter-cat"
-        style="--cat-color:#1a237e" aria-pressed="false" title="Political instability and sanctions">
-        🏛️ Political / Sanctions
+        aria-pressed="false" title="Political instability, sanctions and geopolitical events">
+        <span class="pill-check"></span>🏛️ Political / Sanctions
       </button>
     </div>
 
