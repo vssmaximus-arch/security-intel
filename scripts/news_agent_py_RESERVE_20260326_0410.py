@@ -87,47 +87,120 @@ _SITE_LINES = ", ".join(
 DELL_SITES_COMPACT = f"Dell has {len(DELL_SITES)} global sites: {_SITE_LINES}."
 
 # ── RSS Feed Sources ───────────────────────────────────────────────────────────
-# 29 curated feeds — regionally structured for physical security / supply chain.
-# Cyber-only sources (Bleeping, Krebs) are filtered by _CYBER_DOMAINS blocklist.
+# Curated for physical security / supply chain / crisis / workforce domain.
+# Removed: ~20 pure cybersecurity feeds (DarkReading, THN, Bleeping, MSRC, etc.)
+# Added: labor/industrial action, broader APJC/EMEA regional coverage
 FEEDS = [
-    # ── WORKFORCE / Dell Brand Monitoring ─────────────────────────────────────
-    "https://news.google.com/rss/search?q=site:thelayoff.com+'Dell'&hl=en-US&gl=US&ceid=US:en",
-    "https://www.reddit.com/r/Dell/.rss",
-    "https://hnrss.org/newest?q=Dell+Technologies",
-
-    # ── APJC ──────────────────────────────────────────────────────────────────
-    "https://www.abc.net.au/news/feed/51120/rss.xml",        # Australia ABC
-    "https://www.channelnewsasia.com/rssfeeds/8395986",      # CNA Singapore
-    "https://www.japantimes.co.jp/feed/",                    # Japan Times
-    "https://www.scmp.com/rss/91/feed.xml",                  # South China Morning Post
-    "https://thediplomat.com/category/security/feed/",       # The Diplomat Security
-    "https://securitybrief.com.au/feed",                     # Security Brief AU
-    "https://www.eastasiaforum.org/feed/",                   # East Asia Forum
-
-    # ── AMER ──────────────────────────────────────────────────────────────────
-    "https://www.cisa.gov/cybersecurity-advisories/all.xml", # CISA (OT/ICS advisories)
-    "https://www.state.gov/rss-feeds",                       # US State Dept
-    "https://rss.nytimes.com/services/xml/rss/nyt/Americas.xml",  # NYT Americas
-    "https://www.cbc.ca/cmlink/rss-world",                   # CBC Canada
-    "https://www.bleepingcomputer.com/feed/",                # BleepingComputer (cyber-blocked)
-    "https://krebsonsecurity.com/feed/",                     # Krebs (cyber-blocked)
-    "https://www.reutersagency.com/feed/?best-topics=americas&post_type=best",  # Reuters AMER
-
-    # ── EMEA ──────────────────────────────────────────────────────────────────
-    "https://feeds.bbci.co.uk/news/world/rss.xml",           # BBC World
-    "https://www.theguardian.com/world/rss",                 # Guardian World
-    "https://www.aljazeera.com/xml/rss/all.xml",             # Al Jazeera
-    "https://rss.dw.com/rdf/rss-en-all",                     # DW Germany
-    "https://www.france24.com/en/rss",                       # France24
-    "https://www.middleeasteye.net/rss",                     # Middle East Eye
-
-    # ── LATAM ─────────────────────────────────────────────────────────────────
-    "https://en.mercopress.com/rss/latin-america/",          # MercoPress
-    "https://latinamericareports.com/feed/",                 # LATAM Reports
-    "https://globalvoices.org/regions/latin-america/feed/",  # Global Voices LATAM
-    "https://www.newsamericasnow.com/feed/",                 # News Americas Now
-    "https://insightcrime.org/feed/",                        # Insight Crime
-    "https://www.reutersagency.com/feed/?best-topics=latin-america&post_type=best",  # Reuters LATAM
+    # ── Natural Hazards (always fetch — deterministic tier-1 sources) ──────────
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.atom",
+    "https://www.gdacs.org/xml/rss.xml",
+    "https://www.emsc-csem.org/service/rss/rss.php?typ=emsc",
+    "https://www.jma.go.jp/bosai/feed/rss/eqvol.xml",
+    "https://emergency.copernicus.eu/mapping/list-of-activations-rapid/feed",
+    "https://www.fema.gov/rss/disaster_declarations.rss",
+    # ── Dell Brand / Workforce Monitoring ─────────────────────────────────────
+    "https://news.google.com/rss/search?q=Dell+Technologies&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=Dell+layoffs+OR+Dell+restructuring+OR+Dell+executive&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=%22Dell+Technologies%22+breach+OR+incident+OR+security&hl=en-US&gl=US&ceid=US:en",
+    "https://www.reddit.com/r/layoffs/search.rss?q=dell&sort=new&restrict_sr=1",
+    # ── Tier-1 Global News ────────────────────────────────────────────────────
+    "https://feeds.reuters.com/reuters/worldNews",
+    "https://feeds.reuters.com/reuters/topNews",
+    "https://feeds.reuters.com/reuters/businessNews",
+    "https://apnews.com/apf-worldnews?format=xml",
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "https://www.aljazeera.com/xml/rss/all.xml",
+    "https://www.theguardian.com/world/rss",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "https://feeds.washingtonpost.com/rss/world",
+    "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+    "https://www.scmp.com/rss/91/feed",
+    # ── APJC Regional (Dell's largest manufacturing + workforce region) ────────
+    "https://www.channelnewsasia.com/api/v1/rss-outbound-feed",  # Singapore
+    "https://www.thehindu.com/news/feeder/default.rss",          # India
+    "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", # India
+    "https://www.hindustantimes.com/rss/topnews/rssfeed.xml",    # India
+    "https://www.japantimes.co.jp/news/feed/",                   # Japan
+    "https://www3.nhk.or.jp/nhkworld/en/news/feeds/",            # Japan NHK
+    "https://japantoday.com/feed/atom",
+    "https://www.koreatimes.co.kr/www/rss/rss.xml",              # Korea
+    "https://www.bangkokpost.com/rss",                           # Thailand
+    "https://vnexpress.net/rss",                                  # Vietnam
+    "https://www.abc.net.au/news/feed/51120/rss.xml",            # Australia
+    "https://www.abc.net.au/news/feed/48480/rss.xml",
+    "https://www.theguardian.com/australia-news/rss",
+    "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+    # ── EMEA Regional ─────────────────────────────────────────────────────────
+    "https://www.france24.com/en/rss",
+    "https://www.euronews.com/rss?level=world",
+    "https://www.dw.com/en/top-stories/world/s-1429/rss",
+    "https://www.arabnews.com/taxonomy/term/1/feed",
+    "https://www.middleeasteye.net/rss",
+    "https://www.spiegel.de/schlagzeilen/tops/index.rss",        # Germany
+    "https://www.themoscowtimes.com/rss/news",                   # Russia/Ukraine context
+    "https://meduza.io/rss/all",
+    # ── LATAM Regional ────────────────────────────────────────────────────────
+    "https://www.batimes.com.ar/rss-feed",                       # Argentina
+    "https://en.mercopress.com/rss",
+    "https://www.latinnews.com/index.php?format=feed",
+    # ── Africa ────────────────────────────────────────────────────────────────
+    "https://www.africanews.com/feed/xml",
+    "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf",
+    "https://dailytrust.com/feed/",
+    # ── Supply Chain / Logistics (HIGH PRIORITY domain) ───────────────────────
+    "https://www.freightwaves.com/feed",
+    "https://www.supplychaindive.com/feeds/news/",
+    "https://gcaptain.com/feed/",
+    "https://theloadstar.com/feed/",
+    "https://splash247.com/feed/",
+    "https://www.maritime-executive.com/rss",
+    "https://www.joc.com/rss.xml",
+    "https://www.porttechnology.org/feed/",
+    "https://www.maritimebulletin.net/feed/",
+    "https://www.iata.org/en/pressroom/news-releases/rss/",
+    "https://www.aircargonews.net/feed/",
+    "https://www.portoflosangeles.org/rss/news",
+    "https://www.portofantwerpbruges.com/en/news/rss",
+    # ── Labor / Industrial Action (NEW — was completely missing) ──────────────
+    # These sources cover workforce disruptions that cascade to Dell operations
+    "https://news.google.com/rss/search?q=strike+workers+industrial+action+2025&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=teachers+strike+school+closure&hl=en-AU&gl=AU&ceid=AU:en",
+    "https://news.google.com/rss/search?q=transport+strike+bus+train+metro+workers&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=port+strike+shipping+workers+dock&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=manufacturing+strike+factory+workers&hl=en-US&gl=US&ceid=US:en",
+    # ── Government / Travel / Emergency ───────────────────────────────────────
+    "https://travel.state.gov/_res/rss/TAs.xml",
+    "https://www.gov.uk/foreign-travel-advice.rss",
+    "https://www.fbi.gov/feeds/fbi-top-stories/rss.xml",
+    "https://www.europol.europa.eu/media-press/rss.xml",
+    "https://www.publicsafety.gc.ca/cnt/ntnl-scrt/rss-en.aspx",
+    "https://www.civildefence.govt.nz/rss-feed",
+    "https://www.dhs.gov/news-releases.xml",
+    "https://www.state.gov/press-releases/rss/",
+    # CISA removed — primarily publishes cyber advisories which flood the SRO feed
+    # "https://www.cisa.gov/news.xml",
+    "https://www.abf.gov.au/_layouts/15/AppPages/Rss.aspx?site=newsroom",
+    "https://www.iaea.org/feeds/topnews",  # Nuclear/radiological events
+    # ── Humanitarian / Crisis Organizations ───────────────────────────────────
+    "https://reliefweb.int/updates/rss.xml",
+    "https://www.crisisgroup.org/rss.xml",
+    "https://news.un.org/feed/subscribe/en/news/all/rss.xml",
+    "https://www.who.int/rss-feeds/news-english.xml",
+    "https://www.ifrc.org/feeds/all.xml",
+    "https://www.icrc.org/en/rss-feed",
+    "https://acleddata.com/feed/",
+    # ── Security / Geopolitical Think Tanks ───────────────────────────────────
+    "https://www.cfr.org/rss.xml",
+    "https://www.chathamhouse.org/rss-feeds/all",
+    "https://www.rand.org/tools/rss.xml",
+    "https://www.globalsecurity.org/military/world/rss.xml",
+    "https://www.bellingcat.com/feed/",
+    "https://www.nato.int/cps/en/natolive/news.rss",
+    "https://responsiblestatecraft.org/feed/",
+    # ── Aviation / Transport ──────────────────────────────────────────────────
+    "https://avherald.com/h?subscribe=rss",
+    "https://simpleflying.com/feed/",
 ]
 
 # ── GDELT real-time queries ────────────────────────────────────────────────────
@@ -852,26 +925,6 @@ def main():
     # ── Phase 3: Sort, deduplicate, write ─────────────────────────────────────
     # Sort: severity (high first), then time (newest first)
     results.sort(key=lambda x: (x.get("severity", 1), x.get("time", "")), reverse=True)
-
-    # Deduplicate by URL and Title — no two items may share the same URL or Title
-    seen_urls   = set()
-    seen_titls  = set()
-    deduped     = []
-    for item in results:
-        url_k   = (item.get("url")   or "").strip().lower()
-        title_k = (item.get("title") or "").strip().lower()
-        if url_k and url_k in seen_urls:
-            continue
-        if title_k and title_k in seen_titls:
-            continue
-        if url_k:
-            seen_urls.add(url_k)
-        if title_k:
-            seen_titls.add(title_k)
-        deduped.append(item)
-    before = len(results)
-    results = deduped
-    print(f"[DEDUP] {before} → {len(results)} items after URL+title deduplication")
 
     # Cap to 300 items (KV limit)
     results = results[:300]
