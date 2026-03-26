@@ -6185,7 +6185,13 @@
               if (resEl) resEl.innerHTML = '<span style="color:#f28b82;font-size:0.73rem;">⚠ Not airborne or not in OpenSky coverage</span>';
               return;
             }
-            var s   = states[0];
+            /* Filter to find the specific aircraft — OpenSky may return multiple results */
+            var upperSearch = id.toUpperCase().trim();
+            var matched = states.filter(function(st) {
+              if (isIcao) return st[0] && st[0].toLowerCase() === id.toLowerCase();
+              return st[1] && st[1].trim().toUpperCase() === upperSearch;
+            });
+            var s = matched.length ? matched[0] : states[0];
             var lat = s[6], lon = s[5], alt = s[7], spd = s[9], hdg = s[10];
             var cs  = (s[1] || id).trim();
             var dep = s[2] || '?';
