@@ -4098,17 +4098,16 @@ const LTV_CHANNELS = [
     ytId: '8bCBmjPa_jY' },                                                         // CGTN official CDN
   { key: 'cna',       label: 'CNA',         color: '#c62828',
     hlsUrl: null,
-    // ytId starting with "UC" = YouTube Channel ID → uses live_stream?channel= embed (permanent URL)
-    ytId: 'UCkgbMRMlHjFH5VbJuMTWFpA' },                                           // CNA YouTube channel
+    ytId: 'XWq5kBlakcQ' },                                                         // CNA 24/7 LIVE
   { key: 'nhk',       label: 'NHK World',   color: '#01579b',
     hlsUrl: 'https://nhkworldlive-nhkworld.akamaized.net/hls/live/2003408/nhkworld/index_3M.m3u8',
-    ytId: 'UCqDpTlQMEhTK5B6GRtF_nqA' },                                           // NHK World-Japan YouTube channel
+    ytId: 'f0lYkdA-Gtw' },                                                         // NHK WORLD-JAPAN News LIVE
   { key: 'euronews',  label: 'Euronews',    color: '#003399',
     hlsUrl: 'https://euronews.hsv1.akamaized.net/hls/live/2037246/euronews_en_app/master.m3u8',
-    ytId: 'UCg4x9voS_xkn1cFJhKc8N6g' },                                           // Euronews English YouTube channel
+    ytId: 'pykpO5kQJ98' },                                                         // Euronews English Live
   { key: 'wion',      label: 'WION',        color: '#e65100',
     hlsUrl: null,
-    ytId: 'UCKCgnJHxFnQk3eGbNH8-P1A' },                                           // WION News YouTube channel
+    ytId: 'N53Zb6I6GY4' },                                                         // WION News LIVE
 ];
 
 // Keep alias for modal (uses same catalogue)
@@ -4301,14 +4300,21 @@ function _lnmSwitchChannel(key) {
   const frame = _ltmEl('lnm-tv-frame');
   const badge = _ltmEl('lnm-stream-badge');
 
-  /* Helper: no direct stream — show clean error screen, NO YouTube fallback */
-  function _showNoStream() {
+  /* Helper: show YouTube iframe fallback if ytId available, else no-signal screen */
+  function _showYouTubeFallback() {
     if (video) { video.style.display = 'none'; video.src = ''; }
     if (frame) {
-      frame.style.display = 'block'; frame.src = '';
-      frame.srcdoc = `<html><body style="margin:0;background:#090909;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#555;font-family:sans-serif;text-align:center;gap:10px"><div style="font-size:3em;opacity:.35">📡</div><div style="font-size:15px;color:#777;font-weight:600">${ch.label}</div><div style="font-size:12px;color:#555">Direct stream unavailable</div><div style="font-size:10px;color:#333;margin-top:6px">HLS connection failed &mdash; no YouTube fallback</div></body></html>`;
+      frame.style.display = 'block';
+      frame.srcdoc = '';
+      if (ch.ytId) {
+        frame.src = 'https://www.youtube-nocookie.com/embed/' + ch.ytId + '?autoplay=1&mute=0&rel=0';
+        if (badge) { badge.textContent = '\u25b6 YouTube Live'; badge.style.background = '#c62828'; badge.style.color = '#fff'; }
+      } else {
+        frame.src = '';
+        frame.srcdoc = `<html><body style="margin:0;background:#090909;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#555;font-family:sans-serif;text-align:center;gap:10px"><div style="font-size:3em;opacity:.35">📡</div><div style="font-size:15px;color:#777;font-weight:600">${ch.label}</div><div style="font-size:12px;color:#555">Stream unavailable</div></body></html>`;
+        if (badge) { badge.textContent = '\u26a1 No Signal'; badge.style.background = '#1a1a1a'; badge.style.color = '#666'; }
+      }
     }
-    if (badge) { badge.textContent = '\u26a1 No Signal'; badge.style.background = '#1a1a1a'; badge.style.color = '#666'; }
   }
 
   if (ch.hlsUrl) {
@@ -4325,7 +4331,7 @@ function _lnmSwitchChannel(key) {
         if (data.fatal) {
           try { _lnmHls.destroy(); } catch (_) {}
           _lnmHls = null;
-          _showNoStream(); // fatal stream error → no signal (no YouTube)
+          _showYouTubeFallback(); // fatal HLS error → try YouTube
         }
       });
     } else if (video && video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -4334,10 +4340,10 @@ function _lnmSwitchChannel(key) {
       if (video) { video.style.display = 'block'; video.src = ch.hlsUrl; video.play().catch(() => {}); }
       if (badge) { badge.textContent = '\ud83d\udce1 Direct Stream'; badge.style.background = '#1b5e20'; badge.style.color = '#81c995'; }
     } else {
-      _showNoStream(); // browser has no HLS support → no signal
+      _showYouTubeFallback(); // no HLS support → YouTube
     }
   } else {
-    _showNoStream(); // no hlsUrl defined → no direct stream available
+    _showYouTubeFallback(); // no hlsUrl → YouTube
   }
 }
 
