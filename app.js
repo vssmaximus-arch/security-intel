@@ -173,10 +173,23 @@ function getIncidentFilterKey(incidentCategory) {
   return null;
 }
 
+// Keywords that must appear in title/summary for an item to pass the Natural Disaster filter.
+// This prevents humanitarian/conflict/health reports wrongly tagged NATURAL_HAZARD from showing.
+const _DISASTER_KEYWORDS = /\b(earthquake|tremor|seismic|aftershock|cyclone|hurricane|typhoon|super\s*typhoon|tropical\s*storm|tropical\s*cyclone|tsunami|volcano|volcanic|eruption|lava|wildfire|bushfire|forest\s*fire|flood(?:ing)?|flash\s*flood|landslide|mudslide|avalanche|drought|heatwave|heat\s*wave|magnitude|severe\s*weather|storm\s*warning|storm\s*surge|blizzard|tornado|twister|m\s*[4-9]\.\d|category\s*[1-5]\s*(?:hurricane|cyclone|typhoon))\b/i;
+
 function filterByCategoryAllowed(incident) {
   if (ACTIVE_CATEGORIES.size === 0) return true; // "All" mode — nothing filtered
   const key = getIncidentFilterKey(incident.category);
-  return key ? ACTIVE_CATEGORIES.has(key) : false;
+  if (!key) return false;
+  if (!ACTIVE_CATEGORIES.has(key)) return false;
+  // For DISASTER filter: also validate that title/summary contains actual natural disaster keywords.
+  // Prevents humanitarian reports, conflict situation reports, health reports etc. that are
+  // incorrectly tagged NATURAL_HAZARD from appearing under the Natural Disaster filter.
+  if (key === 'DISASTER') {
+    const text = (incident.title || '') + ' ' + (incident.summary || '');
+    return _DISASTER_KEYWORDS.test(text);
+  }
+  return true;
 }
 
 function toggleCategoryFilter(cat) {

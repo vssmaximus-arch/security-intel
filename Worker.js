@@ -835,7 +835,9 @@ function classifyIncidentText(title, summary, source) {
   // ── ALWAYS KEEP: Authoritative natural hazard data sources ───────────────
   // USGS, GDACS, EMSC, JMA, NHC use shorthand like "M 5.4 - south of Panama"
   // that won't match keyword patterns — whitelist them by source URL.
-  if (/earthquake\.usgs\.gov|usgs\.gov.*earthquake|gdacs\.org|emsc-csem\.org|data\.jma\.go\.jp|nhc\.noaa\.gov|bom\.gov\.au|tsunami\.gov|pdc\.org|volcano\.observatory|reliefweb\.int/.test(src)) {
+  // NOTE: reliefweb.int deliberately excluded — it covers conflict/health/humanitarian
+  // topics too; those must go through normal keyword classification.
+  if (/earthquake\.usgs\.gov|usgs\.gov.*earthquake|gdacs\.org|emsc-csem\.org|data\.jma\.go\.jp|nhc\.noaa\.gov|bom\.gov\.au|tsunami\.gov|pdc\.org|volcano\.observatory/.test(src)) {
     const magMatch = text.match(/\bm\s*(\d+\.?\d*)\b/i);
     const mag = magMatch ? parseFloat(magMatch[1]) : 0;
     // GDACS uses colour-coded alert levels in the title — use them to set severity correctly
