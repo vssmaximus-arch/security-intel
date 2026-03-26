@@ -3307,8 +3307,99 @@
     </div>
 
     <div id="tl-source-strip" class="tl-source-strip"></div>
+
+    <!-- ── Manual TheLayoff.com Post Submission ──────────────────────────── -->
+    <div id="tl-manual-panel" style="margin:0 0 12px;border:1px solid #2a2d35;border-radius:8px;overflow:hidden;">
+      <div id="tl-manual-toggle" onclick="document.getElementById('tl-manual-body').style.display=(document.getElementById('tl-manual-body').style.display==='none'?'block':'none')"
+           style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:#1a1d24;cursor:pointer;user-select:none;">
+        <i class="fas fa-plus-circle" style="color:#8ab4f8;font-size:.85rem;"></i>
+        <span style="font-size:.78rem;font-weight:600;color:#9aa0a6;">Add TheLayoff.com Post Manually</span>
+        <span style="margin-left:auto;font-size:.68rem;color:#5f6368;">Click to expand</span>
+      </div>
+      <div id="tl-manual-body" style="display:none;padding:14px;background:#12151c;border-top:1px solid #2a2d35;">
+        <div style="font-size:.72rem;color:#9aa0a6;margin-bottom:10px;">
+          <i class="fas fa-info-circle" style="color:#fbbc04;"></i>
+          Browse <strong>thelayoff.com/dell</strong> → copy a post → paste here → Submit. Requires admin secret.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div style="grid-column:1/-1;">
+            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Post Title *</label>
+            <input id="tl-manual-title" type="text" placeholder="e.g. Dell quietly shrinks workforce again — 2026 RIF confirmed" autocomplete="off"
+              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;"/>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Snippet / Summary</label>
+            <textarea id="tl-manual-snippet" rows="2" placeholder="Short description or quote from the post…"
+              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+          </div>
+          <div>
+            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">URL</label>
+            <input id="tl-manual-url" type="url" placeholder="https://www.thelayoff.com/t/…"
+              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;"/>
+          </div>
+          <div>
+            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Category</label>
+            <select id="tl-manual-category" style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;">
+              <option value="Layoff / Reorg">Layoff / Reorg</option>
+              <option value="Leak">Leak</option>
+              <option value="Breach">Breach</option>
+              <option value="Leadership">Leadership</option>
+            </select>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="font-size:.68rem;color:#9aa0a6;display:block;margin-bottom:3px;">Admin Secret</label>
+            <input id="tl-manual-secret" type="password" placeholder="INGEST_SECRET"
+              style="width:100%;background:#0d1117;border:1px solid #3c4043;color:#e8eaed;border-radius:5px;padding:7px 10px;font-size:.78rem;outline:none;box-sizing:border-box;"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="tlManualSubmit()" style="background:#1a73e8;border:none;color:#fff;border-radius:5px;padding:7px 18px;font-size:.78rem;cursor:pointer;font-weight:600;">
+            <i class="fas fa-upload" style="margin-right:5px;"></i>Submit Post
+          </button>
+          <span id="tl-manual-status" style="font-size:.75rem;color:#9aa0a6;"></span>
+        </div>
+      </div>
+    </div>
+
     <div id="tl-feed" class="tl-feed"><div class="tl-loading"><i class="fas fa-spinner fa-spin"></i> Loading Insider &amp; Leaks…</div></div>
   </div><!-- /view-threats-leaks -->
+
+  <script>
+  async function tlManualSubmit() {
+    var title    = (document.getElementById('tl-manual-title')    || {}).value || '';
+    var snippet  = (document.getElementById('tl-manual-snippet')  || {}).value || '';
+    var url      = (document.getElementById('tl-manual-url')      || {}).value || '#';
+    var category = (document.getElementById('tl-manual-category') || {}).value || 'Layoff / Reorg';
+    var secret   = (document.getElementById('tl-manual-secret')   || {}).value || '';
+    var statusEl = document.getElementById('tl-manual-status');
+    if (!title.trim()) { statusEl.textContent = 'Title is required.'; statusEl.style.color='#f28b82'; return; }
+    if (!secret.trim()) { statusEl.textContent = 'Admin secret required.'; statusEl.style.color='#f28b82'; return; }
+    statusEl.textContent = 'Submitting…'; statusEl.style.color = '#9aa0a6';
+    try {
+      var WORKER_URL = window.WORKER_URL || 'https://osinfohub.vssmaximus.workers.dev';
+      var resp = await fetch(WORKER_URL + '/api/admin/add-layoff-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'secret': secret },
+        body: JSON.stringify({ post: { title: title.trim(), snippet: snippet.trim(), url: url.trim(), category: category, published_at: new Date().toISOString() } })
+      });
+      var data = await resp.json();
+      if (data.ok) {
+        statusEl.textContent = 'Saved! (' + (data.total || 1) + ' posts in feed) — refreshing…';
+        statusEl.style.color = '#81c995';
+        document.getElementById('tl-manual-title').value = '';
+        document.getElementById('tl-manual-snippet').value = '';
+        document.getElementById('tl-manual-url').value = '';
+        setTimeout(function() { var btn = document.querySelector('[data-action="tl-refresh"]'); if (btn) btn.click(); }, 800);
+      } else {
+        statusEl.textContent = 'Error: ' + (data.error || resp.status);
+        statusEl.style.color = '#f28b82';
+      }
+    } catch(e) {
+      statusEl.textContent = 'Failed: ' + e.message;
+      statusEl.style.color = '#f28b82';
+    }
+  }
+  </script>
 
   <!-- 🔴 CRISIS WATCH VIEW ─────────────────────────────────────────────────── -->
   <div id="view-crisis-watch" style="display:none;" role="tabpanel" aria-label="Crisis Watch">
