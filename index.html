@@ -6399,11 +6399,11 @@
     // DISRUPTION RISK = amber. Anything else = amber.
     function _flightStatusDisplay(fs) {
       var s = (fs || '').toUpperCase();
-      if (s === 'CLOSED')                return { color:'#ef5350', icon:'⛔', label:'Closed'      };
-      if (s === 'SEVERELY RESTRICTED')   return { color:'#ef5350', icon:'🚫', label:'Restricted'  };
-      if (s === 'PARTIALLY RESTRICTED')  return { color:'#ea8600', icon:'⚠️', label:'Partial'     };
-      if (s === 'DISRUPTION RISK')       return { color:'#fbbc04', icon:'⚠',  label:'Risk'        };
-      return                                    { color:'#fbbc04', icon:'⚠',  label: fs || 'Risk' };
+      if (s === 'CLOSED')                return { color:'#ef5350', icon:'⛔', label:'Closed'               };
+      if (s === 'SEVERELY RESTRICTED')   return { color:'#ef5350', icon:'🚫', label:'Severely Restricted'  };
+      if (s === 'PARTIALLY RESTRICTED')  return { color:'#ea8600', icon:'⚠️', label:'Partially Restricted' };
+      if (s === 'DISRUPTION RISK')       return { color:'#fbbc04', icon:'⚠',  label:'Periodic Closure'     };
+      return                                    { color:'#fbbc04', icon:'⚠',  label: fs || 'Periodic Closure' };
     }
 
     function _renderClosedRow(a, i) {
@@ -6416,10 +6416,10 @@
         + '<span class="apr-score" style="color:' + disp.color + ';font-weight:900;">—</span>'
         + '<span class="apr-iata" style="color:' + disp.color + ';">' + escHtml(a.iata||'—') + '</span>'
         + '<span class="apr-name">' + flag + ' ' + escHtml(a.airport_name||a.iata||'') + '</span>'
-        + '<span class="apr-canc" style="color:' + disp.color + ';font-weight:700;font-size:0.75rem;">' + disp.icon + ' ' + disp.label + '</span>'
-        + '<span class="apr-delay" style="color:#5f6368;font-size:0.75rem;">—</span>'
+        + '<span class="apr-canc" style="color:#5f6368;">—</span>'
+        + '<span class="apr-delay" style="color:#5f6368;">—</span>'
         + '<span class="apr-status-badge" style="background:' + disp.color + '22;color:' + disp.color + ';border:1px solid ' + disp.color + '55;">'
-        + disp.label + '</span>'
+        + disp.icon + ' ' + disp.label + '</span>'
         + '</a>';
     }
 
