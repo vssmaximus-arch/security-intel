@@ -3960,93 +3960,7 @@
   (function () {
     'use strict';
 
-    /* ── Client-side known disruptions — always shown regardless of Worker ── */
-    var CLIENT_KNOWN_DISRUPTIONS = [
-      { id: 'ckd-gza', iata: 'GZA', flight_status: 'CLOSED', airport_name: 'Gaza Strip Airspace', country: 'Palestinian Territory',
-        cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
-        ai_summary: 'CURRENTLY CLOSED — All airspace completely closed due to ongoing military operations. All civilian aviation suspended.',
-        affected_routes: 'All airlines', duration_estimate: 'Indefinite',
-        disruption_date: '2023-10-07',
-        lat: 31.52, lng: 34.45, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-krt', iata: 'KRT', flight_status: 'CLOSED', airport_name: 'Khartoum International Airport', country: 'Sudan',
-        cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 5.0,
-        ai_summary: 'CURRENTLY CLOSED — Destroyed by airstrikes April 2023. Sudan civil war ongoing. No commercial flights.',
-        affected_routes: 'All airlines', duration_estimate: 'Indefinite',
-        disruption_date: '2023-04-15',
-        lat: 15.589, lng: 32.553, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-russia', iata: null, flight_status: 'CLOSED', airport_name: 'Russian Airspace (FIR UUWW/URRV/UUOO)', country: 'Russia',
-        cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.8,
-        ai_summary: 'CURRENTLY CLOSED TO WESTERN CARRIERS — 140+ airlines banned from Russian airspace since Feb 2022 due to Ukraine invasion. Transpolar routes severely impacted.',
-        affected_routes: 'European / North American carriers', duration_estimate: 'Indefinite',
-        disruption_date: '2022-02-24',
-        lat: 55.75, lng: 37.62, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-kbl', iata: 'KBL', flight_status: 'SEVERELY RESTRICTED', airport_name: 'Kabul International Airport', country: 'Afghanistan',
-        cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.8,
-        ai_summary: 'SEVERELY RESTRICTED — Taliban control since 2021. Most Western airlines suspended indefinitely. Extremely limited international service remains.',
-        affected_routes: 'Western carriers', duration_estimate: 'Indefinite',
-        disruption_date: '2021-08-15',
-        lat: 34.566, lng: 69.212, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-dam', iata: 'DAM', flight_status: 'SEVERELY RESTRICTED', airport_name: 'Damascus International Airport', country: 'Syria',
-        cause_type: 'CONFLICT', severity: 'CRITICAL', disruption_score: 4.5,
-        ai_summary: 'CURRENTLY SEVERELY RESTRICTED — Repeated Israeli airstrikes on airport infrastructure. Most Western and Arab airlines have suspended all Syria operations.',
-        affected_routes: 'International flights', duration_estimate: 'Indefinite',
-        disruption_date: '2024-01-20',
-        lat: 33.411, lng: 36.516, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-bey', iata: 'BEY', flight_status: 'PARTIALLY RESTRICTED', airport_name: 'Beirut Rafic Hariri International Airport', country: 'Lebanon',
-        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 4.0,
-        ai_summary: 'PARTIALLY RESTRICTED — Multiple airline suspensions due to Israel-Hezbollah conflict. European and US carriers significantly reduced service.',
-        affected_routes: 'European carriers', duration_estimate: 'Until further notice',
-        disruption_date: '2024-09-23',
-        lat: 33.821, lng: 35.488, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-tlv', iata: 'TLV', flight_status: 'PARTIALLY RESTRICTED', airport_name: 'Ben Gurion International Airport', country: 'Israel',
-        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 4.0,
-        ai_summary: 'PARTIALLY RESTRICTED — Multiple airlines suspended or drastically reduced service due to ongoing regional conflict. Airspace occasionally closed during incidents.',
-        affected_routes: 'Most international carriers', duration_estimate: 'Until further notice',
-        disruption_date: '2023-10-07',
-        lat: 32.011, lng: 34.887, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-bgw', iata: 'BGW', flight_status: 'DISRUPTION RISK', airport_name: 'Baghdad International Airport', country: 'Iraq',
-        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.5,
-        ai_summary: 'PARTIALLY RESTRICTED — Elevated security risk. Several airlines reduced or suspended service. Sporadic airspace closures during security incidents.',
-        affected_routes: 'Multiple carriers', duration_estimate: 'Ongoing',
-        disruption_date: '2024-10-08',
-        lat: 33.262, lng: 44.234, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-mhd', iata: 'MHD', flight_status: 'SEVERELY RESTRICTED', airport_name: 'Mashhad International Airport', country: 'Iran',
-        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.8,
-        ai_summary: 'CURRENTLY RESTRICTED TO WESTERN CARRIERS — US, EU and allied airlines banned. Iranian airspace closed to most Western operators due to sanctions.',
-        affected_routes: 'Western carriers', duration_estimate: 'Indefinite',
-        disruption_date: '2022-05-08',
-        lat: 36.235, lng: 59.641, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-kwi', iata: 'KWI', flight_status: 'DISRUPTION RISK', airport_name: 'Kuwait International Airport', country: 'Kuwait',
-        cause_type: 'CONFLICT', severity: 'HIGH', disruption_score: 3.2,
-        ai_summary: 'PERIODIC CLOSURES — Kuwait airspace closed multiple times in 2024-2025 during Iranian ballistic missile launches toward Israel. Emergency closure protocols remain active.',
-        affected_routes: 'International flights', duration_estimate: 'Alert protocols active',
-        disruption_date: '2024-04-14',
-        lat: 29.226, lng: 47.969, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-amm', iata: 'AMM', flight_status: 'DISRUPTION RISK', airport_name: 'Queen Alia International Airport', country: 'Jordan',
-        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.8,
-        ai_summary: 'AIRSPACE ADVISORIES ACTIVE — Jordan intercepted Houthi missiles and Iranian drones in 2024. Temporary air defence activations have caused brief diversions. Operations continuing with heightened alert protocols.',
-        affected_routes: 'Regional and international carriers', duration_estimate: 'Advisories active',
-        disruption_date: '2024-04-13',
-        lat: 31.722, lng: 35.993, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-dxb', iata: 'DXB', flight_status: 'DISRUPTION RISK', airport_name: 'Dubai International Airport', country: 'UAE',
-        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.8,
-        ai_summary: 'DISRUPTION ADVISORIES ACTIVE — Houthi drone and missile threats from Yemen have caused temporary UAE airspace ground stops. Iranian airspace restrictions force longer routing. Airlines operating with elevated security protocols.',
-        affected_routes: 'Gulf carriers, European and Asian transit', duration_estimate: 'Ongoing risk',
-        disruption_date: '2024-01-18',
-        lat: 25.253, lng: 55.366, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-doh', iata: 'DOH', flight_status: 'DISRUPTION RISK', airport_name: 'Hamad International Airport', country: 'Qatar',
-        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.5,
-        ai_summary: 'ROUTE DISRUPTIONS ACTIVE — Qatar Airways and other carriers rerouting flights to avoid Red Sea conflict corridor. Iranian airspace restrictions and Houthi threat zones have increased flight times and fuel costs.',
-        affected_routes: 'Qatar Airways, European and Asian carriers', duration_estimate: 'Ongoing',
-        disruption_date: '2024-02-01',
-        lat: 25.273, lng: 51.608, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-      { id: 'ckd-auh', iata: 'AUH', flight_status: 'DISRUPTION RISK', airport_name: 'Abu Dhabi International Airport', country: 'UAE',
-        cause_type: 'CONFLICT', severity: 'MEDIUM', disruption_score: 2.5,
-        ai_summary: 'DISRUPTION ADVISORIES ACTIVE — UAE airspace subject to same Houthi drone/missile threat protocols as DXB. Etihad Airways and other carriers operating with Gulf conflict awareness procedures.',
-        affected_routes: 'Etihad Airways, international carriers', duration_estimate: 'Ongoing risk',
-        disruption_date: '2024-01-18',
-        lat: 24.433, lng: 54.651, source_type: 'VERIFIED_ONGOING', time: new Date().toISOString() },
-    ];
+    /* ── Disruption data is authoritative from Worker — no client-side overrides ── */
 
     /* ── Config ──────────────────────────────────────────────────────────── */
     var WORKER_URL = (typeof window.OSINFO_WORKER_URL !== 'undefined')
@@ -4108,19 +4022,9 @@
       return '#137333';
     }
 
-    /* ── Merge server disruptions with guaranteed client-side known ones ──── */
+    /* ── Worker is authoritative — just sort by score ─────────────────────── */
     function mergeWithKnownDisruptions(serverDisruptions) {
-      var merged = (serverDisruptions || []).slice();
-      CLIENT_KNOWN_DISRUPTIONS.forEach(function (known) {
-        var exists = merged.some(function (d) {
-          if (known.iata && d.iata && d.iata === known.iata) return true;
-          if (!known.iata && d.airport_name &&
-              d.airport_name.toLowerCase().indexOf(known.airport_name.toLowerCase().slice(0, 12)) !== -1) return true;
-          return false;
-        });
-        if (!exists) merged.push(known);
-      });
-      return merged.sort(function (a, b) {
+      return (serverDisruptions || []).slice().sort(function (a, b) {
         return (b.disruption_score || 0) - (a.disruption_score || 0);
       });
     }
@@ -4224,20 +4128,20 @@
           renderAirportTab();
         })
         .catch(function (err) {
-          /* Fallback: show client-side known disruptions even when Worker fails */
+          /* Worker unavailable — show empty state */
           AIRPORT_DATA = {
-            disruptions: mergeWithKnownDisruptions([]),
+            disruptions: [],
             sigmets: [],
             faa_airports_checked: 0,
             faa_airports_delayed: 0,
-            known_disruptions: CLIENT_KNOWN_DISRUPTIONS.length,
+            known_disruptions: 0,
             updated_at: new Date().toISOString(),
             _offline: true,
           };
           lastFetchTs = Date.now();
           renderAirportTab();
           var aiEl = document.getElementById('airport-ai-text');
-          if (aiEl) aiEl.textContent = 'Showing ' + CLIENT_KNOWN_DISRUPTIONS.length + ' verified active disruptions from known conflict zones and operational alerts. Live AI enrichment will resume on next refresh.';
+          if (aiEl) aiEl.textContent = 'Worker unavailable — live disruption data will reload on next refresh.';
         });
     }
 
