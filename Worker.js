@@ -878,16 +878,21 @@ function classifyIncidentText(title, summary, source) {
     return { category: 'DISCARD', severity: 1, relevance: 0, discard: true };
   }
 
-  // ── NATURAL_HAZARD ────────────────────────────────────────────────────────
-  if (/\b(earthquake|tremor|seismic|cyclone|hurricane|typhoon|super\s+typhoon|tropical\s+storm|tropical\s+cyclone|tsunami|volcano|eruption|wildfire|bushfire|flood(?:ing)?|landslide|avalanche|m\s*[4-9]\.[0-9])\b/.test(text)) {
-    const isMajor = /\b(m\s*[5-9]\.|magnitude\s*[5-9]|category\s*[1-5]|cat\.?\s*[1-5]|major|devastating|catastrophic|emergency|evacuati|warning\s+issued|watch\s+issued)\b/.test(text);
-    return { category: 'NATURAL_HAZARD', severity: isMajor ? 4 : 2, relevance: isMajor ? 8 : 4, discard: false };
-  }
-
-  // ── CYBER_SECURITY ────────────────────────────────────────────────────────
-  if (/\b(breach|data\s+breach|hack(?:ed|ers?)?|ransomware|malware|zero[\-\s]?day|vulnerability|cve\-|exploit(?:ed)?|cyber\s+attack|phishing|credential\s+theft|intrusion|ddos|botnet|apt\s+\d|nation[\-\s]state\s+attack|critical\s+infrastructure\s+attack)\b/.test(text)) {
+  // ── CYBER_SECURITY (checked BEFORE natural hazard to prevent false positives) ──
+  // Known pure-cyber sources bypass natural hazard classification entirely.
+  const _isCyberSource = /krebsonsecurity|bleepingcomputer|theregister\.co|thehackernews|darkreading|threatpost|securityweek|cyberscoop|recordedfuture|mandiant|crowdstrike|sentinelone|paloaltonetworks\/blog|unit42|talos|secureworks|malwarebytes\.org\/blog/.test(src);
+  if (_isCyberSource || /\b(breach|data\s+breach|hack(?:ed|ers?)?|ransomware|malware|zero[\-\s]?day|vulnerability|cve\-|exploit(?:ed)?|cyber\s+attack|phishing|credential\s+theft|intrusion|ddos|botnet|apt\s+\d|nation[\-\s]state\s+attack|critical\s+infrastructure\s+attack)\b/.test(text)) {
     const isCritical = /\b(critical|severe|nation[\-\s]state|apt|widespread|millions?\s+affected|data\s+exposed|confirmed\s+breach)\b/.test(text);
     return { category: 'CYBER_SECURITY', severity: isCritical ? 5 : 3, relevance: 7, discard: false };
+  }
+
+  // ── NATURAL_HAZARD ────────────────────────────────────────────────────────
+  // flood/flooding requires natural disaster context — NOT "email flooding", "flooding attacks"
+  const _hasFlood = /\b(flash\s+flood|flood(?:ed|waters?|plain|warning|watch|damage|disaster|emergency|risk|event|alert|level|zone)|(?:severe|heavy|major|widespread|devastating|catastrophic)\s+flood(?:ing)?|flood(?:ing)?\s+(?:kill|dead|displace|affect|devastat|destroy|hit|strik|damage|force\s+evacuati))\b/i.test(text);
+  const _hasOtherHazard = /\b(earthquake|tremor|seismic|cyclone|hurricane|typhoon|super\s+typhoon|tropical\s+storm|tropical\s+cyclone|tsunami|volcano|eruption|wildfire|bushfire|landslide|avalanche|m\s*[4-9]\.[0-9])\b/.test(text);
+  if (_hasFlood || _hasOtherHazard) {
+    const isMajor = /\b(m\s*[5-9]\.|magnitude\s*[5-9]|category\s*[1-5]|cat\.?\s*[1-5]|major|devastating|catastrophic|emergency|evacuati|warning\s+issued|watch\s+issued)\b/.test(text);
+    return { category: 'NATURAL_HAZARD', severity: isMajor ? 4 : 2, relevance: isMajor ? 8 : 4, discard: false };
   }
 
   // ── WORKFORCE / INSIDER ───────────────────────────────────────────────────

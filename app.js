@@ -173,21 +173,21 @@ function getIncidentFilterKey(incidentCategory) {
   return null;
 }
 
-// Keywords that must appear in title/summary for an item to pass the Natural Disaster filter.
-// This prevents humanitarian/conflict/health reports wrongly tagged NATURAL_HAZARD from showing.
-const _DISASTER_KEYWORDS = /\b(earthquake|tremor|seismic|aftershock|cyclone|hurricane|typhoon|super\s*typhoon|tropical\s*storm|tropical\s*cyclone|tsunami|volcano|volcanic|eruption|lava|wildfire|bushfire|forest\s*fire|flood(?:ing)?|flash\s*flood|landslide|mudslide|avalanche|drought|heatwave|heat\s*wave|magnitude|severe\s*weather|storm\s*warning|storm\s*surge|blizzard|tornado|twister|m\s*[4-9]\.\d|category\s*[1-5]\s*(?:hurricane|cyclone|typhoon))\b/i;
+// Natural disaster keywords — checked against TITLE only.
+// Headlines always name the event (earthquake, cyclone, flood...).
+// Summary-based checks cause false positives: "email flooding attacks",
+// "flooding the market", "storm of criticism" etc.
+const _DISASTER_KEYWORDS = /\b(earthquake|tremor|seismic|aftershock|cyclone|hurricane|typhoon|super\s*typhoon|tropical\s*storm|tropical\s*cyclone|tsunami|volcano|volcanic|eruption|lava|wildfire|bushfire|forest\s*fire|flash\s*flood|flood(?:ed|ing|waters?|warning|watch|damage|disaster|emergency|risk|alert)|landslide|mudslide|avalanche|drought|heatwave|heat\s*wave|magnitude|severe\s*weather|storm\s*warning|storm\s*surge|blizzard|tornado|twister|m\s*[4-9]\.\d|category\s*[1-5]\s*(?:hurricane|cyclone|typhoon))\b/i;
 
 function filterByCategoryAllowed(incident) {
   if (ACTIVE_CATEGORIES.size === 0) return true; // "All" mode — nothing filtered
   const key = getIncidentFilterKey(incident.category);
   if (!key) return false;
   if (!ACTIVE_CATEGORIES.has(key)) return false;
-  // For DISASTER filter: also validate that title/summary contains actual natural disaster keywords.
-  // Prevents humanitarian reports, conflict situation reports, health reports etc. that are
-  // incorrectly tagged NATURAL_HAZARD from appearing under the Natural Disaster filter.
+  // DISASTER filter: title-only keyword check — disaster news always names
+  // the event in the headline; checking summaries causes false positives.
   if (key === 'DISASTER') {
-    const text = (incident.title || '') + ' ' + (incident.summary || '');
-    return _DISASTER_KEYWORDS.test(text);
+    return _DISASTER_KEYWORDS.test(incident.title || '');
   }
   return true;
 }
@@ -224,8 +224,7 @@ function _syncCatPillUI() {
       const count = INCIDENTS.filter(i => {
         if (getIncidentFilterKey(i.category) !== c) return false;
         if (c === 'DISASTER') {
-          const text = (i.title || '') + ' ' + (i.summary || '');
-          return _DISASTER_KEYWORDS.test(text);
+          return _DISASTER_KEYWORDS.test(i.title || ''); // title-only, matches filterByCategoryAllowed
         }
         return true;
       }).length;
