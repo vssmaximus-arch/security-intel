@@ -6454,25 +6454,22 @@
         .sort(function(a,b){ return b.disruption_score - a.disruption_score; })
         .filter(function(a){ return (a.disruption_score || 0) >= 2.0; });
 
-      // ── Section 2: Conflict closures (VERIFIED_ONGOING from Airport Disruptions tab) ─
-      var closedRows = [];
-      if (typeof AIRPORT_DATA !== 'undefined' && AIRPORT_DATA && Array.isArray(AIRPORT_DATA.disruptions)) {
-        AIRPORT_DATA.disruptions
-          .filter(function(d){ return d.source_type === 'VERIFIED_ONGOING' && d.iata; })
-          .sort(function(a,b){ return (b.disruption_score||0)-(a.disruption_score||0); })
-          .forEach(function(d) {
-            closedRows.push({
-              iata: d.iata,
-              airport_name: d.airport_name || d.iata,
-              country: d.country || '',
-              disruption_score: d.disruption_score || 5.0,
-              data_source: 'disruption',
-              _closed: true,
-              _flight_status: d.flight_status || 'DISRUPTION RISK',
-              _ai_summary: d.ai_summary || '',
-            });
-          });
-      }
+      // ── Section 2: Conflict closures — always from CLIENT_KNOWN_DISRUPTIONS ─
+      var closedRows = CLIENT_KNOWN_DISRUPTIONS
+        .filter(function(d){ return d.iata; })
+        .sort(function(a,b){ return (b.disruption_score||0)-(a.disruption_score||0); })
+        .map(function(d) {
+          return {
+            iata: d.iata,
+            airport_name: d.airport_name || d.iata,
+            country: d.country || '',
+            disruption_score: d.disruption_score || 5.0,
+            data_source: 'disruption',
+            _closed: true,
+            _flight_status: d.flight_status || 'DISRUPTION RISK',
+            _ai_summary: d.ai_summary || '',
+          };
+        });
 
       // Update map — only live disruptions get plane markers (closed airports
       // already have triangle markers from the disruptions layer)
