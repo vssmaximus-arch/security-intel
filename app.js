@@ -1500,26 +1500,28 @@ function mapSeverityToLabel(s) {
 }
 
 // Returns true if an article title mentions keywords relevant to the given region.
-// Used in renderGeneralFeed so articles like "Trump warns Iran" appear in BOTH
-// AMER and EMEA, rather than being locked to whichever region matched first at ingest.
+// Regional views show only items where this returns true (or the item is explicitly
+// tagged for that region). Global-tagged items do NOT appear in regional tabs —
+// they only appear in the Global view — to prevent Australian/US articles bleeding
+// into EMEA purely because no geography was identified at ingest time.
 function _incidentMentionsRegion(title, region) {
   const tl = (title || '').toLowerCase();
-  if (region === 'EMEA')  return /\b(iran|iraq|israel|saudi|arab|uae|dubai|qatar|kuwait|bahrain|oman|yem|jordan|leban|syria|turk|egypt|libya|tunis|alger|morocc|niger|kenya|ethiop|ghana|europ|brit|franc|german|italy|spain|russia|ukrain|poland|middle east|north africa|persian gulf|red sea|strait of hormuz|bab el mandeb|suez)/.test(tl);
-  if (region === 'APJC')  return /\b(chin|japan|india|indian|australia|singapor|korea|taiwan|hong kong|pakistan|bangla|southeast asia|asia.pacific|indo.pacific|south china sea|taiwan strait|malacca|beijing|tokyo|delhi|mumbai|seoul|sydney|jakarta|manila|bangkok|hanoi|kuala lumpur|yangon)/.test(tl);
-  if (region === 'LATAM') return /\b(brazil|argentin|colombia|chile|venezuel|peru|latin america|caribbean|central america|panama canal|south america|bogota|lima|santiago|caracas|havana)/.test(tl);
-  if (region === 'AMER')  return /\b(trump|united states|american?\b|u\.s\b|us\s+(?:military|troops|congress|senate|president|navy|army|dollar)|canada|canadian|mexico|mexican|washington|pentagon|white house|wall street|silicon valley|new york|los angeles|chicago|texas|california)/.test(tl);
+  if (region === 'EMEA')  return /\b(iran|iraq|israel|saudi|arab|uae|dubai|qatar|kuwait|bahrain|oman|yem|jordan|leban|syria|turk|egypt|libya|tunis|alger|morocc|niger|kenya|ethiop|ghana|europ|brit|franc|german|italy|italian|spain|spanish|russia|ukrain|poland|balkan|middle east|north africa|persian gulf|red sea|strait of hormuz|bab el mandeb|suez|hormuz|tehran|baghdad|tel aviv|cairo|riyadh|ankara|beirut|moscow|kyiv)/.test(tl);
+  if (region === 'APJC')  return /\b(chin|japan|india|indian|australia|australi|singapor|korea|taiwan|hong kong|pakistan|bangla|southeast asia|asia.pacific|indo.pacific|south china sea|taiwan strait|malacca|asean|beijing|tokyo|delhi|mumbai|seoul|sydney|melbourne|brisbane|canberra|perth|auckland|wellington|new zealand|jakarta|manila|bangkok|hanoi|kuala lumpur|yangon|colombo|kathmandu)/.test(tl);
+  if (region === 'LATAM') return /\b(brazil|argentin|colombia|chile|venezuel|peru|latin america|caribbean|central america|panama canal|south america|bogota|lima|santiago|caracas|havana|sao paulo|buenos aires)/.test(tl);
+  if (region === 'AMER')  return /\b(trump|united states|american?\b|u\.s\b|us\s+(?:military|troops|congress|senate|president|navy|army|dollar|sanction)|canada|canadian|mexico|mexican|washington|pentagon|white house|wall street|silicon valley|new york|los angeles|chicago|texas|california|ottawa|toronto|federal reserve|nato\b)/.test(tl);
   return false;
 }
 
 function renderGeneralFeed(region) {
   const container = document.getElementById("general-news-feed");
   if (!container) return;
-  // Regional filter: show items tagged for this region + Global items + any item
-  // whose title mentions this region's keywords (catches articles tagged to another
-  // region at ingest time that are still relevant here, e.g. "Trump warns Iran" → AMER+EMEA).
+  // Regional filter: show items explicitly tagged for this region OR whose title
+  // contains that region's geographic keywords. Global-tagged items only appear
+  // in the Global tab to prevent geographic bleed (e.g. Australian articles
+  // showing under EMEA because no region was identified at ingest).
   let rawData = (region === "Global") ? INCIDENTS : INCIDENTS.filter(i =>
-    i.region === region || i.region === 'GLOBAL' || i.region === 'Global' ||
-    _incidentMentionsRegion(i.title, region)
+    i.region === region || _incidentMentionsRegion(i.title, region)
   );
   // APJC sub-region drill-down
   if (region === 'APJC' && activeApjcSub) {
