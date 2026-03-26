@@ -6229,14 +6229,101 @@
            + String.fromCodePoint(base + cc.charCodeAt(1) - 65);
     }
 
-    function _renderAirportRanking(data) {
-      var airports = (data.airports || []).slice().sort(function(a,b){ return b.disruption_score - a.disruption_score; });
-      var totalCanc  = data.total_cancelled || 0;
-      var totalDelay = data.total_delayed   || 0;
+    // Lat/lng lookup for all monitored airports (for map markers in cancellations widget)
+    var CANC_AIRPORT_COORDS = {
+      ATL:{ lat:33.6407,  lng:-84.4277 }, JFK:{ lat:40.6413,  lng:-73.7781 },
+      LHR:{ lat:51.4775,  lng:-0.4614  }, CDG:{ lat:49.0097,  lng:2.5479   },
+      FRA:{ lat:50.0333,  lng:8.5706   }, DXB:{ lat:25.2532,  lng:55.3657  },
+      SIN:{ lat:1.3644,   lng:103.9915 }, SYD:{ lat:-33.9399, lng:151.1753 },
+      LAX:{ lat:33.9425,  lng:-118.408 }, ORD:{ lat:41.9742,  lng:-87.9073 },
+      MIA:{ lat:25.7959,  lng:-80.2870 }, BOS:{ lat:42.3656,  lng:-71.0096 },
+      AMS:{ lat:52.3105,  lng:4.7683   }, IST:{ lat:41.2608,  lng:28.7418  },
+      MUC:{ lat:48.3538,  lng:11.7861  }, MAD:{ lat:40.4983,  lng:-3.5676  },
+      FCO:{ lat:41.8045,  lng:12.2508  }, NRT:{ lat:35.7647,  lng:140.3864 },
+      HKG:{ lat:22.3080,  lng:113.9185 }, PEK:{ lat:40.0801,  lng:116.5846 },
+      BKK:{ lat:13.6811,  lng:100.7477 }, MEX:{ lat:19.4363,  lng:-99.0721 },
+      JNB:{ lat:-26.1367, lng:28.2463  },
+    };
 
+    // Add map markers on the airportMarkerLayer for affected airports from the
+    // cancellations widget (score >= 2.0). Uses plane icon in amber/red to
+    // distinguish from the conflict-zone triangle markers.
+    function _updateCancellationsMapMarkers(affectedAirports) {
+      if (!airportMarkerLayer || typeof L === 'undefined') return;
+      // Remove old canc markers first (tagged with _cancMarker flag)
+      var toRemove = [];
+      airportMarkerLayer.eachLayer(function(l) { if (l._cancMarker) toRemove.push(l); });
+      toRemove.forEach(function(l) { airportMarkerLayer.removeLayer(l); });
+
+      affectedAirports.forEach(function(a) {
+        var coords = CANC_AIRPORT_COORDS[a.iata];
+        if (!coords) return;
+        var score = a.disruption_score || 0;
+        var color = _cancScoreColor(score);
+        var label = a._closed ? 'CLOSED' : _cancScoreLabel(score);
+        var cancInfo = a._closed
+          ? '<br><span style="color:#ef5350;font-weight:700;">⛔ Airport closed / restricted</span>'
+          : '<br>Cancelled: <b style="color:#ef5350;">' + (a.cancelled != null ? a.cancelled : '—') + '</b>'
+            + ' &nbsp; Delayed: <b style="color:#fbbc04;">' + (a.delayed != null ? a.delayed : '—') + '</b>';
+        var icon = L.divIcon({
+          className: '',
+          html: '<div style="background:' + color + ';width:22px;height:22px;border-radius:50%;'
+            + 'display:flex;align-items:center;justify-content:center;'
+            + 'box-shadow:0 0 8px ' + color + '88;border:2px solid #fff;">'
+            + '<i class="fas fa-plane" style="font-size:9px;color:#fff;"></i></div>',
+          iconSize: [22,22], iconAnchor: [11,11],
+        });
+        var popup = '<b>' + escHtml(a.airport_name || a.iata) + ' (' + escHtml(a.iata) + ')</b>'
+          + '<br><b style="color:' + color + ';">' + label + ' — Score: ' + score.toFixed(1) + '/5.0</b>'
+          + cancInfo;
+        var marker = L.marker([coords.lat, coords.lng], { icon: icon }).bindPopup(popup);
+        marker._cancMarker = true;
+        marker.addTo(airportMarkerLayer);
+      });
+    }
+
+    function _renderAirportRanking(data) {
       var allAirports  = data.airports || [];
+      var totalCanc    = data.total_cancelled || 0;
+      var totalDelay   = data.total_delayed   || 0;
       var osCount      = allAirports.filter(function(a){ return a.data_source === 'opensky'; }).length;
       var alCount      = allAirports.filter(function(a){ return a.data_source !== 'opensky'; }).length;
+
+      // Merge in conflict/closure airports from the Airport Disruptions tab (VERIFIED_ONGOING)
+      var closedRows = [];
+      if (typeof AIRPORT_DATA !== 'undefined' && AIRPORT_DATA && Array.isArray(AIRPORT_DATA.disruptions)) {
+        AIRPORT_DATA.disruptions
+          .filter(function(d){ return d.source_type === 'VERIFIED_ONGOING' && d.iata; })
+          .forEach(function(d) {
+            // Don't add if already in Airlabs/OpenSky list
+            var alreadyListed = allAirports.some(function(a){ return a.iata === d.iata; });
+            if (!alreadyListed) {
+              closedRows.push({
+                iata: d.iata,
+                airport_name: d.airport_name || d.iata,
+                country: d.country || '',
+                disruption_score: d.disruption_score || 5.0,
+                cancelled: null, delayed: null,
+                cancel_pct: null, delay_pct: null,
+                data_source: 'disruption',
+                _closed: true,
+                _ai_summary: d.ai_summary || '',
+              });
+            }
+          });
+      }
+
+      // Only show RED (≥3.5) and AMBER (≥2.0) airports — hide "Good" ones
+      var airports = allAirports
+        .slice()
+        .sort(function(a,b){ return b.disruption_score - a.disruption_score; })
+        .filter(function(a){ return (a.disruption_score || 0) >= 2.0; });
+
+      // Add closed/conflict airports at the top (always shown regardless of score threshold)
+      airports = closedRows.concat(airports);
+
+      // Update map markers with affected airports
+      _updateCancellationsMapMarkers(airports);
 
       var stats = '<div class="canc-summary-bar">'
         + '<div class="canc-summary-box" style="border-right:1px solid #2a2d35;">'
@@ -6262,20 +6349,33 @@
         +   '<span class="apr-status">Status</span>'
         + '</div>';
 
+      if (airports.length === 0) {
+        return stats
+          + '<div style="padding:20px;text-align:center;color:#34a853;font-size:0.85rem;">'
+          + '<i class="fas fa-check-circle"></i> No airports with active disruptions detected.'
+          + '</div>';
+      }
+
       var rows = airports.map(function(a, i) {
         var score  = a.disruption_score || 0;
-        var clr    = _cancScoreColor(score);
-        var lbl    = _cancScoreLabel(score);
+        var clr    = a._closed ? '#ef5350' : _cancScoreColor(score);
+        var lbl    = a._closed ? 'Closed' : _cancScoreLabel(score);
         var flag   = _cancFlag(a.country || '');
         var isOS   = a.data_source === 'opensky';
+        var isClosed = a._closed;
         var faLink = 'https://www.flightaware.com/live/airport/' + (a.iata||'');
-        var cancStr = isOS
-          ? '<span style="color:#5f6368;font-size:0.75rem;" title="Activity-based estimate — cancellation data not available from OpenSky">⚡ activity</span>'
-          : a.cancelled + ' <span class="apr-pct">(' + (a.cancel_pct||0) + '%)</span>';
-        var delayStr = isOS
+        var cancStr = isClosed
+          ? '<span style="color:#ef5350;font-weight:700;font-size:0.75rem;">⛔ Closed</span>'
+          : isOS
+            ? '<span style="color:#5f6368;font-size:0.75rem;" title="Activity-based estimate">⚡ activity</span>'
+            : a.cancelled + ' <span class="apr-pct">(' + (a.cancel_pct||0) + '%)</span>';
+        var delayStr = isClosed
           ? '<span style="color:#5f6368;font-size:0.75rem;">—</span>'
-          : a.delayed + ' <span class="apr-pct">(' + (a.delay_pct||0) + '%)</span>';
-        return '<a href="' + escHtml(faLink) + '" target="_blank" rel="noopener" class="ap-rank-row">'
+          : isOS
+            ? '<span style="color:#5f6368;font-size:0.75rem;">—</span>'
+            : a.delayed + ' <span class="apr-pct">(' + (a.delay_pct||0) + '%)</span>';
+        var titleAttr = isClosed && a._ai_summary ? ' title="' + escHtml(a._ai_summary.slice(0,200)) + '"' : '';
+        return '<a href="' + escHtml(faLink) + '" target="_blank" rel="noopener" class="ap-rank-row"' + titleAttr + '>'
           + '<span class="apr-rank">' + (i+1) + '</span>'
           + '<span class="apr-score" style="color:' + clr + ';font-weight:900;">' + score.toFixed(1) + '</span>'
           + '<span class="apr-iata" style="color:' + clr + ';">' + escHtml(a.iata||'—') + '</span>'
@@ -6289,7 +6389,7 @@
 
       var src = '<div class="canc-source-bar" style="margin-top:6px;">'
         + '<i class="fas fa-database" style="font-size:0.7rem;"></i>'
-        + ' Airlabs (cancel/delay data) · OpenSky Network (activity-based) · 23 airports total'
+        + ' Airlabs (cancel/delay data) · OpenSky Network (activity-based) · showing affected airports only'
         + '<span class="canc-src-note">Click any row → FlightAware live airport</span>'
         + '</div>';
 
