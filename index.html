@@ -7419,24 +7419,15 @@
       }
     }
 
-    window.gfpSort   = gfpSort;
-    window.gfpRender = gfpRender;
+    window.gfpSort        = gfpSort;
+    window.gfpRender      = gfpRender;
+    window.loadGfpPrices  = loadGfpPrices;
 
     /* Wire refresh button */
     document.addEventListener('DOMContentLoaded', function() {
       var rbtn = document.getElementById('gfp-refresh-btn');
       if (rbtn) rbtn.addEventListener('click', function(){ loadGfpPrices(true); });
     });
-
-    /* Auto-load when Crisis Watch tab activates */
-    (function() {
-      var _gfpLoaded = false;
-      var orig = window.initCwGrid;
-      window.initCwGrid = function() {
-        if (orig) orig();
-        if (!_gfpLoaded) { _gfpLoaded = true; loadGfpPrices(); }
-      };
-    })();
 
     /* ── GridStack init ───────────────────────────────────────────────────── */
     function saveCwLayout() {
@@ -7502,6 +7493,9 @@
       });
       cwGrid.on('dragstop', invalidateCwMap);
       invalidateCwMap();
+
+      /* Load fuel prices once on first Crisis Watch open */
+      loadGfpPrices();
     };
 
     /* ── Main init (called once on first tab activation) ─────────────────── */
