@@ -2661,7 +2661,7 @@
 
     <!-- ✈ View Switcher — Intelligence / Airport Disruptions / Port Disruptions / Live News -->
     <div class="view-switcher" role="tablist" aria-label="Dashboard view">
-      <button class="view-tab active" data-view="intelligence" role="tab" aria-selected="true" tabindex="0">
+      <button class="view-tab" data-view="intelligence" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-shield-alt" aria-hidden="true"></i> Intelligence
       </button>
       <button class="view-tab" data-view="airport" role="tab" aria-selected="false" tabindex="0">
@@ -2676,7 +2676,7 @@
       <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
       </button>
-      <button class="view-tab" data-view="crisis-watch" role="tab" aria-selected="false" tabindex="0">
+      <button class="view-tab active" data-view="crisis-watch" role="tab" aria-selected="true" tabindex="0">
         <i class="fas fa-circle cw-tab-dot" aria-hidden="true"></i> Crisis Watch
       </button>
     </div>
@@ -4796,6 +4796,9 @@
       }
 
       renderPicker();
+
+      /* Default landing view — Crisis Watch */
+      switchView('crisis-watch');
     }
 
     /* Run after DOM + GridStack are ready ----------------------------- */
