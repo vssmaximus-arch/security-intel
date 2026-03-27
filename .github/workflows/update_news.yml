@@ -47,9 +47,6 @@ jobs:
       - name: Run news ingest (RSS -> public/data/news.json)
         run: python scripts/news_agent.py
 
-      - name: Scrape global fuel prices (-> public/data/fuel_prices.json)
-        run: python scripts/update_fuel_prices.py || echo "Fuel price scrape failed (non-fatal)"
-
       - name: Generate proximity alerts + daily reports
         run: python scripts/generate_reports.py
 
@@ -68,7 +65,6 @@ jobs:
         run: |
           # add both the generated public outputs and the mirrored site-root files
           git add public/data/news.json || true
-          git add public/data/fuel_prices.json || true
           git add public/data/proximity.json || true
           git add public/reports/ || true
           git add data/news.json || true
