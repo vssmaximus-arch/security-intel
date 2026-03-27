@@ -8954,7 +8954,7 @@ async function fetchAndCacheFuelPrices(env) {
     // Read from GitHub Pages static file (updated daily by GitHub Action scraper).
     // Direct scraping of globalpetrolprices.com fails from Cloudflare datacenter IPs.
     const res = await fetch(
-      'https://vssmaximus-arch.github.io/security-intel/data/fuel_prices.json',
+      'https://vssmaximus-arch.github.io/security-intel/public/data/fuel_prices.json',
       { headers: { 'Cache-Control': 'no-cache' } }
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);

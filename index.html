@@ -7383,7 +7383,7 @@
 
         // Fallback: read the static file committed to GitHub Pages
         if (!d) {
-          var fb = await fetch('data/fuel_prices.json?_=' + Date.now());
+          var fb = await fetch('public/data/fuel_prices.json?_=' + Date.now());
           if (!fb.ok) throw new Error('Static fallback HTTP ' + fb.status);
           var fj = await fb.json();
           if (!fj.ok || !fj.prices) throw new Error('invalid fallback data');
