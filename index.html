@@ -2407,6 +2407,41 @@
   .cw-oil-disclaimer { font-size:.57rem; color:#6c757d; padding:4px 8px; border-top:1px solid #1e2029; flex-shrink:0; }
   body.light-mode .cw-oil-disclaimer { border-color:#dadce0; }
 
+  /* ── Global Fuel Prices widget ─────────────────────────────── */
+  .gfp-stats-bar { display:flex; gap:16px; padding:6px 10px; background:#111317; border-bottom:1px solid #2a2d35; flex-wrap:wrap; }
+  body.light-mode .gfp-stats-bar { background:#f8f9fa; border-color:#dadce0; }
+  .gfp-stat { font-size:.72rem; color:#9aa0a6; }
+  .gfp-stat strong { color:#e8eaed; }
+  body.light-mode .gfp-stat strong { color:#202124; }
+  .gfp-body { display:grid; grid-template-columns:1fr 340px; gap:10px; padding:8px 10px; min-height:0; flex:1; overflow:hidden; }
+  .gfp-table-wrap { display:flex; flex-direction:column; min-height:0; }
+  .gfp-controls { display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap; align-items:center; }
+  .gfp-search { flex:1; min-width:120px; background:#1e2029; border:1px solid #2a2d35; border-radius:4px; color:#e8eaed; font-size:.73rem; padding:4px 8px; outline:none; }
+  .gfp-search::placeholder { color:#5f6368; }
+  body.light-mode .gfp-search { background:#fff; border-color:#dadce0; color:#202124; }
+  .gfp-sort-btn { font-size:.65rem; padding:3px 8px; border:1px solid #2a2d35; background:#1e2029; color:#9aa0a6; border-radius:4px; cursor:pointer; transition:background .15s; }
+  .gfp-sort-btn:hover,.gfp-sort-btn.active { background:#0076ce; border-color:#0076ce; color:#fff; }
+  body.light-mode .gfp-sort-btn { background:#fff; border-color:#dadce0; color:#5f6368; }
+  #gfp-list { overflow-y:auto; flex:1; }
+  #gfp-list::-webkit-scrollbar { width:4px; }
+  #gfp-list::-webkit-scrollbar-track { background:#111317; }
+  #gfp-list::-webkit-scrollbar-thumb { background:#2a2d35; border-radius:2px; }
+  .gfp-row { display:flex; align-items:center; gap:6px; padding:3px 4px; border-radius:3px; font-size:.71rem; }
+  .gfp-row:hover { background:rgba(255,255,255,0.04); }
+  body.light-mode .gfp-row:hover { background:rgba(0,0,0,0.04); }
+  .gfp-flag { font-size:.9rem; width:22px; flex-shrink:0; text-align:center; }
+  .gfp-country { flex:1; color:#c9cdd1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  body.light-mode .gfp-country { color:#202124; }
+  .gfp-bar-wrap { width:100px; height:6px; background:#1e2029; border-radius:3px; flex-shrink:0; }
+  body.light-mode .gfp-bar-wrap { background:#e8eaed; }
+  .gfp-bar { height:100%; border-radius:3px; }
+  .gfp-price { width:44px; text-align:right; font-family:monospace; font-size:.69rem; flex-shrink:0; }
+  .gfp-chart-panel { display:flex; flex-direction:column; }
+  .gfp-chart-title { font-size:.7rem; font-weight:600; color:#9aa0a6; margin-bottom:4px; }
+  body.light-mode .gfp-chart-title { color:#5f6368; }
+  #gfp-chart { width:100%; border-radius:4px; overflow:visible; }
+  .gfp-attr { font-size:.58rem; color:#5f6368; padding:2px 10px 4px; }
+
   .cw-webcams-toolbar {
     display:flex; align-items:center; gap:6px; padding:6px 8px;
     border-bottom:1px solid #2a2d35; flex-wrap:wrap;
@@ -3768,6 +3803,52 @@
             </div>
           </div>
           <div class="cw-disclaimer">📷 Live airport &amp; seaport cameras · YouTube live streams + SkylineWebcams · Auto-plays on page load</div>
+        </div>
+      </div>
+
+      <!-- ── GLOBAL FUEL PRICES (full width) ──────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-gfp-widget" gs-x="0" gs-y="26" gs-w="12" gs-h="14" gs-min-h="8">
+        <div class="grid-stack-item-content vw-gs-content" style="display:flex;flex-direction:column;overflow:hidden;">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-gas-pump" style="margin-right:6px;color:#f9ab00;"></i>Global Fuel Prices · Gasoline (USD/L)</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+              <span id="gfp-date" style="font-size:.65rem;color:#9aa0a6;"></span>
+              <a href="https://www.globalpetrolprices.com/gasoline_prices/" target="_blank" rel="noopener" style="font-size:.58rem;color:#4fc3f7;text-decoration:none;background:#0d2133;border:1px solid #1a3a52;border-radius:3px;padding:1px 6px;">globalpetrolprices.com ↗</a>
+              <button class="cw-gs-icon-btn" id="gfp-refresh-btn" title="Refresh prices"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <!-- Stats bar -->
+          <div class="gfp-stats-bar" id="gfp-stats-bar">
+            <div class="gfp-stat">🌍 Global avg: <strong id="gfp-avg">—</strong></div>
+            <div class="gfp-stat">🟢 Cheapest: <strong id="gfp-min">—</strong></div>
+            <div class="gfp-stat">🔴 Most expensive: <strong id="gfp-max">—</strong></div>
+            <div class="gfp-stat">📊 <strong id="gfp-count">—</strong> countries tracked</div>
+            <div class="gfp-stat" id="gfp-stale-note" style="display:none;color:#f9ab00;">⚠ Cached data</div>
+          </div>
+          <!-- Body: table left, chart right -->
+          <div class="gfp-body">
+            <!-- Left: country price table -->
+            <div class="gfp-table-wrap">
+              <div class="gfp-controls">
+                <input class="gfp-search" id="gfp-search" type="text" placeholder="🔍 Search country…" oninput="gfpRender()">
+                <button class="gfp-sort-btn active" id="gfp-btn-asc"  onclick="gfpSort('asc')">Price ↑</button>
+                <button class="gfp-sort-btn"         id="gfp-btn-desc" onclick="gfpSort('desc')">Price ↓</button>
+                <button class="gfp-sort-btn"         id="gfp-btn-az"   onclick="gfpSort('az')">A–Z</button>
+              </div>
+              <div id="gfp-list"></div>
+            </div>
+            <!-- Right: historical trend chart -->
+            <div class="gfp-chart-panel">
+              <div class="gfp-chart-title">📈 Average Global Price Trend (USD/L)</div>
+              <svg id="gfp-chart" viewBox="0 0 320 180" style="width:100%;height:180px;background:#111317;border-radius:4px;border:1px solid #2a2d35;"></svg>
+              <div id="gfp-chart-note" style="font-size:.62rem;color:#9aa0a6;margin-top:4px;"></div>
+              <div style="margin-top:8px;font-size:.68rem;color:#9aa0a6;font-weight:600;">Top 5 Most Expensive</div>
+              <div id="gfp-top5" style="margin-top:4px;"></div>
+              <div style="margin-top:8px;font-size:.68rem;color:#9aa0a6;font-weight:600;">5 Cheapest</div>
+              <div id="gfp-bot5" style="margin-top:4px;"></div>
+            </div>
+          </div>
+          <div class="gfp-attr">Data: globalpetrolprices.com · CC BY 4.0 · Gasoline Octane-95 · Updated weekly per country</div>
         </div>
       </div>
 
@@ -7023,7 +7104,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v7';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v8';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7054,6 +7135,7 @@
       'cw-debt-widget'     : false,   // available in Customize
       'cw-webcams-widget'  : true,
       'cw-apjc-widget'     : true,    // APJC Fuel Crisis Monitor
+      'cw-gfp-widget'      : true,    // Global Fuel Prices
       'cw-osint-widget'    : false,   // available in Customize
     };
 
@@ -7065,6 +7147,7 @@
       { id:'cw-fuel-widget',      x:0,  y:9,  w:6,  h:8  },
       { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },
       { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
+      { id:'cw-gfp-widget',      x:0,  y:26, w:12, h:14 },  // Global Fuel Prices
       // Below: optional widgets (hidden by default; appear at bottom when user enables them)
       { id:'cw-sirens-widget',    x:0,  y:36, w:6,  h:8  },
       { id:'cw-radiation-widget', x:6,  y:36, w:6,  h:8  },
@@ -7080,6 +7163,7 @@
       { id:'cw-oil-widget',       label:'Oil Reserves & Emergency Stocks', icon:'fa-oil-can',  desc:'Proven oil reserves + strategic petroleum reserves · Dell countries · Multi-source verified' },
       { id:'cw-webcams-widget',   label:'Live Airport & Port Cams',  icon:'fa-video',          desc:'Airport & seaport live cameras with autoplay' },
       { id:'cw-apjc-widget',      label:'APJC Fuel Crisis Monitor',  icon:'fa-fire',           desc:'Day-by-day APJC country situation reports · sourced from field teams' },
+      { id:'cw-gfp-widget',       label:'Global Fuel Prices',         icon:'fa-gas-pump',        desc:'Live gasoline prices for 170 countries · USD/L · Daily scrape + 60-day trend chart' },
       { id:'cw-sirens-widget',    label:'Israel Alert System',       icon:'fa-bell',           desc:'OREF live sirens — real-time (optional)' },
       { id:'cw-radiation-widget', label:'Radiation Watch',           icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors (optional)' },
       { id:'cw-debt-widget',      label:'National Debt Clock',       icon:'fa-coins',          desc:'IMF debt data with live tickers (optional)' },
@@ -7113,6 +7197,230 @@
       var el = document.getElementById('cw-updated-ts');
       if (el) el.textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       GLOBAL FUEL PRICES WIDGET — gfp*
+       Fetches /api/fuel/prices → 170-country table + 60-day SVG trend chart
+       ══════════════════════════════════════════════════════════════════════ */
+    var _gfpData    = null;   // {prices:{country:price}, date, history:[]}
+    var _gfpSort    = 'asc';  // 'asc' | 'desc' | 'az'
+
+    /* Country name → flag emoji */
+    var _GFP_FLAGS = {
+      'Afghanistan':'🇦🇫','Albania':'🇦🇱','Algeria':'🇩🇿','Andorra':'🇦🇩','Angola':'🇦🇴',
+      'Argentina':'🇦🇷','Armenia':'🇦🇲','Aruba':'🇦🇼','Australia':'🇦🇺','Austria':'🇦🇹',
+      'Azerbaijan':'🇦🇿','Bahamas':'🇧🇸','Bahrain':'🇧🇭','Bangladesh':'🇧🇩','Barbados':'🇧🇧',
+      'Belarus':'🇧🇾','Belgium':'🇧🇪','Belize':'🇧🇿','Benin':'🇧🇯','Bhutan':'🇧🇹',
+      'Bolivia':'🇧🇴','Bosnia & Herz.':'🇧🇦','Botswana':'🇧🇼','Brazil':'🇧🇷','Bulgaria':'🇧🇬',
+      'Burkina Faso':'🇧🇫','Burma':'🇲🇲','Burundi':'🇧🇮','C. Afr. Rep.':'🇨🇫','Cambodia':'🇰🇭',
+      'Cameroon':'🇨🇲','Canada':'🇨🇦','Cape Verde':'🇨🇻','Cayman Islands':'🇰🇾','Chile':'🇨🇱',
+      'China':'🇨🇳','Colombia':'🇨🇴','Costa Rica':'🇨🇷','Croatia':'🇭🇷','Cuba':'🇨🇺',
+      'Curacao':'🇨🇼','Cyprus':'🇨🇾','Czech Republic':'🇨🇿','DR Congo':'🇨🇩','Denmark':'🇩🇰',
+      'Dom. Rep.':'🇩🇴','Dominica':'🇩🇲','Ecuador':'🇪🇨','Egypt':'🇪🇬','El Salvador':'🇸🇻',
+      'Estonia':'🇪🇪','Ethiopia':'🇪🇹','Fiji':'🇫🇯','Finland':'🇫🇮','France':'🇫🇷',
+      'Gabon':'🇬🇦','Georgia':'🇬🇪','Germany':'🇩🇪','Ghana':'🇬🇭','Greece':'🇬🇷',
+      'Grenada':'🇬🇩','Guatemala':'🇬🇹','Guinea':'🇬🇳','Guyana':'🇬🇾','Haiti':'🇭🇹',
+      'Honduras':'🇭🇳','Hong Kong':'🇭🇰','Hungary':'🇭🇺','Iceland':'🇮🇸','India':'🇮🇳',
+      'Indonesia':'🇮🇩','Iran':'🇮🇷','Iraq':'🇮🇶','Ireland':'🇮🇪','Israel':'🇮🇱',
+      'Italy':'🇮🇹','Ivory Coast':'🇨🇮','Jamaica':'🇯🇲','Japan':'🇯🇵','Jordan':'🇯🇴',
+      'Kazakhstan':'🇰🇿','Kenya':'🇰🇪','Kuwait':'🇰🇼','Kyrgyzstan':'🇰🇬','Laos':'🇱🇦',
+      'Latvia':'🇱🇻','Lebanon':'🇱🇧','Lesotho':'🇱🇸','Liberia':'🇱🇷','Libya':'🇱🇾',
+      'Liechtenstein':'🇱🇮','Lithuania':'🇱🇹','Luxembourg':'🇱🇺','Madagascar':'🇲🇬',
+      'Malawi':'🇲🇼','Malaysia':'🇲🇾','Maldives':'🇲🇻','Mali':'🇲🇱','Malta':'🇲🇹',
+      'Mauritius':'🇲🇺','Mayotte':'🇾🇹','Mexico':'🇲🇽','Moldova':'🇲🇩','Monaco':'🇲🇨',
+      'Mongolia':'🇲🇳','Montenegro':'🇲🇪','Morocco':'🇲🇦','Mozambique':'🇲🇿',
+      'N. Maced.':'🇲🇰','Namibia':'🇳🇦','Nepal':'🇳🇵','Netherlands':'🇳🇱',
+      'New Zealand':'🇳🇿','Nicaragua':'🇳🇮','Niger':'🇳🇪','Nigeria':'🇳🇬','Norway':'🇳🇴',
+      'Oman':'🇴🇲','Pakistan':'🇵🇰','Panama':'🇵🇦','Paraguay':'🇵🇾','Peru':'🇵🇪',
+      'Philippines':'🇵🇭','Poland':'🇵🇱','Portugal':'🇵🇹','Puerto Rico':'🇵🇷','Qatar':'🇶🇦',
+      'Romania':'🇷🇴','Russia':'🇷🇺','Rwanda':'🇷🇼','Saint Lucia':'🇱🇨','San Marino':'🇸🇲',
+      'Saudi Arabia':'🇸🇦','Senegal':'🇸🇳','Serbia':'🇷🇸','Seychelles':'🇸🇨',
+      'Sierra Leone':'🇸🇱','Singapore':'🇸🇬','Slovakia':'🇸🇰','Slovenia':'🇸🇮',
+      'South Africa':'🇿🇦','South Korea':'🇰🇷','Spain':'🇪🇸','Sri Lanka':'🇱🇰',
+      'Sudan':'🇸🇩','Suriname':'🇸🇷','Swaziland':'🇸🇿','Sweden':'🇸🇪','Switzerland':'🇨🇭',
+      'Syria':'🇸🇾','Taiwan':'🇹🇼','Tanzania':'🇹🇿','Thailand':'🇹🇭','Togo':'🇹🇬',
+      'Trinidad & Tobago':'🇹🇹','Tunisia':'🇹🇳','Turkey':'🇹🇷','Turkmenistan':'🇹🇲',
+      'UAE':'🇦🇪','UK':'🇬🇧','USA':'🇺🇸','Uganda':'🇺🇬','Ukraine':'🇺🇦',
+      'Uruguay':'🇺🇾','Uzbekistan':'🇺🇿','Venezuela':'🇻🇪','Vietnam':'🇻🇳',
+      'Wallis and Futuna':'🇼🇫','Zambia':'🇿🇲','Zimbabwe':'🇿🇼'
+    };
+
+    function _gfpColor(p) {
+      if (p < 0.80) return '#34a853';
+      if (p < 1.20) return '#81c784';
+      if (p < 1.60) return '#f9ab00';
+      if (p < 2.00) return '#ff7043';
+      return '#e53935';
+    }
+
+    function gfpSort(mode) {
+      _gfpSort = mode;
+      ['asc','desc','az'].forEach(function(m){
+        var b = document.getElementById('gfp-btn-' + m);
+        if (b) b.classList.toggle('active', m === mode);
+      });
+      gfpRender();
+    }
+
+    function gfpRender() {
+      var list = document.getElementById('gfp-list');
+      if (!list || !_gfpData) return;
+      var q = (document.getElementById('gfp-search') || {}).value || '';
+      q = q.toLowerCase().trim();
+
+      var entries = Object.keys(_gfpData.prices).map(function(c){ return {c:c, p:_gfpData.prices[c]}; });
+      if (q) entries = entries.filter(function(e){ return e.c.toLowerCase().includes(q); });
+
+      if (_gfpSort === 'asc')  entries.sort(function(a,b){ return a.p - b.p; });
+      if (_gfpSort === 'desc') entries.sort(function(a,b){ return b.p - a.p; });
+      if (_gfpSort === 'az')   entries.sort(function(a,b){ return a.c.localeCompare(b.c); });
+
+      var maxP = Math.max.apply(null, entries.map(function(e){ return e.p; }));
+      list.innerHTML = entries.map(function(e) {
+        var pct = maxP > 0 ? Math.round((e.p / maxP) * 100) : 0;
+        var col = _gfpColor(e.p);
+        var flag = _GFP_FLAGS[e.c] || '🏳';
+        return '<div class="gfp-row">'
+          + '<span class="gfp-flag">' + flag + '</span>'
+          + '<span class="gfp-country" title="' + e.c + '">' + e.c + '</span>'
+          + '<div class="gfp-bar-wrap"><div class="gfp-bar" style="width:' + pct + '%;background:' + col + ';"></div></div>'
+          + '<span class="gfp-price" style="color:' + col + ';">$' + e.p.toFixed(3) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function _gfpDrawChart(history) {
+      var svg = document.getElementById('gfp-chart');
+      var note = document.getElementById('gfp-chart-note');
+      if (!svg) return;
+      if (!history || history.length < 2) {
+        svg.innerHTML = '<text x="160" y="95" text-anchor="middle" fill="#5f6368" font-size="11">Collecting historical data… (' + (history ? history.length : 0) + '/2 days)</text>';
+        if (note) note.textContent = 'Chart will populate after 2+ daily data points.';
+        return;
+      }
+      // Compute daily global average
+      var pts = history.map(function(h) {
+        var vals = Object.values(h.prices);
+        var avg = vals.reduce(function(s,v){ return s+v; }, 0) / vals.length;
+        return { d: h.isoDate, v: avg };
+      }).sort(function(a,b){ return a.d < b.d ? -1 : 1; });
+
+      var W = 320, H = 180, PAD = { t:14, r:8, b:28, l:38 };
+      var minV = Math.min.apply(null, pts.map(function(p){ return p.v; }));
+      var maxV = Math.max.apply(null, pts.map(function(p){ return p.v; }));
+      var rangeV = maxV - minV || 0.1;
+      var chartW = W - PAD.l - PAD.r;
+      var chartH = H - PAD.t - PAD.b;
+
+      function xOf(i) { return PAD.l + (i / (pts.length - 1)) * chartW; }
+      function yOf(v) { return PAD.t + chartH - ((v - minV) / rangeV) * chartH; }
+
+      var polyline = pts.map(function(p,i){ return xOf(i) + ',' + yOf(p.v); }).join(' ');
+      var area = 'M' + PAD.l + ',' + (PAD.t + chartH)
+        + ' L' + pts.map(function(p,i){ return xOf(i) + ',' + yOf(p.v); }).join(' L')
+        + ' L' + (PAD.l + chartW) + ',' + (PAD.t + chartH) + ' Z';
+
+      // Axis labels
+      var yLabels = [minV, (minV + maxV)/2, maxV].map(function(v,i) {
+        var y = yOf(v);
+        return '<text x="' + (PAD.l-4) + '" y="' + (y+4) + '" text-anchor="end" fill="#5f6368" font-size="9">$' + v.toFixed(2) + '</text>';
+      }).join('');
+
+      // X axis: first and last date labels
+      var xLabels = '';
+      if (pts.length > 0) {
+        xLabels += '<text x="' + PAD.l + '" y="' + (H-6) + '" text-anchor="middle" fill="#5f6368" font-size="8">' + pts[0].d.slice(5) + '</text>';
+        if (pts.length > 1) xLabels += '<text x="' + (PAD.l+chartW) + '" y="' + (H-6) + '" text-anchor="middle" fill="#5f6368" font-size="8">' + pts[pts.length-1].d.slice(5) + '</text>';
+        if (pts.length > 4) {
+          var mid = Math.floor(pts.length/2);
+          xLabels += '<text x="' + xOf(mid) + '" y="' + (H-6) + '" text-anchor="middle" fill="#5f6368" font-size="8">' + pts[mid].d.slice(5) + '</text>';
+        }
+      }
+
+      svg.innerHTML =
+        '<defs><linearGradient id="gfpGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9ab00" stop-opacity="0.3"/><stop offset="100%" stop-color="#f9ab00" stop-opacity="0.02"/></linearGradient></defs>'
+        + '<rect width="320" height="180" fill="#111317" rx="4"/>'
+        + '<path d="' + area + '" fill="url(#gfpGrad)"/>'
+        + '<polyline points="' + polyline + '" fill="none" stroke="#f9ab00" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+        + yLabels + xLabels
+        + '<line x1="' + PAD.l + '" y1="' + PAD.t + '" x2="' + PAD.l + '" y2="' + (PAD.t+chartH) + '" stroke="#2a2d35" stroke-width="1"/>'
+        + '<line x1="' + PAD.l + '" y1="' + (PAD.t+chartH) + '" x2="' + (PAD.l+chartW) + '" y2="' + (PAD.t+chartH) + '" stroke="#2a2d35" stroke-width="1"/>'
+        + '<text x="' + (PAD.l + chartW/2) + '" y="12" text-anchor="middle" fill="#9aa0a6" font-size="9">' + pts.length + '-day average · ' + pts[pts.length-1].v.toFixed(3) + ' USD/L latest</text>';
+
+      if (note) note.textContent = pts.length + ' data points · ' + pts[0].d + ' → ' + pts[pts.length-1].d;
+    }
+
+    function _gfpRenderTopBot(prices) {
+      var entries = Object.keys(prices).map(function(c){ return {c:c, p:prices[c]}; });
+      entries.sort(function(a,b){ return a.p - b.p; });
+      var bot5 = entries.slice(0,5);
+      var top5 = entries.slice(-5).reverse();
+      function row(e) {
+        return '<div style="display:flex;justify-content:space-between;font-size:.68rem;padding:2px 0;color:#c9cdd1;">'
+          + '<span>' + (_GFP_FLAGS[e.c]||'🏳') + ' ' + e.c + '</span>'
+          + '<span style="color:' + _gfpColor(e.p) + ';font-family:monospace;">$' + e.p.toFixed(3) + '</span>'
+          + '</div>';
+      }
+      var t5 = document.getElementById('gfp-top5'), b5 = document.getElementById('gfp-bot5');
+      if (t5) t5.innerHTML = top5.map(row).join('');
+      if (b5) b5.innerHTML = bot5.map(row).join('');
+    }
+
+    async function loadGfpPrices(force) {
+      var btn = document.getElementById('gfp-refresh-btn');
+      if (btn) btn.disabled = true;
+      try {
+        var res = await fetch(WORKER_URL + '/api/fuel/prices');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var d = await res.json();
+        if (!d.ok || !d.prices) throw new Error('invalid response');
+        _gfpData = d;
+
+        // Update header date
+        var dateEl = document.getElementById('gfp-date');
+        if (dateEl) dateEl.textContent = d.date || '';
+
+        // Stats bar
+        var vals = Object.values(d.prices);
+        var avg  = vals.reduce(function(s,v){ return s+v; }, 0) / vals.length;
+        var minV = Math.min.apply(null, vals), maxV = Math.max.apply(null, vals);
+        var minC = Object.keys(d.prices).find(function(c){ return d.prices[c] === minV; });
+        var maxC = Object.keys(d.prices).find(function(c){ return d.prices[c] === maxV; });
+        var avgEl = document.getElementById('gfp-avg'), minEl = document.getElementById('gfp-min'),
+            maxEl = document.getElementById('gfp-max'), cntEl = document.getElementById('gfp-count');
+        if (avgEl) avgEl.textContent = '$' + avg.toFixed(3);
+        if (minEl) minEl.textContent = (_GFP_FLAGS[minC]||'') + ' ' + minC + ' $' + minV.toFixed(3);
+        if (maxEl) maxEl.textContent = (_GFP_FLAGS[maxC]||'') + ' ' + maxC + ' $' + maxV.toFixed(3);
+        if (cntEl) cntEl.textContent = d.count || vals.length;
+
+        gfpRender();
+        _gfpDrawChart(d.history || []);
+        _gfpRenderTopBot(d.prices);
+      } catch(e) {
+        console.warn('[gfp] load error:', e.message);
+      } finally {
+        if (btn) { btn.disabled = false; }
+      }
+    }
+
+    window.gfpSort   = gfpSort;
+    window.gfpRender = gfpRender;
+
+    /* Wire refresh button */
+    document.addEventListener('DOMContentLoaded', function() {
+      var rbtn = document.getElementById('gfp-refresh-btn');
+      if (rbtn) rbtn.addEventListener('click', function(){ loadGfpPrices(true); });
+    });
+
+    /* Auto-load when Crisis Watch tab activates */
+    (function() {
+      var _gfpLoaded = false;
+      var orig = window.initCwGrid;
+      window.initCwGrid = function() {
+        if (orig) orig();
+        if (!_gfpLoaded) { _gfpLoaded = true; loadGfpPrices(); }
+      };
+    })();
 
     /* ── GridStack init ───────────────────────────────────────────────────── */
     function saveCwLayout() {
