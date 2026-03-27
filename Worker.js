@@ -2569,6 +2569,30 @@ function parseRssAtom(xml) {
   return items;
 }
 
+// Global RSS feed parser — returns [{title, link, summary, time, source}]
+// Used by handleApiAviationNews and any handler that needs full item data including pubDate.
+function parseRssFeedItems(xml, source) {
+  const out = [];
+  const tagRe = /<(?:item|entry)[\s>]([\s\S]*?)<\/(?:item|entry)>/gi;
+  let m;
+  while ((m = tagRe.exec(xml)) !== null) {
+    const block = m[1] || '';
+    const getF = function(f) {
+      const cdHit = new RegExp('<' + f + '>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\\/' + f + '>', 'i').exec(block);
+      if (cdHit) return cdHit[1].trim();
+      const plHit = new RegExp('<' + f + '>([\\s\\S]*?)<\\/' + f + '>', 'i').exec(block);
+      return plHit ? plHit[1].replace(/<[^>]+>/g, '').trim() : '';
+    };
+    const linkHref = /<link[^>]+href="([^"]+)"/i.exec(block);
+    const title   = getF('title').slice(0, 200);
+    const summary = (getF('description') || getF('content') || getF('summary')).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0, 400);
+    const link    = linkHref ? linkHref[1] : getF('link');
+    const time    = getF('pubDate') || getF('updated') || getF('published') || new Date().toISOString();
+    if (title) out.push({ title: title, link: link, summary: summary, time: time, source: source });
+  }
+  return out;
+}
+
 /* ===========================
    FILTERING / KEYWORDS
    =========================== */
@@ -4860,11 +4884,18 @@ async function handleApiPortDisruptions(env, req) {
 // Dell SRO Monitored Fleet — vessels regularly used on Dell supply chain lanes.
 // IMO numbers verified; MMSI from public AIS registries. Status/position via AIS feed.
 const DEFAULT_MONITORED_VESSELS = [
-  { imo:'9893890', mmsi:'477038500', vesselName:'EVER ACE',          carrier:'HMM',   businessRelevance:'High',   monitoringStatus:'Watch',    watchEnabled:true, notesSanitized:'Asia-Europe via Cape of Good Hope — Red Sea avoidance active',  lastReviewed:'2026-03-25' },
-  { imo:'9863297', mmsi:'440349000', vesselName:'HMM ALGECIRAS',     carrier:'ONE',   businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-Europe mega-vessel — monitoring lane utilisation',          lastReviewed:'2026-03-25' },
-  { imo:'9938338', mmsi:'219609000', vesselName:'MAERSK INTEGRITY',  carrier:'MAERSK',businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Transpacific / Asia-Europe — flagship Maersk routing',           lastReviewed:'2026-03-25' },
-  { imo:'9784305', mmsi:'215473000', vesselName:'MSC HAMBURG',       carrier:'MSC',   businessRelevance:'High',   monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-Europe — Cape route, Suez transit suspended',               lastReviewed:'2026-03-25' },
-  { imo:'9800838', mmsi:'255806452', vesselName:'MSC LUCIA',         carrier:'MSC',   businessRelevance:'Medium', monitoringStatus:'Normal',   watchEnabled:true, notesSanitized:'Asia-AMER — Panama Canal transit, monitoring capacity constraints',lastReviewed:'2026-03-25' },
+  { imo:'9893890', mmsi:'477038500', vesselName:'EVER ACE',              carrier:'HMM',    businessRelevance:'High',   monitoringStatus:'Watch',  watchEnabled:true, notesSanitized:'Asia-Europe via Cape of Good Hope — Red Sea avoidance active',       lastReviewed:'2026-03-26' },
+  { imo:'9863297', mmsi:'440349000', vesselName:'HMM ALGECIRAS',         carrier:'HMM',    businessRelevance:'High',   monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Asia-Europe mega-vessel — monitoring lane utilisation',             lastReviewed:'2026-03-26' },
+  { imo:'9938338', mmsi:'219609000', vesselName:'MAERSK INTEGRITY',      carrier:'MAERSK', businessRelevance:'High',   monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Transpacific / Asia-Europe — flagship Maersk routing',              lastReviewed:'2026-03-26' },
+  { imo:'9784305', mmsi:'215473000', vesselName:'MSC HAMBURG',           carrier:'MSC',    businessRelevance:'High',   monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Asia-Europe — Cape route, Suez transit suspended',                  lastReviewed:'2026-03-26' },
+  { imo:'9800838', mmsi:'255806452', vesselName:'MSC LUCIA',             carrier:'MSC',    businessRelevance:'Medium', monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Asia-AMER — Panama Canal transit, monitoring capacity constraints', lastReviewed:'2026-03-26' },
+  { imo:'9839697', mmsi:'255806361', vesselName:'MSC GÜLSÜN',            carrier:'MSC',    businessRelevance:'High',   monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Asia-Europe — one of world\'s largest containerships, Malacca strait routing', lastReviewed:'2026-03-26' },
+  { imo:'9806079', mmsi:'477007100', vesselName:'ONE APUS',              carrier:'ONE',    businessRelevance:'Medium', monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Transpacific — NW Pacific routing Los Angeles / Long Beach',        lastReviewed:'2026-03-26' },
+  { imo:'9776171', mmsi:'228037600', vesselName:'CMA CGM LAPEROUSE',     carrier:'CMA CGM',businessRelevance:'Medium', monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Cape route — West Africa/Angola routing, Red Sea avoidance',        lastReviewed:'2026-03-26' },
+  { imo:'9786030', mmsi:'477973100', vesselName:'COSCO SHIPPING ARIES',  carrier:'COSCO',  businessRelevance:'Medium', monitoringStatus:'Watch',  watchEnabled:true, notesSanitized:'Transpacific — monitoring supply chain exposure on Pacific lanes',   lastReviewed:'2026-03-26' },
+  { imo:'9703291', mmsi:'215401000', vesselName:'MSC OSCAR',             carrier:'MSC',    businessRelevance:'Medium', monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Asia-Europe — Cape route, Indian Ocean routing',                    lastReviewed:'2026-03-26' },
+  { imo:'9525628', mmsi:'219000072', vesselName:'MAERSK ESSEX',          carrier:'MAERSK', businessRelevance:'Medium', monitoringStatus:'Normal', watchEnabled:true, notesSanitized:'Europe short-sea / North Sea — Maersk feeder operations',           lastReviewed:'2026-03-26' },
+  { imo:'9700938', mmsi:'563093200', vesselName:'YANG MING WORLD',       carrier:'YANG MING',businessRelevance:'Medium',monitoringStatus:'Normal',watchEnabled:true, notesSanitized:'Transpacific — N Pacific routing Seattle/Tacoma',                   lastReviewed:'2026-03-26' },
 ];
 
 // ── Maritime risk zone polygons ───────────────────────────────────────────────
@@ -4990,13 +5021,16 @@ function _mockPositionForVessel(mv) {
     '9839697':{ lat:3.2,   lon:103.8,  dest:'ROTTERDAM',   speed:18.5, hdg:295 }, // MSC GÜLSÜN  — off Malacca
     '9786030':{ lat:21.0,  lon:155.0,  dest:'LOS ANGELES', speed:19.2, hdg:68  }, // COSCO ARIES — transpacific
     '9776171':{ lat:-15.0, lon:15.0,   dest:'ROTTERDAM',   speed:17.8, hdg:335 }, // CMA CGM     — off Angola (Cape route)
-    '9893890':{ lat:-34.0, lon:18.5,   dest:'HAMBURG',     speed:18.0, hdg:340 }, // EVER ALOT   — Cape Town
-    '9806079':{ lat:30.0,  lon:145.0,  dest:'LONG BEACH',  speed:19.0, hdg:65  }, // ONE APUS    — NW Pacific
-    '9863297':{ lat:5.0,   lon:100.5,  dest:'HAMBURG',     speed:18.5, hdg:290 }, // HMM ALGE    — near Malacca
-    '9700938':{ lat:35.0,  lon:170.0,  dest:'SEATTLE',     speed:18.0, hdg:75  }, // YANG MING   — N Pacific
-    '9525628':{ lat:51.5,  lon:3.5,    dest:'ROTTERDAM',   speed:12.0, hdg:90  }, // MAERSK ESS  — North Sea
-    '9811000':{ lat:22.0,  lon:145.0,  dest:'LOS ANGELES', speed:19.5, hdg:65  }, // EVER ACE    — Pacific
-    '9703291':{ lat:-28.0, lon:32.0,   dest:'ROTTERDAM',   speed:17.5, hdg:350 }, // MSC OSCAR   — Indian Ocean
+    '9893890':{ lat:-34.0, lon:18.5,   dest:'HAMBURG',     speed:18.0, hdg:340 }, // EVER ACE       — Cape Town
+    '9806079':{ lat:30.0,  lon:145.0,  dest:'LONG BEACH',  speed:19.0, hdg:65  }, // ONE APUS       — NW Pacific
+    '9863297':{ lat:3.8,   lon:99.2,   dest:'HAMBURG',     speed:18.5, hdg:290 }, // HMM ALGECIRAS  — Strait of Malacca (in water)
+    '9700938':{ lat:35.0,  lon:170.0,  dest:'SEATTLE',     speed:18.0, hdg:75  }, // YANG MING      — N Pacific
+    '9525628':{ lat:51.5,  lon:3.5,    dest:'ROTTERDAM',   speed:12.0, hdg:90  }, // MAERSK ESS     — North Sea
+    '9811000':{ lat:22.0,  lon:145.0,  dest:'LOS ANGELES', speed:19.5, hdg:65  }, // EVER ALOT      — Pacific
+    '9703291':{ lat:-28.0, lon:36.0,   dest:'ROTTERDAM',   speed:17.5, hdg:350 }, // MSC OSCAR      — Indian Ocean (off Mozambique)
+    '9938338':{ lat:-20.0, lon:65.0,   dest:'ROTTERDAM',   speed:17.2, hdg:270 }, // MAERSK INTEGRITY — Indian Ocean
+    '9784305':{ lat:-37.5, lon:22.0,   dest:'ROTTERDAM',   speed:16.8, hdg:335 }, // MSC HAMBURG    — Cape route (south of South Africa)
+    '9800838':{ lat:15.0,  lon:-120.0, dest:'COLON',       speed:18.5, hdg:105 }, // MSC LUCIA      — E Pacific → Panama
   };
   const p = LANES[mv.imo] || { lat:0, lon:0, dest:'UNKNOWN', speed:0, hdg:0 };
   return {
@@ -5389,6 +5423,41 @@ async function handleAdminAction(env, req, ctx) {
         await env.INTEL_KV.put(LAYOFF_KV_KEY, JSON.stringify(payload), { expirationTtl: 8 * 3600 });
         debug('ingest-layoff', { stored: posts.length });
         return { ok: true, status: 200, body: JSON.stringify({ ok: true, stored: posts.length }) };
+      } catch (e) {
+        return { ok: false, status: 500, body: JSON.stringify({ ok: false, error: e && e.message ? e.message : String(e) }) };
+      }
+    } else if (action === 'add-layoff-post') {
+      // Manually adds a single TheLayoff.com post via admin UI (workaround while scraper is blocked)
+      try {
+        const body = await req.json().catch(function() { return {}; });
+        const post = body.post || body;
+        if (!post.title || post.title.length < 4) return { ok: false, status: 400, body: JSON.stringify({ ok: false, error: 'title required' }) };
+        // Normalise
+        const newPost = {
+          title:        String(post.title).trim().slice(0, 300),
+          snippet:      String(post.snippet || post.summary || '').trim().slice(0, 600),
+          url:          String(post.url || '#').trim(),
+          published_at: post.published_at || new Date().toISOString(),
+          category:     String(post.category || 'Layoff / Reorg').trim(),
+        };
+        // Read existing, append, deduplicate by title, cap at 50, write back
+        const existing = await kvGetJson(env, LAYOFF_KV_KEY, null);
+        const current  = (existing && Array.isArray(existing.posts)) ? existing.posts : [];
+        const titleKey = newPost.title.toLowerCase().slice(0, 60);
+        const deduped  = current.filter(function(p) { return p.title && p.title.toLowerCase().slice(0, 60) !== titleKey; });
+        deduped.unshift(newPost); // newest first
+        const final = deduped.slice(0, 50);
+        await env.INTEL_KV.put(LAYOFF_KV_KEY, JSON.stringify({ posts: final, updated_at: new Date().toISOString() }), { expirationTtl: 72 * 3600 });
+        debug('add-layoff-post', { total: final.length });
+        return { ok: true, status: 200, body: JSON.stringify({ ok: true, total: final.length }) };
+      } catch (e) {
+        return { ok: false, status: 500, body: JSON.stringify({ ok: false, error: e && e.message ? e.message : String(e) }) };
+      }
+    } else if (action === 'clear-layoff-posts') {
+      // Clears all manually added layoff posts
+      try {
+        await env.INTEL_KV.delete(LAYOFF_KV_KEY);
+        return { ok: true, status: 200, body: JSON.stringify({ ok: true, cleared: true }) };
       } catch (e) {
         return { ok: false, status: 500, body: JSON.stringify({ ok: false, error: e && e.message ? e.message : String(e) }) };
       }
@@ -6498,10 +6567,10 @@ async function handleApiAviationCancellations(env) {
     });
   }
 
-  // Rate budget: 8 airports × 2 statuses × 2 refreshes/day (12h TTL) = 32/day = 960/month ✓ (Airlabs free = 1,000/month)
+  // Rate budget: 12 airports × 2 statuses × 1 refresh/day (24h TTL) = 24/day = 720/month ✓ (Airlabs free = 1,000/month)
   // OpenSky Network (free, unlimited) adds 15 more airports using departure-activity scoring
-  const CACHE_KEY    = 'aviation_cancellations_v7';
-  const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours — refreshes twice daily
+  const CACHE_KEY    = 'aviation_cancellations_v9';
+  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours — refreshes once daily
 
   // Airport metadata for ranking table
   const AIRPORT_NAMES = {
@@ -6560,8 +6629,8 @@ async function handleApiAviationCancellations(env) {
     FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
   };
 
-  // 8 Airlabs hub airports (cancel+delay data): AMER (ATL, JFK), EMEA (LHR, CDG, FRA), MENA (DXB), APJC (SIN, SYD)
-  const HUB_AIRPORTS = ['ATL', 'JFK', 'LHR', 'CDG', 'FRA', 'DXB', 'SIN', 'SYD'];
+  // 12 Airlabs hub airports (cancel+delay data): AMER (ATL, JFK, ORD, LAX), EMEA (LHR, CDG, FRA, IST), MENA (DXB, DOH), APJC (SIN, SYD)
+  const HUB_AIRPORTS = ['ATL', 'JFK', 'ORD', 'LAX', 'LHR', 'CDG', 'FRA', 'IST', 'DXB', 'DOH', 'SIN', 'SYD'];
 
   // 15 OpenSky airports (activity-based scoring via departure counts — free, unlimited)
   // ICAO code + expected departures per 6 hours (rough baseline for activity-ratio scoring)
@@ -6590,13 +6659,14 @@ async function handleApiAviationCancellations(env) {
     BKK:'TH', MEX:'MX', JNB:'ZA',
   };
 
-  const fetchAirlabs = (iata, status) =>
+  // Per-airport Airlabs query — dep_iata required by Airlabs API, queried for each hub airport
+  const fetchAirportFlights = (iata, status) =>
     fetchWithTimeout(
-      `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&dep_iata=${iata}&status=${status}&limit=100`,
+      `https://airlabs.co/api/v9/schedules?api_key=${apiKey}&dep_iata=${iata}&status=${status}`,
       { headers: { 'Accept': 'application/json', 'User-Agent': 'OSInfoHub/1.0' } },
-      12000
+      15000
     ).then(async r => {
-      if (!r.ok) throw new Error(`Airlabs HTTP ${r.status}`);
+      if (!r.ok) throw new Error(`Airlabs HTTP ${r.status} for ${iata}`);
       const d = await r.json();
       if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
       return (Array.isArray(d.response) ? d.response : []).map(f => ({ ...f, _status: status }));
@@ -6615,18 +6685,17 @@ async function handleApiAviationCancellations(env) {
   };
 
   try {
-    // ── Airlabs: cancelled + delayed for each hub airport ──────────────────
-    const queries = [];
-    for (const iata of HUB_AIRPORTS) {
-      queries.push(fetchAirlabs(iata, 'cancelled'));
-      queries.push(fetchAirlabs(iata, 'delayed'));
-    }
-    // ── OpenSky: departure counts for extra airports (run in parallel) ─────
-    const osQueries = OPENSKY_AIRPORTS.map(ap => fetchOpenSkyDeps(ap.icao).catch(() => null));
-    const [responses, osResults] = await Promise.all([
-      Promise.allSettled(queries),
+    // ── Airlabs: per-airport cancelled + delayed (12 airports × 2 statuses = 24 calls/day) ──
+    const osQueries    = OPENSKY_AIRPORTS.map(ap => fetchOpenSkyDeps(ap.icao).catch(() => null));
+    const airlabsQueries = HUB_AIRPORTS.flatMap(iata => [
+      fetchAirportFlights(iata, 'cancelled').catch(() => []),
+      fetchAirportFlights(iata, 'delayed').catch(() => []),
+    ]);
+    const [airlabsResults, osResults] = await Promise.all([
+      Promise.allSettled(airlabsQueries),
       Promise.allSettled(osQueries),
     ]);
+    const responses = airlabsResults;
 
     // Deduplicate & collect all flights with their status
     const seen = new Set();
@@ -6661,19 +6730,19 @@ async function handleApiAviationCancellations(env) {
       .slice(0, 30);
 
     // ── By Airport — FR24-style disruption ranking ──────────────────────────
-    // Each sampled airport gets: cancelled count, delayed count, disruption score (0–5)
+    // Built dynamically from any airport returned in global query
     const byAirport = {};
-    for (const iata of HUB_AIRPORTS) {
-      byAirport[iata] = {
-        iata,
-        airport_name: AIRPORT_NAMES[iata] || iata,
-        country: AIRPORT_COUNTRIES[iata] || '',
-        cancelled: 0, delayed: 0,
-      };
-    }
     for (const f of allFlights) {
       const iata = f.dep_iata || '';
-      if (!byAirport[iata]) continue;
+      if (!iata) continue;
+      if (!byAirport[iata]) {
+        byAirport[iata] = {
+          iata,
+          airport_name: AIRPORT_NAMES[iata] || iata,
+          country: AIRPORT_COUNTRIES[iata] || (f.dep_country || ''),
+          cancelled: 0, delayed: 0,
+        };
+      }
       if (f._status === 'delayed') byAirport[iata].delayed++;
       else byAirport[iata].cancelled++;
     }
@@ -6723,7 +6792,7 @@ async function handleApiAviationCancellations(env) {
       ok: true, airlines, airports: allAirports,
       total_cancelled: cancelledFlights.length,
       total_delayed:   delayedFlights.length,
-      airports_sampled: HUB_AIRPORTS,
+      airports_sampled: Object.keys(byAirport),
       opensky_sampled:  OPENSKY_AIRPORTS.map(a => a.iata),
       updated_at: new Date().toISOString(), _ts: Date.now(),
     };
@@ -6737,6 +6806,83 @@ async function handleApiAviationCancellations(env) {
       status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });
   }
+}
+
+/* ── AVIATION NEWS ENDPOINT ──────────────────────────────────────────────────
+ * GET /api/aviation/news
+ * Fetches 5 reliable aviation RSS feeds from Cloudflare Workers edge.
+ * Filters for disruption-relevant articles. 30-min KV cache.
+ * Returns: { ok, articles[{title,url,summary,source,time}], updated_at }
+ * ─────────────────────────────────────────────────────────────────────────── */
+async function handleApiAviationNews(env) {
+  const CACHE_KEY = 'aviation_news_v3';
+  const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+  try {
+    const cached = await kvGetJson(env, CACHE_KEY, null);
+    if (cached && cached._ts && (Date.now() - cached._ts) < CACHE_TTL) {
+      return new Response(JSON.stringify(cached), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+      });
+    }
+  } catch (_) {}
+
+  const FEEDS = [
+    { url: 'https://avherald.com/h?subscribe=rss',                   source: 'Aviation Herald'   },
+    { url: 'https://simpleflying.com/feed/',                         source: 'Simple Flying'     },
+    { url: 'https://theaircurrent.com/feed/',                        source: 'The Air Current'   },
+    { url: 'https://www.flightglobal.com/rss/all',                   source: 'Flight Global'     },
+    { url: 'https://www.aerotelegraph.com/feed',                     source: 'AeroTelegraph'     },
+    { url: 'https://airwaysmag.com/feed/',                           source: 'Airways Magazine'  },
+    { url: 'https://www.aerotime.aero/feed',                         source: 'Aerotime Hub'      },
+    { url: 'https://airlineratings.com/news/feed/',                  source: 'Airline Ratings'   },
+    { url: 'https://www.aviationpros.com/rss/news',                  source: 'Aviation Pros'     },
+    { url: 'https://runwaygirlnetwork.com/feed/',                    source: 'Runway Girl Network'},
+    { url: 'https://australianaviation.com.au/feed/',                source: 'Australian Aviation'},
+  ];
+
+  const results = await Promise.allSettled(
+    FEEDS.map(f =>
+      fetchWithTimeout(f.url, {
+        headers: { 'User-Agent': 'OSInfoHub-AviationNews/1.0', 'Accept': 'text/xml,application/rss+xml,*/*' },
+      }, 8000)
+      .then(function(r) { return r.ok ? r.text().then(function(t) { return { text: t, source: f.source }; }) : Promise.reject(r.status); })
+    )
+  );
+
+  // Must contain an aviation term — prevents geopolitical-only articles from passing
+  const AVIATION_RE = /\b(airport|airspace|airline|airlines|flight|flights|aviation|runway|terminal|atc|notam|aircraft|plane|departure|arrival|landing|grounded|carrier|pilot|crew|air\s+traffic|aerodrome|aeroport|air\s+travel)\b/i;
+  // Must also contain a disruption/operational keyword
+  const DISRUPT_RE  = /\b(cancel|suspend|clos|restrict|ground|diverted?|delay|strike|shutdown|ban|halt|block|storm|hurricane|typhoon|earthquake|eruption|accident|incident|emergency|crash|collision)\b/i;
+
+  const articles = [];
+  const seenTitles = new Set();
+
+  results.forEach(function(res) {
+    if (res.status !== 'fulfilled') return;
+    const val = res.value;
+    const text = val.text;
+    const source = val.source;
+    const items = parseRssFeedItems(text, source);
+    items.forEach(function(item) {
+      const titleKey = item.title.slice(0, 70);
+      if (seenTitles.has(titleKey)) return;
+      const combined = item.title + ' ' + item.summary;
+      // Both an aviation term AND a disruption term must be present
+      if (!AVIATION_RE.test(combined) || !DISRUPT_RE.test(combined)) return;
+      seenTitles.add(titleKey);
+      articles.push({ title: item.title, url: item.link, summary: item.summary, source: item.source, time: item.time });
+    });
+  });
+
+  articles.sort(function(a, b) { return new Date(b.time).getTime() - new Date(a.time).getTime(); });
+
+  const result = { ok: true, articles: articles.slice(0, 40), updated_at: new Date().toISOString(), _ts: Date.now() };
+  try { await kvPut(env, CACHE_KEY, result); } catch (_) {}
+
+  return new Response(JSON.stringify(result), {
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+  });
 }
 
 /* ── AVIATION DISRUPTIONS ENDPOINT ──────────────────────────────────────────
@@ -7100,15 +7246,19 @@ async function handleApiAviationDisruptions(env, req) {
   }
 
   // ── 7. Build final disruptions list — KNOWN always included ──────────────
-  // Known disruptions mapped to full structure
+  // Apply news-consensus overrides from cron (single lightweight KV read)
+  let conflictOverrides = {};
+  try { conflictOverrides = (await kvGetJson(env, 'conflict_status_overrides_v1', {})) || {}; } catch (_) {}
+
   const knownDisruptions = KNOWN_DISRUPTIONS.map(function(k, i) {
-    return Object.assign({}, k, {
+    const ov = (k.iata && conflictOverrides[k.iata]) ? conflictOverrides[k.iata] : {};
+    return Object.assign({}, k, ov, {
       id:          'known-' + (k.iata || i),
       link:        '',
       time:        new Date().toISOString(),
-      source:      'Intel Database',
+      source:      ov.updated_at ? 'News Consensus (' + (ov.source_count || 2) + ' sources)' : 'Intel Database',
       source_type: 'VERIFIED_ONGOING',
-      confidence:  'HIGH',
+      confidence:  ov.updated_at ? 'AI_VERIFIED' : 'HIGH',
     });
   });
 
@@ -7861,23 +8011,20 @@ async function handleApiThreatsLeaks(env, req) {
           var ltitleLow = lpost.title.toLowerCase();
           if (seen.has(ltitleLow.slice(0, 60))) continue;
           seen.add(ltitleLow.slice(0, 60));
-          var ltext = (lpost.title + ' ' + (lpost.snippet || '')).toLowerCase();
-          var lcat = 'Layoff / Reorg';
-          if (/data leak|leaked|credential|confidential|exposed|insider|anonymous|whistleblow/.test(ltext)) lcat = 'Leak';
-          else if (/breach|hacked|ransomware|malware|exploit|vulnerability/.test(ltext)) lcat = 'Breach';
-          else if (/ceo|cfo|cto|resign|departure|steps down/.test(ltext)) lcat = 'Leadership';
+          // Use submitted category if provided — do not override with keyword detection
+          var lcat = lpost.category || 'Layoff / Reorg';
           cases.push({ id: 'tl_' + lp, title: lpost.title, category: lcat, severity: 'High', confidence: 'High', target: 'Dell', related_mentions: 1, first_seen: lpost.published_at || new Date().toISOString(), last_seen: lpost.published_at || new Date().toISOString(), source_links: [lpost.url || '#'], sources: ['thelayoff.com'], summary: lpost.snippet || lpost.title, _pri: 0 });
           layoffCount++;
         }
       }
     } catch (le) { debug('tl_layoff_read_err', le && le.message ? le.message : String(le)); }
 
-    // ── TIER 2: General incidents KV — filtered for Dell relevance (72h hard cutoff) ──
-    // 72h matches the Insider & Leaks default on the frontend.
+    // ── TIER 2: General incidents KV — filtered for Dell relevance (hard floor: March 1 2026) ──
+    // Floor = March 1 2026. Frontend filter (72h / 7d / 30d / all) controls what the user sees.
     // Old KV items may have inc.time = ingest time (not publish date) due to a prior bug.
     // To catch those, we also extract dates embedded in article URLs (Bloomberg, BI, Reuters etc.)
-    // and reject if EITHER the URL date OR the stored time is older than 72h.
-    var tlCutoff72h = Date.now() - (72 * 3600 * 1000);
+    // and reject if EITHER the URL date OR the stored time is older than the floor.
+    var tlCutoff72h = new Date('2026-03-01T00:00:00Z').getTime();
     var incResult = await handleApiIncidents(env, req);
     var incidents = Array.isArray(incResult.body) ? incResult.body : [];
     var generalCount = 0;
@@ -8795,6 +8942,56 @@ async function handleApiUserPrefsLoad(env, req) {
 
 /* END CRISIS WATCH HANDLERS */
 
+/* ═══════════════════════════════════════════════════════════════════
+   GLOBAL FUEL PRICES — daily scrape from globalpetrolprices.com
+   KV keys: fuel_prices_latest, fuel_prices_history (60-day rolling)
+   ═══════════════════════════════════════════════════════════════════ */
+const FUEL_PRICES_KV      = 'fuel_prices_latest';
+const FUEL_PRICES_HIST_KV = 'fuel_prices_history';
+
+async function fetchAndCacheFuelPrices(env) {
+  try {
+    // Read from GitHub Pages static file (updated daily by GitHub Action scraper).
+    // Direct scraping of globalpetrolprices.com fails from Cloudflare datacenter IPs.
+    const res = await fetch(
+      'https://vssmaximus-arch.github.io/security-intel/data/fuel_prices.json',
+      { headers: { 'Cache-Control': 'no-cache' } }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.ok || !data.prices) throw new Error('invalid data in fuel_prices.json');
+
+    const isoDate = data.isoDate || new Date().toISOString().slice(0, 10);
+    const result  = Object.assign({}, data, { ts: Date.now() });
+
+    // Store latest (48h TTL)
+    await env.INTEL_KV.put(FUEL_PRICES_KV, JSON.stringify(result), { expirationTtl: 48 * 3600 });
+
+    // Append to rolling 60-day history
+    const history = await kvGetJson(env, FUEL_PRICES_HIST_KV, []);
+    const filtered = history.filter(function(h){ return h.isoDate !== isoDate; });
+    filtered.push({ isoDate: isoDate, date: data.date, prices: data.prices });
+    await env.INTEL_KV.put(FUEL_PRICES_HIST_KV, JSON.stringify(filtered.slice(-60)), { expirationTtl: 90 * 24 * 3600 });
+
+    debug('[fuel-prices] loaded', data.count, 'countries for', data.date);
+    return result;
+  } catch (e) {
+    debug('[fuel-prices] fetch error:', e.message);
+    return null;
+  }
+}
+
+async function handleApiGlobalFuelPrices(env) {
+  var latest = await kvGetJson(env, FUEL_PRICES_KV, null);
+  // Refresh if missing or stale (>22h)
+  if (!latest || Date.now() - (latest.ts || 0) > 22 * 3600 * 1000) {
+    latest = await fetchAndCacheFuelPrices(env) || latest;
+  }
+  if (!latest) return new Response(JSON.stringify({ ok: false, error: 'no_data' }), { status: 503, headers: CORS_HEADERS });
+  const history = await kvGetJson(env, FUEL_PRICES_HIST_KV, []);
+  return new Response(JSON.stringify(Object.assign({}, latest, { history })), { headers: CORS_HEADERS });
+}
+
 async function handleRequest(req, env, ctx) {
   setLogLevelFromEnv(env);
   const url = new URL(req.url);
@@ -8855,6 +9052,8 @@ async function handleRequest(req, env, ctx) {
       return _responseFromResult(r);
     } else if (p.startsWith('/api/aviation/cancellations')) {
       return handleApiAviationCancellations(env);
+    } else if (p.startsWith('/api/aviation/news')) {
+      return handleApiAviationNews(env);
     } else if (p.startsWith('/api/aviation/disruptions')) {
       return handleApiAviationDisruptions(env, req);
     } else if (p.startsWith('/api/weather/disasters')) {
@@ -8895,6 +9094,8 @@ async function handleRequest(req, env, ctx) {
       return handleApiConflictEvents(env, req, ctx);
     } else if (p.startsWith('/api/gdacs/rss')) {
       return handleApiGdacsRss(env, ctx);
+    } else if (p.startsWith('/api/fuel/prices')) {
+      return handleApiGlobalFuelPrices(env);
     } else if (p.startsWith('/api/fuel/supply')) {
       return handleApiFuelSupply(env, ctx);
     } else if (p.startsWith('/api/radiation/sensors')) {
@@ -9613,6 +9814,79 @@ async function runGlobalDisruptionScan(env) {
   }
 }
 
+/* ── NEWS-CONSENSUS CONFLICT AIRPORT STATUS UPDATER ─────────────────────────
+ * Runs during cron (not on user requests). Scans recent KV news for each
+ * monitored conflict airport. If 2+ articles in last 48h suggest a status
+ * change, asks Groq to assess and stores result in KV as an override.
+ * handleApiAviationDisruptions does a single lightweight KV read to apply these.
+ * ─────────────────────────────────────────────────────────────────────────── */
+const CONFLICT_AIRPORTS_MONITOR = [
+  { iata:'TLV', label:'Ben Gurion Airport Israel',   keywords:['ben gurion','tel aviv airport','tlv','israel airport','flights israel'] },
+  { iata:'BEY', label:'Beirut Airport Lebanon',       keywords:['beirut airport','bey','mea airline','flights lebanon'] },
+  { iata:'BGW', label:'Baghdad Airport Iraq',         keywords:['baghdad airport','bgw','iraq airport','flights baghdad'] },
+  { iata:'DAM', label:'Damascus Airport Syria',       keywords:['damascus airport','dam','syria airport','flights damascus'] },
+  { iata:'MHD', label:'Mashhad Airport Iran',         keywords:['mashhad','iran airport','tehran airport','flights iran','ikia'] },
+  { iata:'KBL', label:'Kabul Airport Afghanistan',    keywords:['kabul airport','kbl','afghanistan airport','flights kabul'] },
+  { iata:'KRT', label:'Khartoum Airport Sudan',       keywords:['khartoum airport','krt','sudan airport','flights sudan'] },
+  { iata:'SAA', label:'Sanaa Airport Yemen',          keywords:['sanaa airport','saa','yemen airport','houthi airport'] },
+];
+const STATUS_CHANGE_KWS = ['reopen','reopened','resume','resumed','restored','operational','partial','restrict','close','closed','suspend','suspended','halt','halted','ban','banned','lift','lifted'];
+
+async function updateConflictAirportStatuses(env) {
+  if (!env.GROQ_API_KEY) return;
+  const OVERRIDE_KEY = 'conflict_status_overrides_v1';
+
+  let recentNews = [];
+  try {
+    const raw = await kvGetJson(env, 'news_items', []);
+    const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+    recentNews = (Array.isArray(raw) ? raw : [])
+      .filter(function(n) { return new Date(n.time || n.timestamp || 0).getTime() > cutoff; });
+  } catch (_) { return; }
+
+  let overrides = {};
+  try { overrides = (await kvGetJson(env, OVERRIDE_KEY, {})) || {}; } catch (_) {}
+
+  let changed = false;
+  for (const ap of CONFLICT_AIRPORTS_MONITOR) {
+    const relevant = recentNews.filter(function(n) {
+      const txt = ((n.title || '') + ' ' + (n.summary || '')).toLowerCase();
+      return ap.keywords.some(function(kw) { return txt.includes(kw); });
+    });
+    const statusArticles = relevant.filter(function(n) {
+      const txt = ((n.title || '') + ' ' + (n.summary || '')).toLowerCase();
+      return STATUS_CHANGE_KWS.some(function(kw) { return txt.includes(kw); });
+    });
+    if (statusArticles.length < 2) continue; // Require 2+ independent sources
+
+    const snippets = statusArticles.slice(0, 5).map(function(n) { return '- ' + (n.title || '').slice(0, 130); }).join('\n');
+    const prompt = 'Based on these recent headlines about ' + ap.label + ', assess the current airport status as of ' + new Date().toISOString().slice(0,10) + '.\n' +
+      'Choose flight_status from: CLOSED / SEVERELY RESTRICTED / PARTIALLY RESTRICTED / DISRUPTION RISK / NORMAL\n' +
+      'Respond ONLY with JSON: {"flight_status":"...","ai_summary":"STATUS — explanation max 180 chars","disruption_score":0.0-5.0}\n\nHeadlines:\n' + snippets;
+    try {
+      const { text } = await callGroqChat(env, [{ role:'user', content:prompt }], { max_tokens:200 });
+      if (!text) continue;
+      const m = text.match(/\{[\s\S]*?\}/);
+      if (!m) continue;
+      const result = JSON.parse(m[0]);
+      if (result.flight_status) {
+        overrides[ap.iata] = {
+          flight_status:    result.flight_status,
+          ai_summary:       result.ai_summary || '',
+          disruption_score: typeof result.disruption_score === 'number' ? result.disruption_score : undefined,
+          updated_at:       new Date().toISOString(),
+          source_count:     statusArticles.length,
+        };
+        changed = true;
+        typeof debug === 'function' && debug('conflictUpdate', ap.iata, result.flight_status, statusArticles.length + ' sources');
+      }
+    } catch (_) {}
+  }
+  if (changed) {
+    try { await env.INTEL_KV.put(OVERRIDE_KEY, JSON.stringify(overrides), { expirationTtl: 7 * 24 * 60 * 60 }); } catch (_) {}
+  }
+}
+
 async function moduleScheduled(evt, env, ctx) {
   try {
     if (ctx && ctx.waitUntil) {
@@ -9622,6 +9896,7 @@ async function moduleScheduled(evt, env, ctx) {
           await refreshTravelData(env, {});
           await aggregateThumbs(env, {});
           await runGlobalDisruptionScan(env);
+          try { await updateConflictAirportStatuses(env); } catch(_e) { debug('conflictUpdate failed', _e?.message||_e); }
           try {
             const _erc = await generateExecReportCache(env);
             await kvPut(env, 'exec_report_v2', { ts: Date.now(), data: _erc }, { expirationTtl: 7200 });
@@ -9633,6 +9908,8 @@ async function moduleScheduled(evt, env, ctx) {
             await handleApiAiBriefing(env, _briefReq);
             debug('scheduled: briefing_v8_8_global cached');
           } catch(_e) { debug('scheduled: briefing pre-gen failed', _e?.message || _e); }
+          // Daily global fuel price scrape
+          try { await fetchAndCacheFuelPrices(env); } catch(_e) { debug('scheduled: fuel prices failed', _e?.message||_e); }
         } catch (e) { debug("scheduled handler err", e?.message || e); }
       })());
     } else {
