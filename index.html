@@ -7370,10 +7370,26 @@
       var btn = document.getElementById('gfp-refresh-btn');
       if (btn) btn.disabled = true;
       try {
-        var res = await fetch(WORKER_URL + '/api/fuel/prices');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        var d = await res.json();
-        if (!d.ok || !d.prices) throw new Error('invalid response');
+        var d = null;
+
+        // Try Worker first
+        try {
+          var res = await fetch(WORKER_URL + '/api/fuel/prices');
+          if (res.ok) {
+            var wj = await res.json();
+            if (wj.ok && wj.prices) d = wj;
+          }
+        } catch(_we) { /* Worker unavailable — fall through to static fallback */ }
+
+        // Fallback: read the static file committed to GitHub Pages
+        if (!d) {
+          var fb = await fetch('data/fuel_prices.json?_=' + Date.now());
+          if (!fb.ok) throw new Error('Static fallback HTTP ' + fb.status);
+          var fj = await fb.json();
+          if (!fj.ok || !fj.prices) throw new Error('invalid fallback data');
+          d = fj;
+        }
+
         _gfpData = d;
 
         // Update header date
