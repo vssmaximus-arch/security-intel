@@ -2466,6 +2466,26 @@
     padding:32px; color:#5f6368; gap:8px; font-size:.8rem;
   }
   /* Widget show/hide customizer */
+  /* ── APJC Fuel Crisis Monitor ─────────────────────────────────────────── */
+  .cw-apjc-tabs { display:flex; flex-wrap:nowrap; overflow-x:auto; gap:4px; padding:6px 8px 0; border-bottom:1px solid #2a2d35; scrollbar-width:thin; }
+  .cw-apjc-tabs::-webkit-scrollbar { height:3px; }
+  .cw-apjc-tabs::-webkit-scrollbar-thumb { background:#3a3d45; border-radius:3px; }
+  .cw-apjc-tab { flex-shrink:0; padding:3px 10px; border-radius:3px 3px 0 0; background:transparent; border:1px solid #3a3d45; border-bottom:none; color:#9aa0a6; font-size:0.7rem; font-weight:600; cursor:pointer; transition:all .15s; }
+  .cw-apjc-tab:hover { border-color:#5f6368; color:#e8eaed; }
+  .cw-apjc-tab.active { background:#ff7043; border-color:#ff7043; color:#fff; }
+  body.light-mode .cw-apjc-tabs { border-color:#e0e3e7; }
+  body.light-mode .cw-apjc-tab { border-color:#d1d5db; color:#6b7280; background:#fff; }
+  body.light-mode .cw-apjc-tab.active { background:#e64a19; border-color:#e64a19; color:#fff; }
+  .cw-apjc-row { display:flex; gap:8px; padding:7px 0; border-bottom:1px solid #1e2029; align-items:flex-start; }
+  body.light-mode .cw-apjc-row { border-color:#e0e3e7; }
+  .cw-apjc-row:last-child { border-bottom:none; }
+  .cw-apjc-flag { font-size:1.1rem; flex-shrink:0; line-height:1.5; }
+  .cw-apjc-country { font-size:0.67rem; font-weight:700; color:#9aa0a6; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+  .cw-apjc-text { font-size:0.73rem; color:#e8eaed; line-height:1.45; }
+  body.light-mode .cw-apjc-text { color:#202124; }
+  .cw-apjc-no-updates { padding:20px; text-align:center; color:#5f6368; font-size:0.8rem; }
+  /* ────────────────────────────────────────────────────────────────────── */
+
   .cw-customize-btn {
     display:flex; align-items:center; gap:5px;
     background:none; border:1px solid #3a3d45; border-radius:5px;
@@ -3591,6 +3611,24 @@
             </div>
           </div>
           <div class="cw-oil-disclaimer">⚠ Strategic reserve figures are disclosed less frequently than proven reserves. Emergency stock data may lag official updates by weeks or months. Checked daily — values only updated when confirmed by ≥3 credible sources.</div>
+        </div>
+      </div>
+
+      <!-- ── APJC FUEL CRISIS MONITOR ─────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-apjc-widget" gs-x="0" gs-y="26" gs-w="6" gs-h="10" gs-min-h="5">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-fire" style="margin-right:6px;color:#ff7043;"></i>APJC Fuel Crisis Monitor</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+              <span style="font-size:0.6rem;color:#5f6368;font-style:italic;">Updated manually</span>
+            </div>
+          </div>
+          <div class="cw-apjc-tabs" id="cw-apjc-tabs"></div>
+          <div class="airport-ai-bar" style="margin:4px 8px;border-radius:4px;">
+            <i class="fas fa-map-marker-alt" style="margin-right:6px;color:#ff7043;"></i>
+            <span>APJC regional situation reports · Dell operations · Source: Fuel-crisis-monitoring-APJC.xlsx</span>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll" id="cw-apjc-list" style="padding:4px 8px;"></div>
         </div>
       </div>
 
@@ -6985,7 +7023,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v5';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v6';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7015,6 +7053,7 @@
       'cw-radiation-widget': false,   // available in Customize
       'cw-debt-widget'     : false,   // available in Customize
       'cw-webcams-widget'  : true,
+      'cw-apjc-widget'     : true,    // APJC Fuel Crisis Monitor
       'cw-osint-widget'    : false,   // available in Customize
     };
 
@@ -7025,12 +7064,12 @@
       { id:'cw-fuel-widget',      x:0,  y:9,  w:6,  h:8  },
       { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },  // new — next to fuel
       { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
-      // Below: optional widgets (hidden by default — placed at y:26 so they never
-      // conflict with visible widgets above; appear at bottom when user enables them)
-      { id:'cw-sirens-widget',    x:0,  y:26, w:6,  h:8  },
-      { id:'cw-radiation-widget', x:6,  y:26, w:6,  h:8  },
-      { id:'cw-debt-widget',      x:0,  y:34, w:6,  h:8  },
-      { id:'cw-osint-widget',     x:6,  y:34, w:6,  h:8  },
+      { id:'cw-apjc-widget',      x:0,  y:26, w:6,  h:10 },  // APJC Fuel Crisis Monitor
+      // Below: optional widgets (hidden by default; appear at bottom when user enables them)
+      { id:'cw-sirens-widget',    x:0,  y:36, w:6,  h:8  },
+      { id:'cw-radiation-widget', x:6,  y:36, w:6,  h:8  },
+      { id:'cw-debt-widget',      x:0,  y:44, w:6,  h:8  },
+      { id:'cw-osint-widget',     x:6,  y:44, w:6,  h:8  },
     ];
 
     /* Widget metadata for the picker — default-on widgets first */
@@ -7040,6 +7079,7 @@
       { id:'cw-fuel-widget',      label:'Fuel Supply Index',         icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation days of supply by country' },
       { id:'cw-oil-widget',       label:'Oil Reserves & Emergency Stocks', icon:'fa-oil-can',  desc:'Proven oil reserves + strategic petroleum reserves · Dell countries · Multi-source verified' },
       { id:'cw-webcams-widget',   label:'Live Airport & Port Cams',  icon:'fa-video',          desc:'Airport & seaport live cameras with autoplay' },
+      { id:'cw-apjc-widget',      label:'APJC Fuel Crisis Monitor',  icon:'fa-fire',           desc:'Day-by-day APJC country situation reports · sourced from field teams' },
       { id:'cw-sirens-widget',    label:'Israel Alert System',       icon:'fa-bell',           desc:'OREF live sirens — real-time (optional)' },
       { id:'cw-radiation-widget', label:'Radiation Watch',           icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors (optional)' },
       { id:'cw-debt-widget',      label:'National Debt Clock',       icon:'fa-coins',          desc:'IMF debt data with live tickers (optional)' },
@@ -8475,6 +8515,119 @@
       });
     }
 
+  })();
+  </script>
+
+  <!-- ── APJC FUEL CRISIS MONITOR — data + render ─────────────────────── -->
+  <script>
+  (function() {
+    var APJC_DATA = {
+      days: ['pre','mar23','mar24','mar25','mar26','mar27'],
+      dayLabels: { pre:'Pre 23-Mar', mar23:'23-Mar', mar24:'24-Mar', mar25:'25-Mar', mar26:'26-Mar', mar27:'27-Mar' },
+      countries: [
+        { code:'AUS', flag:'🇦🇺', name:'Australia', updates: {
+          mar23: 'Road freight and regional distribution most exposed (diesel availability + cost); localized station outages already reported. NSW station outages show the practical risk to last mile operations and contractor mobility today.'
+        }},
+        { code:'BGD', flag:'🇧🇩', name:'Bangladesh', updates: {} },
+        { code:'CHN', flag:'🇨🇳', name:'China', updates: {
+          mar23: 'Checked in with logistic, ops and facility team, there is no major impact on business operation production currently. Facility team is concerned with the impact on the shuttle bus vendor. There is no significant impact on our Chengdu manufacturing and business operations. Freight costs are likely to rise along with increasing oil prices.'
+        }},
+        { code:'HKG', flag:'🇭🇰', name:'Hong Kong', updates: {} },
+        { code:'IDN', flag:'🇮🇩', name:'Indonesia', updates: {
+          mar23: 'Government gears up to enforce one-day Work From Home policy for civil servants which aims to reduce energy consumption.'
+        }},
+        { code:'IND', flag:'🇮🇳', name:'India', updates: {
+          pre:   'Cafeteria Impact Due to Liquid Petroleum Gas Shortages.',
+          mar24: 'No reported disruption to cargo operations involving Indian vessels so far. Authorities and maritime stakeholders continue to monitor the situation closely, ensuring the safety of seafarers and uninterrupted energy supplies.',
+          mar25: 'From a corporate operations standpoint: No business or transport impact has been observed. Employee commute and shuttle services are operating as usual. Transport partners have confirmed normal fuel access.'
+        }},
+        { code:'JPN', flag:'🇯🇵', name:'Japan', updates: {
+          mar23: 'There have been no reported disruptions to cargo operations or Dell operations at this time. Ministry of Foreign Affairs released a wide-area information about the tension of the situation in the Middle East to the whole world for Japanese people traveling and staying abroad.'
+        }},
+        { code:'KOR', flag:'🇰🇷', name:'South Korea', updates: {
+          mar23: 'The government will strictly enforce a mandatory five-day vehicle restriction system for the public sector to respond to possible oil supply disruption amid persisting tensions in the Middle East while implementing additional energy-saving measures.',
+          mar25: 'Starting Wednesday Mar 25, vehicles are divided into five groups based on license plate numbers and are barred from driving on a designated weekday. Electric and hydrogen vehicles are exempt.'
+        }},
+        { code:'LKA', flag:'🇱🇰', name:'Sri Lanka', updates: {
+          mar23: 'Shorter Work Week (Wednesday public holidays, offices, schools close and civil servants WFH).'
+        }},
+        { code:'MMR', flag:'🇲🇲', name:'Myanmar', updates: {} },
+        { code:'MYS', flag:'🇲🇾', name:'Malaysia', updates: {
+          mar23: 'Government subsidies have risen from around RM700 million to RM3.2 billion in less than a week following the surge in global oil prices.'
+        }},
+        { code:'NZL', flag:'🇳🇿', name:'New Zealand', updates: {
+          mar23: 'Road freight seeing cost pressure but no supply failure signals; aviation disruption more visible (Air NZ cancellations).'
+        }},
+        { code:'PAK', flag:'🇵🇰', name:'Pakistan', updates: {} },
+        { code:'PHL', flag:'🇵🇭', name:'Philippines', updates: {
+          pre:   'The Global CSB Renewals team (Night Shift) was on remote work status on March 19.',
+          mar23: "Nationwide strike 'transport holiday' declared.",
+          mar26: "Nationwide strike 'transport holiday' declared. The Global CSB Renewals Team (Night Shift) will WFH.",
+          mar27: "Nationwide strike 'transport holiday' declared. The Global CSB Renewals Team (Night Shift) will WFH."
+        }},
+        { code:'SGP', flag:'🇸🇬', name:'Singapore', updates: {
+          mar23: 'Singapore has not yet dipped into its energy stockpile and is prepared for multiple scenarios. Fuel prices have gone up an average of 25% this month.'
+        }},
+        { code:'THA', flag:'🇹🇭', name:'Thailand', updates: {
+          mar23: 'Fuel shortages, particularly diesel, have intensified across several provinces, with long queues forming at petrol stations, supplies running out within hours and motorists left waiting without certainty of refuelling.'
+        }},
+        { code:'TWN', flag:'🇹🇼', name:'Taiwan', updates: {
+          mar23: 'Government has not announced any fuel rationing measures and is currently absorbing 75% of the fuel price increase.'
+        }},
+        { code:'VNM', flag:'🇻🇳', name:'Vietnam', updates: {
+          mar24: 'Dell Vietnam Operations: no significant impact observed. Dell Supply Chain: Transportation fees need to be adjusted and LSPs have raised revised pricing to Dell Procurement. In the meantime, LSPs ensure that operations continue as normal.'
+        }}
+      ]
+    };
+
+    var _apjcDay = 'mar27'; // default to most recent day
+
+    function _apjcEsc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function _apjcRenderTabs() {
+      var el = document.getElementById('cw-apjc-tabs');
+      if (!el) return;
+      el.innerHTML = APJC_DATA.days.map(function(d) {
+        return '<button class="cw-apjc-tab' + (d === _apjcDay ? ' active' : '') + '" onclick="window._apjcSetDay(\'' + d + '\')">' + APJC_DATA.dayLabels[d] + '</button>';
+      }).join('');
+    }
+
+    function _apjcRenderList() {
+      var el = document.getElementById('cw-apjc-list');
+      if (!el) return;
+      var rows = APJC_DATA.countries.filter(function(c) { return c.updates[_apjcDay]; });
+      if (!rows.length) {
+        el.innerHTML = '<div class="cw-apjc-no-updates"><i class="fas fa-check-circle" style="color:#34a853;margin-right:6px;"></i>No disruptions reported for this date.</div>';
+        return;
+      }
+      el.innerHTML = rows.map(function(c) {
+        return '<div class="cw-apjc-row">'
+          + '<div class="cw-apjc-flag">' + c.flag + '</div>'
+          + '<div style="flex:1;min-width:0;">'
+          + '<div class="cw-apjc-country">' + _apjcEsc(c.code) + ' &middot; ' + _apjcEsc(c.name) + '</div>'
+          + '<div class="cw-apjc-text">' + _apjcEsc(c.updates[_apjcDay]) + '</div>'
+          + '</div></div>';
+      }).join('');
+    }
+
+    window._apjcSetDay = function(day) {
+      _apjcDay = day;
+      _apjcRenderTabs();
+      _apjcRenderList();
+    };
+
+    function _apjcInit() {
+      _apjcRenderTabs();
+      _apjcRenderList();
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(_apjcInit, 200);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() { setTimeout(_apjcInit, 200); });
+    }
   })();
   </script>
 
