@@ -3626,7 +3626,7 @@
           <div class="cw-apjc-tabs" id="cw-apjc-tabs"></div>
           <div class="airport-ai-bar" style="margin:4px 8px;border-radius:4px;">
             <i class="fas fa-map-marker-alt" style="margin-right:6px;color:#ff7043;"></i>
-            <span>APJC regional situation reports · Dell operations · Source: Fuel-crisis-monitoring-APJC.xlsx</span>
+            <span>APJC regional situation reports · Dell operations</span>
           </div>
           <div class="vw-gs-body vw-gs-scroll" id="cw-apjc-list" style="padding:4px 8px;"></div>
         </div>
@@ -7023,7 +7023,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v6';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v7';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7060,11 +7060,11 @@
     /* Default GridStack layout — clean new layout */
     var CW_DEFAULT_LAYOUT = [
       { id:'cw-posture-widget',   x:0,  y:0,  w:12, h:1  },
-      { id:'cw-map-widget',       x:0,  y:1,  w:12, h:8  },  // full width — sirens off default
+      { id:'cw-map-widget',       x:0,  y:1,  w:8,  h:8  },  // left 8 cols — APJC sits right
+      { id:'cw-apjc-widget',      x:8,  y:1,  w:4,  h:8  },  // APJC Fuel Crisis Monitor — right of map
       { id:'cw-fuel-widget',      x:0,  y:9,  w:6,  h:8  },
-      { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },  // new — next to fuel
+      { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },
       { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
-      { id:'cw-apjc-widget',      x:0,  y:26, w:6,  h:10 },  // APJC Fuel Crisis Monitor
       // Below: optional widgets (hidden by default; appear at bottom when user enables them)
       { id:'cw-sirens-widget',    x:0,  y:36, w:6,  h:8  },
       { id:'cw-radiation-widget', x:6,  y:36, w:6,  h:8  },
