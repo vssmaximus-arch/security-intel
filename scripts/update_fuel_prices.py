@@ -1,56 +1,81 @@
 #!/usr/bin/env python3
 """
-update_fuel_prices.py — Daily scrape of globalpetrolprices.com
+update_fuel_prices.py — Scrape globalpetrolprices.com via Playwright (headless Chromium).
+Country names are JS-rendered so requests-only approach cannot extract them.
 Outputs: public/data/fuel_prices.json
-Called by: .github/workflows/update_news.yml (daily)
+Called by: .github/workflows/update_fuel_prices.yml (every 12 hours)
 """
-import requests, re, json, os, sys
+import json, os, sys, re
 from datetime import datetime, timezone
 
 URL      = 'https://www.globalpetrolprices.com/gasoline_prices/'
 OUT_PATH = os.path.join(os.path.dirname(__file__), '..', 'public', 'data', 'fuel_prices.json')
 
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-                  '(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Cache-Control': 'no-cache',
-}
 
 def scrape():
-    print(f'[fuel-prices] Fetching {URL}')
-    res = requests.get(URL, headers=HEADERS, timeout=30)
-    res.raise_for_status()
-    html = res.text
-    print(f'[fuel-prices] Got {len(html)} chars')
+    from playwright.sync_api import sync_playwright
 
-    # Extract country names from graph_outside_link anchors
-    countries = re.findall(r'class="graph_outside_link"[^>]*>([^<*]+)\*?</a>', html)
-    countries = [c.strip() for c in countries if c.strip()]
-    print(f'[fuel-prices] Found {len(countries)} countries')
+    print(f'[fuel-prices] Launching headless Chromium → {URL}')
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        ctx = browser.new_context(
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                       'AppleWebKit/537.36 (KHTML, like Gecko) '
+                       'Chrome/122.0.0.0 Safari/537.36',
+            locale='en-US',
+        )
+        page = ctx.new_page()
+        page.goto(URL, wait_until='networkidle', timeout=90000)
 
-    # Extract prices from #graphic bar chart section
-    g_start = html.find('id="graphic"')
-    g_end   = html.find('id="outsideLinks"')
-    if g_start < 0:
-        raise ValueError('Could not find #graphic section in HTML')
-    graphic_html = html[g_start: g_end if g_end > g_start else g_start + 120000]
-    prices = [float(p) for p in re.findall(r'>(\d+\.\d+)</div>', graphic_html)]
-    print(f'[fuel-prices] Found {len(prices)} prices')
+        # Wait for the bar chart to be visible
+        try:
+            page.wait_for_selector('.graph_outside_link', timeout=15000)
+        except Exception:
+            print('[fuel-prices] WARNING: .graph_outside_link selector timeout — proceeding anyway')
+
+        result = page.evaluate('''() => {
+            // Country names from bar-chart outside links
+            var countryLinks = Array.from(document.querySelectorAll(".graph_outside_link"));
+            var countries = countryLinks.map(function(a) {
+                return a.textContent.trim().replace(/\\*$/, "").trim();
+            }).filter(function(c){ return c.length > 0; });
+
+            // Prices from #graphic numeric text nodes  ">0.024</div>"
+            var graphic = document.getElementById("graphic");
+            var prices = [];
+            if (graphic) {
+                var raw = graphic.innerHTML.match(/>([0-9]+\\.[0-9]+)<\\/div>/g) || [];
+                prices = raw.map(function(m){
+                    return parseFloat(m.replace(">","").replace("</div>",""));
+                });
+            }
+
+            // Date from H1
+            var h1 = document.querySelector("h1");
+            var dateText = h1 ? h1.textContent.trim() : "";
+
+            return { countries: countries, prices: prices, dateText: dateText };
+        }''')
+
+        browser.close()
+
+    countries = result['countries']
+    prices    = result['prices']
+    date_text = result['dateText']
+
+    print(f'[fuel-prices] Found {len(countries)} countries, {len(prices)} prices')
 
     if not countries or not prices:
         raise ValueError(f'Parse failed: {len(countries)} countries, {len(prices)} prices')
 
-    # Extract date from H1
-    date_match = re.search(r'Gasoline prices,\s*(?:liter|Octane-95),\s*([^<\n"]+)', html)
-    price_date = date_match.group(1).strip() if date_match else datetime.now(timezone.utc).strftime('%d-%b-%Y')
+    # Extract date string e.g. "23-Mar-2026"
+    dm = re.search(r'(\d{1,2}-\w{3}-\d{4})', date_text)
+    price_date = dm.group(1) if dm else datetime.now(timezone.utc).strftime('%d-%b-%Y')
 
-    # Zip into price map
-    count = min(len(countries), len(prices))
+    count     = min(len(countries), len(prices))
     price_map = {countries[i]: prices[i] for i in range(count)}
 
-    result = {
+    output = {
         'ok':      True,
         'date':    price_date,
         'isoDate': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
@@ -62,9 +87,10 @@ def scrape():
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii=False)
-    print(f'[fuel-prices] Saved {count} country prices to {OUT_PATH}')
-    return result
+        json.dump(output, f, ensure_ascii=False)
+    print(f'[fuel-prices] Saved {count} country prices → {OUT_PATH}')
+    return output
+
 
 if __name__ == '__main__':
     try:

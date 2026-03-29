@@ -2118,9 +2118,9 @@
   ═══════════════════════════════════════════════════════════════════════════ */
 
   /* Tab icon — pulsing red dot */
-  .cw-tab-dot { color:#e53935; font-size:0.55rem; vertical-align:middle; animation:cw-pulse 2s ease-in-out infinite; }
+  .cw-tab-dot { color:#e53935; font-size:0.55rem; vertical-align:middle; opacity:0.5; }
   @keyframes cw-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-  .view-tab[data-view="crisis-watch"].active .cw-tab-dot { animation:cw-pulse 1s ease-in-out infinite; }
+  .view-tab[data-view="crisis-watch"].active .cw-tab-dot { opacity:1; animation:cw-pulse 1s ease-in-out infinite; }
 
   /* ── Top bar ── */
   .cw-topbar {
@@ -2661,7 +2661,7 @@
 
     <!-- ✈ View Switcher — Intelligence / Airport Disruptions / Port Disruptions / Live News -->
     <div class="view-switcher" role="tablist" aria-label="Dashboard view">
-      <button class="view-tab" data-view="intelligence" role="tab" aria-selected="false" tabindex="0">
+      <button class="view-tab active" data-view="intelligence" role="tab" aria-selected="true" tabindex="0">
         <i class="fas fa-shield-alt" aria-hidden="true"></i> Intelligence
       </button>
       <button class="view-tab" data-view="airport" role="tab" aria-selected="false" tabindex="0">
@@ -2676,7 +2676,7 @@
       <button class="view-tab" data-view="live-news" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-satellite-dish" aria-hidden="true"></i> Live News
       </button>
-      <button class="view-tab active" data-view="crisis-watch" role="tab" aria-selected="true" tabindex="0">
+      <button class="view-tab" data-view="crisis-watch" role="tab" aria-selected="false" tabindex="0">
         <i class="fas fa-circle cw-tab-dot" aria-hidden="true"></i> Crisis Watch
       </button>
     </div>
