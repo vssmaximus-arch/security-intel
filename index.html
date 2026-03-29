@@ -4797,8 +4797,13 @@
 
       renderPicker();
 
-      /* Default landing view — Crisis Watch */
-      switchView('crisis-watch');
+      /* Default landing view — Crisis Watch.
+         switchView() lives in a separate IIFE so we simulate a tab click,
+         which routes through the document click handler that owns switchView. */
+      setTimeout(function() {
+        var _cwTab = document.querySelector('.view-tab[data-view="crisis-watch"]');
+        if (_cwTab) _cwTab.click();
+      }, 0);
     }
 
     /* Run after DOM + GridStack are ready ----------------------------- */
