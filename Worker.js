@@ -8534,6 +8534,71 @@ async function handleApiFuelSupply(env, ctx) {
   return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
 }
 
+/* ── EIA Crude Oil Spot Prices (Brent + WTI, daily) ─────────────────────── */
+async function handleApiEiaCrude(env) {
+  const KV_KEY = 'cw:eia:crude:v1';
+  try {
+    const cached = await env.OSINFOHUB_KV.getWithMetadata(KV_KEY, 'json');
+    if (cached.value && cached.metadata && (Date.now() - cached.metadata.ts) < 4 * 3600000) {
+      return new Response(JSON.stringify(cached.value), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
+    }
+  } catch(e) {}
+
+  if (!env.EIA_API_KEY) {
+    return new Response(JSON.stringify({ ok:false, error:'no_key' }), { headers: CW_CORS });
+  }
+
+  try {
+    const url = 'https://api.eia.gov/v2/petroleum/pri/spt/data/?api_key=' + env.EIA_API_KEY
+      + '&frequency=daily&data[0]=value&facets[series][]=RBRTE&facets[series][]=RWTC'
+      + '&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=90';
+
+    const resp = await fetch(url, { headers: { 'User-Agent':'SRO-Intel/1.0' } });
+    if (!resp.ok) throw new Error('EIA HTTP ' + resp.status);
+    const json = await resp.json();
+    const rows = json?.response?.data || [];
+
+    /* Separate Brent and WTI, sort chronologically */
+    const brent = rows.filter(function(r){ return r.series === 'RBRTE'; })
+      .map(function(r){ return { date: r.period, price: parseFloat(r.value) }; })
+      .filter(function(r){ return !isNaN(r.price); })
+      .sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+    const wti = rows.filter(function(r){ return r.series === 'RWTC'; })
+      .map(function(r){ return { date: r.period, price: parseFloat(r.value) }; })
+      .filter(function(r){ return !isNaN(r.price); })
+      .sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+
+    var lb = brent[brent.length - 1] || null;
+    var pb = brent[brent.length - 2] || null;
+    var lw = wti[wti.length - 1] || null;
+    var pw = wti[wti.length - 2] || null;
+
+    var result = {
+      ok: true,
+      ts: Date.now(),
+      brent: {
+        latest:    lb,
+        change:    (lb && pb) ? +(lb.price - pb.price).toFixed(2) : null,
+        changePct: (lb && pb) ? +((lb.price - pb.price) / pb.price * 100).toFixed(2) : null,
+        history:   brent.slice(-60)
+      },
+      wti: {
+        latest:    lw,
+        change:    (lw && pw) ? +(lw.price - pw.price).toFixed(2) : null,
+        changePct: (lw && pw) ? +((lw.price - pw.price) / pw.price * 100).toFixed(2) : null,
+        history:   wti.slice(-60)
+      },
+      spread: (lb && lw) ? +(lb.price - lw.price).toFixed(2) : null
+    };
+
+    try { await env.OSINFOHUB_KV.put(KV_KEY, JSON.stringify(result), { expirationTtl: 4*3600, metadata: { ts: Date.now() } }); } catch(e2) {}
+    return new Response(JSON.stringify(result), { headers: Object.assign({}, CW_CORS, {'Cache-Control':'public,max-age=3600'}) });
+  } catch(e) {
+    debug('[eia-crude] error:', e.message);
+    return new Response(JSON.stringify({ ok:false, error: e.message }), { headers: CW_CORS });
+  }
+}
+
 /* ── Radiation Sensors (Safecast + EPA RadNet) ────────────────────────────── */
 /* Reverse geocode lat/lon → "City, Country" using OpenStreetMap Nominatim (free, no key) */
 async function reverseGeocode(env, lat, lon) {
@@ -9098,6 +9163,8 @@ async function handleRequest(req, env, ctx) {
       return handleApiGlobalFuelPrices(env);
     } else if (p.startsWith('/api/fuel/supply')) {
       return handleApiFuelSupply(env, ctx);
+    } else if (p.startsWith('/api/eia/crude')) {
+      return handleApiEiaCrude(env);
     } else if (p.startsWith('/api/radiation/sensors')) {
       return handleApiRadiationSensors(env, ctx);
     } else if (p.startsWith('/api/debt/countries')) {

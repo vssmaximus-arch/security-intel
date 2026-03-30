@@ -2442,6 +2442,25 @@
   #gfp-chart { width:100%; border-radius:4px; overflow:visible; }
   .gfp-attr { font-size:.58rem; color:#5f6368; padding:2px 10px 4px; }
 
+  /* ── Crude Oil Widget ── */
+  .crude-body { display:flex; height:calc(100% - 36px); overflow:hidden; }
+  .crude-cards { width:220px; min-width:180px; padding:10px 12px; display:flex; flex-direction:column; gap:10px; border-right:1px solid rgba(255,255,255,.07); }
+  .crude-card { background:rgba(255,255,255,.04); border-radius:8px; padding:10px 12px; }
+  .crude-card-label { font-size:.62rem; color:#9aa0a6; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+  .crude-card-price { font-size:1.5rem; font-weight:700; color:#e8eaed; line-height:1; }
+  .crude-card-price span { font-size:.75rem; color:#9aa0a6; font-weight:400; margin-left:3px; }
+  .crude-card-change { font-size:.72rem; margin-top:4px; }
+  .crude-card-change.up   { color:#f28b82; }
+  .crude-card-change.down { color:#81c995; }
+  .crude-card-change.flat { color:#9aa0a6; }
+  .crude-spread { background:rgba(255,255,255,.04); border-radius:8px; padding:8px 12px; margin-top:auto; }
+  .crude-spread-label { font-size:.6rem; color:#9aa0a6; text-transform:uppercase; letter-spacing:.05em; }
+  .crude-spread-val { font-size:1rem; font-weight:600; color:#fdd663; }
+  .crude-chart-area { flex:1; display:flex; flex-direction:column; padding:10px 14px; overflow:hidden; }
+  .crude-chart-title { font-size:.65rem; color:#9aa0a6; margin-bottom:6px; }
+  #crude-chart { flex:1; width:100%; }
+  .crude-attr { font-size:.58rem; color:#5f6368; padding:2px 10px 4px; }
+
   .cw-webcams-toolbar {
     display:flex; align-items:center; gap:6px; padding:6px 8px;
     border-bottom:1px solid #2a2d35; flex-wrap:wrap;
@@ -3849,6 +3868,48 @@
             </div>
           </div>
           <div class="gfp-attr">Data: globalpetrolprices.com · CC BY 4.0 · Gasoline Octane-95 · Updated weekly per country</div>
+        </div>
+      </div>
+
+      <!-- ── CRUDE OIL PRICES (Brent + WTI, EIA daily) ──────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-crude-widget" gs-x="0" gs-y="40" gs-w="12" gs-h="8" gs-min-h="6">
+        <div class="grid-stack-item-content vw-gs-content" style="display:flex;flex-direction:column;overflow:hidden;">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-oil-can" style="margin-right:6px;color:#f9ab00;"></i>Crude Oil Prices · Brent &amp; WTI (USD/bbl)</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+              <span id="crude-date" style="font-size:.65rem;color:#9aa0a6;"></span>
+              <a href="https://www.eia.gov/petroleum/weekly/" target="_blank" rel="noopener" style="font-size:.58rem;color:#4fc3f7;text-decoration:none;background:#0d2133;border:1px solid #1a3a52;border-radius:3px;padding:1px 6px;">EIA ↗</a>
+              <button class="cw-gs-icon-btn" id="crude-refresh-btn" title="Refresh crude prices"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div class="crude-body">
+            <!-- Left: price cards -->
+            <div class="crude-cards">
+              <div class="crude-card">
+                <div class="crude-card-label">🛢 Brent Crude</div>
+                <div class="crude-card-price" id="crude-brent-price">—<span>USD/bbl</span></div>
+                <div class="crude-card-change flat" id="crude-brent-change">Loading…</div>
+              </div>
+              <div class="crude-card">
+                <div class="crude-card-label">🛢 WTI Crude</div>
+                <div class="crude-card-price" id="crude-wti-price">—<span>USD/bbl</span></div>
+                <div class="crude-card-change flat" id="crude-wti-change">Loading…</div>
+              </div>
+              <div class="crude-spread">
+                <div class="crude-spread-label">Brent–WTI Spread</div>
+                <div class="crude-spread-val" id="crude-spread">—</div>
+              </div>
+            </div>
+            <!-- Right: chart -->
+            <div class="crude-chart-area">
+              <div class="crude-chart-title">📈 60-Day Price Trend (USD/bbl) &nbsp;
+                <span style="color:#f9ab00;font-size:.6rem;">— Brent</span> &nbsp;
+                <span style="color:#4fc3f7;font-size:.6rem;">— WTI</span>
+              </div>
+              <svg id="crude-chart" preserveAspectRatio="none"></svg>
+            </div>
+          </div>
+          <div class="crude-attr">Source: U.S. Energy Information Administration (EIA) · Spot prices FOB · Updated daily (trading days)</div>
         </div>
       </div>
 
@@ -7112,7 +7173,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v8';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v9';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7144,6 +7205,7 @@
       'cw-webcams-widget'  : true,
       'cw-apjc-widget'     : true,    // APJC Fuel Crisis Monitor
       'cw-gfp-widget'      : true,    // Global Fuel Prices
+      'cw-crude-widget'    : true,    // Crude Oil Prices (EIA Brent + WTI)
       'cw-osint-widget'    : false,   // available in Customize
     };
 
@@ -7156,6 +7218,7 @@
       { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },
       { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
       { id:'cw-gfp-widget',      x:0,  y:26, w:12, h:14 },  // Global Fuel Prices
+      { id:'cw-crude-widget',    x:0,  y:40, w:12, h:8  },  // Crude Oil Prices (EIA Brent + WTI)
       // Below: optional widgets (hidden by default; appear at bottom when user enables them)
       { id:'cw-sirens-widget',    x:0,  y:36, w:6,  h:8  },
       { id:'cw-radiation-widget', x:6,  y:36, w:6,  h:8  },
@@ -7172,6 +7235,7 @@
       { id:'cw-webcams-widget',   label:'Live Airport & Port Cams',  icon:'fa-video',          desc:'Airport & seaport live cameras with autoplay' },
       { id:'cw-apjc-widget',      label:'APJC Fuel Crisis Monitor',  icon:'fa-fire',           desc:'Day-by-day APJC country situation reports · sourced from field teams' },
       { id:'cw-gfp-widget',       label:'Global Fuel Prices',         icon:'fa-gas-pump',        desc:'Live gasoline prices for 170 countries · USD/L · Daily scrape + 60-day trend chart' },
+      { id:'cw-crude-widget',     label:'Crude Oil Prices',           icon:'fa-oil-can',         desc:'EIA daily Brent & WTI spot prices · USD/bbl · 60-day trend chart' },
       { id:'cw-sirens-widget',    label:'Israel Alert System',       icon:'fa-bell',           desc:'OREF live sirens — real-time (optional)' },
       { id:'cw-radiation-widget', label:'Radiation Watch',           icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors (optional)' },
       { id:'cw-debt-widget',      label:'National Debt Clock',       icon:'fa-coins',          desc:'IMF debt data with live tickers (optional)' },
@@ -7436,10 +7500,127 @@
     window.gfpRender      = gfpRender;
     window.loadGfpPrices  = loadGfpPrices;
 
-    /* Wire refresh button */
+    /* Wire GFP refresh button */
     document.addEventListener('DOMContentLoaded', function() {
       var rbtn = document.getElementById('gfp-refresh-btn');
       if (rbtn) rbtn.addEventListener('click', function(){ loadGfpPrices(true); });
+    });
+
+    /* ══════════════════════════════════════════════════════════════════════
+       CRUDE OIL PRICES — EIA Brent & WTI daily
+       ══════════════════════════════════════════════════════════════════════ */
+    var _crudeData = null;
+
+    function _crudeChangeHtml(change, changePct) {
+      if (change === null || change === undefined) return '<span class="flat">No change data</span>';
+      var arrow = change > 0 ? '▲' : change < 0 ? '▼' : '▶';
+      var cls   = change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
+      var sign  = change > 0 ? '+' : '';
+      return '<span class="' + cls + '">' + arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%) vs prev day</span>';
+    }
+
+    function _crudeDrawChart(brentHist, wtiHist) {
+      var svg = document.getElementById('crude-chart');
+      if (!svg || !brentHist.length) return;
+      var W = svg.clientWidth  || 600;
+      var H = svg.clientHeight || 160;
+      if (W < 10 || H < 10) { setTimeout(function(){ _crudeDrawChart(brentHist, wtiHist); }, 200); return; }
+
+      /* Combine for scale */
+      var allPrices = brentHist.map(function(d){ return d.price; }).concat(wtiHist.map(function(d){ return d.price; }));
+      var minP = Math.min.apply(null, allPrices);
+      var maxP = Math.max.apply(null, allPrices);
+      var pad  = (maxP - minP) * 0.1 || 2;
+      minP -= pad; maxP += pad;
+
+      function toX(i, len) { return (i / Math.max(len - 1, 1)) * W; }
+      function toY(p)      { return H - ((p - minP) / (maxP - minP)) * H; }
+
+      function makePoly(hist) {
+        return hist.map(function(d, i){ return toX(i, hist.length).toFixed(1) + ',' + toY(d.price).toFixed(1); }).join(' ');
+      }
+
+      /* Y-axis labels */
+      var numTicks = 4;
+      var tickLabels = '';
+      for (var t = 0; t <= numTicks; t++) {
+        var val = minP + (maxP - minP) * (t / numTicks);
+        var y   = toY(val);
+        tickLabels += '<text x="4" y="' + (y - 2).toFixed(1) + '" fill="#5f6368" font-size="9" font-family="sans-serif">$' + val.toFixed(0) + '</text>';
+      }
+
+      /* Latest date label */
+      var lastDate = brentHist.length ? brentHist[brentHist.length - 1].date : '';
+
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      svg.innerHTML =
+        /* grid lines */
+        '<line x1="0" y1="' + toY((minP + maxP) / 2).toFixed(1) + '" x2="' + W + '" y2="' + toY((minP + maxP) / 2).toFixed(1) + '" stroke="rgba(255,255,255,.07)" stroke-width="1"/>' +
+        tickLabels +
+        /* Brent line (amber) */
+        '<polyline points="' + makePoly(brentHist) + '" fill="none" stroke="#f9ab00" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+        /* WTI line (blue) */
+        '<polyline points="' + makePoly(wtiHist) + '" fill="none" stroke="#4fc3f7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+        /* Latest date */
+        '<text x="' + (W - 4) + '" y="' + (H - 4) + '" fill="#5f6368" font-size="9" font-family="sans-serif" text-anchor="end">' + lastDate + '</text>';
+    }
+
+    function _crudeRender(data) {
+      if (!data || !data.ok) return;
+      var b = data.brent;
+      var w = data.wti;
+
+      /* Brent card */
+      var bPrice = document.getElementById('crude-brent-price');
+      var bChange = document.getElementById('crude-brent-change');
+      if (bPrice && b.latest) {
+        bPrice.innerHTML = '$' + b.latest.price.toFixed(2) + '<span>USD/bbl</span>';
+      }
+      if (bChange) bChange.innerHTML = _crudeChangeHtml(b.change, b.changePct);
+
+      /* WTI card */
+      var wPrice = document.getElementById('crude-wti-price');
+      var wChange = document.getElementById('crude-wti-change');
+      if (wPrice && w.latest) {
+        wPrice.innerHTML = '$' + w.latest.price.toFixed(2) + '<span>USD/bbl</span>';
+      }
+      if (wChange) wChange.innerHTML = _crudeChangeHtml(w.change, w.changePct);
+
+      /* Spread */
+      var spreadEl = document.getElementById('crude-spread');
+      if (spreadEl && data.spread !== null) {
+        spreadEl.textContent = '$' + data.spread.toFixed(2) + ' /bbl';
+      }
+
+      /* Date */
+      var dateEl = document.getElementById('crude-date');
+      if (dateEl && b.latest) dateEl.textContent = b.latest.date;
+
+      /* Chart */
+      _crudeDrawChart(b.history || [], w.history || []);
+    }
+
+    async function loadCrudePrices(force) {
+      if (!force && _crudeData) { _crudeRender(_crudeData); return; }
+      try {
+        var res = await fetch(WORKER_URL + '/api/eia/crude?_=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var d = await res.json();
+        if (!d.ok) throw new Error(d.error || 'no_data');
+        _crudeData = d;
+        _crudeRender(_crudeData);
+      } catch(e) {
+        var bPrice = document.getElementById('crude-brent-price');
+        if (bPrice) bPrice.textContent = 'Error: ' + e.message;
+      }
+    }
+
+    window.loadCrudePrices = loadCrudePrices;
+
+    /* Wire crude refresh button */
+    document.addEventListener('DOMContentLoaded', function() {
+      var cbtn = document.getElementById('crude-refresh-btn');
+      if (cbtn) cbtn.addEventListener('click', function(){ loadCrudePrices(true); });
     });
 
     /* ── GridStack init ───────────────────────────────────────────────────── */
@@ -7509,6 +7690,7 @@
 
       /* Load fuel prices once on first Crisis Watch open */
       loadGfpPrices();
+      loadCrudePrices();
     };
 
     /* ── Main init (called once on first tab activation) ─────────────────── */
