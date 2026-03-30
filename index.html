@@ -9437,8 +9437,8 @@
   <script>
   (function() {
     var APJC_DATA = {
-      days: ['pre','mar23','mar24','mar25','mar26','mar27'],
-      dayLabels: { pre:'Pre 23-Mar', mar23:'23-Mar', mar24:'24-Mar', mar25:'25-Mar', mar26:'26-Mar', mar27:'27-Mar' },
+      days: ['pre','mar23','mar24','mar25','mar26','mar27','mar30'],
+      dayLabels: { pre:'Pre 23-Mar', mar23:'23-Mar', mar24:'24-Mar', mar25:'25-Mar', mar26:'26-Mar', mar27:'27-Mar', mar30:'30-Mar' },
       countries: [
         { code:'AUS', flag:'🇦🇺', name:'Australia', updates: {
           mar23: 'Road freight and regional distribution most exposed (diesel availability + cost); localized station outages already reported. NSW station outages show the practical risk to last mile operations and contractor mobility today.'
@@ -9464,27 +9464,34 @@
           mar25: 'Starting Wednesday Mar 25, vehicles are divided into five groups based on license plate numbers and are barred from driving on a designated weekday. Electric and hydrogen vehicles are exempt.'
         }},
         { code:'LKA', flag:'🇱🇰', name:'Sri Lanka', updates: {
-          mar23: 'Shorter Work Week (Wednesday public holidays, offices, schools close and civil servants WFH).'
+          mar23: 'Shorter Work Week (Wednesday public holidays, offices, schools close and civil servants WFH).',
+          mar30: 'Sri Lanka declared a public holiday every Wednesday to help make its fuel supplies go further.'
         }},
         { code:'MMR', flag:'🇲🇲', name:'Myanmar', updates: {} },
         { code:'MYS', flag:'🇲🇾', name:'Malaysia', updates: {
-          mar23: 'Government subsidies have risen from around RM700 million to RM3.2 billion in less than a week following the surge in global oil prices.'
+          mar23: 'Government subsidies have risen from around RM700 million to RM3.2 billion in less than a week following the surge in global oil prices.',
+          mar26: 'Malaysia to roll out flexi-work arrangements for civil servants. PM Anwar urges private sector to follow.'
         }},
         { code:'NZL', flag:'🇳🇿', name:'New Zealand', updates: {
           mar23: 'Road freight seeing cost pressure but no supply failure signals; aviation disruption more visible (Air NZ cancellations).'
         }},
-        { code:'PAK', flag:'🇵🇰', name:'Pakistan', updates: {} },
+        { code:'PAK', flag:'🇵🇰', name:'Pakistan', updates: {
+          mar30: 'Pakistan closed schools for two weeks and said office workers would work more from home.'
+        }},
         { code:'PHL', flag:'🇵🇭', name:'Philippines', updates: {
           pre:   'The Global CSB Renewals team (Night Shift) was on remote work status on March 19.',
           mar23: "Nationwide strike 'transport holiday' declared.",
+          mar25: 'President Ferdinand Marcos declared a state of national energy emergency.',
           mar26: "Nationwide strike 'transport holiday' declared. The Global CSB Renewals Team (Night Shift) will WFH.",
           mar27: "Nationwide strike 'transport holiday' declared. The Global CSB Renewals Team (Night Shift) will WFH."
         }},
         { code:'SGP', flag:'🇸🇬', name:'Singapore', updates: {
-          mar23: 'Singapore has not yet dipped into its energy stockpile and is prepared for multiple scenarios. Fuel prices have gone up an average of 25% this month.'
+          mar23: 'Singapore has not yet dipped into its energy stockpile and is prepared for multiple scenarios. Fuel prices have gone up an average of 25% this month.',
+          mar30: 'Government urged people and businesses to switch to energy-efficient appliances, use electric vehicles and set air conditioning temperatures higher.'
         }},
         { code:'THA', flag:'🇹🇭', name:'Thailand', updates: {
-          mar23: 'Fuel shortages, particularly diesel, have intensified across several provinces, with long queues forming at petrol stations, supplies running out within hours and motorists left waiting without certainty of refuelling.'
+          mar23: 'Fuel shortages, particularly diesel, have intensified across several provinces, with long queues forming at petrol stations, supplies running out within hours and motorists left waiting without certainty of refuelling.',
+          mar30: 'PM Anutin ordered bureaucrats to suspend overseas trips, set AC above 25°C, avoid suits and ties, use stairs instead of elevators, and work from home.'
         }},
         { code:'TWN', flag:'🇹🇼', name:'Taiwan', updates: {
           mar23: 'Government has not announced any fuel rationing measures and is currently absorbing 75% of the fuel price increase.'
@@ -9495,7 +9502,7 @@
       ]
     };
 
-    var _apjcDay = 'mar27'; // default to most recent day
+    var _apjcDay = 'mar30'; // default to most recent day
 
     function _apjcEsc(s) {
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
