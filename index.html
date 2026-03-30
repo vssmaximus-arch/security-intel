@@ -3553,9 +3553,6 @@
             <button class="cw-layer-pill" id="cwl-oil"    aria-pressed="false">
               <span class="pill-check"></span>🏭 Oil Reserves
             </button>
-            <button class="cw-layer-pill" id="cwl-apjc"   aria-pressed="false">
-              <span class="pill-check"></span>🔥 APJC Region
-            </button>
           </div>
           <div class="vw-gs-map-body">
             <div id="cw-map"></div>
@@ -7401,7 +7398,9 @@
       var W = 320, H = 180, PAD = { t:14, r:8, b:28, l:38 };
       var minV = Math.min.apply(null, pts.map(function(p){ return p.v; }));
       var maxV = Math.max.apply(null, pts.map(function(p){ return p.v; }));
-      var rangeV = maxV - minV || 0.1;
+      var rangeV = maxV - minV;
+      var flatLine = rangeV < 0.001; /* all same price */
+      if (flatLine) { minV -= 0.05; maxV += 0.05; rangeV = 0.1; }
       var chartW = W - PAD.l - PAD.r;
       var chartH = H - PAD.t - PAD.b;
 
@@ -8053,10 +8052,10 @@
         _cwUpdateMapLegend();
         return;
       }
-      /* Build iso2 → importCover lookup */
+      /* Build iso2 → oil entry lookup */
       var oilMap = {};
-      (cwOilData || []).forEach(function(d) {
-        if (d.iso) oilMap[d.iso.toUpperCase()] = d;
+      (cwOilData || OIL_RESERVES_DATA || []).forEach(function(d) {
+        if (d.iso2) oilMap[d.iso2.toUpperCase()] = d;
       });
       function _buildOilLayer(world) {
         var geojson = topojson.feature(world, world.objects.countries);
@@ -8064,20 +8063,25 @@
           style: function(feat) {
             var iso2   = _CW_ISO_NUM[String(feat.id)];
             var entry  = iso2 ? oilMap[iso2] : null;
-            var cover  = entry ? (entry.importCover || entry.emergencyStocks || null) : null;
+            var cover  = entry ? entry.import_cover : null;
             var color  = _cwOilColor(cover);
-            if (!color) return { fillOpacity:0, weight:0, stroke:false };
+            if (!color) {
+              /* Net exporters: show subtle green */
+              if (entry && entry.net_exporter) return { fillColor:'#1b5e20', fillOpacity:0.25, color:'#1b5e20', weight:0.6, opacity:0.4 };
+              return { fillOpacity:0, weight:0, stroke:false };
+            }
             return { fillColor:color, fillOpacity:0.4, color:color, weight:0.6, opacity:0.5 };
           },
           onEachFeature: function(feat, lyr) {
             var iso2  = _CW_ISO_NUM[String(feat.id)];
             var entry = iso2 ? oilMap[iso2] : null;
             if (!entry) return;
-            var cover = entry.importCover || entry.emergencyStocks;
+            var cover = entry.import_cover;
+            var exporter = entry.net_exporter;
             lyr.bindTooltip(
               '<strong>' + esc(entry.country||iso2||'') + '</strong><br>'
-              + '🏭 Import cover: <b>' + (cover ? cover + ' days' : '—') + '</b><br>'
-              + 'Emergency stocks: <b>' + (entry.emergencyStocks || '—') + '</b>',
+              + (exporter ? '✅ Net Exporter<br>' : '🏭 Import cover: <b>' + (cover != null ? cover + ' days' : '—') + '</b><br>')
+              + 'Emergency stocks: <b>' + (entry.emg_display || '—') + '</b>',
               { sticky:true, className:'cw-fuel-tooltip' }
             );
           }
