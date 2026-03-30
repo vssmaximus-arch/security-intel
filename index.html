@@ -2218,8 +2218,19 @@
   .cw-legend-hazard    { background:#1565c0; }
   .cw-legend-cyber     { background:#6a1b9a; }
 
-  /* ── Map Layer Toggle Bar — inherits cat-filter-bar + cat-pill styles ── */
-  .cw-map-layer-bar { flex-shrink:0; }
+  /* ── Map Layer Toggle Bar ── */
+  .cw-map-layer-bar { flex-shrink:0; padding:7px 10px; background:#161920; border-bottom:1px solid #2a2d35; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  body.light-mode .cw-map-layer-bar { background:#f5f7fa; border-bottom-color:#e0e0e0; }
+  /* cw-layer-pill — same look as cat-pill but separate class so _syncCatPillUI() won't touch it */
+  .cw-layer-pill { display:inline-flex; align-items:center; gap:4px; padding:3px 11px; border-radius:20px; font-size:.70rem; font-weight:700; cursor:pointer; border:1px solid #3a3d45; background:transparent; color:#9aa0a6; transition:background .15s,border-color .15s,color .15s; white-space:nowrap; user-select:none; line-height:1.5; font-family:inherit; }
+  .cw-layer-pill:hover { border-color:#5a5d65; color:#e8eaed; background:rgba(255,255,255,.06); }
+  .cw-layer-pill.active { background:#e65100; border-color:#e65100; color:#fff; }
+  .cw-layer-pill .pill-check { display:inline-block; width:11px; height:11px; border:1.5px solid currentColor; border-radius:2px; flex-shrink:0; position:relative; transition:background .15s,border-color .15s; opacity:.55; vertical-align:middle; }
+  .cw-layer-pill.active .pill-check { background:rgba(255,255,255,.25); border-color:#fff; opacity:1; }
+  .cw-layer-pill.active .pill-check::after { content:''; position:absolute; left:2px; top:0; width:5px; height:8px; border:1.5px solid #fff; border-top:none; border-left:none; transform:rotate(45deg); }
+  body.light-mode .cw-layer-pill { color:#5f6368; border-color:#dadce0; background:#fff; }
+  body.light-mode .cw-layer-pill:hover { background:#f1f3f4; color:#202124; border-color:#bbb; }
+  body.light-mode .cw-layer-pill.active { background:#e65100; border-color:#e65100; color:#fff; }
   /* Map legend overlay (bottom-left inside map) */
   .cw-map-lgnd { background:rgba(18,20,24,.9); border-radius:5px; padding:6px 10px; font-size:.63rem; color:#9aa0a6; max-width:180px; line-height:1.6; pointer-events:none; }
   .cw-map-lgnd-row { display:flex; align-items:center; gap:6px; margin:2px 0; white-space:nowrap; }
@@ -3530,19 +3541,19 @@
               <button class="cw-gs-icon-btn" id="cw-map-refresh-btn" title="Refresh conflict data"><i class="fas fa-sync"></i></button>
             </div>
           </div>
-          <!-- ── Layer toggle bar — reuses Intelligence cat-pill style ── -->
-          <div class="cw-map-layer-bar cat-filter-bar" role="group" aria-label="Map data layers">
+          <!-- ── Layer toggle bar ── -->
+          <div class="cw-map-layer-bar" role="group" aria-label="Map data layers">
             <span class="cat-filter-label">Map Layers:</span>
-            <button class="cat-pill active" id="cwl-fuel"   aria-pressed="true">
+            <button class="cw-layer-pill active" id="cwl-fuel"   aria-pressed="true">
               <span class="pill-check"></span>🛢 Fuel Supply
             </button>
-            <button class="cat-pill" id="cwl-prices" aria-pressed="false">
+            <button class="cw-layer-pill" id="cwl-prices" aria-pressed="false">
               <span class="pill-check"></span>⛽ Fuel Prices
             </button>
-            <button class="cat-pill" id="cwl-oil"    aria-pressed="false">
+            <button class="cw-layer-pill" id="cwl-oil"    aria-pressed="false">
               <span class="pill-check"></span>🏭 Oil Reserves
             </button>
-            <button class="cat-pill" id="cwl-apjc"   aria-pressed="false">
+            <button class="cw-layer-pill" id="cwl-apjc"   aria-pressed="false">
               <span class="pill-check"></span>🔥 APJC Region
             </button>
           </div>
