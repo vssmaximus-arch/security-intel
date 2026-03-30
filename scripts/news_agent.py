@@ -87,9 +87,18 @@ _SITE_LINES = ", ".join(
 DELL_SITES_COMPACT = f"Dell has {len(DELL_SITES)} global sites: {_SITE_LINES}."
 
 # ── RSS Feed Sources ───────────────────────────────────────────────────────────
-# 29 curated feeds — regionally structured for physical security / supply chain.
+# 36 curated feeds — regionally structured + dedicated energy/oil/gas sources.
 # Cyber-only sources (Bleeping, Krebs) are filtered by _CYBER_DOMAINS blocklist.
 FEEDS = [
+    # ── ENERGY & RESOURCES (dedicated — mirrors WorldMonitor commodity feeds) ──
+    "https://oilprice.com/rss/main",                             # OilPrice.com — crude, OPEC, markets
+    "https://www.rigzone.com/news/rss/rigzone_latest.aspx",      # Rigzone — upstream oil & gas, drilling
+    "https://www.eia.gov/rss/press_room.xml",                    # EIA — US Energy Dept official reports
+    "https://news.google.com/rss/search?q=(OPEC+OR+%22oil+price%22+OR+%22crude+oil%22+OR+WTI+OR+Brent+OR+%22oil+production%22)+when:1d&hl=en-US&gl=US&ceid=US:en",  # OPEC/oil prices
+    "https://news.google.com/rss/search?q=(%22natural+gas%22+OR+LNG+OR+%22gas+price%22+OR+%22Henry+Hub%22)+when:1d&hl=en-US&gl=US&ceid=US:en",                    # LNG / natural gas
+    "https://news.google.com/rss/search?q=(%22nuclear+energy%22+OR+%22nuclear+power%22+OR+uranium+OR+IAEA)+when:2d&hl=en-US&gl=US&ceid=US:en",                    # Nuclear / IAEA
+    "https://news.google.com/rss/search?q=site:reuters.com+(oil+OR+gas+OR+energy+OR+OPEC)+when:1d&hl=en-US&gl=US&ceid=US:en",                                    # Reuters energy desk
+
     # ── WORKFORCE / Dell Brand Monitoring ─────────────────────────────────────
     "https://news.google.com/rss/search?q=site:thelayoff.com+'Dell'&hl=en-US&gl=US&ceid=US:en",
     "https://www.reddit.com/r/Dell/.rss",
@@ -144,6 +153,7 @@ GDELT_QUERIES = [
     "flood earthquake typhoon hurricane wildfire evacuation disaster",
     "travel ban border closure airport shutdown advisory",
     "supply chain logistics disruption manufacturing shutdown",
+    "oil fuel energy shortage crisis pipeline sanction embargo",
 ]
 
 # ── Hard blocklist — never relevant ───────────────────────────────────────────
