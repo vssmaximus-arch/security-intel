@@ -3877,7 +3877,7 @@
             <!-- Right: historical trend chart -->
             <div class="gfp-chart-panel">
               <div class="gfp-chart-title">📈 Average Global Price Trend (USD/L)</div>
-              <svg id="gfp-chart" viewBox="0 0 320 180" style="width:100%;height:180px;background:#111317;border-radius:4px;border:1px solid #2a2d35;"></svg>
+              <svg id="gfp-chart" viewBox="0 0 320 220" style="width:100%;height:220px;background:#0d1117;border-radius:4px;border:1px solid #2a2d35;"></svg>
               <div id="gfp-chart-note" style="font-size:.62rem;color:#9aa0a6;margin-top:4px;"></div>
               <div style="margin-top:8px;font-size:.68rem;color:#9aa0a6;font-weight:600;">Top 5 Most Expensive</div>
               <div id="gfp-top5" style="margin-top:4px;"></div>
@@ -7383,63 +7383,89 @@
       var svg = document.getElementById('gfp-chart');
       var note = document.getElementById('gfp-chart-note');
       if (!svg) return;
+      var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      function fmtDate(iso) { var p=iso.split('-'); return MONTHS[parseInt(p[1],10)-1]+' '+p[2]; }
+
       if (!history || history.length < 2) {
-        svg.innerHTML = '<text x="160" y="95" text-anchor="middle" fill="#5f6368" font-size="11">Collecting historical data… (' + (history ? history.length : 0) + ' point' + (history && history.length === 1 ? '' : 's') + ')</text>';
-        if (note) note.textContent = 'Trend chart builds over time. Source prices update weekly.';
+        svg.innerHTML = '<rect width="320" height="220" fill="#0d1117" rx="4"/>'
+          + '<text x="160" y="105" text-anchor="middle" fill="#5f6368" font-size="11">Collecting data… (' + (history?history.length:0) + ' point' + (history&&history.length===1?'':'s') + ' so far)</text>'
+          + '<text x="160" y="122" text-anchor="middle" fill="#3c4043" font-size="9">Chart builds as weekly data accumulates</text>';
+        if (note) note.textContent = 'Prices update weekly — trend chart grows over time.';
         return;
       }
-      // Compute daily global average
+
       var pts = history.map(function(h) {
         var vals = Object.values(h.prices);
         var avg = vals.reduce(function(s,v){ return s+v; }, 0) / vals.length;
         return { d: h.isoDate, v: avg };
       }).sort(function(a,b){ return a.d < b.d ? -1 : 1; });
 
-      var W = 320, H = 180, PAD = { t:14, r:8, b:28, l:38 };
-      var minV = Math.min.apply(null, pts.map(function(p){ return p.v; }));
-      var maxV = Math.max.apply(null, pts.map(function(p){ return p.v; }));
-      var rangeV = maxV - minV;
-      var flatLine = rangeV < 0.001; /* all same price */
-      if (flatLine) { minV -= 0.05; maxV += 0.05; rangeV = 0.1; }
-      var chartW = W - PAD.l - PAD.r;
-      var chartH = H - PAD.t - PAD.b;
+      var W = 320, H = 220, PAD = { t:26, r:16, b:36, l:46 };
+      var chartW = W - PAD.l - PAD.r, chartH = H - PAD.t - PAD.b;
 
-      function xOf(i) { return PAD.l + (i / (pts.length - 1)) * chartW; }
-      function yOf(v) { return PAD.t + chartH - ((v - minV) / rangeV) * chartH; }
+      var rawMin = Math.min.apply(null, pts.map(function(p){ return p.v; }));
+      var rawMax = Math.max.apply(null, pts.map(function(p){ return p.v; }));
+      var rawRange = rawMax - rawMin;
+      var pad = rawRange < 0.001 ? 0.08 : rawRange * 0.18;
+      var minV = rawMin - pad, maxV = rawMax + pad, rangeV = maxV - minV;
 
-      var polyline = pts.map(function(p,i){ return xOf(i) + ',' + yOf(p.v); }).join(' ');
-      var area = 'M' + PAD.l + ',' + (PAD.t + chartH)
-        + ' L' + pts.map(function(p,i){ return xOf(i) + ',' + yOf(p.v); }).join(' L')
-        + ' L' + (PAD.l + chartW) + ',' + (PAD.t + chartH) + ' Z';
+      function xOf(i) { return PAD.l + (pts.length > 1 ? (i/(pts.length-1))*chartW : chartW/2); }
+      function yOf(v) { return PAD.t + chartH - ((v-minV)/rangeV)*chartH; }
 
-      // Axis labels
-      var yLabels = [minV, (minV + maxV)/2, maxV].map(function(v,i) {
-        var y = yOf(v);
-        return '<text x="' + (PAD.l-4) + '" y="' + (y+4) + '" text-anchor="end" fill="#5f6368" font-size="9">$' + v.toFixed(2) + '</text>';
-      }).join('');
-
-      // X axis: first and last date labels
-      var xLabels = '';
-      if (pts.length > 0) {
-        xLabels += '<text x="' + PAD.l + '" y="' + (H-6) + '" text-anchor="middle" fill="#5f6368" font-size="8">' + pts[0].d.slice(5) + '</text>';
-        if (pts.length > 1) xLabels += '<text x="' + (PAD.l+chartW) + '" y="' + (H-6) + '" text-anchor="middle" fill="#5f6368" font-size="8">' + pts[pts.length-1].d.slice(5) + '</text>';
-        if (pts.length > 4) {
-          var mid = Math.floor(pts.length/2);
-          xLabels += '<text x="' + xOf(mid) + '" y="' + (H-6) + '" text-anchor="middle" fill="#5f6368" font-size="8">' + pts[mid].d.slice(5) + '</text>';
-        }
+      /* ── Horizontal grid lines + Y labels ── */
+      var gridN = 4;
+      var grid = '', yLbls = '';
+      for (var gi = 0; gi <= gridN; gi++) {
+        var gv = minV + (gi/gridN)*rangeV;
+        var gy = yOf(gv);
+        grid  += '<line x1="'+PAD.l+'" y1="'+gy+'" x2="'+(W-PAD.r)+'" y2="'+gy+'" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="4,3"/>';
+        yLbls += '<text x="'+(PAD.l-6)+'" y="'+(gy+3.5)+'" text-anchor="end" fill="#6e7278" font-size="9">$'+gv.toFixed(2)+'</text>';
       }
 
-      svg.innerHTML =
-        '<defs><linearGradient id="gfpGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f9ab00" stop-opacity="0.3"/><stop offset="100%" stop-color="#f9ab00" stop-opacity="0.02"/></linearGradient></defs>'
-        + '<rect width="320" height="180" fill="#111317" rx="4"/>'
-        + '<path d="' + area + '" fill="url(#gfpGrad)"/>'
-        + '<polyline points="' + polyline + '" fill="none" stroke="#f9ab00" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
-        + yLabels + xLabels
-        + '<line x1="' + PAD.l + '" y1="' + PAD.t + '" x2="' + PAD.l + '" y2="' + (PAD.t+chartH) + '" stroke="#2a2d35" stroke-width="1"/>'
-        + '<line x1="' + PAD.l + '" y1="' + (PAD.t+chartH) + '" x2="' + (PAD.l+chartW) + '" y2="' + (PAD.t+chartH) + '" stroke="#2a2d35" stroke-width="1"/>'
-        + '<text x="' + (PAD.l + chartW/2) + '" y="12" text-anchor="middle" fill="#9aa0a6" font-size="9">' + pts.length + '-day average · ' + pts[pts.length-1].v.toFixed(3) + ' USD/L latest</text>';
+      /* ── X-axis labels (up to 6 evenly spaced) ── */
+      var xLbls = '', xTicks = '';
+      var maxX = Math.min(6, pts.length);
+      for (var xi = 0; xi < maxX; xi++) {
+        var idx = pts.length <= maxX ? xi : Math.round(xi*(pts.length-1)/(maxX-1));
+        var xp = xOf(idx);
+        xLbls  += '<text x="'+xp+'" y="'+(H-8)+'" text-anchor="middle" fill="#6e7278" font-size="8.5">'+fmtDate(pts[idx].d)+'</text>';
+        xTicks += '<line x1="'+xp+'" y1="'+(PAD.t+chartH)+'" x2="'+xp+'" y2="'+(PAD.t+chartH+4)+'" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>';
+      }
 
-      if (note) note.textContent = pts.length + ' data point' + (pts.length === 1 ? '' : 's') + ' · ' + pts[0].d + ' → ' + pts[pts.length-1].d + ' · Source updates weekly';
+      /* ── Area + polyline ── */
+      var area = 'M'+PAD.l+','+(PAD.t+chartH)+' L'+pts.map(function(p,i){return xOf(i)+','+yOf(p.v);}).join(' L')+' L'+xOf(pts.length-1)+','+(PAD.t+chartH)+' Z';
+      var poly = pts.map(function(p,i){return xOf(i)+','+yOf(p.v);}).join(' ');
+
+      /* ── Dots at each data point ── */
+      var dots = pts.map(function(p,i){
+        return '<circle cx="'+xOf(i)+'" cy="'+yOf(p.v)+'" r="3.5" fill="#f9ab00" stroke="#0d1117" stroke-width="1.5"/>';
+      }).join('');
+
+      /* ── Latest value callout ── */
+      var last = pts[pts.length-1];
+      var calloutY = yOf(last.v) - 10;
+      var callout = '<rect x="'+(xOf(pts.length-1)-22)+'" y="'+(calloutY-13)+'" width="44" height="15" rx="3" fill="#f9ab00"/>'
+        + '<text x="'+xOf(pts.length-1)+'" y="'+(calloutY-2)+'" text-anchor="middle" fill="#000" font-size="9" font-weight="bold">$'+last.v.toFixed(3)+'</text>';
+
+      /* ── Chart title ── */
+      var title = '<text x="'+(PAD.l+chartW/2)+'" y="16" text-anchor="middle" fill="#9aa0a6" font-size="9" font-weight="600">AVG GLOBAL PRICE (USD/L) · '+pts.length+' WEEK'+(pts.length===1?'':'S')+'</text>';
+
+      svg.setAttribute('viewBox','0 0 320 220');
+      svg.innerHTML =
+          '<defs><linearGradient id="gfpGrad2" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0%" stop-color="#f9ab00" stop-opacity="0.22"/>'
+        + '<stop offset="100%" stop-color="#f9ab00" stop-opacity="0.01"/>'
+        + '</linearGradient></defs>'
+        + '<rect width="320" height="220" fill="#0d1117" rx="4"/>'
+        + grid
+        + '<line x1="'+PAD.l+'" y1="'+PAD.t+'" x2="'+PAD.l+'" y2="'+(PAD.t+chartH)+'" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>'
+        + '<line x1="'+PAD.l+'" y1="'+(PAD.t+chartH)+'" x2="'+(W-PAD.r)+'" y2="'+(PAD.t+chartH)+'" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>'
+        + xTicks
+        + '<path d="'+area+'" fill="url(#gfpGrad2)"/>'
+        + '<polyline points="'+poly+'" fill="none" stroke="#f9ab00" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'
+        + dots + callout + yLbls + xLbls + title;
+
+      if (note) note.textContent = pts.length + ' data point'+(pts.length===1?'':'s')+' · '+pts[0].d+' → '+last.d+' · Source updates weekly';
     }
 
     function _gfpRenderTopBot(prices) {
