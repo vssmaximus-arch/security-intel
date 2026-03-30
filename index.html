@@ -2557,6 +2557,36 @@
   .cw-apjc-text { font-size:0.73rem; color:#e8eaed; line-height:1.45; }
   body.light-mode .cw-apjc-text { color:#202124; }
   .cw-apjc-no-updates { padding:20px; text-align:center; color:#5f6368; font-size:0.8rem; }
+
+  /* ── Energy & Resources Intelligence Feed ───────────────────────── */
+  .er-feed { list-style:none; margin:0; padding:0; }
+  .er-item { padding:7px 12px 7px 12px; border-bottom:1px solid #1e2029; border-left:3px solid transparent; transition:background .12s; }
+  .er-item:hover { background:rgba(255,255,255,0.03); }
+  .er-item:last-child { border-bottom:none; }
+  .er-item.is-alert { border-left-color:#c62828; }
+  .er-item-meta { display:flex; align-items:center; gap:5px; margin-bottom:3px; flex-wrap:wrap; }
+  .er-cat { font-size:.60rem; font-weight:700; color:#5f6368; text-transform:uppercase; letter-spacing:.06em; }
+  .er-badge-alert { font-size:.58rem; font-weight:800; padding:1px 5px; background:#c62828; color:#fff; border-radius:2px; text-transform:uppercase; animation:erAlertPulse 1.2s ease-in-out infinite; }
+  @keyframes erAlertPulse { 0%,100%{opacity:1} 50%{opacity:.50} }
+  .er-badge-topic { font-size:.58rem; font-weight:700; padding:1px 6px; border-radius:2px; text-transform:uppercase; border:1px solid; }
+  .er-badge-topic.eco   { color:#f9ab00; border-color:rgba(249,171,0,.35);   background:rgba(249,171,0,.10); }
+  .er-badge-topic.conf  { color:#ef5350; border-color:rgba(239,83,80,.35);   background:rgba(239,83,80,.10); }
+  .er-badge-topic.infra { color:#42a5f5; border-color:rgba(66,165,245,.35);  background:rgba(66,165,245,.10); }
+  .er-badge-topic.labor { color:#ab47bc; border-color:rgba(171,71,188,.35);  background:rgba(171,71,188,.10); }
+  .er-badge-topic.nat   { color:#66bb6a; border-color:rgba(102,187,106,.35); background:rgba(102,187,106,.10); }
+  .er-badge-topic.travel{ color:#ffa726; border-color:rgba(255,167,38,.35);  background:rgba(255,167,38,.10); }
+  .er-badge-topic.sec   { color:#ef9a9a; border-color:rgba(239,154,154,.35); background:rgba(239,154,154,.10); }
+  .er-title { display:block; font-size:.74rem; color:#c8d6e5; line-height:1.42; text-decoration:none; font-family:'Courier New',Courier,monospace; margin-top:1px; }
+  .er-title:hover { color:#8ab4f8; text-decoration:none; }
+  .er-title.is-alert { color:#ff7043; }
+  .er-footer { display:flex; justify-content:flex-end; margin-top:2px; }
+  .er-time { font-size:.62rem; color:#5f6368; }
+  .er-empty { padding:24px; text-align:center; color:#5f6368; font-size:.78rem; }
+  .er-count-pill { font-size:.62rem; font-weight:700; padding:2px 8px; border-radius:10px; background:#1e2129; color:#9aa0a6; border:1px solid #2a2d35; }
+  body.light-mode .er-item { border-bottom-color:#e0e3e7; }
+  body.light-mode .er-cat { color:#9aa0a6; }
+  body.light-mode .er-title { color:#1a1a2e; font-family:'Courier New',Courier,monospace; }
+  body.light-mode .er-time { color:#9aa0a6; }
   /* ────────────────────────────────────────────────────────────────────── */
 
   .cw-customize-btn {
@@ -3928,6 +3958,21 @@
             </div>
           </div>
           <div class="crude-attr">Source: U.S. Energy Information Administration (EIA) · Spot prices FOB · Updated daily (trading days)</div>
+        </div>
+      </div>
+
+      <!-- ── ENERGY & RESOURCES INTELLIGENCE ──────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-energy-widget" gs-x="0" gs-y="34" gs-w="12" gs-h="11" gs-min-h="6">
+        <div class="grid-stack-item-content vw-gs-card">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-bolt" style="margin-right:6px;color:#f9ab00;"></i>Energy &amp; Resources Intelligence</span>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+              <span id="er-live-dot" style="display:none;width:7px;height:7px;border-radius:50%;background:#34a853;animation:erAlertPulse 1.5s ease-in-out infinite;flex-shrink:0;" title="Live data"></span>
+              <span class="er-count-pill" id="er-count-badge">–</span>
+              <button class="cw-gs-icon-btn" id="er-refresh-btn" title="Refresh energy feed"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll" id="er-feed-list" style="padding:0;"></div>
         </div>
       </div>
 
@@ -7224,6 +7269,7 @@
       'cw-apjc-widget'     : true,    // APJC Fuel Crisis Monitor
       'cw-gfp-widget'      : true,    // Global Fuel Prices
       'cw-crude-widget'    : true,    // Crude Oil Prices (EIA Brent + WTI)
+      'cw-energy-widget'   : true,    // Energy & Resources Intelligence feed
       'cw-osint-widget'    : false,   // available in Customize
     };
 
@@ -7237,11 +7283,12 @@
       { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },
       { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },
       { id:'cw-crude-widget',     x:0,  y:26, w:12, h:8  },
+      { id:'cw-energy-widget',    x:0,  y:34, w:12, h:11 },
       // Below: optional widgets (hidden by default; appear at bottom when user enables them)
-      { id:'cw-sirens-widget',    x:0,  y:34, w:6,  h:8  },
-      { id:'cw-radiation-widget', x:6,  y:34, w:6,  h:8  },
-      { id:'cw-debt-widget',      x:0,  y:42, w:6,  h:8  },
-      { id:'cw-osint-widget',     x:6,  y:42, w:6,  h:8  },
+      { id:'cw-sirens-widget',    x:0,  y:46, w:6,  h:8  },
+      { id:'cw-radiation-widget', x:6,  y:46, w:6,  h:8  },
+      { id:'cw-debt-widget',      x:0,  y:55, w:6,  h:8  },
+      { id:'cw-osint-widget',     x:6,  y:55, w:6,  h:8  },
     ];
 
     /* Widget metadata for the picker — default-on widgets first */
@@ -7254,6 +7301,7 @@
       { id:'cw-apjc-widget',      label:'APJC Fuel Crisis Monitor',  icon:'fa-fire',           desc:'Day-by-day APJC country situation reports · sourced from field teams' },
       { id:'cw-gfp-widget',       label:'Global Fuel Prices',         icon:'fa-gas-pump',        desc:'Live gasoline prices for 170 countries · USD/L · Daily scrape + 60-day trend chart' },
       { id:'cw-crude-widget',     label:'Crude Oil Prices',           icon:'fa-oil-can',         desc:'EIA daily Brent & WTI spot prices · USD/bbl · 60-day trend chart' },
+      { id:'cw-energy-widget',    label:'Energy & Resources Intel',   icon:'fa-bolt',            desc:'Live energy & fuel intelligence feed from global news stream · categorised by OIL & GAS / FUEL / LNG / NUCLEAR / PIPELINE' },
       { id:'cw-sirens-widget',    label:'Israel Alert System',       icon:'fa-bell',           desc:'OREF live sirens — real-time (optional)' },
       { id:'cw-radiation-widget', label:'Radiation Watch',           icon:'fa-radiation',      desc:'EPA RadNet + Safecast global sensors (optional)' },
       { id:'cw-debt-widget',      label:'National Debt Clock',       icon:'fa-coins',          desc:'IMF debt data with live tickers (optional)' },
@@ -7796,12 +7844,15 @@
       initPickerUI();
       bindCwEvents();
       setCwUpdatedTs();
+      /* Energy feed — defer 3s to let INCIDENTS load first */
+      setTimeout(loadEnergyFeed, 3000);
       /* Auto-refresh every 10 min */
       setInterval(function(){
         if (typeof currentView !== 'undefined' && currentView === 'crisis-watch') {
           loadConflictEvents();
           loadRadiationData();
           setCwUpdatedTs();
+          loadEnergyFeed();
         }
       }, 10 * 60 * 1000);
       /* Oil data refreshes daily (every 24h) — World Bank data is annual anyway */
@@ -7811,6 +7862,127 @@
         }
       }, 24 * 60 * 60 * 1000);
     };
+
+    /* ── Energy & Resources Intelligence Feed ───────────────────────────── */
+    (function(){
+      /* Sub-category keyword groups — tested against title+summary */
+      var _ER_CATS = [
+        { label:'OIL & GAS',      re:/\b(crude|brent|wti|opec|oil\s+price|barrel|refiner|petroleum|fossil\s+fuel|gasoline|octane|hydrocarbons?|oil\s+supply|oil\s+market|oil\s+shock|oil\s+field|drilling|fracking)\b/i },
+        { label:'FUEL SUPPLY',    re:/\b(fuel\s+supply|fuel\s+shortage|fuel\s+crisis|fuel\s+rationing|fuel\s+price|petrol\s+price|diesel\s+price|pump\s+price|excise|fuel\s+tax|bowser|filling\s+station|gas\s+station|fuel\s+queue|fuel\s+cut)\b/i },
+        { label:'LNG / GAS',      re:/\b(LNG|liquefied\s+natural\s+gas|natural\s+gas|gas\s+pipeline|gas\s+supply|gas\s+price|gas\s+shortage|gas\s+terminal|regasification)\b/i },
+        { label:'NUCLEAR ENERGY', re:/\b(nuclear\s+power|nuclear\s+plant|nuclear\s+reactor|reactor\s+restart|enrichment|uranium|fukushima|IAEA|nuclear\s+energy|atomic)\b/i },
+        { label:'PIPELINE',       re:/\b(pipeline|strait\s+of\s+hormuz|hormuz|chokepoint|shipping\s+lane|suez|malacca|bab\s+al.mandeb|oil\s+tanker|tanker\s+attack|energy\s+corridor)\b/i },
+        { label:'ENERGY POLICY',  re:/\b(energy\s+security|energy\s+policy|energy\s+subsidy|fuel\s+subsidy|strategic\s+reserve|petroleum\s+reserve|SPR|IEA\s+release|national\s+energy|energy\s+emergency|energy\s+rationing|energy\s+saving|power\s+cut|blackout|load\s+shed|rolling\s+blackout)\b/i },
+        { label:'SANCTIONS',      re:/\b(oil\s+sanction|energy\s+sanction|iran\s+sanction|russia\s+sanction|embargo|oil\s+embargo|export\s+ban)\b/i },
+        { label:'ENERGY',         re:/\b(energy|power\s+grid|electricity\s+price|electricity\s+supply|coal|renewabl|solar\s+power|wind\s+power)\b/i },
+      ];
+
+      /* Topic badge (from incident category field) */
+      var _ER_TOPIC = {
+        'SUPPLY_CHAIN'    : { cls:'eco',   txt:'SUPPLY CHAIN' },
+        'INFRASTRUCTURE'  : { cls:'infra', txt:'INFRASTRUCTURE' },
+        'CIVIL_UNREST'    : { cls:'conf',  txt:'CONFLICT' },
+        'PHYSICAL_SECURITY':{ cls:'sec',  txt:'SECURITY' },
+        'NATURAL_DISASTER': { cls:'nat',   txt:'DISASTER' },
+        'LABOR_ACTION'    : { cls:'labor', txt:'STRIKE' },
+        'TRAVEL_SECURITY' : { cls:'travel',txt:'TRAVEL' },
+        'BRAND_MONITORING': { cls:'eco',   txt:'CORPORATE' },
+        'HEALTH_WORKFORCE': { cls:'nat',   txt:'HEALTH' },
+      };
+
+      /* Energy filter — broad net covering all energy/fuel/oil items */
+      var _ER_FILTER = /\b(oil|fuel|gas|energy|petroleum|petrol|diesel|barrel|crude|brent|wti|opec|LNG|nuclear|reactor|refiner|pipeline|excise|hormuz|chokepoint|tanker|power\s+grid|blackout|electricity\s+price|coal|uranium|energy\s+sanction|oil\s+sanction|strategic\s+reserve)\b/i;
+
+      function _erSubcat(text) {
+        for (var i=0; i<_ER_CATS.length; i++) {
+          if (_ER_CATS[i].re.test(text)) return _ER_CATS[i].label;
+        }
+        return 'ENERGY';
+      }
+
+      function _erTimeAgo(iso) {
+        try {
+          var diff = (Date.now() - new Date(iso).getTime()) / 1000;
+          if (diff < 60)   return 'just now';
+          if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+          if (diff < 86400)return Math.floor(diff/3600) + ' hour' + (Math.floor(diff/3600)===1?'':'s') + ' ago';
+          return Math.floor(diff/86400) + ' day' + (Math.floor(diff/86400)===1?'':'s') + ' ago';
+        } catch(e) { return ''; }
+      }
+
+      function _erEsc(s) {
+        return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      window.loadEnergyFeed = function() {
+        var el    = document.getElementById('er-feed-list');
+        var badge = document.getElementById('er-count-badge');
+        var dot   = document.getElementById('er-live-dot');
+        var btn   = document.getElementById('er-refresh-btn');
+        if (!el) return;
+
+        /* Spin refresh button */
+        if (btn) { btn.querySelector('i').classList.add('fa-spin'); }
+
+        /* Source: global INCIDENTS array from app.js */
+        var src = (typeof INCIDENTS !== 'undefined' && Array.isArray(INCIDENTS)) ? INCIDENTS : [];
+
+        /* Filter to energy-related items */
+        var items = src.filter(function(inc) {
+          var txt = (inc.title||'') + ' ' + (inc.summary||'');
+          return _ER_FILTER.test(txt);
+        });
+
+        /* Sort newest first */
+        items.sort(function(a,b){
+          return new Date(b.time||0) - new Date(a.time||0);
+        });
+
+        /* Cap at 60 items */
+        items = items.slice(0,60);
+
+        /* Update badges */
+        if (badge) badge.textContent = items.length;
+        if (dot) dot.style.display = items.length > 0 ? 'inline-block' : 'none';
+        if (btn) btn.querySelector('i').classList.remove('fa-spin');
+
+        if (!items.length) {
+          el.innerHTML = '<div class="er-empty"><i class="fas fa-satellite-dish" style="margin-right:6px;color:#3c4043;"></i>No energy items in current stream — trigger ingestion to refresh.</div>';
+          return;
+        }
+
+        el.innerHTML = '<ul class="er-feed">' + items.map(function(inc) {
+          var txt      = (inc.title||'') + ' ' + (inc.summary||'');
+          var subcat   = _erSubcat(txt);
+          var sev      = Number(inc.severity||1);
+          var isAlert  = sev >= 4;
+          var topic    = _ER_TOPIC[inc.category] || null;
+          var link     = inc.link || '#';
+
+          var alertBadge = isAlert
+            ? '<span class="er-badge-alert">ALERT</span>'
+            : '';
+          var topicBadge = topic
+            ? '<span class="er-badge-topic '+topic.cls+'">'+topic.txt+'</span>'
+            : '';
+
+          return '<li class="er-item' + (isAlert?' is-alert':'') + '">'
+            + '<div class="er-item-meta">'
+            +   '<span class="er-cat">'+_erEsc(subcat)+'</span>'
+            +   alertBadge
+            +   topicBadge
+            + '</div>'
+            + '<a class="er-title'+(isAlert?' is-alert':'')+'" href="'+_erEsc(link)+'" target="_blank" rel="noopener">'+_erEsc(inc.title||'')+'</a>'
+            + '<div class="er-footer"><span class="er-time">'+_erTimeAgo(inc.time)+'</span></div>'
+            + '</li>';
+        }).join('') + '</ul>';
+
+        /* Wire refresh button */
+        if (btn) {
+          btn.onclick = function() { window.loadEnergyFeed(); };
+        }
+      };
+    })();
 
     /* ── Region bar ─────────────────────────────────────────────────────── */
     function initRegionBar() {
