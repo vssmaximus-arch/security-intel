@@ -2218,17 +2218,20 @@
   .cw-legend-hazard    { background:#1565c0; }
   .cw-legend-cyber     { background:#6a1b9a; }
 
-  /* ── Map Layer Control (Leaflet custom control) ── */
-  .cw-layer-ctrl { display:flex; flex-direction:column; gap:3px; padding:5px; background:rgba(18,20,24,.92); border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,.5); }
-  .cw-layer-ctrl-label { font-size:.5rem; color:#5f6368; text-transform:uppercase; letter-spacing:.07em; text-align:center; padding-bottom:2px; }
-  .cw-layer-btn { width:28px; height:28px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:4px; cursor:pointer; font-size:13px; color:#9aa0a6; display:flex; align-items:center; justify-content:center; line-height:1; transition:background .15s,color .15s; padding:0; }
-  .cw-layer-btn.active { background:rgba(255,255,255,.22); color:#e8eaed; border-color:rgba(255,255,255,.28); }
-  .cw-layer-btn:hover { background:rgba(255,255,255,.14); color:#e8eaed; }
+  /* ── Map Layer Toggle Bar ── */
+  .cw-map-layer-bar { display:flex; align-items:center; gap:6px; padding:5px 10px; background:rgba(18,20,24,.97); border-bottom:1px solid rgba(255,255,255,.07); flex-wrap:wrap; flex-shrink:0; }
+  .cw-map-layer-label { font-size:.58rem; color:#5f6368; text-transform:uppercase; letter-spacing:.08em; margin-right:4px; white-space:nowrap; }
+  .cw-map-layer-btn { display:inline-flex; align-items:center; gap:5px; padding:4px 11px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; cursor:pointer; font-size:.68rem; color:#9aa0a6; transition:background .15s,color .15s,border-color .15s; white-space:nowrap; }
+  .cw-map-layer-btn.active { background:rgba(255,255,255,.16); color:#e8eaed; border-color:rgba(255,255,255,.28); }
+  .cw-map-layer-btn:hover { background:rgba(255,255,255,.12); color:#e8eaed; }
+  body.light-mode .cw-map-layer-bar { background:#f0f0f0; border-bottom-color:rgba(0,0,0,.08); }
+  body.light-mode .cw-map-layer-btn { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.15); color:#3c4043; }
+  body.light-mode .cw-map-layer-btn.active { background:rgba(0,0,0,.14); color:#1a1a2e; border-color:rgba(0,0,0,.3); }
   /* Map legend overlay (bottom-left inside map) */
-  .cw-map-lgnd { background:rgba(18,20,24,.88); border-radius:5px; padding:5px 8px; font-size:.58rem; color:#9aa0a6; max-width:170px; line-height:1.5; pointer-events:none; }
-  .cw-map-lgnd-row { display:flex; align-items:center; gap:5px; margin:2px 0; white-space:nowrap; }
-  .cw-map-lgnd-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .cw-map-lgnd-swatch { width:14px; height:8px; border-radius:2px; flex-shrink:0; }
+  .cw-map-lgnd { background:rgba(18,20,24,.9); border-radius:5px; padding:6px 10px; font-size:.63rem; color:#9aa0a6; max-width:180px; line-height:1.6; pointer-events:none; }
+  .cw-map-lgnd-row { display:flex; align-items:center; gap:6px; margin:2px 0; white-space:nowrap; }
+  .cw-map-lgnd-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .cw-map-lgnd-swatch { width:16px; height:9px; border-radius:2px; flex-shrink:0; }
 
   /* ── Israel Sirens widget ── */
   .cw-sirens-header-meta {
@@ -3533,6 +3536,15 @@
             <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
               <button class="cw-gs-icon-btn" id="cw-map-refresh-btn" title="Refresh conflict data"><i class="fas fa-sync"></i></button>
             </div>
+          </div>
+          <!-- ── Layer toggle bar ── -->
+          <div class="cw-map-layer-bar">
+            <span class="cw-map-layer-label">LAYERS</span>
+            <button class="cw-map-layer-btn active" id="cwl-conflict">⚔ Conflict Events</button>
+            <button class="cw-map-layer-btn active" id="cwl-fuel">🛢 Fuel Supply</button>
+            <button class="cw-map-layer-btn"        id="cwl-prices">⛽ Fuel Prices</button>
+            <button class="cw-map-layer-btn"        id="cwl-oil">🏭 Oil Reserves</button>
+            <button class="cw-map-layer-btn"        id="cwl-apjc">🔥 APJC Region</button>
           </div>
           <div class="vw-gs-map-body">
             <div id="cw-map"></div>
@@ -7762,28 +7774,15 @@
       L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true, bounds:[[-90,-180],[90,180]] }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
 
-      /* ── Layer Toggle Control (below zoom buttons, top-left) ── */
-      var CwLayerControl = L.Control.extend({
-        options: { position: 'topleft' },
-        onAdd: function() {
-          var div = L.DomUtil.create('div', 'cw-layer-ctrl');
-          div.innerHTML =
-            '<div class="cw-layer-ctrl-label">Layers</div>' +
-            '<button class="cw-layer-btn active" id="cwl-conflict" title="Conflict Events">⚔</button>' +
-            '<button class="cw-layer-btn active" id="cwl-fuel"     title="Fuel Supply (DSR days)">🛢</button>' +
-            '<button class="cw-layer-btn"        id="cwl-prices"   title="Fuel Prices (USD/L)">⛽</button>' +
-            '<button class="cw-layer-btn"        id="cwl-oil"      title="Oil Reserves / Import Cover">🏭</button>' +
-            '<button class="cw-layer-btn"        id="cwl-apjc"     title="APJC Region Highlight">🔥</button>';
-          L.DomEvent.disableClickPropagation(div);
-          div.querySelector('#cwl-conflict').onclick = function(){ _cwToggleConflictLayer(this); };
-          div.querySelector('#cwl-fuel').onclick     = function(){ _cwToggleFuelLayer(this); };
-          div.querySelector('#cwl-prices').onclick   = function(){ _cwTogglePricesLayer(this); };
-          div.querySelector('#cwl-oil').onclick      = function(){ _cwToggleOilLayer(this); };
-          div.querySelector('#cwl-apjc').onclick     = function(){ _cwToggleApjcLayer(this); };
-          return div;
-        }
-      });
-      new CwLayerControl().addTo(cwConflictMap);
+      /* ── Wire external layer-bar buttons ── */
+      var _cwWireLayerBtns = function() {
+        var b = document.getElementById('cwl-conflict'); if(b) b.onclick = function(){ _cwToggleConflictLayer(this); };
+        b = document.getElementById('cwl-fuel');     if(b) b.onclick = function(){ _cwToggleFuelLayer(this); };
+        b = document.getElementById('cwl-prices');   if(b) b.onclick = function(){ _cwTogglePricesLayer(this); };
+        b = document.getElementById('cwl-oil');      if(b) b.onclick = function(){ _cwToggleOilLayer(this); };
+        b = document.getElementById('cwl-apjc');     if(b) b.onclick = function(){ _cwToggleApjcLayer(this); };
+      };
+      _cwWireLayerBtns();
 
       /* ── Legend Control (bottom-left inside map) ── */
       var CwLegendControl = L.Control.extend({
