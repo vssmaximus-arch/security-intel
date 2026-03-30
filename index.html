@@ -3872,7 +3872,7 @@
       </div>
 
       <!-- ── CRUDE OIL PRICES (Brent + WTI, EIA daily) ──────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-crude-widget" gs-x="0" gs-y="40" gs-w="12" gs-h="8" gs-min-h="6">
+      <div class="grid-stack-item" gs-id="cw-crude-widget" gs-x="0" gs-y="26" gs-w="12" gs-h="8" gs-min-h="6">
         <div class="grid-stack-item-content vw-gs-content" style="display:flex;flex-direction:column;overflow:hidden;">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-oil-can" style="margin-right:6px;color:#f9ab00;"></i>Crude Oil Prices · Brent &amp; WTI (USD/bbl)</span>
@@ -7173,7 +7173,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v9';   // bumped → clears stale browser layouts
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v10';   // bumped → clears stale browser layouts
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7209,21 +7209,21 @@
       'cw-osint-widget'    : false,   // available in Customize
     };
 
-    /* Default GridStack layout — clean new layout */
+    /* Default GridStack layout — snapshot of user-approved layout 2026-03-30 */
     var CW_DEFAULT_LAYOUT = [
       { id:'cw-posture-widget',   x:0,  y:0,  w:12, h:1  },
-      { id:'cw-map-widget',       x:0,  y:1,  w:8,  h:8  },  // left 8 cols — APJC sits right
-      { id:'cw-apjc-widget',      x:8,  y:1,  w:4,  h:8  },  // APJC Fuel Crisis Monitor — right of map
-      { id:'cw-fuel-widget',      x:0,  y:9,  w:6,  h:8  },
+      { id:'cw-map-widget',       x:0,  y:1,  w:8,  h:8  },
+      { id:'cw-apjc-widget',      x:8,  y:1,  w:4,  h:8  },
+      { id:'cw-fuel-widget',      x:0,  y:9,  w:3,  h:8  },
+      { id:'cw-gfp-widget',       x:3,  y:9,  w:3,  h:8  },
       { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },
-      { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },  // full width cameras
-      { id:'cw-gfp-widget',      x:0,  y:26, w:12, h:14 },  // Global Fuel Prices
-      { id:'cw-crude-widget',    x:0,  y:40, w:12, h:8  },  // Crude Oil Prices (EIA Brent + WTI)
+      { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },
+      { id:'cw-crude-widget',     x:0,  y:26, w:12, h:8  },
       // Below: optional widgets (hidden by default; appear at bottom when user enables them)
-      { id:'cw-sirens-widget',    x:0,  y:36, w:6,  h:8  },
-      { id:'cw-radiation-widget', x:6,  y:36, w:6,  h:8  },
-      { id:'cw-debt-widget',      x:0,  y:44, w:6,  h:8  },
-      { id:'cw-osint-widget',     x:6,  y:44, w:6,  h:8  },
+      { id:'cw-sirens-widget',    x:0,  y:34, w:6,  h:8  },
+      { id:'cw-radiation-widget', x:6,  y:34, w:6,  h:8  },
+      { id:'cw-debt-widget',      x:0,  y:42, w:6,  h:8  },
+      { id:'cw-osint-widget',     x:6,  y:42, w:6,  h:8  },
     ];
 
     /* Widget metadata for the picker — default-on widgets first */
