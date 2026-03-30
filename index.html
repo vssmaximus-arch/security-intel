@@ -2218,6 +2218,18 @@
   .cw-legend-hazard    { background:#1565c0; }
   .cw-legend-cyber     { background:#6a1b9a; }
 
+  /* ── Map Layer Control (Leaflet custom control) ── */
+  .cw-layer-ctrl { display:flex; flex-direction:column; gap:3px; padding:5px; background:rgba(18,20,24,.92); border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,.5); }
+  .cw-layer-ctrl-label { font-size:.5rem; color:#5f6368; text-transform:uppercase; letter-spacing:.07em; text-align:center; padding-bottom:2px; }
+  .cw-layer-btn { width:28px; height:28px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:4px; cursor:pointer; font-size:13px; color:#9aa0a6; display:flex; align-items:center; justify-content:center; line-height:1; transition:background .15s,color .15s; padding:0; }
+  .cw-layer-btn.active { background:rgba(255,255,255,.22); color:#e8eaed; border-color:rgba(255,255,255,.28); }
+  .cw-layer-btn:hover { background:rgba(255,255,255,.14); color:#e8eaed; }
+  /* Map legend overlay (bottom-left inside map) */
+  .cw-map-lgnd { background:rgba(18,20,24,.88); border-radius:5px; padding:5px 8px; font-size:.58rem; color:#9aa0a6; max-width:170px; line-height:1.5; pointer-events:none; }
+  .cw-map-lgnd-row { display:flex; align-items:center; gap:5px; margin:2px 0; white-space:nowrap; }
+  .cw-map-lgnd-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .cw-map-lgnd-swatch { width:14px; height:8px; border-radius:2px; flex-shrink:0; }
+
   /* ── Israel Sirens widget ── */
   .cw-sirens-header-meta {
     display:flex; align-items:center; gap:8px;
@@ -3518,22 +3530,8 @@
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-map-marked-alt" style="margin-right:6px;color:#e53935;"></i>Conflict Intelligence Map</span>
-            <div class="cw-map-legend" style="margin-left:auto;">
-              <span class="cw-legend-dot cw-legend-armed"></span>Armed &nbsp;
-              <span class="cw-legend-dot cw-legend-terrorism"></span>Terrorism &nbsp;
-              <span class="cw-legend-dot cw-legend-unrest"></span>Unrest &nbsp;
-              <span class="cw-legend-dot cw-legend-hazard"></span>Hazard &nbsp;
-              <span class="cw-legend-dot cw-legend-cyber"></span>Cyber &nbsp;
-              <select class="cw-gs-select" id="cw-map-cat-filter" style="margin-left:8px;" aria-label="Filter by category">
-                <option value="ALL">All Types</option>
-                <option value="ARMED">⚔ Armed</option>
-                <option value="TERRORISM">💣 Terrorism</option>
-                <option value="UNREST">✊ Unrest</option>
-                <option value="HAZARD">🌊 Hazard</option>
-                <option value="CYBER">💻 Cyber</option>
-              </select>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
               <button class="cw-gs-icon-btn" id="cw-map-refresh-btn" title="Refresh conflict data"><i class="fas fa-sync"></i></button>
-              <button class="cw-gs-icon-btn cw-fuel-layer-btn" id="cw-fuel-layer-btn" title="Toggle fuel supply choropleth" style="width:auto;padding:0 7px;gap:4px;" onclick="_cwToggleFuelLayer(this)">⛽ Fuel</button>
             </div>
           </div>
           <div class="vw-gs-map-body">
@@ -7763,14 +7761,51 @@
       cwConflictMap = L.map('cw-map', { zoomControl:true, attributionControl:false, minZoom:2, maxZoom:10, worldCopyJump:false, maxBounds:[[-85,-180],[85,180]], maxBoundsViscosity:1.0 });
       L.tileLayer(tile, { subdomains:'abcd', maxZoom:19, noWrap:true, bounds:[[-90,-180],[90,180]] }).addTo(cwConflictMap);
       cwConflictMap.setView([20, 10], 2);
-      /* Force size recalculation after grid renders */
+
+      /* ── Layer Toggle Control (below zoom buttons, top-left) ── */
+      var CwLayerControl = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function() {
+          var div = L.DomUtil.create('div', 'cw-layer-ctrl');
+          div.innerHTML =
+            '<div class="cw-layer-ctrl-label">Layers</div>' +
+            '<button class="cw-layer-btn active" id="cwl-conflict" title="Conflict Events">⚔</button>' +
+            '<button class="cw-layer-btn active" id="cwl-fuel"     title="Fuel Supply (DSR days)">🛢</button>' +
+            '<button class="cw-layer-btn"        id="cwl-prices"   title="Fuel Prices (USD/L)">⛽</button>' +
+            '<button class="cw-layer-btn"        id="cwl-oil"      title="Oil Reserves / Import Cover">🏭</button>' +
+            '<button class="cw-layer-btn"        id="cwl-apjc"     title="APJC Region Highlight">🔥</button>';
+          L.DomEvent.disableClickPropagation(div);
+          div.querySelector('#cwl-conflict').onclick = function(){ _cwToggleConflictLayer(this); };
+          div.querySelector('#cwl-fuel').onclick     = function(){ _cwToggleFuelLayer(this); };
+          div.querySelector('#cwl-prices').onclick   = function(){ _cwTogglePricesLayer(this); };
+          div.querySelector('#cwl-oil').onclick      = function(){ _cwToggleOilLayer(this); };
+          div.querySelector('#cwl-apjc').onclick     = function(){ _cwToggleApjcLayer(this); };
+          return div;
+        }
+      });
+      new CwLayerControl().addTo(cwConflictMap);
+
+      /* ── Legend Control (bottom-left inside map) ── */
+      var CwLegendControl = L.Control.extend({
+        options: { position: 'bottomleft' },
+        onAdd: function() {
+          var div = L.DomUtil.create('div', 'cw-map-lgnd');
+          div.id = 'cw-map-legend-box';
+          div.style.display = 'none';
+          L.DomEvent.disableClickPropagation(div);
+          return div;
+        }
+      });
+      new CwLegendControl().addTo(cwConflictMap);
+
+      /* Force size recalculation */
       setTimeout(function(){ if(cwConflictMap) cwConflictMap.invalidateSize(); }, 300);
-      /* Attribution */
       L.control.attribution({ prefix:false }).addTo(cwConflictMap);
-      /* Auto-activate fuel choropleth on first load */
+
+      /* Auto-activate Fuel Supply layer on first load (Conflict is on by default) */
       setTimeout(function(){
-        var btn = document.getElementById('cw-fuel-layer-btn');
-        _cwToggleFuelLayer(btn);
+        var btn = document.querySelector('#cwl-fuel');
+        if (btn) _cwToggleFuelLayer(btn);
       }, 900);
     }
 
@@ -7778,13 +7813,80 @@
     var _cwFuelLayerVisible = false;
     var _cwTopoWorldCache   = null;
 
-    /* ISO numeric → alpha-2 for all countries in fuel data */
+    /* ISO numeric → alpha-2 (comprehensive — covers GFP 170-country list + oil data) */
     var _CW_ISO_NUM = {
-      '840':'US','276':'DE','826':'GB','250':'FR','376':'IL',
-      '356':'IN','392':'JP','036':'AU','076':'BR',
-      '156':'CN','410':'KR','124':'CA','484':'MX','616':'PL',
-      '158':'TW','784':'AE','458':'MY','528':'NL','372':'IE',
-    }; // Note: SG=702 absent from world-atlas 110m (city-state, too small)
+      /* Americas */
+      '032':'AR','068':'BO','076':'BR','152':'CL','170':'CO','188':'CR','192':'CU',
+      '214':'DO','218':'EC','222':'SV','320':'GT','332':'HT','340':'HN','388':'JM',
+      '484':'MX','558':'NI','591':'PA','600':'PY','604':'PE','630':'PR','740':'SR',
+      '780':'TT','840':'US','858':'UY','862':'VE','124':'CA',
+      /* Europe */
+      '008':'AL','040':'AT','056':'BE','070':'BA','112':'BY','100':'BG','191':'HR',
+      '196':'CY','203':'CZ','208':'DK','233':'EE','246':'FI','250':'FR','276':'DE',
+      '300':'GR','348':'HU','352':'IS','372':'IE','380':'IT','428':'LV','440':'LT',
+      '442':'LU','470':'MT','498':'MD','499':'ME','807':'MK','528':'NL','578':'NO',
+      '616':'PL','620':'PT','642':'RO','643':'RU','688':'RS','703':'SK','705':'SI',
+      '724':'ES','752':'SE','756':'CH','804':'UA','826':'GB',
+      /* Middle East */
+      '048':'BH','364':'IR','368':'IQ','400':'JO','414':'KW','422':'LB',
+      '512':'OM','275':'PS','634':'QA','682':'SA','792':'TR','784':'AE','887':'YE',
+      '376':'IL',
+      /* Africa */
+      '012':'DZ','024':'AO','204':'BJ','072':'BW','854':'BF','108':'BI','120':'CM',
+      '132':'CV','140':'CF','148':'TD','174':'KM','180':'CD','178':'CG','384':'CI',
+      '262':'DJ','818':'EG','226':'GQ','232':'ER','231':'ET','266':'GA','270':'GM',
+      '288':'GH','324':'GN','624':'GW','404':'KE','426':'LS','430':'LR','434':'LY',
+      '450':'MG','454':'MW','466':'ML','478':'MR','480':'MU','504':'MA','508':'MZ',
+      '516':'NA','562':'NE','566':'NG','646':'RW','686':'SN','694':'SL','706':'SO',
+      '710':'ZA','728':'SS','729':'SD','748':'SZ','834':'TZ','768':'TG','788':'TN',
+      '800':'UG','894':'ZM','716':'ZW',
+      /* Asia Pacific */
+      '036':'AU','050':'BD','064':'BT','096':'BN','116':'KH','156':'CN','242':'FJ',
+      '356':'IN','360':'ID','392':'JP','418':'LA','458':'MY','104':'MM','524':'NP',
+      '554':'NZ','586':'PK','598':'PG','608':'PH','410':'KR','144':'LK','158':'TW',
+      '764':'TH','626':'TL','704':'VN',
+      /* Central Asia / Caucasus */
+      '031':'AZ','051':'AM','268':'GE','398':'KZ','417':'KG','762':'TJ','795':'TM','860':'UZ',
+    };
+
+    /* alpha-2 → country name as used in globalpetrolprices.com data */
+    var _CW_ISO2_NAME = {
+      'US':'United States','CA':'Canada','MX':'Mexico','AR':'Argentina','BR':'Brazil',
+      'CL':'Chile','CO':'Colombia','PE':'Peru','VE':'Venezuela','EC':'Ecuador',
+      'BO':'Bolivia','PY':'Paraguay','UY':'Uruguay','CR':'Costa Rica','PA':'Panama',
+      'GT':'Guatemala','HN':'Honduras','SV':'El Salvador','NI':'Nicaragua','CU':'Cuba',
+      'DO':'Dominican Republic','JM':'Jamaica','TT':'Trinidad and Tobago','PR':'Puerto Rico',
+      'DE':'Germany','FR':'France','GB':'United Kingdom','IT':'Italy','ES':'Spain',
+      'NL':'Netherlands','BE':'Belgium','SE':'Sweden','NO':'Norway','DK':'Denmark',
+      'FI':'Finland','PL':'Poland','CZ':'Czech Republic','AT':'Austria','CH':'Switzerland',
+      'PT':'Portugal','GR':'Greece','HU':'Hungary','RO':'Romania','BG':'Bulgaria',
+      'HR':'Croatia','SK':'Slovakia','SI':'Slovenia','IE':'Ireland','LT':'Lithuania',
+      'LV':'Latvia','EE':'Estonia','RS':'Serbia','UA':'Ukraine','BY':'Belarus',
+      'RU':'Russia','TR':'Turkey','IS':'Iceland','LU':'Luxembourg','CY':'Cyprus',
+      'MT':'Malta','AL':'Albania','BA':'Bosnia and Herzegovina','ME':'Montenegro',
+      'MK':'North Macedonia','MD':'Moldova','AL':'Albania',
+      'US':'United States','IL':'Israel','AE':'UAE','SA':'Saudi Arabia','QA':'Qatar',
+      'KW':'Kuwait','BH':'Bahrain','OM':'Oman','IR':'Iran','IQ':'Iraq',
+      'JO':'Jordan','LB':'Lebanon','YE':'Yemen','TR':'Turkey',
+      'IN':'India','CN':'China','JP':'Japan','AU':'Australia','KR':'South Korea',
+      'TW':'Taiwan','MY':'Malaysia','SG':'Singapore','ID':'Indonesia','TH':'Thailand',
+      'VN':'Vietnam','PH':'Philippines','PK':'Pakistan','BD':'Bangladesh',
+      'NZ':'New Zealand','MM':'Myanmar','KH':'Cambodia','LK':'Sri Lanka',
+      'NP':'Nepal','BN':'Brunei','LA':'Laos','MN':'Mongolia',
+      'KZ':'Kazakhstan','UZ':'Uzbekistan','TM':'Turkmenistan','KG':'Kyrgyzstan',
+      'TJ':'Tajikistan','AZ':'Azerbaijan','GE':'Georgia','AM':'Armenia',
+      'EG':'Egypt','DZ':'Algeria','LY':'Libya','MA':'Morocco','TN':'Tunisia',
+      'NG':'Nigeria','ZA':'South Africa','KE':'Kenya','ET':'Ethiopia','TZ':'Tanzania',
+      'GH':'Ghana','CI':'Ivory Coast','CM':'Cameroon','AO':'Angola','MZ':'Mozambique',
+      'ZM':'Zambia','ZW':'Zimbabwe','SD':'Sudan','SS':'South Sudan','UG':'Uganda',
+      'SN':'Senegal','ML':'Mali','BF':'Burkina Faso','NE':'Niger','TD':'Chad',
+      'MW':'Malawi','RW':'Rwanda','NA':'Namibia','BW':'Botswana','GA':'Gabon',
+      'MU':'Mauritius','MG':'Madagascar','MR':'Mauritania',
+    };
+
+    /* Build reverse map: alpha-2 → ISO numeric (for oil/price layers) */
+    var _CW_ISO2_NUM = {};
+    Object.keys(_CW_ISO_NUM).forEach(function(num){ _CW_ISO2_NUM[_CW_ISO_NUM[num]] = num; });
 
     function _cwFuelColor(minDsr) {
       if (minDsr == null) return null;
@@ -7852,6 +7954,225 @@
         .catch(function(e){ console.warn('Fuel choropleth: world atlas load failed', e); });
     }
     window._cwToggleFuelLayer = _cwToggleFuelLayer;
+
+    /* ── Fuel Prices Choropleth (globalpetrolprices.com data) ────────────── */
+    var _cwPricesLayerVisible = false;
+
+    function _cwPricesColor(p) {
+      if (p == null) return null;
+      if (p < 0.5)  return '#2e7d32';  // green   — very cheap
+      if (p < 1.0)  return '#8bc34a';  // lime    — cheap
+      if (p < 1.5)  return '#f9a825';  // amber   — moderate
+      if (p < 2.0)  return '#ef6c00';  // orange  — expensive
+      return '#e53935';                // red     — very expensive
+    }
+
+    function _cwTogglePricesLayer(btn) {
+      if (!cwConflictMap) return;
+      if (_cwPricesLayerVisible) {
+        cwConflictMap.eachLayer(function(l){ if (l._isCwPricesLayer) cwConflictMap.removeLayer(l); });
+        _cwPricesLayerVisible = false;
+        if (btn) btn.classList.remove('active');
+        _cwUpdateMapLegend();
+        return;
+      }
+      /* Build country name → price lookup */
+      var prices = (_gfpData && _gfpData.prices) ? _gfpData.prices : {};
+      /* Build iso2 → price via name lookup */
+      var iso2Price = {};
+      Object.keys(prices).forEach(function(name) {
+        Object.keys(_CW_ISO2_NAME).forEach(function(iso2) {
+          if (_CW_ISO2_NAME[iso2] === name) iso2Price[iso2] = prices[name];
+        });
+      });
+      function _buildPricesLayer(world) {
+        var geojson = topojson.feature(world, world.objects.countries);
+        var layer = L.geoJSON(geojson, {
+          style: function(feat) {
+            var iso2  = _CW_ISO_NUM[String(feat.id)];
+            var price = iso2 ? iso2Price[iso2] : null;
+            var color = _cwPricesColor(price);
+            if (!color) return { fillOpacity:0, weight:0, stroke:false };
+            return { fillColor:color, fillOpacity:0.42, color:color, weight:0.6, opacity:0.5 };
+          },
+          onEachFeature: function(feat, lyr) {
+            var iso2  = _CW_ISO_NUM[String(feat.id)];
+            var name  = iso2 ? _CW_ISO2_NAME[iso2] : null;
+            var price = name ? prices[name] : null;
+            if (price == null) return;
+            lyr.bindTooltip(
+              '<strong>' + (name || iso2 || '') + '</strong><br>⛽ Gasoline: <b>$' + price.toFixed(3) + ' /L</b>',
+              { sticky:true, className:'cw-fuel-tooltip' }
+            );
+          }
+        });
+        layer._isCwPricesLayer = true;
+        layer.addTo(cwConflictMap);
+        layer.bringToBack();
+        _cwPricesLayerVisible = true;
+        if (btn) btn.classList.add('active');
+        _cwUpdateMapLegend();
+      }
+      if (_cwTopoWorldCache) { _buildPricesLayer(_cwTopoWorldCache); return; }
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(function(r){ return r.json(); })
+        .then(function(world){ _cwTopoWorldCache = world; _buildPricesLayer(world); })
+        .catch(function(e){ console.warn('[prices layer] world atlas failed', e); });
+    }
+    window._cwTogglePricesLayer = _cwTogglePricesLayer;
+
+    /* ── Oil Reserves Choropleth (import cover days) ─────────────────────── */
+    var _cwOilLayerVisible = false;
+
+    function _cwOilColor(importCover) {
+      if (importCover == null) return null;
+      var d = parseFloat(importCover);
+      if (isNaN(d)) return null;
+      if (d > 90)  return '#2e7d32';  // green  — well covered
+      if (d > 60)  return '#8bc34a';  // lime
+      if (d > 30)  return '#f9a825';  // amber
+      return '#e53935';               // red    — low cover
+    }
+
+    function _cwToggleOilLayer(btn) {
+      if (!cwConflictMap) return;
+      if (_cwOilLayerVisible) {
+        cwConflictMap.eachLayer(function(l){ if (l._isCwOilLayer) cwConflictMap.removeLayer(l); });
+        _cwOilLayerVisible = false;
+        if (btn) btn.classList.remove('active');
+        _cwUpdateMapLegend();
+        return;
+      }
+      /* Build iso2 → importCover lookup */
+      var oilMap = {};
+      (cwOilData || []).forEach(function(d) {
+        if (d.iso) oilMap[d.iso.toUpperCase()] = d;
+      });
+      function _buildOilLayer(world) {
+        var geojson = topojson.feature(world, world.objects.countries);
+        var layer = L.geoJSON(geojson, {
+          style: function(feat) {
+            var iso2   = _CW_ISO_NUM[String(feat.id)];
+            var entry  = iso2 ? oilMap[iso2] : null;
+            var cover  = entry ? (entry.importCover || entry.emergencyStocks || null) : null;
+            var color  = _cwOilColor(cover);
+            if (!color) return { fillOpacity:0, weight:0, stroke:false };
+            return { fillColor:color, fillOpacity:0.4, color:color, weight:0.6, opacity:0.5 };
+          },
+          onEachFeature: function(feat, lyr) {
+            var iso2  = _CW_ISO_NUM[String(feat.id)];
+            var entry = iso2 ? oilMap[iso2] : null;
+            if (!entry) return;
+            var cover = entry.importCover || entry.emergencyStocks;
+            lyr.bindTooltip(
+              '<strong>' + esc(entry.country||iso2||'') + '</strong><br>'
+              + '🏭 Import cover: <b>' + (cover ? cover + ' days' : '—') + '</b><br>'
+              + 'Emergency stocks: <b>' + (entry.emergencyStocks || '—') + '</b>',
+              { sticky:true, className:'cw-fuel-tooltip' }
+            );
+          }
+        });
+        layer._isCwOilLayer = true;
+        layer.addTo(cwConflictMap);
+        layer.bringToBack();
+        _cwOilLayerVisible = true;
+        if (btn) btn.classList.add('active');
+        _cwUpdateMapLegend();
+      }
+      if (_cwTopoWorldCache) { _buildOilLayer(_cwTopoWorldCache); return; }
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(function(r){ return r.json(); })
+        .then(function(world){ _cwTopoWorldCache = world; _buildOilLayer(world); })
+        .catch(function(e){ console.warn('[oil layer] world atlas failed', e); });
+    }
+    window._cwToggleOilLayer = _cwToggleOilLayer;
+
+    /* ── APJC Highlight Layer ────────────────────────────────────────────── */
+    var _cwApjcLayerVisible = false;
+    var _APJC_ISO2 = ['AU','CN','IN','JP','KR','MY','TW','ID','TH','VN','PH','PK','BD','NZ','LK','BN','KH','MM','LA'];
+
+    function _cwToggleApjcLayer(btn) {
+      if (!cwConflictMap) return;
+      if (_cwApjcLayerVisible) {
+        cwConflictMap.eachLayer(function(l){ if (l._isCwApjcLayer) cwConflictMap.removeLayer(l); });
+        _cwApjcLayerVisible = false;
+        if (btn) btn.classList.remove('active');
+        _cwUpdateMapLegend();
+        return;
+      }
+      var apjcSet = {};
+      _APJC_ISO2.forEach(function(c){ apjcSet[c] = true; });
+      function _buildApjcLayer(world) {
+        var geojson = topojson.feature(world, world.objects.countries);
+        var layer = L.geoJSON(geojson, {
+          style: function(feat) {
+            var iso2 = _CW_ISO_NUM[String(feat.id)];
+            if (!apjcSet[iso2]) return { fillOpacity:0, weight:0, stroke:false };
+            return { fillColor:'#7b1fa2', fillOpacity:0.35, color:'#ce93d8', weight:1.0, opacity:0.7 };
+          },
+          onEachFeature: function(feat, lyr) {
+            var iso2 = _CW_ISO_NUM[String(feat.id)];
+            if (!apjcSet[iso2]) return;
+            var name = _CW_ISO2_NAME[iso2] || iso2;
+            lyr.bindTooltip('<strong>' + name + '</strong><br>🔥 APJC Region', { sticky:true, className:'cw-fuel-tooltip' });
+          }
+        });
+        layer._isCwApjcLayer = true;
+        layer.addTo(cwConflictMap);
+        layer.bringToBack();
+        _cwApjcLayerVisible = true;
+        if (btn) btn.classList.add('active');
+        _cwUpdateMapLegend();
+      }
+      if (_cwTopoWorldCache) { _buildApjcLayer(_cwTopoWorldCache); return; }
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(function(r){ return r.json(); })
+        .then(function(world){ _cwTopoWorldCache = world; _buildApjcLayer(world); })
+        .catch(function(e){ console.warn('[apjc layer] world atlas failed', e); });
+    }
+    window._cwToggleApjcLayer = _cwToggleApjcLayer;
+
+    /* ── Dynamic Map Legend ──────────────────────────────────────────────── */
+    function _cwUpdateMapLegend() {
+      var el = document.getElementById('cw-map-legend-box');
+      if (!el) return;
+      var html = '';
+      if (_cwConflictLayerVisible) {
+        html += '<div style="font-size:.6rem;color:#9aa0a6;margin-bottom:3px;font-weight:600;">CONFLICT EVENTS</div>';
+        [['#e53935','Armed'],['#ad1457','Terrorism'],['#f9a825','Unrest'],['#1565c0','Hazard'],['#6a1b9a','Cyber']].forEach(function(r){
+          html += '<div class="cw-map-lgnd-row"><span class="cw-map-lgnd-dot" style="background:' + r[0] + '"></span>' + r[1] + '</div>';
+        });
+      }
+      if (_cwFuelLayerVisible) {
+        if (html) html += '<div style="margin:4px 0;border-top:1px solid rgba(255,255,255,.07);"></div>';
+        html += '<div style="font-size:.6rem;color:#9aa0a6;margin-bottom:3px;font-weight:600;">FUEL SUPPLY (DSR)</div>';
+        [['#2e7d32','> 40 days'],['#f9a825','20–40 days'],['#e53935','< 20 days']].forEach(function(r){
+          html += '<div class="cw-map-lgnd-row"><span class="cw-map-lgnd-swatch" style="background:' + r[0] + '"></span>' + r[1] + '</div>';
+        });
+      }
+      if (_cwPricesLayerVisible) {
+        if (html) html += '<div style="margin:4px 0;border-top:1px solid rgba(255,255,255,.07);"></div>';
+        html += '<div style="font-size:.6rem;color:#9aa0a6;margin-bottom:3px;font-weight:600;">FUEL PRICES (USD/L)</div>';
+        [['#2e7d32','< $0.50'],['#8bc34a','$0.50–1.00'],['#f9a825','$1.00–1.50'],['#ef6c00','$1.50–2.00'],['#e53935','> $2.00']].forEach(function(r){
+          html += '<div class="cw-map-lgnd-row"><span class="cw-map-lgnd-swatch" style="background:' + r[0] + '"></span>' + r[1] + '</div>';
+        });
+      }
+      if (_cwOilLayerVisible) {
+        if (html) html += '<div style="margin:4px 0;border-top:1px solid rgba(255,255,255,.07);"></div>';
+        html += '<div style="font-size:.6rem;color:#9aa0a6;margin-bottom:3px;font-weight:600;">OIL RESERVES (IMPORT COVER)</div>';
+        [['#2e7d32','> 90 days'],['#8bc34a','60–90 days'],['#f9a825','30–60 days'],['#e53935','< 30 days']].forEach(function(r){
+          html += '<div class="cw-map-lgnd-row"><span class="cw-map-lgnd-swatch" style="background:' + r[0] + '"></span>' + r[1] + '</div>';
+        });
+      }
+      if (_cwApjcLayerVisible) {
+        if (html) html += '<div style="margin:4px 0;border-top:1px solid rgba(255,255,255,.07);"></div>';
+        html += '<div style="font-size:.6rem;color:#9aa0a6;margin-bottom:3px;font-weight:600;">APJC REGION</div>';
+        html += '<div class="cw-map-lgnd-row"><span class="cw-map-lgnd-swatch" style="background:#7b1fa2"></span>APJC countries</div>';
+      }
+      el.innerHTML = html || '';
+      el.style.display = html ? '' : 'none';
+    }
+    window._cwUpdateMapLegend = _cwUpdateMapLegend;
 
     /* ── Israel mini-map ─────────────────────────────────────────────────── */
     function initIsraelMap() {
@@ -8118,9 +8439,15 @@
       plotConflictMarkers(cwOsintData);
     }
 
+    /* ── Conflict Markers LayerGroup ─────────────────────────────────────── */
+    var _cwConflictLayerGroup   = null;
+    var _cwConflictLayerVisible = true;  // on by default
+
     function plotConflictMarkers(events) {
       if (!cwConflictMap) return;
-      cwConflictMarkers.forEach(function(m){ cwConflictMap.removeLayer(m); });
+      /* Remove existing group */
+      if (_cwConflictLayerGroup) cwConflictMap.removeLayer(_cwConflictLayerGroup);
+      _cwConflictLayerGroup = L.layerGroup();
       cwConflictMarkers = [];
       var typeColors = { ARMED:'#e53935', TERRORISM:'#ad1457', UNREST:'#f9a825', HAZARD:'#1565c0', CYBER:'#6a1b9a' };
       (events || []).forEach(function(item) {
@@ -8132,10 +8459,25 @@
           '<strong>' + esc(item.title||'') + '</strong><br>'
           + '<span style="font-size:.7rem;color:#9aa0a6;">' + esc(item.location||'') + ' · ' + fmtTs(item.timestamp||'') + '</span>'
         );
-        m.addTo(cwConflictMap);
+        m._cwType = item.type;
+        _cwConflictLayerGroup.addLayer(m);
         cwConflictMarkers.push(m);
       });
+      if (_cwConflictLayerVisible) _cwConflictLayerGroup.addTo(cwConflictMap);
+      _cwUpdateMapLegend();
     }
+
+    function _cwToggleConflictLayer(btn) {
+      if (!cwConflictMap) return;
+      _cwConflictLayerVisible = !_cwConflictLayerVisible;
+      if (_cwConflictLayerGroup) {
+        if (_cwConflictLayerVisible) cwConflictMap.addLayer(_cwConflictLayerGroup);
+        else cwConflictMap.removeLayer(_cwConflictLayerGroup);
+      }
+      if (btn) btn.classList.toggle('active', _cwConflictLayerVisible);
+      _cwUpdateMapLegend();
+    }
+    window._cwToggleConflictLayer = _cwToggleConflictLayer;
 
     function filterConflictByRegion(region) {
       if (!cwConflictMap) return;
@@ -8911,19 +9253,7 @@
         setTimeout(function(){ loadProfileBtn.textContent = 'Load'; }, 2000);
       });
 
-      /* Map category filter */
-      var mapCatFilter = document.getElementById('cw-map-cat-filter');
-      if (mapCatFilter) mapCatFilter.addEventListener('change', function() {
-        var cat = this.value;
-        cwConflictMarkers.forEach(function(m) {
-          var layer = m;
-          if (layer._cwType && cat !== 'ALL' && layer._cwType !== cat) {
-            if (cwConflictMap) cwConflictMap.removeLayer(layer);
-          } else {
-            if (cwConflictMap) layer.addTo(cwConflictMap);
-          }
-        });
-      });
+      /* Map category filter removed — layer toggles now handle this */
 
       /* Map refresh */
       var mapRefreshBtn = document.getElementById('cw-map-refresh-btn');
