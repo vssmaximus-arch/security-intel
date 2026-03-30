@@ -7403,7 +7403,7 @@
       }).sort(function(a,b){ return a.d<b.d?-1:1; });
 
       /* ── Canvas dimensions ── */
-      var W=400, H=260, PAD={t:20, r:20, b:52, l:62};
+      var W=400, H=260, PAD={t:20, r:72, b:52, l:62};
       var cW=W-PAD.l-PAD.r, cH=H-PAD.t-PAD.b;
 
       /* ── Nice round Y-axis ticks ── */
@@ -7469,14 +7469,15 @@
       /* ── Latest price callout ── */
       var last=pts[pts.length-1];
       var cy=yOf(last.v); var cx=xOf(pts.length-1);
-      var boxW=62, boxH=20;
-      /* Centre callout on point; clamp so it never overflows left or right */
-      var cxOff=Math.min(Math.max(cx-boxW/2, PAD.l), W-PAD.r-boxW);
-      var callout='<rect x="'+cxOff+'" y="'+(cy-boxH-6)+'" width="'+boxW+'" height="'+boxH+'" rx="3" fill="#f9ab00"/>'
-        +'<text x="'+(cxOff+boxW/2)+'" y="'+(cy-boxH/2-6+5)+'" text-anchor="middle" fill="#000" font-size="11" font-weight="800">$'+last.v.toFixed(3)+'/L</text>';
+      var boxW=64, boxH=20;
+      /* Place callout centred on last dot; if near right edge shift left */
+      var cxOff=cx+8; /* default: right of dot */
+      if(cxOff+boxW > W-4) cxOff=cx-boxW-8; /* flip left if no room */
+      var callout='<rect x="'+cxOff+'" y="'+(cy-boxH/2)+'" width="'+boxW+'" height="'+boxH+'" rx="3" fill="#f9ab00"/>'
+        +'<text x="'+(cxOff+boxW/2)+'" y="'+(cy+6)+'" text-anchor="middle" fill="#000" font-size="11" font-weight="800">$'+last.v.toFixed(3)+'/L</text>';
 
       /* ── Legend ── */
-      var legX=W-PAD.r-78, legY=PAD.t+4;
+      var legX=W-68, legY=PAD.t+4;
       var legend='<rect x="'+legX+'" y="'+legY+'" width="12" height="12" rx="2" fill="#f9ab00"/>'
         +'<text x="'+(legX+16)+'" y="'+(legY+10)+'" fill="#c9cdd1" font-size="10" font-weight="600">Avg USD/L</text>';
 
