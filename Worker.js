@@ -6067,41 +6067,42 @@ async function handleApiAiBriefing(env, req) {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ONGOING CRISIS CONTEXT (ALWAYS LEAD WITH THIS):
-Operation Epic Fury — Day ${Math.ceil((new Date(_todayStr) - new Date('2026-02-28')) / 86400000)} of Iran-US/Israel conflict.
+Operation Epic Fury — Day ${Math.ceil((new Date(_todayStr).getTime() - new Date('2026-02-28').getTime()) / 86400000)} of Iran-US/Israel conflict.
 Strait of Hormuz: Effectively closed (3 transits/day vs 138 normal). 20% of global energy trade disrupted.
 Oil prices: Brent ~$116/barrel (record monthly surge). Global fuel prices +35–60% depending on region.
 APJC fuel crisis: Philippines (transport strikes, energy emergency declared), Sri Lanka (Wednesday public holidays, WFH), Korea (vehicle restrictions), Thailand (diesel shortages), Malaysia (fuel subsidies tripled), Australia (PM halved fuel excise effective 1 Apr).
 Dell manufacturing exposure: Chengdu, Xiamen, Penang, Sriperumbudur, Vietnam — all dependent on affected supply routes.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-WRITING STANDARDS — match these real SRO SITREP examples EXACTLY:
+WRITING STANDARDS — these are VERBATIM extracts from real Dell SRO Operation Epic Fury SITREPs. Match this style EXACTLY:
 
-KEY TAKEAWAY (strategic level):
-"The Iran conflict is expanding both geographically and in severity. US military operations are now hitting targets in eastern Iran and targeting Iran-backed militias across Iraq and Syria. Escalation directly increases risk of airspace closures, ground security restrictions, and supplier/logistics delays that will impair Dell's ability to move people, product, and sustain operations across the Middle East and APJC."
+REAL ACTIVE MONITORING EXAMPLE (use this paragraph structure and voice):
+"President Trump is expressing confidence in talks between US and Iran while at the same time making further threats to destroy Iranian infrastructure. Oil and stock market movements reflect fears of greater disruption to energy exports. The US has sent more troops to the Middle East, and threatened to seize Kharg Island, Iran's key oil export terminal. This would likely be another point of escalation, rather than a pathway to a rapid end to the war. The Iran-linked Houthi armed group in Yemen has now entered the conflict, firing missiles at Israel. We are watching out for a sustained attempt by the Houthis to attack shipping in Bab-al-Mandab, which connects the Red Sea to the Indian Ocean. The effective closure of this waterway would add further cost and time to the transport of goods. Our TMs and operations are vulnerable to, and in some cases already impacted by, fuel price rises and the measures some governments have taken to restrict business activity to reduce energy use. Among recent restrictions imposed are an instruction to work from home one day per week in Egypt, as well as early closing times for government offices, shopping malls, restaurants, and tourist sites."
 
-KEY TAKEAWAY (global spillover):
-"Energy crisis responses are now reshaping how Dell's APJC workforce operates. Sri Lanka has rationed fuel at 15L/person/week and declared Wednesday a national holiday. The Philippines has declared a state of national energy emergency, with nationwide transport strikes directly impacting Dell CSB Renewals night shift operations in Manila. Australia's PM has halved the fuel excise from 52.6¢/L to 26.3¢/L effective 1 April. These government responses signal that the crisis is now structural, not temporary."
+REAL SRO FORWARD RADAR EXAMPLE (regulatory/security trend, specific and actionable):
+"International: We continue to monitor for violence against symbols of the US and Israel likely motivated by the war. Police in France have arrested three people in connection with a suspected attempt to plant a bomb near a Bank of America office in Paris. French authorities said the foiled attack may be linked to the war; anti-terrorism prosecutors are investigating. Dell offices in European capitals with prominent Western corporate identity should review physical security posture and ensure security staff are briefed on this trend."
 
-RECENT ESCALATION (specific event):
-"Iranian strikes on Ras Laffan Industrial City, Qatar — Retaliatory strikes on South Pars gas field caused major damage to Qatari LNG facilities, reducing national output by ~17%. This constrains global LNG supply beyond crude oil and will drive multi-sector cost increases through Q2 2026."
-
-DELL OPERATIONAL IMPACT (site-specific):
-"Dell Manila (PHL): Philippines transport strike entering Day 3. Global CSB Renewals Night Shift operating on WFH. No physical access disruption to office, but commute risk for TMs using private transport. RSM APJC monitoring."
-
-OUTLOOK (forward assessment):
-"Continued targeting of energy production assets will drive further price rises across all hydrocarbon categories — crude, LNG, refined fuels — with cascading impact on industrial manufacturing, food production, and freight costs. Dell's APJC logistics costs will rise materially through Q2. The risk of direct conflict expanding to Gulf states with Dell operations (UAE, Saudi Arabia) remains elevated."
+REAL ONGOING EVENTS EXAMPLE (structured list):
+"APJC
+- Monitoring — Philippines: Nationwide transport strike 'transport holiday' declared. Dell CSB Renewals Team (Night Shift) on WFH. President Marcos declared state of national energy emergency.
+- Monitoring — South Korea: Government enforcing mandatory five-day vehicle restriction system; vehicles barred from driving on designated weekday based on licence plate. Electric and hydrogen vehicles exempt.
+- Awareness — Sri Lanka: Wednesday declared public holiday to conserve fuel. Offices, schools closed. Civil servants WFH.
+EMEA
+- Monitoring — US/Israel attacks against Iran; widening Iranian retaliation across Middle East.
+- Awareness — Egypt: Government instruction to work from home one day per week; early closing times for malls, restaurants, tourist sites."
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-MANDATORY WRITING RULES:
-1. BLUF first — every section opens with the most important thing, not background.
-2. Named actors, specific numbers, dates. "Oil +23%" not "oil prices rose." "$116/bbl" not "elevated prices."
-3. CHAIN OF CONSEQUENCES: military strike → infrastructure damage → supply impact → logistics cost → Dell exposure. Always end at Dell.
-4. CONFIDENT ASSESSMENT: Write what IS happening and what WILL happen based on current trajectory. No "may", "could", "might" unless genuinely uncertain.
-5. DELL SITES: Cross-reference every incident country against the Dell Sites list provided. Name actual cities. "Dell office in Dubai" not "our offices in the region."
-6. CYBER: ONLY include if confirmed direct attack on Dell infrastructure with operational impact. No general cyber news.
-7. APJC FUEL CRISIS: If ANY APJC country incident appears — integrate it as part of the ongoing fuel crisis narrative, not as an isolated event.
-8. LENGTH: Each KEY TAKEAWAY = 3–5 sentences minimum. RECENT ESCALATIONS = 2–4 sentences per event. OUTLOOK = 3–5 sentences per bullet.
-9. TONE: Senior intelligence professional writing for C-suite and security directors. Not a news summary. Synthesized, assessed intelligence.`;
+MANDATORY WRITING RULES — enforced:
+1. SAY "OUR TMs" NOT "Dell employees." Say "our office in Dubai" not "Dell's Dubai office." Write as a Dell insider, not a journalist.
+2. DUAL SIGNALS: When actors are doing contradictory things (Trump talking AND threatening), state both. Nuance is intelligence.
+3. NAMED INFRASTRUCTURE: Kharg Island, Bab-al-Mandab, South Pars, Ras Laffan, Strait of Hormuz — name specific infrastructure, not generic "energy assets."
+4. CHAIN OF CONSEQUENCES: seize Kharg Island → Iran oil exports stop → Brent $130+ → APJC fuel rationing → Dell TM commute/logistics impact. Always end at Dell.
+5. SPECIFIC NUMBERS: "$116/bbl", "3 transits/day vs 138 normal", "52.6¢/L halved to 26.3¢/L", "17% LNG output reduction." Never vague quantifiers.
+6. FORWARD RADAR = regulatory/legal/governance shifts that haven't triggered a crisis yet but will affect our TMs. Law changes, government orders, political trajectories.
+7. VIOLENCE AGAINST WESTERN SYMBOLS: Bombing attempts near corporate offices, anti-US demonstrations near Dell cities — these go in FORWARD RADAR as physical security trend items.
+8. NO CYBER NOISE: Only include cyber if Dell infrastructure is confirmed down/breached. CVEs, vendor patches, nation-state hacking of others = exclude entirely.
+9. OUTLOOK = what SRO should expect in next 24–72h. Specific. Actionable. Name the countries and business functions most exposed.
+10. LENGTH: ACTIVE MONITORING = 3–5 flowing paragraphs. FORWARD RADAR = 2–4 country items. ONGOING EVENTS = structured list. OUTLOOK = 3–5 bullets.`;
 
       userContent = `DELL SRO — SITUATION REPORT (SITREP)
 Classification: INTERNAL — SRO DISTRIBUTION ONLY
@@ -6143,7 +6144,7 @@ Every section = synthesized intelligence assessment. NOT raw headlines. NOT a li
       systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO Fusion Center. Write the Daily Threatscape briefing for SRO leadership and Regional Security Managers (RSMs).
 
 ONGOING CRISIS CONTEXT (always incorporate where relevant):
-Operation Epic Fury — Day ${Math.ceil((new Date(_todayStrDT) - new Date('2026-02-28')) / 86400000)} of Iran-US/Israel conflict. Strait of Hormuz effectively closed. Oil ~$116/bbl. APJC fuel crisis active across PHL, LKA, KOR, THA, MYS, AUS.
+Operation Epic Fury — Day ${Math.ceil((new Date(_todayStrDT).getTime() - new Date('2026-02-28').getTime()) / 86400000)} of Iran-US/Israel conflict. Strait of Hormuz effectively closed. Oil ~$116/bbl. APJC fuel crisis active across PHL, LKA, KOR, THA, MYS, AUS.
 
 
 EXACT STYLE TO MATCH — these are real SRO Daily Threatscape examples, write identically:
@@ -6154,21 +6155,29 @@ ACTIVE MONITORING example:
 SRO FORWARD RADAR example:
 "Hong Kong: As of 23 March, police can compel people suspected of violating national security laws to provide passwords to their cell phones and computers. The laws cover subversion, secession, terrorism, and collusion with foreign forces — defined vaguely, meaning an extremely broad spectrum of activities can be deemed illegal. Foreign companies should respond by using devices stripped of sensitive corporate and personal data and avoiding politically sensitive activity."
 
-ONGOING EVENTS example:
+ACTIVE MONITORING REAL EXAMPLE (verbatim from Dell SRO Operation Epic Fury — match this exactly):
+"Iran/Israel/Global: President Trump is expressing confidence in talks between US and Iran while at the same time making further threats to destroy Iranian infrastructure. Oil and stock market movements reflect fears of greater disruption to energy exports. The US has sent more troops to the Middle East, and threatened to seize Kharg Island, Iran's key oil export terminal. This would likely be another point of escalation, rather than a pathway to a rapid end to the war. The Iran-linked Houthi armed group in Yemen has now entered the conflict, firing missiles at Israel. We are watching out for a sustained attempt by the Houthis to attack shipping in Bab-al-Mandab, which connects the Red Sea to the Indian Ocean. The effective closure of this waterway would add further cost and time to the transport of goods. Our TMs and operations are vulnerable to, and in some cases already impacted by, fuel price rises and the measures some governments have taken to restrict business activity to reduce energy use. Among recent restrictions imposed are an instruction to work from home one day per week in Egypt, as well as early closing times for government offices, shopping malls, restaurants, and tourist sites."
+
+SRO FORWARD RADAR REAL EXAMPLE (verbatim — regulatory/security, actionable):
+"International: We continue to monitor for violence against symbols of the US and Israel likely motivated by the war. Police in France have arrested three people in connection with a suspected attempt to plant a bomb near a Bank of America office in Paris. French authorities said the foiled attack may be linked to the war; anti-terrorism prosecutors are investigating. Dell offices in European capitals and major cities should review physical security posture and brief security staff on this trend."
+
+ONGOING EVENTS REAL EXAMPLE:
 "APJC
-- Monitoring — Pakistan/Afghanistan: Pakistan has declared 'open war' with Afghanistan. Major air strike on Kabul 17 March.
-- Monitoring — Tropical Cyclone Narelle, moving over Australia. No TMs currently in path.
+- Monitoring — Philippines: Nationwide transport strike declared. Dell CSB Renewals Night Shift on WFH. State of national energy emergency declared by President Marcos.
+- Monitoring — South Korea: Mandatory vehicle restriction by licence plate number — designated no-drive weekday per vehicle.
+- Awareness — Sri Lanka: Wednesday national public holiday to conserve fuel. Offices and schools closed.
 EMEA
-- Monitoring — US/Israeli attacks against Iran; widening Iranian retaliation across Middle East.
-- Awareness — Ongoing Russian attacks on Ukraine."
+- Monitoring — Iran/Israel: US threatening to seize Kharg Island. Houthis firing on Israel. Bab-al-Mandab closure risk elevated.
+- Awareness — Egypt: One WFH day/week mandatory for civil servants; early closing for malls, restaurants, tourist sites."
 
 WRITING RULES:
-1. ACTIVE MONITORING = flowing narrative paragraphs by major theme/geography. Lead with physical security threats (conflict, unrest, terrorism, natural hazards) and supply chain disruptions. When a Dell office country is involved, name the city explicitly (e.g. "where we have an office in Dubai").
-2. SRO FORWARD RADAR = upcoming concerns: new laws, regulatory changes, political trends, emerging risks. Not immediate crises — those go in Active Monitoring.
-3. ONGOING EVENTS = structured monitoring list grouped by region (APJC / EMEA / AMER). Each item: Status (Monitoring/Awareness) — Location — brief description — Dell TM note if relevant.
-4. OUTLOOK = 2–3 forward-looking bullets on physical security and supply chain trajectory.
-5. Tone: direct, factual, written for senior managers with no time. Complete sentences. No jargon.
-6. CYBER RULE: Do NOT include cyber threats unless it is a confirmed direct attack on Dell infrastructure with operational impact (Dell systems down, Dell data breached). General cyber news, vendor patches, CVE advisories, nation-state hacking of OTHER companies = EXCLUDE. SRO leadership prioritises physical security and supply chain above all else.`;
+1. SAY "OUR TMs" not "Dell employees." "Our office in Manila" not "Dell's Manila office." You are a Dell insider.
+2. ACTIVE MONITORING = 3–5 flowing paragraphs. Lead Iran/Gulf, then APJC impacts, then other regions. No bullet points here.
+3. SRO FORWARD RADAR = regulatory shifts, new laws, political trends, emerging security threats not yet at crisis level. Specific country + consequence for Dell TMs.
+4. VIOLENCE AGAINST WESTERN SYMBOLS: Bombing attempts near corporate offices, anti-US demonstrations near Dell cities — include in FORWARD RADAR.
+5. ONGOING EVENTS = structured list by APJC / EMEA / AMER. Each: "- Monitoring/Awareness — Location: description. [Dell TM note]."
+6. OUTLOOK = 3 forward-looking bullets, 24–72h horizon. What will happen, not what might happen.
+7. CYBER RULE: Exclude entirely unless Dell infrastructure is confirmed down/breached. No CVEs, no vendor patches, no nation-state hacking of other companies.`;
 
       userContent = `SRO DAILY THREATSCAPE — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
 Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
@@ -8407,7 +8416,7 @@ async function handleApiConflictEvents(env, req, ctx) {
   }
 
   /* Sort newest first */
-  events.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  events.sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   const activeSources = ['GDACS', 'ReliefWeb/UNOCHA'];
   if (env.ACLED_EMAIL && env.ACLED_PASSWORD) activeSources.push('ACLED');
