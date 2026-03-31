@@ -2566,7 +2566,7 @@
   .er-badge-topic.nat   { color:#66bb6a; border-color:rgba(102,187,106,.35); background:rgba(102,187,106,.10); }
   .er-badge-topic.travel{ color:#ffa726; border-color:rgba(255,167,38,.35);  background:rgba(255,167,38,.10); }
   .er-badge-topic.sec   { color:#ef9a9a; border-color:rgba(239,154,154,.35); background:rgba(239,154,154,.10); }
-  .er-title { display:block; font-size:.74rem; color:#c8d6e5; line-height:1.42; text-decoration:none; font-family:'Courier New',Courier,monospace; margin-top:1px; }
+  .er-title { display:block; font-size:.74rem; color:#c8d6e5; line-height:1.42; text-decoration:none; font-family:'Inter',sans-serif; margin-top:1px; }
   .er-title:hover { color:#8ab4f8; text-decoration:none; }
   .er-title.is-alert { color:#ff7043; }
   .er-footer { display:flex; justify-content:flex-end; margin-top:2px; }
@@ -2575,7 +2575,7 @@
   .er-count-pill { font-size:.62rem; font-weight:700; padding:2px 8px; border-radius:10px; background:#1e2129; color:#9aa0a6; border:1px solid #2a2d35; }
   body.light-mode .er-item { border-bottom-color:#e0e3e7; }
   body.light-mode .er-cat { color:#9aa0a6; }
-  body.light-mode .er-title { color:#1a1a2e; font-family:'Courier New',Courier,monospace; }
+  body.light-mode .er-title { color:#1a1a2e; font-family:'Inter',sans-serif; }
   body.light-mode .er-time { color:#9aa0a6; }
   /* ────────────────────────────────────────────────────────────────────── */
 
@@ -4924,12 +4924,10 @@
 
       renderPicker();
 
-      /* Default landing view — Crisis Watch.
-         switchView() lives in a separate IIFE so we simulate a tab click,
-         which routes through the document click handler that owns switchView. */
+      /* Default landing view — Intelligence tab */
       setTimeout(function() {
-        var _cwTab = document.querySelector('.view-tab[data-view="crisis-watch"]');
-        if (_cwTab) _cwTab.click();
+        var _tab = document.querySelector('.view-tab[data-view="intelligence"]');
+        if (_tab) _tab.click();
       }, 0);
     }
 
