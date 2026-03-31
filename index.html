@@ -7992,24 +7992,8 @@
             var _divider = _dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)';
             var _amberHL = _dark ? '#f59e0b' : '#b45309'; // amber numbers
 
-            /* ── Document header ── */
-            var fmtColor  = isSitrep ? '#ef4444' : '#3b82f6';
-            var _hdrBg    = _dark ? fmtColor + '22' : fmtColor + '12';
-            var _hdrTitle = _dark ? '#f1f5f9' : '#0f172a';
-            var _classBg  = _dark ? '#070a0f' : '#f1f5f9';
-            var _classClr = _dark ? '#64748b' : '#475569';
-            var docHeader = '<div style="border:1px solid ' + fmtColor + '60;border-radius:6px;margin-bottom:16px;overflow:hidden;">'
-              + '<div style="background:' + _hdrBg + ';border-bottom:1px solid ' + fmtColor + '40;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
-              + '<div style="display:flex;align-items:center;gap:10px;">'
-              + '<span style="background:' + fmtColor + ';color:#fff;font-size:0.61rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">' + (isSitrep ? 'SITREP' : 'DAILY THREATSCAPE') + '</span>'
-              + '<span style="color:' + _hdrTitle + ';font-weight:700;font-size:0.88rem;">SRO Fusion Center</span>'
-              + '</div>'
-              + '<div style="display:flex;gap:14px;font-size:0.7rem;color:' + _meta + ';">'
-              + '<span>🕐 ' + genTime + ' UTC</span>'
-              + '<span>⏱ ' + (data.window_h||windowH) + 'h window</span>'
-              + '<span>📊 ' + (data.incident_count||0) + ' incidents</span>'
-              + '</div></div>'
-              + '</div>';
+            /* ── Section accent colour only (no document header — widget bar handles that) ── */
+            var fmtColor = isSitrep ? '#ef4444' : '#3b82f6';
 
             /* ── Section colours ── */
             var SCOL = {'⚡':'#f59e0b','🔺':'#ef4444','🛡':'#ef4444','🛡️':'#ef4444',
@@ -8053,7 +8037,7 @@
             });
             if (inSection) html += '</div>';
 
-            bodyEl.innerHTML = docHeader + '<div style="padding:0 2px;">' + html + '</div>';
+            bodyEl.innerHTML = '<div style="padding:0 2px;">' + html + '</div>';
           })
           .catch(function(err) {
             if (regenBtn) regenBtn.disabled = false;
