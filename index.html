@@ -6787,11 +6787,15 @@
       var osCount     = allAirports.filter(function(a){ return a.data_source === 'opensky'; }).length;
       var alCount     = allAirports.filter(function(a){ return a.data_source !== 'opensky'; }).length;
 
-      // ── Section 1: Live disruptions (Airlabs/OpenSky, score ≥ 0.1 = any cancellation/delay) ──
+      // ── Section 1: Live disruptions (Airlabs/OpenSky) — exclude airports already in Conflict Zone Closures ──
+      var _conflictIATAs = new Set(CLIENT_KNOWN_DISRUPTIONS.map(function(d){ return d.iata; }));
       var liveAirports = allAirports
         .slice()
         .sort(function(a,b){ return b.disruption_score - a.disruption_score; })
-        .filter(function(a){ return (a.disruption_score || 0) >= 0.1 || (a.cancelled || 0) > 0 || (a.delayed || 0) > 0; });
+        .filter(function(a){
+          return !_conflictIATAs.has(a.iata) &&
+                 ((a.disruption_score || 0) >= 0.1 || (a.cancelled || 0) > 0 || (a.delayed || 0) > 0);
+        });
 
       // ── Section 2: Conflict closures — always from CLIENT_KNOWN_DISRUPTIONS ─
       var closedRows = CLIENT_KNOWN_DISRUPTIONS
