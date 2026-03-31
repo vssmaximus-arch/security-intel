@@ -3545,23 +3545,6 @@
     <div class="grid-stack" id="cw-grid">
 
       <!-- ── POSTURE BANNER ──────────────────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-posture-widget" gs-x="0" gs-y="0" gs-w="12" gs-h="1" gs-min-h="1">
-        <div class="grid-stack-item-content vw-gs-content">
-          <div id="cw-posture-banner" class="cw-posture-oneliner cw-posture-stable">
-            <span class="cw-posture-icon">🔴</span>
-            <span class="cw-posture-lbl">Crisis Intelligence Posture</span>
-            <span class="cw-posture-sep">·</span>
-            <span id="cw-posture-level" class="cw-posture-level stable">Loading…</span>
-            <span class="cw-posture-sep">—</span>
-            <span id="cw-posture-summary" class="cw-posture-summary">Initialising intelligence feeds…</span>
-            <div class="cw-posture-right">
-              <span id="cw-posture-counts" class="cw-posture-counts"></span>
-              <button id="cw-refresh-all-btn" class="cw-btn-refresh" title="Refresh all Crisis Watch data"><i class="fas fa-sync-alt"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- ── AI DAILY SRO BRIEF ─────────────────────────────────────────── -->
       <div class="grid-stack-item" gs-id="cw-brief-widget" gs-x="0" gs-y="1" gs-w="12" gs-h="13" gs-min-h="7">
         <div class="grid-stack-item-content vw-gs-content">
@@ -7266,7 +7249,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v12';   // bumped → AI SRO Brief widget at top of layout
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v13';   // bumped → removed Crisis Posture banner
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7288,7 +7271,6 @@
 
     /* Widget visibility prefs — 4 widgets hidden from default view */
     var cwWidgetPrefs = {
-      'cw-posture-widget'  : true,
       'cw-brief-widget'    : true,    // AI Daily Brief — top widget
       'cw-map-widget'      : true,
       'cw-sirens-widget'   : false,   // available in Customize
@@ -7306,8 +7288,7 @@
 
     /* Default GridStack layout — 2026-03-31 — AI SRO Brief at top */
     var CW_DEFAULT_LAYOUT = [
-      { id:'cw-posture-widget',   x:0,  y:0,  w:12, h:1  },
-      { id:'cw-brief-widget',     x:0,  y:1,  w:12, h:13 },  // AI SRO Brief — prominent top slot
+      { id:'cw-brief-widget',     x:0,  y:0,  w:12, h:13 },  // AI Daily Brief — top slot
       { id:'cw-map-widget',       x:0,  y:14, w:8,  h:8  },
       { id:'cw-apjc-widget',      x:8,  y:14, w:4,  h:8  },
       { id:'cw-fuel-widget',      x:0,  y:22, w:3,  h:8  },
@@ -7325,7 +7306,6 @@
 
     /* Widget metadata for the picker — default-on widgets first */
     var CW_WIDGETS_META = [
-      { id:'cw-posture-widget',   label:'Crisis Posture Banner',     icon:'fa-circle',         desc:'Live threat level summary bar' },
       { id:'cw-brief-widget',     label:'AI Daily Brief',        icon:'fa-file-alt',       desc:'Auto-generated intelligence brief · SITREP or Daily Threatscape · Groq AI · Replaces manual morning report' },
       { id:'cw-map-widget',       label:'Conflict Intelligence Map', icon:'fa-map-marked-alt', desc:'Interactive OSINT conflict map — ACLED/GDACS' },
       { id:'cw-fuel-widget',      label:'Fuel Supply Index',         icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation days of supply by country' },
