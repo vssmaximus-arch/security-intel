@@ -6641,7 +6641,7 @@ async function handleApiAviationCancellations(env) {
 
   // Rate budget: 12 airports × 2 statuses × 1 refresh/day (24h TTL) = 24/day = 720/month ✓ (Airlabs free = 1,000/month)
   // OpenSky Network (free, unlimited) adds 15 more airports using departure-activity scoring
-  const CACHE_KEY    = 'aviation_cancellations_v9';
+  const CACHE_KEY    = 'aviation_cancellations_v10';
   const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours — refreshes once daily
 
   // Airport metadata for ranking table
