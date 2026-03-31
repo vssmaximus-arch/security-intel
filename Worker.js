@@ -5924,7 +5924,7 @@ function _buildNoAiBriefing(incidents, proxIncidents, windowH, region) {
     '## 🔺 RECENT ESCALATIONS',
     escalations.join('\n'),
     '',
-    '## 🏢 DELL OPERATIONAL IMPACT',
+    '## 🏢 OPERATIONAL IMPACT',
     dellLines.join('\n'),
     '',
     '## 📍 EVENTS NEAR DELL ASSETS',
@@ -6147,8 +6147,8 @@ Every section = synthesized intelligence assessment. NOT raw headlines. NOT a li
 ## 📍 EVENTS NEAR DELL ASSETS
 [From proximity alerts: **Event** — location — distance from Dell site — site name — current status. If no proximity events: "No proximity alerts in this window." Do not omit this section.]
 
-## 🏭 DELL OPERATIONAL STATUS
-⚠ STRICT RULE — FACTS ONLY. DO NOT INVENT OR INFER ANY DELL OPERATIONAL STATUS.
+## 🏭 OPERATIONAL STATUS
+⚠ STRICT RULE — FACTS ONLY. DO NOT INVENT OR INFER ANY OPERATIONAL STATUS.
 ONLY write a bullet if the incident feed EXPLICITLY states a Dell site, Dell team, or Dell TMs are affected.
 If an incident says "Philippines transport strike" but does NOT mention Dell specifically, you MAY note the EXTERNAL risk to our TMs (e.g. "transport disruption affects TM commutes") but you MUST NOT claim Dell offices are closed, WFH orders issued, or teams have taken specific actions unless that information is directly in the feed.
 If there is NO confirmed Dell-specific operational impact in the feed, write EXACTLY: "No confirmed Dell operational impacts reported in this window. Monitoring continues."
