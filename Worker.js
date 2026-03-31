@@ -6051,10 +6051,14 @@ async function handleApiAiBriefing(env, req) {
     // SITREP: active major crisis detected by EITHER CRITICAL count OR crisis keywords in incident feed
     // This ensures SITREP fires during prolonged crises (Iran War) even when some incidents are classified HIGH
     const criticalCount = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'CRITICAL').length;
-    const _CRISIS_KEYWORDS_RE = /\b(iran|hormuz|strait of hormuz|gulf war|oil.{1,10}barrel|fuel crisis|energy emergency|operation epic fury|red sea closure|houthi|irgc|strait.*clos|brent.*\$1[0-9]{2})\b/i;
+    // SITREP trigger: match Iran* (Iranian, Iran-linked), Hormuz, Houthi, Gulf war keywords, fuel/energy crisis terms
+    // NO trailing \b on Iran so "Iranian" / "Iran-linked" / "Iran-backed" all match
+    const _CRISIS_KEYWORDS_RE = /\b(iran|hormuz|houthi|irgc|kharg|gulf\s+war|fuel\s+crisis|energy\s+emergency|red\s+sea\s+clos|strait.*clos|brent.*\$1[0-9]{2}|\$1[0-9]{2}.*barrel|operation\s+epic\s+fury)/i;
     const _allIncidentText = topIncidents.map(i => `${i.title||''} ${i.summary||''}`).join(' ');
     const isCrisisKeywordMatch = _CRISIS_KEYWORDS_RE.test(_allIncidentText);
-    const isSitrepMode = criticalCount >= 2 || isCrisisKeywordMatch;
+    // Also force SITREP during the known Operation Epic Fury crisis window (from 28 Feb 2026)
+    const _epicFuryActive = new Date().getTime() >= new Date('2026-02-28').getTime();
+    const isSitrepMode = criticalCount >= 2 || isCrisisKeywordMatch || _epicFuryActive;
     const reportFormat = isSitrepMode ? 'SITREP' : 'DAILY_THREATSCAPE';
 
     // ── PROMPTS ─────────────────────────────────────────────────────────────
