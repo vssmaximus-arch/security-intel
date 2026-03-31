@@ -6562,9 +6562,6 @@ async function handleGenerateBriefClick() {
             <span>📊 ${_icount} incidents</span>
           </div>
         </div>
-        <div style="padding:8px 16px;background:${_classBg2};font-size:0.68rem;color:${_classClr2};letter-spacing:.05em;">
-          CLASSIFICATION: INTERNAL — SRO DISTRIBUTION ONLY &nbsp;|&nbsp; Operation Epic Fury — Active Crisis Monitoring
-        </div>
       </div>`;
 
     // ── Parse and render sections ──────────────────────────────────────────────

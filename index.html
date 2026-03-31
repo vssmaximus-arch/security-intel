@@ -3566,7 +3566,7 @@
       <div class="grid-stack-item" gs-id="cw-brief-widget" gs-x="0" gs-y="1" gs-w="12" gs-h="13" gs-min-h="7">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
-            <span><i class="fas fa-file-alt" style="margin-right:6px;color:#ef4444;"></i>AI Daily SRO Brief</span>
+            <span><i class="fas fa-file-alt" style="margin-right:6px;color:#ef4444;"></i>AI Daily Brief</span>
             <div id="cw-brief-status" style="font-size:0.68rem;color:#64748b;margin-left:10px;"></div>
             <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
               <select id="cw-brief-window" style="background:#252830;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;font-size:0.68rem;padding:2px 6px;cursor:pointer;">
@@ -7289,7 +7289,7 @@
     /* Widget visibility prefs — 4 widgets hidden from default view */
     var cwWidgetPrefs = {
       'cw-posture-widget'  : true,
-      'cw-brief-widget'    : true,    // AI Daily SRO Brief — top widget
+      'cw-brief-widget'    : true,    // AI Daily Brief — top widget
       'cw-map-widget'      : true,
       'cw-sirens-widget'   : false,   // available in Customize
       'cw-fuel-widget'     : true,
@@ -7326,7 +7326,7 @@
     /* Widget metadata for the picker — default-on widgets first */
     var CW_WIDGETS_META = [
       { id:'cw-posture-widget',   label:'Crisis Posture Banner',     icon:'fa-circle',         desc:'Live threat level summary bar' },
-      { id:'cw-brief-widget',     label:'AI Daily SRO Brief',        icon:'fa-file-alt',       desc:'Auto-generated intelligence brief · SITREP or Daily Threatscape · Groq AI · Replaces manual morning report' },
+      { id:'cw-brief-widget',     label:'AI Daily Brief',        icon:'fa-file-alt',       desc:'Auto-generated intelligence brief · SITREP or Daily Threatscape · Groq AI · Replaces manual morning report' },
       { id:'cw-map-widget',       label:'Conflict Intelligence Map', icon:'fa-map-marked-alt', desc:'Interactive OSINT conflict map — ACLED/GDACS' },
       { id:'cw-fuel-widget',      label:'Fuel Supply Index',         icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation days of supply by country' },
       { id:'cw-oil-widget',       label:'Oil Reserves & Emergency Stocks', icon:'fa-oil-can',  desc:'Proven oil reserves + strategic petroleum reserves · Dell countries · Multi-source verified' },
@@ -8009,9 +8009,7 @@
               + '<span>⏱ ' + (data.window_h||windowH) + 'h window</span>'
               + '<span>📊 ' + (data.incident_count||0) + ' incidents</span>'
               + '</div></div>'
-              + '<div style="padding:6px 14px;background:' + _classBg + ';font-size:0.65rem;color:' + _classClr + ';letter-spacing:.05em;">'
-              + 'CLASSIFICATION: INTERNAL — SRO DISTRIBUTION ONLY &nbsp;|&nbsp; Operation Epic Fury — Active Crisis Monitoring'
-              + '</div></div>';
+              + '</div>';
 
             /* ── Section colours ── */
             var SCOL = {'⚡':'#f59e0b','🔺':'#ef4444','🛡':'#ef4444','🛡️':'#ef4444',
