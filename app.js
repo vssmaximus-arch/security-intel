@@ -6518,66 +6518,110 @@ async function handleGenerateBriefClick() {
       </div>`;
     }
 
-    // Section colour map — emoji prefix → accent colour
-    // SITREP sections
+    // ── Section accent colours (emoji-keyed) ─────────────────────────────────
     const _SECT_COLORS = {
-      '⚡': '#f4a742', // Key Takeaways — amber
-      '🔺': '#e05252', // Escalations — red
-      '🛡': '#e05252', // Protests & Cyber — red
-      '🛡️': '#e05252', // Protests & Cyber (with variation selector) — red
-      '📍': '#5cb85c', // Near Assets — green
-      '🔭': '#9b7ed9', // Outlook — purple
-      // Daily Threatscape sections
-      '🌐': '#4a90d9', // Active Monitoring — blue
-      '📡': '#e37400', // SRO Forward Radar — orange
-      '🗺': '#5cb85c', // Ongoing Events — green
-      '🗺️': '#5cb85c', // Ongoing Events (with variation selector) — green
+      '⚡': '#f59e0b', '🔺': '#ef4444', '🛡': '#ef4444', '🛡️': '#ef4444',
+      '📍': '#10b981', '🏭': '#06b6d4', '🔭': '#8b5cf6',
+      '🌐': '#3b82f6', '📡': '#f97316', '🗺': '#10b981', '🗺️': '#10b981',
     };
-    // The briefing modal (#shift-brief-body) ALWAYS has background:#0f1012 (see index.html)
-    // so always render with light/white text — never check dark mode toggle for this panel
-    const _sectBg  = 'rgba(255,255,255,0.07)';
-    const _bodyTxt = '#f0f2f5';  // bright white — readable on #0f1012
-    const _subTxt  = '#cdd2db';  // light gray — still clearly visible on dark bg
-    const _divider = 'rgba(255,255,255,0.09)';
-    const _wrapStyle = 'padding:2px 4px;color:#f0f2f5;';
+    const isSitrep = data.report_format === 'SITREP';
 
-    // Render briefing — section-aware formatting
+    // ── Document header ────────────────────────────────────────────────────────
+    const _genTime = (data.generated_at || '').slice(0,16).replace('T',' ');
+    const _region  = data.region || 'Global';
+    const _winH    = data.window_h || windowH;
+    const _icount  = data.incident_count || 0;
+    const _fmtLabel = isSitrep ? 'SITUATION REPORT' : 'DAILY THREATSCAPE';
+    const _fmtColor = isSitrep ? '#ef4444' : '#3b82f6';
+    const _classificationBadge = isSitrep
+      ? `<span style="background:#ef4444;color:#fff;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">SITREP</span>`
+      : `<span style="background:#3b82f6;color:#fff;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">DAILY THREATSCAPE</span>`;
+
+    let _docHeader = `
+      <div style="border:1px solid ${_fmtColor};border-radius:6px;margin-bottom:18px;overflow:hidden;">
+        <div style="background:${_fmtColor}18;border-bottom:1px solid ${_fmtColor}40;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            ${_classificationBadge}
+            <span style="color:#f1f5f9;font-weight:700;font-size:0.9rem;letter-spacing:.03em;">Dell Technologies SRO Fusion Center</span>
+          </div>
+          <div style="display:flex;gap:16px;font-size:0.72rem;color:#94a3b8;">
+            <span>🕐 ${escapeHtml(_genTime)} UTC</span>
+            <span>🌍 ${escapeHtml(_region)}</span>
+            <span>⏱ ${_winH}h window</span>
+            <span>📊 ${_icount} incidents</span>
+          </div>
+        </div>
+        <div style="padding:8px 16px;background:#0a0c10;font-size:0.68rem;color:#64748b;letter-spacing:.05em;">
+          CLASSIFICATION: INTERNAL — SRO DISTRIBUTION ONLY &nbsp;|&nbsp; Operation Epic Fury — Active Crisis Monitoring
+        </div>
+      </div>`;
+
+    // ── Parse and render sections ──────────────────────────────────────────────
     const _briefLines = (data.briefing || '').split('\n');
     let _briefHtml = '';
     let _inSection = false;
+    let _sectionAccent = '#3b82f6';
+
     _briefLines.forEach(line => {
       const trimmed = line.trim();
-      if (!trimmed) { if (_inSection) _briefHtml += '<div style="height:5px;"></div>'; return; }
+      if (!trimmed) {
+        if (_inSection) _briefHtml += '<div style="height:4px;"></div>';
+        return;
+      }
       // Section header: ## ⚡ KEY TAKEAWAYS
-      const hMatch = trimmed.match(/^##\s+(.)(.+)$/);
+      const hMatch = trimmed.match(/^##\s+(.+)$/);
       if (hMatch) {
         if (_inSection) _briefHtml += '</div>';
-        const emoji = hMatch[1]; const title = (emoji + hMatch[2]).trim();
-        const accent = _SECT_COLORS[emoji] || '#4a90d9';
-        _briefHtml += `<div style="margin:16px 0 8px;padding:8px 14px;border-left:3px solid ${accent};background:${_sectBg};border-radius:0 4px 4px 0;">
-          <span style="font-weight:700;font-size:0.8rem;letter-spacing:0.07em;color:${accent};text-transform:uppercase;">${escapeHtml(title)}</span>
-        </div><div style="padding-left:4px;margin-bottom:4px;">`;
+        const title = hMatch[1].trim();
+        const emoji = [...title][0] || '';
+        const accent = _SECT_COLORS[emoji] || '#3b82f6';
+        _sectionAccent = accent;
+        _briefHtml += `
+          <div style="display:flex;align-items:center;gap:10px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid ${accent}40;">
+            <div style="width:3px;height:18px;background:${accent};border-radius:2px;flex-shrink:0;"></div>
+            <span style="font-weight:800;font-size:0.78rem;letter-spacing:.1em;color:${accent};text-transform:uppercase;">${escapeHtml(title)}</span>
+          </div>
+          <div style="padding-left:6px;">`;
         _inSection = true;
         return;
       }
-      // Bullet lines: -, •, or * prefix (AI may output any of these)
-      const bMatch = trimmed.match(/^[-•*]\s+(.+)/);
-      if (bMatch) {
-        _briefHtml += `<div style="display:flex;gap:8px;padding:6px 0 6px 10px;font-size:0.83rem;color:${_bodyTxt};line-height:1.65;border-bottom:1px solid ${_divider};">
-          <span style="color:#4a90d9;flex-shrink:0;padding-top:3px;font-size:0.65rem;">▶</span>
-          <span style="color:${_bodyTxt};">${escapeHtml(bMatch[1])}</span>
+      // Bold leader: **text** — used for named events in escalation sections
+      const boldMatch = trimmed.match(/^\*\*(.+?)\*\*\s*[—–-]\s*(.+)/);
+      if (boldMatch) {
+        _briefHtml += `<div style="padding:8px 0 4px;font-size:0.84rem;line-height:1.65;color:#f1f5f9;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-weight:700;color:${_sectionAccent};">${escapeHtml(boldMatch[1])}</span>
+          <span style="color:#cbd5e1;"> — ${escapeHtml(boldMatch[2])}</span>
         </div>`;
         return;
       }
-      // Plain paragraph text — also use _bodyTxt in dark mode for readability
-      _briefHtml += `<div style="font-size:0.83rem;color:${_subTxt};padding:4px 10px;line-height:1.6;">${escapeHtml(trimmed)}</div>`;
+      // Bullet lines: -, •, * prefix
+      const bMatch = trimmed.match(/^[-•*]\s+(.+)/);
+      if (bMatch) {
+        const content = bMatch[1];
+        // Highlight numbers/percentages/dollar amounts in amber
+        const highlighted = escapeHtml(content).replace(
+          /(\$\d[\d,\.]*[KMB]?(?:\/[a-zA-Z]+)?|\d[\d,\.]*%|\d[\d,\.]*\s?(?:km|mi|bbl|bcm|mt|bn|million|billion|days?|hours?|weeks?|months?))/gi,
+          '<span style="color:#f59e0b;font-weight:600;">$1</span>'
+        );
+        _briefHtml += `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);line-height:1.7;">
+          <span style="color:${_sectionAccent};flex-shrink:0;margin-top:5px;font-size:0.55rem;">◆</span>
+          <span style="font-size:0.84rem;color:#e2e8f0;">${highlighted}</span>
+        </div>`;
+        return;
+      }
+      // Dell/site mentions — highlight
+      const paraHighlighted = escapeHtml(trimmed).replace(
+        /(\$\d[\d,\.]*[KMB]?(?:\/[a-zA-Z]+)?|\d[\d,\.]*%|\d[\d,\.]*\s?(?:km|mi|bbl|bcm|mt|bn|million|billion|days?|hours?|weeks?|months?))/gi,
+        '<span style="color:#f59e0b;font-weight:600;">$1</span>'
+      );
+      _briefHtml += `<div style="font-size:0.84rem;color:#cbd5e1;padding:6px 0 4px;line-height:1.7;">${paraHighlighted}</div>`;
     });
     if (_inSection) _briefHtml += '</div>';
 
-    bodyEl.innerHTML = `${cacheBanner}<div style="${_wrapStyle}">${_briefHtml}</div>`;
+    bodyEl.innerHTML = `${cacheBanner}${_docHeader}<div style="padding:0 2px;">${_briefHtml}</div>`;
     if (metaEl) {
-      const _fmtLabel = data.report_format === 'SITREP' ? '🔴 SITREP' : '📋 DAILY THREATSCAPE';
-      metaEl.textContent = `${_fmtLabel} · ${data.incident_count} incidents · ${data.region} · ${data.window_h}h · ${(data.generated_at || '').slice(0,19).replace('T',' ')} UTC`;
+      const _fmtMeta = isSitrep ? '🔴 SITREP' : '📋 DAILY THREATSCAPE';
+      metaEl.textContent = `${_fmtMeta} · ${_icount} incidents · ${_region} · ${_winH}h · ${_genTime} UTC`;
     }
   } catch(e) {
     bodyEl.innerHTML = `<div style="color:#e57373;padding:20px;">Failed to generate briefing: ${escapeHtml(e.message)}</div>`;
