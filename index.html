@@ -6641,15 +6641,15 @@
     var _cancActiveTab = 'airport'; // 'airport' | 'airline'
 
     function _cancScoreColor(score) {
-      if (score >= 2.0) return '#d93025'; // Major
-      if (score >= 1.0) return '#e8710a'; // Significant
-      if (score >= 0.5) return '#fbbc04'; // Watch
-      return '#fbbc04';                   // Disrupted (any cancellation)
+      if (score >= 3.0) return '#d93025'; // Major       (100+ cancellations)
+      if (score >= 1.5) return '#e8710a'; // Significant (50+ cancellations)
+      if (score >= 0.6) return '#fbbc04'; // Watch       (20+ cancellations)
+      return '#fbbc04';                   // Disrupted   (5+ cancellations)
     }
     function _cancScoreLabel(score) {
-      if (score >= 2.0) return 'Major';
-      if (score >= 1.0) return 'Significant';
-      if (score >= 0.5) return 'Watch';
+      if (score >= 3.0) return 'Major';
+      if (score >= 1.5) return 'Significant';
+      if (score >= 0.6) return 'Watch';
       return 'Disrupted';
     }
     function _cancFlag(cc) {

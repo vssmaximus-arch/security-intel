@@ -6641,7 +6641,7 @@ async function handleApiAviationCancellations(env) {
 
   // Rate budget: 12 airports × 2 statuses × 1 refresh/day (24h TTL) = 24/day = 720/month ✓ (Airlabs free = 1,000/month)
   // OpenSky Network (free, unlimited) adds 15 more airports using departure-activity scoring
-  const CACHE_KEY    = 'aviation_cancellations_v11'; // v11 — 65-airport global pool, dynamic top-9
+  const CACHE_KEY    = 'aviation_cancellations_v12'; // v12 — realistic scoring: 50 canc = Significant, 100+ = Major
   const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours — refreshes once daily
 
   // Airport metadata for ranking table
@@ -6855,10 +6855,10 @@ async function handleApiAviationCancellations(env) {
       else byAirport[iata].cancelled++;
     }
     // Disruption score: cancelled weighted 0.6, delayed weighted 0.4
-    // Scale: 10 cancellations or 15 delays = score ~3.0 (matching FR24 "minor")
+    // Realistic scale: ~10 canc = 0.3 Disrupted, ~20 = 0.6 Watch, ~50 = 1.5 Significant, ~100+ = 3.0+ Major
     const airports = Object.values(byAirport).map(a => {
       const raw = (a.cancelled * 0.6) + (a.delayed * 0.4);
-      a.disruption_score = parseFloat(Math.min(5, raw / 4).toFixed(1));
+      a.disruption_score = parseFloat(Math.min(5, raw / 20).toFixed(1)); // divisor 20 = realistic scale
       a.cancel_pct = a.cancelled + a.delayed > 0
         ? Math.round(a.cancelled / (a.cancelled + a.delayed) * 100) : 0;
       a.delay_pct  = a.cancelled + a.delayed > 0
