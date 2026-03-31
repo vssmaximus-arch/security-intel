@@ -5947,7 +5947,7 @@ async function handleApiAiBriefing(env, req) {
 
     // KV cache: 45-min TTL — brief must reflect current crisis state, not hours-old snapshot
     const BRIEFING_CACHE_TTL_S = 2700; // 45 minutes
-    const briefCacheKey = `briefing_v10_${windowH}_${region || 'global'}`; // v10 — region filter includes GLOBAL incidents + text visibility fix
+    const briefCacheKey = `briefing_v11_${windowH}_${region || 'global'}`; // v11 — no fabrication rule: Dell ops status facts-only
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -6112,7 +6112,8 @@ MANDATORY WRITING RULES — enforced:
 7. VIOLENCE AGAINST WESTERN SYMBOLS: Bombing attempts near corporate offices, anti-US demonstrations near Dell cities — these go in FORWARD RADAR as physical security trend items.
 8. NO CYBER NOISE: Only include cyber if Dell infrastructure is confirmed down/breached. CVEs, vendor patches, nation-state hacking of others = exclude entirely.
 9. OUTLOOK = what SRO should expect in next 24–72h. Specific. Actionable. Name the countries and business functions most exposed.
-10. LENGTH: ACTIVE MONITORING = 3–5 flowing paragraphs. FORWARD RADAR = 2–4 country items. ONGOING EVENTS = structured list. OUTLOOK = 3–5 bullets.`;
+10. LENGTH: ACTIVE MONITORING = 3–5 flowing paragraphs. FORWARD RADAR = 2–4 country items. ONGOING EVENTS = structured list. OUTLOOK = 3–5 bullets.
+11. ⚠ NO FABRICATION: NEVER invent Dell operational facts. Do NOT state that Dell offices are closed, teams are on WFH, or specific actions have been taken UNLESS that exact information appears in the incident feed. Invented operational facts are worse than saying nothing.`;
 
       const _regionFocusNote = region
         ? `\n⚠ REGIONAL FOCUS — THIS SITREP IS FOR THE ${region} RSM. Lead with ${region} impacts. Frame global crisis (Iran/Hormuz/fuel) through the ${region} lens. Dell sites in scope: ${region === 'APJC' ? 'Bangalore, Hyderabad, Gurugram, Sriperumbudur, Singapore, Penang, Cyberjaya, Xiamen, Chengdu, Shanghai, Taipei, Tokyo, Kawasaki, Sydney, Melbourne, Brisbane' : region === 'EMEA' ? 'Lodz, Limerick, Dublin, Cork, Herzliya, Haifa, Beer Sheva, Bracknell, Glasgow, Montpellier, Paris, Frankfurt, Halle, Amsterdam, Casablanca, Cairo, Dubai' : region === 'AMER' ? 'Round Rock, Austin, Hopkinton, Franklin, Apex, Eden Prairie, Draper, Nashville, Oklahoma City, Santa Clara, McLean, El Paso, Toronto, Mexico City' : region === 'LATAM' ? 'Hortolândia, São Paulo, Porto Alegre, Panama City' : ''}.`
@@ -6147,10 +6148,14 @@ Every section = synthesized intelligence assessment. NOT raw headlines. NOT a li
 [From proximity alerts: **Event** — location — distance from Dell site — site name — current status. If no proximity events: "No proximity alerts in this window." Do not omit this section.]
 
 ## 🏭 DELL OPERATIONAL STATUS
-[Site-by-site or country-by-country Dell impact summary. ONLY countries where Dell has confirmed offices and where incidents occurred. Format: "COUNTRY — SITE — Status — RSM note." Include: workforce impact, logistics impact, supply chain impact. If nothing confirmed: state that clearly.]
+⚠ STRICT RULE — FACTS ONLY. DO NOT INVENT OR INFER ANY DELL OPERATIONAL STATUS.
+ONLY write a bullet if the incident feed EXPLICITLY states a Dell site, Dell team, or Dell TMs are affected.
+If an incident says "Philippines transport strike" but does NOT mention Dell specifically, you MAY note the EXTERNAL risk to our TMs (e.g. "transport disruption affects TM commutes") but you MUST NOT claim Dell offices are closed, WFH orders issued, or teams have taken specific actions unless that information is directly in the feed.
+If there is NO confirmed Dell-specific operational impact in the feed, write EXACTLY: "No confirmed Dell operational impacts reported in this window. Monitoring continues."
+DO NOT make up RSM notes. DO NOT state specific Dell teams are on WFH unless the feed says so.
 
 ## 🔭 OUTLOOK & ASSESSMENT
-[4–5 bullets. Forward-looking trajectory covering: (1) military/conflict escalation probability, (2) energy market trajectory, (3) supply chain/logistics implications for Dell manufacturing (Penang, Xiamen, Chengdu, Sriperumbudur), (4) APJC workforce and operational risk, (5) recommended monitoring priorities for RSMs.]`;
+[4–5 bullets. Forward-looking trajectory covering: (1) military/conflict escalation probability, (2) energy market trajectory, (3) supply chain/logistics implications for Dell manufacturing (Penang, Xiamen, Chengdu, Sriperumbudur), (4) APJC workforce and operational risk, (5) recommended monitoring priorities for RSMs. Base ONLY on what the incident feed shows — no invented scenarios.]`;
 
     } else {
       // ── DAILY THREATSCAPE FORMAT — normal watch period ──
