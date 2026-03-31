@@ -203,6 +203,9 @@ const DETERMINISTIC_SOURCES = [
   // Hacker News — Dell mentions
   "https://hnrss.org/newest?q=Dell+Technologies",
   "https://hnrss.org/newest?q=Dell+layoff+OR+Dell+breach+OR+Dell+hack",
+  // ── Priority Middle East / Conflict sources (DETERMINISTIC — always fetched) ──
+  "https://www.middleeasteye.net/rss",
+  "https://news.google.com/rss/search?q=Iran+OR+Hormuz+OR+Israel+OR+Gaza+OR+Houthi&hl=en-US&gl=US&ceid=US:en",
 ];
 
 // Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
@@ -471,7 +474,6 @@ const ROTATING_SOURCES = [
   "https://www.unicef.org/press-releases/rss",
   // ── Additional Regional / International News ────────────────────────────────
   "https://www3.nhk.or.jp/nhkworld/en/news/feeds/",
-  "https://www.middleeasteye.net/rss",
   "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
   "https://tass.com/rss/v2.xml",
   "https://en.mercopress.com/rss",
