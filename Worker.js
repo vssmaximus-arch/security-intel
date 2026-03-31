@@ -5945,9 +5945,9 @@ async function handleApiAiBriefing(env, req) {
     const windowH = Math.min(48, Math.max(1, parseInt(url.searchParams.get('window') || '8', 10)));
     const region = (url.searchParams.get('region') || '').toUpperCase().trim();
 
-    // KV cache: 2-hour TTL per window+region combo — reduces Gemini API calls significantly
-    const BRIEFING_CACHE_TTL_S = 7200; // 2 hours
-    const briefCacheKey = `briefing_v8_${windowH}_${region || 'global'}`; // v8 — Gemini→Groq fallback + 2h cache
+    // KV cache: 45-min TTL — brief must reflect current crisis state, not hours-old snapshot
+    const BRIEFING_CACHE_TTL_S = 2700; // 45 minutes
+    const briefCacheKey = `briefing_v9_${windowH}_${region || 'global'}`; // v9 — SITREP overhaul + 45min cache
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5999,15 +5999,15 @@ async function handleApiAiBriefing(env, req) {
       const rb = _SEV_RANK[String(b.severity_label || '').toUpperCase()] ?? 4;
       return ra - rb;
     });
-    // Top 15 CRITICAL/HIGH + 5 MEDIUM — enough material for a quality briefing
-    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 15);
-    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 5);
+    // Top 25 CRITICAL/HIGH + 10 MEDIUM — richer context for crisis-grade briefing
+    const critHigh = sortedIncidents.filter(i => ['CRITICAL','HIGH'].includes(String(i.severity_label||'').toUpperCase())).slice(0, 25);
+    const medFill  = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'MEDIUM').slice(0, 10);
     const topIncidents = [...critHigh, ...medFill];
 
     // Include summary where available for richer briefing content
     const incidentLines = topIncidents.map((i, idx) => {
       const ts = (() => { try { return new Date(i.time).toISOString().slice(0,16).replace('T',' '); } catch { return ''; } })();
-      const summary = String(i.summary || '').slice(0, 200).trim();
+      const summary = String(i.summary || '').slice(0, 400).trim();
       return `${idx+1}. [${i.severity_label||'INFO'}][${i.category||'?'}][${i.region||'?'}] ${i.country||'?'}: ${i.title} (${ts})${summary ? `\n   → ${summary}` : ''}`;
     }).join('\n');
 
@@ -6048,71 +6048,103 @@ async function handleApiAiBriefing(env, req) {
       .map(([c, cities]) => `${c}: ${cities.slice(0,3).join(', ')}`).join(' | ');
 
     // ── MODE DETECTION ──────────────────────────────────────────────────────
-    // SITREP: ≥3 CRITICAL incidents = active major crisis → deep crisis dive format
-    // Daily Threatscape: normal watch period → broader daily overview
+    // SITREP: active major crisis detected by EITHER CRITICAL count OR crisis keywords in incident feed
+    // This ensures SITREP fires during prolonged crises (Iran War) even when some incidents are classified HIGH
     const criticalCount = sortedIncidents.filter(i => String(i.severity_label||'').toUpperCase() === 'CRITICAL').length;
-    const isSitrepMode = criticalCount >= 3;
+    const _CRISIS_KEYWORDS_RE = /\b(iran|hormuz|strait of hormuz|gulf war|oil.{1,10}barrel|fuel crisis|energy emergency|operation epic fury|red sea closure|houthi|irgc|strait.*clos|brent.*\$1[0-9]{2})\b/i;
+    const _allIncidentText = topIncidents.map(i => `${i.title||''} ${i.summary||''}`).join(' ');
+    const isCrisisKeywordMatch = _CRISIS_KEYWORDS_RE.test(_allIncidentText);
+    const isSitrepMode = criticalCount >= 2 || isCrisisKeywordMatch;
     const reportFormat = isSitrepMode ? 'SITREP' : 'DAILY_THREATSCAPE';
 
     // ── PROMPTS ─────────────────────────────────────────────────────────────
     let systemPrompt, userContent;
 
     if (isSitrepMode) {
-      // ── SITREP FORMAT — used during active major crises (≥3 CRITICAL incidents) ──
-      systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO Fusion Center. An active major crisis is detected. Write a formal Situation Report (SITREP) for SRO leadership and Regional Security Managers (RSMs).
+      // ── SITREP FORMAT — active major crisis detected ──
+      const _todayStr = new Date().toISOString().slice(0,10);
+      systemPrompt = `You are the Senior Intelligence Analyst, Dell Technologies SRO Fusion Center (Global). You produce formal Situation Reports (SITREPs) for SRO leadership, Regional Security Managers (RSMs), and Dell executive stakeholders. You have been doing this for 20 years. Your writing is precise, confident, and immediately actionable.
 
-EXACT STYLE TO MATCH — these are real SRO SITREP examples, write identically:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ONGOING CRISIS CONTEXT (ALWAYS LEAD WITH THIS):
+Operation Epic Fury — Day ${Math.ceil((new Date(_todayStr) - new Date('2026-02-28')) / 86400000)} of Iran-US/Israel conflict.
+Strait of Hormuz: Effectively closed (3 transits/day vs 138 normal). 20% of global energy trade disrupted.
+Oil prices: Brent ~$116/barrel (record monthly surge). Global fuel prices +35–60% depending on region.
+APJC fuel crisis: Philippines (transport strikes, energy emergency declared), Sri Lanka (Wednesday public holidays, WFH), Korea (vehicle restrictions), Thailand (diesel shortages), Malaysia (fuel subsidies tripled), Australia (PM halved fuel excise effective 1 Apr).
+Dell manufacturing exposure: Chengdu, Xiamen, Penang, Sriperumbudur, Vietnam — all dependent on affected supply routes.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-KEY TAKEAWAY example:
-"The Iran conflict is expanding both geographically and in severity. US military operations are expanding on multiple fronts, with long-range strikes reaching eastern Iran and additional actions targeting Iran-backed militias in Iraq. Escalation increases risk of broader regional disruption, including airspace closures, security restrictions, and supplier/logistics delays. These factors may impair Dell's ability to move people, product, and sustain operations across the Middle East."
+WRITING STANDARDS — match these real SRO SITREP examples EXACTLY:
 
-ANOTHER KEY TAKEAWAY example (global spillover):
-"Reactions continue to spread and intensify well beyond the Middle East. Italy is cutting taxes on fuel for 20 days to alleviate pressure on consumers. Sri Lanka is now rationing fuel, with purchases capped at 15 liters per person per week. Higher fuel costs and rationing will raise Dell's operating and logistics expenses while adding inflation pressure in affected markets."
+KEY TAKEAWAY (strategic level):
+"The Iran conflict is expanding both geographically and in severity. US military operations are now hitting targets in eastern Iran and targeting Iran-backed militias across Iraq and Syria. Escalation directly increases risk of airspace closures, ground security restrictions, and supplier/logistics delays that will impair Dell's ability to move people, product, and sustain operations across the Middle East and APJC."
 
-RECENT ESCALATION example:
-"Iranian strikes on Ras Laffan Industrial City in Qatar — Following an earlier attack on Iran's South Pars gas field, retaliatory strikes caused major damage to Qatari facilities, reducing national LNG output by roughly 17%. This tightens global LNG supply and impacts regional production stability and near-term price volatility."
+KEY TAKEAWAY (global spillover):
+"Energy crisis responses are now reshaping how Dell's APJC workforce operates. Sri Lanka has rationed fuel at 15L/person/week and declared Wednesday a national holiday. The Philippines has declared a state of national energy emergency, with nationwide transport strikes directly impacting Dell CSB Renewals night shift operations in Manila. Australia's PM has halved the fuel excise from 52.6¢/L to 26.3¢/L effective 1 April. These government responses signal that the crisis is now structural, not temporary."
 
-OUTLOOK example:
-"Increased targeting of energy production and export assets will drive further price rises on global markets. Impacts will not be limited to crude oil or fuels, but will spread through multiple sectors, including industrial manufacturing and food production."
+RECENT ESCALATION (specific event):
+"Iranian strikes on Ras Laffan Industrial City, Qatar — Retaliatory strikes on South Pars gas field caused major damage to Qatari LNG facilities, reducing national output by ~17%. This constrains global LNG supply beyond crude oil and will drive multi-sector cost increases through Q2 2026."
 
-WRITING RULES:
-1. Each KEY TAKEAWAY bullet = 2–5 sentences. Named actors, specific numbers, clear chain of consequences ending at Dell.
-2. CONNECT DOTS: Iran strikes → energy infrastructure damage → fuel price rises → Asia rationing → Dell logistics costs/TM quality of life.
-3. Facts and confident assessments. Not hedging. Not "may", "could", "might" — write what IS happening and WILL happen based on trajectory.
-4. If Iran/Middle East/Gulf events exist — they MUST be the lead story. Synthesize all Iran-related incidents into a unified strategic picture.
-5. PROTESTS & CYBER: CYBER section — include ONLY if a confirmed direct attack on Dell infrastructure is in the data. NO general cyber news, NO vendor advisories, NO nation-state hacking unless Dell systems are down/breached. SRO leadership focuses on physical security and supply chain — cyber is the last priority.
-6. DELL IMPACT: Cross-reference incident countries against the Dell Sites list. Name actual cities. Only confirmed impacts — no speculation.
-7. OUTLOOK: Multi-dimensional trajectory (military escalation → energy/LNG → food supply chains → Asia impacts → Dell operational exposure).`;
+DELL OPERATIONAL IMPACT (site-specific):
+"Dell Manila (PHL): Philippines transport strike entering Day 3. Global CSB Renewals Night Shift operating on WFH. No physical access disruption to office, but commute risk for TMs using private transport. RSM APJC monitoring."
 
-      userContent = `SRO SITUATION REPORT — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
-Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC | ${criticalCount} CRITICAL incidents detected — SITREP mode
-Total incidents: ${incidents.length} | Shown: ${topIncidents.length} (cyber pre-filtered)
-${dellSitesSummary ? `\nDELL SITES REFERENCE: ${dellSitesSummary}` : ''}
+OUTLOOK (forward assessment):
+"Continued targeting of energy production assets will drive further price rises across all hydrocarbon categories — crude, LNG, refined fuels — with cascading impact on industrial manufacturing, food production, and freight costs. Dell's APJC logistics costs will rise materially through Q2. The risk of direct conflict expanding to Gulf states with Dell operations (UAE, Saudi Arabia) remains elevated."
 
-INCIDENT FEED (severity-ranked, with summaries):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MANDATORY WRITING RULES:
+1. BLUF first — every section opens with the most important thing, not background.
+2. Named actors, specific numbers, dates. "Oil +23%" not "oil prices rose." "$116/bbl" not "elevated prices."
+3. CHAIN OF CONSEQUENCES: military strike → infrastructure damage → supply impact → logistics cost → Dell exposure. Always end at Dell.
+4. CONFIDENT ASSESSMENT: Write what IS happening and what WILL happen based on current trajectory. No "may", "could", "might" unless genuinely uncertain.
+5. DELL SITES: Cross-reference every incident country against the Dell Sites list provided. Name actual cities. "Dell office in Dubai" not "our offices in the region."
+6. CYBER: ONLY include if confirmed direct attack on Dell infrastructure with operational impact. No general cyber news.
+7. APJC FUEL CRISIS: If ANY APJC country incident appears — integrate it as part of the ongoing fuel crisis narrative, not as an isolated event.
+8. LENGTH: Each KEY TAKEAWAY = 3–5 sentences minimum. RECENT ESCALATIONS = 2–4 sentences per event. OUTLOOK = 3–5 sentences per bullet.
+9. TONE: Senior intelligence professional writing for C-suite and security directors. Not a news summary. Synthesized, assessed intelligence.`;
+
+      userContent = `DELL SRO — SITUATION REPORT (SITREP)
+Classification: INTERNAL — SRO DISTRIBUTION ONLY
+Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
+Window: Last ${windowH}h${region ? ` | Region: ${region}` : ' | Scope: Global'}
+Incidents analyzed: ${incidents.length} total | ${topIncidents.length} shown | ${criticalCount} CRITICAL
+${dellSitesSummary ? `\nDELL SITES REFERENCE (use to ground all Dell impact assessments):\n${dellSitesSummary}` : ''}
+
+━━ INCIDENT FEED (severity-ranked, with AI summaries) ━━
 ${incidentLines}
-${proxLines ? `\nPROXIMITY ALERTS (events near Dell assets):\n${proxLines}` : ''}
+${proxLines ? `\n━━ PROXIMITY ALERTS (confirmed events near Dell assets) ━━\n${proxLines}` : ''}
 
-Write the SITREP using exactly these sections. Each section must be fully synthesized intelligence — NOT a list of raw titles:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Write the SITREP using EXACTLY these sections in this order.
+Every section = synthesized intelligence assessment. NOT raw headlines. NOT a list of article titles.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## ⚡ KEY TAKEAWAYS
-[3–5 bullets. Each = 2–5 sentences of synthesized strategic assessment. Lead with the dominant crisis (e.g. Iran/Gulf conflict). Each bullet connects: what happened → scale/numbers → consequences → Dell exposure. Write exactly like the samples above.]
+[4–6 bullets. Each = 3–5 sentences. Open with the Iran/Hormuz/fuel crisis as the dominant strategic story. Second bullet = APJC operational impacts (Philippines, Korea, Sri Lanka, Australia, etc.). Additional bullets cover other significant developments. Each bullet: what happened → scale → consequences → Dell exposure. Write at the strategic level RSM leadership needs for decision-making.]
 
-## 🔺 RECENT ESCALATIONS
-[Specific named events. For each: bold location/actor — narrative description of what happened — scale (numbers, %, casualties, infrastructure named) — date. Write as structured paragraphs, not a headline list.]
+## 🔺 RECENT ESCALATIONS & DEVELOPMENTS
+[3–5 named events. Each: **Bold location/actor** — what happened — numbers/scale — date — Dell relevance if any. Written as structured 2–4 sentence paragraphs. Focus on events that changed the situation since the previous reporting period.]
 
-## 🛡️ PROTESTS & CYBER
-[Include ONLY if the incident data contains: (a) protests near Dell offices, anti-US/tech sentiment, or (b) cyber events naming Dell, VMware, or a major vendor. If neither is in the data, omit this section entirely.]
+## 🛡️ PROTESTS, CIVIL UNREST & SECURITY
+[Include ONLY if: (a) protests/strikes near Dell offices, (b) anti-Western/anti-tech sentiment with Dell office exposure, (c) civil unrest affecting TM safety or site access. If none: omit this section entirely. When included: name the Dell site, describe the risk, state Dell's current posture.]
 
 ## 📍 EVENTS NEAR DELL ASSETS
-[From proximity alerts: event — location — distance — Dell site name. If none: "No proximity events this window."]
+[From proximity alerts: **Event** — location — distance from Dell site — site name — current status. If no proximity events: "No proximity alerts in this window." Do not omit this section.]
 
-## 🔭 OUTLOOK
-[2–4 bullets. Multi-dimensional forward trajectory: military/political → energy markets → supply chain/logistics → Asia spillover → Dell operational implications. Name specific countries and business functions at risk.]`;
+## 🏭 DELL OPERATIONAL STATUS
+[Site-by-site or country-by-country Dell impact summary. ONLY countries where Dell has confirmed offices and where incidents occurred. Format: "COUNTRY — SITE — Status — RSM note." Include: workforce impact, logistics impact, supply chain impact. If nothing confirmed: state that clearly.]
+
+## 🔭 OUTLOOK & ASSESSMENT
+[4–5 bullets. Forward-looking trajectory covering: (1) military/conflict escalation probability, (2) energy market trajectory, (3) supply chain/logistics implications for Dell manufacturing (Penang, Xiamen, Chengdu, Sriperumbudur), (4) APJC workforce and operational risk, (5) recommended monitoring priorities for RSMs.]`;
 
     } else {
-      // ── DAILY THREATSCAPE FORMAT — normal watch period (< 3 CRITICAL incidents) ──
+      // ── DAILY THREATSCAPE FORMAT — normal watch period ──
+      const _todayStrDT = new Date().toISOString().slice(0,10);
       systemPrompt = `You are the duty intelligence analyst for Dell Technologies SRO Fusion Center. Write the Daily Threatscape briefing for SRO leadership and Regional Security Managers (RSMs).
+
+ONGOING CRISIS CONTEXT (always incorporate where relevant):
+Operation Epic Fury — Day ${Math.ceil((new Date(_todayStrDT) - new Date('2026-02-28')) / 86400000)} of Iran-US/Israel conflict. Strait of Hormuz effectively closed. Oil ~$116/bbl. APJC fuel crisis active across PHL, LKA, KOR, THA, MYS, AUS.
+
 
 EXACT STYLE TO MATCH — these are real SRO Daily Threatscape examples, write identically:
 
@@ -6168,32 +6200,32 @@ Write the Daily Threatscape using exactly these sections:
     // 3. Groq llama-3.3-70b-versatile (fallback, different RPM bucket from classification)
     let result;
     if (env.ANTHROPIC_API_KEY) {
-      result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 1800, model: 'claude-sonnet-4-5' });
+      result = await callClaude(env, [{ role: 'user', content: userContent }], { system: systemPrompt, max_tokens: 2800, model: 'claude-sonnet-4-5' });
     } else if (env.GEMINI_API_KEY) {
       // Primary: Gemini 2.0 Flash (cascades through models on 404)
-      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800 });
+      result = await callGemini(env, systemPrompt, userContent, { max_tokens: 2800 });
       if (result.error === 'http_429') {
         // Rate limited — wait briefly then try once more
         await sleep(3000);
-        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 1800 });
+        result = await callGemini(env, systemPrompt, userContent, { max_tokens: 2800 });
       }
       // If Gemini still failing (429 or no model available), fall through to Groq
       if (result.error) {
         typeof debug === 'function' && debug('callGemini failed, falling back to Groq', result.error);
         const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
-        result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+        result = await callGroqChat(env, groqMsgs, { max_tokens: 2400, model: 'llama-3.3-70b-versatile' });
         if (result.error === 'http_429') {
           await sleep(5000);
-          result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+          result = await callGroqChat(env, groqMsgs, { max_tokens: 2400, model: 'llama-3.3-70b-versatile' });
         }
       }
     } else {
       // Groq only (no Gemini key) — llama-3.3-70b-versatile separate RPM bucket from classification
       const groqMsgs = [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }];
-      result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+      result = await callGroqChat(env, groqMsgs, { max_tokens: 2400, model: 'llama-3.3-70b-versatile' });
       if (result.error === 'http_429') {
         await sleep(6000);
-        result = await callGroqChat(env, groqMsgs, { max_tokens: 1600, model: 'llama-3.3-70b-versatile' });
+        result = await callGroqChat(env, groqMsgs, { max_tokens: 2400, model: 'llama-3.3-70b-versatile' });
       }
     }
 
