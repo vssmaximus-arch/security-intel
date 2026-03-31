@@ -206,6 +206,11 @@ const DETERMINISTIC_SOURCES = [
   // ── Priority Middle East / Conflict sources (DETERMINISTIC — always fetched) ──
   "https://www.middleeasteye.net/rss",
   "https://news.google.com/rss/search?q=Iran+OR+Hormuz+OR+Israel+OR+Gaza+OR+Houthi&hl=en-US&gl=US&ceid=US:en",
+  // ── Tier-1 news always fetched (BBC World + Middle East, Guardian World + Environment) ──
+  "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+  "https://www.theguardian.com/world/rss",
+  "https://www.theguardian.com/environment/rss",
 ];
 
 // Natural-hazard feeds that must pass the 200 km Dell-site proximity gate.
@@ -391,14 +396,12 @@ const ROTATING_SOURCES = [
   "https://apnews.com/apf-news?format=xml",
   "https://www.afp.com/en/news-hub/rss",
   "https://feeds.bbci.co.uk/news/rss.xml",
-  "https://feeds.bbci.co.uk/news/world/rss.xml",
   "https://feeds.bbci.co.uk/news/business/rss.xml",
   "http://rss.cnn.com/rss/edition.rss",
   "http://rss.cnn.com/rss/edition_world.rss",
   "https://www.aljazeera.com/xml/rss/all.xml",
   "https://www.dw.com/en/top-stories/world/s-1429/rss",
   "https://www.dw.com/en/top-stories/business/s-1431/rss",
-  "https://www.theguardian.com/world/rss",
   "https://www.theguardian.com/business/rss",
   "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
   "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
