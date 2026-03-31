@@ -4577,9 +4577,9 @@
     .vw-gs-body { flex: 1; min-height: 0; padding: 10px 12px; overflow-y: auto; }
     .vw-gs-scroll { overflow-y: auto; }
 
-    /* AI Brief widgets — force light base text so body{color:#333} doesn't bleed in */
-    #cw-brief-body  { color: #e2e8f0; }
-    #shift-brief-body { color: #e2e8f0; }
+    /* AI Brief widgets — always dark document style regardless of light/dark mode */
+    #cw-brief-body  { background: #0d1117 !important; color: #e2e8f0 !important; border-radius: 4px; }
+    #shift-brief-body { background: #0d1117 !important; color: #e2e8f0 !important; }
 
     /* inline controls in widget headers */
     .vw-gs-select {
