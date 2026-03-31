@@ -6641,16 +6641,16 @@
     var _cancActiveTab = 'airport'; // 'airport' | 'airline'
 
     function _cancScoreColor(score) {
-      if (score >= 4.0) return '#d93025'; // Major
-      if (score >= 3.0) return '#e8710a'; // Minor
-      if (score >= 2.0) return '#fbbc04'; // Watch
-      return '#34a853';                   // No Impact
+      if (score >= 2.0) return '#d93025'; // Major
+      if (score >= 1.0) return '#e8710a'; // Significant
+      if (score >= 0.5) return '#fbbc04'; // Watch
+      return '#fbbc04';                   // Disrupted (any cancellation)
     }
     function _cancScoreLabel(score) {
-      if (score >= 4.0) return 'Major';
-      if (score >= 3.0) return 'Minor';
-      if (score >= 2.0) return 'Watch';
-      return 'Good';
+      if (score >= 2.0) return 'Major';
+      if (score >= 1.0) return 'Significant';
+      if (score >= 0.5) return 'Watch';
+      return 'Disrupted';
     }
     function _cancFlag(cc) {
       if (!cc || cc.length !== 2) return '';
