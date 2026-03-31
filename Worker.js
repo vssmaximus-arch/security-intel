@@ -6641,33 +6641,50 @@ async function handleApiAviationCancellations(env) {
 
   // Rate budget: 12 airports × 2 statuses × 1 refresh/day (24h TTL) = 24/day = 720/month ✓ (Airlabs free = 1,000/month)
   // OpenSky Network (free, unlimited) adds 15 more airports using departure-activity scoring
-  const CACHE_KEY    = 'aviation_cancellations_v10';
+  const CACHE_KEY    = 'aviation_cancellations_v11'; // v11 — 65-airport global pool, dynamic top-9
   const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours — refreshes once daily
 
   // Airport metadata for ranking table
   const AIRPORT_NAMES = {
-    ATL:'Hartsfield–Jackson Atlanta', JFK:'John F. Kennedy New York',
+    ATL:'Hartsfield-Jackson Atlanta', JFK:'John F. Kennedy New York',
     LAX:'Los Angeles International', ORD:"O'Hare Chicago",
+    DFW:'Dallas/Fort Worth', DEN:'Denver International',
+    SFO:'San Francisco International', MIA:'Miami International',
+    SEA:'Seattle-Tacoma', BOS:'Boston Logan',
+    YYZ:'Toronto Pearson', GRU:'São Paulo Guarulhos',
+    EZE:'Buenos Aires Ezeiza', MEX:'Mexico City International',
+    BOG:'Bogotá El Dorado', SCL:'Santiago Arturo Merino Benítez',
     LHR:'London Heathrow', CDG:'Paris Charles de Gaulle',
     FRA:'Frankfurt Airport', AMS:'Amsterdam Schiphol',
-    DXB:'Dubai International', DOH:'Hamad Doha',
-    SIN:'Singapore Changi', NRT:'Tokyo Narita',
-    SYD:'Sydney Kingsford Smith', HKG:'Hong Kong International',
     IST:'Istanbul Airport', MAD:'Madrid Barajas',
     BCN:'Barcelona El Prat', FCO:'Rome Fiumicino',
     MUC:'Munich Airport', ZRH:'Zurich Airport',
-    GRU:'São Paulo Guarulhos', EZE:'Buenos Aires Ezeiza',
-    MEX:'Mexico City International', BOG:'Bogotá El Dorado',
-    JNB:'Johannesburg OR Tambo', NBO:'Nairobi Jomo Kenyatta',
-    CAI:'Cairo International', DUS:'Düsseldorf Airport',
-    BRU:'Brussels Airport', VIE:'Vienna International',
+    VIE:'Vienna International', BRU:'Brussels Airport',
+    CPH:'Copenhagen Airport', ARN:'Stockholm Arlanda',
+    HEL:'Helsinki-Vantaa', WAW:'Warsaw Chopin',
+    DXB:'Dubai International', DOH:'Hamad Doha',
+    AUH:'Abu Dhabi International', RUH:'Riyadh King Khalid',
+    CAI:'Cairo International', JNB:'Johannesburg OR Tambo',
+    NBO:'Nairobi Jomo Kenyatta', LOS:'Lagos Murtala Muhammed',
+    ADD:'Addis Ababa Bole',
+    SIN:'Singapore Changi', HKG:'Hong Kong International',
+    NRT:'Tokyo Narita', ICN:'Seoul Incheon',
+    PEK:'Beijing Capital', PVG:'Shanghai Pudong',
+    BKK:'Bangkok Suvarnabhumi', KUL:'Kuala Lumpur International',
+    BOM:'Mumbai Chhatrapati Shivaji', DEL:'Delhi Indira Gandhi',
+    SYD:'Sydney Kingsford Smith', CGK:'Jakarta Soekarno-Hatta',
   };
   const AIRPORT_COUNTRIES = {
-    ATL:'US', JFK:'US', LAX:'US', ORD:'US', LHR:'GB', CDG:'FR',
-    FRA:'DE', AMS:'NL', DXB:'AE', DOH:'QA', SIN:'SG', NRT:'JP',
-    SYD:'AU', HKG:'HK', IST:'TR', MAD:'ES', BCN:'ES', FCO:'IT',
-    MUC:'DE', ZRH:'CH', GRU:'BR', EZE:'AR', MEX:'MX', BOG:'CO',
-    JNB:'ZA', NBO:'KE', CAI:'EG', DUS:'DE', BRU:'BE', VIE:'AT',
+    ATL:'US', JFK:'US', LAX:'US', ORD:'US', DFW:'US', DEN:'US',
+    SFO:'US', MIA:'US', SEA:'US', BOS:'US',
+    YYZ:'CA', GRU:'BR', EZE:'AR', MEX:'MX', BOG:'CO', SCL:'CL',
+    LHR:'GB', CDG:'FR', FRA:'DE', AMS:'NL', IST:'TR', MAD:'ES',
+    BCN:'ES', FCO:'IT', MUC:'DE', ZRH:'CH', VIE:'AT', BRU:'BE',
+    CPH:'DK', ARN:'SE', HEL:'FI', WAW:'PL',
+    DXB:'AE', DOH:'QA', AUH:'AE', RUH:'SA', CAI:'EG',
+    JNB:'ZA', NBO:'KE', LOS:'NG', ADD:'ET',
+    SIN:'SG', HKG:'HK', NRT:'JP', ICN:'KR', PEK:'CN', PVG:'CN',
+    BKK:'TH', KUL:'MY', BOM:'IN', DEL:'IN', SYD:'AU', CGK:'ID',
   };
 
   try {
@@ -6701,35 +6718,54 @@ async function handleApiAviationCancellations(env) {
     FZ:'flydubai', G9:'Air Arabia', XY:'flynas', OD:'Batik Air',
   };
 
-  // 12 Airlabs hub airports (cancel+delay data): AMER (ATL, JFK, ORD, LAX), EMEA (LHR, CDG, FRA, IST), MENA (DXB, DOH), APJC (SIN, SYD)
-  const HUB_AIRPORTS = ['ATL', 'JFK', 'ORD', 'LAX', 'LHR', 'CDG', 'FRA', 'IST', 'DXB', 'DOH', 'SIN', 'SYD'];
-
-  // 15 OpenSky airports (activity-based scoring via departure counts — free, unlimited)
-  // ICAO code + expected departures per 6 hours (rough baseline for activity-ratio scoring)
-  const OPENSKY_AIRPORTS = [
-    { iata:'LAX', icao:'KLAX', base6h:200 }, { iata:'ORD', icao:'KORD', base6h:250 },
-    { iata:'MIA', icao:'KMIA', base6h:150 }, { iata:'BOS', icao:'KBOS', base6h:140 },
-    { iata:'AMS', icao:'EHAM', base6h:200 }, { iata:'IST', icao:'LTFM', base6h:250 },
-    { iata:'MUC', icao:'EDDM', base6h:160 }, { iata:'MAD', icao:'LEMD', base6h:170 },
-    { iata:'FCO', icao:'LIRF', base6h:150 }, { iata:'NRT', icao:'RJAA', base6h:180 },
-    { iata:'HKG', icao:'VHHH', base6h:190 }, { iata:'PEK', icao:'ZBAA', base6h:220 },
-    { iata:'BKK', icao:'VTBS', base6h:160 }, { iata:'MEX', icao:'MMMX', base6h:160 },
-    { iata:'JNB', icao:'FAOR', base6h:140 },
+  // 15 Airlabs hub airports — globally distributed so real disruptions anywhere surface
+  // Budget: 15 × 2 statuses × 1/day × 30 days = 900/month (Airlabs free = 1,000/month) ✓
+  const HUB_AIRPORTS = [
+    'ATL','JFK','ORD','LAX',          // US major hubs
+    'LHR','CDG','FRA','AMS',          // Europe major hubs
+    'DXB','DOH','CAI',                // Middle East / North Africa
+    'SIN','SYD','BOM',                // APJC: SE Asia, Oceania, South Asia
+    'GRU',                            // LATAM
   ];
 
-  // Add OpenSky names/countries to shared maps (for any not already in AIRPORT_NAMES)
-  const OPENSKY_NAMES = {
-    LAX:'Los Angeles International', ORD:"O'Hare Chicago", MIA:'Miami International',
-    BOS:'Boston Logan', AMS:'Amsterdam Schiphol', IST:'Istanbul Airport',
-    MUC:'Munich Airport', MAD:'Madrid Barajas', FCO:'Rome Fiumicino',
-    NRT:'Tokyo Narita', HKG:'Hong Kong International', PEK:'Beijing Capital',
-    BKK:'Bangkok Suvarnabhumi', MEX:'Mexico City International', JNB:'Johannesburg OR Tambo',
-  };
-  const OPENSKY_COUNTRIES = {
-    LAX:'US', ORD:'US', MIA:'US', BOS:'US', AMS:'NL', IST:'TR',
-    MUC:'DE', MAD:'ES', FCO:'IT', NRT:'JP', HKG:'HK', PEK:'CN',
-    BKK:'TH', MEX:'MX', JNB:'ZA',
-  };
+  // 50 OpenSky airports — free & unlimited — wide global coverage so disruptions anywhere surface
+  // Activity-ratio scoring: actual departures vs baseline → airports way below baseline = disrupted
+  const OPENSKY_AIRPORTS = [
+    // ── US ─────────────────────────────────────────────────────────────────────
+    { iata:'ATL', icao:'KATL', base6h:350 }, { iata:'JFK', icao:'KJFK', base6h:200 },
+    { iata:'LAX', icao:'KLAX', base6h:250 }, { iata:'ORD', icao:'KORD', base6h:280 },
+    { iata:'DFW', icao:'KDFW', base6h:280 }, { iata:'DEN', icao:'KDEN', base6h:240 },
+    { iata:'SFO', icao:'KSFO', base6h:180 }, { iata:'MIA', icao:'KMIA', base6h:150 },
+    { iata:'SEA', icao:'KSEA', base6h:160 }, { iata:'BOS', icao:'KBOS', base6h:140 },
+    // ── Canada / LATAM ─────────────────────────────────────────────────────────
+    { iata:'YYZ', icao:'CYYZ', base6h:180 }, { iata:'GRU', icao:'SBGR', base6h:160 },
+    { iata:'EZE', icao:'SAEZ', base6h:120 }, { iata:'MEX', icao:'MMMX', base6h:160 },
+    { iata:'BOG', icao:'SKBO', base6h:110 }, { iata:'SCL', icao:'SCEL', base6h:100 },
+    // ── Europe ─────────────────────────────────────────────────────────────────
+    { iata:'LHR', icao:'EGLL', base6h:240 }, { iata:'CDG', icao:'LFPG', base6h:220 },
+    { iata:'FRA', icao:'EDDF', base6h:210 }, { iata:'AMS', icao:'EHAM', base6h:200 },
+    { iata:'IST', icao:'LTFM', base6h:280 }, { iata:'MAD', icao:'LEMD', base6h:170 },
+    { iata:'BCN', icao:'LEBL', base6h:150 }, { iata:'FCO', icao:'LIRF', base6h:150 },
+    { iata:'MUC', icao:'EDDM', base6h:160 }, { iata:'ZRH', icao:'LSZH', base6h:130 },
+    { iata:'VIE', icao:'LOWW', base6h:120 }, { iata:'BRU', icao:'EBBR', base6h:110 },
+    { iata:'CPH', icao:'EKCH', base6h:100 }, { iata:'ARN', icao:'ESSA', base6h:100 },
+    { iata:'HEL', icao:'EFHK', base6h:80  }, { iata:'WAW', icao:'EPWA', base6h:90  },
+    // ── Middle East / Africa ───────────────────────────────────────────────────
+    { iata:'DXB', icao:'OMDB', base6h:300 }, { iata:'DOH', icao:'OTHH', base6h:180 },
+    { iata:'AUH', icao:'OMAA', base6h:150 }, { iata:'RUH', icao:'OERK', base6h:160 },
+    { iata:'CAI', icao:'HECA', base6h:100 }, { iata:'JNB', icao:'FAOR', base6h:120 },
+    { iata:'NBO', icao:'HKJK', base6h:60  }, { iata:'LOS', icao:'DNMM', base6h:70  },
+    { iata:'ADD', icao:'HAAB', base6h:50  },
+    // ── Asia Pacific ───────────────────────────────────────────────────────────
+    { iata:'SIN', icao:'WSSS', base6h:200 }, { iata:'HKG', icao:'VHHH', base6h:190 },
+    { iata:'NRT', icao:'RJAA', base6h:180 }, { iata:'ICN', icao:'RKSI', base6h:170 },
+    { iata:'PEK', icao:'ZBAA', base6h:220 }, { iata:'PVG', icao:'ZSPD', base6h:200 },
+    { iata:'BKK', icao:'VTBS', base6h:160 }, { iata:'KUL', icao:'WMKK', base6h:150 },
+    { iata:'BOM', icao:'VABB', base6h:140 }, { iata:'DEL', icao:'VIDP', base6h:160 },
+    { iata:'SYD', icao:'YSSY', base6h:140 }, { iata:'CGK', icao:'WIII', base6h:160 },
+  ];
+
+  // AIRPORT_NAMES/COUNTRIES above now cover all Airlabs + OpenSky airports
 
   // Per-airport Airlabs query — dep_iata required by Airlabs API, queried for each hub airport
   const fetchAirportFlights = (iata, status) =>
@@ -6842,8 +6878,8 @@ async function handleApiAviationCancellations(env) {
       const score = parseFloat(Math.max(0, 5 * (1 - ratio)).toFixed(1));
       osAirports.push({
         iata: ap.iata,
-        airport_name: OPENSKY_NAMES[ap.iata] || ap.iata,
-        country: OPENSKY_COUNTRIES[ap.iata] || '',
+        airport_name: AIRPORT_NAMES[ap.iata] || ap.iata,
+        country: AIRPORT_COUNTRIES[ap.iata] || '',
         cancelled: null,   // not available from OpenSky
         delayed:   null,
         disruption_score: score,
