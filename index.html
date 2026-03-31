@@ -3562,8 +3562,32 @@
         </div>
       </div>
 
+      <!-- ── AI DAILY SRO BRIEF ─────────────────────────────────────────── -->
+      <div class="grid-stack-item" gs-id="cw-brief-widget" gs-x="0" gs-y="1" gs-w="12" gs-h="13" gs-min-h="7">
+        <div class="grid-stack-item-content vw-gs-content">
+          <div class="widget-header-bar" title="Drag to reposition">
+            <span><i class="fas fa-file-alt" style="margin-right:6px;color:#ef4444;"></i>AI Daily SRO Brief</span>
+            <div id="cw-brief-status" style="font-size:0.68rem;color:#64748b;margin-left:10px;"></div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+              <select id="cw-brief-window" style="background:#252830;color:#9aa0a6;border:1px solid #3a3d45;border-radius:4px;font-size:0.68rem;padding:2px 6px;cursor:pointer;">
+                <option value="8" selected>Last 8h</option>
+                <option value="12">Last 12h</option>
+                <option value="24">Last 24h</option>
+              </select>
+              <button class="cw-gs-icon-btn" id="cw-brief-regen-btn" title="Regenerate brief"><i class="fas fa-bolt"></i></button>
+            </div>
+          </div>
+          <div class="vw-gs-body vw-gs-scroll" id="cw-brief-body" style="padding:14px 16px;font-family:'Inter',sans-serif;">
+            <div style="text-align:center;padding:40px 0;color:#334155;">
+              <i class="fas fa-file-alt" style="font-size:2rem;margin-bottom:10px;display:block;"></i>
+              <span style="font-size:0.82rem;">Loading SRO brief…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ── CONFLICT MAP (full 12 cols — sirens removed from default) ──── -->
-      <div class="grid-stack-item" gs-id="cw-map-widget" gs-x="0" gs-y="1" gs-w="12" gs-h="8" gs-min-h="4">
+      <div class="grid-stack-item" gs-id="cw-map-widget" gs-x="0" gs-y="14" gs-w="8" gs-h="8" gs-min-h="4">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-map-marked-alt" style="margin-right:6px;color:#e53935;"></i>Conflict Intelligence Map</span>
@@ -3717,7 +3741,7 @@
       </div>
 
       <!-- ── APJC FUEL CRISIS MONITOR ─────────────────────────────────── -->
-      <div class="grid-stack-item" gs-id="cw-apjc-widget" gs-x="0" gs-y="26" gs-w="6" gs-h="10" gs-min-h="5">
+      <div class="grid-stack-item" gs-id="cw-apjc-widget" gs-x="8" gs-y="14" gs-w="4" gs-h="8" gs-min-h="5">
         <div class="grid-stack-item-content vw-gs-content">
           <div class="widget-header-bar" title="Drag to reposition">
             <span><i class="fas fa-fire" style="margin-right:6px;color:#ff7043;"></i>APJC Fuel Crisis Monitor</span>
@@ -7236,7 +7260,7 @@
     'use strict';
 
     /* ── Constants ───────────────────────────────────────────────────────── */
-    var CW_LAYOUT_KEY   = 'cw_grid_layout_v11';   // bumped → forces energy widget into layout
+    var CW_LAYOUT_KEY   = 'cw_grid_layout_v12';   // bumped → AI SRO Brief widget at top of layout
     var CW_PREFS_KEY    = 'cw_widget_prefs_v2';
     var CW_PROFILE_KEY  = 'cw_user_profile';
     var WORKER_URL      = 'https://osinfohub.vssmaximus.workers.dev';
@@ -7259,10 +7283,11 @@
     /* Widget visibility prefs — 4 widgets hidden from default view */
     var cwWidgetPrefs = {
       'cw-posture-widget'  : true,
+      'cw-brief-widget'    : true,    // AI Daily SRO Brief — top widget
       'cw-map-widget'      : true,
       'cw-sirens-widget'   : false,   // available in Customize
       'cw-fuel-widget'     : true,
-      'cw-oil-widget'      : true,    // new
+      'cw-oil-widget'      : true,
       'cw-radiation-widget': false,   // available in Customize
       'cw-debt-widget'     : false,   // available in Customize
       'cw-webcams-widget'  : true,
@@ -7273,27 +7298,29 @@
       'cw-osint-widget'    : false,   // available in Customize
     };
 
-    /* Default GridStack layout — snapshot of user-approved layout 2026-03-30 */
+    /* Default GridStack layout — 2026-03-31 — AI SRO Brief at top */
     var CW_DEFAULT_LAYOUT = [
       { id:'cw-posture-widget',   x:0,  y:0,  w:12, h:1  },
-      { id:'cw-map-widget',       x:0,  y:1,  w:8,  h:8  },
-      { id:'cw-apjc-widget',      x:8,  y:1,  w:4,  h:8  },
-      { id:'cw-fuel-widget',      x:0,  y:9,  w:3,  h:8  },
-      { id:'cw-gfp-widget',       x:3,  y:9,  w:3,  h:8  },
-      { id:'cw-oil-widget',       x:6,  y:9,  w:6,  h:8  },
-      { id:'cw-webcams-widget',   x:0,  y:17, w:12, h:9  },
-      { id:'cw-crude-widget',     x:0,  y:26, w:12, h:8  },
-      { id:'cw-energy-widget',    x:0,  y:34, w:12, h:11 },
+      { id:'cw-brief-widget',     x:0,  y:1,  w:12, h:13 },  // AI SRO Brief — prominent top slot
+      { id:'cw-map-widget',       x:0,  y:14, w:8,  h:8  },
+      { id:'cw-apjc-widget',      x:8,  y:14, w:4,  h:8  },
+      { id:'cw-fuel-widget',      x:0,  y:22, w:3,  h:8  },
+      { id:'cw-gfp-widget',       x:3,  y:22, w:3,  h:8  },
+      { id:'cw-oil-widget',       x:6,  y:22, w:6,  h:8  },
+      { id:'cw-webcams-widget',   x:0,  y:30, w:12, h:9  },
+      { id:'cw-crude-widget',     x:0,  y:39, w:12, h:8  },
+      { id:'cw-energy-widget',    x:0,  y:47, w:12, h:11 },
       // Below: optional widgets (hidden by default; appear at bottom when user enables them)
-      { id:'cw-sirens-widget',    x:0,  y:46, w:6,  h:8  },
-      { id:'cw-radiation-widget', x:6,  y:46, w:6,  h:8  },
-      { id:'cw-debt-widget',      x:0,  y:55, w:6,  h:8  },
-      { id:'cw-osint-widget',     x:6,  y:55, w:6,  h:8  },
+      { id:'cw-sirens-widget',    x:0,  y:59, w:6,  h:8  },
+      { id:'cw-radiation-widget', x:6,  y:59, w:6,  h:8  },
+      { id:'cw-debt-widget',      x:0,  y:68, w:6,  h:8  },
+      { id:'cw-osint-widget',     x:6,  y:68, w:6,  h:8  },
     ];
 
     /* Widget metadata for the picker — default-on widgets first */
     var CW_WIDGETS_META = [
       { id:'cw-posture-widget',   label:'Crisis Posture Banner',     icon:'fa-circle',         desc:'Live threat level summary bar' },
+      { id:'cw-brief-widget',     label:'AI Daily SRO Brief',        icon:'fa-file-alt',       desc:'Auto-generated intelligence brief · SITREP or Daily Threatscape · Groq AI · Replaces manual morning report' },
       { id:'cw-map-widget',       label:'Conflict Intelligence Map', icon:'fa-map-marked-alt', desc:'Interactive OSINT conflict map — ACLED/GDACS' },
       { id:'cw-fuel-widget',      label:'Fuel Supply Index',         icon:'fa-gas-pump',       desc:'Diesel, Petrol, Aviation days of supply by country' },
       { id:'cw-oil-widget',       label:'Oil Reserves & Emergency Stocks', icon:'fa-oil-can',  desc:'Proven oil reserves + strategic petroleum reserves · Dell countries · Multi-source verified' },
@@ -7846,6 +7873,8 @@
       setCwUpdatedTs();
       /* Energy feed — defer 3s to let INCIDENTS load first */
       setTimeout(loadEnergyFeed, 3000);
+      /* AI SRO Brief — defer 2s, auto-generates on first load */
+      setTimeout(loadCwBrief, 2000);
       /* Auto-refresh every 10 min */
       setInterval(function(){
         if (typeof currentView !== 'undefined' && currentView === 'crisis-watch') {
@@ -7913,6 +7942,127 @@
       function _erEsc(s) {
         return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       }
+
+      /* ── AI DAILY SRO BRIEF WIDGET ─────────────────────────────────────── */
+      var _cwBriefRendered = false; // track if we've ever rendered (don't re-show loading state on regen)
+
+      window.loadCwBrief = function(forceRegen) {
+        var bodyEl   = document.getElementById('cw-brief-body');
+        var statusEl = document.getElementById('cw-brief-status');
+        var regenBtn = document.getElementById('cw-brief-regen-btn');
+        var winSel   = document.getElementById('cw-brief-window');
+        if (!bodyEl) return;
+
+        var windowH = winSel ? winSel.value : '8';
+
+        if (!_cwBriefRendered) {
+          bodyEl.innerHTML = '<div style="text-align:center;padding:48px 0;color:#475569;"><i class="fas fa-spinner fa-spin" style="font-size:1.4rem;margin-bottom:12px;display:block;color:#ef4444;"></i><span style="font-size:0.82rem;">Generating SRO intelligence brief…</span></div>';
+        }
+        if (statusEl) statusEl.textContent = 'Generating…';
+        if (regenBtn) regenBtn.disabled = true;
+
+        var url = WORKER_URL + '/api/ai/briefing?window=' + encodeURIComponent(windowH) + '&region=';
+        if (forceRegen) url += '&force=1'; // hint (cache busts via TTL anyway)
+
+        fetchWithTimeout(url, {}, 55000)
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            _cwBriefRendered = true;
+            if (regenBtn) regenBtn.disabled = false;
+
+            var isSitrep = data.report_format === 'SITREP';
+            var genTime  = (data.generated_at || '').slice(0,16).replace('T',' ');
+            var minsAgo  = data.generated_at ? Math.round((Date.now() - new Date(data.generated_at).getTime()) / 60000) : 0;
+            var ageStr   = minsAgo <= 1 ? 'just now' : minsAgo + 'm ago';
+            var fmtLabel = isSitrep ? '🔴 SITREP' : '📋 DAILY THREATSCAPE';
+
+            if (statusEl) statusEl.textContent = fmtLabel + ' · ' + (data.incident_count||0) + ' incidents · ' + (data.cached ? 'cached ' : '') + ageStr;
+
+            /* ── Document header ── */
+            var fmtColor  = isSitrep ? '#ef4444' : '#3b82f6';
+            var docHeader = '<div style="border:1px solid ' + fmtColor + ';border-radius:6px;margin-bottom:16px;overflow:hidden;">'
+              + '<div style="background:' + fmtColor + '18;border-bottom:1px solid ' + fmtColor + '40;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
+              + '<div style="display:flex;align-items:center;gap:10px;">'
+              + '<span style="background:' + fmtColor + ';color:#fff;font-size:0.61rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">' + (isSitrep ? 'SITREP' : 'DAILY THREATSCAPE') + '</span>'
+              + '<span style="color:#f1f5f9;font-weight:700;font-size:0.88rem;">Dell Technologies · SRO Fusion Center</span>'
+              + '</div>'
+              + '<div style="display:flex;gap:14px;font-size:0.7rem;color:#94a3b8;">'
+              + '<span>🕐 ' + genTime + ' UTC</span>'
+              + '<span>⏱ ' + (data.window_h||windowH) + 'h window</span>'
+              + '<span>📊 ' + (data.incident_count||0) + ' incidents</span>'
+              + '</div></div>'
+              + '<div style="padding:6px 14px;background:#070a0f;font-size:0.65rem;color:#475569;letter-spacing:.05em;">'
+              + 'CLASSIFICATION: INTERNAL — SRO DISTRIBUTION ONLY &nbsp;|&nbsp; Operation Epic Fury — Active Crisis Monitoring'
+              + '</div></div>';
+
+            /* ── Section colours ── */
+            var SCOL = {'⚡':'#f59e0b','🔺':'#ef4444','🛡':'#ef4444','🛡️':'#ef4444',
+                        '📍':'#10b981','🏭':'#06b6d4','🔭':'#8b5cf6',
+                        '🌐':'#3b82f6','📡':'#f97316','🗺':'#10b981','🗺️':'#10b981'};
+            var sectAccent = fmtColor;
+            var html = '';
+            var inSection = false;
+            (data.briefing || '').split('\n').forEach(function(line) {
+              var t = line.trim();
+              if (!t) { if (inSection) html += '<div style="height:3px"></div>'; return; }
+              var hm = t.match(/^##\s+(.+)$/);
+              if (hm) {
+                if (inSection) html += '</div>';
+                var title = hm[1].trim();
+                var emoji = Array.from(title)[0] || '';
+                sectAccent = SCOL[emoji] || fmtColor;
+                html += '<div style="display:flex;align-items:center;gap:8px;margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid ' + sectAccent + '30;">'
+                  + '<div style="width:3px;height:16px;background:' + sectAccent + ';border-radius:2px;flex-shrink:0;"></div>'
+                  + '<span style="font-weight:800;font-size:0.74rem;letter-spacing:.1em;color:' + sectAccent + ';text-transform:uppercase;">' + _escHtml(title) + '</span>'
+                  + '</div><div style="padding-left:4px;">';
+                inSection = true;
+                return;
+              }
+              var bm = t.match(/^[-•*]\s+(.+)/);
+              var content = bm ? bm[1] : t;
+              var highlighted = _escHtml(content).replace(
+                /(\$\d[\d,\.]*[KMBkm]?(?:\/[a-zA-Z]+)?|\d[\d,\.]*%|\d[\d,\.]*\s?(?:bbl|bcm|km|bn|million|billion|days?|hours?|weeks?|months?|TMs?))/gi,
+                '<span style="color:#f59e0b;font-weight:600;">$1</span>'
+              );
+              if (bm) {
+                html += '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.7;">'
+                  + '<span style="color:' + sectAccent + ';flex-shrink:0;margin-top:6px;font-size:0.5rem;">◆</span>'
+                  + '<span style="font-size:0.83rem;color:#e2e8f0;">' + highlighted + '</span>'
+                  + '</div>';
+              } else {
+                html += '<div style="font-size:0.83rem;color:#cbd5e1;padding:5px 0 3px;line-height:1.7;">' + highlighted + '</div>';
+              }
+            });
+            if (inSection) html += '</div>';
+
+            bodyEl.innerHTML = docHeader + '<div style="padding:0 2px;">' + html + '</div>';
+          })
+          .catch(function(err) {
+            if (regenBtn) regenBtn.disabled = false;
+            if (!_cwBriefRendered) {
+              bodyEl.innerHTML = '<div style="padding:20px;font-size:0.82rem;color:#ef4444;"><i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>Brief generation failed: ' + _escHtml(String(err.message||err)) + '</div>';
+            }
+            if (statusEl) statusEl.textContent = 'Failed — click ⚡ to retry';
+          });
+      };
+
+      /* Regen button and window-select listeners (delegated) */
+      document.addEventListener('click', function(e) {
+        if (e.target && (e.target.id === 'cw-brief-regen-btn' || e.target.closest('#cw-brief-regen-btn'))) {
+          _cwBriefRendered = false; // show spinner again on manual regen
+          loadCwBrief(true);
+        }
+      });
+      document.getElementById('cw-brief-window') && document.getElementById('cw-brief-window').addEventListener('change', function() {
+        _cwBriefRendered = false;
+        loadCwBrief(true);
+      });
+
+      /* Tiny escape helper scoped to this widget */
+      function _escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+      /* ── END AI SRO BRIEF WIDGET ─────────────────────────────────────────── */
 
       window.loadEnergyFeed = function() {
         var el    = document.getElementById('er-feed-list');
