@@ -6518,6 +6518,14 @@ async function handleGenerateBriefClick() {
       </div>`;
     }
 
+    // ── Theme-aware colours ───────────────────────────────────────────────────
+    const _isDark  = document.body.classList.contains('dark-mode');
+    const _tc      = _isDark ? '#e2e8f0' : '#1e293b';
+    const _tc2     = _isDark ? '#cbd5e1' : '#334155';
+    const _meta    = _isDark ? '#94a3b8' : '#64748b';
+    const _divider = _isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)';
+    const _amberHL = _isDark ? '#f59e0b' : '#b45309';
+
     // ── Section accent colours (emoji-keyed) ─────────────────────────────────
     const _SECT_COLORS = {
       '⚡': '#f59e0b', '🔺': '#ef4444', '🛡': '#ef4444', '🛡️': '#ef4444',
@@ -6537,21 +6545,24 @@ async function handleGenerateBriefClick() {
       ? `<span style="background:#ef4444;color:#fff;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">SITREP</span>`
       : `<span style="background:#3b82f6;color:#fff;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">DAILY THREATSCAPE</span>`;
 
+    const _hdrTitleClr = _isDark ? '#f1f5f9' : '#0f172a';
+    const _classBg2    = _isDark ? '#0a0c10' : '#f1f5f9';
+    const _classClr2   = _isDark ? '#64748b' : '#475569';
     let _docHeader = `
-      <div style="border:1px solid ${_fmtColor};border-radius:6px;margin-bottom:18px;overflow:hidden;">
-        <div style="background:${_fmtColor}18;border-bottom:1px solid ${_fmtColor}40;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="border:1px solid ${_fmtColor}60;border-radius:6px;margin-bottom:18px;overflow:hidden;">
+        <div style="background:${_fmtColor}${_isDark ? '18' : '10'};border-bottom:1px solid ${_fmtColor}40;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
           <div style="display:flex;align-items:center;gap:10px;">
             ${_classificationBadge}
-            <span style="color:#f1f5f9;font-weight:700;font-size:0.9rem;letter-spacing:.03em;">Dell Technologies SRO Fusion Center</span>
+            <span style="color:${_hdrTitleClr};font-weight:700;font-size:0.9rem;letter-spacing:.03em;">Dell Technologies SRO Fusion Center</span>
           </div>
-          <div style="display:flex;gap:16px;font-size:0.72rem;color:#94a3b8;">
+          <div style="display:flex;gap:16px;font-size:0.72rem;color:${_meta};">
             <span>🕐 ${escapeHtml(_genTime)} UTC</span>
             <span>🌍 ${escapeHtml(_region)}</span>
             <span>⏱ ${_winH}h window</span>
             <span>📊 ${_icount} incidents</span>
           </div>
         </div>
-        <div style="padding:8px 16px;background:#0a0c10;font-size:0.68rem;color:#64748b;letter-spacing:.05em;">
+        <div style="padding:8px 16px;background:${_classBg2};font-size:0.68rem;color:${_classClr2};letter-spacing:.05em;">
           CLASSIFICATION: INTERNAL — SRO DISTRIBUTION ONLY &nbsp;|&nbsp; Operation Epic Fury — Active Crisis Monitoring
         </div>
       </div>`;
@@ -6581,16 +6592,16 @@ async function handleGenerateBriefClick() {
             <div style="width:3px;height:18px;background:${accent};border-radius:2px;flex-shrink:0;"></div>
             <span style="font-weight:800;font-size:0.78rem;letter-spacing:.1em;color:${accent};text-transform:uppercase;">${escapeHtml(title)}</span>
           </div>
-          <div style="padding-left:6px;color:#e2e8f0;">`;
+          <div style="padding-left:6px;">`;
         _inSection = true;
         return;
       }
       // Bold leader: **text** — used for named events in escalation sections
       const boldMatch = trimmed.match(/^\*\*(.+?)\*\*\s*[—–-]\s*(.+)/);
       if (boldMatch) {
-        _briefHtml += `<div style="padding:8px 0 4px;font-size:0.84rem;line-height:1.65;color:#f1f5f9;border-bottom:1px solid rgba(255,255,255,0.06);">
+        _briefHtml += `<div style="padding:8px 0 4px;font-size:0.84rem;line-height:1.65;color:${_tc};border-bottom:1px solid ${_divider};">
           <span style="font-weight:700;color:${_sectionAccent};">${escapeHtml(boldMatch[1])}</span>
-          <span style="color:#cbd5e1;"> — ${escapeHtml(boldMatch[2])}</span>
+          <span style="color:${_tc2};"> — ${escapeHtml(boldMatch[2])}</span>
         </div>`;
         return;
       }
@@ -6601,20 +6612,20 @@ async function handleGenerateBriefClick() {
         // Highlight numbers/percentages/dollar amounts in amber
         const highlighted = escapeHtml(content).replace(
           /(\$\d[\d,\.]*[KMB]?(?:\/[a-zA-Z]+)?|\d[\d,\.]*%|\d[\d,\.]*\s?(?:km|mi|bbl|bcm|mt|bn|million|billion|days?|hours?|weeks?|months?))/gi,
-          '<span style="color:#f59e0b;font-weight:600;">$1</span>'
+          `<span style="color:${_amberHL};font-weight:600;">$1</span>`
         );
-        _briefHtml += `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);line-height:1.7;">
+        _briefHtml += `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid ${_divider};line-height:1.7;">
           <span style="color:${_sectionAccent};flex-shrink:0;margin-top:5px;font-size:0.55rem;">◆</span>
-          <span style="font-size:0.84rem;color:#e2e8f0;">${highlighted}</span>
+          <span style="font-size:0.84rem;color:${_tc};">${highlighted}</span>
         </div>`;
         return;
       }
       // Dell/site mentions — highlight
       const paraHighlighted = escapeHtml(trimmed).replace(
         /(\$\d[\d,\.]*[KMB]?(?:\/[a-zA-Z]+)?|\d[\d,\.]*%|\d[\d,\.]*\s?(?:km|mi|bbl|bcm|mt|bn|million|billion|days?|hours?|weeks?|months?))/gi,
-        '<span style="color:#f59e0b;font-weight:600;">$1</span>'
+        `<span style="color:${_amberHL};font-weight:600;">$1</span>`
       );
-      _briefHtml += `<div style="font-size:0.84rem;color:#cbd5e1;padding:6px 0 4px;line-height:1.7;">${paraHighlighted}</div>`;
+      _briefHtml += `<div style="font-size:0.84rem;color:${_tc2};padding:6px 0 4px;line-height:1.7;">${paraHighlighted}</div>`;
     });
     if (_inSection) _briefHtml += '</div>';
 

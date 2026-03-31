@@ -4577,9 +4577,11 @@
     .vw-gs-body { flex: 1; min-height: 0; padding: 10px 12px; overflow-y: auto; }
     .vw-gs-scroll { overflow-y: auto; }
 
-    /* AI Brief widgets — always dark document style regardless of light/dark mode */
-    #cw-brief-body  { background: #0d1117 !important; color: #e2e8f0 !important; border-radius: 4px; }
-    #shift-brief-body { background: #0d1117 !important; color: #e2e8f0 !important; }
+    /* AI Brief widgets — base color set; renderer picks light/dark text based on theme */
+    #cw-brief-body  { color: #1e293b; }
+    body.dark-mode #cw-brief-body { color: #e2e8f0; }
+    #shift-brief-body { color: #1e293b; }
+    body.dark-mode #shift-brief-body { color: #e2e8f0; }
 
     /* inline controls in widget headers */
     .vw-gs-select {
@@ -7982,20 +7984,32 @@
 
             if (statusEl) statusEl.textContent = fmtLabel + ' · ' + (data.incident_count||0) + ' incidents · ' + (data.cached ? 'cached ' : '') + ageStr;
 
+            /* ── Theme-aware colours ── */
+            var _dark = document.body.classList.contains('dark-mode');
+            var _tc   = _dark ? '#e2e8f0' : '#1e293b';   // main text
+            var _tc2  = _dark ? '#cbd5e1' : '#334155';   // secondary text
+            var _meta = _dark ? '#94a3b8' : '#64748b';   // metadata
+            var _divider = _dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)';
+            var _amberHL = _dark ? '#f59e0b' : '#b45309'; // amber numbers
+
             /* ── Document header ── */
             var fmtColor  = isSitrep ? '#ef4444' : '#3b82f6';
-            var docHeader = '<div style="border:1px solid ' + fmtColor + ';border-radius:6px;margin-bottom:16px;overflow:hidden;">'
-              + '<div style="background:' + fmtColor + '18;border-bottom:1px solid ' + fmtColor + '40;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
+            var _hdrBg    = _dark ? fmtColor + '22' : fmtColor + '12';
+            var _hdrTitle = _dark ? '#f1f5f9' : '#0f172a';
+            var _classBg  = _dark ? '#070a0f' : '#f1f5f9';
+            var _classClr = _dark ? '#64748b' : '#475569';
+            var docHeader = '<div style="border:1px solid ' + fmtColor + '60;border-radius:6px;margin-bottom:16px;overflow:hidden;">'
+              + '<div style="background:' + _hdrBg + ';border-bottom:1px solid ' + fmtColor + '40;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
               + '<div style="display:flex;align-items:center;gap:10px;">'
               + '<span style="background:' + fmtColor + ';color:#fff;font-size:0.61rem;font-weight:800;padding:2px 8px;border-radius:2px;letter-spacing:.12em;">' + (isSitrep ? 'SITREP' : 'DAILY THREATSCAPE') + '</span>'
-              + '<span style="color:#f1f5f9;font-weight:700;font-size:0.88rem;">Dell Technologies · SRO Fusion Center</span>'
+              + '<span style="color:' + _hdrTitle + ';font-weight:700;font-size:0.88rem;">Dell Technologies · SRO Fusion Center</span>'
               + '</div>'
-              + '<div style="display:flex;gap:14px;font-size:0.7rem;color:#94a3b8;">'
+              + '<div style="display:flex;gap:14px;font-size:0.7rem;color:' + _meta + ';">'
               + '<span>🕐 ' + genTime + ' UTC</span>'
               + '<span>⏱ ' + (data.window_h||windowH) + 'h window</span>'
               + '<span>📊 ' + (data.incident_count||0) + ' incidents</span>'
               + '</div></div>'
-              + '<div style="padding:6px 14px;background:#070a0f;font-size:0.65rem;color:#475569;letter-spacing:.05em;">'
+              + '<div style="padding:6px 14px;background:' + _classBg + ';font-size:0.65rem;color:' + _classClr + ';letter-spacing:.05em;">'
               + 'CLASSIFICATION: INTERNAL — SRO DISTRIBUTION ONLY &nbsp;|&nbsp; Operation Epic Fury — Active Crisis Monitoring'
               + '</div></div>';
 
@@ -8015,10 +8029,10 @@
                 var title = hm[1].trim();
                 var emoji = Array.from(title)[0] || '';
                 sectAccent = SCOL[emoji] || fmtColor;
-                html += '<div style="display:flex;align-items:center;gap:8px;margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid ' + sectAccent + '30;">'
+                html += '<div style="display:flex;align-items:center;gap:8px;margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid ' + sectAccent + '40;">'
                   + '<div style="width:3px;height:16px;background:' + sectAccent + ';border-radius:2px;flex-shrink:0;"></div>'
                   + '<span style="font-weight:800;font-size:0.74rem;letter-spacing:.1em;color:' + sectAccent + ';text-transform:uppercase;">' + _escHtml(title) + '</span>'
-                  + '</div><div style="padding-left:4px;color:#e2e8f0;">';
+                  + '</div><div style="padding-left:4px;">';
                 inSection = true;
                 return;
               }
@@ -8026,20 +8040,20 @@
               var content = bm ? bm[1] : t;
               var highlighted = _escHtml(content).replace(
                 /(\$\d[\d,\.]*[KMBkm]?(?:\/[a-zA-Z]+)?|\d[\d,\.]*%|\d[\d,\.]*\s?(?:bbl|bcm|km|bn|million|billion|days?|hours?|weeks?|months?|TMs?))/gi,
-                '<span style="color:#f59e0b;font-weight:600;">$1</span>'
+                '<span style="color:' + _amberHL + ';font-weight:600;">$1</span>'
               );
               if (bm) {
-                html += '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.7;">'
+                html += '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid ' + _divider + ';line-height:1.7;">'
                   + '<span style="color:' + sectAccent + ';flex-shrink:0;margin-top:6px;font-size:0.5rem;">◆</span>'
-                  + '<span style="font-size:0.83rem;color:#e2e8f0;">' + highlighted + '</span>'
+                  + '<span style="font-size:0.83rem;color:' + _tc + ';">' + highlighted + '</span>'
                   + '</div>';
               } else {
-                html += '<div style="font-size:0.83rem;color:#cbd5e1;padding:5px 0 3px;line-height:1.7;">' + highlighted + '</div>';
+                html += '<div style="font-size:0.83rem;color:' + _tc2 + ';padding:5px 0 3px;line-height:1.7;">' + highlighted + '</div>';
               }
             });
             if (inSection) html += '</div>';
 
-            bodyEl.innerHTML = docHeader + '<div style="padding:0 2px;color:#e2e8f0;">' + html + '</div>';
+            bodyEl.innerHTML = docHeader + '<div style="padding:0 2px;">' + html + '</div>';
           })
           .catch(function(err) {
             if (regenBtn) regenBtn.disabled = false;
