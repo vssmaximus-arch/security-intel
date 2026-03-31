@@ -5947,7 +5947,7 @@ async function handleApiAiBriefing(env, req) {
 
     // KV cache: 45-min TTL — brief must reflect current crisis state, not hours-old snapshot
     const BRIEFING_CACHE_TTL_S = 2700; // 45 minutes
-    const briefCacheKey = `briefing_v9_${windowH}_${region || 'global'}`; // v9 — SITREP overhaul + 45min cache
+    const briefCacheKey = `briefing_v10_${windowH}_${region || 'global'}`; // v10 — region filter includes GLOBAL incidents + text visibility fix
 
     const cachedResult = await kvGetJson(env, briefCacheKey, null);
     const cacheAgeS = cachedResult?.generated_at
@@ -5969,7 +5969,13 @@ async function handleApiAiBriefing(env, req) {
       try { return new Date(i.time).getTime() >= cutoffMs; } catch { return false; }
     });
     if (region) {
-      incidents = incidents.filter(i => String(i.region || '').toUpperCase() === region);
+      // Include incidents tagged for the specific region OR tagged 'GLOBAL'/'GEOPOLITICAL'
+      // Global incidents (Iran crisis, Hormuz, fuel disruptions) affect ALL regions and
+      // must appear in regional briefings — strict region match alone gives 0 results.
+      incidents = incidents.filter(i => {
+        const r = String(i.region || '').toUpperCase();
+        return r === region || r === 'GLOBAL' || r === '' || r === 'GEOPOLITICAL';
+      });
     }
 
     if (!incidents.length) {
@@ -6108,11 +6114,15 @@ MANDATORY WRITING RULES — enforced:
 9. OUTLOOK = what SRO should expect in next 24–72h. Specific. Actionable. Name the countries and business functions most exposed.
 10. LENGTH: ACTIVE MONITORING = 3–5 flowing paragraphs. FORWARD RADAR = 2–4 country items. ONGOING EVENTS = structured list. OUTLOOK = 3–5 bullets.`;
 
+      const _regionFocusNote = region
+        ? `\n⚠ REGIONAL FOCUS — THIS SITREP IS FOR THE ${region} RSM. Lead with ${region} impacts. Frame global crisis (Iran/Hormuz/fuel) through the ${region} lens. Dell sites in scope: ${region === 'APJC' ? 'Bangalore, Hyderabad, Gurugram, Sriperumbudur, Singapore, Penang, Cyberjaya, Xiamen, Chengdu, Shanghai, Taipei, Tokyo, Kawasaki, Sydney, Melbourne, Brisbane' : region === 'EMEA' ? 'Lodz, Limerick, Dublin, Cork, Herzliya, Haifa, Beer Sheva, Bracknell, Glasgow, Montpellier, Paris, Frankfurt, Halle, Amsterdam, Casablanca, Cairo, Dubai' : region === 'AMER' ? 'Round Rock, Austin, Hopkinton, Franklin, Apex, Eden Prairie, Draper, Nashville, Oklahoma City, Santa Clara, McLean, El Paso, Toronto, Mexico City' : region === 'LATAM' ? 'Hortolândia, São Paulo, Porto Alegre, Panama City' : ''}.`
+        : '';
+
       userContent = `DELL SRO — SITUATION REPORT (SITREP)
 Classification: INTERNAL — SRO DISTRIBUTION ONLY
 Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
 Window: Last ${windowH}h${region ? ` | Region: ${region}` : ' | Scope: Global'}
-Incidents analyzed: ${incidents.length} total | ${topIncidents.length} shown | ${criticalCount} CRITICAL
+Incidents analyzed: ${incidents.length} total | ${topIncidents.length} shown | ${criticalCount} CRITICAL${_regionFocusNote}
 ${dellSitesSummary ? `\nDELL SITES REFERENCE (use to ground all Dell impact assessments):\n${dellSitesSummary}` : ''}
 
 ━━ INCIDENT FEED (severity-ranked, with AI summaries) ━━
@@ -6183,9 +6193,13 @@ WRITING RULES:
 6. OUTLOOK = 3 forward-looking bullets, 24–72h horizon. What will happen, not what might happen.
 7. CYBER RULE: Exclude entirely unless Dell infrastructure is confirmed down/breached. No CVEs, no vendor patches, no nation-state hacking of other companies.`;
 
+      const _dtRegionFocus = region
+        ? `\n⚠ REGIONAL FOCUS — Write this briefing FOR THE ${region} RSM. Prioritize events affecting ${region} Dell sites and TMs. Include global context (Iran/Hormuz/fuel) but frame it through a ${region} lens. Skip events with zero ${region} relevance.`
+        : '';
+
       userContent = `SRO DAILY THREATSCAPE — ${windowH}h window${region ? ` — ${region}` : ' — Global'}
 Generated: ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
-Total incidents: ${incidents.length} | Shown: ${topIncidents.length}
+Total incidents: ${incidents.length} | Shown: ${topIncidents.length}${_dtRegionFocus}
 ${dellSitesSummary ? `\nDELL SITES REFERENCE: ${dellSitesSummary}` : ''}
 
 INCIDENT FEED (by region):

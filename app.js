@@ -6581,7 +6581,7 @@ async function handleGenerateBriefClick() {
             <div style="width:3px;height:18px;background:${accent};border-radius:2px;flex-shrink:0;"></div>
             <span style="font-weight:800;font-size:0.78rem;letter-spacing:.1em;color:${accent};text-transform:uppercase;">${escapeHtml(title)}</span>
           </div>
-          <div style="padding-left:6px;">`;
+          <div style="padding-left:6px;color:#e2e8f0;">`;
         _inSection = true;
         return;
       }
@@ -6618,7 +6618,7 @@ async function handleGenerateBriefClick() {
     });
     if (_inSection) _briefHtml += '</div>';
 
-    bodyEl.innerHTML = `${cacheBanner}${_docHeader}<div style="padding:0 2px;">${_briefHtml}</div>`;
+    bodyEl.innerHTML = `${cacheBanner}${_docHeader}<div style="padding:0 2px;color:#e2e8f0;">${_briefHtml}</div>`;
     if (metaEl) {
       const _fmtMeta = isSitrep ? '🔴 SITREP' : '📋 DAILY THREATSCAPE';
       metaEl.textContent = `${_fmtMeta} · ${_icount} incidents · ${_region} · ${_winH}h · ${_genTime} UTC`;

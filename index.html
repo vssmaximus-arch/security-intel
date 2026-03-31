@@ -8014,7 +8014,7 @@
                 html += '<div style="display:flex;align-items:center;gap:8px;margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid ' + sectAccent + '30;">'
                   + '<div style="width:3px;height:16px;background:' + sectAccent + ';border-radius:2px;flex-shrink:0;"></div>'
                   + '<span style="font-weight:800;font-size:0.74rem;letter-spacing:.1em;color:' + sectAccent + ';text-transform:uppercase;">' + _escHtml(title) + '</span>'
-                  + '</div><div style="padding-left:4px;">';
+                  + '</div><div style="padding-left:4px;color:#e2e8f0;">';
                 inSection = true;
                 return;
               }
@@ -8035,7 +8035,7 @@
             });
             if (inSection) html += '</div>';
 
-            bodyEl.innerHTML = docHeader + '<div style="padding:0 2px;">' + html + '</div>';
+            bodyEl.innerHTML = docHeader + '<div style="padding:0 2px;color:#e2e8f0;">' + html + '</div>';
           })
           .catch(function(err) {
             if (regenBtn) regenBtn.disabled = false;
