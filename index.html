@@ -2143,10 +2143,7 @@
           <i class="fas fa-file-alt" aria-hidden="true"></i> Daily Brief
         </button>
 
-        <!-- S2.5 — Logistics Drawer trigger -->
-        <button class="logistics-open-btn ms-1" data-action="open-logistics" aria-label="Open Logistics Tracker" tabindex="0">
-          <i class="fas fa-route" aria-hidden="true"></i> Logistics
-        </button>
+        <!-- S2.5 — Logistics Drawer trigger (hidden from top nav) -->
 
         <!-- OSINT Intel removed from header (available in Intelligence feed) -->
 
@@ -4249,19 +4246,19 @@
   <!-- Tier-2: AI Shift Briefing Modal -->
   <div class="modal fade" id="shiftBriefModal" tabindex="-1" aria-labelledby="shiftBriefModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content" style="background:#13151a; border:1px solid #2a2d35; color:#e0e0e0;">
-        <div class="modal-header" style="background:#1a1b1e; border-bottom:1px solid #2a2d35;">
-          <h5 class="modal-title" id="shiftBriefModalLabel" style="color:#64b5f6; font-weight:700; font-size:0.95rem;">
+      <div class="modal-content" style="background:#ffffff; border:1px solid #dee2e6; color:#1a1a1a;">
+        <div class="modal-header" style="background:#f8f9fa; border-bottom:1px solid #dee2e6;">
+          <h5 class="modal-title" id="shiftBriefModalLabel" style="color:#1565c0; font-weight:700; font-size:0.95rem;">
             <i class="fas fa-file-alt me-2" aria-hidden="true"></i>AI Shift Briefing
           </h5>
           <div class="d-flex gap-2 align-items-center ms-3">
-            <select id="brief-window-select" class="form-select form-select-sm" style="background:#252830;color:#e0e0e0;border-color:#3a3d45;width:auto;">
+            <select id="brief-window-select" class="form-select form-select-sm" style="background:#ffffff;color:#1a1a1a;border-color:#ced4da;width:auto;">
               <option value="4">Last 4h</option>
               <option value="8" selected>Last 8h</option>
               <option value="12">Last 12h</option>
               <option value="24">Last 24h</option>
             </select>
-            <select id="brief-region-select" class="form-select form-select-sm" style="background:#252830;color:#e0e0e0;border-color:#3a3d45;width:auto;">
+            <select id="brief-region-select" class="form-select form-select-sm" style="background:#ffffff;color:#1a1a1a;border-color:#ced4da;width:auto;">
               <option value="">Global</option>
               <option value="AMER">AMER</option>
               <option value="EMEA">EMEA</option>
@@ -4272,15 +4269,15 @@
               <i class="fas fa-bolt" aria-hidden="true"></i> Generate
             </button>
           </div>
-          <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body" id="shift-brief-body" style="background:#0f1012;min-height:320px;font-family:'Inter',monospace;font-size:0.87rem;line-height:1.75;color:#d0d5df;padding:24px;">
-          <div class="text-center text-secondary py-5">
-            <i class="fas fa-file-alt fa-3x mb-3 d-block" style="color:#2a3a4a;"></i>
+        <div class="modal-body" id="shift-brief-body" style="background:#ffffff;min-height:320px;font-family:'Inter',sans-serif;font-size:0.87rem;line-height:1.75;color:#1a1a1a;padding:24px;">
+          <div class="text-center py-5" style="color:#6c757d;">
+            <i class="fas fa-file-alt fa-3x mb-3 d-block" style="color:#c0c0c0;"></i>
             Select a time window and region, then click <strong>Generate</strong> to create an AI-powered shift briefing.
           </div>
         </div>
-        <div class="modal-footer" style="background:#1a1b1e;border-top:1px solid #2a2d35;">
+        <div class="modal-footer" style="background:#f8f9fa;border-top:1px solid #dee2e6;">
           <small class="text-secondary me-auto" id="brief-meta-text" style="font-size:0.75rem;"></small>
           <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
         </div>
@@ -4668,8 +4665,8 @@
     /* AI Brief widgets — base color set; renderer picks light/dark text based on theme */
     #cw-brief-body  { color: #1e293b; }
     body.dark-mode #cw-brief-body { color: #e2e8f0; }
-    #shift-brief-body { color: #1e293b; }
-    body.dark-mode #shift-brief-body { color: #e2e8f0; }
+    #shift-brief-body { color: #1a1a1a !important; background: #ffffff !important; }
+    body.dark-mode #shift-brief-body { color: #1a1a1a !important; background: #ffffff !important; }
 
     /* inline controls in widget headers */
     .vw-gs-select {
