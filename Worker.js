@@ -71,8 +71,14 @@ async function _jwtVerify(token, secret) {
 async function _verifyAuth(req, env) {
   // If env vars not configured → skip auth (dev mode / gradual rollout)
   if (!env.SITE_PASSPHRASE || !env.JWT_SECRET) return true;
+  // Check Authorization header first (all regular fetch calls)
   const auth  = req.headers.get('Authorization') || '';
-  const token = auth.replace(/^Bearer\s+/i, '').trim();
+  let token   = auth.replace(/^Bearer\s+/i, '').trim();
+  // Fallback: ?token= query param — used by EventSource/SSE which cannot set headers
+  if (!token) {
+    const qUrl = new URL(req.url);
+    token = qUrl.searchParams.get('token') || '';
+  }
   if (!token) return false;
   const payload = await _jwtVerify(token, env.JWT_SECRET);
   return payload !== null;

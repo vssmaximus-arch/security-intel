@@ -3143,7 +3143,9 @@ function connectSSE() {
     return;
   }
 
-  const es = new EventSource(`${WORKER_URL}/api/stream`);
+  // EventSource cannot send custom headers — pass JWT as URL query param instead
+  const _sseToken = (window._sroAuth && window._sroAuth.token()) ? window._sroAuth.token() : '';
+  const es = new EventSource(`${WORKER_URL}/api/stream${_sseToken ? '?token=' + encodeURIComponent(_sseToken) : ''}`);
 
   es.addEventListener('incidents', (ev) => {
     try {
