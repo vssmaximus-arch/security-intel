@@ -18,8 +18,87 @@
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type,secret,X-User-Id",
+  "Access-Control-Allow-Headers": "Content-Type,secret,X-User-Id,Authorization",
 };
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH — Option B: Worker-based passphrase + HMAC-SHA256 JWT (no library)
+   ─────────────────────────────────────────────────────────────────────────
+   Environment variables required in Cloudflare Workers dashboard:
+     SITE_PASSPHRASE  — the shared team passphrase (plain text)
+     JWT_SECRET       — a random string used to sign tokens (min 32 chars)
+   If either variable is absent auth is SKIPPED (dev/fallback mode).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function _b64url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+function _b64urlDecode(s) {
+  return atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+}
+
+async function _jwtSign(payload, secret) {
+  const header  = _b64url(new TextEncoder().encode(JSON.stringify({ alg:'HS256', typ:'JWT' })));
+  const body    = _b64url(new TextEncoder().encode(JSON.stringify(payload)));
+  const data    = `${header}.${body}`;
+  const key     = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name:'HMAC', hash:'SHA-256' }, false, ['sign']
+  );
+  const sig     = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
+  return `${data}.${_b64url(sig)}`;
+}
+
+async function _jwtVerify(token, secret) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const [h, b, s] = parts;
+    const key = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(secret),
+      { name:'HMAC', hash:'SHA-256' }, false, ['verify']
+    );
+    const sigBytes = Uint8Array.from(_b64urlDecode(s), c => c.charCodeAt(0));
+    const valid    = await crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(`${h}.${b}`));
+    if (!valid) return null;
+    const payload  = JSON.parse(_b64urlDecode(b));
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null; // expired
+    return payload;
+  } catch (e) { return null; }
+}
+
+async function _verifyAuth(req, env) {
+  // If env vars not configured → skip auth (dev mode / gradual rollout)
+  if (!env.SITE_PASSPHRASE || !env.JWT_SECRET) return true;
+  const auth  = req.headers.get('Authorization') || '';
+  const token = auth.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return false;
+  const payload = await _jwtVerify(token, env.JWT_SECRET);
+  return payload !== null;
+}
+
+async function handleApiAuth(env, req) {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error:'method_not_allowed' }), { status:405, headers:{ ...CORS_HEADERS, 'Content-Type':'application/json' } });
+  }
+  if (!env.SITE_PASSPHRASE || !env.JWT_SECRET) {
+    // Auth not configured — reject rather than silently pass
+    return new Response(JSON.stringify({ error:'auth_not_configured' }), { status:503, headers:{ ...CORS_HEADERS, 'Content-Type':'application/json' } });
+  }
+  try {
+    const body       = await req.json();
+    const passphrase = (body.passphrase || '').trim();
+    if (!passphrase || passphrase !== env.SITE_PASSPHRASE) {
+      return new Response(JSON.stringify({ error:'invalid_passphrase' }), { status:401, headers:{ ...CORS_HEADERS, 'Content-Type':'application/json' } });
+    }
+    const now   = Math.floor(Date.now() / 1000);
+    const token = await _jwtSign({ iat: now, exp: now + 28800 }, env.JWT_SECRET); // 8 hours
+    return new Response(JSON.stringify({ token }), { status:200, headers:{ ...CORS_HEADERS, 'Content-Type':'application/json' } });
+  } catch (e) {
+    return new Response(JSON.stringify({ error:'bad_request' }), { status:400, headers:{ ...CORS_HEADERS, 'Content-Type':'application/json' } });
+  }
+}
 
 /* ── AIRPORT COORDINATES LOOKUP TABLE ────────────────────────────────────────
    Keyed by 3-letter IATA code. Used by /api/aviation/disruptions to enrich
@@ -9170,6 +9249,23 @@ async function handleRequest(req, env, ctx) {
   const url = new URL(req.url);
   const p = url.pathname;
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS });
+
+  // ── Auth endpoint — no token required ─────────────────────────────────────
+  if (p.startsWith('/api/auth')) {
+    return handleApiAuth(env, req);
+  }
+
+  // ── Verify JWT for all other API routes ───────────────────────────────────
+  // Admin routes use their own secret header and are exempt from JWT check.
+  if (!p.startsWith('/admin/') && !p.startsWith('/api/admin/')) {
+    const authed = await _verifyAuth(req, env);
+    if (!authed) {
+      return new Response(JSON.stringify({ error:'unauthorized' }), {
+        status : 401,
+        headers: { ...CORS_HEADERS, 'Content-Type':'application/json' }
+      });
+    }
+  }
 
   try {
     if (p.startsWith('/api/ai/rank')) {
