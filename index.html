@@ -2007,9 +2007,16 @@
     </div>
     <div style="margin-bottom:8px;">
       <label style="display:block; font-size:10px; letter-spacing:2px; color:#8ab4f8; margin-bottom:8px; text-transform:uppercase;">Team Passphrase</label>
-      <input id="sro-pass-input" type="password" placeholder="Enter passphrase" autocomplete="current-password"
-        style="width:100%; padding:12px 14px; background:#091525; border:1px solid #1e3a5a; border-radius:6px; color:#e2e8f0; font-size:15px; outline:none; box-sizing:border-box; font-family:'Inter',sans-serif; transition:border-color 0.2s;"
-        onfocus="this.style.borderColor='#1a73e8'" onblur="this.style.borderColor='#1e3a5a'" />
+      <div style="position:relative;">
+        <input id="sro-pass-input" type="password" placeholder="Enter passphrase" autocomplete="current-password"
+          style="width:100%; padding:12px 44px 12px 14px; background:#091525; border:1px solid #1e3a5a; border-radius:6px; color:#e2e8f0; font-size:15px; outline:none; box-sizing:border-box; font-family:'Inter',sans-serif; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#1a73e8'" onblur="this.style.borderColor='#1e3a5a'" />
+        <button id="sro-toggle-pass" type="button" title="Show / hide passphrase"
+          style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:0; color:#4a6080; line-height:1;"
+          onclick="(function(){var i=document.getElementById('sro-pass-input'),b=document.getElementById('sro-toggle-pass');if(i.type==='password'){i.type='text';b.innerHTML='<svg width=16 height=16 viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94&quot;/><path d=&quot;M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19&quot;/><line x1=&quot;1&quot; y1=&quot;1&quot; x2=&quot;23&quot; y2=&quot;23&quot;/></svg>';}else{i.type='password';b.innerHTML='<svg width=16 height=16 viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z&quot;/><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;3&quot;/></svg>';}})()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
     </div>
     <div id="sro-auth-msg" style="min-height:18px; font-size:12px; color:#f87171; margin-bottom:14px; padding-left:2px;"></div>
     <button id="sro-auth-btn"
