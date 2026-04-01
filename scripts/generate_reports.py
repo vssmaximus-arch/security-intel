@@ -261,9 +261,10 @@ DATA_DIR = os.path.join(BASE_DIR, "public", "data")
 REPORT_DIR = os.path.join(BASE_DIR, "public", "reports")
 CONFIG_DIR = os.path.join(BASE_DIR, "config")
 
-NEWS_PATH = os.path.join(DATA_DIR, "news.json")
-PROXIMITY_PATH = os.path.join(DATA_DIR, "proximity.json")
-LOCATIONS_PATH = os.path.join(CONFIG_DIR, "locations.json")
+NEWS_PATH             = os.path.join(DATA_DIR, "news.json")
+PROXIMITY_PATH        = os.path.join(DATA_DIR, "proximity.json")
+LOCATIONS_PATH        = os.path.join(CONFIG_DIR, "locations.json")
+SUPPLY_CHAIN_PATH     = os.path.join(CONFIG_DIR, "supply_chain_assets.json")
 PUBLIC_LOCATIONS_PATH = os.path.join(DATA_DIR, "locations.json")
 
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -379,6 +380,131 @@ class Location:
     region: str
     lat: float
     lon: float
+
+@dataclass
+class Asset:
+    name: str
+    country: str
+    region: str
+    lat: float
+    lon: float
+    asset_type: str = "Building"
+
+# ── Event Type Taxonomy (Everbridge-style mapping) ────────────────────────────
+def get_event_type_taxonomy(category: str, title: str, body: str = "") -> str:
+    text = (title + " " + body).lower()
+    cat  = category.upper().replace("-", "_").replace(" ", "_")
+    if cat == "CIVIL_UNREST":
+        if re.search(r"\b(strike|walkout|industrial.action|labor.dispute|labour.dispute|work.stoppage)\b", text): return "Civil Unrest - Planned Strike"
+        if re.search(r"\b(protest|demonstration|march|rally|picket)\b", text): return "Civil Unrest - Civil Demonstration"
+        if re.search(r"\b(riot|looting|mob|clashes)\b", text): return "Civil Unrest - Civil Disturbance"
+        if re.search(r"\b(curfew|martial.law|state.of.emergency)\b", text): return "Civil Unrest - Curfew / Martial Law"
+        return "Civil Unrest"
+    if cat in ("NATURAL_HAZARD", "NATURAL_DISASTER"):
+        if re.search(r"\b(earthquake|tremor|seismic|quake)\b", text): return "Natural Disaster - Earthquake"
+        if re.search(r"\b(flood|flooding|flash.flood|inundation)\b", text): return "Natural Disaster - Flood"
+        if re.search(r"\b(hurricane|typhoon|cyclone|tropical.storm)\b", text): return "Natural Disaster - Tropical Cyclone"
+        if re.search(r"\b(tsunami|tidal.wave)\b", text): return "Natural Disaster - Tsunami"
+        if re.search(r"\b(wildfire|bushfire|forest.fire)\b", text): return "Natural Disaster - Wildfire"
+        if re.search(r"\b(volcano|eruption|volcanic)\b", text): return "Natural Disaster - Volcanic Activity"
+        if re.search(r"\b(tornado|twister)\b", text): return "Natural Disaster - Tornado"
+        if re.search(r"\b(hazmat|chemical|toxic|spill|leak)\b", text): return "HAZMAT / Fire"
+        if re.search(r"\b(fire|blaze)\b", text): return "HAZMAT / Fire"
+        return "Natural Hazard"
+    if cat in ("CONFLICT", "GEOPOLITICAL"):
+        if re.search(r"\b(missile|rocket|airstrike|air.strike|bombing|shelling|drone.strike)\b", text): return "Violence - Airstrike / Missile"
+        if re.search(r"\b(terror|terrorist|attack|bomb|explosion)\b", text): return "Violence - Terrorism"
+        if re.search(r"\b(shooting|gunfire|armed.attack)\b", text): return "Violence - Shooting"
+        if cat == "CONFLICT": return "Violence - Armed Conflict"
+        return "Geopolitical Event"
+    if cat == "SECURITY":
+        if re.search(r"\b(terror|terrorist|bomb|explosion)\b", text): return "Violence - Terrorism"
+        if re.search(r"\b(kidnap|hostage|abduct)\b", text): return "Violence - Kidnapping"
+        if re.search(r"\b(robbery|theft|burglary)\b", text): return "Crime - Robbery"
+        if re.search(r"\b(strike|walkout)\b", text): return "Civil Unrest - Planned Strike"
+        if re.search(r"\b(protest|demonstration)\b", text): return "Civil Unrest - Civil Demonstration"
+        return "Security Threat"
+    if cat == "TRANSPORT":
+        if re.search(r"\b(strike|walkout|industrial)\b", text): return "Transport - Strike"
+        if re.search(r"\b(closure|closed|shutdown)\b", text): return "Transport - Closure"
+        if re.search(r"\b(accident|crash|collision)\b", text): return "Transport - Accident"
+        return "Transport - Disruption"
+    if cat == "SUPPLY_CHAIN":
+        if re.search(r"\b(port|shipping|maritime|cargo|dock)\b", text): return "Supply Chain - Port / Shipping"
+        if re.search(r"\b(strike|industrial.action)\b", text): return "Supply Chain - Strike"
+        if re.search(r"\b(shortage|scarcity)\b", text): return "Supply Chain - Shortage"
+        return "Supply Chain - Disruption"
+    if cat == "INFRASTRUCTURE":
+        if re.search(r"\b(power|electricity|blackout|outage)\b", text): return "Infrastructure - Power Outage"
+        if re.search(r"\b(water.supply|water.shortage)\b", text): return "Infrastructure - Water Supply"
+        if re.search(r"\b(fuel|gas.shortage|energy.crisis)\b", text): return "Infrastructure - Energy"
+        if re.search(r"\b(internet|network.outage|telecom)\b", text): return "Infrastructure - Telecommunications"
+        return "Infrastructure - Disruption"
+    if cat in ("CYBER", "CYBER_SECURITY"): return "Cyber Security Incident"
+    return category.replace("_", " ").title()
+
+def load_supply_chain_assets() -> List[Asset]:
+    """Load 3rd party suppliers, fulfillment centres, and world ports."""
+    if not os.path.exists(SUPPLY_CHAIN_PATH):
+        print("supply_chain_assets.json not found; using Dell sites only.")
+        return []
+    try:
+        with open(SUPPLY_CHAIN_PATH, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except (JSONDecodeError, OSError):
+        return []
+    assets = []
+    for item in raw:
+        try:
+            assets.append(Asset(
+                name=item["name"],
+                country=item.get("country", ""),
+                region=item.get("region", "Global"),
+                lat=float(item["lat"]),
+                lon=float(item["lon"]),
+                asset_type=item.get("type", "3rd Party Supplier"),
+            ))
+        except (KeyError, ValueError):
+            continue
+    return assets
+
+
+def load_all_assets(locations: List[Location], sc_assets: List[Asset]) -> List[Asset]:
+    """Combine Dell buildings + supply chain assets into one list."""
+    all_assets: List[Asset] = []
+    for loc in locations:
+        all_assets.append(Asset(
+            name=loc.name, country=loc.country, region=loc.region,
+            lat=loc.lat, lon=loc.lon, asset_type="Building"
+        ))
+    all_assets.extend(sc_assets)
+    return all_assets
+
+
+def nearest_10_assets(event_lat: float, event_lon: float,
+                       all_assets: List[Asset], radius_km: float = 500.0):
+    """Return top-10 nearest assets sorted by distance."""
+    results = []
+    for a in all_assets:
+        dist = haversine_km(event_lat, event_lon, a.lat, a.lon)
+        if dist <= radius_km:
+            results.append({
+                "name": a.name,
+                "type": a.asset_type,
+                "region": a.region,
+                "distance_km": round(dist, 2),
+            })
+    results.sort(key=lambda x: x["distance_km"])
+    return results[:10]
+
+
+def count_by_type(assets_list: list) -> dict:
+    counts: Dict[str, int] = {}
+    for a in assets_list:
+        t = a.get("type", "Unknown")
+        counts[t] = counts.get(t, 0) + 1
+    return counts
+
 
 def load_news() -> List[Dict[str, Any]]:
     if not os.path.exists(NEWS_PATH):
@@ -674,11 +800,12 @@ def _collect_raw_matches(articles: List[Dict[str, Any]], locations: List[Locatio
     return matches
 
 
-def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location]) -> List[Dict[str, Any]]:
+def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Location],
+                            all_assets: Optional[List[Asset]] = None) -> List[Dict[str, Any]]:
     """
     Phase 2: AI enrichment — take raw matches and generate site-specific
-    operational impact briefs using Groq. This is what makes proximity alerts
-    genuinely intelligent instead of just a filtered news feed.
+    operational impact briefs. Includes Everbridge-style supply chain enrichment:
+    nearest asset (any type), top-10 asset list, affected count by type, event taxonomy.
     """
     raw_matches = _collect_raw_matches(articles, locations)
     print(f"  [PROX] {len(raw_matches)} raw matches found → enriching top {MAX_AI_BRIEFS} with AI")
@@ -724,6 +851,30 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
             second_order = article.get("second_order", "")
             ai_enriched  = False
 
+        # ── Everbridge Layer 2-4: supply chain enrichment ──────────────────
+        art_lat = article.get("lat")
+        art_lon = article.get("lon")
+        top10       = []
+        nearest_asset_name     = loc.name
+        nearest_asset_type     = "Building"
+        nearest_asset_dist     = distance_km
+        affected_by_type: dict = {}
+        event_taxonomy = get_event_type_taxonomy(
+            article.get("category", ""), article.get("title", ""),
+            article.get("body") or article.get("snippet") or article.get("summary") or ""
+        )
+        if all_assets and art_lat is not None and art_lon is not None:
+            try:
+                top10 = nearest_10_assets(float(art_lat), float(art_lon), all_assets)
+                if top10:
+                    nearest_asset_name = top10[0]["name"]
+                    nearest_asset_type = top10[0]["type"]
+                    nearest_asset_dist = top10[0]["distance_km"]
+                    affected_by_type   = count_by_type(top10)
+            except (ValueError, TypeError):
+                pass
+        # ───────────────────────────────────────────────────────────────────
+
         alerts.append({
             # Event fields
             "article_title":     article.get("title", ""),
@@ -732,20 +883,28 @@ def build_proximity_alerts(articles: List[Dict[str, Any]], locations: List[Locat
             "article_link":      art_url,
             "category":          article.get("category", "GENERAL"),
             "severity":          severity,
-            # Site fields
+            # Site fields (nearest Dell building — legacy compatibility)
             "site_name":         loc.name,
             "site_region":       loc.region,
             "site_country":      loc.country,
             "site_type":         _infer_site_type(loc.name),
             "distance_km":       distance_km,
-            "lat":               loc.lat,
-            "lon":               loc.lon,
-            # Intelligence fields (the new layer)
+            "lat":               art_lat if art_lat is not None else loc.lat,
+            "lon":               art_lon if art_lon is not None else loc.lon,
+            # Intelligence fields
             "site_impact":       site_impact,
             "rsm_action":        rsm_action,
             "second_order":      second_order,
             "ai_enriched":       ai_enriched,
             "ai_model":          ai_brief.get("ai_model", "") if ai_brief else "",
+            # Everbridge-style supply chain fields
+            "nearest_asset_name":        nearest_asset_name,
+            "nearest_asset_type":        nearest_asset_type,
+            "nearest_asset_distance_km": nearest_asset_dist,
+            "nearest_10_assets":         top10,
+            "affected_count_by_type":    affected_by_type,
+            "event_type_taxonomy":       event_taxonomy,
+            "notification_status":       "New",
         })
 
     print(f"  [PROX] {ai_calls} AI briefs generated, {len(alerts)} total alerts")
@@ -798,18 +957,20 @@ def render_html_report(label, body, date_obj):
 <body><h1>{label} - {date_obj.strftime('%Y-%m-%d')}</h1><pre>{safe_body}</pre></body></html>"""
 
 def main():
-    articles = load_news()
-    locations = load_locations()
-    
+    articles   = load_news()
+    locations  = load_locations()
+    sc_assets  = load_supply_chain_assets()
+    all_assets = load_all_assets(locations, sc_assets)
+    print(f"Asset database: {len(locations)} Dell buildings + {len(sc_assets)} supply chain = {len(all_assets)} total")
+
     # 1. Export Locations to Public Data (Crucial for Frontend)
-    # We convert dataclasses to dicts for JSON serialization
     loc_dicts = [asdict(l) for l in locations]
     with open(PUBLIC_LOCATIONS_PATH, "w", encoding="utf-8") as f:
         json.dump(loc_dicts, f, indent=2)
     print(f"Exported {len(locations)} locations to {PUBLIC_LOCATIONS_PATH}")
 
-    # 2. Proximity Alerts
-    proximity_alerts = build_proximity_alerts(articles, locations)
+    # 2. Proximity Alerts (with full supply chain enrichment)
+    proximity_alerts = build_proximity_alerts(articles, locations, all_assets)
     with open(PROXIMITY_PATH, "w", encoding="utf-8") as f:
         json.dump({
             "generated_at": datetime.now(timezone.utc).isoformat(),

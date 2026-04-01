@@ -1994,12 +1994,10 @@ function renderProximityAlerts(region) {
     const prio    = i.priority || (sev >= 4 ? 'P2' : sev >= 3 ? 'P3' : 'P4');
     const pcfg    = PRIORITY_CFG[prio] || PRIORITY_CFG.P4;
     const cat     = String(i.category || 'UNKNOWN').toUpperCase();
-    const ccfg    = CAT_CFG[cat] || CAT_CFG.UNKNOWN;
     const action  = _rmAction(isAcked ? 'P4' : prio, cat);
     const timeAgo = _proxTimeAgo(i.time);
     const nearStr = i.country_wide ? 'Country-wide' : (a.nearest.dist > 0 ? `${Math.round(a.nearest.dist)} km` : 'Regional');
     const location = _smartLocation(i) || (i.region && i.region !== 'Global' ? i.region : '—');
-    // Dell Impact: prefer Groq AI assessment, fall back to article summary
     const dellImpact = i.dell_impact || i.summary || '';
     const firstLink  = (i.link && i.link !== '#') ? (i.link.split(/\s+/).find(u => /^https?:\/\//.test(u)) || '') : '';
     const borderColor = isAcked ? '#2d6a3f' : pcfg.border;
@@ -2007,10 +2005,26 @@ function renderProximityAlerts(region) {
       ? `<span style="font-size:0.67rem;font-weight:800;color:#4caf50;letter-spacing:0.05em;background:rgba(76,175,80,0.15);border:1px solid #4caf50;border-radius:3px;padding:1px 7px;">✓ ACKNOWLEDGED</span>`
       : `<span style="font-size:0.67rem;font-weight:800;color:${pcfg.color};letter-spacing:0.05em;background:${pcfg.bg};border:1px solid ${pcfg.color};border-radius:3px;padding:1px 7px;">${escapeHtml(pcfg.label)}</span>`;
 
+    // Everbridge fields
+    const evType   = i.event_type_taxonomy || String(i.category || '').replace(/_/g,' ');
+    const nAsset   = i.nearest_asset_name  || a.nearest.name;
+    const nAType   = i.nearest_asset_type  || 'Building';
+    const nADist   = i.nearest_asset_distance_km != null ? i.nearest_asset_distance_km : a.nearest.dist;
+    const top10    = Array.isArray(i.nearest_10_assets) ? i.nearest_10_assets : [];
+    const byType   = i.affected_count_by_type || {};
+    const hasEBData = !!(i.nearest_asset_name || top10.length);
+    const notifStatus = isAcked ? 'Acknowledged' : (i.notification_status || 'New');
+
+    // Asset type icon
+    const _assetIcon = t => t === 'World Port' ? '⚓' : t === 'Fulfillment & Logistics' ? '🏭' : t === '3rd Party Supplier' ? '🔗' : '🏢';
+
+    // Severity label mapping
+    const _sevLabel = s => ({ 5:'Critical', 4:'High', 3:'Moderate', 2:'Low', 1:'Informational' })[Number(s)] || 'Moderate';
+
     return `
       <div class="alert-row" style="border:1px solid ${borderColor};border-left:4px solid ${isAcked ? '#4caf50' : pcfg.color};border-radius:6px;margin-bottom:12px;overflow:hidden;background:${bodyBg};box-shadow:0 1px 4px rgba(0,0,0,0.10);${isAcked ? 'opacity:0.78;' : ''}">
 
-        <!-- Priority Header (category label removed — avoided confusion with generic Supply Chain tag) -->
+        <!-- Priority Header -->
         <div style="padding:7px 12px;display:flex;align-items:center;gap:8px;background:${isAcked ? 'rgba(76,175,80,0.07)' : pcfg.bg};border-bottom:1px solid ${dark ? '#2a2d35' : '#e8eaed'};">
           ${ackedBadge}
           ${timeAgo ? `<span style="margin-left:auto;font-size:0.68rem;color:${metaTxt};">🕐 ${escapeHtml(timeAgo)}</span>` : ''}
@@ -2024,26 +2038,56 @@ function renderProximityAlerts(region) {
         <!-- Body -->
         <div style="padding:0 12px 10px;font-size:0.77rem;color:${bodyTxt};line-height:1.65;">
 
-          <!-- Location + Nearest site row -->
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:0.73rem;color:${metaTxt};padding-bottom:7px;border-bottom:1px solid ${divClr};">
-            <span>📍 <strong style="color:${lblClr};">${escapeHtml(location)}</strong></span>
-            <span style="color:#9aa0a6;">|</span>
-            <span>📌 Nearest Dell site:&nbsp;<strong style="color:${lblClr};">${escapeHtml(a.nearest.name)}</strong>&nbsp;<strong style="color:${prio === 'P1' ? '#d93025' : prio === 'P2' ? '#e37400' : metaTxt};">${escapeHtml(nearStr)}</strong></span>
+          <!-- Everbridge-style metadata row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-bottom:8px;font-size:0.72rem;padding:7px 10px;background:${dark ? '#161820' : '#f8f9fa'};border-radius:4px;border:1px solid ${divClr};">
+            <div><span style="color:${metaTxt};">Region: </span><strong style="color:${lblClr};">${escapeHtml(i.region || '—')}</strong></div>
+            <div><span style="color:${metaTxt};">Event type: </span><strong style="color:${lblClr};">${escapeHtml(evType)}</strong></div>
+            <div><span style="color:${metaTxt};">Alert location: </span><strong style="color:${lblClr};">${escapeHtml(location)}</strong></div>
+            <div><span style="color:${metaTxt};">Alert severity: </span><strong style="color:${prio==='P1'?'#d93025':prio==='P2'?'#e37400':prio==='P3'?'#c89f00':'#1565c0'};">${escapeHtml(_sevLabel(sev))}</strong></div>
+            <div><span style="color:${metaTxt};">Notification status: </span><strong style="color:${isAcked?'#4caf50':pcfg.color};">${escapeHtml(notifStatus)}</strong></div>
           </div>
 
-          <!-- Dell Impact Assessment -->
+          <!-- Alert Details (Dell Impact) -->
           ${dellImpact ? `
-          <div style="background:${dark ? '#161820' : '#f8f9fa'};border-left:3px solid ${isAcked ? '#4caf50' : pcfg.color};border-radius:3px;padding:6px 10px;margin-bottom:8px;font-size:0.75rem;color:${bodyTxt};line-height:1.55;">
-            <span style="font-size:0.66rem;font-weight:700;color:${isAcked ? '#4caf50' : pcfg.color};text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px;">Dell Impact Assessment</span>
-            ${escapeHtml(String(dellImpact).slice(0, 260))}${dellImpact.length > 260 ? '…' : ''}
-          </div>` : ''}
+          <div style="margin-bottom:8px;font-size:0.75rem;color:${bodyTxt};line-height:1.55;">
+            <span style="font-size:0.66rem;font-weight:700;color:${metaTxt};text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;">Alert Details</span>
+            ${escapeHtml(String(dellImpact).slice(0, 300))}${dellImpact.length > 300 ? '…' : ''}
+            ${firstLink ? ` <a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8;font-size:0.7rem;">🔗 Source</a>` : ''}
+          </div>` : firstLink ? `<div style="margin-bottom:8px;font-size:0.71rem;"><a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8;">🔗 View Source</a></div>` : ''}
 
-          <!-- RSM Recommended Action -->
+          <!-- Nearest Asset — Everbridge style -->
+          <div style="background:${dark ? '#1a1c24' : '#fff8e1'};border:1px solid ${prio==='P1'?'#d9302540':prio==='P2'?'#e3740040':'#c89f0040'};border-radius:4px;padding:7px 10px;margin-bottom:6px;">
+            <div style="font-size:0.66rem;font-weight:700;color:${metaTxt};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Nearest Asset</div>
+            <div style="font-size:0.78rem;font-weight:700;color:${lblClr};">
+              ${_assetIcon(nAType)} ${escapeHtml(nAsset)}
+              <span style="font-weight:400;color:${prio==='P1'?'#d93025':prio==='P2'?'#e37400':metaTxt};margin-left:6px;">${nADist != null ? Math.round(nADist*10)/10 + ' km' : nearStr}</span>
+            </div>
+            <div style="font-size:0.68rem;color:${metaTxt};margin-top:2px;">
+              Type: ${escapeHtml(nAType)} &nbsp;|&nbsp; Nearest Dell building: <strong>${escapeHtml(a.nearest.name)}</strong> ${escapeHtml(nearStr)}
+            </div>
+          </div>
+
+          ${hasEBData && top10.length > 1 ? `
+          <!-- Nearest 10 Assets -->
+          <details style="margin-bottom:6px;">
+            <summary style="font-size:0.68rem;font-weight:700;color:${metaTxt};cursor:pointer;text-transform:uppercase;letter-spacing:.05em;padding:3px 0;">
+              Nearest ${top10.length} Assets &nbsp;|&nbsp; Affected by type: ${Object.entries(byType).map(([t,c])=>`${escapeHtml(t)}: ${c}`).join(' · ')}
+            </summary>
+            <div style="padding:6px 0 2px;font-size:0.69rem;color:${bodyTxt};">
+              ${top10.map((a,idx) => `
+                <div style="display:flex;gap:6px;padding:2px 0;border-bottom:1px solid ${divClr};align-items:center;">
+                  <span style="color:${metaTxt};min-width:18px;text-align:right;">${idx+1}.</span>
+                  <span style="flex:1;">${_assetIcon(a.type)} ${escapeHtml(a.name)}</span>
+                  <span style="color:${metaTxt};font-size:0.66rem;">${escapeHtml(a.type)}</span>
+                  <span style="color:${idx===0?(prio==='P1'?'#d93025':prio==='P2'?'#e37400':'#c89f00'):metaTxt};font-weight:${idx===0?'700':'400'};min-width:52px;text-align:right;">${a.distance_km} km</span>
+                </div>`).join('')}
+            </div>
+          </details>` : ''}
+
+          <!-- RSM Action -->
           <div style="background:${action.bg};border:1px solid ${action.color}33;border-radius:4px;padding:4px 10px;margin-bottom:8px;font-size:0.71rem;color:${action.color};font-weight:700;">
             ${escapeHtml(action.label)}
           </div>
-
-          ${firstLink ? `<div style="margin-bottom:7px;font-size:0.71rem;"><a href="${escapeAttr(firstLink)}" target="_blank" rel="noopener noreferrer" style="color:#1a73e8;">🔗 View Source</a></div>` : ''}
 
           <!-- ACK / Dismiss -->
           <div style="display:flex;gap:8px;padding-top:6px;border-top:1px solid ${divClr};" data-ack-id="${escapeAttr(a.key)}">

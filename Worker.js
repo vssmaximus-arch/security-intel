@@ -1106,6 +1106,176 @@ function nearestDell(lat, lon) {
   return best;
 }
 
+// ── Supply Chain Asset Database ───────────────────────────────────────────────
+// Everbridge-style: Building (Dell sites) + 3rd Party Suppliers + F&L + World Ports
+const SUPPLY_CHAIN_ASSETS = [
+  // 3rd Party Suppliers
+  { name: "Foxconn Longhua (Shenzhen)",         region: "APJC",  country: "CN", lat:  22.6882, lon: 114.0263, type: "3rd Party Supplier" },
+  { name: "Foxconn Zhengzhou",                  region: "APJC",  country: "CN", lat:  34.7466, lon: 113.6253, type: "3rd Party Supplier" },
+  { name: "Foxconn Chennai (Sriperumbudur)",    region: "APJC",  country: "IN", lat:  12.9721, lon:  79.9424, type: "3rd Party Supplier" },
+  { name: "Foxconn Pardubice (Czech)",          region: "EMEA",  country: "CZ", lat:  50.0343, lon:  15.7812, type: "3rd Party Supplier" },
+  { name: "Foxconn Ciudad Juárez",              region: "AMER",  country: "MX", lat:  31.6904, lon: -106.4245,type: "3rd Party Supplier" },
+  { name: "Flex Ltd Singapore",                 region: "APJC",  country: "SG", lat:   1.3000, lon: 103.8198, type: "3rd Party Supplier" },
+  { name: "Flex Ltd Chennai",                   region: "APJC",  country: "IN", lat:  12.8760, lon:  80.2282, type: "3rd Party Supplier" },
+  { name: "Flex Ltd Austin TX",                 region: "AMER",  country: "US", lat:  30.2672, lon: -97.7431, type: "3rd Party Supplier" },
+  { name: "Jabil Singapore",                    region: "APJC",  country: "SG", lat:   1.3340, lon: 103.7430, type: "3rd Party Supplier" },
+  { name: "Jabil Bayan Lepas (Penang)",         region: "APJC",  country: "MY", lat:   5.3024, lon: 100.2861, type: "3rd Party Supplier" },
+  { name: "Jabil Monterrey",                    region: "AMER",  country: "MX", lat:  25.6866, lon: -100.3000,type: "3rd Party Supplier" },
+  { name: "Computacenter Hatfield (UK)",        region: "EMEA",  country: "GB", lat:  51.7639, lon:  -0.2270, type: "3rd Party Supplier" },
+  { name: "Computacenter Frankfurt",            region: "EMEA",  country: "DE", lat:  50.1109, lon:   8.6821, type: "3rd Party Supplier" },
+  { name: "Targus Guangzhou",                   region: "APJC",  country: "CN", lat:  23.1291, lon: 113.2644, type: "3rd Party Supplier" },
+  { name: "Targus Priyanka India (Hyderabad)",  region: "APJC",  country: "IN", lat:  17.4474, lon:  78.3762, type: "3rd Party Supplier" },
+  { name: "Ingram Micro Memphis",               region: "AMER",  country: "US", lat:  35.1495, lon: -90.0490, type: "3rd Party Supplier" },
+  { name: "Ingram Micro Singapore",             region: "APJC",  country: "SG", lat:   1.3521, lon: 103.8198, type: "3rd Party Supplier" },
+  { name: "Ingram Micro Breda (Netherlands)",   region: "EMEA",  country: "NL", lat:  51.5756, lon:   4.8260, type: "3rd Party Supplier" },
+  { name: "TD Synnex Clearwater FL",            region: "AMER",  country: "US", lat:  27.9658, lon: -82.8001, type: "3rd Party Supplier" },
+  { name: "TD Synnex Fremont CA",               region: "AMER",  country: "US", lat:  37.5485, lon: -122.0597,type: "3rd Party Supplier" },
+  { name: "Wistron Zhonghe (Taiwan)",           region: "APJC",  country: "TW", lat:  24.9936, lon: 121.5116, type: "3rd Party Supplier" },
+  { name: "Wistron Nagpur India",               region: "APJC",  country: "IN", lat:  21.1458, lon:  79.0882, type: "3rd Party Supplier" },
+  { name: "Quanta Computer Taoyuan",            region: "APJC",  country: "TW", lat:  25.0028, lon: 121.3037, type: "3rd Party Supplier" },
+  { name: "Compal Electronics Taoyuan",         region: "APJC",  country: "TW", lat:  25.0118, lon: 121.3168, type: "3rd Party Supplier" },
+  { name: "Pegatron Shanghai",                  region: "APJC",  country: "CN", lat:  31.1515, lon: 121.3944, type: "3rd Party Supplier" },
+  { name: "Intel Hillsboro OR",                region: "AMER",  country: "US", lat:  45.5231, lon: -122.8735,type: "3rd Party Supplier" },
+  { name: "Intel Chandler AZ",                 region: "AMER",  country: "US", lat:  33.3061, lon: -111.8413,type: "3rd Party Supplier" },
+  { name: "Intel Penang",                      region: "APJC",  country: "MY", lat:   5.3024, lon: 100.2861, type: "3rd Party Supplier" },
+  { name: "AMD Santa Clara",                   region: "AMER",  country: "US", lat:  37.3382, lon: -121.8863,type: "3rd Party Supplier" },
+  { name: "Samsung Hwaseong (DRAM)",            region: "APJC",  country: "KR", lat:  37.2000, lon: 126.9800, type: "3rd Party Supplier" },
+  { name: "SK Hynix Icheon",                   region: "APJC",  country: "KR", lat:  37.2746, lon: 127.4437, type: "3rd Party Supplier" },
+  { name: "Micron Boise ID",                   region: "AMER",  country: "US", lat:  43.6150, lon: -116.2023,type: "3rd Party Supplier" },
+  { name: "Seagate Bloomington MN",            region: "AMER",  country: "US", lat:  44.8408, lon:  -93.3772,type: "3rd Party Supplier" },
+  { name: "Western Digital San Jose",           region: "AMER",  country: "US", lat:  37.3382, lon: -121.8863,type: "3rd Party Supplier" },
+  { name: "TSMC Hsinchu (Taiwan)",             region: "APJC",  country: "TW", lat:  24.7890, lon: 120.9976, type: "3rd Party Supplier" },
+  { name: "Philtech Biñan (Philippines)",      region: "APJC",  country: "PH", lat:  14.3294, lon: 121.0854, type: "3rd Party Supplier" },
+  // Fulfillment & Logistics
+  { name: "F&L YCH Singapore Hub",             region: "APJC",  country: "SG", lat:   1.3300, lon: 103.6955, type: "Fulfillment & Logistics" },
+  { name: "F&L YCH DHYD Hyderabad",            region: "APJC",  country: "IN", lat:  17.4474, lon:  78.3762, type: "Fulfillment & Logistics" },
+  { name: "F&L YCH Penang",                   region: "APJC",  country: "MY", lat:   5.3074, lon: 100.2921, type: "Fulfillment & Logistics" },
+  { name: "F&L YCH Kuala Lumpur",             region: "APJC",  country: "MY", lat:   3.1390, lon: 101.6869, type: "Fulfillment & Logistics" },
+  { name: "DHL Supply Chain Singapore",        region: "APJC",  country: "SG", lat:   1.3300, lon: 103.7470, type: "Fulfillment & Logistics" },
+  { name: "DHL Supply Chain Memphis",          region: "AMER",  country: "US", lat:  35.1495, lon:  -90.0490,type: "Fulfillment & Logistics" },
+  { name: "DHL Supply Chain Frankfurt",        region: "EMEA",  country: "DE", lat:  50.0500, lon:   8.5000, type: "Fulfillment & Logistics" },
+  { name: "DHL Supply Chain Dubai",            region: "EMEA",  country: "AE", lat:  25.1972, lon:  55.2796, type: "Fulfillment & Logistics" },
+  { name: "XPO Logistics Charlotte NC",        region: "AMER",  country: "US", lat:  35.2271, lon:  -80.8431,type: "Fulfillment & Logistics" },
+  { name: "UPS Supply Chain Louisville",       region: "AMER",  country: "US", lat:  38.1928, lon:  -85.7395,type: "Fulfillment & Logistics" },
+  { name: "FedEx Logistics Memphis Hub",       region: "AMER",  country: "US", lat:  35.1495, lon:  -90.0490,type: "Fulfillment & Logistics" },
+  { name: "Kuehne+Nagel Singapore",            region: "APJC",  country: "SG", lat:   1.3219, lon: 103.7050, type: "Fulfillment & Logistics" },
+  // World Ports
+  { name: "World Port: Singapore (PSA)",       region: "APJC",  country: "SG", lat:   1.2655, lon: 103.8196, type: "World Port" },
+  { name: "World Port: Port Klang",            region: "APJC",  country: "MY", lat:   3.0037, lon: 101.3810, type: "World Port" },
+  { name: "World Port: Penang",                region: "APJC",  country: "MY", lat:   5.4114, lon: 100.3418, type: "World Port" },
+  { name: "World Port: Shanghai (Yangshan)",   region: "APJC",  country: "CN", lat:  30.6235, lon: 121.9747, type: "World Port" },
+  { name: "World Port: Shenzhen (Yantian)",    region: "APJC",  country: "CN", lat:  22.5681, lon: 114.2614, type: "World Port" },
+  { name: "World Port: Tianjin",               region: "APJC",  country: "CN", lat:  38.9959, lon: 117.7234, type: "World Port" },
+  { name: "World Port: Xiamen",                region: "APJC",  country: "CN", lat:  24.5049, lon: 118.0595, type: "World Port" },
+  { name: "World Port: Busan",                 region: "APJC",  country: "KR", lat:  35.0982, lon: 129.0366, type: "World Port" },
+  { name: "World Port: Hong Kong (Kwai Chung)","region": "APJC",country: "HK", lat:  22.3690, lon: 114.1205, type: "World Port" },
+  { name: "World Port: Kaohsiung",             region: "APJC",  country: "TW", lat:  22.6163, lon: 120.2953, type: "World Port" },
+  { name: "World Port: Tokyo (Yokohama)",      region: "APJC",  country: "JP", lat:  35.4437, lon: 139.6380, type: "World Port" },
+  { name: "World Port: Los Angeles",           region: "AMER",  country: "US", lat:  33.7395, lon: -118.2706,type: "World Port" },
+  { name: "World Port: Long Beach",            region: "AMER",  country: "US", lat:  33.7545, lon: -118.2160,type: "World Port" },
+  { name: "World Port: New York / Newark",     region: "AMER",  country: "US", lat:  40.6802, lon:  -74.1696,type: "World Port" },
+  { name: "World Port: Houston (Bayport)",     region: "AMER",  country: "US", lat:  29.6058, lon:  -95.0218,type: "World Port" },
+  { name: "World Port: Rotterdam",             region: "EMEA",  country: "NL", lat:  51.9406, lon:   4.2952, type: "World Port" },
+  { name: "World Port: Hamburg",               region: "EMEA",  country: "DE", lat:  53.5511, lon:   9.9937, type: "World Port" },
+  { name: "World Port: Felixstowe (UK)",       region: "EMEA",  country: "GB", lat:  51.9594, lon:   1.3278, type: "World Port" },
+  { name: "World Port: Antwerp",               region: "EMEA",  country: "BE", lat:  51.2194, lon:   4.4025, type: "World Port" },
+  { name: "World Port: Mumbai (JNPT)",         region: "APJC",  country: "IN", lat:  18.9488, lon:  72.9480, type: "World Port" },
+  { name: "World Port: Chennai",               region: "APJC",  country: "IN", lat:  13.0910, lon:  80.2919, type: "World Port" },
+  { name: "World Port: Colombo (Sri Lanka)",   region: "APJC",  country: "LK", lat:   6.9271, lon:  79.8612, type: "World Port" },
+  { name: "World Port: Dubai (Jebel Ali)",     region: "EMEA",  country: "AE", lat:  25.0082, lon:  55.0754, type: "World Port" },
+  { name: "World Port: Brisbane",              region: "APJC",  country: "AU", lat: -27.3707, lon: 153.1709, type: "World Port" },
+  { name: "World Port: Sydney (Port Botany)",  region: "APJC",  country: "AU", lat: -33.9676, lon: 151.2256, type: "World Port" },
+  { name: "World Port: Melbourne",             region: "APJC",  country: "AU", lat: -37.8386, lon: 144.9141, type: "World Port" },
+];
+
+// Returns nearest 10 assets across ALL types (Building + Supplier + F&L + Port)
+function top10Assets(lat, lon, radiusKm = 500) {
+  const all = [
+    ...DELL_SITES.map(s => ({ name: s.name, type: 'Building', region: s.region })),
+    ...SUPPLY_CHAIN_ASSETS
+  ];
+  return all
+    .map(a => {
+      const src = SUPPLY_CHAIN_ASSETS.find(x => x.name === a.name) ||
+                  DELL_SITES.find(x => x.name === a.name);
+      const asLat = src ? src.lat : 0;
+      const asLon = src ? src.lon : 0;
+      const dist = Math.round(haversineKm(lat, lon, asLat, asLon) * 10) / 10;
+      return { name: a.name, type: a.type, region: a.region, distance_km: dist };
+    })
+    .filter(a => a.distance_km <= radiusKm)
+    .sort((a, b) => a.distance_km - b.distance_km)
+    .slice(0, 10);
+}
+
+function countAssetsByType(assets) {
+  const counts = {};
+  for (const a of (assets || [])) {
+    counts[a.type] = (counts[a.type] || 0) + 1;
+  }
+  return counts;
+}
+
+function getEventTypeTaxonomy(category, title, summary) {
+  const text = ((title || '') + ' ' + (summary || '')).toLowerCase();
+  const cat  = String(category || '').toUpperCase().replace(/[- ]/g, '_');
+  if (cat === 'CIVIL_UNREST') {
+    if (/\b(strike|walkout|industrial.action|labor.dispute|labour.dispute|work.stoppage)\b/.test(text)) return 'Civil Unrest - Planned Strike';
+    if (/\b(protest|demonstration|march|rally|picket)\b/.test(text)) return 'Civil Unrest - Civil Demonstration';
+    if (/\b(riot|looting|mob|clashes)\b/.test(text)) return 'Civil Unrest - Civil Disturbance';
+    if (/\b(curfew|martial.law|state.of.emergency)\b/.test(text)) return 'Civil Unrest - Curfew / Martial Law';
+    return 'Civil Unrest';
+  }
+  if (cat === 'NATURAL_HAZARD' || cat === 'NATURAL_DISASTER') {
+    if (/\b(earthquake|tremor|seismic|quake)\b/.test(text)) return 'Natural Disaster - Earthquake';
+    if (/\b(flood|flooding|flash.flood|inundation)\b/.test(text)) return 'Natural Disaster - Flood';
+    if (/\b(hurricane|typhoon|cyclone|tropical.storm)\b/.test(text)) return 'Natural Disaster - Tropical Cyclone';
+    if (/\b(tsunami|tidal.wave)\b/.test(text)) return 'Natural Disaster - Tsunami';
+    if (/\b(wildfire|bushfire|forest.fire|bush.fire)\b/.test(text)) return 'Natural Disaster - Wildfire';
+    if (/\b(volcano|eruption|volcanic)\b/.test(text)) return 'Natural Disaster - Volcanic Activity';
+    if (/\b(tornado|twister)\b/.test(text)) return 'Natural Disaster - Tornado';
+    if (/\b(hazmat|chemical|toxic|spill|leak)\b/.test(text)) return 'HAZMAT / Fire';
+    if (/\b(fire|blaze)\b/.test(text)) return 'HAZMAT / Fire';
+    return 'Natural Hazard';
+  }
+  if (cat === 'CONFLICT' || cat === 'GEOPOLITICAL') {
+    if (/\b(missile|rocket|airstrike|air.strike|bombing|shelling|drone.strike)\b/.test(text)) return 'Violence - Airstrike / Missile';
+    if (/\b(terror|terrorist|attack|bomb|explosion)\b/.test(text)) return 'Violence - Terrorism';
+    if (/\b(shooting|gunfire|armed.attack)\b/.test(text)) return 'Violence - Shooting';
+    if (cat === 'CONFLICT') return 'Violence - Armed Conflict';
+    return 'Geopolitical Event';
+  }
+  if (cat === 'SECURITY') {
+    if (/\b(terror|terrorist|bomb|explosion)\b/.test(text)) return 'Violence - Terrorism';
+    if (/\b(kidnap|hostage|abduct)\b/.test(text)) return 'Violence - Kidnapping';
+    if (/\b(robbery|theft|burglary)\b/.test(text)) return 'Crime - Robbery';
+    if (/\b(strike|walkout)\b/.test(text)) return 'Civil Unrest - Planned Strike';
+    if (/\b(protest|demonstration)\b/.test(text)) return 'Civil Unrest - Civil Demonstration';
+    return 'Security Threat';
+  }
+  if (cat === 'TRANSPORT') {
+    if (/\b(strike|walkout|industrial)\b/.test(text)) return 'Transport - Strike';
+    if (/\b(closure|closed|shutdown)\b/.test(text)) return 'Transport - Closure';
+    if (/\b(accident|crash|collision)\b/.test(text)) return 'Transport - Accident';
+    return 'Transport - Disruption';
+  }
+  if (cat === 'SUPPLY_CHAIN') {
+    if (/\b(port|shipping|maritime|cargo|dock)\b/.test(text)) return 'Supply Chain - Port / Shipping';
+    if (/\b(strike|industrial.action)\b/.test(text)) return 'Supply Chain - Strike';
+    if (/\b(shortage|scarcity)\b/.test(text)) return 'Supply Chain - Shortage';
+    return 'Supply Chain - Disruption';
+  }
+  if (cat === 'INFRASTRUCTURE') {
+    if (/\b(power|electricity|blackout|outage)\b/.test(text)) return 'Infrastructure - Power Outage';
+    if (/\b(water.supply|water.shortage)\b/.test(text)) return 'Infrastructure - Water Supply';
+    if (/\b(fuel|gas.shortage|energy.crisis)\b/.test(text)) return 'Infrastructure - Energy';
+    if (/\b(internet|network.outage|telecom)\b/.test(text)) return 'Infrastructure - Telecommunications';
+    return 'Infrastructure - Disruption';
+  }
+  if (cat === 'CYBER' || cat === 'CYBER_SECURITY') return 'Cyber Security Incident';
+  return String(category || 'Intelligence Alert').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 /* ===========================
    COUNTRY_COORDS — FULL LIST (RESTORED)
    =========================== */
@@ -4234,9 +4404,24 @@ Return ONLY valid JSON — no commentary outside the JSON object:
                 if (m.priority === 'P1') m.priority = 'P2';
               }
             }
+            // ── Everbridge-style supply chain enrichment ──────────────────────
+            if (typeof m.lat === 'number' && typeof m.lng === 'number' && m.lat !== 0 && m.lng !== 0) {
+              try {
+                const top10 = top10Assets(m.lat, m.lng);
+                if (top10.length > 0) {
+                  m.nearest_asset_name         = top10[0].name;
+                  m.nearest_asset_type         = top10[0].type;
+                  m.nearest_asset_distance_km  = top10[0].distance_km;
+                  m.nearest_10_assets          = top10;
+                  m.affected_count_by_type     = countAssetsByType(top10);
+                }
+                m.event_type_taxonomy = getEventTypeTaxonomy(m.category, m.title, m.summary);
+              } catch (_se) { /* non-fatal */ }
+            }
+            // ─────────────────────────────────────────────────────────────────
             proxOut.push(m);
             proxSeen.add(dedupKey);
-            typeof debug === 'function' && debug('prox_emit', { priority: m.priority, cat: m.prox_category, title: String(m.title || '').slice(0, 80), site: m.nearest_site_name, dist: m.distance_km });
+            typeof debug === 'function' && debug('prox_emit', { priority: m.priority, cat: m.prox_category, title: String(m.title || '').slice(0, 80), site: m.nearest_site_name, dist: m.distance_km, nearest_asset: m.nearest_asset_name });
           } else {
             typeof debug === 'function' && debug('prox_reject', { reason: (check && check.reason) || 'unknown', title: String(m.title || '').slice(0, 80) });
           }
