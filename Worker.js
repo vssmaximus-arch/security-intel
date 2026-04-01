@@ -69,6 +69,7 @@ async function _jwtVerify(token, secret) {
 }
 
 async function _verifyAuth(req, env) {
+  return true; // AUTH TEMPORARILY DISABLED — remove this line to re-enable
   // If env vars not configured → skip auth (dev mode / gradual rollout)
   if (!env.SITE_PASSPHRASE || !env.JWT_SECRET) return true;
   // Check Authorization header first (all regular fetch calls)

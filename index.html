@@ -1996,7 +1996,7 @@
      SRO AUTH OVERLAY — Option B: Worker-based passphrase + JWT (8h sessions)
      Hidden immediately if a valid JWT is found in localStorage.
      ═══════════════════════════════════════════════════════════════════════ -->
-<div id="sro-login-overlay" style="display:flex; position:fixed; inset:0; z-index:99999; background:#060e1e; align-items:center; justify-content:center; font-family:'Inter',sans-serif;">
+<div id="sro-login-overlay" style="display:none; position:fixed; inset:0; z-index:99999; background:#060e1e; align-items:center; justify-content:center; font-family:'Inter',sans-serif;">
   <div style="background:#0d1f38; border:1px solid #1a73e8; border-radius:12px; padding:48px 52px; max-width:400px; width:90%; box-shadow:0 0 60px rgba(26,115,232,0.15);">
     <div style="text-align:center; margin-bottom:32px;">
       <div style="display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; background:rgba(26,115,232,0.12); border-radius:12px; margin-bottom:16px;">
@@ -2057,20 +2057,10 @@
     clear : function ()  { localStorage.removeItem(_KEY);  }
   };
 
-  /* ── Fetch interceptor: attach Bearer token to all Worker requests ── */
+  /* ── Fetch interceptor: AUTH TEMPORARILY DISABLED — restore the inner block to re-enable ── */
   window.fetch = function (input, init) {
-    var url = (typeof input === 'string') ? input
-            : (input instanceof Request)  ? input.url : '';
-    if (url.indexOf(_W) === 0 && url.indexOf('/api/auth') === -1) {
-      var tok = _getToken();
-      if (!tok) {
-        var overlay = document.getElementById('sro-login-overlay');
-        if (overlay) overlay.style.display = 'flex';
-        return Promise.reject(new Error('SRO_AUTH_REQUIRED'));
-      }
-      init = Object.assign({}, init || {});
-      init.headers = Object.assign({}, init.headers || {}, { 'Authorization': 'Bearer ' + tok });
-    }
+    // AUTH DISABLED: pass all requests through without token check
+    // To re-enable: restore the token check block here and set overlay display:flex above
     return _origFetch(input, init);
   };
 
