@@ -213,6 +213,8 @@ function toggleCategoryFilter(cat) {
 
 function _syncCatPillUI() {
   let needsRerender = false;
+  // Match the same time cutoff the feed uses so badge counts stay in sync
+  const _pillCutoffMs = FEED_TIME_HOURS > 0 ? Date.now() - FEED_TIME_HOURS * 3600 * 1000 : 0;
   document.querySelectorAll('.cat-pill').forEach(pill => {
     const c = pill.dataset.cat;
     if (c === 'ALL') {
@@ -223,10 +225,23 @@ function _syncCatPillUI() {
       pill.style.display = '';
       return;
     }
-    // Count items that would actually appear under this filter
+    // Count items using exactly the same filters as the feed:
+    // 1. time window  2. quality gate  3. category match  4. deduplication
+    const _pillSeen = new Set();
     const count = INCIDENTS.filter(i => {
+      // 1. Time window
+      if (_pillCutoffMs > 0) {
+        try { if (new Date(i.time).getTime() < _pillCutoffMs) return false; } catch { return false; }
+      }
+      // 2. Quality gate (same as feed)
+      if (!_feedIncidentFilter(i)) return false;
+      // 3. Category match
       if (getIncidentFilterKey(i.category) !== c) return false;
-      if (c === 'DISASTER') return _DISASTER_KEYWORDS.test(i.title || '');
+      if (c === 'DISASTER' && !_DISASTER_KEYWORDS.test(i.title || '')) return false;
+      // 4. Deduplication
+      const key = String(i.title || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60);
+      if (!key || _pillSeen.has(key)) return false;
+      _pillSeen.add(key);
       return true;
     }).length;
 
