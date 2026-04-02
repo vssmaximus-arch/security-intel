@@ -8349,6 +8349,48 @@
     var _CW_ISO2_NUM = {};
     Object.keys(_CW_ISO_NUM).forEach(function(num){ _CW_ISO2_NUM[_CW_ISO_NUM[num]] = num; });
 
+    /* ISO-2 → Dell region (for fuel/prices layer region filtering) */
+    var _CW_ISO2_REGION = {
+      /* AMER */
+      'US':'AMER','CA':'AMER',
+      /* LATAM */
+      'BR':'LATAM','MX':'LATAM','CO':'LATAM','AR':'LATAM','CL':'LATAM','PE':'LATAM',
+      'VE':'LATAM','EC':'LATAM','BO':'LATAM','PY':'LATAM','UY':'LATAM','CR':'LATAM',
+      'PA':'LATAM','GT':'LATAM','HN':'LATAM','SV':'LATAM','NI':'LATAM','CU':'LATAM',
+      'DO':'LATAM','JM':'LATAM','TT':'LATAM','PR':'LATAM',
+      /* EMEA — Europe */
+      'GB':'EMEA','DE':'EMEA','FR':'EMEA','IT':'EMEA','ES':'EMEA','NL':'EMEA',
+      'BE':'EMEA','SE':'EMEA','NO':'EMEA','DK':'EMEA','FI':'EMEA','PL':'EMEA',
+      'CZ':'EMEA','AT':'EMEA','CH':'EMEA','PT':'EMEA','GR':'EMEA','HU':'EMEA',
+      'RO':'EMEA','BG':'EMEA','HR':'EMEA','SK':'EMEA','SI':'EMEA','IE':'EMEA',
+      'LT':'EMEA','LV':'EMEA','EE':'EMEA','RS':'EMEA','UA':'EMEA','BY':'EMEA',
+      'RU':'EMEA','TR':'EMEA','IS':'EMEA','LU':'EMEA','CY':'EMEA','MT':'EMEA',
+      'AL':'EMEA','BA':'EMEA','ME':'EMEA','MK':'EMEA','MD':'EMEA',
+      /* EMEA — Middle East */
+      'IL':'EMEA','AE':'EMEA','SA':'EMEA','QA':'EMEA','KW':'EMEA','BH':'EMEA',
+      'OM':'EMEA','IR':'EMEA','IQ':'EMEA','JO':'EMEA','LB':'EMEA','YE':'EMEA','PS':'EMEA',
+      /* EMEA — Africa */
+      'EG':'EMEA','DZ':'EMEA','LY':'EMEA','MA':'EMEA','TN':'EMEA','NG':'EMEA',
+      'ZA':'EMEA','KE':'EMEA','ET':'EMEA','TZ':'EMEA','GH':'EMEA','CI':'EMEA',
+      'CM':'EMEA','AO':'EMEA','MZ':'EMEA','ZM':'EMEA','ZW':'EMEA','SD':'EMEA',
+      'SS':'EMEA','UG':'EMEA','SN':'EMEA','ML':'EMEA','BF':'EMEA','NE':'EMEA',
+      'TD':'EMEA','MW':'EMEA','RW':'EMEA','NA':'EMEA','BW':'EMEA','GA':'EMEA',
+      'MU':'EMEA','MG':'EMEA','MR':'EMEA','LR':'EMEA','SL':'EMEA','GN':'EMEA',
+      'GM':'EMEA','BI':'EMEA','ER':'EMEA','SO':'EMEA','DJ':'EMEA','CV':'EMEA',
+      /* APJC — East Asia */
+      'CN':'APJC','JP':'APJC','KR':'APJC','TW':'APJC','HK':'APJC','MN':'APJC',
+      /* APJC — South Asia */
+      'IN':'APJC','PK':'APJC','BD':'APJC','LK':'APJC','NP':'APJC',
+      /* APJC — Southeast Asia */
+      'SG':'APJC','MY':'APJC','ID':'APJC','TH':'APJC','VN':'APJC','PH':'APJC',
+      'MM':'APJC','KH':'APJC','LA':'APJC','BN':'APJC','TL':'APJC',
+      /* APJC — Oceania */
+      'AU':'APJC','NZ':'APJC','FJ':'APJC','PG':'APJC',
+      /* APJC — Central Asia */
+      'KZ':'APJC','UZ':'APJC','TM':'APJC','KG':'APJC','TJ':'APJC',
+      'AZ':'APJC','GE':'APJC','AM':'APJC',
+    };
+
     function _cwFuelColor(minDsr) {
       if (minDsr == null) return null;
       if (minDsr < 20)   return '#e53935'; // critical — red
@@ -8356,18 +8398,9 @@
       return '#2e7d32';                    // adequate — green
     }
 
-    function _cwToggleFuelLayer(btn) {
+    /* Draw (or redraw) the fuel supply choropleth for the current active region */
+    function _cwDrawFuelLayer(btn) {
       if (!cwConflictMap) return;
-
-      /* Toggle OFF */
-      if (_cwFuelLayerVisible) {
-        cwConflictMap.eachLayer(function(l) {
-          if (l._isCwFuelLayer) cwConflictMap.removeLayer(l);
-        });
-        _cwFuelLayerVisible = false;
-        if (btn) btn.classList.remove('active');
-        return;
-      }
 
       /* Build iso→minDsr lookup from current cwFuelData */
       var lookup = {};
@@ -8375,12 +8408,18 @@
         var vals = [d.diesel, d.petrol, d.aviation].filter(function(v){ return typeof v === 'number'; });
         if (vals.length) lookup[d.iso] = Math.min.apply(null, vals);
       });
+      var activeRegion = (typeof cwActiveRegion !== 'undefined') ? cwActiveRegion : 'Global';
 
       function _buildLayer(world) {
         var geojson = topojson.feature(world, world.objects.countries);
         var layer = L.geoJSON(geojson, {
           style: function(feat) {
             var alpha2 = _CW_ISO_NUM[String(feat.id)];
+            /* Region filter — hide countries outside selected region */
+            if (activeRegion && activeRegion !== 'Global') {
+              var iso2Rgn = alpha2 && _CW_ISO2_REGION[alpha2];
+              if (!iso2Rgn || iso2Rgn !== activeRegion) return { fillOpacity:0, weight:0, stroke:false };
+            }
             var dsr    = (alpha2 != null && lookup[alpha2] != null) ? lookup[alpha2] : null;
             var color  = _cwFuelColor(dsr);
             if (!color) return { fillOpacity:0, weight:0, stroke:false };
@@ -8388,6 +8427,11 @@
           },
           onEachFeature: function(feat, lyr) {
             var alpha2 = _CW_ISO_NUM[String(feat.id)];
+            /* Region filter for tooltips */
+            if (activeRegion && activeRegion !== 'Global') {
+              var iso2Rgn = alpha2 && _CW_ISO2_REGION[alpha2];
+              if (!iso2Rgn || iso2Rgn !== activeRegion) return;
+            }
             var d = alpha2 && (typeof cwFuelData !== 'undefined' ? cwFuelData : []).find(function(x){ return x.iso === alpha2; });
             if (!d) return;
             var min = Math.min(d.diesel||999, d.petrol||999, d.aviation||999);
@@ -8413,6 +8457,20 @@
         .then(function(r){ return r.json(); })
         .then(function(world){ _cwTopoWorldCache = world; _buildLayer(world); })
         .catch(function(e){ console.warn('Fuel choropleth: world atlas load failed', e); });
+    }
+
+    function _cwToggleFuelLayer(btn) {
+      if (!cwConflictMap) return;
+      /* Toggle OFF */
+      if (_cwFuelLayerVisible) {
+        cwConflictMap.eachLayer(function(l) {
+          if (l._isCwFuelLayer) cwConflictMap.removeLayer(l);
+        });
+        _cwFuelLayerVisible = false;
+        if (btn) btn.classList.remove('active');
+        return;
+      }
+      _cwDrawFuelLayer(btn);
     }
     window._cwToggleFuelLayer = _cwToggleFuelLayer;
 
@@ -8983,21 +9041,80 @@
 
     /* Static seed for initial display — IEA SPR data (approximate) */
     var FUEL_STATIC_SEED = [
-      { country:'United States', iso:'US',  diesel:50, petrol:52, aviation:45, updated:'2026-03-15', source:'EIA' },
-      { country:'Germany',       iso:'DE',  diesel:60, petrol:58, aviation:55, updated:'2026-03-15', source:'IEA' },
-      { country:'United Kingdom',iso:'GB',  diesel:55, petrol:57, aviation:50, updated:'2026-03-15', source:'IEA' },
-      { country:'France',        iso:'FR',  diesel:58, petrol:60, aviation:52, updated:'2026-03-15', source:'IEA' },
-      { country:'Israel',        iso:'IL',  diesel:40, petrol:38, aviation:35, updated:'2026-03-15', source:'IEA' },
-      { country:'India',         iso:'IN',  diesel:22, petrol:18, aviation:20, updated:'2026-03-15', source:'IEA' },
-      { country:'Japan',         iso:'JP',  diesel:70, petrol:72, aviation:68, updated:'2026-03-15', source:'IEA' },
-      { country:'Singapore',     iso:'SG',  diesel:30, petrol:28, aviation:45, updated:'2026-03-15', source:'IEA' },
-      { country:'Australia',     iso:'AU',  diesel:25, petrol:24, aviation:22, updated:'2026-03-15', source:'IEA' },
-      { country:'Brazil',        iso:'BR',  diesel:35, petrol:33, aviation:30, updated:'2026-03-15', source:'ANEEL' },
-      { country:'China',         iso:'CN',  diesel:45, petrol:44, aviation:40, updated:'2026-03-15', source:'IEA' },
-      { country:'South Korea',   iso:'KR',  diesel:65, petrol:64, aviation:60, updated:'2026-03-15', source:'IEA' },
-      { country:'Canada',        iso:'CA',  diesel:55, petrol:58, aviation:50, updated:'2026-03-15', source:'EIA' },
-      { country:'Mexico',        iso:'MX',  diesel:18, petrol:20, aviation:15, updated:'2026-03-15', source:'IEA' },
-      { country:'Poland',        iso:'PL',  diesel:52, petrol:50, aviation:48, updated:'2026-03-15', source:'IEA' },
+      /* ── AMER ─────────────────────────────────────────────────────── */
+      { country:'United States', iso:'US', region:'AMER', diesel:50, petrol:52, aviation:45, updated:'2026-03-15', source:'EIA' },
+      { country:'Canada',        iso:'CA', region:'AMER', diesel:55, petrol:58, aviation:50, updated:'2026-03-15', source:'NEB' },
+      /* ── LATAM ────────────────────────────────────────────────────── */
+      { country:'Brazil',        iso:'BR', region:'LATAM', diesel:35, petrol:33, aviation:30, updated:'2026-03-15', source:'ANP' },
+      { country:'Mexico',        iso:'MX', region:'LATAM', diesel:18, petrol:20, aviation:15, updated:'2026-03-15', source:'SENER' },
+      { country:'Colombia',      iso:'CO', region:'LATAM', diesel:22, petrol:20, aviation:18, updated:'2026-03-15', source:'UPME' },
+      { country:'Argentina',     iso:'AR', region:'LATAM', diesel:15, petrol:14, aviation:12, updated:'2026-03-15', source:'MINEM' },
+      { country:'Chile',         iso:'CL', region:'LATAM', diesel:28, petrol:26, aviation:24, updated:'2026-03-15', source:'CNE' },
+      { country:'Peru',          iso:'PE', region:'LATAM', diesel:20, petrol:18, aviation:16, updated:'2026-03-15', source:'MEM' },
+      { country:'Costa Rica',    iso:'CR', region:'LATAM', diesel:25, petrol:22, aviation:20, updated:'2026-03-15', source:'RECOPE' },
+      { country:'Panama',        iso:'PA', region:'LATAM', diesel:30, petrol:28, aviation:25, updated:'2026-03-15', source:'ASEP' },
+      { country:'Guatemala',     iso:'GT', region:'LATAM', diesel:22, petrol:20, aviation:18, updated:'2026-03-15', source:'IEA' },
+      /* ── EMEA — Europe ────────────────────────────────────────────── */
+      { country:'United Kingdom',iso:'GB', region:'EMEA', diesel:55, petrol:57, aviation:50, updated:'2026-03-15', source:'IEA' },
+      { country:'Germany',       iso:'DE', region:'EMEA', diesel:60, petrol:58, aviation:55, updated:'2026-03-15', source:'IEA' },
+      { country:'France',        iso:'FR', region:'EMEA', diesel:58, petrol:60, aviation:52, updated:'2026-03-15', source:'IEA' },
+      { country:'Netherlands',   iso:'NL', region:'EMEA', diesel:62, petrol:60, aviation:58, updated:'2026-03-15', source:'IEA' },
+      { country:'Ireland',       iso:'IE', region:'EMEA', diesel:52, petrol:50, aviation:48, updated:'2026-03-15', source:'IEA' },
+      { country:'Poland',        iso:'PL', region:'EMEA', diesel:52, petrol:50, aviation:48, updated:'2026-03-15', source:'IEA' },
+      { country:'Sweden',        iso:'SE', region:'EMEA', diesel:65, petrol:63, aviation:60, updated:'2026-03-15', source:'IEA' },
+      { country:'Spain',         iso:'ES', region:'EMEA', diesel:55, petrol:52, aviation:50, updated:'2026-03-15', source:'IEA' },
+      { country:'Italy',         iso:'IT', region:'EMEA', diesel:50, petrol:48, aviation:45, updated:'2026-03-15', source:'IEA' },
+      { country:'Switzerland',   iso:'CH', region:'EMEA', diesel:70, petrol:68, aviation:65, updated:'2026-03-15', source:'IEA' },
+      { country:'Czech Republic',iso:'CZ', region:'EMEA', diesel:48, petrol:46, aviation:44, updated:'2026-03-15', source:'IEA' },
+      { country:'Norway',        iso:'NO', region:'EMEA', diesel:80, petrol:78, aviation:75, updated:'2026-03-15', source:'IEA' },
+      { country:'Denmark',       iso:'DK', region:'EMEA', diesel:62, petrol:60, aviation:58, updated:'2026-03-15', source:'IEA' },
+      { country:'Finland',       iso:'FI', region:'EMEA', diesel:60, petrol:58, aviation:55, updated:'2026-03-15', source:'IEA' },
+      { country:'Belgium',       iso:'BE', region:'EMEA', diesel:58, petrol:56, aviation:54, updated:'2026-03-15', source:'IEA' },
+      { country:'Austria',       iso:'AT', region:'EMEA', diesel:62, petrol:60, aviation:58, updated:'2026-03-15', source:'IEA' },
+      { country:'Hungary',       iso:'HU', region:'EMEA', diesel:45, petrol:43, aviation:40, updated:'2026-03-15', source:'IEA' },
+      { country:'Romania',       iso:'RO', region:'EMEA', diesel:40, petrol:38, aviation:35, updated:'2026-03-15', source:'IEA' },
+      { country:'Portugal',      iso:'PT', region:'EMEA', diesel:52, petrol:50, aviation:48, updated:'2026-03-15', source:'IEA' },
+      { country:'Greece',        iso:'GR', region:'EMEA', diesel:45, petrol:44, aviation:42, updated:'2026-03-15', source:'IEA' },
+      { country:'Turkey',        iso:'TR', region:'EMEA', diesel:32, petrol:30, aviation:28, updated:'2026-03-15', source:'IEA' },
+      { country:'Ukraine',       iso:'UA', region:'EMEA', diesel:12, petrol:10, aviation:8,  updated:'2026-03-15', source:'IEA' },
+      /* ── EMEA — Middle East ───────────────────────────────────────── */
+      { country:'Israel',        iso:'IL', region:'EMEA', diesel:40, petrol:38, aviation:35, updated:'2026-03-15', source:'IEA' },
+      { country:'UAE',           iso:'AE', region:'EMEA', diesel:75, petrol:70, aviation:80, updated:'2026-03-15', source:'IEA' },
+      { country:'Saudi Arabia',  iso:'SA', region:'EMEA', diesel:90, petrol:95, aviation:85, updated:'2026-03-15', source:'JODI' },
+      { country:'Qatar',         iso:'QA', region:'EMEA', diesel:80, petrol:78, aviation:85, updated:'2026-03-15', source:'IEA' },
+      { country:'Kuwait',        iso:'KW', region:'EMEA', diesel:85, petrol:88, aviation:80, updated:'2026-03-15', source:'JODI' },
+      { country:'Jordan',        iso:'JO', region:'EMEA', diesel:35, petrol:32, aviation:30, updated:'2026-03-15', source:'IEA' },
+      /* ── EMEA — Africa ────────────────────────────────────────────── */
+      { country:'South Africa',  iso:'ZA', region:'EMEA', diesel:22, petrol:20, aviation:18, updated:'2026-03-15', source:'DMRE' },
+      { country:'Egypt',         iso:'EG', region:'EMEA', diesel:28, petrol:25, aviation:22, updated:'2026-03-15', source:'IEA' },
+      { country:'Nigeria',       iso:'NG', region:'EMEA', diesel:12, petrol:10, aviation:8,  updated:'2026-03-15', source:'NUPRC' },
+      { country:'Kenya',         iso:'KE', region:'EMEA', diesel:25, petrol:22, aviation:20, updated:'2026-03-15', source:'ERC' },
+      { country:'Morocco',       iso:'MA', region:'EMEA', diesel:35, petrol:32, aviation:30, updated:'2026-03-15', source:'IEA' },
+      { country:'Tanzania',      iso:'TZ', region:'EMEA', diesel:20, petrol:18, aviation:15, updated:'2026-03-15', source:'IEA' },
+      { country:'Ghana',         iso:'GH', region:'EMEA', diesel:18, petrol:16, aviation:14, updated:'2026-03-15', source:'IEA' },
+      /* ── APJC — East / South Asia ─────────────────────────────────── */
+      { country:'India',         iso:'IN', region:'APJC', diesel:22, petrol:18, aviation:20, updated:'2026-03-15', source:'PPAC' },
+      { country:'China',         iso:'CN', region:'APJC', diesel:45, petrol:44, aviation:40, updated:'2026-03-15', source:'CNPC' },
+      { country:'Japan',         iso:'JP', region:'APJC', diesel:70, petrol:72, aviation:68, updated:'2026-03-15', source:'IEA' },
+      { country:'South Korea',   iso:'KR', region:'APJC', diesel:65, petrol:64, aviation:60, updated:'2026-03-15', source:'IEA' },
+      { country:'Taiwan',        iso:'TW', region:'APJC', diesel:62, petrol:60, aviation:58, updated:'2026-03-15', source:'MOEA' },
+      { country:'Pakistan',      iso:'PK', region:'APJC', diesel:15, petrol:12, aviation:10, updated:'2026-03-15', source:'OCAC' },
+      { country:'Bangladesh',    iso:'BD', region:'APJC', diesel:20, petrol:18, aviation:15, updated:'2026-03-15', source:'BPC' },
+      { country:'Sri Lanka',     iso:'LK', region:'APJC', diesel:12, petrol:10, aviation:8,  updated:'2026-03-15', source:'CPC' },
+      /* ── APJC — Southeast Asia ────────────────────────────────────── */
+      { country:'Singapore',     iso:'SG', region:'APJC', diesel:30, petrol:28, aviation:45, updated:'2026-03-15', source:'EMA' },
+      { country:'Malaysia',      iso:'MY', region:'APJC', diesel:55, petrol:52, aviation:50, updated:'2026-03-15', source:'ST' },
+      { country:'Thailand',      iso:'TH', region:'APJC', diesel:35, petrol:33, aviation:30, updated:'2026-03-15', source:'EPPO' },
+      { country:'Indonesia',     iso:'ID', region:'APJC', diesel:28, petrol:25, aviation:22, updated:'2026-03-15', source:'SKK Migas' },
+      { country:'Vietnam',       iso:'VN', region:'APJC', diesel:25, petrol:22, aviation:20, updated:'2026-03-15', source:'MoIT' },
+      { country:'Philippines',   iso:'PH', region:'APJC', diesel:30, petrol:28, aviation:25, updated:'2026-03-15', source:'DOE' },
+      { country:'Myanmar',       iso:'MM', region:'APJC', diesel:18, petrol:16, aviation:12, updated:'2026-03-15', source:'IEA' },
+      { country:'Cambodia',      iso:'KH', region:'APJC', diesel:22, petrol:20, aviation:18, updated:'2026-03-15', source:'IEA' },
+      /* ── APJC — Oceania ───────────────────────────────────────────── */
+      { country:'Australia',     iso:'AU', region:'APJC', diesel:25, petrol:24, aviation:22, updated:'2026-03-15', source:'DISER' },
+      { country:'New Zealand',   iso:'NZ', region:'APJC', diesel:22, petrol:20, aviation:18, updated:'2026-03-15', source:'MBIE' },
+      /* ── APJC — Central Asia ──────────────────────────────────────── */
+      { country:'Kazakhstan',    iso:'KZ', region:'APJC', diesel:45, petrol:42, aviation:40, updated:'2026-03-15', source:'KAZENERGY' },
     ];
 
     function renderFuelTable() {
@@ -9007,6 +9124,7 @@
       var showD = typeFilter === 'ALL' || typeFilter === 'DIESEL';
       var showP = typeFilter === 'ALL' || typeFilter === 'PETROL';
       var showA = typeFilter === 'ALL' || typeFilter === 'AVIATION';
+      var activeRegion = (typeof cwActiveRegion !== 'undefined') ? cwActiveRegion : 'Global';
 
       function dsrClass(v) { return v === null ? 'cw-dsr-na' : v < 20 ? 'cw-dsr-crit' : v < 40 ? 'cw-dsr-warn' : 'cw-dsr-ok'; }
       function dsrBar(v, max) {
@@ -9016,7 +9134,13 @@
         return '<div class="cw-fuel-bar"><div class="cw-fuel-bar-fill" style="width:' + pct + '%;background:' + col + ';"></div></div>';
       }
       var maxDsr = 90;
-      tbody.innerHTML = cwFuelData.map(function(row) {
+      /* Filter by active region */
+      var rows = (typeof cwFuelData !== 'undefined' ? cwFuelData : []).filter(function(row) {
+        if (!activeRegion || activeRegion === 'Global') return true;
+        var r = row.region || (_CW_ISO2_REGION && _CW_ISO2_REGION[row.iso]);
+        return r === activeRegion;
+      });
+      tbody.innerHTML = rows.map(function(row) {
         return '<tr>'
           + '<td><div class="cw-fuel-country">' + esc(row.country) + '</div><div class="cw-fuel-src">' + esc(row.source||'') + '</div></td>'
           + (showD ? '<td><div class="cw-dsr ' + dsrClass(row.diesel) + '">' + (row.diesel != null ? row.diesel + 'd' : 'N/A') + '</div>' + dsrBar(row.diesel, maxDsr) + '</td>' : '')
@@ -9025,10 +9149,19 @@
           + '<td class="cw-fuel-src">' + esc(row.updated || '') + '</td>'
           + '</tr>';
       }).join('');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#5f6368;">No fuel data for selected region.</td></tr>';
+      }
     }
 
     function filterFuelByRegion(region) {
       renderFuelTable();
+      /* Refresh fuel choropleth to show only the selected region */
+      if (_cwFuelLayerVisible && cwConflictMap) {
+        cwConflictMap.eachLayer(function(l){ if (l._isCwFuelLayer) cwConflictMap.removeLayer(l); });
+        _cwFuelLayerVisible = false;
+        _cwDrawFuelLayer(document.getElementById('cwl-fuel'));
+      }
     }
 
     /* ── Oil Production by Country (World Bank API) ──────────────────────── */
