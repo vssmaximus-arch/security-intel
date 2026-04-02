@@ -1097,8 +1097,16 @@ function classifyIncidentText(title, summary, source) {
     return { category: 'WORKFORCE', severity: 2, relevance: 5, discard: false };
   }
 
-  // ── GEOPOLITICAL ──────────────────────────────────────────────────────────
-  if (/\b(war|invasion|invad\w*|military\s+(action|strike|operation)|troops|missile\s+(strike|attack|launch)|airstrike|coup|sanctions?|conflict|civil\s+war|terrorist?\s+attack|hostage|kidnap|assassination|naval\s+blockade|diplomatic\s+crisis|state\s+of\s+emergency)\b/.test(text)) {
+  // ── ARMED_CONFLICT (active military operations — shown under Armed Conflict filter) ──
+  // Covers interstate war, military offensives, airstrikes, naval actions, ceasefire.
+  // Does NOT include political/diplomatic events (sanctions, coups, diplomacy → GEOPOLITICAL).
+  if (/\b(war|invasion|invad\w*|military\s+(action|strike|offensive|operation|bombardment|attack)|airstrike|air[\s-]strike|drone[\s-]strike|ground\s+offensive|missile\s+(strike|attack|launch|barrage)|naval\s+blockade|civil\s+war|warzone|war\s+zone|ceasefire|cease[\s-]fire|shelling|frontline|front\s+line|armed\s+conflict|combat\s+(zone|operation)|troops\s+(deploy\w*|advanc\w*|surround|kill\w*|fight\w*|cross\w*|enter\w*)|conflict)\b/.test(text)) {
+    return { category: 'ARMED_CONFLICT', severity: 4, relevance: 7, discard: false };
+  }
+
+  // ── GEOPOLITICAL (political/diplomatic events — not active combat) ─────────
+  // Covers sanctions, coups, hostages, diplomatic incidents, nuclear negotiations.
+  if (/\b(coup|sanctions?|diplomatic\s+(crisis|incident|tension|expulsion|breakdown)|hostage|kidnap\w*|assassination|state\s+of\s+emergency|terrorist?\s+attack|geopolitical|territorial\s+dispute|nuclear\s+(deal|talks?|threat|negotiation)|regime\s+change|political\s+(crisis|instability|turmoil)|election\s+(fraud|interference)|espionage|spy\s+ring)\b/.test(text)) {
     return { category: 'GEOPOLITICAL', severity: 3, relevance: 6, discard: false };
   }
 
@@ -1107,8 +1115,13 @@ function classifyIncidentText(title, summary, source) {
     return { category: 'SUPPLY_CHAIN', severity: 3, relevance: 7, discard: false };
   }
 
-  // ── SECURITY (general security news relevant to SRO) ─────────────────────
-  if (/\b(security\s+(threat|breach|incident|alert|warning)|national\s+security|intelligence\s+(report|warning|alert)|threat\s+actor|travel\s+(warning|advisory|alert)|protest|riot|civil\s+unrest|strike\s+action|infrastructure\s+(attack|threat)|power\s+(grid|outage)\s+(attack|failure))\b/.test(text)) {
+  // ── CIVIL_UNREST (protests, riots, labor strikes — political, NOT armed conflict) ──
+  if (/\b(protest\w*|riot\w*|civil\s+unrest|strike\s+action|labor\s+(action|dispute|strike)|worker\s+strike|demonstration\w*|walkout|work\s+stoppage|picket\w*)\b/.test(text)) {
+    return { category: 'CIVIL_UNREST', severity: 2, relevance: 5, discard: false };
+  }
+
+  // ── SECURITY (genuine security threats — intel alerts, travel advisories, infrastructure) ──
+  if (/\b(security\s+(threat|breach|incident|alert|warning)|national\s+security|intelligence\s+(report|warning|alert)|threat\s+actor|travel\s+(warning|advisory|alert)|infrastructure\s+(attack|threat)|power\s+(grid|outage)\s+(attack|failure))\b/.test(text)) {
     return { category: 'SECURITY', severity: 2, relevance: 5, discard: false };
   }
 
