@@ -251,12 +251,13 @@
     .sub-text { font-size: 0.75rem; color: #9aa0a6; margin-top: 8px; font-weight: 500; }
 
     .travel-select { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 0.9rem; color: #5f6368; background-color: #fff; }
-    .prox-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; flex-shrink: 0; }
-    .prox-dell-label { font-size: 0.8rem; font-weight: 700; color: #202124; }
-    .prox-main-title { font-size: 1.2rem; font-weight: 800; color: #1a73e8; line-height: 1.1; }
-    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 15px; flex-shrink: 0; }
-    .prox-subtitle { font-size: 0.7rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
-    .radius-select { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
+    /* Proximity header — compact single row so alerts start immediately */
+    .prox-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; flex-shrink: 0; flex-wrap: wrap; gap: 4px; }
+    .prox-dell-label { font-size: 0.68rem; font-weight: 700; color: #9aa0a6; line-height: 1; }
+    .prox-main-title { font-size: 0.95rem; font-weight: 800; color: #1a73e8; line-height: 1.15; }
+    .prox-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 8px; flex-shrink: 0; }
+    .prox-subtitle { font-size: 0.66rem; color: #9aa0a6; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; }
+    .radius-select { font-size: 0.72rem; padding: 2px 6px; border-radius: 6px; border: 1px solid #ddd; color: #555; font-weight: 600; background: #f9f9f9; cursor: pointer; }
 
     #proximity-alerts-container { overflow-y: auto; padding-right: 5px; }
     #proximity-alerts-container::-webkit-scrollbar { width: 6px; }
@@ -1881,6 +1882,11 @@
       flex-direction: column;
       overflow: hidden;
       border-radius: 0 0 12px 12px;
+    }
+    /* Proximity widget: compact top padding so first alert is immediately visible */
+    #sidebar-grid .grid-stack-item[gs-id="proximity"] .side-card {
+      padding-top: 10px;
+      padding-bottom: 8px;
     }
     /* Inner scrollable areas */
     #proximity-alerts-container {
