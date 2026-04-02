@@ -152,10 +152,10 @@
     body.dark-mode .btn-toggle { background: #1e2029 !important; color: #e8eaed !important; border-color: #3a3d45 !important; }
     /* ─────────────────────────────────────────────────────────────────────── */
 
-    /* Responsive layout — no fixed min-width, no zoom hack.
-       The Bootstrap grid and dashboard-layout flex handle all screen sizes. */
+    /* Horizontal scroll — full 1920px layout accessible on smaller screens */
     html {
       box-sizing: border-box;
+      overflow-x: auto;
     }
     *, *::before, *::after { box-sizing: inherit; }
     body {
@@ -163,7 +163,8 @@
       font-family: 'Inter', sans-serif;
       padding: 16px;
       color: #333;
-      overflow-x: hidden;
+      min-width: 1920px;
+      overflow-x: visible;
     }
     @media (min-width: 768px) {
       body { padding: 24px; }
