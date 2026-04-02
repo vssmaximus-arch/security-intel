@@ -261,7 +261,7 @@ const TRAVEL_LOCK_TTL_SEC = 600;
 const TRAVEL_LOCK_STALE_SEC = 1200;
 const AUTO_48H_MS = 48 * 3600 * 1000;
 
-const MAX_INCIDENTS_STORED = 300;
+const MAX_INCIDENTS_STORED = 2000;
 
 const DETERMINISTIC_SOURCES = [
   // M4.5+ weekly feed only — all_hour/all_day removed (too noisy, captures M1-4 micro-quakes)
